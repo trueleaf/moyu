@@ -1,0 +1,1105 @@
+/*
+    创建者：shuxiaokai
+    创建时间：2020-07-06 17:57
+    模块名称：文档书写区域区域
+    备注：xxxx
+*/
+<template>
+    <div v-if="tabs && tabs.length > 0" class="edit-content d-flex" tabindex="0">
+        <div v-loading="loading2" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal w-65">
+            <!-- 基本配置 -->
+            <div class="request mb-2">
+                <div class="edit-title w-100 f-bg mb-2" contenteditable @input="handleChangeTitle($event)" @blur="handleTitleBlur($event)" @focus="handleTitleFocus">{{ request._description }}</div>
+                <div class="mb-2">
+                    <el-radio-group v-model="request.url.host" size="mini">
+                        <el-popover placement="top-start" trigger="hover" :close-delay="0" :content="origin">
+                            <el-radio slot="reference" :label="origin" border>本地</el-radio>
+                        </el-popover>
+                        <el-popover v-for="(item, index) in hostEnum" :key="index" :close-delay="0" placement="top-start" trigger="hover" :content="item.url">
+                            <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
+                        </el-popover>
+                    </el-radio-group>
+                    <el-button type="text" size="small" @click="dialogVisible = true;">域名维护</el-button>
+                </div>
+                <div class="d-flex a-center w-100">
+                    <!-- 接口 -->
+                    <div class="d-flex w-100">
+                        <s-v-input 
+                                v-model="request.url.path"
+                                :error="request.url.path.trim() === '' && urlInvalid"
+                                placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
+                                size="small"
+                                @blur="checkUrlRule"
+                                @keyup.enter.native.stop="checkUrlRule"
+                        >
+                            <div slot="prepend" class="request-input">
+                                <el-select v-model="request.methods" value-key="name" @change="handleChangeRequestMethods">
+                                    <el-option v-for="(item, index) in docRules.requestMethod.config" :key="index" :value="item" :label="item.name"></el-option>
+                                </el-select>
+                            </div>                        
+                        </s-v-input>
+                        <el-button v-if="!loading3" type="success" size="small" @click="sendRequest">发送请求</el-button>
+                        <el-button v-if="loading3" type="danger" size="small" @click="stopRequest">取消请求</el-button>
+                        <el-button :loading="loading" type="primary" size="small" @click="saveRequest">保存接口</el-button>
+                        <el-button :loading="loading4" type="primary" size="small" @click="publishRequest">发布接口</el-button>
+                        <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">全局变量</el-button>
+                        <el-button type="primary" size="small" @click="dialogVisible6 = true" @close="dialogVisible6 = false">内置参数</el-button>
+                    </div>
+                </div>         
+                <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
+                <div class="w-100 mt-2">
+                    <!-- {{ currentReqeustLimit.contentType }} -->
+                    <el-radio-group v-model="request.requestType">
+                        <el-radio 
+                                v-for="(item, index) in docRules.requestMethod.contentType"
+                                :key="index"
+                                :label="item"
+                                :disabled="!currentReqeustLimit.contentType.find(val => val === item)"
+                        >
+                            {{ item }}
+                        </el-radio>
+                    </el-radio-group>
+                </div>
+                <hr>
+            </div>
+            <!-- 请求参数 -->
+            <div class="params-wrap">
+                <s-params-tree 
+                    ref="reqTree"
+                    :tree-data="request.requestParams"
+                    title="请求参数"
+                    :ready="ready"
+                    :is-form-data="request.requestType === 'formData'"
+                    showCheckbox
+                    :plain="currentReqeustLimit.contentType.length === 1 && currentReqeustLimit.contentType[0] === 'query'"
+                >
+                    <div slot="operation" class="operation d-flex h-100 flex1 pl-3 a-center">
+                        <div class="op_item" @click.stop="dialogVisible3 = true">
+                            <el-popover placement="top-start" width="200" trigger="hover" content="将json格式数据转换为请求或者返回参数，之前保存过的参数描述也会同时被转化">
+                                <span slot="reference">
+                                    <span>json转换</span>
+                                    <i class="el-icon-warning theme-color"></i>
+                                </span>
+                            </el-popover>
+                        </div>
+                        <div class="op_item">
+                            <el-dropdown trigger="click" :show-timeout="0" @command="handleSelectRequestPresetParams">
+                                <div @click.stop.prevent="freshLocalUsefulParams">
+                                    <el-popover placement="top-start" width="200" trigger="hover" content="应用一段常用的请求或者返回参数">
+                                        <span slot="reference">
+                                            <span class="cursor-pointer hover-theme-color">应用模板</span>
+                                            <i class="el-icon-warning theme-color"></i>
+                                        </span>
+                                    </el-popover>                                
+                                </div>
+                                <div slot="dropdown">
+                                    <el-dropdown-menu>
+                                        <div class="manage-params">
+                                            <div class="cyan mb-2">常用</div>
+                                            <template v-for="(item, index) in usefulPresetRequestParamsList.slice(0, 3)">
+                                                <span class="params-item">{{ item.name }}</span>
+                                            </template>
+                                            <span class="theme-color cursor-pointer ml-2" @click="dialogVisible5 = true,presetParamsType = 'request'">维护</span>
+                                            <hr>
+                                        </div>
+                                        <el-dropdown-item v-for="(item, index) in presetRequestParamsList" :key="index" :command="item">
+                                            <span class="d-flex j-between">
+                                                <span>{{ item.name }}</span>
+                                                <span class="gray-400">{{ item.creatorName }}</span>
+                                            </span>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>                        
+                                </div>
+                            </el-dropdown>                            
+                        </div>
+                        <div class="op_item" @click="dialogVisible7 = true,presetParamsType = 'request'">
+                            <el-popover placement="top-start" width="200" trigger="hover" content="将当前请求或者返回参数保存为模板">
+                                <span slot="reference">
+                                    <span>保存为模板</span>
+                                    <i class="el-icon-warning theme-color"></i>
+                                </span>
+                            </el-popover>
+                        </div>
+                    </div>
+                </s-params-tree>
+                <s-params-tree ref="resTree" :tree-data="request.responseParams" title="响应参数">
+                    <div slot="operation" class="operation d-flex h-100 flex1 pl-3 d-flex a-center">
+                        <div class="op_item" @click.stop="dialogVisible4 = true">json转换</div>
+                        <div class="op_item">
+                            <el-dropdown trigger="click" :show-timeout="0" @command="handleSelectResponsePresetParams">
+                                <span class="cursor-pointer hover-theme-color" @click.stop.prevent="freshLocalUsefulParams">快捷参数</span>
+                                <div slot="dropdown">
+                                    <el-dropdown-menu>
+                                        <div class="manage-params">
+                                            <div class="cyan mb-2">常用</div>
+                                            <template v-for="(item, index) in usefulPresetResponseParamsList.slice(0, 3)">
+                                                <span class="params-item">{{ item.name }}</span>
+                                            </template>
+                                            <span class="theme-color cursor-pointer ml-2" @click="dialogVisible5 = true,presetParamsType = 'response'">维护</span>
+                                            <hr>
+                                        </div>
+                                        <el-dropdown-item v-for="(item, index) in presetResponseParamsList" :key="index" :command="item">
+                                            <span class="d-flex j-between">
+                                                <span>{{ item.name }}</span>
+                                                <span class="gray-400">{{ item.creatorName }}</span>
+                                            </span>
+                                        </el-dropdown-item>
+                                    </el-dropdown-menu>                        
+                                </div>
+                            </el-dropdown>                            
+                        </div>
+                        <div class="op_item" @click="dialogVisible7 = true,presetParamsType = 'response'">
+                            <span>保存为模板</span>
+                        </div>
+                    </div>
+                </s-params-tree>
+                <s-params-tree :tree-data="request.header" title="请求头" plain :fold="foldHeader" :valid-key="false"></s-params-tree>            
+            </div>            
+        </div>
+        <div class="w-35 flex1">
+            <s-response ref="response" :request-data="request"></s-response>
+        </div>
+        <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
+        <s-variable-manage v-if="dialogVisible2" :visible.sync="dialogVisible2" @change="handleVariableChange"></s-variable-manage>
+        <s-json-schema :visible.sync="dialogVisible3" :plain="request.methods === 'get'" @success="handleConvertJsonToRequestParams"></s-json-schema>
+        <s-json-schema :visible.sync="dialogVisible4" @success="handleConvertJsonToResponseParams"></s-json-schema>
+        <s-preset-params :visible.sync="dialogVisible5" :type="presetParamsType" @success="getPresetEnum"></s-preset-params>
+        <!-- <s-save-preset-params-as-template :visible.sync="dialogVisible7" :type="presetParamsType" : @success="getPresetEnum"></s-save-preset-params-as-template> -->
+        <s-internal-params :visible.sync="dialogVisible6"></s-internal-params>
+        <s-dialog title="保存当前请求值为模板" :isShow.sync="dialogVisible7" width="30%">
+            <s-form v-if="dialogVisible7" ref="form" :formInfo="formInfo">
+                <s-form-item label="请输入模板名称" vModel="name" required :max-len="8" one-line></s-form-item>
+            </s-form>  
+            <div slot="footer">
+                <el-button size="mini" type="primary" :loading="loading5" @click="handleAddRequestTemplate">确定</el-button>
+                <el-button size="mini" type="warning" @click="dialogVisible7 = false">取消</el-button>
+            </div>
+        </s-dialog>
+        <s-dialog title="保存当前返回值为模板" :isShow.sync="dialogVisible8" width="30%">
+            <s-form v-if="dialogVisible8" ref="form2" :formInfo="formInfo2">
+                <s-form-item label="请输入模板名称" vModel="name" required :max-len="8" one-line></s-form-item>
+            </s-form>  
+            <div slot="footer">
+                <el-button size="mini" type="primary" :loading="loading6" @click="handleAddResponseTemplate">确定</el-button>
+                <el-button size="mini" type="warning" @click="dialogVisible8 = false">取消</el-button>
+            </div>
+        </s-dialog>
+    </div>
+    <div v-else></div>
+</template>
+
+<script>
+import axios from "axios" 
+import paramsTree from "./components/params-tree"
+import response from "./components/response"
+import hostManage from "./dialog/host-manage"
+import variableManage from "./dialog/variable-manage"
+import jsonSchema from "./dialog/json-schema"
+import presetParams from "./dialog/preset-params"
+import internalParams from "./dialog/internal-params"
+import savePresetParamsTemplate from "./dialog/preset-params-temp"
+import { dfsForest, findParentNode } from "@/lib/index"
+import uuid from "uuid/v4"
+import qs from "qs"
+const CancelToken = axios.CancelToken;
+export default {
+    components: {
+        "s-params-tree": paramsTree,
+        "s-host-manage": hostManage,
+        "s-variable-manage": variableManage,
+        "s-response": response,
+        "s-json-schema": jsonSchema,
+        "s-preset-params": presetParams,
+        "s-internal-params": internalParams,
+        "s-save-preset-params-as-template": savePresetParamsTemplate,
+    },
+    data() {
+        return {
+            //=====================================请求基本信息====================================//
+            request: {
+                methods: "get", //---------------请求方式
+                requestType: "query", //
+                url: {
+                    host: "", //-----------------主机(服务器)地址
+                    path: "", //-----------------接口路径
+                }, //----------------------------请求地址信息
+                requestParams: [
+                    {
+                        id: uuid(),
+                        key: "", //--------------请求参数键
+                        value: "", //------------请求参数值
+                        type: "string", //-------------请求参数值类型
+                        description: "", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                    }
+                ],
+                responseParams: [
+                    {
+                        id: uuid(),
+                        key: "", //--------------请求参数键
+                        value: "", //------------请求参数值
+                        type: "string", //-------------请求参数值类型
+                        description: "", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                    }
+                ],
+                header: [
+                    {
+                        id: uuid(),
+                        key: "", //--------------请求头键
+                        value: "", //------------请求头值
+                        type: "string", //-------请求头值类型
+                        description: "", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                    }
+                ], //----------------------------请求头信息
+                description: "在这里输入文档描述", //--------------请求描述
+                _description: "", //-------------请求描述拷贝
+                _variableChange: true, //----------hack强制触发request数据发生改变
+            },
+            origin: location.origin,
+            currentReqeustLimit: { contentType: [] }, //----------当前请求限制条件
+            //=====================================快捷参数====================================//
+            presetRequestParamsList: [], //------请求参数预设值
+            usefulPresetRequestParamsList: [], //常用请求参数预设值
+            presetResponseParamsList: [], //-----返回参数预设值
+            usefulPresetResponseParamsList: [], //常用返回参数预设值
+            presetParamsType: "", //-------------预设参数类型(请求参数，返回参数...)
+            formInfo: {}, //---------------------请求参数模板信息
+            formInfo2: {}, //--------------------返回参数模板信息
+            //=====================================域名相关====================================//
+            hostEnum: [], //---------------------域名列表
+            //=====================================其他参数====================================//
+            urlInvalid: false, //----------------url是否合法
+            cancel: [], //-----------------------需要取消的接口
+            loading: false, //-------------------保存接口
+            loading2: false, //------------------获取文档详情接口
+            loading3: false, //------------------发送请求状态
+            loading4: false, //------------------发布接口状态
+            loading5: false, //------------------保存为请求值模板确认按钮
+            loading6: false, //------------------保存为返回值模板确认按钮
+            foldHeader: true, //-----------------是否折叠header，当校验错误时候自动展开header
+            dialogVisible: false, //-------------域名维护弹窗
+            dialogVisible2: false, //------------全局变量管理弹窗
+            dialogVisible3: false, //------------将json格式的请求参数转换为标准请求参数弹窗
+            dialogVisible4: false, //------------将json格式的返回参数转换为标准返回参数弹窗
+            dialogVisible5: false, //------------快捷参数维护弹窗
+            dialogVisible6: false, //------------内置参数
+            dialogVisible7: false, //------------保存为请求值模板
+            dialogVisible8: false, //------------保存为返回值模板
+            ready: false, //---------------------是否完成第一次数据请求
+        };
+    },
+    computed: {
+        currentSelectDoc() { //当前选中的doc
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
+        tabs() { //全部tabs
+            return this.$store.state.apidoc.tabs[this.$route.query.id];
+        },
+        currentCondition() { //预发布满足提交的条件
+            return this.$store.state.apidocRules.currentCondition
+        },
+        keyWhiteList() {
+            return this.$store.state.apidocRules.keyWhiteList
+        },
+        docRules() { //---------文档规则
+            return this.$store.state.apidocRules;
+        },
+        mindParams() {
+            return this.$store.state.apidoc.mindParams;
+        },
+    },
+    watch: {
+        currentSelectDoc: {
+            handler(val, oldVal) {
+                if (val) {
+                    if (!oldVal || val._id !== oldVal._id) {
+                        this.$store.commit("apidocRules/resetCondition");
+                        this.getDocDetail();
+                    }
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
+    mounted() {
+        this.getHostEnum(); //获取host枚举值
+        this.getPresetEnum(); //获取快捷参数枚举值
+        this.getMindParamsEnum(); //获取联想参数枚举
+        window.addEventListener("keydown", this.shortcutSave)
+        console.log(this.$router.app.$route.query)
+    },
+    beforeDestroy() {
+        window.removeEventListener("keydown", this.shortcutSave)
+    },
+    methods: {
+        //=====================================获取数据====================================//
+        //获取联想参数枚举
+        getMindParamsEnum() {
+            this.$store.dispatch("apidoc/getMindParamsEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取预设参数枚举
+        getPresetEnum() {
+            const params = {
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
+                this.presetRequestParamsList = res.data.filter(val => val.presetParamsType === "request");
+                this.presetResponseParamsList = res.data.filter(val => val.presetParamsType === "response");
+            }).catch(err => {
+                console.error(err);
+            });
+        },
+        //获取文档详情
+        getDocDetail() {
+            if (!this.currentSelectDoc || !this.currentSelectDoc._id) { //没有id不请求数据
+                return
+            }
+            const params = {
+                _id: this.currentSelectDoc._id
+            };
+            if (this.cancel.length > 0) {
+                this.cancel.forEach(c => {
+                    c("取消请求");
+                })
+            }
+            setTimeout(() => { //hack让请求加载不受取消影响
+                this.loading2 = true;
+                this.ready = false;
+            })
+            this.axios.get("/api/project/doc_detail", {
+                params,
+                cancelToken: new CancelToken((c) => {
+                    this.cancel.push(c);
+                })
+            }).then(res => {
+                if (res === undefined) { //取消接口
+                    return
+                }
+                if (res.data === null) { //接口不存在提示用户删除接口
+                    this.confirmInvalidDoc();
+                    return;
+                }
+                this.ready = true;
+                Object.assign(this.request, res.data.item);
+                this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
+                this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
+                this.request.header.forEach(val => this.$set(val, "id", val._id))
+                this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
+
+                const reqParams = this.request.requestParams;
+                const resParams = this.request.responseParams;
+                const headerParams = this.request.header;
+                const reqParamsLen = this.request.requestParams.length;
+                const resParamsLen = this.request.responseParams.length;
+                const headerParamsLen = this.request.header.length;
+                const reqLastItemIsEmpty = (reqParams[reqParamsLen - 1] && reqParams[reqParamsLen - 1].key === "" && reqParams[reqParamsLen - 1].value === "");
+                const resLastItemIsEmpty = (resParams[resParamsLen - 1] && resParams[resParamsLen - 1].key === "" && resParams[resParamsLen - 1].value === "");
+                const headerLastItemIsEmpty = (headerParams[headerParamsLen - 1] && headerParams[headerParamsLen - 1].key === "" && headerParams[headerParamsLen - 1].value === "");
+                if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
+                if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
+                if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
+                if (this.request.url.host === "") this.request.url.host = location.origin;
+                this.request._description = res.data.item.description || "在这里输入文档描述";
+            }).catch(err => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading2 = false;
+            });
+        },
+        //接口不存在提醒用户，可能是同时操作的用户删掉了这个接口导致接口不存在
+        confirmInvalidDoc() {
+            this.$confirm("当前接口不存在，可能已经被删除!", "提示", {
+                confirmButtonText: "关闭接口",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                this.$store.commit("apidoc/deleteTabById", {
+                    projectId: this.$route.query.id,
+                    deleteIds: [this.currentSelectDoc._id]
+                });
+                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                    this.$store.commit("apidoc/changeCurrentTab", {
+                        projectId: this.$route.query.id,
+                        activeNode: this.tabs[this.tabs.length - 1],
+                    });
+                }
+            }).catch(err => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                this.$errorThrow(err, this);
+            });
+        },
+        generateParams() {
+            return {
+                id: uuid(),
+                key: "", //--------------请求头键
+                value: "", //------------请求头值
+                type: "string", //-------请求头值类型
+                description: "", //------描述
+                required: true, //-------是否必填
+                children: [], //---------子参数
+            };
+        },
+        //=====================================基础数据请求====================================//
+        //获取host枚举值
+        getHostEnum() {
+            const params = {
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/project/doc_service", { params }).then(res => {
+                this.hostEnum = res.data;
+            }).catch(err => {
+                console.error(err);
+            })
+        },
+        //=====================================请求url处理====================================//  
+        //验证请求url格式是否正确
+        checkUrlRule() {
+            this.urlInvalid = false;
+            if (this.request.url.path.trim() === "") { //为空不做处理
+                this.urlInvalid = true;
+                return;
+            }
+            if (this.currentReqeustLimit.contentType.length === 1 && this.currentReqeustLimit.contentType[0] === "query") { //contetnType为query的自动将查询参数转换为请求参数
+                this.convertQueryToParams();
+            }
+            this.request.url.path = "/" + this.request.url.path; //在首部添加/方式纯字符串被替换掉
+            const whiteListReg = /[^0-9a-zA-Z./:&=?#-_]+/g; //有效的url字符串
+            this.request.url.path = this.request.url.path.replace(whiteListReg, ""); //去除白名单以外的无效字符
+            const pathReg = /(\/?https?:\/\/)?([a-zA-Z0-9.]+)?(:\d+)?/;
+            const queryReg = /\?.*/;
+            this.request.url.path = this.request.url.path.replace(pathReg, ""); //去除协议，域名，端口
+            this.request.url.path = this.request.url.path.replace(queryReg, "");
+            this.request.url.path = this.request.url.path.replace(/#/, ""); //去除#
+            this.request.url.path = this.request.url.path.replace(/\/+\d+$/, ""); //去除末尾/3这类restful接口
+            this.request.url.path = this.request.url.path.replace(/\/*/, ""); //去除前面多余的/
+            const hostHasSlash = this.request.url.host.endsWith("/");
+            const pathHasSlash = this.request.url.path.startsWith("/");
+            if (hostHasSlash && !pathHasSlash) {
+                return
+            } else if (!hostHasSlash && pathHasSlash) {
+                return
+            } else if (!hostHasSlash && !pathHasSlash) {
+                this.request.url.path = "/" + this.request.url.path;
+            } else if (hostHasSlash && pathHasSlash) {
+                this.request.url.path = this.request.url.path.slice(1);
+            }
+        },
+        //将请求url后面查询参数转换为params
+        convertQueryToParams() {
+            let queryString = this.request.url.path.split("?") || "";
+            queryString = queryString ? queryString[1] : "";
+            const queryParams = qs.parse(queryString);
+            for (const i in queryParams) {
+                const reqParams = this.request.requestParams;
+                if (!reqParams.find(val => val.key === i)) {
+                    this.request.requestParams.unshift({
+                        id: uuid(),
+                        key: i, //--------------请求参数键
+                        value: queryParams[i], //------------请求参数值
+                        type: "string", //-------------请求参数值类型
+                        description: "", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                    })
+                }
+            }
+            this.request.url.path = this.request.url.path.replace(/\?.*$/, "");
+        },
+        //改变请求方法
+        handleChangeRequestMethods(val) {
+            // console.log(val, 999)
+            this.currentReqeustLimit = val;
+            if (val.name === "get") { //get请求需要清空嵌套数据
+                this.request.requestParams.forEach(params => {
+                    params.children = [];
+                })
+                this.request.requestType = "query"; 
+            } else {
+                if (!val.contentType.includes(this.request.requestType)) {
+                    this.request.requestType = val.contentType[0];
+                }
+            } 
+            this.request.methods = val.name;
+        },
+        //=====================================title编辑处理====================================//
+        //改变title
+        handleChangeTitle(e) {
+            this.request.description = e.target.innerText
+        },
+        //改变blur
+        handleTitleBlur(e) {
+            if (this.request.description.trim() === "") {
+                this.request.description = this.request._description;
+                e.target.innerText = this.request.description;
+            } else {
+                this.request._description = e.target.innerText;
+            }
+        },
+        //focus 全选title
+        handleTitleFocus(e) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            const range = document.createRange();
+            range.selectNodeContents(e.target);
+            selection.addRange(range);
+        },
+        //=====================================发送请求====================================//
+        //发送请求
+        sendRequest() {
+            const validParams = this.validateParams();
+            if (!validParams) {
+                this.$message.error("参数校验错误");
+            } else {
+                this.loading3 = true;
+
+                this.$refs["response"].sendRequest().then(() => {
+                    
+                }).catch(err => {
+                    console.error(err);
+                }).finally(() => {
+                    this.loading3 = false;
+                });
+                
+            }  
+        },
+        //取消请求
+        stopRequest() {
+            this.loading3 = false;
+            this.$refs["response"].stopRequest();
+        },
+        //=====================================保存接口====================================//
+        saveRequest() {
+            const validParams = this.validateParams();
+            if (validParams) {
+                console.log(this.currentSelectDoc, this.request, "selected")
+                const params = {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    item: {
+                        requestType: this.request.requestType,
+                        methods: this.request.methods,
+                        url: {
+                            host: this.request.url.host, 
+                            path: this.request.url.path, 
+                        },
+                        requestParams: this.request.requestParams,
+                        responseParams: this.request.responseParams,
+                        header: this.request.header, 
+                        description: this.request.description, 
+                    }
+                };
+                this.saveMindParams(); //保存快捷联想参数
+                this.loading = true;
+                this.axios.post("/api/project/fill_doc", params).then(() => {
+                    this.$store.commit("apidoc/changeTabInfoById", {
+                        projectId: this.$route.query.id,
+                        _id: this.currentSelectDoc._id,
+                        method: this.request.methods,
+                    })
+                    this.getMindParamsEnum();
+                }).catch(err => {
+                    this.$errorThrow(err, this);
+                }).finally(() => {
+                    this.loading = false;
+                }); 
+            }
+        },
+        publishRequest() {
+            const validParams = this.validateParams();
+            if (!validParams) {
+                this.$message.error("参数校验错误");
+            } else {
+                this.loading4 = true;
+                this.$refs["response"].sendRequest().then(res => {
+                    this.$store.commit("apidocRules/changeCurrentCondition", {
+                        connected: 1, 
+                        status: res.status, 
+                        size: (res.size / 1024).toFixed(2),
+                        localParams: 1, 
+                        resType: res.resType, 
+                    });
+                    const r = this.currentCondition;
+                    if (r.connected === 1 && r.status >= 200 && r.status < 300 && r.size < 10 && r.localParams === 1 && r.remoteResponse === 1) {
+                        this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
+                            this.$message.success("发布成功")
+                        }).catch(err => {
+                            this.$errorThrow(err, this);
+                        }).finally(() => {
+                            this.loading4 = false;
+                        });
+                    } else {
+                        this.$confirm("接口未通过验证，无法提交", "提示", {
+                            confirmButtonText: "确定",
+                            cancelButtonText: "取消",
+                            type: "warning"
+                        }).then(() => {
+                        
+                        }).catch(err => {
+                            if (err === "cancel" || err === "close") {
+                                return;
+                            }
+                            this.$errorThrow(err, this);
+                        });
+                    }
+                }).catch(() => {
+                    this.$store.commit("apidocRules/changeCurrentCondition", {
+                        localParams: 0, 
+                    })
+                    this.$confirm("接口未通过验证，无法提交", "提示", {
+                        confirmButtonText: "确定",
+                        cancelButtonText: "关闭",
+                        type: "warning"
+                    }).then(() => {
+                    
+                    }).catch(err => {
+                        if (err === "cancel" || err === "close") {
+                            return;
+                        }
+                        this.$errorThrow(err, this);
+                    });
+                }).finally(() => {
+                    this.loading4 = false;
+                })                
+            }  
+        },
+        //=====================================快捷操作====================================//
+        handleConvertJsonToRequestParams(reqParams) {
+            reqParams.forEach(val => {
+                const matchMindParams = this.mindParams.mindRequestParams.find(p => p.key === val.key)
+                if (matchMindParams) {
+                    val.description = matchMindParams.description;
+                }
+            })
+            this.request.requestParams = reqParams;
+        },
+        handleConvertJsonToResponseParams(resParams) {
+            resParams.forEach(val => {
+                const matchMindParams = this.mindParams.mindResponseParams.find(p => p.key === val.key)
+                if (matchMindParams) {
+                    val.description = matchMindParams.description;
+                }
+            })
+            this.request.responseParams = resParams;
+        },
+        //选择快捷请求参数
+        handleSelectRequestPresetParams(item) {
+            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "[]";
+            currentLocalData = JSON.parse(currentLocalData);
+            const findDoc = currentLocalData.find(val => val._id === item._id)
+            if (!findDoc) {
+                currentLocalData.push(item)
+            } else {
+                if (!findDoc.selectNum) {
+                    findDoc.selectNum = 0;
+                }
+                findDoc.selectNum ++;                
+            }
+            localStorage.setItem("pages/presetParams/request", JSON.stringify(currentLocalData))
+            const preParams = item.items.filter(val => val.key !== "" && val.value !== "");
+            const reqParams = this.request.requestParams;
+            for(let i = 0, len = preParams.length; i < len; i++) {
+                const element = preParams[i];
+                if (element.key === "" || element.value === "") {
+                    continue;
+                }
+                if (!reqParams.find(val => val.key === element.key)) {
+                    element.id = element._id;
+                    reqParams.unshift(element);
+                    setTimeout(() => { //hack
+                        this.$refs["reqTree"].$refs["tree"].setChecked(element.id, true)
+                    })
+                }
+            }
+        },
+        //选择快捷返回参数
+        handleSelectResponsePresetParams(item) {
+            let currentLocalData = localStorage.getItem("pages/presetParams/response") || "[]";
+            currentLocalData = JSON.parse(currentLocalData);
+            const findDoc = currentLocalData.find(val => val._id === item._id)
+            if (!findDoc) {
+                currentLocalData.push(item)
+            } else {
+                if (!findDoc.selectNum) {
+                    findDoc.selectNum = 0;
+                }
+                findDoc.selectNum ++;                
+            }
+            localStorage.setItem("pages/presetParams/response", JSON.stringify(currentLocalData))
+            const preParams = item.items.filter(val => val.key !== "" && val.value !== "");
+            const reqParams = this.request.responseParams;
+            for(let i = 0, len = preParams.length; i < len; i++) {
+                const element = preParams[i];
+                if (element.key === "" || element.value === "") {
+                    continue;
+                }
+                if (!reqParams.find(val => val.key === element.key)) {
+                    element.id = element._id;
+                    reqParams.unshift(element);
+                    setTimeout(() => { //hack
+                        this.$refs["resTree"].$refs["tree"].setChecked(element.id, true)
+                    })
+                }
+            }
+        },
+        //刷新本地快捷参数
+        freshLocalUsefulParams() {
+            const projectId = this.$route.query.id;
+            let localReqParams = localStorage.getItem("pages/presetParams/request") || "{}";
+            localReqParams = JSON.parse(localReqParams)[projectId] || [];
+            localReqParams = localReqParams.sort((a, b) => a.selectNum < b.selectNum);
+            let localResParams = localStorage.getItem("pages/presetParams/response") || "{}";
+            localResParams = JSON.parse(localResParams)[projectId] || [];
+            localResParams = localReqParams.sort((a, b) => a.selectNum < b.selectNum);
+            this.usefulPresetResponseParamsList = localResParams;
+            this.usefulPresetRequestParamsList = localReqParams;
+        },
+        //保存快捷输入参数
+        saveMindParams() {
+            const mindRequestParams = [];
+            const mindResponseParams = [];
+            dfsForest(this.request.responseParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data) => {
+                    if (data.key !== "" && data.value !== "" && data.description !== "") {
+                        const copyData = JSON.parse(JSON.stringify(data));
+                        mindResponseParams.push(copyData);
+                    }
+                    if (data.key !== "" && (data.type === "object" || data.type === "array") && data.description !== "") {
+                        const copyData = JSON.parse(JSON.stringify(data));
+                        copyData.children = []; //只记录扁平数据
+                        mindResponseParams.push(copyData);
+                    }
+                }
+            });
+            dfsForest(this.request.requestParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data) => {
+                    if (data.key !== "" && data.value !== "" && data.description !== "") {
+                        mindRequestParams.push(data);
+                    }
+                }
+            });
+            const projectId = this.$route.query.id;
+            // let currentLocalRequestMindParams = localStorage.getItem("pages/mindParams/request") || "{}";
+            // let currentLocalResponseMindParams = localStorage.getItem("pages/mindParams/response") || "{}";
+            // currentLocalRequestMindParams = JSON.parse(currentLocalRequestMindParams);
+            // currentLocalResponseMindParams = JSON.parse(currentLocalResponseMindParams);
+            // currentLocalRequestMindParams[projectId] || (currentLocalRequestMindParams[projectId] = []); 
+            // currentLocalResponseMindParams[projectId] || (currentLocalResponseMindParams[projectId] = []); 
+            // for (let i = 0; i < mindRequestParams.length; i++ ) {
+            //     const ele = mindRequestParams[i];
+            //     const sameDoc = currentLocalRequestMindParams[projectId].find(val => (val.key === ele.key));
+            //     if (!sameDoc) {
+            //         currentLocalRequestMindParams[projectId].push(ele)
+            //     } else {
+            //         if (!sameDoc._selectNum) {
+            //             sameDoc._selectNum = 0;
+            //         }
+            //         sameDoc._selectNum ++;                
+            //     }
+            //     localStorage.setItem("pages/mindParams/request", JSON.stringify(currentLocalRequestMindParams))
+            // }
+            // for (let i = 0; i < mindResponseParams.length; i++ ) {
+            //     const ele = mindResponseParams[i];
+            //     const sameDoc = currentLocalResponseMindParams[projectId].find(val => (val.key === ele.key));
+            //     if (!sameDoc) {
+            //         currentLocalResponseMindParams[projectId].push(ele)
+            //     } else {
+            //         if (!sameDoc._selectNum) {
+            //             sameDoc._selectNum = 0;
+            //         }
+            //         sameDoc._selectNum ++;                
+            //     }
+            //     localStorage.setItem("pages/mindParams/response", JSON.stringify(currentLocalResponseMindParams))
+            // }
+            // const mindParamsList = [...mindRequestParams, ...mindResponseParams];
+            // mindParamsList.forEach(val => {
+            //     val._projectId = this.$route.query.id
+            // })
+            console.log(mindResponseParams)
+            const params = {
+                projectId,
+                mindRequestParams,
+                mindResponseParams,
+            };
+            this.axios.post("/api/project/doc_params_mind", params).then(res => {
+                
+            }).catch(err => {
+                console.error(err);
+            });
+        },
+        //ctrl + s 保存
+        shortcutSave(e) {
+            if (this.tabs && this.tabs.length > 0 && e.ctrlKey && e.key === "s" && this.loading === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.saveRequest()
+            }
+        },
+        //保存为模板
+        handleAddRequestTemplate() {
+            this.$refs["form"].validate(valid => {
+                if (valid) {
+                    const params = {
+                        name: this.formInfo.name,
+                        presetParamsType: "request",
+                        projectId: this.$route.query.id,
+                        items: this.request.requestParams,
+                    };
+                    this.loading5 = true;
+                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
+                        this.dialogVisible7 = false;
+                        this.getPresetEnum();
+                    }).catch(err => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.loading5 = false;
+                    });
+                } 
+            });
+        },
+        handleAddResponseTemplate() {
+            this.$refs["form2"].validate(valid => {
+                if (valid) {
+                    const params = {
+                        name: this.formInfo2.name,
+                        presetParamsType: "response",
+                        projectId: this.$route.query.id,
+                        items: this.response.responseParams,
+                    };
+                    this.loading6 = true;
+                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
+                        this.dialogVisible8 = false;
+                        this.getPresetEnum();
+                    }).catch(err => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.loading6 = false;
+                    });
+                } 
+            });
+        },
+        //=====================================其他操作=====================================//
+        //检查参数是否完备
+        validateParams() {
+            let isValidRequest = true;
+            if (this.request.url.path.trim() === "") { //请求url未填写
+                this.urlInvalid = true;
+                isValidRequest = false;
+            }
+            //=====================================检查参数是否必填或者按照规范填写====================================//
+            dfsForest(this.request.responseParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data, index, pData, parent, deep) => {
+                    const isComplex = (data.type === "object" || data.type === "array");
+                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
+                        return;
+                    }
+                    const p = findParentNode(data.id, this.request.responseParams);
+                    const isParentArray = (p && p.type === "array");
+                    if (this.keyWhiteList.includes(data.key)) { //白名单
+                        this.$set(data, "_keyError", false)
+                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
+                        this.$set(data, "_keyError", true);
+                        isValidRequest = false;
+                    } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
+                        this.$set(data, "_keyError", true);
+                        isValidRequest = false;
+                    }       
+                    // console.log(data.value)
+                    if (!isComplex && data.value.toString().trim() === "") {
+                        this.$set(data, "_valueError", true);
+                        isValidRequest = false;
+                    }
+                    if (data.description.trim() === "") {
+                        this.$set(data, "_descriptionError", true);
+                        isValidRequest = false;
+                    }
+                }
+            });
+            dfsForest(this.request.requestParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data, index, pData) => {
+                    const isComplex = (data.type === "object" || data.type === "array");
+                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
+                        return;
+                    }
+                    const p = findParentNode(data.id, this.request.requestParams);
+                    const isParentArray = (p && p.type === "array");
+                    if (this.keyWhiteList.includes(data.key)) { //白名单
+                        this.$set(data, "_keyError", false)
+                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
+                        this.$set(data, "_keyError", true);
+                        isValidRequest = false;
+                    } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
+                        this.$set(data, "_keyError", true);
+                        isValidRequest = false;
+                    }       
+                    if (!isComplex && data.value.toString().trim() === "") {
+                        this.$set(data, "_valueError", true);
+                        isValidRequest = false;
+                    }
+                    if (!data.description || data.description.trim() === "") {
+                        this.$set(data, "_descriptionError", true);
+                        isValidRequest = false;
+                    }
+                }
+            });
+            dfsForest(this.request.header, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data, index, pData) => {
+                    const isComplex = (data.type === "object" || data.type === "array");
+                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
+                        return;
+                    }
+                    const p = findParentNode(data.id, this.request.header);
+                    const isParentArray = (p && p.type === "array");
+                    if (this.keyWhiteList.includes(data.key)) { //白名单
+                        this.$set(data, "_keyError", false)
+                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
+                        this.$set(data, "_keyError", true);
+                        isValidRequest = false;
+                        this.foldHeader = false;
+                    }      
+                    if (!isComplex && data.value.toString().trim() === "") {
+                        this.$set(data, "_valueError", true);
+                        isValidRequest = false;
+                        this.foldHeader = false;
+                    }
+                    if (!data.description || data.description.trim() === "") {
+                        this.$set(data, "_descriptionError", true);
+                        isValidRequest = false;
+                        this.foldHeader = false;
+                    }
+                }
+            });
+            if (!isValidRequest) {
+                this.$nextTick(() => {
+                    const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
+                    errorIptDom ? errorIptDom.focus() : null;
+                })
+            }
+            return isValidRequest;
+        },
+        //全局变量改变
+        handleVariableChange() {
+            console.log("change")
+            this.request._variableChange = !this.request._variableChange;
+        },
+    }
+};
+</script>
+
+
+
+<style lang="scss">
+.edit-content {
+    padding: size(10) size(0) size(10) size(20);
+    .request {
+        .request-input {
+            display: flex;
+            align-items: center;
+            .el-select {
+                width: 100px;
+            }
+        }
+        .edit-title {
+            padding: size(5) size(10);
+            height: size(38);
+            border: 1px solid transparent;
+            &:hover {
+                border: 1px dashed $gray-500;
+            }        
+        }
+        .el-radio {
+            margin-right: size(10);
+        }
+    }
+    .params-wrap {
+        max-height: calc(100vh - 350px);
+        overflow-y: auto;
+        .operation {
+            .op_item {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: size(0) size(10);
+                cursor: pointer;
+                margin-right: size(10);
+                &:hover {
+                    // background: mix($theme-color, $white, 80%);
+                    color: $theme-color;
+                }
+            }
+        }
+    }
+}
+.manage-params {
+    width: size(350);
+    position: sticky;
+    top: 0;
+    // box-shadow: $box-shadow-sm;
+    background: $white;
+    padding: size(10) size(15) 0;
+    .manage-config {
+        padding: size(0) size(10);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: size(30);
+        background: $theme-color;        
+    }
+    .manage-ipt {
+        display: flex;
+        align-items: center;
+        border-top: 1px dashed $gray-400;
+        margin-top: size(10);
+        input {
+            flex: 1;
+            height: size(30);
+            line-height: size(30);
+            border: none;
+            text-indent: 1em;
+            border-right: 1px solid $gray-400;
+        }       
+    }
+    .params-item {
+        display: inline-block;
+        padding: size(2) size(10);
+        cursor: pointer;
+        background: $gray-200;
+        margin-left: size(10);
+        &:hover {
+            background: $gray-300;
+        }
+
+    }
+}
+
+</style>

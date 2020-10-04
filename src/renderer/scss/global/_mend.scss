@@ -1,0 +1,17 @@
+@charset "utf-8";
+body {
+    .el-dropdown-menu {
+        max-height: size(300);
+        overflow-y: auto;
+        padding: 0 0 size(10) 0;
+        .popper__arrow {
+            display: none;
+        }
+    }
+    .el-divider__text {
+        color: $cyan;
+    }
+    .el-table .cell {
+        line-height: size(24); //修复奇数高度文本错位
+    }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>
+            <% if (process.env.NODE_ENV === "development") { %> 快乐摸鱼(本地)
+            <% } %> <% if (process.env.NODE_ENV === "production") { %> 快乐摸鱼
+            <% } %>
+        </title>
+        <% if (htmlWebpackPlugin.options.nodeModules) { %>
+        <!-- Add `node_modules/` to global paths so `require` works properly in development -->
+        <script>
+            require('module').globalPaths.push('<%= htmlWebpackPlugin.options.nodeModules.replace(/\\/g, '\\\\') %>')
+        </script>
+        <% } %>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1072300_kmu64367ewm.css"/>
+        <script src="https://at.alicdn.com/t/font_1072300_kmu64367ewm.js"></script>
+        <% if (process.env.NODE_ENV === "production") { %>
+        <script>
+            var _hmt = _hmt || [];
+            (function() {
+                var hm = document.createElement("script");
+                hm.src =
+                    "https://hm.baidu.com/hm.js?5dec8380d36d7ec5894fcbb8dd26bf00";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+        <% } %>
+    </head>
+    <body>
+        <div id="app"></div>
+        <!-- Set `__static` path to static files in production -->
+        <% if (!process.browser) { %>
+        <script>
+            if (process.env.NODE_ENV !== "development")
+                window.__static = require("path")
+                    .join(__dirname, "/static")
+                    .replace(/\\/g, "\\\\");
+        </script>
+        <% } %>
+        <!-- webpack builds are automatically injected -->
+    </body>
+</html>
