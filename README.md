@@ -8,6 +8,19 @@
 [下载](https://github.com/shuxiaokai3/jobtool-electron/releases) | [开发文档](https://jobtool.cn/docs)
 
 </div>
+<div align="center">
+  <a href="https://github.com/shuxiaokai3/jobtool-electron/releases/latest">
+    <img src="https://img.shields.io/github/v/release/shuxiaokai3/jobtool-electron?style=flat-square" alt="">
+  </a>
+
+  <a href="https://github.com/shuxiaokai3/jobtool-electron/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/shuxiaokai3/jobtool-electron" alt="LICENSE">
+  </a>
+
+  <a href="https://github.com/shuxiaokai3/jobtool-electron/releases/latest">
+    <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/shuxiaokai3/jobtool-electron/total">
+  </a>
+</div>
 
 ## 简介
 
