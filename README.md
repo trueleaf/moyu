@@ -4,7 +4,9 @@
 <h1 align="center">摸鱼</h1>
 <h3 align="center">一款基于 Vue 和 Electron 的研发管理工具</h3>
 <div align="center">
+
 [下载](https://github.com/shuxiaokai3/jobtool-electron/releases) | [开发文档](https://jobtool.cn/docs)
+
 </div>
 
 ## 简介
