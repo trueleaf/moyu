@@ -6,22 +6,22 @@
 */
 <template>
     <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)">
-        <el-table ref="s-table" v-bind="$attrs" :data="tableInfo" stripe border :size="config.renderConfig.layout.size" :height="tableHeight" v-on="$listeners" @selection-change="handleSelectionChange">
+        <el-table ref="s-table" v-bind="$attrs" :data="tableInfo" stripe border :size="$root.config.renderConfig.layout.size" :height="tableHeight" v-on="$listeners" @selection-change="handleSelectionChange">
             <el-table-column v-if="selection || deleteMany" type="selection" align="center" :reserve-selection="reserveSelection"></el-table-column>
             <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
             <slot />
         </el-table>
         <div v-if="plain !== true" class="d-flex j-end mt-1">
             <slot name="operation" />
-            <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">刷新</el-button>
+            <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="$root.config.renderConfig.layout.size" @click="getData">刷新</el-button>
             <el-button v-if="deleteMany" :loading="loading2" :disabled="selectData.length === 0" :title="disableTip" type="danger" icon="el-icon-delete" :size="config.renderConfig.layout.size" @click="deleteData">批量删除</el-button>
             <el-pagination 
                     class="ml-4" 
                     layout="total, sizes, prev, pager, next, jumper" 
                     :total="total"
                     background 
-                    :page-sizes="config.renderConfig.components.tableConfig.pageSizes" 
-                    :page-size="config.renderConfig.components.tableConfig.pageSize" 
+                    :page-sizes="$root.config.renderConfig.components.tableConfig.pageSizes" 
+                    :page-size="$root.config.renderConfig.components.tableConfig.pageSize" 
                     :current-page.sync="formInfo.pageNum" 
                     @size-change="handleSizeChange" 
                     @current-change="handleCurrentChange"
@@ -95,6 +95,7 @@ export default {
         return {
             //=====================================表格参数====================================//
             formInfo: {
+                pageSize: this.$root.config.renderConfig.components.tableConfig.pageSize,
                 pageNum: 1, //-------------------------------------------------------当前页数
             },
             tableInfo: [], //表格数据
