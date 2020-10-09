@@ -3,7 +3,7 @@ import Router from "vue-router"
 import store from "@/store/index"
 import NProgress from "nprogress"
 import "nprogress/nprogress.css"
-import { BaseConfig } from "@/config.default.js"
+import config from "@/../config"
 //=====================================注册登陆页面====================================//
 import login from "@/pages/login/login"
 //=====================================业务模块====================================//
@@ -82,7 +82,7 @@ const router = new Router({
 router.beforeEach((to, from, next) => { 
     NProgress.start();
     const hasPermission = store.state.permission.routes.length > 0; //挂载了路由代表存在权限
-    if (BaseConfig.httpRequest.whiteList.find(val => val === to.path)) { //白名单内的路由直接放行
+    if (config.renderConfig.httpRequest.whiteList.find(val => val === to.path)) { //白名单内的路由直接放行
         next();
         return;
     }

@@ -4,7 +4,7 @@
  * @create             2020-09-30 22:55
  */
 
-import config from "@/../config/config.default.js"
+import config from "@/../config"
 
 export default {
     env: process.env.NODE_ENV === "development" ? "dev" : "pro",

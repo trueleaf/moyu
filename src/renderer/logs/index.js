@@ -11,7 +11,6 @@
     三. 错误类型为aaa
 
 */
-import { BaseConfig } from "@/config.default"
 /*eslint-disable*/ 
 
 
