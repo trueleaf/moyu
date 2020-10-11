@@ -12,9 +12,7 @@
                     <span class="flex0">请求地址：</span>
                     <div v-copy="requestData.url.host" v-copy2="requestData.url.host + requestData.url.path" title="鼠标左键右键拷贝内容不一样">
                         <s-ellipsis-content class="cursor-pointer" :value="requestData.url.host + requestData.url.path" max-width="100%"></s-ellipsis-content>
-                        <span class="el-icon-document-copy cursor-pointer orange"></span>
                     </div>
-                    
                 </div>
                 <div class="my-2">
                     <span>请求方式：</span>
