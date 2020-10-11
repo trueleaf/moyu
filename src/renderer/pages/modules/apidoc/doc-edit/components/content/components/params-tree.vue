@@ -386,9 +386,15 @@ export default {
         //=====================================其他操作=====================================//
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
-            return type !== "inner";
+            if (this.plain) {
+                return type !== "inner";
+            } else {
+                return true;
+            }
         },
-        handleNodeDrop({ data }) {
+        handleNodeDrop({ data }, dropNode) {
+            dropNode.data.type = "object";
+            dropNode.data.value = "";
             this.$refs["tree"].setChecked(data.id, true);
         },
     }
