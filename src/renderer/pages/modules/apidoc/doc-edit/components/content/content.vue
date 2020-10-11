@@ -408,6 +408,17 @@ export default {
                 if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
                 if (this.request.url.host === "") this.request.url.host = location.origin;
                 this.request._description = res.data.item.description || "在这里输入文档描述";
+                //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
+                this.$store.commit("apidoc/changeTabInfoById", {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    method: res.data.item.methods
+                });
+                //改变banner请求方式
+                this.$store.commit("apidoc/changeDocBannerInfoById", {
+                    id: this.currentSelectDoc._id,
+                    method: res.data.item.methods
+                });
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -517,7 +528,6 @@ export default {
         },
         //改变请求方法
         handleChangeRequestMethods(val) {
-            // console.log(val, 999)
             this.currentReqeustLimit = val;
             if (val.name === "get") { //get请求需要清空嵌套数据
                 this.request.requestParams.forEach(params => {
@@ -530,6 +540,17 @@ export default {
                 }
             } 
             this.request.methods = val.name;
+            //改变tabs导航请求方式
+            this.$store.commit("apidoc/changeTabInfoById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                method: val.name
+            });
+            //改变banner请求方式
+            this.$store.commit("apidoc/changeDocBannerInfoById", {
+                id: this.currentSelectDoc._id,
+                method: val.name
+            });
         },
         //=====================================title编辑处理====================================//
         //改变title

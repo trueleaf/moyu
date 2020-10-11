@@ -5,6 +5,7 @@
  */
 import Vue from "vue"
 import http from "@/api/api.js"
+import { findoNode } from "@/lib"
 const axios = http.axios;
 
 export default {
@@ -26,9 +27,18 @@ export default {
             state.variables = payload;
         },
         //=====================================banner====================================//
-        //改变文档banner信息
+        //改变文档banner
         changeDocBanner(state, payload) {
             state.banner = payload;
+        },
+        //根据id改变文档banner信息
+        changeDocBannerInfoById(state, payload) {
+            const { id, method } = payload;
+            const matchedData = findoNode(id, state.banner, null, { id: "_id" });
+            if (matchedData && method) {
+                matchedData.item.methods = method;
+            }
+            // console.log(state.banner, matchedData, 222)
         },
         //=====================================tabs====================================//
         //新增一个tab
@@ -54,10 +64,13 @@ export default {
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
-            const { _id, projectId, docName } = payload;
+            const { _id, projectId, docName, method } = payload;
             const matchedData = state.tabs[projectId].find(val => val._id === _id);
             if (matchedData && docName) {
                 matchedData.docName = docName;
+            }
+            if (matchedData && method) {
+                matchedData.item.methods = method;
             }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
         },
