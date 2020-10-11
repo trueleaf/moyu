@@ -930,7 +930,7 @@ export default {
                         this.$set(data, "_valueError", true);
                         isValidRequest = false;
                     }
-                    if (data.description.trim() === "") {
+                    if ((data.type !== "object" && data.type !== "array") && data.description.trim() === "") {
                         this.$set(data, "_descriptionError", true);
                         isValidRequest = false;
                     }
