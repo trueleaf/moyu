@@ -301,6 +301,9 @@ export default {
         //=====================================其他操作=====================================//
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
+            // if (type === "inner") {
+            //     console.log(dropNode)
+            // }
             return type !== "inner";
         },
         handleNodeDrop({ data }) {
