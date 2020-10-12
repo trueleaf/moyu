@@ -62,7 +62,7 @@ export default {
                             result.push({
                                 key: i,
                                 type: valueType,
-                                value: obj[i].toString(),
+                                value: obj[i] == null ? "null" : obj[i].toString(),
                                 description
                             })
                         } else if (valueType === "object") {
