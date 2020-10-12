@@ -68,10 +68,10 @@
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>
         </s-collapse>
-        <s-collapse title="请求参数">
+        <s-collapse title="请求参数" :active="false">
             <s-tree-json :data="requestParams"></s-tree-json>
         </s-collapse>
-        <s-collapse title="响应参数">
+        <s-collapse title="响应参数" :active="false">
             <s-tree-json :data="requestData.responseParams"></s-tree-json>
         </s-collapse>
         <s-collapse title="远程结果">
@@ -102,6 +102,10 @@
                 <pre v-else-if="responseData && responseData.contentType === 'error'">{{ responseData.data }}</pre>
                 <pre v-else>{{ responseData }}</pre>
             </div>
+            <!-- <s-json v-if="responseData" :data="responseData.headers"></s-json> -->
+        </s-collapse>
+        <s-collapse title="返回头">
+            <pre v-if="responseData">{{ responseData.headers }}</pre>
         </s-collapse>
     </div>
 </template>
