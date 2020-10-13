@@ -24,7 +24,7 @@
             </s-v-input>
             <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
-            <el-button :loading="loading2" type="primary" size="small" @click="$emit('saveRequest')">保存接口</el-button>
+            <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" @click="$emit('publishRequest')">发布接口</el-button>
             <el-button type="primary" size="small" @click="dialogVisible = true" @close="dialogVisible = false">全局变量</el-button>
             <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">内置参数</el-button>
@@ -37,6 +37,9 @@
 <script>
 import variableDialog from "../dialog/variable-manage"
 import presetParamsDialog from "../dialog/preset-params"
+import uuid from "uuid/v4"
+import qs from "qs"
+import { dfsForest, findParentNode } from "@/lib/index"
 export default {
     components: {
         "s-variable-dialog": variableDialog,
@@ -49,12 +52,14 @@ export default {
         }
     },
     computed: {
-        docRules() { //---------文档规则
+        docRules() { //文档规则
             return this.$store.state.apidocRules;
         },
-        //全局变量
-        variables() {
+        variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
+        },
+        currentSelectDoc() { //当前选中的doc
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
     },
     data() {
@@ -71,14 +76,25 @@ export default {
 
     },
     methods: {
-        //=====================================发送请求，保存请求，发布请求====================================//
+        //=====================================获取数据====================================//
+        //预设参数
+        getPresetEnum() {
+
+        },
+        //获取联想参数枚举
+        getMindParamsEnum() {
+            this.$store.dispatch("apidoc/getMindParamsEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
             this.loading = true;
             const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
             const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
             const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
-            console.log(requestParams, headerParams)
+            console.log(requestParams, headerParams);
             const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
             const method = copyRequestInfo.methods.toLowerCase();
             const headers = headerParams;
@@ -91,8 +107,87 @@ export default {
                 this.loading = false;
             });
         },
+        //取消发送
         stopRequest() {
             this.$store.dispatch("apidoc/stopRequest");
+        },
+        //保存接口
+        saveRequest() {
+            const params = {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                item: {
+                    requestType: this.request.requestType,
+                    methods: this.request.methods,
+                    url: {
+                        host: this.request.url.host, 
+                        path: this.request.url.path, 
+                    },
+                    requestParams: this.request.requestParams,
+                    responseParams: this.request.responseParams,
+                    header: this.request.header, 
+                    description: this.request.description, 
+                }
+            };
+            this.saveMindParams(); //保存快捷联想参数
+            this.loading2 = true;
+            this.axios.post("/api/project/fill_doc", params).then(() => {
+                this.$store.commit("apidoc/changeTabInfoById", {
+                    projectId: this.$route.query.id,
+                    _id: this.currentSelectDoc._id,
+                    method: this.request.methods,
+                })
+                this.getMindParamsEnum();
+            }).catch(err => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading2 = false;
+            }); 
+        },
+        //保存联想参数(将之前录入过的参数保存起来)
+        saveMindParams() {
+            const mindRequestParams = [];
+            const mindResponseParams = [];
+            dfsForest(this.request.responseParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data) => {
+                    if (data.key !== "" && data.value !== "" && data.description !== "") {
+                        const copyData = JSON.parse(JSON.stringify(data));
+                        mindResponseParams.push(copyData);
+                    }
+                    if (data.key !== "" && (data.type === "object" || data.type === "array") && data.description !== "") {
+                        const copyData = JSON.parse(JSON.stringify(data));
+                        copyData.children = []; //只记录扁平数据
+                        mindResponseParams.push(copyData);
+                    }
+                }
+            });
+            dfsForest(this.request.requestParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data) => {
+                    if (data.key !== "" && data.value !== "" && data.description !== "") {
+                        mindRequestParams.push(data);
+                    }
+                }
+            });
+            const projectId = this.$route.query.id;
+            console.log(mindResponseParams)
+            const params = {
+                projectId,
+                mindRequestParams,
+                mindResponseParams,
+            };
+            this.axios.post("/api/project/doc_params_mind", params).then(res => {
+                
+            }).catch(err => {
+                this.$errorThrow(err, this);
+            });
         },
         //=====================================数据处理====================================//
         //将扁平数据转换为树形结构数据
@@ -163,46 +258,15 @@ export default {
         //=====================================url操作====================================//
         //删除无效请求字符
         formatUrl() {
-            this.request.url.path = "/" + this.request.url.path;
+            this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
             const invalidReg = /\/(?!\/)[^#\.?:]+/; //去除无效部分
             const matchedPath = this.request.url.path.match(invalidReg);
             if (matchedPath) {
                 this.request.url.path = matchedPath[0];
-            }
-        },
-        getPresetEnum() {},
-        //验证请求url格式是否正确
-        checkUrlRule() {
-            this.urlInvalid = false;
-            if (this.request.url.path.trim() === "") { //为空不做处理
-                this.urlInvalid = true;
-                return;
-            }
-            if (this.currentReqeustLimit.contentType.length === 1 && this.currentReqeustLimit.contentType[0] === "query") { //contetnType为query的自动将查询参数转换为请求参数
-                this.convertQueryToParams();
-            }
-            this.request.url.path = "/" + this.request.url.path; //在首部添加/方式纯字符串被替换掉
-            const whiteListReg = /[^0-9a-zA-Z./:&=?#-_]+/g; //有效的url字符串
-            this.request.url.path = this.request.url.path.replace(whiteListReg, ""); //去除白名单以外的无效字符
-            const pathReg = /(\/?https?:\/\/)?([a-zA-Z0-9.]+)?(:\d+)?/;
-            const queryReg = /\?.*/;
-            this.request.url.path = this.request.url.path.replace(pathReg, ""); //去除协议，域名，端口
-            this.request.url.path = this.request.url.path.replace(queryReg, "");
-            this.request.url.path = this.request.url.path.replace(/#/, ""); //去除#
-            this.request.url.path = this.request.url.path.replace(/\/+\d+$/, ""); //去除末尾/3这类restful接口
-            this.request.url.path = this.request.url.path.replace(/\/*/, ""); //去除前面多余的/
-            const hostHasSlash = this.request.url.host.endsWith("/");
-            const pathHasSlash = this.request.url.path.startsWith("/");
-            if (hostHasSlash && !pathHasSlash) {
-                return
-            } else if (!hostHasSlash && pathHasSlash) {
-                return
-            } else if (!hostHasSlash && !pathHasSlash) {
-                this.request.url.path = "/" + this.request.url.path;
-            } else if (hostHasSlash && pathHasSlash) {
-                this.request.url.path = this.request.url.path.slice(1);
+            } else if (this.request.url.path.trim() === "") {
+                this.request.url.path = "/"
             }
         },
         //将请求url后面查询参数转换为params
@@ -224,7 +288,6 @@ export default {
                     })
                 }
             }
-            this.request.url.path = this.request.url.path.replace(/\?.*$/, "");
         },
         //改变请求方法
         handleChangeRequestMethods(val) {

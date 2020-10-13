@@ -459,36 +459,36 @@ export default {
             const validParams = this.validateParams();
             if (validParams) {
                 console.log(this.currentSelectDoc, this.request, "selected")
-                const params = {
-                    _id: this.currentSelectDoc._id,
-                    projectId: this.$route.query.id,
-                    item: {
-                        requestType: this.request.requestType,
-                        methods: this.request.methods,
-                        url: {
-                            host: this.request.url.host, 
-                            path: this.request.url.path, 
-                        },
-                        requestParams: this.request.requestParams,
-                        responseParams: this.request.responseParams,
-                        header: this.request.header, 
-                        description: this.request.description, 
-                    }
-                };
-                this.saveMindParams(); //保存快捷联想参数
-                this.loading = true;
-                this.axios.post("/api/project/fill_doc", params).then(() => {
-                    this.$store.commit("apidoc/changeTabInfoById", {
-                        projectId: this.$route.query.id,
-                        _id: this.currentSelectDoc._id,
-                        method: this.request.methods,
-                    })
-                    this.getMindParamsEnum();
-                }).catch(err => {
-                    this.$errorThrow(err, this);
-                }).finally(() => {
-                    this.loading = false;
-                }); 
+                // const params = {
+                //     _id: this.currentSelectDoc._id,
+                //     projectId: this.$route.query.id,
+                //     item: {
+                //         requestType: this.request.requestType,
+                //         methods: this.request.methods,
+                //         url: {
+                //             host: this.request.url.host, 
+                //             path: this.request.url.path, 
+                //         },
+                //         requestParams: this.request.requestParams,
+                //         responseParams: this.request.responseParams,
+                //         header: this.request.header, 
+                //         description: this.request.description, 
+                //     }
+                // };
+                // this.saveMindParams(); //保存快捷联想参数
+                // this.loading = true;
+                // this.axios.post("/api/project/fill_doc", params).then(() => {
+                //     this.$store.commit("apidoc/changeTabInfoById", {
+                //         projectId: this.$route.query.id,
+                //         _id: this.currentSelectDoc._id,
+                //         method: this.request.methods,
+                //     })
+                //     this.getMindParamsEnum();
+                // }).catch(err => {
+                //     this.$errorThrow(err, this);
+                // }).finally(() => {
+                //     this.loading = false;
+                // }); 
             }
         },
         publishRequest() {
