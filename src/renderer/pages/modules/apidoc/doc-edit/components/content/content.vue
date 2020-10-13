@@ -6,46 +6,19 @@
 */
 <template>
     <div v-if="tabs && tabs.length > 0" class="edit-content d-flex" tabindex="0">
-        <div v-loading="loading2" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal w-65">
+        <div v-loading="loading2" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal workplace">
             <!-- 基本配置 -->
             <div class="request mb-2">
-                <div class="edit-title w-100 f-bg mb-2" contenteditable @input="handleChangeTitle($event)" @blur="handleTitleBlur($event)" @focus="handleTitleFocus">{{ request._description }}</div>
-                <div class="mb-2">
-                    <el-radio-group v-model="request.url.host" size="mini">
-                        <el-popover placement="top-start" trigger="hover" :close-delay="0" :content="origin">
-                            <el-radio slot="reference" :label="origin" border>本地</el-radio>
-                        </el-popover>
-                        <el-popover v-for="(item, index) in hostEnum" :key="index" :close-delay="0" placement="top-start" trigger="hover" :content="item.url">
-                            <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
-                        </el-popover>
-                    </el-radio-group>
-                    <el-button type="text" size="small" @click="dialogVisible = true;">域名维护</el-button>
-                </div>
-                <div class="d-flex a-center w-100">
-                    <!-- 接口 -->
-                    <div class="d-flex w-100">
-                        <s-v-input 
-                                v-model="request.url.path"
-                                :error="request.url.path.trim() === '' && urlInvalid"
-                                placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
-                                size="small"
-                                @blur="checkUrlRule"
-                                @keyup.enter.native.stop="checkUrlRule"
-                        >
-                            <div slot="prepend" class="request-input">
-                                <el-select v-model="request.methods" value-key="name" @change="handleChangeRequestMethods">
-                                    <el-option v-for="(item, index) in docRules.requestMethod.config" :key="index" :value="item" :label="item.name"></el-option>
-                                </el-select>
-                            </div>                        
-                        </s-v-input>
-                        <el-button v-if="!loading3" type="success" size="small" @click="sendRequest">发送请求</el-button>
-                        <el-button v-if="loading3" type="danger" size="small" @click="stopRequest">取消请求</el-button>
-                        <el-button :loading="loading" type="primary" size="small" @click="saveRequest">保存接口</el-button>
-                        <el-button :loading="loading4" type="primary" size="small" @click="publishRequest">发布接口</el-button>
-                        <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">全局变量</el-button>
-                        <el-button type="primary" size="small" @click="dialogVisible6 = true" @close="dialogVisible6 = false">内置参数</el-button>
-                    </div>
-                </div>         
+                <s-remark-manage v-model="request.description"></s-remark-manage>
+                <s-server-manage v-model="request.url.host"></s-server-manage>
+                <s-request-manage 
+                    :request="request"
+                    @sendRequest="sendRequest"
+                    @stopRequest="stopRequest"
+                    @saveRequest="saveRequest"
+                    @publishRequest="publishRequest">
+                </s-request-manage>
+
                 <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
                 <div class="w-100 mt-2">
                     <!-- {{ currentReqeustLimit.contentType }} -->
@@ -156,14 +129,13 @@
                 <s-params-tree :tree-data="request.header" title="请求头" plain :fold="foldHeader" :valid-key="false"></s-params-tree>            
             </div>            
         </div>
-        <div class="w-35 flex1">
+        <div class="response-wrap">
             <s-response ref="response" :request-data="request"></s-response>
         </div>
-        <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
-        <s-variable-manage v-if="dialogVisible2" :visible.sync="dialogVisible2" @change="handleVariableChange"></s-variable-manage>
+        <!-- <s-variable-manage v-if="dialogVisible2" :visible.sync="dialogVisible2" @change="handleVariableChange"></s-variable-manage>
+        <s-preset-params :visible.sync="dialogVisible5" :type="presetParamsType" @success="getPresetEnum"></s-preset-params> -->
         <s-json-schema :visible.sync="dialogVisible3" :plain="request.methods === 'get'" @success="handleConvertJsonToRequestParams"></s-json-schema>
         <s-json-schema :visible.sync="dialogVisible4" @success="handleConvertJsonToResponseParams"></s-json-schema>
-        <s-preset-params :visible.sync="dialogVisible5" :type="presetParamsType" @success="getPresetEnum"></s-preset-params>
         <!-- <s-save-preset-params-as-template :visible.sync="dialogVisible7" :type="presetParamsType" : @success="getPresetEnum"></s-save-preset-params-as-template> -->
         <s-internal-params :visible.sync="dialogVisible6"></s-internal-params>
         <s-dialog title="保存当前请求值为模板" :isShow.sync="dialogVisible7" width="30%">
@@ -190,26 +162,31 @@
 
 <script>
 import axios from "axios" 
+import uuid from "uuid/v4"
+import qs from "qs"
 import paramsTree from "./components/params-tree"
 import response from "./components/response"
-import hostManage from "./dialog/host-manage"
-import variableManage from "./dialog/variable-manage"
+
 import jsonSchema from "./dialog/json-schema"
-import presetParams from "./dialog/preset-params"
 import internalParams from "./dialog/internal-params"
 import savePresetParamsTemplate from "./dialog/preset-params-temp"
 import { dfsForest, findParentNode } from "@/lib/index"
-import uuid from "uuid/v4"
-import qs from "qs"
+//=========================================================================//
+import serverManage from "./components/server"
+import remarkManage from "./components/remark"
+import requestManage from "./components/request"
+//=========================================================================//
 const CancelToken = axios.CancelToken;
 export default {
     components: {
         "s-params-tree": paramsTree,
-        "s-host-manage": hostManage,
-        "s-variable-manage": variableManage,
+        "s-server-manage": serverManage,
+        "s-remark-manage": remarkManage,
+        "s-request-manage": requestManage,
+        // "s-variable-manage": variableManage,
+        // "s-preset-params": presetParams,
         "s-response": response,
         "s-json-schema": jsonSchema,
-        "s-preset-params": presetParams,
         "s-internal-params": internalParams,
         "s-save-preset-params-as-template": savePresetParamsTemplate,
     },
@@ -257,10 +234,8 @@ export default {
                     }
                 ], //----------------------------请求头信息
                 description: "在这里输入文档描述", //--------------请求描述
-                _description: "", //-------------请求描述拷贝
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
-            origin: location.origin,
             currentReqeustLimit: { contentType: [] }, //----------当前请求限制条件
             //=====================================快捷参数====================================//
             presetRequestParamsList: [], //------请求参数预设值
@@ -271,9 +246,8 @@ export default {
             formInfo: {}, //---------------------请求参数模板信息
             formInfo2: {}, //--------------------返回参数模板信息
             //=====================================域名相关====================================//
-            hostEnum: [], //---------------------域名列表
             //=====================================其他参数====================================//
-            urlInvalid: false, //----------------url是否合法
+            // urlInvalid: false, //----------------url是否合法
             cancel: [], //-----------------------需要取消的接口
             loading: false, //-------------------保存接口
             loading2: false, //------------------获取文档详情接口
@@ -282,7 +256,6 @@ export default {
             loading5: false, //------------------保存为请求值模板确认按钮
             loading6: false, //------------------保存为返回值模板确认按钮
             foldHeader: true, //-----------------是否折叠header，当校验错误时候自动展开header
-            dialogVisible: false, //-------------域名维护弹窗
             dialogVisible2: false, //------------全局变量管理弹窗
             dialogVisible3: false, //------------将json格式的请求参数转换为标准请求参数弹窗
             dialogVisible4: false, //------------将json格式的返回参数转换为标准返回参数弹窗
@@ -328,11 +301,9 @@ export default {
         }
     },
     mounted() {
-        this.getHostEnum(); //获取host枚举值
         this.getPresetEnum(); //获取快捷参数枚举值
         this.getMindParamsEnum(); //获取联想参数枚举
         window.addEventListener("keydown", this.shortcutSave)
-        console.log(this.$router.app.$route.query)
     },
     beforeDestroy() {
         window.removeEventListener("keydown", this.shortcutSave)
@@ -407,7 +378,7 @@ export default {
                 if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
                 if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
                 if (this.request.url.host === "") this.request.url.host = location.origin;
-                this.request._description = res.data.item.description || "在这里输入文档描述";
+                this.request.description = res.data.item.description || "在这里输入文档描述";
                 //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
                 this.$store.commit("apidoc/changeTabInfoById", {
                     _id: this.currentSelectDoc._id,
@@ -460,120 +431,6 @@ export default {
                 children: [], //---------子参数
             };
         },
-        //=====================================基础数据请求====================================//
-        //获取host枚举值
-        getHostEnum() {
-            const params = {
-                projectId: this.$route.query.id,
-            };
-            this.axios.get("/api/project/doc_service", { params }).then(res => {
-                this.hostEnum = res.data;
-            }).catch(err => {
-                console.error(err);
-            })
-        },
-        //=====================================请求url处理====================================//  
-        //验证请求url格式是否正确
-        checkUrlRule() {
-            this.urlInvalid = false;
-            if (this.request.url.path.trim() === "") { //为空不做处理
-                this.urlInvalid = true;
-                return;
-            }
-            if (this.currentReqeustLimit.contentType.length === 1 && this.currentReqeustLimit.contentType[0] === "query") { //contetnType为query的自动将查询参数转换为请求参数
-                this.convertQueryToParams();
-            }
-            this.request.url.path = "/" + this.request.url.path; //在首部添加/方式纯字符串被替换掉
-            const whiteListReg = /[^0-9a-zA-Z./:&=?#-_]+/g; //有效的url字符串
-            this.request.url.path = this.request.url.path.replace(whiteListReg, ""); //去除白名单以外的无效字符
-            const pathReg = /(\/?https?:\/\/)?([a-zA-Z0-9.]+)?(:\d+)?/;
-            const queryReg = /\?.*/;
-            this.request.url.path = this.request.url.path.replace(pathReg, ""); //去除协议，域名，端口
-            this.request.url.path = this.request.url.path.replace(queryReg, "");
-            this.request.url.path = this.request.url.path.replace(/#/, ""); //去除#
-            this.request.url.path = this.request.url.path.replace(/\/+\d+$/, ""); //去除末尾/3这类restful接口
-            this.request.url.path = this.request.url.path.replace(/\/*/, ""); //去除前面多余的/
-            const hostHasSlash = this.request.url.host.endsWith("/");
-            const pathHasSlash = this.request.url.path.startsWith("/");
-            if (hostHasSlash && !pathHasSlash) {
-                return
-            } else if (!hostHasSlash && pathHasSlash) {
-                return
-            } else if (!hostHasSlash && !pathHasSlash) {
-                this.request.url.path = "/" + this.request.url.path;
-            } else if (hostHasSlash && pathHasSlash) {
-                this.request.url.path = this.request.url.path.slice(1);
-            }
-        },
-        //将请求url后面查询参数转换为params
-        convertQueryToParams() {
-            let queryString = this.request.url.path.split("?") || "";
-            queryString = queryString ? queryString[1] : "";
-            const queryParams = qs.parse(queryString);
-            for (const i in queryParams) {
-                const reqParams = this.request.requestParams;
-                if (!reqParams.find(val => val.key === i)) {
-                    this.request.requestParams.unshift({
-                        id: uuid(),
-                        key: i, //--------------请求参数键
-                        value: queryParams[i], //------------请求参数值
-                        type: "string", //-------------请求参数值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                    })
-                }
-            }
-            this.request.url.path = this.request.url.path.replace(/\?.*$/, "");
-        },
-        //改变请求方法
-        handleChangeRequestMethods(val) {
-            this.currentReqeustLimit = val;
-            if (val.name === "get") { //get请求需要清空嵌套数据
-                this.request.requestParams.forEach(params => {
-                    params.children = [];
-                })
-                this.request.requestType = "query"; 
-            } else {
-                if (!val.contentType.includes(this.request.requestType)) {
-                    this.request.requestType = val.contentType[0];
-                }
-            } 
-            this.request.methods = val.name;
-            //改变tabs导航请求方式
-            this.$store.commit("apidoc/changeTabInfoById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                method: val.name
-            });
-            //改变banner请求方式
-            this.$store.commit("apidoc/changeDocBannerInfoById", {
-                id: this.currentSelectDoc._id,
-                method: val.name
-            });
-        },
-        //=====================================title编辑处理====================================//
-        //改变title
-        handleChangeTitle(e) {
-            this.request.description = e.target.innerText
-        },
-        //改变blur
-        handleTitleBlur(e) {
-            if (this.request.description.trim() === "") {
-                this.request.description = this.request._description;
-                e.target.innerText = this.request.description;
-            } else {
-                this.request._description = e.target.innerText;
-            }
-        },
-        //focus 全选title
-        handleTitleFocus(e) {
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            const range = document.createRange();
-            range.selectNodeContents(e.target);
-            selection.addRange(range);
-        },
         //=====================================发送请求====================================//
         //发送请求
         sendRequest() {
@@ -590,7 +447,6 @@ export default {
                 }).finally(() => {
                     this.loading3 = false;
                 });
-                
             }  
         },
         //取消请求
@@ -921,7 +777,7 @@ export default {
         validateParams() {
             let isValidRequest = true;
             if (this.request.url.path.trim() === "") { //请求url未填写
-                this.urlInvalid = true;
+                // this.urlInvalid = true;
                 isValidRequest = false;
             }
             //=====================================检查参数是否必填或者按照规范填写====================================//
@@ -1028,10 +884,10 @@ export default {
             return isValidRequest;
         },
         //全局变量改变
-        handleVariableChange() {
-            console.log("change")
-            this.request._variableChange = !this.request._variableChange;
-        },
+        // handleVariableChange() {
+        //     console.log("change")
+        //     this.request._variableChange = !this.request._variableChange;
+        // },
     }
 };
 </script>
@@ -1041,22 +897,26 @@ export default {
 <style lang="scss">
 .edit-content {
     padding: size(10) size(0) size(10) size(20);
+    @media only screen and (max-width: 1500px) {
+        flex-direction: column;
+        .response-wrap {
+            padding: size(10);
+            margin-top: size(10);
+            border-top: 1px solid $gray-300;
+            box-shadow: $box-shadow;
+        }
+        .response {
+            height: auto;
+        }
+    }
+    .workplace {
+        flex: 0 0 65%;
+    }
+    .response-wrap {
+        flex: 1 0 35%;
+    }
     .request {
-        .request-input {
-            display: flex;
-            align-items: center;
-            .el-select {
-                width: 100px;
-            }
-        }
-        .edit-title {
-            padding: size(5) size(10);
-            height: size(38);
-            border: 1px solid transparent;
-            &:hover {
-                border: 1px dashed $gray-500;
-            }        
-        }
+        
         .el-radio {
             margin-right: size(10);
         }

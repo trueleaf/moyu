@@ -90,10 +90,6 @@ export default {
             type: Boolean,
             default: false
         },
-        type: { //快捷参数类型
-            type: String,
-            default: ""
-        },
     },
     data() {
         return {
@@ -156,7 +152,7 @@ export default {
                 if (valid) {
                     const params = {
                         name: this.addData.name,
-                        presetParamsType: this.type,
+                        presetParamsType: this.addData.type,
                         projectId: this.$route.query.id,
                         items: this.addData.presetParams,
                     };
@@ -179,7 +175,7 @@ export default {
                     const params = {
                         _id: this.editData._id,
                         name: this.editData.name,
-                        presetParamsType: this.type,
+                        presetParamsType: this.addData.type,
                         items: this.editData.presetParams,
                     };
                     this.loading2 = true;

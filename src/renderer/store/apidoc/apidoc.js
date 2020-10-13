@@ -6,6 +6,8 @@
 import Vue from "vue"
 import http from "@/api/api.js"
 import { findoNode } from "@/lib"
+import HttpClient from "@/api/net.js"
+const httpClient = new HttpClient();
 const axios = http.axios;
 
 export default {
@@ -16,6 +18,7 @@ export default {
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
+        responseData: {}, //-----------返回参数
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
             mindResponseParams: []
@@ -131,6 +134,10 @@ export default {
             state.mindParams.mindRequestParams = payload.mindRequestParams;
             state.mindParams.mindResponseParams = payload.mindResponseParams;
         },
+        //=====================================发送请求====================================//
+        changeResponseData(state, payload) {
+            state.responseData = payload;
+        },
     },
     actions: {
         //获取文档左侧banner
@@ -179,6 +186,26 @@ export default {
                     console.error(err);
                 });              
             })
-        }
+        },
+        async sendRequest(context, payload) {
+            const { url, method, headers, data } = payload;
+            return new Promise((resolve, reject) => {
+                httpClient.request(url, {
+                    method,
+                    headers,
+                    data
+                }).then(response => {
+                    // console.log("返回参数", response);
+                    this.responseData = response;
+                    context.commit("changeResponseData", response);
+                    resolve(response);
+                }).catch(err => {
+                    reject(err)
+                });                
+            })
+        },
+        stopRequest() {
+            httpClient.stopReqeust();
+        },
     },
 };

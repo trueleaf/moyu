@@ -161,14 +161,6 @@ export default {
         currentSelectDoc() { 
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
-        //全局变量
-        variables() {
-            return this.$store.state.apidoc.variables || [];
-        },
-        // //发送请求---取消请求 文案
-        // sendText() {
-
-        // }
        
     },
     watch: {

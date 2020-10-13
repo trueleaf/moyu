@@ -37,6 +37,7 @@ export default {
                 },
             ],
         },
+        requestUrl: {},
         keyWhiteList: ["_id", "__v"], //请求参数key白名单
         currentCondition: { //当前规则条件
             connected: -1, //0代表未连通，1代表连通，-1未请求
