@@ -10,7 +10,6 @@
         <div class="d-flex w-100">
             <s-v-input 
                     v-model="request.url.path"
-                    :error="request.url.path.trim() === '' && urlInvalid"
                     placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
                     size="small"
                     @blur="formatUrl"
@@ -64,12 +63,12 @@ export default {
     },
     data() {
         return {
-            urlInvalid: false,
-            loading: false,
-            loading2: false,
-            loading3: false,
-            dialogVisible: false,
-            dialogVisible2: false,
+            //=====================================其他参数====================================//
+            loading: false, //-------------发送请求loading
+            loading2: false, //------------保存接口loading
+            loading3: false, //------------发布接口loading
+            dialogVisible: false, //-------全局变量
+            dialogVisible2: false, //------内置参数
         };
     },
     created() {
@@ -90,6 +89,7 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
+            this.validateParams();
             this.loading = true;
             const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
             const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
@@ -144,6 +144,7 @@ export default {
                 this.loading2 = false;
             }); 
         },
+        //=====================================联想参数====================================//
         //保存联想参数(将之前录入过的参数保存起来)
         saveMindParams() {
             const mindRequestParams = [];
@@ -189,7 +190,7 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
-        //=====================================数据处理====================================//
+        //=====================================数据处理和校验====================================//
         //将扁平数据转换为树形结构数据
         convertPlainParamsToTreeData(plainData, jumpChecked) {
             const result = {};
@@ -254,6 +255,80 @@ export default {
             } else {
                 return val;
             }
+        },
+        //数据校验
+        validateParams() {
+            let isValidRequest = true;
+            //=====================================检查参数是否必填或者按照规范填写====================================//
+            const checkField = (params, field) => {
+                const fieldRule = this.docRules.requestParams[field];
+                if (!fieldRule.empty && params[field].trim() === "") { //非空判断
+                    this.$set(params, "_error", {
+                        isError: true,
+                        msg: "字段不能为空"
+                    })
+                    return false;
+                }
+                
+                
+            }
+            const deepMap = (arrayData) => {
+                for (let i = 0, len = arrayData.length; i < len; i++) {
+                    const params = arrayData[i];
+                    if (params.children) {
+                        deepMap(params.children);
+                    }
+                    if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
+                        const parentNode = findParentNode(params.id, arrayData);
+                        console.log(this.docRules.requestParams);
+                        checkField(params, "key");
+                        checkField(params, "key");
+                    }
+                }
+            }
+            
+            deepMap(this.request.responseParams);
+            // dfsForest(this.request.responseParams, {
+            //     rCondition(value) {
+            //         return value.children;
+            //     },
+            //     rKey: "children",
+            //     hooks: (data, index, pData, parent, deep) => {
+            //         const isComplex = (data.type === "object" || data.type === "array");
+            //         if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
+            //             return;
+            //         }
+            //         const p = findParentNode(data.id, this.request.responseParams);
+            //         const isParentArray = (p && p.type === "array");
+            //         if (this.keyWhiteList.includes(data.key)) { //白名单
+            //             this.$set(data, "_keyError", false)
+            //         } else if (!isParentArray && data.key.trim() === "") { //非空校验
+            //             this.$set(data, "_keyError", true);
+            //             isValidRequest = false;
+            //         } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
+            //             this.$set(data, "_keyError", true);
+            //             isValidRequest = false;
+            //         }       
+            //         // console.log(data.value)
+            //         if (!isComplex && data.value.toString().trim() === "") {
+            //             this.$set(data, "_valueError", true);
+            //             isValidRequest = false;
+            //         }
+            //         if ((data.type !== "object" && data.type !== "array") && data.description.trim() === "") {
+            //             this.$set(data, "_descriptionError", true);
+            //             isValidRequest = false;
+            //         }
+            //     }
+            // });
+            
+                
+            if (!isValidRequest) {
+                this.$nextTick(() => {
+                    const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
+                    errorIptDom ? errorIptDom.focus() : null;
+                })
+            }
+            return isValidRequest;
         },
         //=====================================url操作====================================//
         //删除无效请求字符

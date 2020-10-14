@@ -37,6 +37,26 @@ export default {
                 },
             ],
         },
+        requestParams: {
+            key: {
+                empty: false, //不允许为空
+                whiteListKey: ["_id"], //key值允许白名单
+                uppercaseLetter: true, //大写字母
+                lowercaseLetter: true, //小写字母
+                number: true, //数组
+                whiteListChar: [], //白名单字符
+                regExp: "", //正则表达式
+            },
+            type: {
+
+            },
+            value: {
+
+            },
+            description: {
+
+            }
+        },
         requestUrl: {},
         keyWhiteList: ["_id", "__v"], //请求参数key白名单
         currentCondition: { //当前规则条件

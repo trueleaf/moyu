@@ -1,6 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-// import docs from "./docs/docs"
 import userInfo from "./userInfo/userInfo"
 import components from "./components/components"
 import permission from "./permission/permission"
@@ -18,7 +17,6 @@ const store = new Vuex.Store({
     },
     modules: {
         userInfo,
-        // docs,
         components,
         config,
         permission,
