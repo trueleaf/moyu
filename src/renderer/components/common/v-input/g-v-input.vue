@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="v-input" :class="{'valid-error': error}">
+    <div class="v-input" :class="{'valid-error': error.error}">
         <el-input v-if="!remote" :value="value" v-bind="$attrs"  v-on="$listeners">
             <template slot="prepend">
                 <slot name="prepend"/>
@@ -31,9 +31,8 @@
                 <span class="f-sm gray-500">{{ item.type }}</span>
             </template>
         </el-autocomplete>
-        <span v-show="error" class="error-tip">
-            <span v-if="tip">{{ tip.message ? tip.message : tip }}</span>
-            <span v-show="tip && tip.reference" class="theme-color ml-2" @click="handleJumpToStander">查看规范</span>
+        <span v-show="error.error" class="error-tip">
+            <span>{{ error.message || "校验错误" }}</span>
             <slot name="tip" />
         </span>
     </div>
@@ -53,8 +52,10 @@ export default {
             }
         },
         error: { //-----------是否错误
-            type: Boolean,
-            default: false
+            type: Object,
+            default() {
+                return {}
+            }
         },
         remote: { //---------是否远程搜索
             type: Boolean,
