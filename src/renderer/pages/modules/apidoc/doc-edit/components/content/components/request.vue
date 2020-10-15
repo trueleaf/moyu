@@ -260,34 +260,55 @@ export default {
         validateParams() {
             let isValidRequest = true;
             //=====================================检查参数是否必填或者按照规范填写====================================//
-            const checkField = (params, field) => {
-                const fieldRule = this.docRules.requestParams[field];
-                if (!fieldRule.empty && params[field].trim() === "") { //非空判断
-                    this.$set(params, "_error", {
-                        isError: true,
-                        msg: "字段不能为空"
-                    })
-                    return false;
-                }
-                
-                
-            }
-            const deepMap = (arrayData) => {
-                for (let i = 0, len = arrayData.length; i < len; i++) {
-                    const params = arrayData[i];
+           
+            const deepMap = (requestData) => {
+                for (let i = 0, len = requestData.length; i < len; i++) {
+                    const params = requestData[i];
                     if (params.children) {
                         deepMap(params.children);
                     }
                     if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
-                        const parentNode = findParentNode(params.id, arrayData);
-                        console.log(this.docRules.requestParams);
-                        checkField(params, "key");
-                        checkField(params, "key");
+                        const valueType = params.type;
+                        const parentNode = findParentNode(params.id, requestData);
+                        const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+                        const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
+                        const key = params.key;
+                        const value = params.value;
+                        const description = params.description;
+                        if (!isParentArray && (key.trim() === "" || key.includes(" "))) { //禁止包含空字符串(key)
+                            this.$set(params, "_keyError", {
+                                error: true,
+                                message: "不能存在空白字符串"
+                            });
+                            this.isValidRequest = false;
+                        }
+                        if (!isComplex) { //非对象，数组
+                            console.log(value, 22)
+                            if (value.trim() === "" || value.includes(" ")) { //非空判断
+                                this.$set(params, "_valueError", {
+                                    error: true,
+                                    message: "不能存在空白字符串"
+                                });
+                                this.isValidRequest = false;
+                            } else if (valueType === "number" && !value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) {
+                                this.$set(params, "_valueError", {
+                                    error: true,
+                                    message: "参数值必须为数字类型"
+                                });
+                                this.isValidRequest = false;
+                            }
+                        }
+                        if (!isComplex && (description.trim() === "" || description.includes(" "))) { //禁止包含空字符串(description)
+                            this.$set(params, "_descriptionError", {
+                                error: true,
+                                message: "不能存在空白字符串"
+                            });
+                            this.isValidRequest = false;
+                        }
                     }
                 }
             }
-            
-            deepMap(this.request.responseParams);
+            deepMap(this.request.requestParams);
             // dfsForest(this.request.responseParams, {
             //     rCondition(value) {
             //         return value.children;
