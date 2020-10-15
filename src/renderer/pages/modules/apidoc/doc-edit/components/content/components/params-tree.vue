@@ -48,9 +48,6 @@
                                     @focus="enableDrag = false"
                                     @blur="handleCheckKey(scope);enableDrag=true"
                             >
-                                <el-popover slot="tip" placement="top-start" trigger="hover" content="_id">
-                                    <span slot="reference" class="theme-color ml-2">白名单</span>
-                                </el-popover>
                             </s-v-input>
                         </div>
                         <el-select v-model="scope.data.type" :disabled="plain" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
@@ -207,7 +204,9 @@ export default {
                 this.$refs["tree"].setChecked(params.id, true);
             })
             data.value = "";
-            this.$set(data, "_valueError", false);
+            this.$set(data, "_valueError", {
+                error: false
+            });
             this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
             if (data.type === "object" || data.type === "array") {
                 return
@@ -269,12 +268,16 @@ export default {
                         rKey: "children",
                         hooks: (data) => {
                             data.key = "";
-                            this.$set(data, "_keyError", false); //清除子元素key值校验
+                            this.$set(data, "_keyError", {
+                                error: false
+                            }); //清除子元素key值校验
                         }
                     });
                 }
                 data.value = "";
-                this.$set(data, "_valueError", false);
+                this.$set(data, "_valueError", {
+                    error: false
+                });
                 this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
             } else {
                 this.$set(data, "_valuePlaceholder", "");
@@ -321,13 +324,23 @@ export default {
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要做数据校验 
                 if (this.keyWhiteList.includes(data.key)) { //白名单
-                    this.$set(data, "_keyError", false)
+                    this.$set(data, "_keyError", {
+                        error: false
+                    })
                 } else if (data.key.trim() === "") { //非空校验
-                    this.$set(data, "_keyError", true)
+                    this.$set(data, "_keyError", {
+                        error: true,
+                        message: "不能为空"
+                    })
                 } else if (this.validKey && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
-                    this.$set(data, "_keyError", true)
+                    this.$set(data, "_keyError", {
+                        error: true,
+                        message: "不能为空"
+                    })
                 } else {
-                    this.$set(data, "_keyError", false)
+                    this.$set(data, "_keyError", {
+                        error: false
+                    })
                 }         
             } 
         },
@@ -346,12 +359,20 @@ export default {
                 console.log(data.value)
                 if (data.value && data.value.trim() === "") { //非空校验
                     this.valueTip.message = "不能为空"
-                    this.$set(data, "_valueError", true);
+                    this.$set(data, "_valueError", {
+                        error: true,
+                        message: "不能为空"
+                    });
                 } else if (data.type === "number" && !data.value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) { //纯数字校验
                     this.valueTip.message = "不能为空，并且值必须为数字"
-                    this.$set(data, "_valueError", true);
+                    this.$set(data, "_valueError", {
+                        error: true,
+                        message: "不能为空"
+                    });
                 } else {
-                    this.$set(data, "_valueError", false);
+                    this.$set(data, "_valueError", {
+                        error: false,
+                    });
                 }                
             } 
         },
@@ -365,9 +386,14 @@ export default {
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
                 if (data.description && data.description.trim() === "") { //非空校验
-                    this.$set(data, "_descriptionError", true)
+                    this.$set(data, "_descriptionError", {
+                        error: true,
+                        message: "不能为空"
+                    })
                 } else {
-                    this.$set(data, "_descriptionError", false)
+                    this.$set(data, "_descriptionError", {
+                        error: false
+                    })
                 }                
             } 
         },
