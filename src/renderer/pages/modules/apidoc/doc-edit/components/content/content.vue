@@ -9,35 +9,18 @@
         <div v-loading="loading2" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal workplace">
             <!-- 基本配置 -->
             <div class="request mb-2">
+                <!-- 请求备注 -->
                 <s-remark-manage v-model="request.description"></s-remark-manage>
+                <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
-                <s-request-manage 
-                    :request="request"
-                    @sendRequest="sendRequest"
-                    @stopRequest="stopRequest"
-                    @saveRequest="saveRequest"
-                    @publishRequest="publishRequest">
-                </s-request-manage>
-
-                <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
-                <div class="w-100 mt-2">
-                    <!-- {{ currentReqeustLimit.contentType }} -->
-                    <el-radio-group v-model="request.requestType">
-                        <el-radio 
-                                v-for="(item, index) in docRules.requestMethod.contentType"
-                                :key="index"
-                                :label="item"
-                                :disabled="!currentReqeustLimit.contentType.find(val => val === item)"
-                        >
-                            {{ item }}
-                        </el-radio>
-                    </el-radio-group>
-                </div>
+                <!-- 请求操作区域 -->
+                <s-request-manage :request="request" :data-ready="docDataReady"></s-request-manage>
                 <hr>
             </div>
             <!-- 请求参数 -->
             <div class="params-wrap">
-                <s-params-tree 
+                <s-request-params :request="request" :nest="request.requestType !== 'query' && request.requestType !== 'formData'"></s-request-params>
+                <!-- <s-params-tree 
                     ref="reqTree"
                     :tree-data="request.requestParams"
                     title="请求参数"
@@ -94,7 +77,7 @@
                             </el-popover>
                         </div>
                     </div>
-                </s-params-tree>
+                </s-params-tree> -->
                 <s-params-tree ref="resTree" :tree-data="request.responseParams" title="响应参数">
                     <div slot="operation" class="operation d-flex h-100 flex1 pl-3 d-flex a-center">
                         <div class="op_item" @click.stop="dialogVisible4 = true">json转换</div>
@@ -132,11 +115,8 @@
         <div class="response-wrap">
             <s-response ref="response" :request-data="request"></s-response>
         </div>
-        <!-- <s-variable-manage v-if="dialogVisible2" :visible.sync="dialogVisible2" @change="handleVariableChange"></s-variable-manage>
-        <s-preset-params :visible.sync="dialogVisible5" :type="presetParamsType" @success="getPresetEnum"></s-preset-params> -->
         <s-json-schema :visible.sync="dialogVisible3" :plain="request.methods === 'get'" @success="handleConvertJsonToRequestParams"></s-json-schema>
         <s-json-schema :visible.sync="dialogVisible4" @success="handleConvertJsonToResponseParams"></s-json-schema>
-        <!-- <s-save-preset-params-as-template :visible.sync="dialogVisible7" :type="presetParamsType" : @success="getPresetEnum"></s-save-preset-params-as-template> -->
         <s-internal-params :visible.sync="dialogVisible6"></s-internal-params>
         <s-dialog title="保存当前请求值为模板" :isShow.sync="dialogVisible7" width="30%">
             <s-form v-if="dialogVisible7" ref="form" :formInfo="formInfo">
@@ -164,6 +144,7 @@
 import axios from "axios" 
 import uuid from "uuid/v4"
 import qs from "qs"
+import requestParams from "./components/request-params/request-params"
 import paramsTree from "./components/params-tree"
 import response from "./components/response"
 
@@ -179,6 +160,7 @@ import requestManage from "./components/request"
 const CancelToken = axios.CancelToken;
 export default {
     components: {
+        "s-request-params": requestParams,
         "s-params-tree": paramsTree,
         "s-server-manage": serverManage,
         "s-remark-manage": remarkManage,
@@ -236,7 +218,6 @@ export default {
                 description: "在这里输入文档描述", //--------------请求描述
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
-            currentReqeustLimit: { contentType: [] }, //----------当前请求限制条件
             //=====================================快捷参数====================================//
             presetRequestParamsList: [], //------请求参数预设值
             usefulPresetRequestParamsList: [], //常用请求参数预设值
@@ -245,9 +226,11 @@ export default {
             presetParamsType: "", //-------------预设参数类型(请求参数，返回参数...)
             formInfo: {}, //---------------------请求参数模板信息
             formInfo2: {}, //--------------------返回参数模板信息
+            currentReqeustLimit: { contentType: [] }, //----------当前请求限制条件
             //=====================================域名相关====================================//
             //=====================================其他参数====================================//
             // urlInvalid: false, //----------------url是否合法
+            docDataReady: false, //文档数据是否加载完成
             cancel: [], //-----------------------需要取消的接口
             loading: false, //-------------------保存接口
             loading2: false, //------------------获取文档详情接口
@@ -276,9 +259,7 @@ export default {
         currentCondition() { //预发布满足提交的条件
             return this.$store.state.apidocRules.currentCondition
         },
-        keyWhiteList() {
-            return this.$store.state.apidocRules.keyWhiteList
-        },
+      
         docRules() { //---------文档规则
             return this.$store.state.apidocRules;
         },
@@ -301,33 +282,22 @@ export default {
         }
     },
     mounted() {
-        this.getPresetEnum(); //获取快捷参数枚举值
-        this.getMindParamsEnum(); //获取联想参数枚举
-        window.addEventListener("keydown", this.shortcutSave)
-    },
-    beforeDestroy() {
-        window.removeEventListener("keydown", this.shortcutSave)
+        
     },
     methods: {
         //=====================================获取数据====================================//
-        //获取联想参数枚举
-        getMindParamsEnum() {
-            this.$store.dispatch("apidoc/getMindParamsEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
         //获取预设参数枚举
-        getPresetEnum() {
-            const params = {
-                projectId: this.$route.query.id,
-            };
-            this.axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
-                this.presetRequestParamsList = res.data.filter(val => val.presetParamsType === "request");
-                this.presetResponseParamsList = res.data.filter(val => val.presetParamsType === "response");
-            }).catch(err => {
-                console.error(err);
-            });
-        },
+        // getPresetEnum() {
+        //     const params = {
+        //         projectId: this.$route.query.id,
+        //     };
+        //     this.axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
+        //         this.presetRequestParamsList = res.data.filter(val => val.presetParamsType === "request");
+        //         this.presetResponseParamsList = res.data.filter(val => val.presetParamsType === "response");
+        //     }).catch(err => {
+        //         console.error(err);
+        //     });
+        // },
         //获取文档详情
         getDocDetail() {
             if (!this.currentSelectDoc || !this.currentSelectDoc._id) { //没有id不请求数据
@@ -363,8 +333,8 @@ export default {
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.header.forEach(val => this.$set(val, "id", val._id))
-                this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
-
+                // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
+                
                 const reqParams = this.request.requestParams;
                 const resParams = this.request.responseParams;
                 const headerParams = this.request.header;
@@ -390,11 +360,23 @@ export default {
                     id: this.currentSelectDoc._id,
                     method: res.data.item.methods
                 });
+                this.docDataReady = true;
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading2 = false;
             });
+        },
+        generateParams() {
+            return {
+                id: uuid(),
+                key: "", //--------------请求头键
+                value: "", //------------请求头值
+                type: "string", //-------请求头值类型
+                description: "", //------描述
+                required: true, //-------是否必填
+                children: [], //---------子参数
+            };
         },
         //接口不存在提醒用户，可能是同时操作的用户删掉了这个接口导致接口不存在
         confirmInvalidDoc() {
@@ -420,135 +402,7 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
-        generateParams() {
-            return {
-                id: uuid(),
-                key: "", //--------------请求头键
-                value: "", //------------请求头值
-                type: "string", //-------请求头值类型
-                description: "", //------描述
-                required: true, //-------是否必填
-                children: [], //---------子参数
-            };
-        },
-        //=====================================发送请求====================================//
-        //发送请求
-        sendRequest() {
-            const validParams = this.validateParams();
-            if (!validParams) {
-                this.$message.error("参数校验错误");
-            } else {
-                this.loading3 = true;
 
-                this.$refs["response"].sendRequest().then(() => {
-                    
-                }).catch(err => {
-                    console.error(err);
-                }).finally(() => {
-                    this.loading3 = false;
-                });
-            }  
-        },
-        //取消请求
-        stopRequest() {
-            this.loading3 = false;
-            this.$refs["response"].stopRequest();
-        },
-        //=====================================保存接口====================================//
-        saveRequest() {
-            const validParams = this.validateParams();
-            if (validParams) {
-                console.log(this.currentSelectDoc, this.request, "selected")
-                // const params = {
-                //     _id: this.currentSelectDoc._id,
-                //     projectId: this.$route.query.id,
-                //     item: {
-                //         requestType: this.request.requestType,
-                //         methods: this.request.methods,
-                //         url: {
-                //             host: this.request.url.host, 
-                //             path: this.request.url.path, 
-                //         },
-                //         requestParams: this.request.requestParams,
-                //         responseParams: this.request.responseParams,
-                //         header: this.request.header, 
-                //         description: this.request.description, 
-                //     }
-                // };
-                // this.saveMindParams(); //保存快捷联想参数
-                // this.loading = true;
-                // this.axios.post("/api/project/fill_doc", params).then(() => {
-                //     this.$store.commit("apidoc/changeTabInfoById", {
-                //         projectId: this.$route.query.id,
-                //         _id: this.currentSelectDoc._id,
-                //         method: this.request.methods,
-                //     })
-                //     this.getMindParamsEnum();
-                // }).catch(err => {
-                //     this.$errorThrow(err, this);
-                // }).finally(() => {
-                //     this.loading = false;
-                // }); 
-            }
-        },
-        publishRequest() {
-            const validParams = this.validateParams();
-            if (!validParams) {
-                this.$message.error("参数校验错误");
-            } else {
-                this.loading4 = true;
-                this.$refs["response"].sendRequest().then(res => {
-                    this.$store.commit("apidocRules/changeCurrentCondition", {
-                        connected: 1, 
-                        status: res.status, 
-                        size: (res.size / 1024).toFixed(2),
-                        localParams: 1, 
-                        resType: res.resType, 
-                    });
-                    const r = this.currentCondition;
-                    if (r.connected === 1 && r.status >= 200 && r.status < 300 && r.size < 10 && r.localParams === 1 && r.remoteResponse === 1) {
-                        this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
-                            this.$message.success("发布成功")
-                        }).catch(err => {
-                            this.$errorThrow(err, this);
-                        }).finally(() => {
-                            this.loading4 = false;
-                        });
-                    } else {
-                        this.$confirm("接口未通过验证，无法提交", "提示", {
-                            confirmButtonText: "确定",
-                            cancelButtonText: "取消",
-                            type: "warning"
-                        }).then(() => {
-                        
-                        }).catch(err => {
-                            if (err === "cancel" || err === "close") {
-                                return;
-                            }
-                            this.$errorThrow(err, this);
-                        });
-                    }
-                }).catch(() => {
-                    this.$store.commit("apidocRules/changeCurrentCondition", {
-                        localParams: 0, 
-                    })
-                    this.$confirm("接口未通过验证，无法提交", "提示", {
-                        confirmButtonText: "确定",
-                        cancelButtonText: "关闭",
-                        type: "warning"
-                    }).then(() => {
-                    
-                    }).catch(err => {
-                        if (err === "cancel" || err === "close") {
-                            return;
-                        }
-                        this.$errorThrow(err, this);
-                    });
-                }).finally(() => {
-                    this.loading4 = false;
-                })                
-            }  
-        },
         //=====================================快捷操作====================================//
         handleConvertJsonToRequestParams(reqParams) {
             reqParams.forEach(val => {
@@ -721,14 +575,6 @@ export default {
                 console.error(err);
             });
         },
-        //ctrl + s 保存
-        shortcutSave(e) {
-            if (this.tabs && this.tabs.length > 0 && e.ctrlKey && e.key === "s" && this.loading === false) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.saveRequest()
-            }
-        },
         //保存为模板
         handleAddRequestTemplate() {
             this.$refs["form"].validate(valid => {
@@ -773,108 +619,65 @@ export default {
             });
         },
         //=====================================其他操作=====================================//
-        //检查参数是否完备
         validateParams() {
             let isValidRequest = true;
-            if (this.request.url.path.trim() === "") { //请求url未填写
-                // this.urlInvalid = true;
+            //=====================================检查请求url====================================//
+            if (this.request.url.path.trim() === "") { 
+                this.urlError.error = true;
+                this.urlError.message = "请求url不能为空";
                 isValidRequest = false;
             }
-            //=====================================检查参数是否必填或者按照规范填写====================================//
-            dfsForest(this.request.responseParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data, index, pData, parent, deep) => {
-                    const isComplex = (data.type === "object" || data.type === "array");
-                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
-                        return;
+            //===========================检查参数是否必填或者按照规范填写======================//
+            const deepMap = (requestData) => {
+                for (let i = 0, len = requestData.length; i < len; i++) {
+                    const params = requestData[i];
+                    if (params.children) {
+                        deepMap(params.children);
                     }
-                    const p = findParentNode(data.id, this.request.responseParams);
-                    const isParentArray = (p && p.type === "array");
-                    if (this.keyWhiteList.includes(data.key)) { //白名单
-                        this.$set(data, "_keyError", false)
-                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
-                        this.$set(data, "_keyError", true);
-                        isValidRequest = false;
-                    } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
-                        this.$set(data, "_keyError", true);
-                        isValidRequest = false;
-                    }       
-                    // console.log(data.value)
-                    if (!isComplex && data.value.toString().trim() === "") {
-                        this.$set(data, "_valueError", true);
-                        isValidRequest = false;
-                    }
-                    if ((data.type !== "object" && data.type !== "array") && data.description.trim() === "") {
-                        this.$set(data, "_descriptionError", true);
-                        isValidRequest = false;
-                    }
-                }
-            });
-            dfsForest(this.request.requestParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data, index, pData) => {
-                    const isComplex = (data.type === "object" || data.type === "array");
-                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
-                        return;
-                    }
-                    const p = findParentNode(data.id, this.request.requestParams);
-                    const isParentArray = (p && p.type === "array");
-                    if (this.keyWhiteList.includes(data.key)) { //白名单
-                        this.$set(data, "_keyError", false)
-                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
-                        this.$set(data, "_keyError", true);
-                        isValidRequest = false;
-                    } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
-                        this.$set(data, "_keyError", true);
-                        isValidRequest = false;
-                    }       
-                    if (!isComplex && data.value.toString().trim() === "") {
-                        this.$set(data, "_valueError", true);
-                        isValidRequest = false;
-                    }
-                    if (!data.description || data.description.trim() === "") {
-                        this.$set(data, "_descriptionError", true);
-                        isValidRequest = false;
+                    if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
+                        const valueType = params.type;
+                        const parentNode = findParentNode(params.id, requestData);
+                        const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+                        const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
+                        const key = params.key;
+                        const value = params.value;
+                        const description = params.description;
+                        if (!isParentArray && (key.trim() === "" || key.includes(" "))) { //禁止包含空字符串(key)
+                            this.$set(params, "_keyError", {
+                                error: true,
+                                message: "不能存在空白字符串"
+                            });
+                            isValidRequest = false;
+                        }
+                        if (!isComplex) { //非对象，数组
+                            if (value.trim() === "" || value.includes(" ")) { //非空判断
+                                this.$set(params, "_valueError", {
+                                    error: true,
+                                    message: "不能存在空白字符串"
+                                });
+                                isValidRequest = false;
+                            } else if (valueType === "number" && !value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) {
+                                this.$set(params, "_valueError", {
+                                    error: true,
+                                    message: "参数值必须为数字类型"
+                                });
+                                isValidRequest = false;
+                            }
+                        }
+                        if (!isComplex && (description.trim() === "" || description.includes(" "))) { //禁止包含空字符串(description)
+                            this.$set(params, "_descriptionError", {
+                                error: true,
+                                message: "不能存在空白字符串"
+                            });
+                            isValidRequest = false;
+                        }
                     }
                 }
-            });
-            dfsForest(this.request.header, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data, index, pData) => {
-                    const isComplex = (data.type === "object" || data.type === "array");
-                    if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
-                        return;
-                    }
-                    const p = findParentNode(data.id, this.request.header);
-                    const isParentArray = (p && p.type === "array");
-                    if (this.keyWhiteList.includes(data.key)) { //白名单
-                        this.$set(data, "_keyError", false)
-                    } else if (!isParentArray && data.key.trim() === "") { //非空校验
-                        this.$set(data, "_keyError", true);
-                        isValidRequest = false;
-                        this.foldHeader = false;
-                    }      
-                    if (!isComplex && data.value.toString().trim() === "") {
-                        this.$set(data, "_valueError", true);
-                        isValidRequest = false;
-                        this.foldHeader = false;
-                    }
-                    if (!data.description || data.description.trim() === "") {
-                        this.$set(data, "_descriptionError", true);
-                        isValidRequest = false;
-                        this.foldHeader = false;
-                    }
-                }
-            });
+            }
+            deepMap(this.request.requestParams);
+            deepMap(this.request.responseParams);
+            deepMap(this.request.header);
+
             if (!isValidRequest) {
                 this.$nextTick(() => {
                     const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
@@ -883,11 +686,6 @@ export default {
             }
             return isValidRequest;
         },
-        //全局变量改变
-        // handleVariableChange() {
-        //     console.log("change")
-        //     this.request._variableChange = !this.request._variableChange;
-        // },
     }
 };
 </script>

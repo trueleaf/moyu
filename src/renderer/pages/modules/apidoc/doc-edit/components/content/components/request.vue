@@ -5,28 +5,44 @@
     备注：xxxx
 */
 <template>
-    <div class="d-flex a-center w-100">
-        <!-- 接口 -->
+    <div class="w-100">
+        <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input 
                     v-model="request.url.path"
                     placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
+                    :error="urlError"
                     size="small"
                     @blur="formatUrl"
                     @keyup.enter.native.stop="formatUrl"
             >
                 <div slot="prepend" class="request-input">
                     <el-select v-model="request.methods" value-key="name" @change="handleChangeRequestMethods">
-                        <el-option v-for="(item, index) in docRules.requestMethod.config" :key="index" :value="item" :label="item.name"></el-option>
+                        <el-option v-for="(item, index) in docRules.requestConfig.config" :key="index" :value="item" :label="item.name"></el-option>
                     </el-select>
                 </div>                        
             </s-v-input>
             <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" @click="$emit('publishRequest')">发布接口</el-button>
+            <el-button :loading="loading3" type="primary" size="small" @click="publishRequest">发布接口</el-button>
             <el-button type="primary" size="small" @click="dialogVisible = true" @close="dialogVisible = false">全局变量</el-button>
             <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">内置参数</el-button>
+        </div>
+        <!-- 请求参数展示 -->
+        <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
+        <!-- 请求传参方式选择 -->
+        <div class="w-100 mt-2">
+            <el-radio-group v-model="request.requestType">
+                <el-radio 
+                        v-for="(item, index) in docRules.requestConfig.contentTypeEnum"
+                        :key="index"
+                        :label="item.value"
+                        :disabled="!currentReqeustLimit.enabledContenType.find(val => val === item.value)"
+                >
+                    {{ item.name }}
+                </el-radio>
+            </el-radio-group>
         </div>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
         <s-preset-params-dialog :visible.sync="dialogVisible2" @success="getPresetEnum"></s-preset-params-dialog>
@@ -48,7 +64,11 @@ export default {
         request: { //完整请求参数
             type: Object,
             default: {}
-        }
+        },
+        dataReady: { //数据是否请求回来
+            type: Boolean,
+            default: false
+        },
     },
     computed: {
         docRules() { //文档规则
@@ -60,9 +80,30 @@ export default {
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
+        tabs() { //全部tabs
+            return this.$store.state.apidoc.tabs[this.$route.query.id];
+        },
+    },
+    watch: {
+        dataReady: {
+            handler(ready) {
+                if (ready) {
+                    this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name === this.request.methods);
+                    if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
+                        this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
+                    }
+                }
+            },
+            immediate: true
+        }
     },
     data() {
         return {
+            urlError: { //-----------------请求url错误
+                error: false,
+                message: "请求url不能为空"
+            },
+            currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
             //=====================================其他参数====================================//
             loading: false, //-------------发送请求loading
             loading2: false, //------------保存接口loading
@@ -71,8 +112,11 @@ export default {
             dialogVisible2: false, //------内置参数
         };
     },
-    created() {
-
+    mounted() {
+        window.addEventListener("keydown", this.shortcutSave)
+    },
+    beforeDestroy() {
+        window.removeEventListener("keydown", this.shortcutSave)
     },
     methods: {
         //=====================================获取数据====================================//
@@ -89,23 +133,25 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            this.validateParams();
-            this.loading = true;
-            const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
-            const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
-            const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
-            console.log(requestParams, headerParams);
-            const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
-            const method = copyRequestInfo.methods.toLowerCase();
-            const headers = headerParams;
-            const data = requestParams;
-            this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
-                console.log(res, "res");
-            }).catch(err => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
+            const isValidateRequest = this.validateParams();
+            if (isValidateRequest) {
+                this.loading = true;
+                const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
+                const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
+                const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
+                console.log(requestParams, headerParams);
+                const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
+                const method = copyRequestInfo.methods.toLowerCase();
+                const headers = headerParams;
+                const data = requestParams;
+                this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                    console.log(res, "res");
+                }).catch(err => {
+                    console.error(err);
+                }).finally(() => {
+                    this.loading = false;
+                });
+            }
         },
         //取消发送
         stopRequest() {
@@ -144,6 +190,29 @@ export default {
                 this.loading2 = false;
             }); 
         },
+        //发布接口
+        publishRequest() {
+            const validParams = this.validateParams();
+            if (!validParams) {
+                this.$message.error("参数校验错误");
+            } else {
+                this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
+                    this.$message.success("发布成功")
+                }).catch(err => {
+                    this.$errorThrow(err, this);
+                }).finally(() => {
+                    this.loading4 = false;
+                });
+            }  
+        },
+        //快捷保存
+        shortcutSave(e) {
+            if (this.tabs && this.tabs.length > 0 && e.ctrlKey && e.key === "s" && this.loading2 === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.saveRequest()
+            }
+        },
         //=====================================联想参数====================================//
         //保存联想参数(将之前录入过的参数保存起来)
         saveMindParams() {
@@ -178,7 +247,6 @@ export default {
                 }
             });
             const projectId = this.$route.query.id;
-            console.log(mindResponseParams)
             const params = {
                 projectId,
                 mindRequestParams,
@@ -259,8 +327,13 @@ export default {
         //数据校验
         validateParams() {
             let isValidRequest = true;
-            //=====================================检查参数是否必填或者按照规范填写====================================//
-           
+            //=====================================检查请求url====================================//
+            if (this.request.url.path.trim() === "") { 
+                this.urlError.error = true;
+                this.urlError.message = "请求url不能为空";
+                isValidRequest = false;
+            }
+            //===========================检查参数是否必填或者按照规范填写======================//
             const deepMap = (requestData) => {
                 for (let i = 0, len = requestData.length; i < len; i++) {
                     const params = requestData[i];
@@ -280,22 +353,21 @@ export default {
                                 error: true,
                                 message: "不能存在空白字符串"
                             });
-                            this.isValidRequest = false;
+                            isValidRequest = false;
                         }
                         if (!isComplex) { //非对象，数组
-                            console.log(value, 22)
                             if (value.trim() === "" || value.includes(" ")) { //非空判断
                                 this.$set(params, "_valueError", {
                                     error: true,
                                     message: "不能存在空白字符串"
                                 });
-                                this.isValidRequest = false;
+                                isValidRequest = false;
                             } else if (valueType === "number" && !value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) {
                                 this.$set(params, "_valueError", {
                                     error: true,
                                     message: "参数值必须为数字类型"
                                 });
-                                this.isValidRequest = false;
+                                isValidRequest = false;
                             }
                         }
                         if (!isComplex && (description.trim() === "" || description.includes(" "))) { //禁止包含空字符串(description)
@@ -303,46 +375,15 @@ export default {
                                 error: true,
                                 message: "不能存在空白字符串"
                             });
-                            this.isValidRequest = false;
+                            isValidRequest = false;
                         }
                     }
                 }
             }
             deepMap(this.request.requestParams);
-            // dfsForest(this.request.responseParams, {
-            //     rCondition(value) {
-            //         return value.children;
-            //     },
-            //     rKey: "children",
-            //     hooks: (data, index, pData, parent, deep) => {
-            //         const isComplex = (data.type === "object" || data.type === "array");
-            //         if (pData.length - 1 === index && data.key.trim() === "") { //最后一个数据并且未填写值则不做处理
-            //             return;
-            //         }
-            //         const p = findParentNode(data.id, this.request.responseParams);
-            //         const isParentArray = (p && p.type === "array");
-            //         if (this.keyWhiteList.includes(data.key)) { //白名单
-            //             this.$set(data, "_keyError", false)
-            //         } else if (!isParentArray && data.key.trim() === "") { //非空校验
-            //             this.$set(data, "_keyError", true);
-            //             isValidRequest = false;
-            //         } else if (!isParentArray && !data.key.match(/^[a-zA-Z0-9]*$/)) { //字母数据
-            //             this.$set(data, "_keyError", true);
-            //             isValidRequest = false;
-            //         }       
-            //         // console.log(data.value)
-            //         if (!isComplex && data.value.toString().trim() === "") {
-            //             this.$set(data, "_valueError", true);
-            //             isValidRequest = false;
-            //         }
-            //         if ((data.type !== "object" && data.type !== "array") && data.description.trim() === "") {
-            //             this.$set(data, "_descriptionError", true);
-            //             isValidRequest = false;
-            //         }
-            //     }
-            // });
-            
-                
+            deepMap(this.request.responseParams);
+            deepMap(this.request.header);
+
             if (!isValidRequest) {
                 this.$nextTick(() => {
                     const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
@@ -391,11 +432,12 @@ export default {
             if (val.name === "get") { //get请求需要清空嵌套数据
                 this.request.requestParams.forEach(params => {
                     params.children = [];
+                    params.type = "string";
                 })
                 this.request.requestType = "query"; 
             } else {
-                if (!val.contentType.includes(this.request.requestType)) {
-                    this.request.requestType = val.contentType[0];
+                if (!val.enabledContenType.includes(this.request.requestType)) {
+                    this.request.requestType = val.enabledContenType[0];
                 }
             } 
             this.request.methods = val.name;
@@ -415,6 +457,7 @@ export default {
         handleVariableChange() {
             this.request._variableChange = !this.request._variableChange;
         },
+
     }
 };
 </script>
