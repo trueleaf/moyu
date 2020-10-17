@@ -11,54 +11,49 @@ export default {
     state: {
         fileInFolderLimit: 8, //单个文件夹默认限制文件个数
         dominLimit: 5, //每个项目限制配置域名个数
-        requestMethod: {
-            whiteList: ["get", "post", "put", "delete"],
-            contentType: ["query", "json", "formData", "x-www-form-urlencoded"],
+        requestConfig: {
+            methodsEnum: ["get", "post", "put", "delete"], //可以使用的请求方式
+            contentTypeEnum: [ //可以使用的contentType
+                {
+                    name: "query",
+                    value: "query",
+                },
+                {
+                    name: "json",
+                    value: "json",
+                },
+                {
+                    name: "formData",
+                    value: "formData",
+                },
+                {
+                    name: "x-www-form-urlencoded",
+                    value: "x-www-form-urlencoded",
+                },
+            ], 
             config: [
                 {
-                    name: "get",
-                    classColor: "green",
-                    contentType: ["query"], //query,json,x-www-form-urlencoded,formData
+                    name: "get", //请求方式名称
+                    iconColor: "green", //请求方式颜色
+                    enabledContenType: ["query"], //当前请求方式允许的ContentType
                 },
                 {
                     name: "post",
-                    classColor: "yellow",
-                    contentType: ["json", "formData"], //query,json,x-www-form-urlencoded,formData
+                    iconColor: "yellow",
+                    enabledContenType: ["json", "formData"],
                 },
                 {
                     name: "put",
-                    classColor: "blue",
-                    contentType: ["json"], //query,json,x-www-form-urlencoded,formData
+                    iconColor: "blue",
+                    enabledContenType: ["json"],
                 },
                 {
                     name: "delete",
-                    classColor: "red",
-                    contentType: ["query"], //query,json,x-www-form-urlencoded,formData
+                    iconColor: "red",
+                    enabledContenType: ["query"],
                 },
-            ],
+            ]
         },
-        requestParams: {
-            key: {
-                empty: false, //不允许为空
-                whiteListKey: ["_id"], //key值允许白名单
-                uppercaseLetter: true, //大写字母
-                lowercaseLetter: true, //小写字母
-                number: true, //数组
-                whiteListChar: [], //白名单字符
-                regExp: "", //正则表达式
-            },
-            type: {
-
-            },
-            value: {
-
-            },
-            description: {
-
-            }
-        },
-        requestUrl: {},
-        keyWhiteList: ["_id", "__v"], //请求参数key白名单
         currentCondition: { //当前规则条件
             connected: -1, //0代表未连通，1代表连通，-1未请求
             status: -1, //-1代表未连通，200-299代表ok
