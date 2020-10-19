@@ -19,6 +19,7 @@ export default {
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
         responseData: {}, //-----------返回参数
+        presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
             mindResponseParams: []
@@ -134,6 +135,9 @@ export default {
             state.mindParams.mindRequestParams = payload.mindRequestParams;
             state.mindParams.mindResponseParams = payload.mindResponseParams;
         },
+        changePresetParams(state, payload) {
+            state.presetParamsList = payload;
+        },
         //=====================================发送请求====================================//
         changeResponseData(state, payload) {
             state.responseData = payload;
@@ -181,6 +185,21 @@ export default {
                 axios.get("/api/project/doc_params_mind", { params }).then(res => {
                     const result = res.data;
                     context.commit("changeMindParams", result);
+                    resolve();
+                }).catch(err => {
+                    console.error(err);
+                });              
+            })
+        },
+        //获取预设参数列表
+        async getPresetParams(context, payload) {
+            return new Promise((resolve, reject) => {
+                const params = {
+                    projectId: payload.projectId
+                };
+                axios.get("/api/project/doc_preset_params", { params }).then(res => {
+                    const result = res.data;
+                    context.commit("changePresetParams", result);
                     resolve();
                 }).catch(err => {
                     console.error(err);
