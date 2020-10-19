@@ -309,9 +309,7 @@ export default {
                 val.type = "string";
             }
             val.uuid = uuid();
-            // val._id = uuid(); //防止_id相同导致vue跟新错误
-            // val.id = uuid(); //防止_id相同导致vue跟新错误
-            Object.assign(data, val)
+            Object.assign(data, val);
         },
         //=====================================数据校验====================================//
         //检查参数是否输入完备
