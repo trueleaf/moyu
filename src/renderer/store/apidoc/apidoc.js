@@ -197,7 +197,7 @@ export default {
                 const params = {
                     projectId: payload.projectId
                 };
-                axios.get("/api/project/doc_preset_params", { params }).then(res => {
+                axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
                     const result = res.data;
                     context.commit("changePresetParams", result);
                     resolve();
