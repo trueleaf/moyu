@@ -191,7 +191,8 @@ export default {
         }
     },
     mounted() {
-        this.getMindParamsEnum();
+        this.getMindParamsEnum(); //获取联想参数枚举
+        this.getPresetParams(); //获取预设参数
     },
     methods: {
         //=====================================获取数据====================================//
@@ -201,18 +202,12 @@ export default {
                 projectId: this.$route.query.id,
             });
         },
-        //获取预设参数枚举
-        // getPresetEnum() {
-        //     const params = {
-        //         projectId: this.$route.query.id,
-        //     };
-        //     this.axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
-        //         this.presetRequestParamsList = res.data.filter(val => val.presetParamsType === "request");
-        //         this.presetResponseParamsList = res.data.filter(val => val.presetParamsType === "response");
-        //     }).catch(err => {
-        //         console.error(err);
-        //     });
-        // },
+        //获取预设参数
+        getPresetParams() {
+            this.$store.dispatch("apidoc/getPresetParams", {
+                projectId: this.$route.query.id,
+            });
+        },
         //获取文档详情
         getDocDetail() {
             if (!this.currentSelectDoc || !this.currentSelectDoc._id) { //没有id不请求数据
