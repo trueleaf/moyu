@@ -9,6 +9,7 @@
         <!-- 新增数据 -->
         <div slot="left" v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="ml-1 flex1">
             <el-tabs v-model="activeName">
+                <!-- 新增 -->
                 <el-tab-pane label="新增参数" name="s-add">
                     <el-form ref="form" :model="addData" :rules="rules" label-width="120px">
                         <el-form-item label="参数名称：" prop="name">
@@ -21,13 +22,23 @@
                             </el-select>
                         </el-form-item>
                         <div class="scroll-y-450">
-                            <s-params-tree :tree-data="addData.presetParams" title="参数模板"></s-params-tree>
+                            <s-collapse-card title="参数模板">
+                                <s-params-tree 
+                                    ref="requestParams"
+                                    :tree-data="addData.presetParams"
+                                    :mind-params="mindParams"
+                                    nest
+                                    enable-form-data
+                                >
+                                </s-params-tree>
+                            </s-collapse-card>
                         </div>
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleAddPresetParams">确认新增</el-button>
                         </div>
                     </el-form>  
                 </el-tab-pane>
+                <!-- 修改 -->
                 <el-tab-pane label="修改参数" name="s-edit">
                     <el-form v-if="editData._id" ref="form" :model="editData" :rules="rules" label-width="120px">
                         <el-form-item label="参数名称：" prop="name">
@@ -40,7 +51,16 @@
                             </el-select>
                         </el-form-item>
                         <div class="scroll-y-450">
-                            <s-params-tree :tree-data="editData.presetParams" title="参数模板"></s-params-tree>
+                            <s-collapse-card title="参数模板">
+                                <s-params-tree 
+                                    ref="requestParams"
+                                    :tree-data="editData.presetParams"
+                                    nest
+                                    enable-form-data
+                                    :mind-params="mindParams"
+                                >
+                                </s-params-tree>
+                            </s-collapse-card>
                         </div>
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleEditPresetParams">确认修改</el-button>
@@ -79,16 +99,19 @@
 </template>
 
 <script>
-import paramsTree from "../components/params-tree"
 import uuid from "uuid/v4"
 export default {
-    components: {
-        "s-params-tree": paramsTree
-    },
     props: {
         visible: {
             type: Boolean,
             default: false
+        },
+    },
+    computed: {
+        mindParams() { //----------联想参数
+            const mindReq =  this.$store.state.apidoc.mindParams.mindRequestParams;
+            const mindRes =  this.$store.state.apidoc.mindParams.mindResponseParams;
+            return mindReq.concat(mindRes);
         },
     },
     data() {
