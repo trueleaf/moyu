@@ -1,375 +1,202 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-10-17 12:51
-    模块名称：
+    创建时间：2020-10-19 15:05
+    模块名称：请求参数
     备注：xxxx
 */
 <template>
-    <s-card2 title="请求参数" collapse :fold="false">
-        <div slot="operation">
-            aaa
-        </div>
-        <div class="tree-container">
-            <el-tree 
-                    ref="tree"
-                    :data="request.requestParams" 
-                    :indent="50"
-                    :highlight-current="true"
-                    node-key="id" 
-                    :expand-on-click-node="false" 
-                    default-expand-all
-                    :draggable="enableDrag"
-                    :allow-drop="handleCheckNodeCouldDrop"
-                    @node-drop="handleNodeDrop"
-                    @check-change="handleCheckChange"
-                    :show-checkbox="showCheckbox"
-            >
-                <template slot-scope="scope">
-                    <div class="custom-tree-node">
-                        <!-- 新增嵌套数据按钮 -->
-                        <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="!nest" @click="addNestTreeData(scope.data)"></el-button>
-                        <!-- 删除一行数据按钮 -->
-                        <el-button 
-                                class="mr-2"
-                                :disabled="!scope.node.nextSibling && scope.node.level === 1"
-                                :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
-                                type="text"
-                                icon="el-icon-close"
-                                @click="deleteTreeData(scope)">
-                        </el-button>
-                        <!-- 参数key值输入框 -->
-                        <div class="w-20 mr-2 d-flex a-center">
-                            <s-v-input 
-                                    v-model="scope.data.key" 
-                                    size="mini"
-                                    :error="scope.data._keyError"
-                                    :disabled="scope.node.parent.data.type === 'array'"
-                                    :title="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : ''}`"
-                                    :placeholder="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : '参数名称，例如：age name'}`"
-                                    remote
-                                    @mindParamsSelect="(val) => { covertMindParamsToRealParasm(scope.data, val) }"
-                                    @input="addNewLine(scope)"
-                                    @focus="enableDrag = false"
-                                    @blur="handleCheckKeyField(scope);enableDrag=true"
-                            >
-                            </s-v-input>
-                        </div>
-                        <!-- 请求参数类型 -->
-                        <el-select v-model="scope.data.type" :disabled="!nest" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
-                            <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
-                            <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
-                            <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
-                            <el-option :disabled="!nest" label="Object" value="object"></el-option>
-                            <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
-                            <el-option :disabled="!couldUseFormDataType" title="传输数据类型为formData才能使用file类型" label="file" value="file"></el-option>
-                        </el-select>
-                        <!-- 参数值 -->
-                        <s-v-input 
-                                v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-                                :disabled="scope.data.type === 'array' || scope.data.type === 'object'"
-                                title="对象和数组不必填写参数值"
-                                v-model="scope.data.value"
-                                size="mini"
-                                :error="scope.data._valueError"
-                                class="w-25 mr-2"
-                                :placeholder="`${scope.data._valuePlaceholder || '参数值,例如：20 张三'}`"
-                                @focus="enableDrag = false"
-                                @blur="handleCheckValue(scope);enableDrag=true"
-                        >
-                        </s-v-input>
-                        <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
-                            <el-option label="true" value="true"></el-option>
-                            <el-option label="false" value="false"></el-option>
-                        </el-select>
-                        <!-- 参数是否必填 -->
-                        <el-checkbox v-model="scope.data.required" label="必填"></el-checkbox>
-                        <!-- 参数描述 -->
-                        <s-v-input 
-                                v-model="scope.data.description"
-                                size="mini" 
-                                :error="scope.data._descriptionError"
-                                class="w-40 ml-2"
-                                placeholder="参数描述与备注"
-                                @focus="enableDrag = false"
-                                @blur="handleCheckDescription(scope);enableDrag=true">
-                        </s-v-input>
-                        <!-- 
-                        
-                        <el-select v-if="isFormData && scope.data.type === 'file'" v-model="scope.data.value" placeholder="浏览器限制" size="mini">
-                            <el-option label="图片" value="image"></el-option>
-                            <el-option label="pdf" value="pdf"></el-option>
-                            <el-option label="word" value="word"></el-option>
-                        </el-select>
-                        <el-checkbox v-model="scope.data.required" label="必选"></el-checkbox>
-                        <s-v-input 
-                                v-model="scope.data.description"
-                                size="mini" 
-                                :tip="requiredTip"
-                                :error="scope.data._descriptionError"
-                                class="w-40 ml-2"
-                                placeholder="参数描述与备注"
-                                @focus="enableDrag = false"
-                                @blur="handleCheckDescription(scope);enableDrag=true">
-                        </s-v-input> -->
+    <s-collapse-card title="请求参数" class="request-params">
+        <s-params-tree 
+            ref="requestParams"
+            :tree-data="request.requestParams"
+            :nest="request.requestType !== 'query' && request.requestType !== 'formData'"
+            :enable-form-data="request.requestType === 'formData'"
+            :mind-params="mindParams.mindRequestParams"
+            showCheckbox
+        >
+        </s-params-tree>
+        <div slot="operation" class="operation">
+            <!-- json转换 -->
+            <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible = true">
+                <el-popover placement="top-start" width="200" trigger="hover" content="将json格式数据转换为请求或者返回参数，之前保存过的参数描述也会同时被转化">
+                    <span slot="reference">
+                        <span>json转换</span>
+                        <i class="el-icon-warning theme-color"></i>
+                    </span>
+                </el-popover>
+            </div>
+            <!-- 模板选择 -->
+            <div class="cursor-pointer hover-theme-color mr-3">
+                <el-dropdown trigger="click" :show-timeout="0" @command="handleSelectRequestPresetParams">
+                    <div @click.stop.prevent="freshLocalUsefulParams">
+                        <el-popover placement="top-start" width="200" trigger="hover" content="应用一段常用的请求或者返回参数">
+                            <span slot="reference">
+                                <span class="cursor-pointer hover-theme-color">应用模板</span>
+                                <i class="el-icon-warning theme-color"></i>
+                            </span>
+                        </el-popover>                                
                     </div>
-                </template>
-            </el-tree> 
-        </div>     
-    </s-card2>
+                    <div slot="dropdown">
+                        <el-dropdown-menu>
+                            <div class="manage-params">
+                                <div class="cyan mb-2">常用</div>
+                                <template v-for="(item, index) in usefulPresetRequestParamsList.slice(0, 3)">
+                                    <span class="params-item">{{ item.name }}</span>
+                                </template>
+                                <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
+                                <hr>
+                            </div>
+                            <el-dropdown-item v-for="(item, index) in presetParamsList" :key="index" :command="item">
+                                <span class="d-flex j-between">
+                                    <span>{{ item.name }}</span>
+                                    <span class="gray-400">{{ item.creatorName }}</span>
+                                </span>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>                        
+                    </div>
+                </el-dropdown>                            
+            </div>
+            <!-- 保存为模板 -->
+            <div class="cursor-pointer hover-theme-color mr-3" @click="dialogVisible3 = true">
+                <el-popover placement="top-start" width="200" trigger="hover" content="将当前请求或者返回参数保存为模板">
+                    <span slot="reference">
+                        <span>保存为模板</span>
+                        <i class="el-icon-warning theme-color"></i>
+                    </span>
+                </el-popover>
+            </div>
+        </div>
+        <s-json-schema :visible.sync="dialogVisible" :plain="request.methods === 'get'" @success="handleConvertJsonToParams"></s-json-schema>
+        <s-preset-params :visible.sync="dialogVisible2" @success="getPresetParams"></s-preset-params>
+        <s-save-preset-params-as-template :visible.sync="dialogVisible3"></s-save-preset-params-as-template>
+    </s-collapse-card>
 </template>
 
 <script>
-import uuid from "uuid/v4"
-import { dfsForest } from "@/lib/index"
+import jsonSchema from "../../dialog/json-schema"
+import presetParams from "../../dialog/preset-params"
+import savePresetParamsTemplate from "../../dialog/preset-params-temp"
 export default {
+    components: {
+        "s-json-schema": jsonSchema,
+        "s-preset-params": presetParams,
+        "s-save-preset-params-as-template": savePresetParamsTemplate,
+    },
     props: {
-        request: {
+        request: { //---------------请求参数
             type: Object,
             default() {
-                return {};
+                return {}
             }
         },
-        showCheckbox: { //是否展示checkbox, eg: 请求参数可以进行选择
+        dataReady: { //------------数据是否请求完毕
             type: Boolean,
             default: false
+        }
+    },
+    computed: {
+        mindParams() { //----------联想参数
+            return this.$store.state.apidoc.mindParams;
         },
-        nest: { //是否允许参数嵌套，eg：当请求方式为get时，请求参数只能为扁平数据
-            type: Boolean,
-            default: false,
+        presetParamsList() { //----预设参数列表
+            const allTemplateList = this.$store.state.apidoc.presetParamsList;
+            return allTemplateList.filter(val => val.presetParamsType === "request");
+        },
+    },
+    watch: {
+        dataReady(val) {
+            if (val) {
+                this.$refs["requestParams"].selectAll();
+            }
         }
     },
     data() {
         return {
-            enableDrag: true, //是否允许拖拽
+            //=========================================================================//
+            formInfo: {}, //保存当前参数为模板
+            usefulPresetRequestParamsList: [], //常用预设请求参数
+            //=====================================其他参数====================================//
+            dialogVisible: false, //json转换弹窗
+            dialogVisible2: false, //常用参数维护
+            dialogVisible3: false, //保存参数为模板
+            loading: false, //保存为模板
         };
     },
-    computed: {
-        addNestTip() {
-            if (!this.nest) {
-                return "参数不允许嵌套，eg：当请求方式为get时，请求参数只能为扁平数据";
-            } else {
-                return "添加一条嵌套数据";
-            }
-        },
-        disableTypeTip() {
-            if (!this.nest) {
-                return "参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string"
-            } else {
-                return ""
-            }
-        },
-        couldUseFormDataType() {
-            return this.request.requestType === "formData"
-        },
-    },
     created() {
-
+        this.freshLocalUsefulParams();
     },
     methods: {
-        //=====================================一条数据的操作，新增嵌套数据，删除嵌套数据====================================//
-        //添加一个嵌套数据
-        addNestTreeData(data) {
-            const params = this.generateParams();
-            if (data.children == null) { //如果children无值则默认添加为空数组，防止异常或者数据无法响应式变化
-                this.$set(data, "children", []);
-            }
-            data.children.push(params);
-            setTimeout(() => { //hack，添加一个数据默认选中当前数据
-                this.$refs["tree"].setChecked(params.id, true);
-            })
-            data.value = "";
-            this.$set(data, "_valueError", {
-                error: false
+        //=====================================数据请求====================================//
+        //获取预设参数
+        getPresetParams() {
+            this.$store.dispatch("apidoc/getPresetParams", {
+                projectId: this.$route.query.id,
             });
-            this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
-            if (data.type === "object" || data.type === "array") {
-                return
-            } else { //默认设置为object
-                data.type = "object"
-            }
         },
-        //删除一条数据
-        deleteTreeData({ node, data }) {
-            const parentNode = node.parent;
-            const parentData = node.parent.data;
-            if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-                const deleteIndex = parentData.findIndex(val => val.id === data.id);
-                if (parentData.length - 1 === deleteIndex) { //不允许删除最后一个元素
-                    return;
+        //将json转换为标准请求格式
+        handleConvertJsonToParams(reqParams) {
+            reqParams.forEach(val => {
+                const matchMindParams = this.mindParams.mindRequestParams.find(p => p.key === val.key)
+                if (matchMindParams) {
+                    val.description = matchMindParams.description;
                 }
-                parentData.splice(deleteIndex, 1);
+            })
+            this.request.requestParams = reqParams;
+        },
+        //刷新本地快捷参数
+        freshLocalUsefulParams() {
+            // this.usefulPresetRequestParamsList
+        },
+        //选择预设参数
+        handleSelectRequestPresetParams(template) {
+            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "[]";
+            currentLocalData = JSON.parse(currentLocalData);
+            const findDoc = currentLocalData.find(val => val._id === template._id);
+            if (!findDoc) {
+                currentLocalData.push(template)
             } else {
-                const deleteIndex = parentData.children.findIndex(val => val.id === data.id);
-                parentData.children.splice(deleteIndex, 1)
-            }
-        },
-
-        //===================================key值操作======================================//
-        //将快捷参数数据转换为一条请求参数
-        covertMindParamsToRealParasm(data, val) {
-            if (!this.nest && val.type !== "string") { //禁止嵌套并且参数类型不是字符串的统一转换为字符串
-                val.type = "string";
-            }
-            val.uuid = uuid();
-            Object.assign(data, val)
-        },
-        //新增一行
-        addNewLine({ node, data }) {
-            if (data.key && data.key.trim() !== "") {
-                const parentNode = node.parent;
-                const parentData = node.parent.data;
-                if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
-                    if (parentData[parentData.length - 1].key && parentData[parentData.length - 1].key.trim() !== "") {
-                        parentData.push(this.generateParams());
-                    }
-                } else {
-                    if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
-                        parentData.children.push(this.generateParams());
-                    }
+                if (!findDoc.selectNum) {
+                    findDoc.selectNum = 0;
                 }
-                this.$refs["tree"].setChecked(data.id, true);
+                findDoc.selectNum ++;                
             }
-        },
-        //校验key值是否满足规范
-        handleCheckKeyField({ node, data }) {
-            const parentNode = node.parent;
-            const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
-            if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
-                return;
-            }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要做数据校验 
-                if (data.key.trim() === "" || data.key.includes(" ")) { //非空校验
-                    this.$set(data, "_keyError", {
-                        error: true,
-                        message: "不能存在空白字符串"
-                    })
-                } else {
-                    this.$set(data, "_keyError", {
-                        error: false
-                    })
-                }         
-            } 
-        },    
-        //=====================================type操作====================================//
-        //改变请求参数类型
-        handleChangeParamsType(data) {
-            if (data.type === "boolean") {
-                data.value = "true";
-            }
-            if (data.type === "file") {
-                data.value = "image"
-            }
-            if (data.type === "number") {
-                const couldConvertToNumber = !isNaN(Number(data.value));
-                if (!couldConvertToNumber) {
-                    data.value = "0"
+            localStorage.setItem("pages/presetParams/request", JSON.stringify(currentLocalData))
+            const preParams = template.items.filter(val => val.key !== "" && val.value !== "");
+            const reqParams = this.request.requestParams;
+            for(let i = 0, len = preParams.length; i < len; i++) {
+                const element = preParams[i];
+                if (element.key === "" || element.value === "") {
+                    continue;
+                }
+                if (!reqParams.find(val => val.key === element.key)) {
+                    element.id = element._id;
+                    reqParams.unshift(element);
+                    this.$refs["requestParams"].selectAll()
                 }
             }
-            if (data.type === "object" || data.type === "array") {
-                if (data.type === "array" && data.children && data.children.length > 0) { //清空子元素所有参数名称
-                    dfsForest(data.children, {
-                        rCondition(value) {
-                            return value.children;
-                        },
-                        rKey: "children",
-                        hooks: (data) => {
-                            data.key = "";
-                            this.$set(data, "_keyError", {
-                                error: false
-                            }); //清除子元素key值校验
-                        }
+        },
+        //保存当前参数为模板
+        handleAddRequestTemplate() {
+            this.$refs["form"].validate(valid => {
+                if (valid) {
+                    const params = {
+                        name: this.formInfo.name,
+                        presetParamsType: "request",
+                        projectId: this.$route.query.id,
+                        items: this.request.requestParams,
+                    };
+                    this.loading5 = true;
+                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
+                        this.dialogVisible7 = false;
+                        this.getPresetEnum();
+                    }).catch(err => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.loading5 = false;
                     });
-                }
-                data.value = "";
-                this.$set(data, "_valueError", {
-                    error: false
-                });
-                this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
-            } else {
-                this.$set(data, "_valuePlaceholder", "");
-            }
+                } 
+            });
         },
-        //=====================================value操作====================================//
-        handleCheckValue({ node, data }) {
-            const parentNode = node.parent;
-            const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
-            if (data.type === "object" || data.type === "array") { //数据和对象不必校验
-                return;
-            }
-            if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
-                return;
-            }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
-                console.log(data.value)
-                if (data.value == null) {
-                    this.$set(data, "_valueError", {
-                        error: true,
-                        message: "不能为null或者undefined"
-                    });
-                } else if (data.value.trim() === "" || data.value.includes(" ")) {
-                    this.$set(data, "_valueError", {
-                        error: true,
-                        message: "不能存在空白字符串"
-                    });
-                } else {
-                    this.$set(data, "_valueError", {
-                        error: false,
-                    });
-                }                
-            } 
-        },
-        //=====================================参数描述====================================//
-        handleCheckDescription({ node, data }) {
-            const parentNode = node.parent;
-            const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
-            if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
-                return;
-            }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
-                if (data.description == null) {
-                    this.$set(data, "_descriptionError", {
-                        error: true,
-                        message: "不能为null或者undefined"
-                    })
-                }else if (data.description.trim() === "" || data.description.includes(" ")) { //非空校验
-                    this.$set(data, "_descriptionError", {
-                        error: true,
-                        message: "不能存在空白字符串"
-                    })
-                } else {
-                    this.$set(data, "_descriptionError", {
-                        error: false
-                    })
-                }                
-            } 
-        },
-        //=====================================其他操作====================================//
-        //生成一条基础数据
-        generateParams(type = "string") {
-            return {
-                id: uuid(),
-                key: "",
-                description: "",
-                type: type,
-                value: "",
-                required: true,
-            }
-        },
-        //判断是否允许拖拽
-        handleCheckNodeCouldDrop() {
-
-        },
-        //
-        handleNodeDrop() {
-
-        },
-        handleCheckChange() {
-
-        },
-
     }
 };
 </script>
@@ -377,20 +204,12 @@ export default {
 
 
 <style lang="scss">
-.tree-container {
-    overflow-y: auto;
-    .el-tree-node__content {
-        height: size(60);
-    }
-    .el-input__inner {
-        border-radius: 0;
-        border: none;
-        border-bottom: 1px solid $gray-300;
-    }
-    .custom-tree-node {
-        width: 100%;
+.request-params {
+    .operation {    
         display: flex;
         align-items: center;
+        margin-left: size(20);
+
     }
 }
 </style>
