@@ -72,7 +72,16 @@
         <!-- 数据展示 -->
         <div slot="right" class="pr-2">
             <el-divider content-position="left">数据展示</el-divider>
-            <s-table ref="table" url="/api/project/doc_preset_params_list" height="400px" :params="{projectId: $route.query.id}" deleteMany deleteUrl="/api/project/doc_preset_params" deleteKey="ids">
+            <s-table 
+                    ref="table"
+                    url="/api/project/doc_preset_params_list"
+                    height="400px"
+                    :params="{projectId: $route.query.id}"
+                    deleteMany
+                    deleteUrl="/api/project/doc_preset_params"
+                    deleteKey="ids"
+                    @deleteMany="$emit('change')"
+                >
                 <el-table-column label="参数名称" align="center">
                     <template slot-scope="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
@@ -182,7 +191,7 @@ export default {
                     this.loading2 = true;
                     this.axios.post("/api/project/doc_preset_params", params).then(res => {
                         this.getData();
-                        this.$emit("success")
+                        this.$emit("change")
                     }).catch(err => {
                         console.error(err);
                     }).finally(() => {
@@ -204,7 +213,7 @@ export default {
                     this.loading2 = true;
                     this.axios.put("/api/project/doc_preset_params", params).then(res => {
                         this.getData();
-                        this.$emit("success")
+                        this.$emit("change")
                     }).catch(err => {
                         console.error(err);
                     }).finally(() => {
@@ -223,7 +232,7 @@ export default {
                 this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(res => {
                     this.$message.success("删除成功");
                     this.getData();
-                    this.$emit("success")
+                    this.$emit("change")
                 }).catch(err => {
                     this.$errorThrow(err, this);
                 });  
