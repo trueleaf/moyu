@@ -79,12 +79,13 @@
                         <el-option label="false" value="false"></el-option>
                     </el-select>
                     <!-- 参数是否必填 -->
-                    <el-checkbox v-model="scope.data.required" label="必填"></el-checkbox>
+                    <el-checkbox v-model="scope.data.required" label="必有"></el-checkbox>
                     <!-- 参数描述 -->
                     <s-v-input 
                             v-model="scope.data.description"
                             size="mini" 
                             :error="scope.data._descriptionError"
+                            :disabled="scope.node.parent.data.type === 'array'"
                             class="w-40 ml-2"
                             placeholder="参数描述与备注"
                             @focus="enableDrag = false"
@@ -326,6 +327,9 @@ export default {
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
+            if (parentData.type === "array") { //父元素为数组不用书写描述
+                return
+            }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
                 if (data.description == null) {
                     this.$set(data, "_descriptionError", {
@@ -364,16 +368,18 @@ export default {
         },
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
-            if (this.plain) {
+            if (!this.nest) {
                 return type !== "inner";
             } else {
                 return true;
             }
         },
         //处理nodedrop
-        handleNodeDrop({ data }, dropNode) {
-            dropNode.data.type = "object";
-            dropNode.data.value = "";
+        handleNodeDrop({ data }, dropNode, type) {
+            if (type === "inner") {
+                dropNode.data.type = "object";
+                dropNode.data.value = "";
+            }
             this.$refs["tree"].setChecked(data.id, true);
         },
         handleCheckChange() {
