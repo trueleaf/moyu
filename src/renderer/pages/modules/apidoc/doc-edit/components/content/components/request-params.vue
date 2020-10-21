@@ -27,7 +27,7 @@
             </div>
             <!-- 模板选择 -->
             <div class="cursor-pointer hover-theme-color mr-3">
-                <el-dropdown trigger="click" :show-timeout="0" @command="handleSelectRequestPresetParams">
+                <el-dropdown ref="dropdown" trigger="click" :show-timeout="0" @command="handleSelectPresetParams">
                     <div @click.stop.prevent="freshLocalUsefulParams">
                         <el-popover placement="top-start" width="200" trigger="hover" content="应用一段常用的请求或者返回参数">
                             <span slot="reference">
@@ -41,7 +41,7 @@
                             <div class="manage-params">
                                 <div class="cyan mb-2">常用</div>
                                 <template v-for="(item, index) in usefulPresetRequestParamsList.slice(0, 3)">
-                                    <span class="params-item">{{ item.name }}</span>
+                                    <span class="params-item" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
                                 <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
                                 <hr>
@@ -67,15 +67,15 @@
             </div>
         </div>
         <s-json-schema :visible.sync="dialogVisible" :plain="request.methods === 'get'" @success="handleConvertJsonToParams"></s-json-schema>
-        <s-preset-params :visible.sync="dialogVisible2" @success="getPresetParams"></s-preset-params>
-        <s-save-preset-params-as-template :visible.sync="dialogVisible3"></s-save-preset-params-as-template>
+        <s-preset-params :visible.sync="dialogVisible2" @change="getPresetParams"></s-preset-params>
+        <s-save-preset-params-as-template type="request" :template-params="request.requestParams" :visible.sync="dialogVisible3" @success="getPresetParams"></s-save-preset-params-as-template>
     </s-collapse-card>
 </template>
 
 <script>
-import jsonSchema from "../../dialog/json-schema"
-import presetParams from "../../dialog/preset-params"
-import savePresetParamsTemplate from "../../dialog/preset-params-temp"
+import jsonSchema from "../dialog/json-schema"
+import presetParams from "../dialog/preset-params"
+import savePresetParamsTemplate from "../dialog/preset-params-temp"
 export default {
     components: {
         "s-json-schema": jsonSchema,
@@ -145,15 +145,25 @@ export default {
         },
         //刷新本地快捷参数
         freshLocalUsefulParams() {
-            // this.usefulPresetRequestParamsList
+            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "{}";
+            currentLocalData = JSON.parse(currentLocalData);
+            currentLocalData = currentLocalData[this.$route.query.id] || [];
+            this.usefulPresetRequestParamsList = currentLocalData.sort((a, b) => {
+                return a.selectNum - b.selectNum > 0
+            }).slice(0, 3)
         },
         //选择预设参数
-        handleSelectRequestPresetParams(template) {
-            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "[]";
+        handleSelectPresetParams(template) {
+            this.$refs["dropdown"].hide();
+            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "{}";
             currentLocalData = JSON.parse(currentLocalData);
-            const findDoc = currentLocalData.find(val => val._id === template._id);
+            if (!currentLocalData[this.$route.query.id]) {
+                currentLocalData[this.$route.query.id] = [];
+            }
+            
+            const findDoc = currentLocalData[this.$route.query.id].find(val => val._id === template._id);
             if (!findDoc) {
-                currentLocalData.push(template)
+                currentLocalData[this.$route.query.id].push(template)
             } else {
                 if (!findDoc.selectNum) {
                     findDoc.selectNum = 0;
@@ -165,7 +175,8 @@ export default {
             const reqParams = this.request.requestParams;
             for(let i = 0, len = preParams.length; i < len; i++) {
                 const element = preParams[i];
-                if (element.key === "" || element.value === "") {
+                if ((element.type !== "object" && element.type !== "array") && (element.key === "" || element.value === "")) { //对象，array不校验key和value
+                    console.log(222, element.type, element.key, element.value)
                     continue;
                 }
                 if (!reqParams.find(val => val.key === element.key)) {
@@ -174,28 +185,6 @@ export default {
                     this.$refs["requestParams"].selectAll()
                 }
             }
-        },
-        //保存当前参数为模板
-        handleAddRequestTemplate() {
-            this.$refs["form"].validate(valid => {
-                if (valid) {
-                    const params = {
-                        name: this.formInfo.name,
-                        presetParamsType: "request",
-                        projectId: this.$route.query.id,
-                        items: this.request.requestParams,
-                    };
-                    this.loading5 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
-                        this.dialogVisible7 = false;
-                        this.getPresetEnum();
-                    }).catch(err => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading5 = false;
-                    });
-                } 
-            });
         },
     }
 };
@@ -209,6 +198,45 @@ export default {
         display: flex;
         align-items: center;
         margin-left: size(20);
+    }
+}
+.manage-params {
+    width: size(350);
+    position: sticky;
+    top: 0;
+    background: $white;
+    padding: size(10) size(15) 0;
+    .manage-config {
+        padding: size(0) size(10);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: size(30);
+        background: $theme-color;        
+    }
+    .manage-ipt {
+        display: flex;
+        align-items: center;
+        border-top: 1px dashed $gray-400;
+        margin-top: size(10);
+        input {
+            flex: 1;
+            height: size(30);
+            line-height: size(30);
+            border: none;
+            text-indent: 1em;
+            border-right: 1px solid $gray-400;
+        }       
+    }
+    .params-item {
+        display: inline-block;
+        padding: size(2) size(10);
+        cursor: pointer;
+        background: $gray-200;
+        margin-left: size(10);
+        &:hover {
+            background: $gray-300;
+        }
 
     }
 }

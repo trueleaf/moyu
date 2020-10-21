@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-card2 :title="title" collapse :fold="fold" class="collapse-wrap">
+    <s-card2 :title="title" collapse :fold="fold" class="collapse-wrap"> 
         <slot name="operation" slot="operation" />
         <div class="params-edit">
             <el-tree 
@@ -36,7 +36,7 @@
                         <div class="w-20 mr-2 d-flex a-center">
                             <s-v-input 
                                     v-model="scope.data.key" 
-                                    size="mini"
+                                    size="mini" 
                                     :tip="keyTip"
                                     :error="scope.data._keyError"
                                     :disabled="scope.node.parent.data.type === 'array'"
@@ -410,6 +410,7 @@ export default {
         //=====================================其他操作=====================================//
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
+            console.log(type ,222)
             if (this.plain) {
                 return type !== "inner";
             } else {
