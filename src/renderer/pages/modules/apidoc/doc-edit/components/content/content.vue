@@ -6,7 +6,7 @@
 */
 <template>
     <div v-if="tabs && tabs.length > 0" class="edit-content d-flex" tabindex="0">
-        <div v-loading="loading2" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal workplace">
+        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal workplace">
             <!-- 基本配置 -->
             <div class="request mb-2">
                 <!-- 请求备注 -->
@@ -14,38 +14,19 @@
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
-                <s-request-manage :request="request" :data-ready="docDataReady"></s-request-manage>
+                <s-request-operation-manage :request="request" :data-ready="docDataReady"></s-request-operation-manage>
                 <hr>
             </div>
             <!-- 请求参数 -->
             <div class="params-wrap">
-                <s-request-params :request="request" :data-ready="docDataReady"></s-request-params>
+                <s-request-params-manage :request="request" :data-ready="docDataReady"></s-request-params-manage>
+                <s-response-params-manage :request="request" :data-ready="docDataReady"></s-response-params-manage>
+                <s-header-params-manage :request="request" :data-ready="docDataReady"></s-header-params-manage>
             </div>            
         </div>
         <div class="response-wrap">
             <s-response ref="response" :request-data="request"></s-response>
         </div>
-        <s-json-schema :visible.sync="dialogVisible3" :plain="request.methods === 'get'" @success="handleConvertJsonToRequestParams"></s-json-schema>
-        <s-json-schema :visible.sync="dialogVisible4" @success="handleConvertJsonToResponseParams"></s-json-schema>
-        <s-internal-params :visible.sync="dialogVisible6"></s-internal-params>
-        <s-dialog title="保存当前请求值为模板" :isShow.sync="dialogVisible7" width="30%">
-            <s-form v-if="dialogVisible7" ref="form" :formInfo="formInfo">
-                <s-form-item label="请输入模板名称" vModel="name" required :max-len="8" one-line></s-form-item>
-            </s-form>  
-            <div slot="footer">
-                <el-button size="mini" type="primary" :loading="loading5" @click="handleAddRequestTemplate">确定</el-button>
-                <el-button size="mini" type="warning" @click="dialogVisible7 = false">取消</el-button>
-            </div>
-        </s-dialog>
-        <s-dialog title="保存当前返回值为模板" :isShow.sync="dialogVisible8" width="30%">
-            <s-form v-if="dialogVisible8" ref="form2" :formInfo="formInfo2">
-                <s-form-item label="请输入模板名称" vModel="name" required :max-len="8" one-line></s-form-item>
-            </s-form>  
-            <div slot="footer">
-                <el-button size="mini" type="primary" :loading="loading6" @click="handleAddResponseTemplate">确定</el-button>
-                <el-button size="mini" type="warning" @click="dialogVisible8 = false">取消</el-button>
-            </div>
-        </s-dialog>
     </div>
     <div v-else></div>
 </template>
@@ -53,33 +34,25 @@
 <script>
 import axios from "axios" 
 import uuid from "uuid/v4"
-import qs from "qs"
-import requestParams from "./components/request-params/request-params"
-
-
 import response from "./components/response"
-
-import jsonSchema from "./dialog/json-schema"
-import internalParams from "./dialog/internal-params"
-import savePresetParamsTemplate from "./dialog/preset-params-temp"
-import { dfsForest, findParentNode } from "@/lib/index"
 //=========================================================================//
-import serverManage from "./components/server"
-import remarkManage from "./components/remark"
-import requestManage from "./components/request"
+import remarkManage from "./components/remark" //-----------------------------------接口备注
+import serverManage from "./components/server" //-----------------------------------请求地址列表
+import requestOperationManage from "./components/request-operation" //--------------请求操作和url管理
+import requestParamsManage from "./components/request-params" //--------------------请求参数管理
+import responseParamsManage from "./components/response-params" //------------------返回参数管理
+import headerParamsManage from "./components/header-params" //------------------请求头管理
 //=========================================================================//
 const CancelToken = axios.CancelToken;
 export default {
     components: {
-        "s-request-params": requestParams,
+        "s-request-params-manage": requestParamsManage,
+        "s-response-params-manage": responseParamsManage,
+        "s-header-params-manage": headerParamsManage,
         "s-server-manage": serverManage,
         "s-remark-manage": remarkManage,
-        "s-request-manage": requestManage,
-        // "s-preset-params": presetParams,
+        "s-request-operation-manage": requestOperationManage,
         "s-response": response,
-        "s-json-schema": jsonSchema,
-        "s-internal-params": internalParams,
-        "s-save-preset-params-as-template": savePresetParamsTemplate,
     },
     data() {
         return {
@@ -128,33 +101,10 @@ export default {
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
             //=====================================快捷参数====================================//
-            presetRequestParamsList: [], //------请求参数预设值
-            usefulPresetRequestParamsList: [], //常用请求参数预设值
-            presetResponseParamsList: [], //-----返回参数预设值
-            usefulPresetResponseParamsList: [], //常用返回参数预设值
-            presetParamsType: "", //-------------预设参数类型(请求参数，返回参数...)
-            formInfo: {}, //---------------------请求参数模板信息
-            formInfo2: {}, //--------------------返回参数模板信息
-            currentReqeustLimit: { contentType: [] }, //----------当前请求限制条件
-            //=====================================域名相关====================================//
-            //=====================================其他参数====================================//
-            // urlInvalid: false, //----------------url是否合法
+            cancel: [], //请求取消
+            validError: false, //是否校验出错
+            loading: false, //加载效果
             docDataReady: false, //文档数据是否加载完成
-            cancel: [], //-----------------------需要取消的接口
-            loading: false, //-------------------保存接口
-            loading2: false, //------------------获取文档详情接口
-            loading3: false, //------------------发送请求状态
-            loading4: false, //------------------发布接口状态
-            loading5: false, //------------------保存为请求值模板确认按钮
-            loading6: false, //------------------保存为返回值模板确认按钮
-            foldHeader: true, //-----------------是否折叠header，当校验错误时候自动展开header
-            dialogVisible2: false, //------------全局变量管理弹窗
-            dialogVisible3: false, //------------将json格式的请求参数转换为标准请求参数弹窗
-            dialogVisible4: false, //------------将json格式的返回参数转换为标准返回参数弹窗
-            dialogVisible5: false, //------------快捷参数维护弹窗
-            dialogVisible6: false, //------------内置参数
-            dialogVisible7: false, //------------保存为请求值模板
-            dialogVisible8: false, //------------保存为返回值模板
             ready: false, //---------------------是否完成第一次数据请求
         };
     },
@@ -164,13 +114,6 @@ export default {
         },
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-        currentCondition() { //预发布满足提交的条件
-            return this.$store.state.apidocRules.currentCondition
-        },
-      
-        docRules() { //---------文档规则
-            return this.$store.state.apidocRules;
         },
         mindParams() {
             return this.$store.state.apidoc.mindParams;
@@ -222,7 +165,7 @@ export default {
                 })
             }
             setTimeout(() => { //hack让请求加载不受取消影响
-                this.loading2 = true;
+                this.loading = true;
                 this.ready = false;
             })
             this.axios.get("/api/project/doc_detail", {
@@ -275,7 +218,7 @@ export default {
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
-                this.loading2 = false;
+                this.loading = false;
             });
         },
         generateParams() {
@@ -313,290 +256,8 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
-
-        //=====================================快捷操作====================================//
-        handleConvertJsonToRequestParams(reqParams) {
-            reqParams.forEach(val => {
-                const matchMindParams = this.mindParams.mindRequestParams.find(p => p.key === val.key)
-                if (matchMindParams) {
-                    val.description = matchMindParams.description;
-                }
-            })
-            this.request.requestParams = reqParams;
-        },
-        handleConvertJsonToResponseParams(resParams) {
-            resParams.forEach(val => {
-                const matchMindParams = this.mindParams.mindResponseParams.find(p => p.key === val.key)
-                if (matchMindParams) {
-                    val.description = matchMindParams.description;
-                }
-            })
-            this.request.responseParams = resParams;
-        },
-        //选择快捷请求参数
-        handleSelectRequestPresetParams(item) {
-            let currentLocalData = localStorage.getItem("pages/presetParams/request") || "[]";
-            currentLocalData = JSON.parse(currentLocalData);
-            const findDoc = currentLocalData.find(val => val._id === item._id)
-            if (!findDoc) {
-                currentLocalData.push(item)
-            } else {
-                if (!findDoc.selectNum) {
-                    findDoc.selectNum = 0;
-                }
-                findDoc.selectNum ++;                
-            }
-            localStorage.setItem("pages/presetParams/request", JSON.stringify(currentLocalData))
-            const preParams = item.items.filter(val => val.key !== "" && val.value !== "");
-            const reqParams = this.request.requestParams;
-            for(let i = 0, len = preParams.length; i < len; i++) {
-                const element = preParams[i];
-                if (element.key === "" || element.value === "") {
-                    continue;
-                }
-                if (!reqParams.find(val => val.key === element.key)) {
-                    element.id = element._id;
-                    reqParams.unshift(element);
-                    setTimeout(() => { //hack
-                        this.$refs["reqTree"].$refs["tree"].setChecked(element.id, true)
-                    })
-                }
-            }
-        },
-        //选择快捷返回参数
-        handleSelectResponsePresetParams(item) {
-            let currentLocalData = localStorage.getItem("pages/presetParams/response") || "[]";
-            currentLocalData = JSON.parse(currentLocalData);
-            const findDoc = currentLocalData.find(val => val._id === item._id)
-            if (!findDoc) {
-                currentLocalData.push(item)
-            } else {
-                if (!findDoc.selectNum) {
-                    findDoc.selectNum = 0;
-                }
-                findDoc.selectNum ++;                
-            }
-            localStorage.setItem("pages/presetParams/response", JSON.stringify(currentLocalData))
-            const preParams = item.items.filter(val => val.key !== "" && val.value !== "");
-            const reqParams = this.request.responseParams;
-            for(let i = 0, len = preParams.length; i < len; i++) {
-                const element = preParams[i];
-                if (element.key === "" || element.value === "") {
-                    continue;
-                }
-                if (!reqParams.find(val => val.key === element.key)) {
-                    element.id = element._id;
-                    reqParams.unshift(element);
-                    setTimeout(() => { //hack
-                        this.$refs["resTree"].$refs["tree"].setChecked(element.id, true)
-                    })
-                }
-            }
-        },
-        //刷新本地快捷参数
-        freshLocalUsefulParams() {
-            const projectId = this.$route.query.id;
-            let localReqParams = localStorage.getItem("pages/presetParams/request") || "{}";
-            localReqParams = JSON.parse(localReqParams)[projectId] || [];
-            localReqParams = localReqParams.sort((a, b) => a.selectNum < b.selectNum);
-            let localResParams = localStorage.getItem("pages/presetParams/response") || "{}";
-            localResParams = JSON.parse(localResParams)[projectId] || [];
-            localResParams = localReqParams.sort((a, b) => a.selectNum < b.selectNum);
-            this.usefulPresetResponseParamsList = localResParams;
-            this.usefulPresetRequestParamsList = localReqParams;
-        },
-        //保存快捷输入参数
-        saveMindParams() {
-            const mindRequestParams = [];
-            const mindResponseParams = [];
-            dfsForest(this.request.responseParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data) => {
-                    if (data.key !== "" && data.value !== "" && data.description !== "") {
-                        const copyData = JSON.parse(JSON.stringify(data));
-                        mindResponseParams.push(copyData);
-                    }
-                    if (data.key !== "" && (data.type === "object" || data.type === "array") && data.description !== "") {
-                        const copyData = JSON.parse(JSON.stringify(data));
-                        copyData.children = []; //只记录扁平数据
-                        mindResponseParams.push(copyData);
-                    }
-                }
-            });
-            dfsForest(this.request.requestParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data) => {
-                    if (data.key !== "" && data.value !== "" && data.description !== "") {
-                        mindRequestParams.push(data);
-                    }
-                }
-            });
-            const projectId = this.$route.query.id;
-            // let currentLocalRequestMindParams = localStorage.getItem("pages/mindParams/request") || "{}";
-            // let currentLocalResponseMindParams = localStorage.getItem("pages/mindParams/response") || "{}";
-            // currentLocalRequestMindParams = JSON.parse(currentLocalRequestMindParams);
-            // currentLocalResponseMindParams = JSON.parse(currentLocalResponseMindParams);
-            // currentLocalRequestMindParams[projectId] || (currentLocalRequestMindParams[projectId] = []); 
-            // currentLocalResponseMindParams[projectId] || (currentLocalResponseMindParams[projectId] = []); 
-            // for (let i = 0; i < mindRequestParams.length; i++ ) {
-            //     const ele = mindRequestParams[i];
-            //     const sameDoc = currentLocalRequestMindParams[projectId].find(val => (val.key === ele.key));
-            //     if (!sameDoc) {
-            //         currentLocalRequestMindParams[projectId].push(ele)
-            //     } else {
-            //         if (!sameDoc._selectNum) {
-            //             sameDoc._selectNum = 0;
-            //         }
-            //         sameDoc._selectNum ++;                
-            //     }
-            //     localStorage.setItem("pages/mindParams/request", JSON.stringify(currentLocalRequestMindParams))
-            // }
-            // for (let i = 0; i < mindResponseParams.length; i++ ) {
-            //     const ele = mindResponseParams[i];
-            //     const sameDoc = currentLocalResponseMindParams[projectId].find(val => (val.key === ele.key));
-            //     if (!sameDoc) {
-            //         currentLocalResponseMindParams[projectId].push(ele)
-            //     } else {
-            //         if (!sameDoc._selectNum) {
-            //             sameDoc._selectNum = 0;
-            //         }
-            //         sameDoc._selectNum ++;                
-            //     }
-            //     localStorage.setItem("pages/mindParams/response", JSON.stringify(currentLocalResponseMindParams))
-            // }
-            // const mindParamsList = [...mindRequestParams, ...mindResponseParams];
-            // mindParamsList.forEach(val => {
-            //     val._projectId = this.$route.query.id
-            // })
-            console.log(mindResponseParams)
-            const params = {
-                projectId,
-                mindRequestParams,
-                mindResponseParams,
-            };
-            this.axios.post("/api/project/doc_params_mind", params).then(res => {
-                
-            }).catch(err => {
-                console.error(err);
-            });
-        },
-        //保存为模板
-        handleAddRequestTemplate() {
-            this.$refs["form"].validate(valid => {
-                if (valid) {
-                    const params = {
-                        name: this.formInfo.name,
-                        presetParamsType: "request",
-                        projectId: this.$route.query.id,
-                        items: this.request.requestParams,
-                    };
-                    this.loading5 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
-                        this.dialogVisible7 = false;
-                        this.getPresetEnum();
-                    }).catch(err => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading5 = false;
-                    });
-                } 
-            });
-        },
-        handleAddResponseTemplate() {
-            this.$refs["form2"].validate(valid => {
-                if (valid) {
-                    const params = {
-                        name: this.formInfo2.name,
-                        presetParamsType: "response",
-                        projectId: this.$route.query.id,
-                        items: this.response.responseParams,
-                    };
-                    this.loading6 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
-                        this.dialogVisible8 = false;
-                        this.getPresetEnum();
-                    }).catch(err => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading6 = false;
-                    });
-                } 
-            });
-        },
         //=====================================其他操作=====================================//
-        validateParams() {
-            let isValidRequest = true;
-            //=====================================检查请求url====================================//
-            if (this.request.url.path.trim() === "") { 
-                this.urlError.error = true;
-                this.urlError.message = "请求url不能为空";
-                isValidRequest = false;
-            }
-            //===========================检查参数是否必填或者按照规范填写======================//
-            const deepMap = (requestData) => {
-                for (let i = 0, len = requestData.length; i < len; i++) {
-                    const params = requestData[i];
-                    if (params.children) {
-                        deepMap(params.children);
-                    }
-                    if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
-                        const valueType = params.type;
-                        const parentNode = findParentNode(params.id, requestData);
-                        const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                        const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
-                        const key = params.key;
-                        const value = params.value;
-                        const description = params.description;
-                        if (!isParentArray && (key.trim() === "" || key.includes(" "))) { //禁止包含空字符串(key)
-                            this.$set(params, "_keyError", {
-                                error: true,
-                                message: "不能存在空白字符串"
-                            });
-                            isValidRequest = false;
-                        }
-                        if (!isComplex) { //非对象，数组
-                            if (value.trim() === "" || value.includes(" ")) { //非空判断
-                                this.$set(params, "_valueError", {
-                                    error: true,
-                                    message: "不能存在空白字符串"
-                                });
-                                isValidRequest = false;
-                            } else if (valueType === "number" && !value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) {
-                                this.$set(params, "_valueError", {
-                                    error: true,
-                                    message: "参数值必须为数字类型"
-                                });
-                                isValidRequest = false;
-                            }
-                        }
-                        if (!isComplex && (description.trim() === "" || description.includes(" "))) { //禁止包含空字符串(description)
-                            this.$set(params, "_descriptionError", {
-                                error: true,
-                                message: "不能存在空白字符串"
-                            });
-                            isValidRequest = false;
-                        }
-                    }
-                }
-            }
-            deepMap(this.request.requestParams);
-            deepMap(this.request.responseParams);
-            deepMap(this.request.header);
-
-            if (!isValidRequest) {
-                this.$nextTick(() => {
-                    const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
-                    errorIptDom ? errorIptDom.focus() : null;
-                })
-            }
-            return isValidRequest;
-        },
+          
     }
 };
 </script>
@@ -625,7 +286,6 @@ export default {
         flex: 1 0 35%;
     }
     .request {
-        
         .el-radio {
             margin-right: size(10);
         }
@@ -633,63 +293,8 @@ export default {
     .params-wrap {
         max-height: calc(100vh - 350px);
         overflow-y: auto;
-        .operation {
-            // .op_item {
-            //     height: 100%;
-            //     display: flex;
-            //     align-items: center;
-            //     justify-content: center;
-            //     padding: size(0) size(10);
-            //     cursor: pointer;
-            //     margin-right: size(10);
-            //     &:hover {
-            //         // background: mix($theme-color, $white, 80%);
-            //         color: $theme-color;
-            //     }
-            // }
-        }
     }
 }
-.manage-params {
-    width: size(350);
-    position: sticky;
-    top: 0;
-    // box-shadow: $box-shadow-sm;
-    background: $white;
-    padding: size(10) size(15) 0;
-    .manage-config {
-        padding: size(0) size(10);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        height: size(30);
-        background: $theme-color;        
-    }
-    .manage-ipt {
-        display: flex;
-        align-items: center;
-        border-top: 1px dashed $gray-400;
-        margin-top: size(10);
-        input {
-            flex: 1;
-            height: size(30);
-            line-height: size(30);
-            border: none;
-            text-indent: 1em;
-            border-right: 1px solid $gray-400;
-        }       
-    }
-    .params-item {
-        display: inline-block;
-        padding: size(2) size(10);
-        cursor: pointer;
-        background: $gray-200;
-        margin-left: size(10);
-        &:hover {
-            background: $gray-300;
-        }
 
-    }
-}
 
 </style>
