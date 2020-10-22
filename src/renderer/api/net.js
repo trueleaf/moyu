@@ -9,6 +9,7 @@ let net = null;
 if (window.require){
     net = window.require("electron").remote.net
 }
+
 class HttpClient {
     constructor(config = {}) {
         this.instance = null;
@@ -23,8 +24,7 @@ class HttpClient {
         if (options.method === "get") {
             url = url + "?" + qs.stringify(options.data);
         }
-       
-        console.log(url)
+        
         const requestOptions = {
             url: url,
             method: options.method,
@@ -33,10 +33,15 @@ class HttpClient {
         this.instance = net.request(requestOptions);
         //=====================================请求头====================================//
         const headers = options.headers;
-        this.instance.setHeader("content-type", "application/json; charset=utf-8"); //所有请求默认以json格式传输
+        // this.instance.setHeader("content-type", "application/json; charset=utf-8"); //所有请求默认以json格式传输
         for(let i in headers) {
+            if (i.toLowerCase() === "host") {
+                continue;
+            }
             this.instance.setHeader(i, headers[i]);
         }
+        console.log("请求参数", headers, url, options, requestOptions)
+        
         //=====================================超时定时器====================================//
         return new Promise((resolve, reject) => {
             clearTimeout(this.timer);
