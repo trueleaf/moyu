@@ -33,7 +33,7 @@
         <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
         <!-- 请求传参方式选择 -->
         <div class="w-100 mt-2">
-            <el-radio-group v-model="request.requestType">
+            <el-radio-group v-model="request.requestType" @change="handleChangeRequestMIMEType">
                 <el-radio 
                         v-for="(item, index) in docRules.requestConfig.contentTypeEnum"
                         :key="index"
@@ -353,7 +353,7 @@ export default {
                         const key = params.key;
                         const value = params.value;
                         const description = params.description;
-                        if (!isParentArray && (key.trim() === "" || key.includes(" "))) { //禁止包含空字符串(key)
+                        if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
                             this.$set(params, "_keyError", {
                                 error: true,
                                 message: "不能存在空白字符串"
@@ -361,7 +361,7 @@ export default {
                             isValidRequest = false;
                         }
                         if (!isComplex) { //非对象，数组
-                            if (value.trim() === "" || value.includes(" ")) { //非空判断
+                            if (value.trim() === "" || value.match(/(^\s+)|(\s+$)/)) { //非空判断
                                 this.$set(params, "_valueError", {
                                     error: true,
                                     message: "不能存在空白字符串"
@@ -375,7 +375,7 @@ export default {
                                 isValidRequest = false;
                             }
                         }
-                        if (!isComplex && (description.trim() === "" || description.includes(" "))) { //禁止包含空字符串(description)
+                        if (!isComplex && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
                             this.$set(params, "_descriptionError", {
                                 error: true,
                                 message: "不能存在空白字符串"
@@ -457,6 +457,18 @@ export default {
                 id: this.currentSelectDoc._id,
                 method: val.name
             });
+        },
+        //改变MimeType
+        handleChangeRequestMIMEType(val) {
+            console.log(val)
+            if (val === "formData") {
+                this.request.header.forEach(header => {
+                    console.log(header)
+                    if (header.key.toLowerCase() === "content-type") {
+                        header.value = "multipart/form-data"
+                    }
+                })
+            }
         },
         //hack通过改变_variableChange触发watch事件刷新变量值
         handleVariableChange() {
