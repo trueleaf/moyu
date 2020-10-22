@@ -23,11 +23,11 @@
             <template slot-scope="scope">
                 <div class="custom-tree-node">
                     <!-- 新增嵌套数据按钮 -->
-                    <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="!nest" @click="addNestTreeData(scope.data)"></el-button>
+                    <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="scope.data._readOnly || !nest" @click="addNestTreeData(scope.data)"></el-button>
                     <!-- 删除一行数据按钮 -->
                     <el-button 
                             class="mr-2"
-                            :disabled="!scope.node.nextSibling && scope.node.level === 1"
+                            :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
                             :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
                             type="text"
                             icon="el-icon-close"
@@ -39,7 +39,7 @@
                                 v-model="scope.data.key" 
                                 size="mini"
                                 :error="scope.data._keyError"
-                                :disabled="scope.node.parent.data.type === 'array'"
+                                :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
                                 :title="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : ''}`"
                                 :placeholder="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : '参数名称，例如：age name'}`"
                                 :mind-params="mindParams"
@@ -52,7 +52,7 @@
                         </s-v-input>
                     </div>
                     <!-- 请求参数类型 -->
-                    <el-select v-model="scope.data.type" :disabled="!nest" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
+                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || !nest" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
                         <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
@@ -63,7 +63,7 @@
                     <!-- 参数值 -->
                     <s-v-input 
                             v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-                            :disabled="scope.data.type === 'array' || scope.data.type === 'object'"
+                            :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
                             title="对象和数组不必填写参数值"
                             v-model="scope.data.value"
                             size="mini"
@@ -79,13 +79,13 @@
                         <el-option label="false" value="false"></el-option>
                     </el-select>
                     <!-- 参数是否必填 -->
-                    <el-checkbox v-model="scope.data.required" label="必有"></el-checkbox>
+                    <el-checkbox v-model="scope.data.required" :disabled="scope.data._readOnly" label="必有"></el-checkbox>
                     <!-- 参数描述 -->
                     <s-v-input 
                             v-model="scope.data.description"
                             size="mini" 
                             :error="scope.data._descriptionError"
-                            :disabled="scope.node.parent.data.type === 'array'"
+                            :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
                             class="w-40 ml-2"
                             placeholder="参数描述与备注"
                             @focus="enableDrag = false"
@@ -204,13 +204,13 @@ export default {
             }
             val.uuid = uuid();
             //通过快捷参数带出的数据需要把错误校验去掉
-            data._valueError = {
+            this.$set(data, "_valueError", {
                 error: false
-            };
-            data._descriptionError = {
+            })
+            this.$set(data, "_descriptionError", {
                 error: false
-            };
-            Object.assign(data, val)
+            })
+            Object.assign(data, val);
         },
         //新增一行
         addNewLine({ node, data }) {
@@ -238,7 +238,7 @@ export default {
                 return;
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要做数据校验 
-                if (data.key.trim() === "" || data.key.includes(" ")) { //非空校验
+                if (data.key.trim() === "" || data.key.match(/(^\s+)|(\s+$)/)) { //非空校验
                     this.$set(data, "_keyError", {
                         error: true,
                         message: "不能存在空白字符串"
@@ -300,14 +300,14 @@ export default {
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
-                console.log(data.value)
+            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验 
+                
                 if (data.value == null) {
                     this.$set(data, "_valueError", {
                         error: true,
                         message: "不能为null或者undefined"
                     });
-                } else if (data.value.trim() === "" || data.value.includes(" ")) {
+                } else if (data.value.trim() === "" || data.value.match(/(^\s+)|(\s+$)/)) { //前后不能存在空格中间可以存在空格
                     this.$set(data, "_valueError", {
                         error: true,
                         message: "不能存在空白字符串"
@@ -316,7 +316,7 @@ export default {
                     this.$set(data, "_valueError", {
                         error: false,
                     });
-                }                
+                }     
             } 
         },
         //=====================================参数描述====================================//
@@ -336,7 +336,7 @@ export default {
                         error: true,
                         message: "不能为null或者undefined"
                     })
-                }else if (data.description.trim() === "" || data.description.includes(" ")) { //非空校验
+                }else if (data.description.trim() === "" || data.description.match(/(^\s+)|(\s+$)/)) { //非空校验
                     this.$set(data, "_descriptionError", {
                         error: true,
                         message: "不能存在空白字符串"
