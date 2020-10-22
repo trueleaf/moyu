@@ -12,10 +12,11 @@
             :nest="false"
             :enable-form-data="false"
             showCheckbox
+            :mindParams="mindParams"
         >
         </s-params-tree>
     </s-collapse-card>
-</template>
+</template> 
 
 <script>
 export default {
@@ -40,7 +41,27 @@ export default {
     },
     data() {
         return {
-            //=========================================================================//
+            mindParams: [
+                {
+                    key: "cookie",
+                    value: "cookie",
+                    description: "cookie",
+                    type: "string"
+                },
+                {
+                    key: "Authorization",
+                    value: "Authorization",
+                    description: "认证信息",
+                    type: "string"
+                },
+                {
+                    key: "Content-Type",
+                    value: "application/json",
+                    description: "请求体的MIME类型",
+                    type: "string"
+                }
+                
+            ],
             //=====================================其他参数====================================//
         };
     },
@@ -48,6 +69,7 @@ export default {
     },
     methods: {
         //=====================================数据请求====================================//
+
     }
 };
 </script>

@@ -186,8 +186,27 @@ export default {
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.header.forEach(val => this.$set(val, "id", val._id))
+                this.request.header.unshift({
+                    id: uuid(),
+                    key: "host", //--------------请求头键
+                    value: location.host, //------------请求头值
+                    type: "string", //-------请求头值类型
+                    description: "host", //------描述
+                    required: true, //-------是否必填
+                    children: [], //---------子参数
+                    _readOnly: true,
+                });
+                this.request.header.unshift({
+                    id: uuid(),
+                    key: "Content-Type", //--------------请求头键
+                    value: "application/json; charset=utf-8", //------------请求头值
+                    type: "string", //-------请求头值类型
+                    description: "请求体的MIME类型", //------描述
+                    required: true, //-------是否必填
+                    children: [], //---------子参数
+                    _readOnly: true,
+                });
                 // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
-                
                 const reqParams = this.request.requestParams;
                 const resParams = this.request.responseParams;
                 const headerParams = this.request.header;
