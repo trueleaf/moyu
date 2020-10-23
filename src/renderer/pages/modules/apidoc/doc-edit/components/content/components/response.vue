@@ -7,52 +7,72 @@
 <template>
     <div class="response">
         <s-collapse title="基本信息" class="baseInfo">
-            <div>
-                <div class="my-2 d-flex a-center">
-                    <span class="flex0">请求地址：</span>
-                    <div v-copy="requestData.url.host" v-copy2="requestData.url.host + requestData.url.path" title="鼠标左键右键拷贝内容不一样">
-                        <s-ellipsis-content class="cursor-pointer" :value="requestData.url.host + requestData.url.path" max-width="100%"></s-ellipsis-content>
+            <div class="py-2">
+                <s-label-value label="请求地址：" title="鼠标左键拷贝路径，鼠标右键拷贝全部" class="d-flex">
+                    <span 
+                        v-copy="requestData.url.path" 
+                        v-copy2="requestData.url.host + requestData.url.path"
+                        class="text-ellipsis">
+                        {{ requestData.url.host + requestData.url.path }}
+                    </span>
+                </s-label-value>
+                <s-label-value label="请求方式：" class="d-flex">
+                    <span class="green">{{ requestData.methods.toUpperCase() }}</span>
+                </s-label-value>
+                <div class="d-flex mt-2">
+                    <div class="d-flex a-center">
+                        <span>状态码:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.status"
+                            :class="{
+                                green: remoteResponse.status >= 200 && remoteResponse.status < 300,
+                                orange: remoteResponse.status >= 300 && remoteResponse.status < 400,
+                                red: remoteResponse.status >= 400
+                            }"
+                        >
+                            {{ remoteResponse.status }}
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
                     </div>
-                </div>
-                <div class="my-2">
-                    <span>请求方式：</span>
-                    <span class="f-xs green">{{ requestData.methods.toUpperCase() }}</span>
-                </div>
-                <div class="d-flex mb-1">
-                    <div class="flex0">
-                        <span>连通&nbsp;</span>
-                        <span v-if="currentCondition.connected === -1" class="gray-600 el-icon-question"></span>
-                        <span v-else-if="currentCondition.connected === 0" class="red el-icon-error"></span>
-                        <span v-else-if="currentCondition.connected === 1" class="green el-icon-success"></span>
-                        <span class="mx-1 gray-400">|</span>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span>时长:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.rt"
+                            :class="{
+                                green: remoteResponse.rt >= 0 && remoteResponse.rt < 2000,
+                                orange: remoteResponse.rt >= 2000 && remoteResponse.rt < 5000,
+                                red: remoteResponse.rt >= 5000
+                            }"
+                        >
+                            {{ (remoteResponse.rt / 1000).toFixed(2) }}s
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
                     </div>
-                    <div class="flex0" :title="currentCondition.status">
-                        <span>状态码&nbsp;</span>
-                        <span v-if="currentCondition.status === -1" class="gray-600 el-icon-question"></span>
-                        <span v-else-if="currentCondition.status >= 200 && currentCondition.status < 300" class="green el-icon-success"></span>
-                        <span v-else class="red el-icon-error"></span>
-                        <span class="mx-1 gray-400">|</span>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span>大小:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.size"
+                            :title="'zip：' + (gzipResponseSize / 1000).toFixed(2) + 'KB'"
+                            :class="{
+                                green: remoteResponse.size >= 0 && remoteResponse.size < 10000,
+                                orange: remoteResponse.size >= 10000 && remoteResponse.size < 15000,
+                                red: remoteResponse.size >= 15000
+                            }"
+                        >
+                            {{ (remoteResponse.size / 1000).toFixed(2) }}KB
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
                     </div>
-                    <div class="flex0" :title="`不超过10kb,当前${currentCondition.size}kb`">
-                        <span>大小&nbsp;</span>
-                        <span v-if="currentCondition.size === 0" class="gray-600 el-icon-question"></span>
-                        <span v-else-if="currentCondition.size >= 10" class="red el-icon-error"></span>
-                        <span v-else class="green el-icon-success"></span>
-                        <span class="mx-1 gray-400">|</span>
-                    </div>
-                    <!-- <div class="flex0">
-                        <span>本地参数&nbsp;</span>
-                        <span v-if="currentCondition.localParams === -1" class="gray-600 el-icon-question"></span>
-                        <span v-else-if="currentCondition.localParams === 0" class="red el-icon-error"></span>
-                        <span v-else class="green el-icon-success"></span>
-                        <span class="mx-1 gray-400">|</span>
-                    </div> -->
-                    <div class="flex0" :title="`${currentCondition.responseErrorType}`">
-                        <span>返回参数&nbsp;</span>
-                        <span v-if="currentCondition.remoteResponse === -1" class="gray-600 el-icon-question"></span>
-                        <span v-else-if="currentCondition.remoteResponse === 0" class="red el-icon-error"></span>
-                        <span v-else class="green el-icon-success"></span>
-                        <span class="mx-1 gray-400">|</span>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span>返回格式:&nbsp;</span>
+                        <el-popover v-if="remoteResponse.contentType" placement="top-start" width="200" trigger="hover" :content="remoteResponse.contentType">
+                            <span v-if="remoteResponse.contentType.includes('application/json')" slot="reference" class="cyan">JSON</span>
+                            <span v-else-if="remoteResponse.contentType.includes('image/')" slot="reference" class="cyan">图片</span>
+                        </el-popover>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500" slot="reference"></span>
                     </div>
                 </div>
             </div>
@@ -60,10 +80,7 @@
         <s-collapse title="请求头">
             <template v-if="requestData.header.length > 1">
                 <template v-for="(item, index) in requestData.header">
-                    <div v-if="item.key" class="d-flex a-center mt" :key="index">
-                        <span v-if="item.key" class="flex0">{{ item.key }}：</span>
-                        <s-ellipsis-content :value="convertVariable(item.value)" :max-width="300" copy></s-ellipsis-content>
-                    </div>                    
+                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="convertVariable(item.value)" class="w-100" label-width="auto"></s-label-value>
                 </template>
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>
@@ -75,34 +92,18 @@
             <s-tree-json :data="requestData.responseParams"></s-tree-json>
         </s-collapse>
         <s-collapse title="远程结果">
-            <div v-if="responseData" class="f-xs d-flex j-end mb-2">
-                <div>
-                    <span>Status：</span>
-                    <span v-if="responseData.status >= 200 && responseData.status <= 299" class="green">{{ responseData.status }}</span>
-                    <span v-else-if="responseData.status >= 300 && responseData.status <= 399" class="yellow">{{ responseData.status }}</span>
-                    <span v-else-if="responseData.status >= 400 && responseData.status <= 599" class="red">{{ responseData.status }}</span>
-                </div>
-                <div class="mx-2">
-                    <span>Time：</span>
-                    <span v-if="responseData.rt >= 0 && responseData.rt <= 2000" class="green">{{ responseData.rt }}ms</span>
-                    <span v-else class="red">{{ responseData.rt }}ms</span>
-                </div>
-                <div>
-                    <span>Size：</span>
-                    <span v-if="responseData.size >= 0 && responseData.size <= 10" class="green">{{ responseData.size }}kb</span>
-                    <span v-else class="red">{{ responseData.size }}kb</span>
-                </div>
-            </div>
+            <pre>{{ remoteResponse }}</pre>
             <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)">
-                <s-json v-if="responseData && responseData.contentType.includes('application/json')" :data="responseData.data" :check-data="checkJsonData" @export="handleExport"></s-json>
-                <span v-else-if="responseData && responseData.contentType.includes('image/svg+xml')" v-html="responseData.data"></span>
-                <img v-else-if="responseData && responseData.contentType.includes('image/')" :src="responseData.data" alt="无法显示">
-                <pre v-else-if="responseData && responseData.contentType.includes('text/')" v-text="responseData.data" class="res-text"></pre>
-                <iframe v-else-if="responseData && responseData.contentType.includes('application/pdf/')" :src="responseData.data" class="res-pdf"></iframe>
-                <pre v-else-if="responseData && responseData.contentType === 'error'">{{ responseData.data }}</pre>
-                <pre v-else>{{ responseData }}</pre>
+                <div v-if="remoteResponse && remoteResponse.contentType">
+                    <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="checkJsonData" @export="handleExport"></s-json>
+                    <span v-else-if="remoteResponse.contentType.includes('image/svg+xml')" v-html="remoteResponse.data"></span>
+                    <img v-else-if="remoteResponse.contentType.includes('image/')" :src="remoteResponse.data" alt="无法显示">
+                    <pre v-else-if="remoteResponse.contentType.includes('text/')" v-text="remoteResponse.data" class="res-text"></pre>
+                    <iframe v-else-if="remoteResponse.contentType.includes('application/pdf/')" :src="remoteResponse.data" class="res-pdf"></iframe>
+                    <pre v-else-if="remoteResponse.contentType === 'error'">{{ remoteResponse.data }}</pre>
+                    <pre v-else>{{ remoteResponse }}</pre>
+                </div>
             </div>
-            <!-- <s-json v-if="responseData" :data="responseData.headers"></s-json> -->
         </s-collapse>
         <s-collapse title="返回头">
             <pre v-if="responseData">{{ responseData.headers }}</pre>
@@ -117,6 +118,7 @@ import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
 import HttpClient from "@/api/net.js"
 const httpClient = new HttpClient();
+import gzipSize from "gzip-size"
 export default {
     components: {},
     props: {
@@ -161,7 +163,14 @@ export default {
         currentSelectDoc() { 
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
-       
+        //远端返回数据结果
+        remoteResponse() {
+            return this.$store.state.apidoc.responseData;
+        },
+        //压缩后返回值大小
+        gzipResponseSize() {
+            return gzipSize.sync(JSON.stringify(this.$store.state.apidoc.responseData.data) || "")
+        },
     },
     watch: {
         currentSelectDoc: {
@@ -186,50 +195,6 @@ export default {
     },
     methods: {
         //=====================================发送请求====================================//
-        sendRequest() {
-            return new Promise((resolve, reject) => {
-                this.loading = true;
-                const requestInfo = this.formatRequestParams();
-                const urllibOptions = this.formatUrllibOptions(requestInfo);
-                console.log("请求参数", urllibOptions)
-                httpClient.request(requestInfo.url, {
-                    method: urllibOptions.method,
-                    headers: urllibOptions.headers,
-                    data: urllibOptions.data
-                }).then(response => {
-                    console.log(response);
-                    this.responseData = {};
-                    this.responseData.headers = response.headers;
-                    this.responseData.rt = response.rt;
-                    this.responseData.size = (response.size / 1024).toFixed(2);
-                    this.responseData.status = response.status;
-                    this.responseData.contentType = response.contentType;
-                    this.responseData.cookie = response.headers["set-cookie"];
-                    this.responseData.data = response.data;
-                    this.currentCondition.connected = 1; //连通
-                    this.currentCondition.status = this.responseData.status;
-                    this.currentCondition.size = this.responseData.size;
-                    this.checkResponseParams()
-                    resolve(response);
-                }).catch(err => {
-                    console.error(err);
-                    this.responseData = {};
-                    this.responseData.contentType = "error";
-                    this.responseData.data = err;
-                    this.currentCondition.connected = 0; //未连通
-                    reject(err)
-                }).finally(() => {
-                    this.loading = false;
-                });
-            })
-        },
-        stopRequest() {
-            this.responseData = {};
-            this.responseData.contentType = "error";
-            this.responseData.data = "请求取消!";
-            httpClient.stopReqeust();
-            this.loading = false;
-        },
         //格式化请求参数
         formatRequestParams() {
             const copyRequestData = JSON.parse(JSON.stringify(this.requestData)); //扁平数据拷贝
