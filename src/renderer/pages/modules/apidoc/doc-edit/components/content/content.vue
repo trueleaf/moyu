@@ -24,11 +24,9 @@
                 <s-header-params-manage :request="request" :data-ready="docDataReady"></s-header-params-manage>
             </div>            
         </div>
-        <div class="response-wrap">
-            <s-response ref="response" :request-data="request"></s-response>
-        </div>
+        <s-response class="response-wrap" ref="response" :request-data="request"></s-response>
     </div>
-    <div v-else></div>
+    <s-empty-tip v-else></s-empty-tip>
 </template>
 
 <script>
@@ -41,7 +39,8 @@ import serverManage from "./components/server" //-------------------------------
 import requestOperationManage from "./components/request-operation" //--------------请求操作和url管理
 import requestParamsManage from "./components/request-params" //--------------------请求参数管理
 import responseParamsManage from "./components/response-params" //------------------返回参数管理
-import headerParamsManage from "./components/header-params" //------------------请求头管理
+import headerParamsManage from "./components/header-params" //----------------------请求头管理
+import emptyTip from "./components/empty-tip" //------------------------------------数据为空提示信息
 //=========================================================================//
 const CancelToken = axios.CancelToken;
 export default {
@@ -53,6 +52,7 @@ export default {
         "s-remark-manage": remarkManage,
         "s-request-operation-manage": requestOperationManage,
         "s-response": response,
+        "s-empty-tip": emptyTip,
     },
     data() {
         return {
@@ -114,9 +114,6 @@ export default {
         },
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-        mindParams() {
-            return this.$store.state.apidoc.mindParams;
         },
     },
     watch: {
@@ -185,27 +182,41 @@ export default {
                 Object.assign(this.request, res.data.item);
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
-                this.request.header.forEach(val => this.$set(val, "id", val._id))
-                this.request.header.unshift({
-                    id: uuid(),
-                    key: "host", //--------------请求头键
-                    value: location.host, //------------请求头值
-                    type: "string", //-------请求头值类型
-                    description: "host", //------描述
-                    required: true, //-------是否必填
-                    children: [], //---------子参数
-                    _readOnly: true,
-                });
-                this.request.header.unshift({
-                    id: uuid(),
-                    key: "Content-Type", //--------------请求头键
-                    value: "application/json; charset=utf-8", //------------请求头值
-                    type: "string", //-------请求头值类型
-                    description: "请求体的MIME类型", //------描述
-                    required: true, //-------是否必填
-                    children: [], //---------子参数
-                    _readOnly: true,
-                });
+                this.request.header.forEach(val => {
+                    this.$set(val, "id", val._id)
+                    if (val.key.toLowerCase() === "host") {
+                        this.$set(val, "_readOnly", true)
+                        this.$set(val, "value", location.host)
+                    }
+                    if (val.key.toLowerCase() === "content-type") {
+                        this.$set(val, "_readOnly", true)
+                        this.$set(val, "value", "application/json; charset=utf-8")
+                    }
+                })
+                if (!this.request.header.some(val => val.key.toLowerCase() === "host")) {
+                    this.request.header.unshift({
+                        id: uuid(),
+                        key: "host", //--------------请求头键
+                        value: location.host, //------------请求头值
+                        type: "string", //-------请求头值类型
+                        description: "host", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                        _readOnly: true,
+                    });                    
+                }
+                if (!this.request.header.some(val => val.key.toLowerCase() === "content-type")) {
+                    this.request.header.unshift({
+                        id: uuid(),
+                        key: "Content-Type", //--------------请求头键
+                        value: "application/json; charset=utf-8", //------------请求头值
+                        type: "string", //-------请求头值类型
+                        description: "请求体的MIME类型", //------描述
+                        required: true, //-------是否必填
+                        children: [], //---------子参数
+                        _readOnly: true,
+                    });
+                }
                 // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
                 const reqParams = this.request.requestParams;
                 const resParams = this.request.responseParams;
@@ -304,13 +315,8 @@ export default {
     .response-wrap {
         flex: 1 0 35%;
     }
-    .request {
-        .el-radio {
-            margin-right: size(10);
-        }
-    }
     .params-wrap {
-        max-height: calc(100vh - 350px);
+        max-height: calc(100vh - #{size(350px)});
         overflow-y: auto;
     }
 }
