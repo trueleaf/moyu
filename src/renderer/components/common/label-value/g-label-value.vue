@@ -50,16 +50,25 @@ export default {
 .label-value {
     display: inline-flex;
     align-items: center;
-    margin-bottom: size(10);
     flex: 0 0 auto;
+    max-width: 100%;
+    &:not(:last-child) {
+        margin-bottom: size(10);
+    }
     .label {
         color: $gray-800;
         display: inline-flex;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: flex-start;
+        flex-grow: 0;
+        flex-shrink: 0;
     }
     .value {
         color: $gray-600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
     }
 }
 </style>
