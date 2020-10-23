@@ -90,14 +90,14 @@ class HttpClient {
     //格式化返回参数
     formatResponseData(response, data) {
         let result = null;
-        if (response.headers["content-type"].includes("application/json")) { //常规json格式
+        const contentType = response.headers["content-type"]
+        if (contentType.includes("application/json")) { //常规json格式
             result = JSON.parse(data.toString());
-        } else if (response.headers["content-type"].includes("image/svg+xml")) { //svg格式，一般为验证码
-            console.log(response)
+        } else if (contentType.includes("text/")) { //纯文本
             result = data.toString();
-        } else if (response.headers["content-type"].includes("text/")) {
+        } else if (contentType.includes("image/svg+xml")) { //svg格式，一般为验证码
             result = data.toString();
-        } else if (response.headers["content-type"].includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+        } else if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
             const contentDisposition = response.headers["content-disposition"];
             const fileInfo = contentDisposition ? contentDisposition.match(/filename=([^=]+)/) : null;
             const fileName = fileInfo ? fileInfo[1] : "";
@@ -114,6 +114,8 @@ class HttpClient {
                 blobData,
                 fileName 
             }
+        } else {
+            result = data.toString();
         }
         return result;
     }
