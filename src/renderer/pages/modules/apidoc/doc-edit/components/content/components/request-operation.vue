@@ -403,7 +403,7 @@ export default {
             this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
-            const invalidReg = /\/(?!\/)[^#\.?:]+/; //去除无效部分
+            const invalidReg = /\/(?!\/)[^#\?:]+/; //去除无效部分
             const matchedPath = this.request.url.path.match(invalidReg);
             if (matchedPath) {
                 this.request.url.path = matchedPath[0];
