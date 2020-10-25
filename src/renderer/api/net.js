@@ -41,7 +41,6 @@ class HttpClient {
             this.instance.setHeader(i, headers[i]);
         }
         console.log("请求参数", headers, url, options, requestOptions)
-        
         //=====================================超时定时器====================================//
         return new Promise((resolve, reject) => {
             clearTimeout(this.timer);
@@ -50,13 +49,15 @@ class HttpClient {
                 this.stopReqeust(); //超时取消发送
             }, this.timeout);
             this.instance.on("response", (response) => {
-                response.on("data", (data) => {
+                let data = Buffer.alloc(0);
+                //数据获取完毕   fix: end事件必须在data前面 https://github.com/electron/electron/issues/12545
+                response.on("end", () => {
                     const status = response.statusCode;
                     const statusMessag = response.statusMessage;
                     const httpVersion = response.httpVersion;
-                    const rt = Date.now() - startTime;
                     const headers = response.headers;
                     const contentType = response.headers["content-type"];
+                    const rt = Date.now() - startTime;
                     const size = data.length;
                     const responseData = this.formatResponseData(response, data);
                     resolve({
@@ -69,17 +70,24 @@ class HttpClient {
                         contentType,
                         size,
                     });
+                    clearTimeout(this.timer);
                 });
-                clearTimeout(this.timer);
+                //获取数据
+                response.on("data", (chunk) => {
+                    data = Buffer.concat([data, chunk])
+                });
             });
+            //取消请求
             this.instance.on("abort", () => {
                 console.log("abort")
                 clearTimeout(this.timer);
             });
+            //请求错误
             this.instance.on("error", (error) => {
                 reject(error);
                 clearTimeout(this.timer);
             });
+            //完成数据请求
             this.instance.on("finish", () => {
                 console.log("finish")
             });
@@ -91,13 +99,16 @@ class HttpClient {
     formatResponseData(response, data) {
         let result = null;
         const contentType = response.headers["content-type"]
+        console.log(contentType)
         if (contentType.includes("application/json")) { //常规json格式
             result = JSON.parse(data.toString());
         } else if (contentType.includes("text/")) { //纯文本
             result = data.toString();
         } else if (contentType.includes("image/svg+xml")) { //svg格式，一般为验证码
             result = data.toString();
-        } else if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+        } else if (contentType.includes("application/pdf")) { //pdf格式
+            result = "pdf";
+        }  else if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
             const contentDisposition = response.headers["content-disposition"];
             const fileInfo = contentDisposition ? contentDisposition.match(/filename=([^=]+)/) : null;
             const fileName = fileInfo ? fileInfo[1] : "";
