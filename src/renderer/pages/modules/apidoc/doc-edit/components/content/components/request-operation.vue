@@ -83,6 +83,9 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
+        loading() {
+            return this.$store.state.apidoc.loading
+        }
     },
     watch: {
         dataReady: {
@@ -105,7 +108,6 @@ export default {
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
             //=====================================其他参数====================================//
-            loading: false, //-------------发送请求loading
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
@@ -135,7 +137,8 @@ export default {
         sendRequest() {
             const isValidateRequest = this.validateParams();
             if (isValidateRequest) {
-                this.loading = true;
+                // this.loading = true;
+                this.$store.commit("apidoc/changeLoading", true);
                 const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
                 const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
                 const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
@@ -149,14 +152,14 @@ export default {
                 }).catch(err => {
                     console.error(err);
                 }).finally(() => {
-                    this.loading = false;
+                    this.$store.commit("apidoc/changeLoading", false);
                 });
             }
         },
         //取消发送
         stopRequest() {
             this.$store.dispatch("apidoc/stopRequest");
-            this.loading = false;
+            this.$store.commit("apidoc/changeLoading", false);
         },
         //保存接口
         saveRequest() {
