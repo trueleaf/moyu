@@ -18,7 +18,12 @@ export default {
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
-        responseData: {}, //-----------返回参数
+        responseData: {
+            status: 0,
+            rt: 0,
+            data: {},
+            percentage: 0,
+        }, //-----------返回参数
         presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
@@ -139,8 +144,17 @@ export default {
             state.presetParamsList = payload;
         },
         //=====================================发送请求====================================//
-        changeResponseData(state, payload) {
-            state.responseData = payload;
+        changeResponseInfo(state, payload) {
+            state.responseData.status = payload.status;
+            state.responseData.statusMessage = payload.statusMessage;
+            state.responseData.httpVersion = payload.httpVersion;
+            state.responseData.headers = payload.headers;
+            state.responseData.contentType = payload.headers["content-type"];
+            state.responseData.size = payload.size;
+        },
+        changeResponseDataAndRT(state, payload) {
+            state.responseData.rt = payload.rt;
+            state.responseData.data = payload.data;            
         },
     },
     actions: {
@@ -213,14 +227,20 @@ export default {
                     method,
                     headers,
                     data
-                }).then(response => {
-                    // console.log("返回参数", response);
-                    this.responseData = response;
-                    context.commit("changeResponseData", response);
-                    resolve(response);
-                }).catch(err => {
-                    reject(err)
-                });                
+                })
+                httpClient.on("response", response => {
+                    context.commit("changeResponseInfo", response)
+                })   
+                httpClient.on("end", endResponse => {
+                    context.commit("changeResponseDataAndRT", endResponse)
+                    resolve(context.state.responseData);
+                })    
+                httpClient.on("error", error => {
+                    reject(error);
+                })   
+                httpClient.on("loading", percentage => {
+                    context.state.responseData.percentage = percentage;
+                })   
             })
         },
         stopRequest() {
