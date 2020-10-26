@@ -92,10 +92,24 @@ class HttpClient {
                 clearTimeout(this.timer);
             });
             //获取数据
+            let oldTime = null;
+            let startChunkSize = 0;
+            let i = 0;
             response.on("data", (chunk) => {
+                if (!oldTime) {
+                    oldTime = Date.now()
+                }
+                i++;
                 data = Buffer.concat([data, chunk]);
-                const percentage = (data.length / size).toFixed(2)
-                this.emit("loading", percentage)
+                if (i % 40 === 0) {
+                    const newTime = Date.now();
+                    const usedTime = (newTime - oldTime) / 1000;
+                    const chunkSize = (data.length - startChunkSize);
+                    const speed = (chunkSize  / usedTime).toFixed(2);
+                    this.emit("loading", speed)
+                    oldTime = Date.now();
+                    startChunkSize = data.length;
+                }
             });
         });
         //取消请求
@@ -137,6 +151,11 @@ class HttpClient {
             result = {
                 fileName,
                 ...this._convertBufferToBlobUrl(data, "application/pdf")
+            };
+        } else if (contentType.includes("application/vnd.ms-excel")) { //xls  低版本Excel
+            result = {
+                fileName,
+                ...this._convertBufferToBlobUrl(data, "application/vnd.ms-excel")
             };
         } else if (contentType.includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) { //xlsx
             result = {
