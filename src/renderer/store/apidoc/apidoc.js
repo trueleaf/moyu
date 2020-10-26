@@ -22,13 +22,14 @@ export default {
             status: 0,
             rt: 0,
             data: {},
-            percentage: 0,
+            speed: 0,
         }, //-----------返回参数
         presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
             mindResponseParams: []
         },
+        loading: false, //是否正在请求数据
     },
     mutations: {
         //=====================================全局变量====================================//
@@ -156,6 +157,9 @@ export default {
             state.responseData.rt = payload.rt;
             state.responseData.data = payload.data;            
         },
+        changeLoading(state, loading) {
+            state.loading = loading;
+        },
     },
     actions: {
         //获取文档左侧banner
@@ -238,8 +242,8 @@ export default {
                 httpClient.on("error", error => {
                     reject(error);
                 })   
-                httpClient.on("loading", percentage => {
-                    context.state.responseData.percentage = percentage;
+                httpClient.on("loading", speed => {
+                    context.state.responseData.speed = speed;
                 })   
             })
         },
