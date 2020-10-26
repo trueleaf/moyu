@@ -92,14 +92,21 @@
             <s-tree-json :data="requestData.responseParams"></s-tree-json>
         </s-collapse>
         <s-collapse title="远程结果">
-            <pre>{{ remoteResponse }}</pre>
-            <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)">
+            <!-- <pre>{{ remoteResponse }}</pre> -->
+            <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="response-wrapper">
                 <div v-if="remoteResponse && remoteResponse.contentType">
                     <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="checkJsonData" @export="handleExport"></s-json>
                     <span v-else-if="remoteResponse.contentType.includes('image/svg+xml')" v-html="remoteResponse.data"></span>
-                    <img v-else-if="remoteResponse.contentType.includes('image/')" :src="remoteResponse.data" alt="无法显示">
+                    <el-image 
+                        v-else-if="remoteResponse.contentType.includes('image/')"
+                        class="img-style"
+                        :src="remoteResponse.data.blobUrl"
+                        :preview-src-list="[remoteResponse.data.blobUrl]"
+                        fit="scale-down"
+                    >
+                    </el-image>
                     <pre v-else-if="remoteResponse.contentType.includes('text/')" v-text="remoteResponse.data" class="res-text"></pre>
-                    <iframe v-else-if="remoteResponse.contentType.includes('application/pdf/')" :src="remoteResponse.data" class="res-pdf"></iframe>
+                    <iframe v-else-if="remoteResponse.contentType.includes('application/pdf')" :src="remoteResponse.data.blobUrl" class="pdf-style"></iframe>
                     <pre v-else-if="remoteResponse.contentType === 'error'">{{ remoteResponse.data }}</pre>
                     <pre v-else>{{ remoteResponse }}</pre>
                 </div>
@@ -169,7 +176,7 @@ export default {
         },
         //压缩后返回值大小
         gzipResponseSize() {
-            return gzipSize.sync(JSON.stringify(this.$store.state.apidoc.responseData.data) || "")
+            return gzipSize.sync(JSON.stringify(this.$store.state.apidoc.responseData) || "")
         },
     },
     watch: {
@@ -191,7 +198,7 @@ export default {
         };
     },
     created() {
-
+        
     },
     methods: {
         //=====================================发送请求====================================//
@@ -562,6 +569,10 @@ export default {
 .response {
     height: calc(100vh - 120px);
     overflow-y: auto;
+    .response-wrapper {
+        height: size(300);
+        overflow-y: auto;
+    }
     .baseInfo {
         position: sticky;
         top: 0;
@@ -579,8 +590,12 @@ export default {
         max-height: size(300);
         overflow: auto;
     }
-    .res-pdf {
+    .pdf-style {
         width: 100%;
+        height: size(300);
+    }
+    .img-style {
+        width: size(300);
         height: size(300);
     }
 }
