@@ -139,7 +139,7 @@ export default {
                 const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
                 const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
                 const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
-                console.log(requestParams, headerParams);
+                // console.log(requestParams, headerParams);
                 const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
                 const method = copyRequestInfo.methods.toLowerCase();
                 const headers = headerParams;
@@ -156,6 +156,7 @@ export default {
         //取消发送
         stopRequest() {
             this.$store.dispatch("apidoc/stopRequest");
+            this.loading = false;
         },
         //保存接口
         saveRequest() {
