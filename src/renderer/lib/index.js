@@ -284,3 +284,26 @@ export const unique = (array = [], key) => {
     }
     return result;
 }
+/** 
+ * @description        将byte转换为易读单位
+ * @author              shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {string}      byteNum - 字节数量       
+ * @return {String}    返回字符串
+ */
+export const formatBytes = (byteNum) => {
+    let result = "";
+    if (!byteNum) {
+        return "";
+    }
+    if (byteNum > 0 && byteNum < 1024) { //b
+        result = byteNum + "B";
+    } else if (byteNum >= 1024 && byteNum < 1024 * 1024) { //KB
+        result = (byteNum / 1024).toFixed(2) + "KB"
+    } else if (byteNum >= 1024 * 1024 && byteNum < 1024 * 1024 * 1024) { //MB
+        result = (byteNum / 1024 / 1024).toFixed(2) + "MB"
+    } else if (byteNum >= 1024 * 1024 * 1024 && byteNum < 1024 * 1024 * 1024 * 1024) { //GB
+        result = (byteNum / 1024 / 1024 / 1024).toFixed(2) + "GB"
+    }
+    return result;
+}

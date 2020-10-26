@@ -54,14 +54,13 @@
                         <span>大小:&nbsp;</span>
                         <span 
                             v-if="remoteResponse.size"
-                            :title="'zip：' + (gzipResponseSize / 1000).toFixed(2) + 'KB'"
                             :class="{
                                 green: remoteResponse.size >= 0 && remoteResponse.size < 10000,
                                 orange: remoteResponse.size >= 10000 && remoteResponse.size < 15000,
                                 red: remoteResponse.size >= 15000
                             }"
                         >
-                            {{ (remoteResponse.size / 1000).toFixed(2) }}KB
+                            {{ size }}
                         </span>
                         <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
                     </div>
@@ -69,8 +68,11 @@
                     <div class="d-flex a-center">
                         <span>返回格式:&nbsp;</span>
                         <el-popover v-if="remoteResponse.contentType" placement="top-start" width="200" trigger="hover" :content="remoteResponse.contentType">
-                            <span v-if="remoteResponse.contentType.includes('application/json')" slot="reference" class="cyan">JSON</span>
-                            <span v-else-if="remoteResponse.contentType.includes('image/')" slot="reference" class="cyan">图片</span>
+                            <span v-if="remoteResponse.contentType.includes('application/json')" slot="reference" class="theme-color">JSON</span>
+                            <span v-else-if="remoteResponse.contentType.includes('image/')" slot="reference" class="theme-color">图片({{ remoteResponse.contentType.replace(/image\//, "") }})</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/pdf')" slot="reference" class="theme-color">pdf</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" slot="reference" class="theme-color">Excel</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')" slot="reference" class="theme-color">Excel</span>
                         </el-popover>
                         <span v-else title="未请求数据" class="el-icon-question gray-500" slot="reference"></span>
                     </div>
@@ -92,11 +94,14 @@
             <s-tree-json :data="requestData.responseParams"></s-tree-json>
         </s-collapse>
         <s-collapse title="远程结果">
-            <!-- <pre>{{ remoteResponse }}</pre> -->
-            <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="response-wrapper">
+            <!-- <pre>{{ remoteResponse.percentage }}</pre> -->
+            <div v-loading="loading" :element-loading-text="`${speed}/s`" element-loading-background="rgba(255, 255, 255, 0.9)" class="response-wrapper">
                 <div v-if="remoteResponse && remoteResponse.contentType">
+                    <!-- json -->
                     <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="checkJsonData" @export="handleExport"></s-json>
+                    <!-- svg -->
                     <span v-else-if="remoteResponse.contentType.includes('image/svg+xml')" v-html="remoteResponse.data"></span>
+                    <!-- 图片 -->
                     <el-image 
                         v-else-if="remoteResponse.contentType.includes('image/')"
                         class="img-style"
@@ -105,9 +110,22 @@
                         fit="scale-down"
                     >
                     </el-image>
+                    <!-- 纯文本 -->
                     <pre v-else-if="remoteResponse.contentType.includes('text/')" v-text="remoteResponse.data" class="res-text"></pre>
+                    <!-- pdf -->
                     <iframe v-else-if="remoteResponse.contentType.includes('application/pdf')" :src="remoteResponse.data.blobUrl" class="pdf-style"></iframe>
-                    <pre v-else-if="remoteResponse.contentType === 'error'">{{ remoteResponse.data }}</pre>
+                    <!-- xls(低版本excel) -->
+                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" class="excel-style">
+                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                            <use xlink:href="#iconexcel"></use>
+                        </svg> 
+                        <div>
+                            <div>xls</div>
+                            <s-download-button :url="remoteResponse.data.blobUrl" static>下载</s-download-button>
+                        </div>
+                    </div>
+                    <!-- 高版本excel -->
+                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')">{{ remoteResponse.data }}</div>
                     <pre v-else>{{ remoteResponse }}</pre>
                 </div>
             </div>
@@ -125,7 +143,7 @@ import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
 import HttpClient from "@/api/net.js"
 const httpClient = new HttpClient();
-import gzipSize from "gzip-size"
+import { formatBytes } from "@/lib"
 export default {
     components: {},
     props: {
@@ -174,9 +192,15 @@ export default {
         remoteResponse() {
             return this.$store.state.apidoc.responseData;
         },
-        //压缩后返回值大小
-        gzipResponseSize() {
-            return gzipSize.sync(JSON.stringify(this.$store.state.apidoc.responseData) || "")
+        //加载效果
+        loading() {
+            return this.$store.state.apidoc.loading
+        },
+        size() {
+            return formatBytes(this.$store.state.apidoc.responseData.size)
+        },
+        speed() {
+            return formatBytes(this.$store.state.apidoc.responseData.speed)
         },
     },
     watch: {
@@ -193,7 +217,7 @@ export default {
         return {
             responseData: null, //---返回结果对象
             checkJsonData: {}, //--用于对比本地书写的返回参数与实际返回参数
-            loading: false, //-------返回结果加载状态
+            // loading: false, //-------返回结果加载状态
             sendText: "发送请求"
         };
     },
@@ -570,7 +594,7 @@ export default {
     height: calc(100vh - 120px);
     overflow-y: auto;
     .response-wrapper {
-        height: size(300);
+        max-height: size(320);
         overflow-y: auto;
     }
     .baseInfo {
@@ -597,6 +621,10 @@ export default {
     .img-style {
         width: size(300);
         height: size(300);
+    }
+    .excel-style {
+        font-size: fz(18);
+        display: flex;
     }
 }
 </style>
