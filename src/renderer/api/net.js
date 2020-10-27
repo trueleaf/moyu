@@ -23,7 +23,7 @@ class HttpClient {
         if (!this.eventObj[eventName]) {
             this.eventObj[eventName] = [];
         }
-        this.eventObj[eventName].push(cb)
+        this.eventObj[eventName][0] = cb //只允许绑定一个事件
     }
     emit(eventName) {
         const events = this.eventObj[eventName];
@@ -35,6 +35,7 @@ class HttpClient {
         }
     }
     request(url, options) {
+        this.stopReqeust();
         const requestData = options.data;
         if (typeof url !== "string") {
             throw new Error("请求url必须为字符串");
@@ -72,7 +73,8 @@ class HttpClient {
             const httpVersion = response.httpVersion;
             const headers = response.headers;
             const contentType = response.headers["content-type"];
-            const size = response.headers["content-length"];        
+            const size = response.headers["content-length"];   
+            
             this.emit("response", {
                 status,
                 statusMessage,
@@ -87,7 +89,8 @@ class HttpClient {
                 const responseData = this.formatResponseData(response, data);
                 this.emit("end", {
                     rt,
-                    data: responseData
+                    data: responseData,
+                    size: data.length
                 });
                 clearTimeout(this.timer);
             });
@@ -101,12 +104,12 @@ class HttpClient {
                 }
                 i++;
                 data = Buffer.concat([data, chunk]);
-                if (i % 40 === 0) {
+                if (i % 20 === 0) {
                     const newTime = Date.now();
                     const usedTime = (newTime - oldTime) / 1000;
                     const chunkSize = (data.length - startChunkSize);
                     const speed = (chunkSize  / usedTime).toFixed(2);
-                    this.emit("loading", speed)
+                    this.emit("loading", speed, data.length)
                     oldTime = Date.now();
                     startChunkSize = data.length;
                 }
@@ -162,8 +165,21 @@ class HttpClient {
                 fileName,
                 ...this._convertBufferToBlobUrl(data, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             };
-        } else {
-            result = data.toString();
+        } else if (contentType.includes("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) { //docx, word
+            result = {
+                fileName,
+                ...this._convertBufferToBlobUrl(data, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+            };
+        } else if (contentType.includes("application/msword")) { //doc, 低版本word
+            result = {
+                fileName,
+                ...this._convertBufferToBlobUrl(data, "application/msword")
+            };
+        } else { //不识别格式直接下载
+            result = {
+                fileName,
+                ...this._convertBufferToBlobUrl(data, "application/msword")
+            };
         }
         return result;
     }
@@ -179,7 +195,6 @@ class HttpClient {
         });
         const blobUrl = URL.createObjectURL(blobData);
         return {
-            blobData,
             blobUrl,
         };
     }
