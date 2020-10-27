@@ -23,6 +23,7 @@ export default {
             rt: 0,
             data: {},
             speed: 0,
+            size: 0,
         }, //-----------返回参数
         presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
@@ -153,9 +154,10 @@ export default {
             state.responseData.contentType = payload.headers["content-type"];
             state.responseData.size = payload.size;
         },
-        changeResponseDataAndRT(state, payload) {
+        changeResponseIndex(state, payload) {
             state.responseData.rt = payload.rt;
             state.responseData.data = payload.data;            
+            state.responseData.size = payload.size;            
         },
         changeLoading(state, loading) {
             state.loading = loading;
@@ -236,14 +238,15 @@ export default {
                     context.commit("changeResponseInfo", response)
                 })   
                 httpClient.on("end", endResponse => {
-                    context.commit("changeResponseDataAndRT", endResponse)
+                    context.commit("changeResponseIndex", endResponse)
                     resolve(context.state.responseData);
                 })    
                 httpClient.on("error", error => {
                     reject(error);
                 })   
-                httpClient.on("loading", speed => {
+                httpClient.on("loading", (speed, chunkSize) => {
                     context.state.responseData.speed = speed;
+                    context.state.responseData.size = chunkSize;
                 })   
             })
         },
