@@ -96,6 +96,7 @@ export default {
     },
     computed: {
         mindParams() { //----------联想参数
+            console.log(this.$store.state.apidoc.mindParams)
             return this.$store.state.apidoc.mindParams;
         },
         presetParamsList() { //----预设参数列表
