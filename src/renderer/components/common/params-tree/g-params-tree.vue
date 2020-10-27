@@ -352,6 +352,7 @@ export default {
         //选中所有数据
         selectAll() {
             setTimeout(() => {
+                console.log(456)
                 this.$refs["tree"].setCheckedNodes(this.treeData);
             })
         },  
