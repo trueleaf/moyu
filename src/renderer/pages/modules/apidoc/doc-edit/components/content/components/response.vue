@@ -106,7 +106,7 @@
             <div v-loading="loading" class="response-wrapper">
                 <div v-if="remoteResponse && remoteResponse.contentType">
                     <!-- json -->
-                    <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="checkJsonData" @export="handleExport"></s-json>
+                    <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="responseParams" @export="handleExport"></s-json>
                     <!-- svg -->
                     <span v-else-if="remoteResponse.contentType.includes('image/svg+xml')" v-html="remoteResponse.data"></span>
                     <!-- 图片 -->
