@@ -316,7 +316,7 @@ export default {
         flex: 1 0 35%;
     }
     .params-wrap {
-        max-height: calc(100vh - #{size(350px)});
+        max-height: calc(100vh - #{size(350)});
         overflow-y: auto;
     }
 }
