@@ -205,12 +205,13 @@ export default {
             if (!validParams) {
                 this.$message.error("参数校验错误");
             } else {
+                this.loading3 = true;
                 this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
                     this.$message.success("发布成功")
                 }).catch(err => {
                     this.$errorThrow(err, this);
                 }).finally(() => {
-                    this.loading4 = false;
+                    this.loading3 = false;
                 });
             }  
         },
