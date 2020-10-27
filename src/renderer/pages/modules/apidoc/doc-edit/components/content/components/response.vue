@@ -6,6 +6,7 @@
 */
 <template>
     <div class="response">
+        <!-- 基本信息 -->
         <s-collapse title="基本信息" class="baseInfo">
             <div class="py-2">
                 <s-label-value label="请求地址：" title="鼠标左键拷贝路径，鼠标右键拷贝全部" class="d-flex">
@@ -73,12 +74,17 @@
                             <span v-else-if="remoteResponse.contentType.includes('application/pdf')" slot="reference" class="theme-color">pdf</span>
                             <span v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" slot="reference" class="theme-color">Excel</span>
                             <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')" slot="reference" class="theme-color">Excel</span>
+                            <span v-else-if="remoteResponse.contentType.includes('text')" slot="reference" class="theme-color">文本({{ remoteResponse.contentType.replace(/text\//, "") }})</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')" slot="reference" class="theme-color">Word</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/msword')" slot="reference" class="theme-color">Word</span>
+                            <span v-else slot="reference" class="theme-color">{{ remoteResponse.contentType }}</span>
                         </el-popover>
                         <span v-else title="未请求数据" class="el-icon-question gray-500" slot="reference"></span>
                     </div>
                 </div>
             </div>
         </s-collapse>
+        <!-- 请求头 -->
         <s-collapse title="请求头">
             <template v-if="requestData.header.length > 1">
                 <template v-for="(item, index) in requestData.header">
@@ -87,15 +93,17 @@
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>
         </s-collapse>
+        <!-- 请求参数 -->
         <s-collapse title="请求参数" :active="false">
             <s-tree-json :data="requestParams"></s-tree-json>
         </s-collapse>
+        <!-- 响应参数 -->
         <s-collapse title="响应参数" :active="false">
             <s-tree-json :data="requestData.responseParams"></s-tree-json>
         </s-collapse>
+        <!-- 远程结果 -->
         <s-collapse title="远程结果">
-            <!-- <pre>{{ remoteResponse.percentage }}</pre> -->
-            <div v-loading="loading" :element-loading-text="`${speed}/s`" element-loading-background="rgba(255, 255, 255, 0.9)" class="response-wrapper">
+            <div v-loading="loading" class="response-wrapper">
                 <div v-if="remoteResponse && remoteResponse.contentType">
                     <!-- json -->
                     <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="checkJsonData" @export="handleExport"></s-json>
@@ -115,7 +123,7 @@
                     <!-- pdf -->
                     <iframe v-else-if="remoteResponse.contentType.includes('application/pdf')" :src="remoteResponse.data.blobUrl" class="pdf-style"></iframe>
                     <!-- xls(低版本excel) -->
-                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" class="excel-style">
+                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" class="office-style">
                         <svg class="svg-icon" aria-hidden="true" title="xls">
                             <use xlink:href="#iconexcel"></use>
                         </svg> 
@@ -125,8 +133,44 @@
                         </div>
                     </div>
                     <!-- 高版本excel -->
-                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')">{{ remoteResponse.data }}</div>
-                    <pre v-else>{{ remoteResponse }}</pre>
+                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')" class="office-style">
+                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                            <use xlink:href="#iconexcel"></use>
+                        </svg> 
+                        <div>
+                            <div>xlsx</div>
+                            <s-download-button :url="remoteResponse.data.blobUrl" static>下载</s-download-button>
+                        </div>
+                    </div>
+                    <!-- docx -->
+                    <div v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')" class="office-style">
+                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                            <use xlink:href="#iconWORD"></use>
+                        </svg> 
+                        <div>
+                            <div>docx</div>
+                            <s-download-button :url="remoteResponse.data.blobUrl" static>下载</s-download-button>
+                        </div>
+                    </div>
+                    <!-- doc(低版本word) -->
+                    <div v-else-if="remoteResponse.contentType.includes('application/msword')" class="office-style">
+                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                            <use xlink:href="#iconWORD"></use>
+                        </svg> 
+                        <div>
+                            <div>doc</div>
+                            <s-download-button :url="remoteResponse.data.blobUrl" static>下载</s-download-button>
+                        </div>
+                    </div>
+                    <div v-else class="d-flex f-lg">
+                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                            <use xlink:href="#iconicon_weizhiwenjian"></use>
+                        </svg> 
+                        <div>
+                            <div>{{ remoteResponse.contentType }}</div>
+                            <s-download-button :url="remoteResponse.data.blobUrl" static>下载</s-download-button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </s-collapse>
@@ -352,109 +396,6 @@ export default {
             foo(plainData, result);
             return result;
         },
-        //将扁平数据转换为树形结构字符串数据
-        convertPlainParamsToStringTreeData(plainData, jumpChecked) {
-            const result = {
-                str: ""
-            };
-            const createIndent = (level) => { //缩进级别
-                const indent = 4;
-                return " ".repeat(level * indent);
-            }; 
-            const createDash = (length) => { //创建短横线
-                if (length < 0) length = 0; 
-                return "-".repeat(length);
-            }; 
-
-            const foo = (plainData, level, inArray) => {
-                let resultStr = "";
-                for(let i = 0,len = plainData.length; i < len; i++) {
-                    if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
-                        continue; 
-                    }
-                    const key = plainData[i].key.toString().trim();
-                    let value = plainData[i].value;
-                    const type = plainData[i].type;
-                    const desc = plainData[i].description;
-                    const required = plainData[i].required;
-                    const isComplex = (type === "object" || type === "array");
-                    // if (isComplex && key === "") { //复杂数据必须填写参数名称
-                    //     continue;
-                    // }
-                    if (!isComplex && (value === "")) { //非复杂数据需要填写参数名称才可以显示
-                        continue
-                    }
-                    /*eslint-disable indent*/ 
-                    switch (type) {
-                        case "number": { //数字类型需要转换为数字，转换前所有值都为字符串
-                            const keyLength = inArray ? -2 : key.length; //-2是两个"占据的位置
-                            const currentLength = 40 - level * 4 - 3 - keyLength - value.length;
-                            resultStr += `${createIndent(level)}${inArray ? "" : key + ": "}${Number(value)}, //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            result.str += `${createIndent(level)}${inArray ? "" : key + ": "}${Number(value)}, //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            break;
-                        }
-                        case "boolean": {
-                            const keyLength = inArray ? -2 : key.length; //-2是两个"占据的位置
-                            const currentLength = 40 - level * 4 - 3 - keyLength - value.length;
-                            resultStr += `${createIndent(level)}${inArray ? "" : key + ": "}${value}, //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            result.str += `${createIndent(level)}${inArray ? "" : key + ": "}${value}, //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            break;                            
-                        }
-                        case "object": {
-                            const keyLength = inArray ? -2 : key.length; //-2是两个"占据的位置
-                            const currentLength = 40 - level * 4 - 3 - keyLength;
-                            if (plainData[i].children && plainData[i].children.length > 0) {
-                                if (level === 0) {
-                                    result.str += `${createIndent(level)}${inArray ? "" : key + ": "}{ //${createDash(currentLength)}${desc || ""}\n${foo(plainData[i].children, level + 1, false)}}`;
-                                } else {
-                                    resultStr = `${createIndent(level)}${inArray ? "" : key + ": "}{ //${createDash(currentLength)}${desc || ""}\n${foo(plainData[i].children, level + 1, false)}${createIndent(level)}}\n`;
-                                }
-                            } else {
-                                if (level === 0) {
-                                    result.str += `${createIndent(level)}${inArray ? "" : key + ": "}{ //${createDash(currentLength)}${desc || ""}\n}, \n`;
-                                } else {
-                                    resultStr = `${createIndent(level)}${inArray ? "" : key + ": "}{ //${createDash(currentLength)}${desc || ""}\n}, \n`;
-                                }
-                            }
-                            break;                            
-                        }
-                        case "array": {
-                            const currentLength = 40 - level * 4 - 3 - key.length;
-                            if (plainData[i].children && plainData[i].children.length > 0) {
-                                if (level === 0) {
-                                    result.str += `${createIndent(level)}${key}: [ //${createDash(currentLength)}${desc || ""}\n${foo(plainData[i].children, level + 1, true)}]`;
-                                } else {
-                                    resultStr = `${createIndent(level)}${key}: [ //${createDash(currentLength)}${desc || ""}\n${foo(plainData[i].children, level + 1, true)}${createIndent(level)}]\n`;
-                                }
-                            } else {
-                                if (level === 0) {
-                                    result.str += `${createIndent(level)}${key}: [ //${createDash(currentLength)}${desc || ""}\n], \n`;
-                                } else {
-                                    resultStr = `${createIndent(level)}${key}: [ //${createDash(currentLength)}${desc || ""}\n], \n`;
-                                }
-                            }
-                            break;                            
-                        }
-                        default: { //字符串或其他类型类型不做处理
-                            const keyLength = inArray ? -2 : key.length; //-2是两个"占据的位置
-                            let currentLength = 0;
-                            if (value && value.length > 15) { //字符串长度超过15个字符的做截取操作
-                                value = value.slice(0, 15) + "...";
-                                currentLength = 40 - level * 4 - 3 - keyLength - value.length - 2;
-                            } else {
-                                currentLength = 40 - level * 4 - 3 - keyLength - value.length - 2;
-                            }
-                            resultStr += `${createIndent(level)}${inArray ? "" : key + ": "}"${value}", //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            result.str += `${createIndent(level)}${inArray ? "" : key + ": "}"${value}", //${createDash(currentLength)}${desc || ""}${required ? " (必填)" : ""}\n`;
-                            break;
-                        }
-                    }
-                }
-                return resultStr;
-            }
-            foo(plainData, 0, false);
-            return result;
-        },
         //导出数据
         handleExport(data) {
             const copyData =JSON.parse(JSON.stringify(data))
@@ -622,7 +563,7 @@ export default {
         width: size(300);
         height: size(300);
     }
-    .excel-style {
+    .office-style {
         font-size: fz(18);
         display: flex;
     }
