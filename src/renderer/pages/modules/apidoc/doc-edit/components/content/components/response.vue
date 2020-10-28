@@ -95,7 +95,7 @@
         </s-collapse>
         <!-- 请求参数 -->
         <s-collapse title="请求参数" :active="false">
-            <s-tree-json :data="requestParams"></s-tree-json>
+            <s-tree-json :data="selectedRequestParams"></s-tree-json>
         </s-collapse>
         <!-- 响应参数 -->
         <s-collapse title="响应参数" :active="false">
@@ -175,7 +175,7 @@
             </div>
         </s-collapse>
         <s-collapse title="返回头">
-            <pre v-if="responseData">{{ responseData.headers }}</pre>
+            <pre v-if="remoteResponse">{{ remoteResponse.headers }}</pre>
         </s-collapse>
     </div>
 </template>
@@ -199,13 +199,15 @@ export default {
         },
     },
     computed: {
-        //返回参数(对象类型)
-        responseParams() {
+        variables() { //全局变量
+            return this.$store.state.apidoc.variables || [];
+        },
+        responseParams() { //返回参数(对象类型)
             const copyData = JSON.parse(JSON.stringify(this.requestData.responseParams)); //扁平数据拷贝
             const result = this.convertPlainParamsToTreeData(copyData);
             return result;
         },
-        requestParams() {
+        selectedRequestParams() { //只显示选中的json数据
             const copyData = JSON.parse(JSON.stringify(this.requestData.requestParams)); //扁平数据拷贝
             dfsForest(copyData, {
                 rCondition(value) {
@@ -224,138 +226,35 @@ export default {
             });
             return copyData;
         },
-        //预发布满足提交的条件
-        currentCondition() {
-            return this.$store.state.apidocRules.currentCondition
-        },
-        //当前选中的doc
-        currentSelectDoc() { 
-            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-        //远端返回数据结果
-        remoteResponse() {
+        remoteResponse() {  //远端返回数据结果
             return this.$store.state.apidoc.responseData;
         },
-        //加载效果
-        loading() {
+        loading() { //是否正在请求数据
             return this.$store.state.apidoc.loading
         },
-        size() {
+        size() { //当前返回值大小
             return formatBytes(this.$store.state.apidoc.responseData.size)
         },
-        speed() {
+        speed() { //实时请求速度
             return formatBytes(this.$store.state.apidoc.responseData.speed)
         },
     },
-    watch: {
-        currentSelectDoc: {
-            handler(val) {
-                if (val) {
-                    this.responseData = null;
-                }
-            },
-            deep: true
-        }
-    },
     data() {
         return {
-            responseData: null, //---返回结果对象
-            checkJsonData: {}, //--用于对比本地书写的返回参数与实际返回参数
-            // loading: false, //-------返回结果加载状态
-            sendText: "发送请求"
+            validError: false, //校验状态
         };
     },
     created() {
         
     },
     methods: {
-        //=====================================发送请求====================================//
-        //格式化请求参数
-        formatRequestParams() {
-            const copyRequestData = JSON.parse(JSON.stringify(this.requestData)); //扁平数据拷贝
-            const requestParams = this.convertPlainParamsToTreeData(copyRequestData.requestParams, true); //请求参数
-            const headerParams = this.convertPlainParamsToTreeData(copyRequestData.header); //请求头
-            const requestInfo = {
-                method: copyRequestData.methods.toLowerCase(),
-                url: copyRequestData.url.host + copyRequestData.url.path,
-                headers: headerParams,
-                contentType: copyRequestData.requestType,
-                requestParams 
-            };
-            return requestInfo;
-        },
-        //格式化urllib配置信息
-        formatUrllibOptions(requestInfo) {
-            const contentType = requestInfo.contentType; //query json formData x-www-form-urlencoded
-            const requestOptions = {};
-            /*eslint-disable indent*/ 
-            switch (contentType) {
-                case "query":
-                    requestOptions.method = requestInfo.method;
-                    requestOptions.data = requestInfo.requestParams;
-                    // requestOptions.contentType = requestInfo.contentType;
-                    requestOptions.headers = requestInfo.headers;
-                    break;
-                case "json":
-                    requestOptions.method = requestInfo.method;
-                    requestOptions.data = requestInfo.requestParams;
-                    requestOptions.contentType = requestInfo.contentType;
-                    requestOptions.headers = requestInfo.headers;
-                    break;
-                case "formData":
-                    requestOptions.method = requestInfo.method;
-                    requestOptions.data = requestInfo.requestParams;
-                    requestOptions.contentType = requestInfo.contentType;
-                    requestOptions.headers = requestInfo.headers;
-                    break;
-                case "x-www-form-urlencoded":
-                    requestOptions.method = requestInfo.method;
-                    requestOptions.data = requestInfo.requestParams;
-                    requestOptions.contentType = requestInfo.contentType;
-                    requestOptions.headers = requestInfo.headers;
-                    break;
-                default:
-                    requestOptions.method = requestInfo.method;
-                    requestOptions.data = requestInfo.requestParams;
-                    requestOptions.contentType = requestInfo.contentType;
-                    requestOptions.headers = requestInfo.headers;
-                    break;
-            }
-            return requestOptions
-        },
-        //格式化返回参数
-        formatResponseData(response) {
-            let result = null;
-            if (response.headers["content-type"].includes("application/json")) { //常规json格式
-                result = JSON.parse(response.data.toString());
-            } else if (response.headers["content-type"].includes("image/svg+xml")) { //svg格式，一般为验证码
-                result = response.data.toString();
-            } else if (response.headers["content-type"].includes("text/")) {
-                result = response.data.toString();
-            } else if (response.headers["content-type"].includes("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-                const contentDisposition = response.headers["content-disposition"];
-                const fileInfo = contentDisposition ? contentDisposition.match(/filename=([^=]+)/) : null;
-                const fileName = fileInfo ? fileInfo[1] : "";
-                const arrayData = response.data
-                const ab = new ArrayBuffer(arrayData.length);
-                const view = new Uint8Array(ab);
-                for (var i = 0; i < arrayData.length; ++i) {
-                    view[i] = arrayData[i];
-                }
-                result = new Blob([view], {
-                    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                });
-                this.blobDownload(result, fileName);
-            }
-            return result;
-        },
         //=====================================组件间交互====================================//  
         //将扁平数据转换为树形结构数据
         convertPlainParamsToTreeData(plainData, jumpChecked) {
             const result = {};
             const foo = (plainData, result) => {
                 for(let i = 0,len = plainData.length; i < len; i++) {
-                    if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
+                    if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则忽略掉
                         continue;
                     }
                     const key = plainData[i].key.trim();
@@ -414,70 +313,9 @@ export default {
             });
             copyData.push(this.generateParams());
             this.requestData.responseParams = copyData
-            // console.log(copyData)
-        },
-        //检查返回值与响应参数是否一致
-        checkResponseParams() {
-            if (this.responseData.headers["content-type"].includes("application/json")) {
-                const remoteParams = this.responseData.data;
-                const localParams = this.responseParams;
-                this.checkJsonData = localParams;
-                let responseErrorType = null;
-                const hasOwn = Object.hasOwnProperty;
-                if (Object.keys(localParams).length === 0) {
-                    responseErrorType = "lackKey"
-                }
-                const foo = (localData, remoteData) => {
-                    for (let i in localData) { //不处理原型链上的数据
-                        if (!hasOwn.call(localData, i)) {
-                            continue;
-                        }
-                        // console.log(remoteData)
-                        const remoteKeys = Object.keys(remoteData); //-----远程keys
-                        const localKeys = Object.keys(localData); //-------本地keys
-                        const isLackKey = localKeys.some(val => !remoteKeys.includes(val)); //远程结果是否缺少对应字段
-                        const isTooMuchKey = !remoteKeys.every(val => localKeys.includes(val)); //远程结果是否超出字段
-                        //字段超出或者缺少判断
-                        if (isLackKey) {
-                            responseErrorType = "lackKey";
-                            return;
-                        }   
-                        if (isTooMuchKey) {
-                            responseErrorType = "tooMuchKey"
-                            return
-                        }
-                        //判断字段类型是否一致
-                        const localValue = localData[i];
-                        const remoteValue = remoteData[i];
-                        const localType = this.getType(localValue);
-                        const remoteType = this.getType(remoteValue);
-                        if (localType !== remoteType) {
-                            responseErrorType = "typeError"
-                            return
-                        }
-                        if (localType === "object") {
-                            foo(localValue, remoteValue);
-                        }
-                        if (localType === "array" && remoteValue[0]) {
-                            console.log(remoteValue, remoteValue[0], 999)
-                            foo(localValue[0], remoteValue[0]);
-                        }
-                    }                    
-                }
-                foo(localParams, remoteParams);
-                if (responseErrorType) {
-                    this.$store.commit("apidocRules/changeCurrentCondition", {
-                        remoteResponse: 0, 
-                        responseErrorType, 
-                    })
-                } else {
-                    this.$store.commit("apidocRules/changeCurrentCondition", {
-                        remoteResponse: 1, 
-                    })
-                }
-            }
         },
         //=====================================其他操作=====================================//
+        //将变量转换为实际数据
         convertVariable(val) {
             if (val == null) {
                 return;
@@ -494,23 +332,6 @@ export default {
                 }
             } else {
                 return val;
-            }
-        },
-        //获取参数类型
-        getType(value) {
-            // console.log(value, 999)
-            if (typeof value === "string") {
-                return "string"
-            } else if (typeof value === "number") { //NaN
-                return "number"
-            } else if (typeof value === "boolean") {
-                return "boolean"
-            } else if (Array.isArray(value)) {
-                return "array"
-            } else if (typeof value === "object" && value !== null) {
-                return "object"
-            } else { // null undefined ...
-                return "string"
             }
         },
         //生成请求数据

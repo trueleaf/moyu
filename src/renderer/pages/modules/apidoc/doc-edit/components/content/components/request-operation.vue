@@ -77,6 +77,9 @@ export default {
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
         },
+        remoteResponse() {  //远端返回数据结果
+            return this.$store.state.apidoc.responseData;
+        },
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
@@ -85,6 +88,9 @@ export default {
         },
         loading() {
             return this.$store.state.apidoc.loading
+        },
+        couldPublish() {
+            return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
         }
     },
     watch: {
@@ -135,26 +141,31 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            const isValidateRequest = this.validateParams();
-            if (isValidateRequest) {
-                // this.loading = true;
-                this.$store.commit("apidoc/changeLoading", true);
-                const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
-                const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
-                const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
-                // console.log(requestParams, headerParams);
-                const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
-                const method = copyRequestInfo.methods.toLowerCase();
-                const headers = headerParams;
-                const data = requestParams;
-                this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
-                    console.log(res, "res");
-                }).catch(err => {
-                    console.error(err);
-                }).finally(() => {
-                    this.$store.commit("apidoc/changeLoading", false);
-                });
-            }
+            return new Promise((resolve, reject) => {
+                const isValidateRequest = this.validateParams();
+                if (isValidateRequest) {
+                    this.$store.commit("apidoc/changeLoading", true);
+                    const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
+                    const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
+                    const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
+                    const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
+                    const method = copyRequestInfo.methods.toLowerCase();
+                    const headers = headerParams;
+                    const data = requestParams;
+                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                        this.checkResponseParams(); //参数校验
+                        resolve();
+                    }).catch(err => {
+                        console.error(err);
+                        reject(err)
+                    }).finally(() => {
+                        this.$store.commit("apidoc/changeLoading", false);
+                    });
+                } else {
+                    reject("校验错误2")             
+                }
+            })
+
         },
         //取消发送
         stopRequest() {
@@ -200,20 +211,24 @@ export default {
             }  
         },
         //发布接口
-        publishRequest() {
-            const validParams = this.validateParams();
-            if (!validParams) {
-                this.$message.error("参数校验错误");
-            } else {
-                this.loading3 = true;
-                this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
-                    this.$message.success("发布成功")
-                }).catch(err => {
-                    this.$errorThrow(err, this);
-                }).finally(() => {
-                    this.loading3 = false;
-                });
-            }  
+        async publishRequest() {
+            this.loading3 = true;
+            try {
+                await this.sendRequest();
+                if (this.couldPublish) {
+                    this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
+                        this.$message.success("发布成功")
+                    }).catch(err => {
+                        this.$errorThrow(err, this);
+                    }).finally(() => {
+                        this.loading3 = false;
+                    });
+                }                    
+            } catch (error) {
+                console.error(error);
+                this.$message.error("校验错误")
+                this.loading3 = false;
+            }
         },
         //快捷保存
         shortcutSave(e) {
@@ -402,6 +417,62 @@ export default {
             }
             return isValidRequest;
         },
+        checkResponseParams() {
+            // console.log(this.request, 22)
+            if (this.remoteResponse.contentType.includes("application/json")) {
+                const remoteParams = this.remoteResponse.data;
+                const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
+                let responseErrorType = null; //校验错误类型
+                const hasOwn = Object.hasOwnProperty;
+
+                if (Object.keys(localParams).length === 0) {
+                    responseErrorType = "lackKey"
+                }
+                const foo = (localData, remoteData) => {
+                    for (let i in localData) { //不处理原型链上的数据
+                        if (!hasOwn.call(localData, i)) {
+                            continue;
+                        }
+                        const remoteKeys = Object.keys(remoteData); //-----远程keys
+                        const localKeys = Object.keys(localData); //-------本地keys
+                        const isLackKey = localKeys.some(val => !remoteKeys.includes(val)); //远程结果是否缺少对应字段
+                        const isTooMuchKey = !remoteKeys.every(val => localKeys.includes(val)); //远程结果是否超出字段
+                        //字段超出或者缺少判断
+                        if (isLackKey) {
+                            console.log(2, remoteKeys, localKeys, localParams)
+                            responseErrorType = "lackKey";
+                            return;
+                        }   
+                        if (isTooMuchKey) {
+                            responseErrorType = "tooMuchKey"
+                            return
+                        }
+                        //判断字段类型是否一致
+                        const localValue = localData[i];
+                        const remoteValue = remoteData[i];
+                        const localType = this.getType(localValue);
+                        const remoteType = this.getType(remoteValue);
+                        if (localType !== remoteType) {
+                            responseErrorType = "typeError"
+                            return
+                        }
+                        if (localType === "object") {
+                            foo(localValue, remoteValue);
+                        }
+                        if (localType === "array" && remoteValue[0]) {
+                            console.log(remoteValue, remoteValue[0], 999)
+                            foo(localValue[0], remoteValue[0]);
+                        }
+                    }                    
+                }
+                foo(localParams, remoteParams);
+                if (responseErrorType) {
+                    this.$store.commit("apidoc/changeCondition", false)
+                } else {
+                    this.$store.commit("apidoc/changeCondition", true)
+                }
+            }
+        },
         //=====================================url操作====================================//
         //删除无效请求字符
         formatUrl() {
@@ -479,7 +550,23 @@ export default {
         handleVariableChange() {
             this.request._variableChange = !this.request._variableChange;
         },
-
+        //=====================================其他操作====================================//
+        //获取参数类型
+        getType(value) {
+            if (typeof value === "string") {
+                return "string"
+            } else if (typeof value === "number") { //NaN
+                return "number"
+            } else if (typeof value === "boolean") {
+                return "boolean"
+            } else if (Array.isArray(value)) {
+                return "array"
+            } else if (typeof value === "object" && value !== null) {
+                return "object"
+            } else { // null undefined ...
+                return "string"
+            }
+        },
     }
 };
 </script>
