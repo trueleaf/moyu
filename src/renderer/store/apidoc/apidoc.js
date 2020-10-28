@@ -25,6 +25,7 @@ export default {
             speed: 0,
             size: 0,
         }, //-----------返回参数
+        remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
@@ -138,14 +139,17 @@ export default {
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
         },
         //=====================================联想参数====================================//
+        //更新联想参数，输入提示
         changeMindParams(state, payload) {
             state.mindParams.mindRequestParams = payload.mindRequestParams;
             state.mindParams.mindResponseParams = payload.mindResponseParams;
         },
+        //更新预设参数模板
         changePresetParams(state, payload) {
             state.presetParamsList = payload;
         },
         //=====================================发送请求====================================//
+        //改变基础返回信息
         changeResponseInfo(state, payload) {
             state.responseData.status = payload.status;
             state.responseData.statusMessage = payload.statusMessage;
@@ -154,13 +158,31 @@ export default {
             state.responseData.contentType = payload.headers["content-type"];
             state.responseData.size = payload.size;
         },
+        //改变基础返回指标数据
         changeResponseIndex(state, payload) {
             state.responseData.rt = payload.rt;
             state.responseData.data = payload.data;            
             state.responseData.size = payload.size;            
         },
+        //改变loading效果
         changeLoading(state, loading) {
             state.loading = loading;
+        },
+        //重置返回值信息
+        clearRespons(state) {
+            state.responseData = {
+                status: 0,
+                rt: 0,
+                data: {},
+                speed: 0,
+                size: 0,
+            };
+            state.remoteResponseEqualToLocalResponse = false;
+        },
+        //本地录入参数是否与远程返回参数一致
+        changeCondition(state, isValid) {
+            console.log(isValid, "valid")
+            state.remoteResponseEqualToLocalResponse = isValid;
         },
     },
     actions: {
@@ -226,6 +248,7 @@ export default {
                 });              
             })
         },
+        //发送请求
         async sendRequest(context, payload) {
             const { url, method, headers, data } = payload;
             return new Promise((resolve, reject) => {
