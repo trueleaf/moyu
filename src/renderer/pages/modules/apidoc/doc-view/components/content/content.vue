@@ -106,7 +106,7 @@
                     <div v-else class="f-xs gray-500">暂无数据</div>
                 </s-collapse>
                 <s-collapse title="请求参数">
-                    <s-tree-json :data="request.requestParams"></s-tree-json>
+                    <s-tree-json :data="request.requestParams" checkbox></s-tree-json>
                 </s-collapse>
                 <s-collapse title="响应参数">
                     <s-tree-json :data="request.responseParams" value-width="300px">
@@ -118,7 +118,7 @@
             </div>            
         </div>
         <div class="w-35 flex1">
-            <s-response ref="response" :request-data="request"></s-response>
+            <s-response :request-data="request"></s-response>
         </div>
         <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
         <s-variable-manage v-if="dialogVisible2" :visible.sync="dialogVisible2" @change="handleVariableChange"></s-variable-manage>
@@ -205,7 +205,6 @@ export default {
             cancel: [], //-----------------------需要取消的接口
             loading: false, //-------------------保存接口
             loading2: false, //------------------获取文档详情接口
-            loading3: false, //------------------发送请求状态
             dialogVisible: false, //-------------域名维护弹窗  
             dialogVisible2: false, //------------全局变量管理弹窗
             dialogVisible3: false, //------------文档修改记录弹窗
@@ -243,6 +242,10 @@ export default {
         variables() {
             return this.$store.state.apidoc.variables || [];
         },
+        //发送请求状态
+        loading3() {
+            return this.$store.state.apidoc.loading;
+        },
         publishRecords() {
             if (this.docInfo.publishRecords) {
                 return this.docInfo.publishRecords.sort((a, b) => {
@@ -260,7 +263,7 @@ export default {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        this.$store.commit("apidocRules/resetCondition");
+                        this.$store.commit("apidoc/clearRespons");
                         this.getDocDetail();
                     }
                 }
@@ -307,6 +310,17 @@ export default {
                 this.ready = true;
                 Object.assign(this.request, res.data.item);
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
+                dfsForest(this.request.requestParams, {
+                    rCondition() {
+                        return true;
+                    },
+                    rKey: "children",
+                    hooks: (val) => {
+                        this.$set(val, "_select", true)
+                    }
+                });
+                console.log(222, this.request.requestParams)
+                // this.$set(val, "_select", true); //默认选中全部请求参数
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.header.forEach(val => this.$set(val, "id", val._id))
                 this.docInfo = res.data;
@@ -381,16 +395,25 @@ export default {
         //=====================================发送请求====================================//
         //发送请求
         sendRequest() {
-            console.log(this.request.url.host)
-            this.loading3 = true;
-            const isMock = this.request.url.host === "__mock__";
-            this.$refs["response"].sendRequest(isMock).then(() => {
-                
-            }).catch(err => {
-                console.error(err);
-            }).finally(() => {
-                this.loading3 = false;
-            });
+            return new Promise((resolve, reject) => {
+                this.$store.commit("apidoc/changeLoading", true);
+                const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
+                const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
+                const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
+                const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
+                const method = copyRequestInfo.methods.toLowerCase();
+                const headers = headerParams;
+                const data = requestParams;
+                console.log(data, 222)
+                this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                    resolve();
+                }).catch(err => {
+                    console.error(err);
+                    reject(err)
+                }).finally(() => {
+                    this.$store.commit("apidoc/changeLoading", false);
+                });                
+            })
         },
         //取消请求
         stopRequest() {
@@ -404,6 +427,52 @@ export default {
             this.dialogVisible4 = true;
         },
         //=====================================其他操作=====================================//
+        //将扁平数据转换为树形结构数据
+        convertPlainParamsToTreeData(plainData, jumpChecked) {
+            const result = {};
+            const foo = (plainData, result) => {
+                for(let i = 0,len = plainData.length; i < len; i++) {
+                    if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
+                        continue;
+                    }
+                    const key = plainData[i].key.trim();
+                    const value = this.convertVariable(plainData[i].value);
+                    const type = plainData[i].type;
+                    const valueTypeIsArray = Array.isArray(result);
+                    const isComplex = (type === "object" || type === "array");
+                    let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
+                    if (!isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
+                        continue
+                    }
+                    /*eslint-disable indent*/ 
+                    switch (type) {
+                        case "number": //数字类型需要转换为数字，转换前所有值都为字符串
+                            valueTypeIsArray ? result.push(Number(value)) : result[key] = Number(value);
+                            break;
+                        case "boolean": //字符串类型不做处理
+                            valueTypeIsArray ? result.push(result[key] = (value === "true" ? true : false)) : (result[key] = (value === "true" ? true : false));
+                            break;
+                        case "object":
+                            valueTypeIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
+                            if (plainData[i].children && plainData[i].children.length > 0) {
+                                foo(plainData[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key]);
+                            }
+                            break;
+                        case "array":
+                            result[key] = [];
+                            if (plainData[i].children && plainData[i].children.length > 0) {
+                                foo(plainData[i].children, result[key]);
+                            }
+                            break;
+                        default: //字符串或其他类型类型不做处理
+                            valueTypeIsArray ? result.push(value) : (result[key] = value);
+                            break;
+                    }
+                }
+            }
+            foo(plainData, result);
+            return result;
+        },
         convertVariable(val) {
             if (val == null) {
                 return;
