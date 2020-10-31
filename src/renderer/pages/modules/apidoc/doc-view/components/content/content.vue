@@ -44,8 +44,8 @@
                             <span>最近发布时间：</span>
                             <template v-if="docInfo.publishRecords && docInfo.publishRecords[0]">
                                 <span class="mr-2">{{ new Date(docInfo.publishRecords[docInfo.publishRecords.length - 1].time).toLocaleString() }}</span>
-                                <el-popover placement="top-start" width="300" trigger="hover">
-                                    <el-table :data="publishRecords" size="mini">
+                                <el-popover placement="top-start" width="400" trigger="hover">
+                                    <el-table :data="publishRecords" size="mini" max-height="300px">
                                         <el-table-column prop="publisher" label="发布者" align="center"></el-table-column>
                                         <el-table-column prop="time" label="发布时间" align="center">
                                             <template slot-scope="scope">
@@ -319,7 +319,6 @@ export default {
                         this.$set(val, "_select", true)
                     }
                 });
-                console.log(222, this.request.requestParams)
                 // this.$set(val, "_select", true); //默认选中全部请求参数
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.header.forEach(val => this.$set(val, "id", val._id))
