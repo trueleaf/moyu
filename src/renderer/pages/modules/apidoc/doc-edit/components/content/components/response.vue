@@ -181,15 +181,10 @@
 </template>
 
 <script>
-import FileType from "file-type/browser";
-import querystring from "querystring"
 import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
-import HttpClient from "@/api/net.js"
-const httpClient = new HttpClient();
 import { formatBytes } from "@/lib"
 export default {
-    components: {},
     props: {
         requestData: {
             type: Object,
