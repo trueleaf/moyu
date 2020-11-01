@@ -24,12 +24,13 @@
                 <s-header-params-manage :request="request" :data-ready="docDataReady"></s-header-params-manage>
             </div>            
         </div>
-        <s-response class="response-wrap" ref="response" :request-data="request"></s-response>
+        <s-response class="response-wrap" ref="response" :request-data="formatRequest"></s-response>
     </div>
     <s-empty-tip v-else></s-empty-tip>
 </template>
 
 <script>
+import { dfsForest } from "@/lib/index"
 import axios from "axios" 
 import uuid from "uuid/v4"
 import response from "./components/response"
@@ -115,6 +116,40 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
+        variables() { //全局变量
+            return this.$store.state.apidoc.variables || [];
+        },
+        formatRequest() {
+            const copyRequest = JSON.parse(JSON.stringify(this.request));
+            dfsForest(copyRequest.requestParams, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            dfsForest(copyRequest.responseParams, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            dfsForest(copyRequest.header, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            return copyRequest;
+        }
     },
     watch: {
         currentSelectDoc: {
@@ -287,7 +322,25 @@ export default {
             });
         },
         //=====================================其他操作=====================================//
-          
+        //将变量转换为实际数据
+        convertVariable(val) {
+            if (val == null) {
+                return;
+            }
+            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
+            if (val && matchedData) {
+                const varInfo = this.variables.find(v => {
+                    return v.name === matchedData[1];
+                });
+                if (varInfo) {
+                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
+                } else {
+                    return val;
+                }
+            } else {
+                return val;
+            }
+        },
     }
 };
 </script>
