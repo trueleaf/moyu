@@ -20,6 +20,23 @@
                 <s-label-value label="请求方式：" class="d-flex">
                     <span class="green">{{ requestData.methods.toUpperCase() }}</span>
                 </s-label-value>
+                <s-label-value label="发布状态：" class="d-flex">
+                    <el-tag v-if="publishInfo.publish" size="small" type="success" class="mr-1">已发布</el-tag>
+                    <el-tag v-else size="small" type="info" class="mr-1">未发布</el-tag>
+                    <el-popover v-if="publishInfo.publish" placement="bottom-start" width="400" trigger="hover">
+                        <el-table :data="publishInfo.publishRecords" size="mini" max-height="300px">
+                            <el-table-column prop="publisher" label="发布者" align="center"></el-table-column>
+                            <el-table-column prop="time" label="发布时间" align="center">
+                                <template slot-scope="scope">
+                                    {{ new Date(scope.row.time).toLocaleString() }}
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <svg slot="reference" class="svg-icon" aria-hidden="true">
+                            <use xlink:href="#iconlishi"></use>
+                        </svg> 
+                    </el-popover>  
+                </s-label-value>
                 <div class="d-flex mt-2">
                     <div class="d-flex a-center">
                         <span>状态码:&nbsp;</span>
@@ -194,6 +211,13 @@ export default {
         },
     },
     computed: {
+        publishInfo() {
+            const docInfo = this.$store.state.apidoc.docInfo;
+            return {
+                publish: docInfo.publish,
+                publishRecords: docInfo.publishRecords ? docInfo.publishRecords.reverse() : []
+            };
+        },
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
         },
@@ -351,6 +375,15 @@ export default {
 .response {
     height: calc(100vh - 120px);
     overflow-y: auto;
+    .svg-icon {
+        width: size(25);
+        height: size(25);
+        padding: size(5);
+        cursor: pointer;
+        &:hover {
+            background: $gray-400;
+        }
+    }   
     .response-wrapper {
         max-height: size(320);
         overflow-y: auto;

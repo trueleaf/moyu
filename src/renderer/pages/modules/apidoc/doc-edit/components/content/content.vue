@@ -11,6 +11,7 @@
             <div class="request mb-2">
                 <!-- 请求备注 -->
                 <s-remark-manage v-model="request.description"></s-remark-manage>
+                <hr>
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
@@ -212,6 +213,7 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
+                this.$store.commit("apidoc/changeDocInfo", res.data);
                 Object.assign(this.request, res.data.item);
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
@@ -277,7 +279,6 @@ export default {
                     method: res.data.item.methods
                 });
                 this.docDataReady = true;
-                
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
