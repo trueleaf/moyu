@@ -96,7 +96,6 @@ export default {
     },
     computed: {
         mindParams() { //----------联想参数
-            console.log(this.$store.state.apidoc.mindParams)
             return this.$store.state.apidoc.mindParams;
         },
         presetParamsList() { //----预设参数列表
@@ -107,7 +106,6 @@ export default {
     watch: {
         dataReady(val) {
             if (val) {
-                console.log("selectAll")
                 this.$refs["requestParams"].selectAll();
             }
         }

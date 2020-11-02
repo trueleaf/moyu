@@ -91,7 +91,7 @@ export default {
         }
     },
     data() {
-        console.log(222, this.config)
+        
         return {
             //=====================================表格参数====================================//
             formInfo: {
