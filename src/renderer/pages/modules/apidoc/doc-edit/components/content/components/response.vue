@@ -174,7 +174,7 @@
                 </div>
             </div>
         </s-collapse>
-        <s-collapse title="返回头">
+        <s-collapse title="返回头" :active="false">
             <pre v-if="remoteResponse">{{ remoteResponse.headers }}</pre>
         </s-collapse>
     </div>
