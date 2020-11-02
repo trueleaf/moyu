@@ -151,9 +151,16 @@ export default {
                     const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
                     const method = copyRequestInfo.methods.toLowerCase();
                     const headers = headerParams;
+                    let storeCookie = localStorage.getItem("pages/cookies") || "{}";
+                    storeCookie = JSON.parse(storeCookie);
+                    storeCookie = storeCookie[this.$route.query.id];
+                    if (storeCookie) {
+                        headers["cookie"] = storeCookie;
+                    }
                     const data = requestParams;
                     this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
                         this.checkResponseParams(); //参数校验
+                        this.injectCookie(res); //cookie注入
                         resolve();
                     }).catch(err => {
                         console.error(err);
@@ -216,15 +223,17 @@ export default {
             try {
                 await this.sendRequest();
                 if (this.couldPublish) {
-                    this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
+                    this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then((res) => {
                         this.$message.success("发布成功");
+                        this.$store.commit("apidoc/changeDocInfo", res.data)
                     }).catch(err => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading3 = false;
                     });
                 } else {
-                    this.$message.success("校验不通过无法发布接口");
+                    this.$message.error("校验不通过无法发布接口");
+                    this.loading3 = false;
                 }                   
             } catch (error) {
                 console.error(error);
@@ -373,7 +382,8 @@ export default {
                         const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
                         const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
                         const key = params.key;
-                        const value = params.value;
+                        const value = this.convertVariable(params.value);
+
                         const description = params.description;
                         if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
                             this.$set(params, "_keyError", {
@@ -389,7 +399,7 @@ export default {
                                     message: "不能存在空白字符串"
                                 });
                                 isValidRequest = false;
-                            } else if (valueType === "number" && !value.match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/)) {
+                            } else if (valueType === "number" && !this._isNumberLike(value)) {
                                 this.$set(params, "_valueError", {
                                     error: true,
                                     message: "参数值必须为数字类型"
@@ -441,7 +451,7 @@ export default {
                         const isTooMuchKey = !remoteKeys.every(val => localKeys.includes(val)); //远程结果是否超出字段
                         //字段超出或者缺少判断
                         if (isLackKey) {
-                            console.log(2, remoteKeys, localKeys, localParams)
+                            // console.log(2, remoteKeys, localKeys, localParams)
                             responseErrorType = "lackKey";
                             return;
                         }   
@@ -462,7 +472,6 @@ export default {
                             foo(localValue, remoteValue);
                         }
                         if (localType === "array" && remoteValue[0]) {
-                            console.log(remoteValue, remoteValue[0], 999)
                             foo(localValue[0], remoteValue[0]);
                         }
                     }                    
@@ -546,6 +555,24 @@ export default {
                         header.value = "multipart/form-data"
                     }
                 })
+            } else if (val === "json") {
+                this.request.header.forEach(header => {
+                    if (header.key.toLowerCase() === "content-type") {
+                        header.value = "application/json; charset=utf-8"
+                    }
+                })
+            } else if (val === "query") {
+                this.request.header.forEach(header => {
+                    if (header.key.toLowerCase() === "content-type") {
+                        header.value = "application/json; charset=utf-8"
+                    }
+                })
+            } else if (val === "x-www-form-urlencoded") {
+                this.request.header.forEach(header => {
+                    if (header.key.toLowerCase() === "content-type") {
+                        header.value = "x-www-form-urlencoded"
+                    }
+                })
             }
         },
         //hack通过改变_variableChange触发watch事件刷新变量值
@@ -553,6 +580,36 @@ export default {
             this.request._variableChange = !this.request._variableChange;
         },
         //=====================================其他操作====================================//
+        //cookie注入
+        injectCookie(res) {
+            const cookies = res.headers["set-cookie"] || [];
+            const cookie = cookies.join(",");
+            if (cookie) {
+                let storeCookie = localStorage.getItem("pages/cookies") || "{}";
+                storeCookie = JSON.parse(storeCookie);
+                storeCookie[this.$route.query.id] = cookie;
+                localStorage.setItem("pages/cookies", JSON.stringify(storeCookie))
+            }
+        },
+        //改变变量信息
+        convertVariable(val) {
+            if (val == null) {
+                return;
+            }
+            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
+            if (val && matchedData) {
+                const varInfo = this.variables.find(v => {
+                    return v.name === matchedData[1];
+                });
+                if (varInfo) {
+                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
+                } else {
+                    return val;
+                }
+            } else {
+                return val;
+            }
+        },
         //获取参数类型
         getType(value) {
             if (typeof value === "string") {
