@@ -148,11 +148,11 @@ export default {
     padding: size(10) size(10);
     position: relative; //递归组件只在外层添加relative，否则offsetleft取值会出现问题
     border-radius: $border-radius-sm;
-    background: #1E1E1E;
-    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     font-size: size(14);
     max-height: size(400);
     overflow-y: auto;
+    background: #282c34;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     .operation {
         display: flex;
         align-items: center;

@@ -27,9 +27,9 @@
                     </template>
                     <!-- 常规数据 -->
                     <template v-else>
-                        <s-ellipsis-content v-if="typeof value === 'string'" class="string-value" :value='`"${value}"`'></s-ellipsis-content>
-                        <s-ellipsis-content v-if="typeof value === 'number'" class="number-value" :value="value"></s-ellipsis-content>
-                        <s-ellipsis-content v-if="typeof value === 'boolean'" class="boolean-value" :value="value"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'string'" class="string-value" :value='`"${value}"`' max-width="70%"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'number'" class="number-value" :value="value" max-width="70%"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'boolean'" class="boolean-value" :value="value" max-width="70%"></s-ellipsis-content>
                     </template>
                     <span class="symbol">,</span>
                     <s-ellipsis-content class="error" :value="checkResponse(key, value)"></s-ellipsis-content>
@@ -58,9 +58,9 @@
                     </template>
                     <!-- 常规数据 -->
                     <template v-else>
-                        <s-ellipsis-content v-if="typeof value === 'string'" class="string-value" :value='`"${value}"`'></s-ellipsis-content>
-                        <s-ellipsis-content v-if="typeof value === 'number'" class="number-value" :value="value"></s-ellipsis-content>
-                        <s-ellipsis-content v-if="typeof value === 'boolean'" class="boolean-value" :value="value"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'string'" class="string-value" :value='`"${value}"`' max-width="70%"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'number'" class="number-value" :value="value" max-width="70%"></s-ellipsis-content>
+                        <s-ellipsis-content v-if="typeof value === 'boolean'" class="boolean-value" :value="value" max-width="70%"></s-ellipsis-content>
                     </template>
                     <span class="symbol">,</span>
                     <s-ellipsis-content class="error" :value="checkResponse(key, value)"></s-ellipsis-content>
@@ -188,19 +188,23 @@ export default {
         padding-left: 2em;
     }
     .key {
-        color: $blue,
+        color: #f8c555,
     }
     .symbol {
-        color: $gray-300;
+        font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+        color: #ccc;
     }
     .string-value {
-        color: #499CB3;
+        color: #7ec699;
+        font-size: .9em;
     }
     .boolean-value {
-        color: #499CB3;
+        color: #cc99cd;
+        font-size: .9em;
     }
     .number-value {
-        color: #80C0A8;
+        color: #ccc;
+        font-size: .9em;
     }
     .comment {
         color: #6A9955;
