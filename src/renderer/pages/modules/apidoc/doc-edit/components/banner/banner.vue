@@ -410,20 +410,26 @@ export default {
                 pid: "", //父元素
                 sort: 0, //当前节点排序效果
             };
+            const dragNodeParentId = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            const dropNodeParentId = findParentNode(dropNode.data._id, this.navTreeData, null, {id: "_id"})
+            console.log(dragNodeParentId, dropNodeParentId)
             let pData = null;
-            if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
-                pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
-                params.pid = pData ? pData._id : "";
-                while (pData != null) {
-                    pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
-                }
-            } else if (node.level === dropNode.level && type !== "inner") {
-                params.pid = node.data.pid;
-                pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
-                while (pData != null) {
-                    pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
-                }
-            }
+            pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            params.pid = pData ? pData._id : "";
+            // if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
+            //     pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            //     params.pid = pData ? pData._id : "";
+            //     while (pData != null) {
+            //         pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
+            //     }
+            // } else if (node.level === dropNode.level && type !== "inner") {
+            //     params.pid = node.data.pid;
+            //     pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            //     while (pData != null) {
+            //         pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
+            //     }
+            // }
+            
             if (type === "inner") {
                 params.sort = Date.now();
             } else {
