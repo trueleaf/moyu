@@ -260,7 +260,7 @@ export default {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        this.$store.commit("apidocRules/resetCondition");
+                        this.$store.commit("apidocRules/clearRespons");
                         this.getDocDetail();
                     }
                 }

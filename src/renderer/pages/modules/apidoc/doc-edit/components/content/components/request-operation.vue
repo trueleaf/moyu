@@ -217,13 +217,15 @@ export default {
                 await this.sendRequest();
                 if (this.couldPublish) {
                     this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then(() => {
-                        this.$message.success("发布成功")
+                        this.$message.success("发布成功");
                     }).catch(err => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading3 = false;
                     });
-                }                    
+                } else {
+                    this.$message.success("校验不通过无法发布接口");
+                }                   
             } catch (error) {
                 console.error(error);
                 this.$message.error("校验错误")
