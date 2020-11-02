@@ -13,6 +13,7 @@ const axios = http.axios;
 export default {
     namespaced: true,
     state: {
+        docInfo: {}, //---------------完整的文档返回数据
         defaultExpandKeys: [], //-----默认展开的节点
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
@@ -149,6 +150,10 @@ export default {
             state.presetParamsList = payload;
         },
         //=====================================发送请求====================================//
+        //改变文档信息
+        changeDocInfo(state, payload) {
+            state.docInfo = payload;
+        },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
             state.responseData.status = payload.status;
@@ -181,7 +186,6 @@ export default {
         },
         //本地录入参数是否与远程返回参数一致
         changeCondition(state, isValid) {
-            console.log(isValid, "valid")
             state.remoteResponseEqualToLocalResponse = isValid;
         },
     },
@@ -273,6 +277,7 @@ export default {
                 })   
             })
         },
+        //取消请求
         stopRequest() {
             httpClient.stopReqeust();
         },
