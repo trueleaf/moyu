@@ -88,7 +88,7 @@
         <s-collapse title="请求头">
             <template v-if="requestData.header.length > 1">
                 <template v-for="(item, index) in requestData.header">
-                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="convertVariable(item.value)" class="w-100" label-width="auto"></s-label-value>
+                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" class="w-100" label-width="auto"></s-label-value>
                 </template>
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>
@@ -181,15 +181,10 @@
 </template>
 
 <script>
-import FileType from "file-type/browser";
-import querystring from "querystring"
 import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
-import HttpClient from "@/api/net.js"
-const httpClient = new HttpClient();
 import { formatBytes } from "@/lib"
 export default {
-    components: {},
     props: {
         requestData: {
             type: Object,
@@ -258,7 +253,8 @@ export default {
                         continue;
                     }
                     const key = plainData[i].key.trim();
-                    const value = this.convertVariable(plainData[i].value);
+                    // const value = this.convertVariable(plainData[i].value);
+                    const value = plainData[i].value;
                     const type = plainData[i].type;
                     const resultIsArray = Array.isArray(result);
                     const isComplex = (type === "object" || type === "array");
