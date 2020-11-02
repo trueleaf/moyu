@@ -107,6 +107,7 @@ export default {
     watch: {
         dataReady(val) {
             if (val) {
+                console.log("selectAll")
                 this.$refs["requestParams"].selectAll();
             }
         }

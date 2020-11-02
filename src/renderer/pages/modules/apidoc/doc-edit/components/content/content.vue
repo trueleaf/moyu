@@ -105,7 +105,6 @@ export default {
             validError: false, //是否校验出错
             loading: false, //加载效果
             docDataReady: false, //文档数据是否加载完成
-            ready: false, //---------------------是否完成第一次数据请求
         };
     },
     computed: {
@@ -163,7 +162,7 @@ export default {
             }
             setTimeout(() => { //hack让请求加载不受取消影响
                 this.loading = true;
-                this.ready = false;
+                this.docDataReady = false;
             })
             this.axios.get("/api/project/doc_detail", {
                 params,
@@ -178,7 +177,6 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
-                this.ready = true;
                 Object.assign(this.request, res.data.item);
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
                 this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
