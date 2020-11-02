@@ -154,6 +154,9 @@ export default {
                 return ""
             }
         },
+        variables() { //全局变量
+            return this.$store.state.apidoc.variables || [];
+        },
     },
     created() {
 
@@ -294,6 +297,8 @@ export default {
             const parentNode = node.parent;
             const parentData = node.parent.data;
             const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const realValue = this.convertVariable(data.value);
+            // console.log(realValue)
             if (data.type === "object" || data.type === "array") { //数据和对象不必校验
                 return;
             }
@@ -301,13 +306,18 @@ export default {
                 return;
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验 
-                
-                if (data.value == null) {
+                console.log(this.getType(realValue), this._isNumberLike(realValue))
+                if (data.type === "number" && !this._isNumberLike(realValue)) {
+                    this.$set(data, "_valueError", {
+                        error: true,
+                        message: "参数值必须为数字类型"
+                    });
+                } else if (realValue == null) {
                     this.$set(data, "_valueError", {
                         error: true,
                         message: "不能为null或者undefined"
                     });
-                } else if (data.value.trim() === "" || data.value.match(/(^\s+)|(\s+$)/)) { //前后不能存在空格中间可以存在空格
+                } else if (realValue.trim() === "" || realValue.match(/(^\s+)|(\s+$)/)) { //前后不能存在空格中间可以存在空格
                     this.$set(data, "_valueError", {
                         error: true,
                         message: "不能存在空白字符串"
@@ -382,6 +392,7 @@ export default {
             }
             this.$refs["tree"].setChecked(data.id, true);
         },
+        //是否勾选请求参数
         handleCheckChange() {
             //首先清空所有选中数据  
             dfsForest(this.treeData, {
@@ -402,7 +413,41 @@ export default {
                 this.$set(val, "_select", true)
             })
         },
-
+        //改变变量信息
+        convertVariable(val) {
+            if (val == null) {
+                return;
+            }
+            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
+            if (val && matchedData) {
+                const varInfo = this.variables.find(v => {
+                    return v.name === matchedData[1];
+                });
+                if (varInfo) {
+                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
+                } else {
+                    return val;
+                }
+            } else {
+                return val;
+            }
+        },
+        //获取参数类型
+        getType(value) {
+            if (typeof value === "string") {
+                return "string"
+            } else if (typeof value === "number") { //NaN
+                return "number"
+            } else if (typeof value === "boolean") {
+                return "boolean"
+            } else if (Array.isArray(value)) {
+                return "array"
+            } else if (typeof value === "object" && value !== null) {
+                return "object"
+            } else { // null undefined ...
+                return "string"
+            }
+        }
     }
 };
 </script>
