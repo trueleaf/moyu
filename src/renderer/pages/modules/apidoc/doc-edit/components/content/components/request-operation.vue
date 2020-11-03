@@ -25,9 +25,19 @@
             <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" @click="publishRequest">发布接口</el-button>
-            <el-button type="primary" size="small" @click="dialogVisible = true" @close="dialogVisible = false">全局变量</el-button>
-            <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">内置参数</el-button>
+            <el-button :loading="loading3" type="primary" size="small" class="mr-1" @click="publishRequest">发布接口</el-button>
+            <el-dropdown trigger="click" class="mr-1">
+                <el-button type="primary" size="small">
+                    其他操作<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item @click.native="dialogVisible = true">全局变量</el-dropdown-item>
+                    <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
+                    <el-dropdown-item @click.native="$emit('fresh')">刷新页面</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+            <!-- <el-button type="primary" size="small" @click="dialogVisible = true" @close="dialogVisible = false">全局变量</el-button>
+            <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">内置参数</el-button> -->
         </div>
         <!-- 请求参数展示 -->
         <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
