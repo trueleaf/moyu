@@ -15,7 +15,7 @@
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
-                <s-request-operation-manage :request="request" :data-ready="docDataReady"></s-request-operation-manage>
+                <s-request-operation-manage :request="request" :data-ready="docDataReady" @fresh="getDocDetail"></s-request-operation-manage>
                 <hr>
             </div>
             <!-- 请求参数 -->
