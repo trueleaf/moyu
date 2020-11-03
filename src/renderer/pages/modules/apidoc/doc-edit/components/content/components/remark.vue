@@ -17,11 +17,14 @@ export default {
         },
     },
     watch: {
-        value() {
-            if (this.description === "") {
-                this.description = this.value;
-                this.copyDescription = this.value;
-            }
+        value: {
+            handler() {
+                if (this.description === "") {
+                    this.description = this.value || "请输入接口描述";
+                    this.copyDescription = this.value || "请输入接口描述";
+                }
+            },
+            immediate: true
         }
     },
     data() {
