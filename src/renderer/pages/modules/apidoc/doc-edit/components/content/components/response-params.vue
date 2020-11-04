@@ -50,7 +50,7 @@
                 <span>保存为模板</span>
             </div>
         </div>
-        <s-json-schema :visible.sync="dialogVisible" :plain="request.methods === 'get'" @success="handleConvertJsonToParams"></s-json-schema>
+        <s-json-schema :visible.sync="dialogVisible" @success="handleConvertJsonToParams"></s-json-schema>
         <s-preset-params :visible.sync="dialogVisible2" @change="getPresetParams"></s-preset-params>
         <s-save-preset-params-as-template type="response" :template-params="request.responseParams" :visible.sync="dialogVisible3" @success="getPresetParams"></s-save-preset-params-as-template>
     </s-collapse-card>
@@ -119,12 +119,13 @@ export default {
         },
         //将json转换为标准请求格式
         handleConvertJsonToParams(params) {
-            params.forEach(val => {
-                const matchMindParams = this.mindParams.mindResponseParams.find(p => p.key === val.key)
-                if (matchMindParams) {
-                    val.description = matchMindParams.description;
-                }
-            })
+            console.log(222, params)
+            // params.forEach(val => {
+            //     const matchMindParams = this.mindParams.mindResponseParams.find(p => p.key === val.key)
+            //     if (matchMindParams) {
+            //         val.description = matchMindParams.description;
+            //     }
+            // })
             this.request.responseParams = params;
         },
         //刷新本地快捷参数
