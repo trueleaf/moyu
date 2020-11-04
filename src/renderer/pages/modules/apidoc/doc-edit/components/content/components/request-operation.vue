@@ -65,6 +65,7 @@ import presetParamsDialog from "../dialog/preset-params"
 import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
+import FormData from "form-data"
 export default {
     components: {
         "s-variable-dialog": variableDialog,
@@ -154,6 +155,7 @@ export default {
             return new Promise((resolve, reject) => {
                 const isValidateRequest = this.validateParams();
                 if (isValidateRequest) {
+                    const formData = new FormData();
                     this.$store.commit("apidoc/changeLoading", true);
                     const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
                     const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
@@ -161,13 +163,42 @@ export default {
                     const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
                     const method = copyRequestInfo.methods.toLowerCase();
                     const headers = headerParams;
+                    delete headers["content-type"];
+                    delete headers["Content-type"];
+                    delete headers["content-Type"];
+                    delete headers["Content-Type"];
+                    let data = requestParams;
+                    /*eslint-disable indent*/ 
+                    switch (this.request.requestType) {
+                        case "query":
+                            headers["content-type"] = "application/json"
+                            break;
+                        case "json":
+                            headers["content-type"] = "application/json"
+                            break;
+                        case "formData":
+                            headers["content-type"] = formData.getHeaders()["content-type"];
+                            for (const key in data) {
+                                if (data.hasOwnProperty(key)) {
+                                    formData.append(key, data[key]);
+                                }
+                            }
+                            data = formData;
+                            break;
+                        case "x-www-form-urlencoded":
+                            headers["content-type"] = "x-www-form-urlencoded"
+                            break;
+                        default:
+                            headers["content-type"] = "application/json"
+                            break;
+                    }
                     let storeCookie = localStorage.getItem("pages/cookies") || "{}";
                     storeCookie = JSON.parse(storeCookie);
                     storeCookie = storeCookie[this.$route.query.id];
                     if (storeCookie) {
                         headers["cookie"] = storeCookie;
                     }
-                    const data = requestParams;
+                    
                     this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
                         this.checkResponseParams(); //参数校验
                         this.injectCookie(res); //cookie注入
@@ -378,58 +409,63 @@ export default {
                 this.urlError.error = true;
                 this.urlError.message = "请求url不能为空";
                 isValidRequest = false;
+            } else {
+                this.urlError.error = false;
+                isValidRequest = true;
             }
             //===========================检查参数是否必填或者按照规范填写======================//
-            const deepMap = (requestData) => {
-                for (let i = 0, len = requestData.length; i < len; i++) {
-                    const params = requestData[i];
-                    if (params.children) {
-                        deepMap(params.children);
-                    }
-                    if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
-                        const valueType = params.type;
-                        const parentNode = findParentNode(params.id, requestData);
-                        const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                        const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
-                        const key = params.key;
-                        const value = this.convertVariable(params.value);
-
-                        const description = params.description;
-                        if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
-                            this.$set(params, "_keyError", {
-                                error: true,
-                                message: "不能存在空白字符串"
-                            });
-                            isValidRequest = false;
+            const validate =  (rawData) => {
+                const deepMap = (requestData) => {
+                    for (let i = 0, len = requestData.length; i < len; i++) {
+                        const params = requestData[i];
+                        if (params.children) {
+                            deepMap(params.children);
                         }
-                        if (!isComplex) { //非对象，数组
-                            if (value.trim() === "" || value.match(/(^\s+)|(\s+$)/)) { //非空判断
-                                this.$set(params, "_valueError", {
+                        if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
+                            const valueType = params.type;
+                            const parentNode = findParentNode(params.id, rawData);
+                            const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+                            const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
+                            const key = params.key;
+                            const value = this.convertVariable(params.value);
+                            const description = params.description;
+                            if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
+                                this.$set(params, "_keyError", {
                                     error: true,
                                     message: "不能存在空白字符串"
                                 });
                                 isValidRequest = false;
-                            } else if (valueType === "number" && !this._isNumberLike(value)) {
-                                this.$set(params, "_valueError", {
+                            }
+                            if (!isComplex && !isParentArray) { //非对象，数组并且父元素不为数组，父元素为数组不必填写key和description
+                                if (value.trim() === "" || value.match(/(^\s+)|(\s+$)/)) { //非空判断
+                                    this.$set(params, "_valueError", {
+                                        error: true,
+                                        message: "不能存在空白字符串"
+                                    });
+                                    isValidRequest = false;
+                                } else if (valueType === "number" && !this._isNumberLike(value)) {
+                                    this.$set(params, "_valueError", {
+                                        error: true,
+                                        message: "参数值必须为数字类型"
+                                    });
+                                    isValidRequest = false;
+                                }
+                            }
+                            if (!isComplex && !isParentArray && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
+                                this.$set(params, "_descriptionError", {
                                     error: true,
-                                    message: "参数值必须为数字类型"
+                                    message: "不能存在空白字符串"
                                 });
                                 isValidRequest = false;
                             }
                         }
-                        if (!isComplex && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
-                            this.$set(params, "_descriptionError", {
-                                error: true,
-                                message: "不能存在空白字符串"
-                            });
-                            isValidRequest = false;
-                        }
                     }
-                }
+                }   
+                deepMap(rawData);             
             }
-            deepMap(this.request.requestParams);
-            deepMap(this.request.responseParams);
-            deepMap(this.request.header);
+
+            validate(this.request.requestParams);
+            validate(this.request.header);
 
             if (!isValidRequest) {
                 this.$nextTick(() => {
@@ -439,6 +475,7 @@ export default {
             }
             return isValidRequest;
         },
+
         checkResponseParams() {
             // console.log(this.request, 22)
             if (this.remoteResponse.contentType.includes("application/json")) {
@@ -499,13 +536,24 @@ export default {
         formatUrl() {
             this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
+            // const dominReg = /[a-zA-Z0-9]+\./
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
-            const invalidReg = /\/(?!\/)[^#\?:]+/; //去除无效部分
-            const matchedPath = this.request.url.path.match(invalidReg);
+            this.request.url.path = "/" + this.request.url.path;
+            const pathReg = /\/(?!\/)[^#\?:.]+/; //查询路径正则
+            const matchedPath = this.request.url.path.match(pathReg);
             if (matchedPath) {
                 this.request.url.path = matchedPath[0];
             } else if (this.request.url.path.trim() === "") {
-                this.request.url.path = "/"
+                this.request.url.path = "/";
+            } else if (!this.request.url.path.startsWith("/")) {
+                this.request.url.path = "/" + this.request.url.path;
+            }
+            //检查url是否为空
+            if (this.request.url.path.trim() === "") { 
+                this.urlError.error = true;
+                this.urlError.message = "请求url不能为空";
+            } else {
+                this.urlError.error = false;
             }
         },
         //将请求url后面查询参数转换为params
@@ -554,13 +602,13 @@ export default {
                 id: this.currentSelectDoc._id,
                 method: val.name
             });
+            this.handleChangeRequestMIMEType(this.request.requestType);
         },
         //改变MimeType
         handleChangeRequestMIMEType(val) {
-            console.log(val)
+            // console.log(val, "mime")
             if (val === "formData") {
                 this.request.header.forEach(header => {
-                    console.log(header)
                     if (header.key.toLowerCase() === "content-type") {
                         header.value = "multipart/form-data"
                     }
