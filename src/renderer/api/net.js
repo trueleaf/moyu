@@ -56,10 +56,10 @@ class HttpClient {
         for(let i in headers) {
             if (i.toLowerCase() === "host") {
                 continue;
-            }
+            } 
             this.instance.setHeader(i, headers[i]);
         }
-        console.log("请求参数", headers, url, options, requestOptions)
+        // console.log("请求参数", headers, url, options, requestOptions)
         //=====================================超时定时器====================================//
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
@@ -129,7 +129,11 @@ class HttpClient {
         this.instance.on("finish", () => {
             console.log("finish")
         });
-        this.instance.write(JSON.stringify(requestData));
+        if (requestData.constructor.name === "FormData") { 
+            this.instance.write(requestData.getBuffer());
+        } else {
+            this.instance.write(JSON.stringify(requestData));
+        }
         this.instance.end();
     }
     //格式化返回参数
