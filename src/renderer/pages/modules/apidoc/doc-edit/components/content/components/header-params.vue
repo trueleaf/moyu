@@ -55,7 +55,7 @@ export default {
                     type: "string"
                 },
                 {
-                    key: "Content-Type",
+                    key: "content-type",
                     value: "application/json",
                     description: "请求体的MIME类型",
                     type: "string"
