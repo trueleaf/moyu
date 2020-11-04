@@ -25,7 +25,7 @@
                 <s-header-params-manage :request="request" :data-ready="docDataReady"></s-header-params-manage>
             </div>            
         </div>
-        <s-response class="response-wrap" ref="response" :request-data="formatRequest"></s-response>
+        <s-response class="response-wrap" ref="response" :request-data="request"></s-response>
     </div>
     <s-empty-tip v-else></s-empty-tip>
 </template>
@@ -119,37 +119,7 @@ export default {
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
         },
-        formatRequest() {
-            const copyRequest = JSON.parse(JSON.stringify(this.request));
-            dfsForest(copyRequest.requestParams, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                }
-            });
-            dfsForest(copyRequest.responseParams, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                }
-            });
-            dfsForest(copyRequest.header, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                }
-            });
-            return copyRequest;
-        }
+        
     },
     watch: {
         currentSelectDoc: {
@@ -225,7 +195,15 @@ export default {
                     }
                     if (val.key.toLowerCase() === "content-type") {
                         this.$set(val, "_readOnly", true)
-                        this.$set(val, "value", "application/json; charset=utf-8")
+                        if (this.request.requestType === "query") {
+                            this.$set(val, "value", "application/json; charset=utf-8")
+                        } else if (this.request.requestType === "json") {
+                            this.$set(val, "value", "application/json; charset=utf-8")
+                        } else if (this.request.requestType === "formData") {
+                            this.$set(val, "value", "multipart/form-data")
+                        } else if (this.request.requestType === "x-www-form-urlencoded") {
+                            this.$set(val, "value", "x-www-form-urlencoded")
+                        }
                     }
                 })
                 if (!this.request.header.some(val => val.key.toLowerCase() === "host")) {
@@ -243,7 +221,7 @@ export default {
                 if (!this.request.header.some(val => val.key.toLowerCase() === "content-type")) {
                     this.request.header.unshift({
                         id: uuid(),
-                        key: "Content-Type", //--------------请求头键
+                        key: "content-type", //--------------请求头键
                         value: "application/json; charset=utf-8", //------------请求头值
                         type: "string", //-------请求头值类型
                         description: "请求体的MIME类型", //------描述

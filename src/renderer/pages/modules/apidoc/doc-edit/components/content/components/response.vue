@@ -11,14 +11,14 @@
             <div class="py-2">
                 <s-label-value label="请求地址：" title="鼠标左键拷贝路径，鼠标右键拷贝全部" class="d-flex">
                     <span 
-                        v-copy="requestData.url.path" 
-                        v-copy2="requestData.url.host + requestData.url.path"
+                        v-copy="formatRequest.url.path" 
+                        v-copy2="formatRequest.url.host + formatRequest.url.path"
                         class="text-ellipsis">
-                        {{ requestData.url.host + requestData.url.path }}
+                        {{ formatRequest.url.host + formatRequest.url.path }}
                     </span>
                 </s-label-value>
                 <s-label-value label="请求方式：" class="d-flex">
-                    <span class="green">{{ requestData.methods.toUpperCase() }}</span>
+                    <span class="green">{{ formatRequest.methods.toUpperCase() }}</span>
                 </s-label-value>
                 <s-label-value label="发布状态：" class="d-flex">
                     <el-tag v-if="publishInfo.publish" size="small" type="success" class="mr-1">已发布</el-tag>
@@ -37,6 +37,90 @@
                         </svg> 
                     </el-popover>  
                 </s-label-value>
+                <div class="d-flex mt-2">
+                    <div class="d-flex a-center">
+                        <span class="flex0">状态码:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.status"
+                            :class="{
+                                green: remoteResponse.status >= 200 && remoteResponse.status < 300,
+                                orange: remoteResponse.status >= 300 && remoteResponse.status < 400,
+                                red: remoteResponse.status >= 400
+                            }"
+                        >
+                            {{ remoteResponse.status }}
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+                    </div>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span class="flex0">时长:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.rt"
+                            :class="{
+                                green: remoteResponse.rt >= 0 && remoteResponse.rt < 2000,
+                                orange: remoteResponse.rt >= 2000 && remoteResponse.rt < 5000,
+                                red: remoteResponse.rt >= 5000
+                            }"
+                        >
+                            {{ (remoteResponse.rt / 1000).toFixed(2) }}s
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+                    </div>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span class="flex0">大小:&nbsp;</span>
+                        <span 
+                            v-if="remoteResponse.size"
+                            :class="{
+                                green: remoteResponse.size >= 0 && remoteResponse.size < 10000,
+                                orange: remoteResponse.size >= 10000 && remoteResponse.size < 15000,
+                                red: remoteResponse.size >= 15000
+                            }"
+                        >
+                            {{ size }}
+                        </span>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+                    </div>
+                    <div class="mx-2 gray-500">|</div>
+                    <div class="d-flex a-center">
+                        <span class="flex0">返回格式:&nbsp;</span>
+                        <el-popover v-if="remoteResponse.contentType" placement="top-start" width="200" trigger="hover" :content="remoteResponse.contentType">
+                            <span v-if="remoteResponse.contentType.includes('application/json')" slot="reference" class="text-ellipsis theme-color">JSON</span>
+                            <span v-else-if="remoteResponse.contentType.includes('image/')" slot="reference" class="text-ellipsis theme-color">图片({{ remoteResponse.contentType.replace(/image\//, "") }})</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/pdf')" slot="reference" class="text-ellipsis theme-color">pdf</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" slot="reference" class="text-ellipsis theme-color">Excel</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')" slot="reference" class="text-ellipsis theme-color">Excel</span>
+                            <span v-else-if="remoteResponse.contentType.includes('text')" slot="reference" class="text-ellipsis theme-color">文本({{ remoteResponse.contentType.replace(/text\//, "") }})</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')" slot="reference" class="text-ellipsis theme-color">Word</span>
+                            <span v-else-if="remoteResponse.contentType.includes('application/msword')" slot="reference" class="text-ellipsis theme-color">Word</span>
+                            <span v-else slot="reference" class="text-ellipsis theme-color">{{ remoteResponse.contentType }}</span>
+                        </el-popover>
+                        <span v-else title="未请求数据" class="el-icon-question gray-500" slot="reference"></span>
+                    </div>
+                </div>
+            </div>
+        </s-collapse>
+        <!-- 请求头 -->
+        <s-collapse title="请求头">
+            <template v-if="formatRequest.header.length > 1">
+                <template v-for="(item, index) in formatRequest.header">
+                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" class="w-100" label-width="auto"></s-label-value>
+                </template>
+            </template>
+            <div v-else class="f-xs gray-500">暂无数据</div>
+        </s-collapse>
+        <!-- 请求参数 -->
+        <s-collapse title="请求参数" :active="false">
+            <s-tree-json :data="selectedRequestParams"></s-tree-json>
+        </s-collapse>
+        <!-- 响应参数 -->
+        <s-collapse title="响应参数" :active="false">
+            <s-tree-json :data="formatRequest.responseParams"></s-tree-json>
+        </s-collapse>
+        <!-- 远程结果 -->
+        <s-collapse title="远程结果">
+            <div v-loading="loading" class="response-wrapper">
                 <div class="d-flex mt-2">
                     <div class="d-flex a-center">
                         <span>状态码:&nbsp;</span>
@@ -82,45 +166,7 @@
                         </span>
                         <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
                     </div>
-                    <div class="mx-2 gray-500">|</div>
-                    <div class="d-flex a-center">
-                        <span>返回格式:&nbsp;</span>
-                        <el-popover v-if="remoteResponse.contentType" placement="top-start" width="200" trigger="hover" :content="remoteResponse.contentType">
-                            <span v-if="remoteResponse.contentType.includes('application/json')" slot="reference" class="theme-color">JSON</span>
-                            <span v-else-if="remoteResponse.contentType.includes('image/')" slot="reference" class="theme-color">图片({{ remoteResponse.contentType.replace(/image\//, "") }})</span>
-                            <span v-else-if="remoteResponse.contentType.includes('application/pdf')" slot="reference" class="theme-color">pdf</span>
-                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.ms-excel')" slot="reference" class="theme-color">Excel</span>
-                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')" slot="reference" class="theme-color">Excel</span>
-                            <span v-else-if="remoteResponse.contentType.includes('text')" slot="reference" class="theme-color">文本({{ remoteResponse.contentType.replace(/text\//, "") }})</span>
-                            <span v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')" slot="reference" class="theme-color">Word</span>
-                            <span v-else-if="remoteResponse.contentType.includes('application/msword')" slot="reference" class="theme-color">Word</span>
-                            <span v-else slot="reference" class="theme-color">{{ remoteResponse.contentType }}</span>
-                        </el-popover>
-                        <span v-else title="未请求数据" class="el-icon-question gray-500" slot="reference"></span>
-                    </div>
                 </div>
-            </div>
-        </s-collapse>
-        <!-- 请求头 -->
-        <s-collapse title="请求头">
-            <template v-if="requestData.header.length > 1">
-                <template v-for="(item, index) in requestData.header">
-                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" class="w-100" label-width="auto"></s-label-value>
-                </template>
-            </template>
-            <div v-else class="f-xs gray-500">暂无数据</div>
-        </s-collapse>
-        <!-- 请求参数 -->
-        <s-collapse title="请求参数" :active="false">
-            <s-tree-json :data="selectedRequestParams"></s-tree-json>
-        </s-collapse>
-        <!-- 响应参数 -->
-        <s-collapse title="响应参数" :active="false">
-            <s-tree-json :data="requestData.responseParams"></s-tree-json>
-        </s-collapse>
-        <!-- 远程结果 -->
-        <s-collapse title="远程结果">
-            <div v-loading="loading" class="response-wrapper">
                 <div v-if="remoteResponse && remoteResponse.contentType">
                     <!-- json -->
                     <s-json v-if="remoteResponse.contentType.includes('application/json')" :data="remoteResponse.data" :check-data="responseParams" @export="handleExport"></s-json>
@@ -211,6 +257,37 @@ export default {
         },
     },
     computed: {
+        formatRequest() { //变量替换后的请求参数
+            const copyRequest = JSON.parse(JSON.stringify(this.requestData));
+            dfsForest(copyRequest.requestParams, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            dfsForest(copyRequest.responseParams, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            dfsForest(copyRequest.header, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: (item) => {
+                    item.value = this.convertVariable(item.value);
+                }
+            });
+            return copyRequest;
+        },
         publishInfo() {
             const docInfo = this.$store.state.apidoc.docInfo;
             return {

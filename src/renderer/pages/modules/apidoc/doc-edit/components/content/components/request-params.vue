@@ -134,14 +134,14 @@ export default {
             });
         },
         //将json转换为标准请求格式
-        handleConvertJsonToParams(reqParams) {
-            reqParams.forEach(val => {
+        handleConvertJsonToParams(params) {
+            params.forEach(val => {
                 const matchMindParams = this.mindParams.mindRequestParams.find(p => p.key === val.key)
                 if (matchMindParams) {
                     val.description = matchMindParams.description;
                 }
             })
-            this.request.requestParams = reqParams;
+            this.request.requestParams = params;
         },
         //刷新本地快捷参数
         freshLocalUsefulParams() {

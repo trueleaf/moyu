@@ -34,6 +34,11 @@ export default {
             default: false
         },
     },
+    computed: {
+        mindResponseParams() {
+            return this.$store.state.apidoc.mindParams.mindResponseParams;
+        },
+    },
     data() {
         return {
             jsonParams: "",
@@ -82,8 +87,8 @@ export default {
          * @updateAuthor       shuxiaokai
          * @create             2019-11-25 15:14
          * @update             2019-11-25 15:14
-         * @param {Object}     obj - 标准对象       
-         * @return {Object}    符合后台接受规范的数据
+         * @param {object}     obj - 标准对象       
+         * @return {object}    符合后台接受规范的数据
          * 
          * @example 返回值  
          *  description: "项目类型名称"
@@ -98,51 +103,113 @@ export default {
          */
         convertObjectToParams(obj) {
             const result = [];
-            const foo = (treeData, result) => {
-                const treeDataType = this.getType(treeData)
-                if (treeDataType !== "object" && treeDataType !== "array") {
-                    result.push(Object.assign(this.generateParams(treeDataType), { value: treeData }))
-                } else {
-                    for (const i in treeData) {
-                        if (Array.isArray(treeData[i])) {
-                            const firstEle = treeData[i][0];
-                            const data = Object.assign(this.generateParams("array"), { key: i });
-                            if (this.plain) {
-                                data.type = "string"
+            const hasOwn = Object.hasOwnProperty;
+            const foo = (obj, result) => {
+                if (this.getType(obj) === "object") {
+                    for(let i in obj) {
+                        if (!hasOwn.call(obj, i)) continue;
+                        const valueType = this.getType(obj[i]);
+                        const matchedVal = this.mindResponseParams.find(val => val.key === i);
+                        const description = matchedVal ? matchedVal.description : ""
+                        if (valueType === "string" || valueType === "number" || valueType === "boolean") {
+                            result.push({
+                                key: i,
+                                type: valueType,
+                                value: obj[i] == null ? "null" : obj[i].toString(),
+                                description,
+                                required: true
+                            })
+                        } else if (valueType === "object") {
+                            const current = {
+                                key: i,
+                                type: valueType,
+                                value: "",
+                                required: true,
+                                children: []
                             }
-                            if (this.getType(firstEle) === "object") {
-                                result.push(data)
-                                if (!this.plain) {
-                                    data.children[0] = this.generateParams("object");
-                                    foo(treeData[i][0], data.children[0].children);   
-                                }
+                            result.push(current)
+                            foo(obj[i], current.children);
+                        } else if (valueType === "array") {
+                            const current = {
+                                key: i,
+                                type: valueType,
+                                value: "",
+                                required: true,
+                                children: [],
+                                description
+                            }
+                            result.push(current);
+                            if (this.getType(obj[i][0]) === "object") {
+                                current.children.push({
+                                    key: "",
+                                    type: "object",
+                                    value: "",
+                                    required: true,
+                                    children: [],
+                                    description
+                                })
+                                foo(obj[i][0], current.children[0].children);
                             } else {
-                                result.push(data)
-                                if (!this.plain) {
-                                    foo(treeData[i][0], data.children);     
-                                }
+                                foo(obj[i][0], current.children);
                             }
-                        } else if (typeof treeData[i] === "object") {
-                            const data = Object.assign(this.generateParams("object"), { key: i })
-                            if (this.plain) {
-                                data.type = "string"
-                            }
-                            result.push(data)
-                            const childData = data.children;
-                            if (!this.plain) {
-                                foo(treeData[i], childData);   
-                            }
-                        } else {
-                            const data = Object.assign(this.generateParams("object"), { key: i, type: this.getType(treeData[i]), value: treeData[i] })
-                            if (this.plain) {
-                                data.type = "string"
-                            }
-                            result.push(data)
                         }
-                    }                    
+                    }
+                } else {
+                    const valueType = this.getType(obj);
+                    result.push({
+                        key: "",
+                        required: true,
+                        type: valueType,
+                        value: obj,
+                    })
                 }
             }
             foo(obj, result);
+            // const foo = (treeData, result) => {
+            //     const treeDataType = this.getType(treeData)
+            //     if (treeDataType !== "object" && treeDataType !== "array") {
+            //         result.push(Object.assign(this.generateParams(treeDataType), { value: treeData }))
+            //     } else {
+            //         for (const i in treeData) {
+            //             if (Array.isArray(treeData[i])) { //数组类型
+            //                 const firstEle = treeData[i][0];
+            //                 const data = Object.assign(this.generateParams("array"), { key: i });
+            //                 if (this.plain) {
+            //                     data.type = "string"
+            //                 }
+            //                 if (this.getType(firstEle) === "object") {
+            //                     result.push(data)
+            //                     if (!this.plain) {
+            //                         data.children[0] = this.generateParams("object");
+            //                         foo(treeData[i][0], data.children[0].children);   
+            //                     }
+            //                 } else {
+            //                     result.push(data)
+            //                     if (!this.plain) {
+            //                         foo(treeData[i][0], data.children);     
+            //                     }
+            //                 }
+            //             } else if (typeof treeData[i] === "object") { //对象类型
+            //                 const data = Object.assign(this.generateParams("object"), { key: i })
+            //                 if (this.plain) {
+            //                     data.type = "string"
+            //                 }
+            //                 result.push(data)
+            //                 const childData = data.children;
+            //                 if (!this.plain) {
+            //                     foo(treeData[i], childData);   
+            //                 }
+            //             } else {
+            //                 const data = Object.assign(this.generateParams("object"), { key: i, type: this.getType(treeData[i]), value: treeData[i] })
+            //                 if (this.plain) {
+            //                     data.type = "string"
+            //                 }
+            //                 result.push(data)
+            //             }
+            //         }                    
+            //     }
+            // }
+            // foo(obj, result);
             return result;
         },
 
