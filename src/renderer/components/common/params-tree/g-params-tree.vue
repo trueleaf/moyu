@@ -52,7 +52,7 @@
                         </s-v-input>
                     </div>
                     <!-- 请求参数类型 -->
-                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || !nest" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
+                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
                         <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
@@ -74,6 +74,7 @@
                             @blur="handleCheckValue(scope);enableDrag=true"
                     >
                     </s-v-input>
+                    <s-upload-plain v-if="scope.data.type === 'file'">选择文件</s-upload-plain>
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>

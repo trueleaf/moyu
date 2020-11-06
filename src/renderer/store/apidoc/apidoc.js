@@ -1,6 +1,6 @@
 /**
  * @description        apidoc相关store
- * @author              shuxiaokai
+ * @author             shuxiaokai
  * @create             2020-06-25 11:25
  */
 import Vue from "vue"
@@ -9,7 +9,6 @@ import { findoNode } from "@/lib"
 import HttpClient from "@/api/net.js"
 const httpClient = new HttpClient();
 const axios = http.axios;
-
 export default {
     namespaced: true,
     state: {
@@ -35,6 +34,7 @@ export default {
         loading: false, //是否正在请求数据
     },
     mutations: {
+        //================符合标准的返回值数据(添加id，添加末尾空行)=========================//
         //=====================================全局变量====================================//
         changeVariable(state, payload) {
             state.variables = payload;

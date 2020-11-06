@@ -462,6 +462,7 @@ export default {
         }
     }   
     .response-wrapper {
+        min-height: size(200);
         max-height: size(320);
         overflow-y: auto;
     }
