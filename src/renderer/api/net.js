@@ -5,6 +5,9 @@
  */
 
 import qs from "qs"
+const buffer = require("buffer")
+const Buffer = buffer.Buffer;
+// import { Buffer } from "buffer"
 let net = null;
 if (window.require){
     net = window.require("electron").remote.net
@@ -56,10 +59,10 @@ class HttpClient {
         for(let i in headers) {
             if (i.toLowerCase() === "host") {
                 continue;
-            } 
+            }
             this.instance.setHeader(i, headers[i]);
         }
-        // console.log("请求参数", headers, url, options, requestOptions)
+        console.log("请求参数", headers, url, options, requestOptions)
         //=====================================超时定时器====================================//
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
@@ -67,7 +70,8 @@ class HttpClient {
             this.stopReqeust(); //超时取消发送
         }, this.timeout);
         this.instance.on("response", (response) => {
-            let data = Buffer.alloc(0);
+            // console.log(Buffer, 999)
+            let data = null;
             const status = response.statusCode;
             const statusMessage = response.statusMessage;
             const httpVersion = response.httpVersion;
@@ -99,11 +103,17 @@ class HttpClient {
             let startChunkSize = 0;
             let i = 0;
             response.on("data", (chunk) => {
+                // console.log("chunk", buffer, data, chunk)
                 if (!oldTime) {
                     oldTime = Date.now()
                 }
                 i++;
-                data = Buffer.concat([data, chunk]);
+                if (data) {
+                    data = Buffer.concat([Buffer(chunk), data]);
+                } else {
+                    data = Buffer.concat([Buffer(chunk)]);
+                }
+                
                 if (i % 20 === 0) {
                     const newTime = Date.now();
                     const usedTime = (newTime - oldTime) / 1000;
@@ -129,11 +139,7 @@ class HttpClient {
         this.instance.on("finish", () => {
             console.log("finish")
         });
-        if (requestData.constructor.name === "FormData") { 
-            this.instance.write(requestData.getBuffer());
-        } else {
-            this.instance.write(JSON.stringify(requestData));
-        }
+        this.instance.write(JSON.stringify(requestData));
         this.instance.end();
     }
     //格式化返回参数
@@ -144,7 +150,14 @@ class HttpClient {
         const fileInfo = contentDisposition ? contentDisposition.match(/filename=([^=]+)/) : null;
         const fileName = fileInfo ? fileInfo[1] : "";
         if (contentType.includes("application/json")) { //常规json格式
-            result = JSON.parse(data.toString());
+            try {
+                result = JSON.parse(data.toString());
+            } catch(error) {
+                result = {
+                    error: error,
+                    data: data.toString()
+                };
+            }
         } else if (contentType.includes("text/")) { //纯文本
             result = data.toString();
         } else if (contentType.includes("image/svg+xml")) { //svg格式，一般为验证码
