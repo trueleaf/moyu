@@ -374,6 +374,7 @@ export default {
     height: calc(100vh - 120px);
     overflow-y: auto;
     .response-wrapper {
+        min-height: size(200);
         max-height: size(320);
         overflow-y: auto;
     }
