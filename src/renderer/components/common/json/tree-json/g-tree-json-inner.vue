@@ -9,7 +9,7 @@
         <span v-if="level === 0" class="symbol">{</span>
         <div v-for="(item, index) in data" :key="index" class="indent">
             <!-- 常规数据类型 -->
-            <template v-if="item.type !== 'array' && item.type !== 'object' && item.value">
+            <template v-if="item.type !== 'array' && item.type !== 'object' && item.type !== 'file' && item.value">
                 <span>
                     <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
                     <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
@@ -48,6 +48,22 @@
                     </template>
                     <span class="symbol">,</span>
                 </span> 
+            </template>
+            <!-- 文件类型 -->
+            <template v-else-if="item.type === 'file'">
+                <span>
+                    <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                    <span class="key">{{ item.key }}</span><span class="symbol">:&nbsp;</span>
+                    <span v-if="item.value">
+                        <s-popover-file v-if="item._fileInfo" :mime="item._fileInfo.mime" :url="item._fileInfo.url">
+                            <span slot="reference" class="teal cursor-pointer">查看</span>
+                        </s-popover-file>
+                        <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
+                    </span>
+                    <span class="symbol">,</span>   
+                    <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                    <span v-if="item.required" class="comment">(必填)</span>
+                </span>                
             </template>
         </div>
         <span v-if="level === 0" class="symbol">}</span>
@@ -108,6 +124,7 @@ export default {
     watch: {
         data: {
             handler(val) {
+                // console.log(222, val)
                 if (val && this.$refs["comment"] && this.$refs["comment"].length > 0) {
                     this.$refs["comment"].forEach(commentDom => {
                         // const previouseElementSiblingOffsetLeft = commentDom.$el.previousElementSibling.offsetLeft;
@@ -126,6 +143,8 @@ export default {
         
     },
     methods: {
+        
+        //多选框
         handleChangeCheckbox(node) {
             const children = node.children;
             // console.log(22, children, this.data)
