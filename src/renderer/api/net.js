@@ -139,7 +139,15 @@ class HttpClient {
         this.instance.on("finish", () => {
             console.log("finish")
         });
-        this.instance.write(JSON.stringify(requestData));
+        
+        if (requestData.constructor.name === "FormData") {
+            // console.log(this.instance, 9)
+            this.instance.writable = true;
+            requestData.pipe(this.instance);
+            // this.instance.write(requestData);
+        } else {
+            this.instance.write(JSON.stringify(requestData));
+        }
         this.instance.end();
     }
     //格式化返回参数
