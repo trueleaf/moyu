@@ -74,7 +74,12 @@
                             @blur="handleCheckValue(scope);enableDrag=true"
                     >
                     </s-v-input>
-                    <s-upload-plain v-if="scope.data.type === 'file'">选择文件</s-upload-plain>
+                    <input v-if="scope.data.type === 'file'" class="w-25" type="file" @change="handleSelectFile($event, scope.data)">
+                    <!-- <s-file-select v-if="scope.data.type === 'file'" class="w-25">
+                        <div class="text-center">
+                            <button>选择文件</button>
+                        </div>
+                    </s-file-select> -->
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>
@@ -260,9 +265,9 @@ export default {
             if (data.type === "boolean") {
                 data.value = "true";
             }
-            if (data.type === "file") {
-                data.value = "image"
-            }
+            // if (data.type === "file") {
+            //     data.value = "image"
+            // }
             if (data.type === "number") {
                 const couldConvertToNumber = !isNaN(Number(data.value));
                 if (!couldConvertToNumber) {
@@ -358,6 +363,19 @@ export default {
                     })
                 }                
             } 
+        },
+        //=====================================file操作====================================//
+        handleSelectFile(e, data) {
+            const file = e.target.files[0];
+            if (file) {
+                file.arrayBuffer().then(res => {
+                    data.value = res;
+                    // console.log(222, res, data)
+                })
+            } else {
+                data.value = ""
+            }
+            console.log(file)
         },
         //=====================================其他操作====================================//
         //选中所有数据
