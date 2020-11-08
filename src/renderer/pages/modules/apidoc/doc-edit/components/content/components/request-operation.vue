@@ -65,7 +65,11 @@ import presetParamsDialog from "../dialog/preset-params"
 import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
+import deepmerge from "deepmerge"
 import FormData from "form-data"
+import FileType from "file-type/browser"
+import buffer from "buffer"
+const Buffer = buffer.Buffer;
 export default {
     components: {
         "s-variable-dialog": variableDialog,
@@ -152,12 +156,17 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 const isValidateRequest = this.validateParams();
                 if (isValidateRequest) {
                     const formData = new FormData();
                     this.$store.commit("apidoc/changeLoading", true);
-                    const copyRequestInfo =  JSON.parse(JSON.stringify(this.request)); //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
+                    const copyRequestInfo = deepmerge({}, this.request, { //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
+                        isMergeableObject(val) {
+                            return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
+                        }
+                    });
+
                     const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
                     const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
                     const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
@@ -180,7 +189,12 @@ export default {
                             headers["content-type"] = formData.getHeaders()["content-type"];
                             for (const key in data) {
                                 if (data.hasOwnProperty(key)) {
-                                    formData.append(key, data[key]);
+                                    if (data[key].constructor.name === "ArrayBuffer") {
+                                        const type = await FileType.fromBuffer(data[key]);
+                                        formData.append(key, Buffer(data[key]), { contentType: type.mime });
+                                    } else {
+                                        formData.append(key, data[key]);
+                                    }
                                 }
                             }
                             data = formData;
@@ -198,7 +212,7 @@ export default {
                     if (storeCookie) {
                         headers["cookie"] = storeCookie;
                     }
-                    
+                    console.log("send", data)
                     this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
                         this.checkResponseParams(); //参数校验
                         this.injectCookie(res); //cookie注入
@@ -242,6 +256,7 @@ export default {
                         description: this.request.description, 
                     }
                 };
+                console.log(params, "params")
                 this.saveMindParams(); //保存快捷联想参数
                 this.loading2 = true;
                 this.axios.post("/api/project/fill_doc", params).then(() => {
@@ -425,7 +440,7 @@ export default {
                             const valueType = params.type;
                             const parentNode = findParentNode(params.id, rawData);
                             const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                            const isComplex = (valueType === "object" || valueType === "array"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
+                            const isComplex = (valueType === "object" || valueType === "array" || valueType === "file"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
                             const key = params.key;
                             const value = this.convertVariable(params.value);
                             const description = params.description;
