@@ -207,7 +207,7 @@
                     </div>
                     <!-- docx -->
                     <div v-else-if="remoteResponse.contentType.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')" class="office-style">
-                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                        <svg class="svg-icon" aria-hidden="true" title="word">
                             <use xlink:href="#iconWORD"></use>
                         </svg> 
                         <div>
@@ -217,7 +217,7 @@
                     </div>
                     <!-- doc(低版本word) -->
                     <div v-else-if="remoteResponse.contentType.includes('application/msword')" class="office-style">
-                        <svg class="svg-icon" aria-hidden="true" title="xls">
+                        <svg class="svg-icon" aria-hidden="true" title="word">
                             <use xlink:href="#iconWORD"></use>
                         </svg> 
                         <div>
@@ -247,6 +247,8 @@
 import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
 import { formatBytes } from "@/lib"
+import deepmerge from "deepmerge"
+import FileType from "file-type/browser"
 export default {
     props: {
         requestData: {
@@ -258,7 +260,11 @@ export default {
     },
     computed: {
         formatRequest() { //变量替换后的请求参数
-            const copyRequest = JSON.parse(JSON.stringify(this.requestData));
+            const copyRequest = deepmerge({}, this.requestData, {
+                isMergeableObject(val) {
+                    return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
+                }
+            });
             dfsForest(copyRequest.requestParams, {
                 rCondition(value) {
                     return value ? value.children : null;
@@ -304,13 +310,31 @@ export default {
             return result;
         },
         selectedRequestParams() { //只显示选中的json数据
-            const copyData = JSON.parse(JSON.stringify(this.requestData.requestParams)); //扁平数据拷贝
+            // const copyData = JSON.parse(JSON.stringify(this.requestData.requestParams)); //扁平数据拷贝
+            const copyData = deepmerge({}, this.requestData.requestParams, {
+                isMergeableObject(val) {
+                    return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
+                }
+            });
             dfsForest(copyData, {
                 rCondition(value) {
                     return value ? value.children : null;
                 },
                 rKey: "children",
-                hooks: (val, i, forestData, parent) => {
+                hooks: async (val, i, forestData, parent) => {
+                    //文件类型需要处理value值
+                    if (val && val.value && val.type === "file") { 
+                        //获取文件类型
+                        const type = await FileType.fromBuffer(val.value);
+                        // console.log(type)
+                        const blobData = new Blob([val.value], { type: type.mime });
+                        const blobUrl = URL.createObjectURL(blobData)
+                        this.$set(val, "_fileInfo", {
+                            mime: type.mime,
+                            url: blobUrl,
+                        });
+                    }
+                    //处理是否选中
                     if (val && !val._select) {
                         if (!parent) {
                             copyData.splice(i, 1);
@@ -416,6 +440,9 @@ export default {
         convertVariable(val) {
             if (val == null) {
                 return;
+            }
+            if (Object.prototype.toString.call(val).slice(8, -1) === "ArrayBuffer") { //ArrayBuffer文件类型
+                return val;
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
