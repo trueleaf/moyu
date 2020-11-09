@@ -60,8 +60,10 @@ export default {
                             });
                             return Promise.reject(new Error(res.data.msg))
                     }
-                    return  result
-                } 
+                    return result
+                } else {
+                    return result
+                }
             },
             err => {
                 //=====================================取消错误不进行拦截====================================//
