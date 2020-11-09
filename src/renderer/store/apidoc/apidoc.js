@@ -32,9 +32,9 @@ export default {
             mindResponseParams: []
         },
         loading: false, //是否正在请求数据
+        paramsValid: true, //参数是否满足校验需求
     },
     mutations: {
-        //================符合标准的返回值数据(添加id，添加末尾空行)=========================//
         //=====================================全局变量====================================//
         changeVariable(state, payload) {
             state.variables = payload;
@@ -77,13 +77,16 @@ export default {
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
-            const { _id, projectId, docName, method } = payload;
+            const { _id, projectId, docName, method, changed } = payload;
             const matchedData = state.tabs[projectId].find(val => val._id === _id);
             if (matchedData && docName) {
                 matchedData.docName = docName;
             }
             if (matchedData && method) {
                 matchedData.item.methods = method;
+            }
+            if (matchedData && changed != null) {
+                Vue.set(matchedData, "changed", changed)
             }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
         },
@@ -150,6 +153,10 @@ export default {
             state.presetParamsList = payload;
         },
         //=====================================发送请求====================================//
+        //是否校验通过
+        changeParamsValid(state, isValid) {
+            state.paramsValid = isValid
+        },
         //改变文档信息
         changeDocInfo(state, payload) {
             state.docInfo = payload;
