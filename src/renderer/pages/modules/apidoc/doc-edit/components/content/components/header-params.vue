@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="请求头" class="header-params" fold>
+    <s-collapse-card ref="collapse" title="请求头" class="header-params" fold>
         <s-params-tree 
             ref="headerParams"
             :tree-data="request.header"
@@ -36,6 +36,11 @@ export default {
         dataReady(val) {
             if (val) {
                 this.$refs["headerParams"].selectAll();
+            }
+        },
+        "$store.state.apidoc.paramsValid"(val) {
+            if (!val) {
+                this.$refs["collapse"].expand();
             }
         }
     },
