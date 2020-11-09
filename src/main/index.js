@@ -9,9 +9,10 @@ if (process.env.NODE_ENV !== "development") {
 }
 
 let mainWindow;
-const winURL = process.env.NODE_ENV === "development" ? `http://localhost:9080` : config.onlineUrl;
+const winURL = process.env.NODE_ENV === "development" ? `http://localhost:9080` : config.mainConfig.onlineUrl;
 function createWindow() {
     mainWindow = new BrowserWindow({
+        title: config.renderConfig.layout.title,
         height: config.mainConfig.height,
         width: config.mainConfig.width,
         webPreferences: {
@@ -20,9 +21,16 @@ function createWindow() {
             webviewTag: true
         },
     });
-    mainWindow.loadURL(winURL);
+    mainWindow.loadURL(winURL).then().catch(err => {
+        console.error(err)
+    })
     mainWindow.on("closed", () => {
         mainWindow = null;
+    });
+    mainWindow.once("ready-to-show", () => {
+        mainWindow.show();
+        mainWindow.fullScreen();
+        update();
     });
     //=====================================render进程事件====================================//
     ipcMain.on("vue-fresh-content", (event, status) => {
@@ -37,7 +45,7 @@ function createWindow() {
         mainWindow.webContents.openDevTools();
     });
     //=====================================自动更新====================================//
-    update();
+    
 }
 
 app.on("ready", createWindow);

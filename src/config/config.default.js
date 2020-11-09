@@ -40,8 +40,8 @@ export default {
     },
     //主进程配置
     mainConfig: {
-        width: 1024,
+        width: 1440,
         height: 768,
-        onlineUrl: "https://baidu.com", //线上地址
+        onlineUrl: "https://baidu.cn", //线上地址
     },
 };
