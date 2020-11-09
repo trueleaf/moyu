@@ -67,7 +67,9 @@ export default {
         this.showContent = !this.fold;
     },
     methods: {
-        
+        expand() {
+            this.showContent = true;
+        }
     }
 };
 </script>
