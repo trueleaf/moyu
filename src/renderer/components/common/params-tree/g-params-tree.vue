@@ -91,7 +91,7 @@
                             v-model="scope.data.description"
                             size="mini" 
                             :error="scope.data._descriptionError"
-                            :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
+                            :disabled="scope.node.parent.data.type === 'array'"
                             class="w-40 ml-2"
                             placeholder="参数描述与备注"
                             @focus="enableDrag = false"
