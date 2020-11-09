@@ -27,7 +27,12 @@
                     <span v-if="item.item.methods === 'put'" class="blue mr-2">PUT</span>
                     <span v-if="item.item.methods === 'delete'" class="red mr-2">DEL</span>
                     <span class="item-text">{{ item.docName }}</span>
-                    <i class="el-icon-close close" @click.stop="handleCloseCurrent(item, index)"></i>
+                    <span class="operaion">
+                        <span v-show="item.changed" class="has-change">
+                            <span class="dot"></span>
+                        </span>
+                        <i v-show="!item.changed" class="el-icon-close close" @click.stop="handleCloseCurrent(item, index)"></i>                        
+                    </span>
                 </div>
             </draggable>
             <div class="btn right" @click="moveRight">
@@ -65,7 +70,7 @@ export default {
         },
         currentSelectDoc() {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        }
+        },
     },
     mounted() {
         this.init();
@@ -264,7 +269,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tabs {
     width: 100%;
     height: size(40);
@@ -337,23 +342,56 @@ export default {
             }
         }
     }
-    .close {
-        cursor: pointer;
+    .operaion {
         position: absolute;
-        line-height: 1.5;
-        top: 50%;
-        transform: translate(0, -50%);
-        right: 1rem;
-        width: 1.5em;
-        height: 1.5em;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        &:hover {
-            background: #ccc;
+        right: 0;
+        width: size(25);
+        height: 100%;
+        cursor: pointer;
+        &:hover > .has-change {
+            display: none;
         }
+        &:hover > .close {
+            display: inline-flex!important;
+        }
+        .close {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            line-height: 1.5;
+            width: size(20);
+            height: size(20);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            font-size: fz(16);
+            &:hover {
+                background: #ccc;
+            }
+        }
+        .has-change {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: size(20);
+            height: size(20);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            .dot {
+                width: size(10);
+                height: size(10);
+                border-radius: 50%;
+                background: mix($teal, $white, 90%);
+            }
+        }        
     }
-
 }
 </style>

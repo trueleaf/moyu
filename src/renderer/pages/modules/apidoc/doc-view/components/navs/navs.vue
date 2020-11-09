@@ -264,7 +264,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tabs {
     width: 100%;
     height: size(40);
