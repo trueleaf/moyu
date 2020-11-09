@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="返回参数" class="response-params">
+    <s-collapse-card ref="collapse" title="返回参数" class="response-params">
         <s-params-tree 
             ref="paramsTree"
             :tree-data="request.responseParams"
@@ -91,6 +91,11 @@ export default {
         dataReady(val) {
             if (val) {
                 this.$refs["paramsTree"].selectAll();
+            }
+        },
+        "$store.state.apidoc.paramsValid"(val) {
+            if (!val) {
+                this.$refs["collapse"].expand();
             }
         }
     },

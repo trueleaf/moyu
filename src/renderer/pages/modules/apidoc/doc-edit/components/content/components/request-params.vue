@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="请求参数" class="request-params">
+    <s-collapse-card title="请求参数" class="request-params" ref="collapse">
         <s-params-tree 
             ref="requestParams"
             :tree-data="request.requestParams"
@@ -107,6 +107,11 @@ export default {
         dataReady(val) {
             if (val) {
                 this.$refs["requestParams"].selectAll();
+            }
+        },
+        "$store.state.apidoc.paramsValid"(val) {
+            if (!val) {
+                this.$refs["collapse"].expand();
             }
         }
     },
