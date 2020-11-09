@@ -6,7 +6,7 @@
 */
 <template>
     <div class="mb-2">
-        <el-radio-group :value="value" @input="handleInput" size="mini">
+        <el-radio-group :value="value" @input="handleInput" size="mini" @change="handleChangeServer">
             <el-popover placement="top-start" trigger="hover" :close-delay="0" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>mock服务器</el-radio>
             </el-popover>
@@ -38,6 +38,11 @@ export default {
             dialogVisible: false, //-------------域名维护弹窗
         };
     },
+    computed: {
+        currentSelectDoc() { //当前选中的doc
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
+    },
     created() {
         this.getHostEnum(); //获取host枚举值
     },
@@ -59,7 +64,14 @@ export default {
             this.$emit("input", value)
         },
         //=====================================组件间交互====================================//  
-        
+        //改变域名
+        handleChangeServer(val) {
+            this.$store.commit("apidoc/changeTabInfoById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                changed: true
+            });
+        },
         //=====================================其他操作=====================================//
 
     }
