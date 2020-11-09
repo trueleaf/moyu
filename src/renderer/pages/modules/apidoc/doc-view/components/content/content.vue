@@ -337,7 +337,7 @@ export default {
                 if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
                 if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
                 if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
-                if (this.request.url.host === "") this.request.url.host = location.origin;
+                // if (this.request.url.host === "") this.request.url.host = location.origin;
                 this.request._description = res.data.item.description || "在这里输入文档描述";
             }).catch(err => {
                 this.$errorThrow(err, this);
