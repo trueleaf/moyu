@@ -102,6 +102,7 @@ export default {
                 description: "在这里输入文档描述", //--------------请求描述
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
+            remoteResponse: {},
             //=====================================快捷参数====================================//
             cancel: [], //请求取消
             validError: false, //是否校验出错
@@ -119,7 +120,6 @@ export default {
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
         },
-        
     },
     watch: {
         currentSelectDoc: {
@@ -133,6 +133,12 @@ export default {
             },
             deep: true,
             immediate: true
+        },
+        request: {
+            handler() {
+                console.log(this.$store.state.apidoc.docInfo)
+            },
+            deep: true
         }
     },
     mounted() {
@@ -183,6 +189,7 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
+                
                 this.$store.commit("apidoc/changeDocInfo", res.data);
                 Object.assign(this.request, res.data.item);
                 this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
@@ -191,7 +198,7 @@ export default {
                     this.$set(val, "id", val._id)
                     if (val.key.toLowerCase() === "host") {
                         this.$set(val, "_readOnly", true)
-                        this.$set(val, "value", location.host)
+                        this.$set(val, "value", "")
                     }
                     if (val.key.toLowerCase() === "content-type") {
                         this.$set(val, "_readOnly", true)
@@ -206,7 +213,8 @@ export default {
                         }
                     }
                 })
-                if (!this.request.header.some(val => val.key.toLowerCase() === "host")) {
+                const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
+                if (!matchedHost) {
                     this.request.header.unshift({
                         id: uuid(),
                         key: "host", //--------------请求头键
@@ -217,8 +225,18 @@ export default {
                         children: [], //---------子参数
                         _readOnly: true,
                     });                    
+                } else {
+                    matchedHost.id = uuid();
+                    matchedHost.key = "host";
+                    matchedHost.value = location.host;
+                    matchedHost.type = "string";
+                    matchedHost.description = "host";
+                    matchedHost.required = true;
+                    matchedHost._readOnly = true;
+                    matchedHost.children = [];
                 }
-                if (!this.request.header.some(val => val.key.toLowerCase() === "content-type")) {
+                const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
+                if (!matchedContentType) {
                     this.request.header.unshift({
                         id: uuid(),
                         key: "content-type", //--------------请求头键
@@ -229,6 +247,15 @@ export default {
                         children: [], //---------子参数
                         _readOnly: true,
                     });
+                } else {
+                    matchedContentType.id = uuid();
+                    matchedContentType.key = "content-type";
+                    matchedContentType.value = "application/json; charset=utf-8";
+                    matchedContentType.type = "string";
+                    matchedContentType.description = "请求体的MIME类型";
+                    matchedContentType.required = true;
+                    matchedContentType._readOnly = true;
+                    matchedContentType.children = [];
                 }
                 // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
                 const reqParams = this.request.requestParams;
@@ -243,7 +270,7 @@ export default {
                 if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
                 if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
                 if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
-                if (this.request.url.host === "") this.request.url.host = location.origin;
+                // if (this.request.url.host === "") this.request.url.host = location.origin;
                 this.request.description = res.data.item.description || "在这里输入文档描述";
                 //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
                 this.$store.commit("apidoc/changeTabInfoById", {
