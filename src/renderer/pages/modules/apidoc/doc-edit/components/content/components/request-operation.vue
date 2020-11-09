@@ -166,7 +166,6 @@ export default {
                             return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
                         }
                     });
-
                     const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
                     const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
                     const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
@@ -259,6 +258,12 @@ export default {
                 console.log(params, "params")
                 this.saveMindParams(); //保存快捷联想参数
                 this.loading2 = true;
+                //取消未保存小圆点
+                this.$store.commit("apidoc/changeTabInfoById", {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    changed: false
+                });
                 this.axios.post("/api/project/fill_doc", params).then(() => {
                     this.$store.commit("apidoc/changeTabInfoById", {
                         projectId: this.$route.query.id,
@@ -424,6 +429,9 @@ export default {
                 this.urlError.error = true;
                 this.urlError.message = "请求url不能为空";
                 isValidRequest = false;
+            } else if (!this.request.url.host) {
+                this.$message.error("请选择请求服务器");
+                isValidRequest = false;
             } else {
                 this.urlError.error = false;
                 isValidRequest = true;
@@ -443,7 +451,7 @@ export default {
                             const isComplex = (valueType === "object" || valueType === "array" || valueType === "file"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
                             const key = params.key;
                             const value = this.convertVariable(params.value);
-                            const description = params.description;
+                            const description = params.description || "";
                             if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
                                 this.$set(params, "_keyError", {
                                     error: true,
@@ -466,6 +474,7 @@ export default {
                                     isValidRequest = false;
                                 }
                             }
+                            // console.log(222, key, description, params)
                             if (!isComplex && !isParentArray && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
                                 this.$set(params, "_descriptionError", {
                                     error: true,
@@ -488,12 +497,13 @@ export default {
                     errorIptDom ? errorIptDom.focus() : null;
                 })
             }
+            this.$store.commit("apidoc/changeParamsValid", isValidRequest)
             return isValidRequest;
         },
 
         checkResponseParams() {
             // console.log(this.request, 22)
-            if (this.remoteResponse.contentType.includes("application/json")) {
+            if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
                 const remoteParams = this.remoteResponse.data;
                 const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
                 let responseErrorType = null; //校验错误类型
@@ -553,7 +563,7 @@ export default {
             const protocolReg = /(\/?https?:\/\/)?/;
             // const dominReg = /[a-zA-Z0-9]+\./
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
-            this.request.url.path = "/" + this.request.url.path;
+            this.request.url.path.startsWith(",") ? (this.request.url.path = "/" + this.request.url.path) : "";
             const pathReg = /\/(?!\/)[^#\?:.]+/; //查询路径正则
             const matchedPath = this.request.url.path.match(pathReg);
             if (matchedPath) {
