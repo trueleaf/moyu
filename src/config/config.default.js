@@ -37,6 +37,11 @@ export default {
                 pageSize: 20, //每页默认显示数量
             }
         },
+        //本地数据库配置
+        indexedDB: {
+            dbName: "moyu",
+            version: 1,
+        }
     },
     //主进程配置
     mainConfig: {

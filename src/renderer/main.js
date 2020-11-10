@@ -3,6 +3,7 @@ import ElementUI from "element-ui";
 import router from "./router";
 import store from "./store";
 import App from "./App.vue";
+import MyDB from "@/indexedDB"
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
 import "./components/index";
@@ -13,6 +14,11 @@ import axios from "./api/api"
 
 if (!process.env.IS_WEB) Vue.use(require("vue-electron"));
 
+
+
+const myDB = new MyDB();
+myDB.initDB();
+Vue.prototype.db = myDB;
 
 import Logs from "@/logs/index.js"
 const logs = new Logs()
