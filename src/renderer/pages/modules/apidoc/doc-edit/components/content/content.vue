@@ -15,14 +15,14 @@
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
-                <s-request-operation-manage :request="request" :data-ready="docDataReady" @fresh="getDocDetail"></s-request-operation-manage>
+                <s-request-operation-manage ref="requestOperation" :request="request" :data-ready="docDataReady" @fresh="handleFresh"></s-request-operation-manage>
                 <hr>
             </div>
             <!-- 请求参数 -->
             <div class="params-wrap">
-                <s-request-params-manage :request="request" :data-ready="docDataReady"></s-request-params-manage>
-                <s-response-params-manage :request="request" :data-ready="docDataReady"></s-response-params-manage>
-                <s-header-params-manage :request="request" :data-ready="docDataReady"></s-header-params-manage>
+                <s-request-params-manage ref="requestParams" :request="request" :data-ready="docDataReady"></s-request-params-manage>
+                <s-response-params-manage ref="responseParams" :request="request" :data-ready="docDataReady"></s-response-params-manage>
+                <s-header-params-manage ref="headerParams" :request="request" :data-ready="docDataReady"></s-header-params-manage>
             </div>            
         </div>
         <s-response class="response-wrap" ref="response" :request-data="request"></s-response>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { dfsForest } from "@/lib/index"
+import { dfsForest, debounce } from "@/lib"
 import axios from "axios" 
 import uuid from "uuid/v4"
 import response from "./components/response"
@@ -66,44 +66,16 @@ export default {
                     host: "", //-----------------主机(服务器)地址
                     path: "", //-----------------接口路径
                 }, //----------------------------请求地址信息
-                requestParams: [
-                    {
-                        id: uuid(),
-                        key: "", //--------------请求参数键
-                        value: "", //------------请求参数值
-                        type: "string", //-------------请求参数值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                    }
-                ],
-                responseParams: [
-                    {
-                        id: uuid(),
-                        key: "", //--------------请求参数键
-                        value: "", //------------请求参数值
-                        type: "string", //-------------请求参数值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                    }
-                ],
-                header: [
-                    {
-                        id: uuid(),
-                        key: "", //--------------请求头键
-                        value: "", //------------请求头值
-                        type: "string", //-------请求头值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                    }
-                ], //----------------------------请求头信息
+                requestParams: [],
+                responseParams: [],
+                header: [], //----------------------------请求头信息
                 description: "在这里输入文档描述", //--------------请求描述
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
             remoteResponse: {},
             //=====================================快捷参数====================================//
+            watchFlag: null,
+            debounceFn: null, //防抖函数
             cancel: [], //请求取消
             validError: false, //是否校验出错
             loading: false, //加载效果
@@ -120,26 +92,34 @@ export default {
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
         },
+        originDocInfo() { //返回原始文档数据
+            return this.$store.state.apidoc.editDocInfo;
+        }
     },
     watch: {
         currentSelectDoc: {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        this.$store.commit("apidoc/clearRespons");
-                        this.getDocDetail();
+                        console.log(222, this.currentSelectDoc.changed)
+                        if (!this.currentSelectDoc.changed) {
+                            this.$store.commit("apidoc/clearRespons");
+                            this.getDocDetail();
+                        } else {
+                            this.$nextTick(() => {
+                                let localData = JSON.parse(localStorage.getItem("apidoc/request"));
+                                localData = localData[this.currentSelectDoc._id]
+                                this.formatRequestData(localData);
+                                this.$refs["requestParams"].selectChecked();
+                                this.$refs["headerParams"].selectAll()
+                            })
+                        }
                     }
                 }
             },
             deep: true,
             immediate: true
         },
-        request: {
-            handler() {
-                console.log(this.$store.state.apidoc.docInfo)
-            },
-            deep: true
-        }
     },
     mounted() {
         this.getMindParamsEnum(); //获取联想参数枚举
@@ -158,6 +138,32 @@ export default {
             this.$store.dispatch("apidoc/getPresetParams", {
                 projectId: this.$route.query.id,
             });
+        },
+        //手动刷新页面
+        handleFresh() {
+            if (!this.currentSelectDoc.changed) {
+                this.$store.commit("apidoc/clearRespons");
+                this.getDocDetail();
+            } else {
+                this.$confirm("刷新后未保存数据据将丢失", "提示", {
+                    confirmButtonText: "刷新",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(() => {
+                    this.$store.commit("apidoc/clearRespons");
+                    this.getDocDetail();
+                    this.$store.commit("apidoc/changeCurrentTabById", {
+                        _id: this.currentSelectDoc._id,
+                        projectId: this.$route.query.id,
+                        changed: false
+                    });
+                }).catch(err => {
+                    if (err === "cancel" || err === "close") {
+                        return;
+                    }
+                    this.$errorThrow(err, this);
+                });
+            }
         },
         //获取文档详情
         getDocDetail() {
@@ -189,106 +195,133 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
-                
-                this.$store.commit("apidoc/changeDocInfo", res.data);
-                Object.assign(this.request, res.data.item);
-                this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
-                this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
-                this.request.header.forEach(val => {
-                    this.$set(val, "id", val._id)
-                    if (val.key.toLowerCase() === "host") {
-                        this.$set(val, "_readOnly", true)
-                        this.$set(val, "value", "")
-                    }
-                    if (val.key.toLowerCase() === "content-type") {
-                        this.$set(val, "_readOnly", true)
-                        if (this.request.requestType === "query") {
-                            this.$set(val, "value", "application/json; charset=utf-8")
-                        } else if (this.request.requestType === "json") {
-                            this.$set(val, "value", "application/json; charset=utf-8")
-                        } else if (this.request.requestType === "formData") {
-                            this.$set(val, "value", "multipart/form-data")
-                        } else if (this.request.requestType === "x-www-form-urlencoded") {
-                            this.$set(val, "value", "x-www-form-urlencoded")
-                        }
-                    }
+                if (this.watchFlag) { //去除watch数据对比
+                    this.watchFlag();
+                }
+                this.$store.commit("apidoc/changeDocResponseFullInfo", res.data); //改变接口完整返回值
+                this.formatRequestData(res.data.item);
+                //触发子组件全选
+                Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
+                    console.error(err);
+                }).finally(() => {
+                    this.$refs["requestOperation"].fixContentType();
+                    this.$store.commit("apidoc/changeDocEditInfo", {
+                        description: this.request.description,
+                        header: this.request.header,
+                        methods: this.request.methods,
+                        requestParams: this.request.requestParams,
+                        responseParams: this.request.responseParams,
+                        url: this.request.url
+                    }); //改变文档编辑内容，用于判断文档值是否发生了改变
+                    this.watchFlag = this.$watch("request", debounce(() => {
+                        this.syncRequestParams();
+                        this.diffEditParams();
+                    }, 100), {
+                        deep: true
+                    })                    
                 })
-                const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
-                if (!matchedHost) {
-                    this.request.header.unshift({
-                        id: uuid(),
-                        key: "host", //--------------请求头键
-                        value: location.host, //------------请求头值
-                        type: "string", //-------请求头值类型
-                        description: "host", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                        _readOnly: true,
-                    });                    
-                } else {
-                    matchedHost.id = uuid();
-                    matchedHost.key = "host";
-                    matchedHost.value = location.host;
-                    matchedHost.type = "string";
-                    matchedHost.description = "host";
-                    matchedHost.required = true;
-                    matchedHost._readOnly = true;
-                    matchedHost.children = [];
-                }
-                const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
-                if (!matchedContentType) {
-                    this.request.header.unshift({
-                        id: uuid(),
-                        key: "content-type", //--------------请求头键
-                        value: "application/json; charset=utf-8", //------------请求头值
-                        type: "string", //-------请求头值类型
-                        description: "请求体的MIME类型", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                        _readOnly: true,
-                    });
-                } else {
-                    matchedContentType.id = uuid();
-                    matchedContentType.key = "content-type";
-                    matchedContentType.value = "application/json; charset=utf-8";
-                    matchedContentType.type = "string";
-                    matchedContentType.description = "请求体的MIME类型";
-                    matchedContentType.required = true;
-                    matchedContentType._readOnly = true;
-                    matchedContentType.children = [];
-                }
-                // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
-                const reqParams = this.request.requestParams;
-                const resParams = this.request.responseParams;
-                const headerParams = this.request.header;
-                const reqParamsLen = this.request.requestParams.length;
-                const resParamsLen = this.request.responseParams.length;
-                const headerParamsLen = this.request.header.length;
-                const reqLastItemIsEmpty = (reqParams[reqParamsLen - 1] && reqParams[reqParamsLen - 1].key === "" && reqParams[reqParamsLen - 1].value === "");
-                const resLastItemIsEmpty = (resParams[resParamsLen - 1] && resParams[resParamsLen - 1].key === "" && resParams[resParamsLen - 1].value === "");
-                const headerLastItemIsEmpty = (headerParams[headerParamsLen - 1] && headerParams[headerParamsLen - 1].key === "" && headerParams[headerParamsLen - 1].value === "");
-                if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
-                if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
-                if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
-                // if (this.request.url.host === "") this.request.url.host = location.origin;
-                this.request.description = res.data.item.description || "在这里输入文档描述";
-                //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
-                this.$store.commit("apidoc/changeTabInfoById", {
-                    _id: this.currentSelectDoc._id,
-                    projectId: this.$route.query.id,
-                    method: res.data.item.methods
-                });
-                //改变banner请求方式
-                this.$store.commit("apidoc/changeDocBannerInfoById", {
-                    id: this.currentSelectDoc._id,
-                    method: res.data.item.methods
-                });
-                this.docDataReady = true;
+
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
             });
+        },
+        //将返回值
+        formatRequestData(requestData) {
+            Object.assign(this.request,requestData);
+            this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
+            this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
+            this.request.header.forEach(val => {
+                this.$set(val, "id", val._id)
+                if (val.key.toLowerCase() === "host") {
+                    this.$set(val, "_readOnly", true)
+                    this.$set(val, "value", "")
+                }
+                if (val.key.toLowerCase() === "content-type") {
+                    this.$set(val, "_readOnly", true)
+                    if (this.request.requestType === "query") {
+                        this.$set(val, "value", "application/json; charset=utf-8")
+                    } else if (this.request.requestType === "json") {
+                        this.$set(val, "value", "application/json; charset=utf-8")
+                    } else if (this.request.requestType === "formData") {
+                        this.$set(val, "value", "multipart/form-data")
+                    } else if (this.request.requestType === "x-www-form-urlencoded") {
+                        this.$set(val, "value", "x-www-form-urlencoded")
+                    }
+                }
+            })
+            const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
+            if (!matchedHost) {
+                this.request.header.unshift({
+                    id: uuid(),
+                    key: "host", //--------------请求头键
+                    value: location.host, //------------请求头值
+                    type: "string", //-------请求头值类型
+                    description: "host", //------描述
+                    required: true, //-------是否必填
+                    children: [], //---------子参数
+                    _readOnly: true,
+                });                    
+            } else {
+                matchedHost.id = uuid();
+                matchedHost.key = "host";
+                matchedHost.value = location.host;
+                matchedHost.type = "string";
+                matchedHost.description = "host";
+                matchedHost.required = true;
+                matchedHost._readOnly = true;
+                matchedHost.children = [];
+            }
+            const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
+            if (!matchedContentType) {
+                this.request.header.unshift({
+                    id: uuid(),
+                    key: "content-type", //--------------请求头键
+                    value: "application/json; charset=utf-8", //------------请求头值
+                    type: "string", //-------请求头值类型
+                    description: "请求体的MIME类型", //------描述
+                    required: true, //-------是否必填
+                    children: [], //---------子参数
+                    _readOnly: true,
+                });
+            } else {
+                matchedContentType.id = uuid();
+                matchedContentType.key = "content-type";
+                matchedContentType.value = "application/json; charset=utf-8";
+                matchedContentType.type = "string";
+                matchedContentType.description = "请求体的MIME类型";
+                matchedContentType.required = true;
+                matchedContentType._readOnly = true;
+                matchedContentType.children = [];
+            }
+            // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
+            const reqParams = this.request.requestParams;
+            const resParams = this.request.responseParams;
+            const headerParams = this.request.header;
+            const reqParamsLen = this.request.requestParams.length;
+            const resParamsLen = this.request.responseParams.length;
+            const headerParamsLen = this.request.header.length;
+            const reqLastItemIsEmpty = (reqParams[reqParamsLen - 1] && reqParams[reqParamsLen - 1].key === "" && reqParams[reqParamsLen - 1].value === "");
+            const resLastItemIsEmpty = (resParams[resParamsLen - 1] && resParams[resParamsLen - 1].key === "" && resParams[resParamsLen - 1].value === "");
+            const headerLastItemIsEmpty = (headerParams[headerParamsLen - 1] && headerParams[headerParamsLen - 1].key === "" && headerParams[headerParamsLen - 1].value === "");
+            if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
+            if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
+            if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
+            // if (this.request.url.host === "") this.request.url.host = location.origin;
+            this.request.description = requestData.description || "在这里输入文档描述";
+            //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
+            this.$store.commit("apidoc/changeTabInfoById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                method: requestData.methods
+            });
+            //改变banner请求方式
+            this.$store.commit("apidoc/changeDocBannerInfoById", {
+                id: this.currentSelectDoc._id,
+                method: requestData.methods
+            });
+            
         },
         generateParams() {
             return {
@@ -326,6 +359,34 @@ export default {
             });
         },
         //=====================================其他操作=====================================//
+        //同步请求数据
+        syncRequestParams() {
+            let savedRequest = JSON.parse(localStorage.getItem("apidoc/request") || "{}");
+            if (!savedRequest[this.currentSelectDoc._id]) {
+                savedRequest[this.currentSelectDoc._id] = {};
+            }
+            savedRequest[this.currentSelectDoc._id] = this.request;
+            localStorage.setItem("apidoc/request", JSON.stringify(savedRequest))
+        },
+        //对比填写参数是否发送变化
+        diffEditParams() {
+            const orginBaseText = JSON.stringify(this.originDocInfo.url) + this.originDocInfo.description + this.originDocInfo.methods;
+            const newBaseText = JSON.stringify(this.request.url) + this.request.description + this.request.methods;
+            const orginHeaderText = JSON.stringify(this.originDocInfo.header) + JSON.stringify(this.originDocInfo.requestParams) + JSON.stringify(this.originDocInfo.responseParams);
+            const newHeaderText = JSON.stringify(this.request.header) + JSON.stringify(this.request.requestParams) + JSON.stringify(this.request.responseParams);
+            if (orginBaseText === newBaseText && orginHeaderText === newHeaderText) {
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: false
+                });
+            } else {
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: true
+                });
+            }
+            console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
+        },
         //将变量转换为实际数据
         convertVariable(val) {
             if (val == null) {

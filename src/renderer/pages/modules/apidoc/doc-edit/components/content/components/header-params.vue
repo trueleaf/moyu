@@ -7,7 +7,7 @@
 <template>
     <s-collapse-card ref="collapse" title="请求头" class="header-params" fold>
         <s-params-tree 
-            ref="headerParams"
+            ref="paramsTree"
             :tree-data="request.header"
             :nest="false"
             :enable-form-data="false"
@@ -33,11 +33,6 @@ export default {
         }
     },
     watch: {
-        dataReady(val) {
-            if (val) {
-                this.$refs["headerParams"].selectAll();
-            }
-        },
         "$store.state.apidoc.paramsValid"(val) {
             if (!val) {
                 this.$refs["collapse"].expand();
@@ -73,6 +68,24 @@ export default {
     created() {
     },
     methods: {
+        selectAll() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectAll().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
+        selectChecked() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectChecked().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
         //=====================================数据请求====================================//
 
     }

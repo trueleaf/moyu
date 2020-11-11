@@ -13,6 +13,7 @@ export default {
     namespaced: true,
     state: {
         docInfo: {}, //---------------完整的文档返回数据
+        editDocInfo: {}, //-----------文档可以变化得内容
         defaultExpandKeys: [], //-----默认展开的节点
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
@@ -135,10 +136,20 @@ export default {
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
-            const { projectId, docName } = payload;
+            // console.log("change")
+            const { projectId, docName, changed } = payload;
+            this.commit("apidoc/changeTabInfoById", {
+                _id: state.activeDoc[projectId]._id,
+                projectId,
+                docName,
+                changed
+            });
             const matchedData = state.activeDoc[projectId];
             if (matchedData && docName) {
                 matchedData.docName = docName;
+            }
+            if (matchedData && changed) {
+                matchedData.changed = changed;
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
         },
@@ -158,8 +169,13 @@ export default {
             state.paramsValid = isValid
         },
         //改变文档信息
-        changeDocInfo(state, payload) {
+        changeDocResponseFullInfo(state, payload) {
             state.docInfo = payload;
+        },
+        //将接口变化得内容存放起来，用于监听接口是否发生变化
+        changeDocEditInfo(state, payload) {
+            // description,header,methods,requestParams,responseParams,url
+            state.editDocInfo = JSON.parse(JSON.stringify(payload));
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {

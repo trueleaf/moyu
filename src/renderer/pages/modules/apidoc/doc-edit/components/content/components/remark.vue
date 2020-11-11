@@ -28,11 +28,6 @@ export default {
         },
         
     },
-    computed: {
-        currentSelectDoc() { //当前选中的doc
-            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-    },
     data() {
         return {
             description: "", //-----------------------------描述
@@ -52,11 +47,6 @@ export default {
         handleChangeTitle(e) {
             // this.request.description = e.target.innerText
             this.$emit("input", e.target.innerText);
-            this.$store.commit("apidoc/changeTabInfoById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                changed: true
-            });
         },
         //改变blur
         handleTitleBlur(e) {

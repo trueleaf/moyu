@@ -380,10 +380,42 @@ export default {
         //=====================================其他操作====================================//
         //选中所有数据
         selectAll() {
-            setTimeout(() => {
-                this.$refs["tree"].setCheckedNodes(this.treeData);
+            return new Promise((resolve, reject) => {
+                try {
+                    setTimeout(() => {
+                        this.$refs["tree"].setCheckedNodes(this.treeData);
+                        resolve();
+                    })             
+                } catch (error) {
+                    reject(error)
+                }
             })
         },  
+        //选中已经checked
+        selectChecked(){
+            return new Promise((resolve, reject) => {
+                try {
+                    setTimeout(() => {
+                        const keys = [];
+                        dfsForest(this.treeData, {
+                            rCondition(value) {
+                                return value.children;
+                            },
+                            rKey: "children",
+                            hooks: (data) => {
+                                if (data._select) {
+                                    keys.push(data.id);
+                                }
+                            }
+                        });
+                        this.$refs["tree"].setCheckedKeys(keys);
+                        resolve();
+                    })                    
+                } catch (error) {
+                    reject(error)
+                }
+            })
+        },
         //生成一条基础数据
         generateParams(type = "string") {
             return {

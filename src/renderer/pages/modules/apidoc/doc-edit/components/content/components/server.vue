@@ -6,7 +6,7 @@
 */
 <template>
     <div class="mb-2">
-        <el-radio-group :value="value" @input="handleInput" size="mini" @change="handleChangeServer">
+        <el-radio-group :value="value" @input="handleInput" size="mini">
             <el-popover placement="top-start" trigger="hover" :close-delay="0" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>mock服务器</el-radio>
             </el-popover>
@@ -64,14 +64,6 @@ export default {
             this.$emit("input", value)
         },
         //=====================================组件间交互====================================//  
-        //改变域名
-        handleChangeServer(val) {
-            this.$store.commit("apidoc/changeTabInfoById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                changed: true
-            });
-        },
         //=====================================其他操作=====================================//
 
     }

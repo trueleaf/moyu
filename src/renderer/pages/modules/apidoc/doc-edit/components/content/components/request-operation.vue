@@ -108,19 +108,6 @@ export default {
             return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
         }
     },
-    watch: {
-        dataReady: {
-            handler(ready) {
-                if (ready) {
-                    this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name === this.request.methods);
-                    if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
-                        this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
-                    }
-                }
-            },
-            immediate: true
-        }
-    },
     data() {
         return {
             urlError: { //-----------------请求url错误
@@ -236,9 +223,7 @@ export default {
         //保存接口
         saveRequest() {
             const validParams = this.validateParams();
-            if (!validParams) {
-                this.$message.error("参数校验错误");
-            } else {
+            if (validParams) {
                 const params = {
                     _id: this.currentSelectDoc._id,
                     projectId: this.$route.query.id,
@@ -259,7 +244,7 @@ export default {
                 this.saveMindParams(); //保存快捷联想参数
                 this.loading2 = true;
                 //取消未保存小圆点
-                this.$store.commit("apidoc/changeTabInfoById", {
+                this.$store.commit("apidoc/changeCurrentTabById", {
                     _id: this.currentSelectDoc._id,
                     projectId: this.$route.query.id,
                     changed: false
@@ -270,9 +255,22 @@ export default {
                         _id: this.currentSelectDoc._id,
                         method: this.request.methods,
                     })
+                    this.$store.commit("apidoc/changeDocEditInfo", {
+                        description: params.item.description,
+                        header: params.item.header,
+                        methods: params.item.methods,
+                        requestParams: params.item.requestParams,
+                        responseParams: params.item.responseParams,
+                        url: params.item.url
+                    }); //改变文档编辑内容，用于判断文档值是否发生了改变
                     this.getMindParamsEnum();
                 }).catch(err => {
                     this.$errorThrow(err, this);
+                    this.$store.commit("apidoc/changeCurrentTabById", {
+                        _id: this.currentSelectDoc._id,
+                        projectId: this.$route.query.id,
+                        changed: true
+                    });
                 }).finally(() => {
                     this.loading2 = false;
                 });                 
@@ -500,7 +498,7 @@ export default {
             this.$store.commit("apidoc/changeParamsValid", isValidRequest)
             return isValidRequest;
         },
-
+        //参数校验
         checkResponseParams() {
             // console.log(this.request, 22)
             if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
@@ -663,6 +661,13 @@ export default {
             this.request._variableChange = !this.request._variableChange;
         },
         //=====================================其他操作====================================//
+        //修正contentType
+        fixContentType() {
+            this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name === this.request.methods);
+            if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
+                this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
+            }
+        },
         //cookie注入
         injectCookie(res) {
             const cookies = res.headers["set-cookie"] || [];

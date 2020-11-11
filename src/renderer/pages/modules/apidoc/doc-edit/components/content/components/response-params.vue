@@ -88,11 +88,6 @@ export default {
         },
     },
     watch: {
-        dataReady(val) {
-            if (val) {
-                this.$refs["paramsTree"].selectAll();
-            }
-        },
         "$store.state.apidoc.paramsValid"(val) {
             if (!val) {
                 this.$refs["collapse"].expand();
@@ -115,6 +110,24 @@ export default {
         this.freshLocalUsefulParams();
     },
     methods: {
+        selectAll() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectAll().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
+        selectChecked() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectChecked().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
         //=====================================数据请求====================================//
         //获取预设参数
         getPresetParams() {

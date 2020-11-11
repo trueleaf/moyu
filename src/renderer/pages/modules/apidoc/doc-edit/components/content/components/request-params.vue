@@ -7,7 +7,7 @@
 <template>
     <s-collapse-card title="请求参数" class="request-params" ref="collapse">
         <s-params-tree 
-            ref="requestParams"
+            ref="paramsTree"
             :tree-data="request.requestParams"
             :nest="request.requestType !== 'query' && request.requestType !== 'formData'"
             :enable-form-data="request.requestType === 'formData'"
@@ -104,11 +104,6 @@ export default {
         },
     },
     watch: {
-        dataReady(val) {
-            if (val) {
-                this.$refs["requestParams"].selectAll();
-            }
-        },
         "$store.state.apidoc.paramsValid"(val) {
             if (!val) {
                 this.$refs["collapse"].expand();
@@ -131,6 +126,24 @@ export default {
         this.freshLocalUsefulParams();
     },
     methods: {
+        selectAll() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectAll().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
+        selectChecked() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectChecked().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
         //=====================================数据请求====================================//
         //获取预设参数
         getPresetParams() {
