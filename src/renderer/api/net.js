@@ -66,7 +66,7 @@ class HttpClient {
         //=====================================超时定时器====================================//
         clearTimeout(this.timer);
         this.timer = setTimeout(() => {
-            reject(new Error(`请求超时，${this.timeout}ms`));
+            (new Error(`请求超时，${this.timeout}ms`));
             this.stopReqeust(); //超时取消发送
         }, this.timeout);
         this.instance.on("response", (response) => {

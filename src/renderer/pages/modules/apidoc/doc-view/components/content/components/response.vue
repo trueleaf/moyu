@@ -88,7 +88,7 @@
         <s-collapse title="请求头">
             <template v-if="requestData.header.length > 1">
                 <template v-for="(item, index) in requestData.header">
-                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="convertVariable(item.value)" class="w-100" label-width="auto"></s-label-value>
+                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="convertVariable(item.value)" :key="index" class="w-100" label-width="auto"></s-label-value>
                 </template>
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>

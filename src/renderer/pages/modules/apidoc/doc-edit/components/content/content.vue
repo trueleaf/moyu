@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { dfsForest, debounce } from "@/lib"
+import { debounce } from "@/lib"
 import axios from "axios" 
 import uuid from "uuid/v4"
 import response from "./components/response"
@@ -110,8 +110,8 @@ export default {
                                 let localData = JSON.parse(localStorage.getItem("apidoc/request"));
                                 localData = localData[this.currentSelectDoc._id]
                                 this.formatRequestData(localData);
-                                this.$refs["requestParams"].selectChecked();
-                                this.$refs["headerParams"].selectAll()
+                                this.$refs["requestParams"]?.selectChecked();
+                                this.$refs["headerParams"]?.selectAll()
                             })
                         }
                     }

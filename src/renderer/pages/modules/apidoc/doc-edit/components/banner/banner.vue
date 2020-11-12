@@ -226,7 +226,7 @@ export default {
         //=====================================初始化相关====================================//
         init() {
             this.getDocBanner();
-            document.documentElement.addEventListener("click", (e) => {
+            document.documentElement.addEventListener("click", () => {
                 // e.stopPropagation();
                 this.clearContextmenu();
                 this.multiSelectNode = [];

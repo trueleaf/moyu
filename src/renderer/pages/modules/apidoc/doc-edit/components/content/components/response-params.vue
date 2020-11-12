@@ -30,7 +30,7 @@
                             <div class="manage-params">
                                 <div class="cyan mb-2">常用</div>
                                 <template v-for="(item, index) in usefulPresetParamsList.slice(0, 3)">
-                                    <span class="params-item" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
+                                    <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
                                 <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
                                 <hr>

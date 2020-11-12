@@ -136,9 +136,9 @@ export default {
                         }
                         const newElement = newData[i]; //最新数据
                         const newElementKey = newElement.key; //最新数据key值
-                        const newElementValue = newElement.value; //最新数据value值
-                        const newElementType = newElement.type; //最新数据type值
-                        const newElementDescription = newElement.description; //最新数据description值
+                        // const newElementValue = newElement.value; //最新数据value值
+                        // const newElementType = newElement.type; //最新数据type值
+                        // const newElementDescription = newElement.description; //最新数据description值
                         const oldElement = oldData.find(val => val.key === newElementKey); //旧数据
                         let retData = {};
                         if (oldElement) { //原始数据key值在历史数据中存在
@@ -162,9 +162,9 @@ export default {
                         }
                         const oldElement = oldData[i]; //历史数据
                         const oldElementKey = oldElement.key; //历史数据key值
-                        const oldElementValue = oldElement.value; //历史数据value值
-                        const oldElementType = oldElement.type; //历史数据type值
-                        const oldElementDescription = oldElement.description; //历史数据description值
+                        // const oldElementValue = oldElement.value; //历史数据value值
+                        // const oldElementType = oldElement.type; //历史数据type值
+                        // const oldElementDescription = oldElement.description; //历史数据description值
                         //=========================================================================//
                         const newElement = newData.find(val => val.key === oldElementKey); //新数据
                         if (!newElement) { //原始数据key值在历史数据中存在
@@ -198,9 +198,9 @@ export default {
                         }
                         const newElement = newData[i]; //最新数据
                         const newElementKey = newElement.key; //最新数据key值
-                        const newElementValue = newElement.value; //最新数据value值
-                        const newElementType = newElement.type; //最新数据type值
-                        const newElementDescription = newElement.description; //最新数据description值
+                        // const newElementValue = newElement.value; //最新数据value值
+                        // const newElementType = newElement.type; //最新数据type值
+                        // const newElementDescription = newElement.description; //最新数据description值
                         const oldElement = oldData.find(val => val.key === newElementKey); //旧数据
                         let retData = {};
                         if (oldElement) { //原始数据key值在历史数据中存在
@@ -224,9 +224,9 @@ export default {
                         }
                         const oldElement = oldData[i]; //历史数据
                         const oldElementKey = oldElement.key; //历史数据key值
-                        const oldElementValue = oldElement.value; //历史数据value值
-                        const oldElementType = oldElement.type; //历史数据type值
-                        const oldElementDescription = oldElement.description; //历史数据description值
+                        // const oldElementValue = oldElement.value; //历史数据value值
+                        // const oldElementType = oldElement.type; //历史数据type值
+                        // const oldElementDescription = oldElement.description; //历史数据description值
                         //=========================================================================//
                         const newElement = newData.find(val => val.key === oldElementKey); //新数据
                         if (!newElement) { //原始数据key值在历史数据中存在

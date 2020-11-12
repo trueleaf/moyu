@@ -189,7 +189,7 @@ export default {
                         items: this.addData.presetParams,
                     };
                     this.loading2 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
+                    this.axios.post("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
                         this.$emit("change")
                     }).catch(err => {
@@ -211,7 +211,7 @@ export default {
                         items: this.editData.presetParams,
                     };
                     this.loading2 = true;
-                    this.axios.put("/api/project/doc_preset_params", params).then(res => {
+                    this.axios.put("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
                         this.$emit("change")
                     }).catch(err => {
@@ -229,7 +229,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
-                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(res => {
+                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(() => {
                     this.$message.success("删除成功");
                     this.getData();
                     this.$emit("change")

@@ -133,7 +133,7 @@ export default {
             this.$refs["form"].validate((valid, invalidData) => {
                 if (valid) {
                     this.loading2 = true;
-                    this.axios.put("/api/security/user_password", this.formInfo).then(res => {
+                    this.axios.put("/api/security/user_password", this.formInfo).then(() => {
                         this.dialogVisible = false;
                         this.$message.success("修改成功");
                     }).catch(err => {

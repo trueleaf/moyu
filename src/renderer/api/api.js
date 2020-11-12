@@ -1,7 +1,7 @@
 
 import axios from "axios"
 import router from "../router"
-import config from "@/../config/config.default"
+import config from "@/../config"
 import jsCookie from "js-cookie"
 
 
@@ -37,7 +37,7 @@ export default {
                             break;
                         case 4101: //登录有错
                             router.replace("/login");
-                            ue.prototype.$message.warning("暂无权限");
+                            Vue.prototype.$message.warning("暂无权限");
                             return Promise.reject(new Error("暂无权限"))
                         case 4100: //登录过期
                             Vue.prototype.$confirm("登录已过期", "提示", {

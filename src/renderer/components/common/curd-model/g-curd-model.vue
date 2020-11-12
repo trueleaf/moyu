@@ -70,7 +70,7 @@ export default {
                 this.rightDom.style.width = (1 - this.leftDomWidth / this.wrapWidth) * 100 + "%";
             }
             this.resizeBarDom = this.$refs["resizeBar"];
-            document.documentElement.addEventListener("mouseup", (e) => {
+            document.documentElement.addEventListener("mouseup", () => {
                 // e.stopPropagation();
                 this.leftDomWidth = this.leftDom.getBoundingClientRect()["width"]
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);

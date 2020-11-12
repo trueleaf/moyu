@@ -105,7 +105,7 @@
         <s-collapse title="请求头">
             <template v-if="formatRequest.header.length > 1">
                 <template v-for="(item, index) in formatRequest.header">
-                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" class="w-100" label-width="auto"></s-label-value>
+                    <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" :key="index" class="w-100" label-width="auto"></s-label-value>
                 </template>
             </template>
             <div v-else class="f-xs gray-500">暂无数据</div>

@@ -312,9 +312,9 @@ export default {
                     const el = treeData[i];
                     const key = el.key; //key
                     const type = el.type; //类型
-                    const defaultValue = el.default; //默认值
-                    const comment = el.comment; //注释
-                    const required = el.required; //是否必填
+                    // const defaultValue = el.default; //默认值
+                    // const comment = el.comment; //注释
+                    // const required = el.required; //是否必填
                     if (key === "") {
                         continue;
                     }
@@ -487,7 +487,7 @@ export default {
                 const el = copyTreeData[i];
                 const key = el.key; //key
                 const type = el.type; //类型
-                const defaultValue = el.default; //默认值
+                // const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
                 const required = el.required; //是否必填
                 if (key === "") continue;
@@ -527,9 +527,9 @@ export default {
                 const el = copyTreeData[i];
                 const key = el.key; //key
                 const type = el.type; //类型
-                const defaultValue = el.default; //默认值
+                // const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
-                const required = el.required; //是否必填
+                // const required = el.required; //是否必填
                 if (key === "") continue;
                 comments += `\n    @param {${type.toLowerCase()}?}        ${key} ${comment}`;
                 reqRule += `${key}: { type: "${type.toLowerCase()}", required: false },`;
@@ -721,7 +721,7 @@ export default {
                 const el = copyTreeData[i];
                 const key = el.key; //key
                 const type = el.type; //类型
-                const defaultValue = el.default; //默认值
+                // const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
                 const required = el.required; //是否必填
                 if (key === "" || !el._enableAdd) continue;
@@ -771,9 +771,9 @@ export default {
                 const el = copyTreeData[i];
                 const key = el.key; //key
                 const type = el.type; //类型
-                const defaultValue = el.default; //默认值
+                // const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
-                const required = el.required; //是否必填
+                // const required = el.required; //是否必填
                 if (key === "" || !el._enableEdit) continue;
                 if (el._uniqueEdit) {
                     uniqueStr += `
@@ -823,10 +823,10 @@ export default {
                 const type = el.type; //类型
                 const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
-                let defaultValueStr = "";
-                if (type === "string") {
-                    defaultValueStr = `"${defaultValue}"`;
-                }
+                // let defaultValueStr = "";
+                // if (type === "string") {
+                //     defaultValueStr = `"${defaultValue}"`;
+                // }
                 const required = el.required; //是否必填
                 if (el._enableList) {
                     reqeustParamsStr += `${key},`
@@ -937,17 +937,17 @@ export default {
             const copyTreeData = JSON.parse(JSON.stringify(this.treeData));
             let comments = `\n    @param {string}        ids ${this.formInfo.description}id数组`;
             let filePathStr = "";
-            let showFieldStr = "";
+            // let showFieldStr = "";
             const filePathArr = this.formInfo.path.split("/");
             for (let i = 0; i < filePathArr.length; i++) {
                 const element = filePathArr[i];
                 filePathStr += `${camelCase(element, { pascalCase: true })}.`
             }
             for (let i = 0; i < copyTreeData.length; i++) {
-                const el = copyTreeData[i];
-                if (!el._enableField) {
-                    showFieldStr += `${el.key}: 0,`;
-                }
+                // const el = copyTreeData[i];
+                // if (!el._enableField) {
+                //     showFieldStr += `${el.key}: 0,`;
+                // }
             }
             const desc = this.formInfo.description;
             const creator = this.formInfo.creator;

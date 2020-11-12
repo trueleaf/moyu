@@ -12,7 +12,6 @@ import "./directive"
 import "@/assets/css/index.css"
 import axios from "./api/api"
 
-if (!process.env.IS_WEB) Vue.use(require("vue-electron"));
 
 
 
@@ -40,10 +39,9 @@ Vue.config.warnHandler = logs.warningCatch;
 
 /* eslint-disable no-new */
 new Vue({
-    components: { App },
     router,
     store,
-    template: "<App/>",
+    render: h => h(App),
 }).$mount("#app");
 
 

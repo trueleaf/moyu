@@ -78,7 +78,9 @@ export default {
     props: {
         request: { //完整请求参数
             type: Object,
-            default: {}
+            default() {
+                return {};
+            }
         },
         dataReady: { //数据是否请求回来
             type: Boolean,
@@ -143,7 +145,7 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            return new Promise(async (resolve, reject) => {
+            const foo = async (resolve, reject) => {
                 const isValidateRequest = this.validateParams();
                 if (isValidateRequest) {
                     const formData = new FormData();
@@ -174,7 +176,8 @@ export default {
                         case "formData":
                             headers["content-type"] = formData.getHeaders()["content-type"];
                             for (const key in data) {
-                                if (data.hasOwnProperty(key)) {
+                                const hasOwn = Object.hasOwnProperty;
+                                if (hasOwn.call(data, key)) {
                                     if (data[key].constructor.name === "ArrayBuffer") {
                                         const type = await FileType.fromBuffer(data[key]);
                                         formData.append(key, Buffer(data[key]), { contentType: type.mime });
@@ -212,6 +215,9 @@ export default {
                 } else {
                     reject("校验错误2")             
                 }
+            }
+            return new Promise((resolve, reject) => {
+                foo(resolve, reject);
             })
 
         },
@@ -347,7 +353,7 @@ export default {
                 mindRequestParams,
                 mindResponseParams,
             };
-            this.axios.post("/api/project/doc_params_mind", params).then(res => {
+            this.axios.post("/api/project/doc_params_mind", params).then(() => {
                 
             }).catch(err => {
                 this.$errorThrow(err, this);
@@ -399,25 +405,6 @@ export default {
             }
             foo(plainData, result);
             return result;
-        },
-        //将全局变量转换为请求参数
-        convertVariable(val) {
-            if (val == null) {
-                return;
-            }
-            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
-            if (val && matchedData) { //匹配上数据
-                const varInfo = this.variables.find(v => {
-                    return v.name === matchedData[1];
-                });
-                if (varInfo) {
-                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                } else {
-                    return val;
-                }
-            } else {
-                return val;
-            }
         },
         //数据校验
         validateParams() {
@@ -562,7 +549,7 @@ export default {
             // const dominReg = /[a-zA-Z0-9]+\./
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
             this.request.url.path.startsWith(",") ? (this.request.url.path = "/" + this.request.url.path) : "";
-            const pathReg = /\/(?!\/)[^#\?:.]+/; //查询路径正则
+            const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
             const matchedPath = this.request.url.path.match(pathReg);
             if (matchedPath) {
                 this.request.url.path = matchedPath[0];

@@ -256,6 +256,7 @@ export default {
                     context.commit("changeMindParams", result);
                     resolve();
                 }).catch(err => {
+                    reject(err)
                     console.error(err);
                 });              
             })
@@ -271,6 +272,7 @@ export default {
                     context.commit("changePresetParams", result);
                     resolve();
                 }).catch(err => {
+                    reject(err)
                     console.error(err);
                 });              
             })

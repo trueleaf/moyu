@@ -67,7 +67,7 @@ export default {
                 textDom.style.maxWidth = this.maxWidth
             }
         },
-        handleSelect(e) {
+        handleSelect() {
             // const selection = window.getSelection();
             // selection.removeAllRanges();
             // const range = document.createRange();

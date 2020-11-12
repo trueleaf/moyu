@@ -3,8 +3,10 @@
  * @author             shuxiaokai
  * @create             2020-09-30 22:25
  */
-import packageJSON from "@/../../package.json"
-export default {
+
+const packageJSON = require("../../package.json")
+
+module.exports = {
     //更新相关配置
     updateConfig: {
         version: packageJSON.version, //当前项目版本
@@ -49,4 +51,8 @@ export default {
         height: 768,
         onlineUrl: "https://baidu.cn", //线上地址
     },
+    //打包相关配置
+    build: {
+        publicPath: ""
+    }
 };

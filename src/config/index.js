@@ -1,6 +1,6 @@
 
 
-import config from "./config.default"
 
+const config = require("./config.default")
 
-export default config;
+module.exports = config;

@@ -43,7 +43,7 @@ export default {
     methods: {
         handleExport() {
             this.loading = true;
-            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(res => {
+            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(() => {
                 
             }).catch(err => {
                 console.error(err);

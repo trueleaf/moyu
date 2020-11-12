@@ -265,7 +265,7 @@ export default {
         },
         //=====================================组件间交互====================================//  
         //生成请求数据
-        generateParams(type = "String") {
+        generateParams() {
             return {
                 id: uuid(),
                 key: "", 

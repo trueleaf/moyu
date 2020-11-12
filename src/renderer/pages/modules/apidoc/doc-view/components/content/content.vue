@@ -132,19 +132,16 @@
 import axios from "axios" 
 import response from "./components/response"
 import hostManage from "./dialog/host-manage"
-import historyDialog from "./dialog/history"
 import variableManage from "./dialog/variable-manage"
 import docRecord from "./dialog/doc-record/doc-record"
 import convertCode from "./dialog/convert-code"
-import { dfsForest, findParentNode } from "@/lib/index"
+import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
-import qs from "qs"
 const CancelToken = axios.CancelToken;
 export default {
     components: {
         "s-host-manage": hostManage,
         "s-response": response,
-        "s-history-dialog": historyDialog,
         "s-variable-manage": variableManage,
         "s-doc-record-dialog": docRecord,
         "s-convert-code": convertCode
@@ -248,7 +245,7 @@ export default {
         },
         publishRecords() {
             if (this.docInfo.publishRecords) {
-                return this.docInfo.publishRecords.sort((a, b) => {
+                return this.docInfo.publishRecords.slice(0).sort((a, b) => {
                     const aTime = new Date(a.time).valueOf();
                     const bTime = new Date(b.time).valueOf();
                     return bTime - aTime;
@@ -404,7 +401,7 @@ export default {
                 const headers = headerParams;
                 const data = requestParams;
                 console.log(data, 222)
-                this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(() => {
                     resolve();
                 }).catch(err => {
                     console.error(err);

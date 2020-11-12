@@ -25,14 +25,9 @@ class MyIndexedDB {
                 resolve(event);
             };
             //数据库升级，或者第一次创建
-            request.onupgradeneeded = (event) => {
-                const db = event.target.result;
+            request.onupgradeneeded = () => {
                 //创建文档详情
-                if (!db.objectStoreNames.contains("user")) {
-                    objectStore = db.createObjectStore("user", {
-                        autoIncrement: true,
-                    });
-                }
+              
             };
         })
 
