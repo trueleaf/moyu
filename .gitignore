@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 #Electron-builder output
 /dist_electron
+
+#line-count代码统计
+/line-count
