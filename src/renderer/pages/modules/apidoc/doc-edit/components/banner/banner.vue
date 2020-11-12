@@ -26,6 +26,22 @@
                         <use xlink:href="#iconlishi"></use>
                     </svg>               
                 </el-tooltip>
+                <svg class="item svg-icon" aria-hidden="true" @click="getDocBanner">
+                    <use xlink:href="#iconshuaxin"></use>
+                </svg>
+                <el-dropdown trigger="click" class="mr-1">
+                    <i class="more-op el-icon-more" title="更多操作"></i>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
+                        <el-dropdown-item @click.native="dialogVisible6 = true">导出文档</el-dropdown-item>
+                        <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <!-- <el-tooltip class="item" effect="dark" content="历史记录" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible4 = true">
+                        <use xlink:href="#iconlishi"></use>
+                    </svg>               
+                </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="预览文档" :open-delay="300">
                     <svg class="svg-icon" aria-hidden="true" @click="handleViewDoc">
                         <use xlink:href="#iconpreview"></use>
@@ -42,7 +58,8 @@
                     <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
                         <use xlink:href="#icondaoru"></use>
                     </svg>
-                </el-tooltip>
+                </el-tooltip> -->
+                
             </div>
         </div>
         <!-- 树形文档导航 -->
@@ -94,7 +111,7 @@
                                 <span class="el-icon-more"></span>
                                 <el-dropdown-menu slot="dropdown">
                                     <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addTemplate">以模板新建</el-dropdown-item>
+                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
                                     <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
                                     <el-dropdown-item command="rename">重命名</el-dropdown-item>
                                     <el-dropdown-item command="delete">删除</el-dropdown-item>
@@ -117,7 +134,7 @@
                                 <el-dropdown-menu slot="dropdown">
                                     <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
                                     <el-dropdown-item v-if="scope.data.isFolder" command="addFolder">新建文件夹</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addTemplate">以模板新建</el-dropdown-item>
+                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
                                     <el-dropdown-item command="rename">重命名</el-dropdown-item>
                                     <el-dropdown-item command="delete">删除</el-dropdown-item>
                                 </el-dropdown-menu>
@@ -132,6 +149,8 @@
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
         <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="init"></s-import-doc-dialog>
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
+        <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
+        <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
     </div>
 </template>
 
@@ -142,6 +161,8 @@ import addFolderDialog from "../../dialog/add-folder"
 import addFileDialog from "../../dialog/add-file"
 import importDoc from "../../dialog/import-doc"
 import historyDialog from "./dialog/history"
+import templateDialog from "./dialog/template"
+import exportDialog from "./dialog/export"
 import contextmenu from "./components/contextmenu"
 export default {
     components: {
@@ -149,6 +170,8 @@ export default {
         "s-add-file-dialog": addFileDialog,
         "s-import-doc-dialog": importDoc,
         "s-history-dialog": historyDialog,
+        "s-template-dialog": templateDialog,
+        "s-export-dialog": exportDialog,
     },
     computed: {
         navTreeData() { //-------树形导航数据
@@ -191,6 +214,8 @@ export default {
             dialogVisible2: false, //----新增文件弹窗
             dialogVisible3: false, //----导入第三方文档弹窗
             dialogVisible4: false, //----查看历史记录
+            dialogVisible5: false, //----以模板新建
+            dialogVisible6: false, //----导出文档
             loading: false, //-----------左侧树形导航加载
         };
     },
@@ -200,15 +225,18 @@ export default {
     methods: {
         //=====================================初始化相关====================================//
         init() {
-            this.loading = true;
-            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).then(() => {
-                this.loading = false;
-            });
-            document.documentElement.addEventListener("click", (e) => {
+            this.getDocBanner();
+            document.documentElement.addEventListener("click", () => {
                 // e.stopPropagation();
                 this.clearContextmenu();
                 this.multiSelectNode = [];
             })
+        },
+        getDocBanner() {
+            this.loading = true;
+            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).then(() => {
+                this.loading = false;
+            });
         },
         //=====================================导航操作==================================//
         //文档下拉框选择 重命名，删除，新增...
@@ -239,8 +267,8 @@ export default {
                 case "delete":
                     this.handleDeleteItem(data, node);
                     break;
-                case "addTemplate":
-                    this.addRestFul(data);
+                case "addByTemplate":
+                    this.addByTemplate(data);
                     break;
                 case "copy":
                     if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
@@ -302,7 +330,7 @@ export default {
                 // console.log("deleteMany", this.multiSelectNode)
             })
             this.contextmenu.$on("template", () => {
-                this.addRestFul(data);
+                this.addByTemplate(data);
             })
             this.contextmenu.$on("copy", () => {
                 if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
@@ -410,20 +438,26 @@ export default {
                 pid: "", //父元素
                 sort: 0, //当前节点排序效果
             };
+            const dragNodeParentId = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            const dropNodeParentId = findParentNode(dropNode.data._id, this.navTreeData, null, {id: "_id"})
+            console.log(dragNodeParentId, dropNodeParentId)
             let pData = null;
-            if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
-                pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
-                params.pid = pData ? pData._id : "";
-                while (pData != null) {
-                    pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
-                }
-            } else if (node.level === dropNode.level && type !== "inner") {
-                params.pid = node.data.pid;
-                pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
-                while (pData != null) {
-                    pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
-                }
-            }
+            pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            params.pid = pData ? pData._id : "";
+            // if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
+            //     pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            //     params.pid = pData ? pData._id : "";
+            //     while (pData != null) {
+            //         pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
+            //     }
+            // } else if (node.level === dropNode.level && type !== "inner") {
+            //     params.pid = node.data.pid;
+            //     pData = findParentNode(node.data._id, this.navTreeData, null, {id: "_id"});
+            //     while (pData != null) {
+            //         pData = findParentNode(pData._id, this.navTreeData, null, {id: "_id"});
+            //     }
+            // }
+            
             if (type === "inner") {
                 params.sort = Date.now();
             } else {
@@ -645,6 +679,11 @@ export default {
                 }
             });
         },
+        //以模板新增
+        addByTemplate() {
+            this.dialogVisible5 = true;
+        },
+
         //=====================================其他操作=====================================//
         //清除contextmenu
         clearContextmenu() {
@@ -696,6 +735,16 @@ export default {
                     background: $gray-400;
                 }
             }            
+        }
+        .more-op {
+            width: size(25);
+            height: size(25);
+            line-height: size(25);
+            text-align: center;
+            cursor: pointer;
+            &:hover {
+                background: $gray-400;
+            }
         }
     }
     .doc-nav {

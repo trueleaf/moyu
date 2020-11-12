@@ -1,17 +1,25 @@
-import { app, BrowserWindow, ipcMain } from "electron"; 
-import config from "../config/config.default"
+"use strict";
+
+import { app, protocol, BrowserWindow, ipcMain } from "electron";
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
+import config from "../config"
 import update from "./update"
 
-if (process.env.NODE_ENV !== "development") {
-    global.__static = require("path")
-        .join(__dirname, "/static")
-        .replace(/\\/g, "\\\\"); 
-}
 
-let mainWindow;
-const winURL = process.env.NODE_ENV === "development" ? `http://localhost:9080` : config.onlineUrl;
-function createWindow() {
-    mainWindow = new BrowserWindow({
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+// Scheme must be registered before the app is ready
+protocol.registerSchemesAsPrivileged([
+    { scheme: "app", privileges: { secure: true, standard: true } },
+]);
+
+
+
+async function createWindow() {
+    // Create the browser window.
+    let mainWindow = new BrowserWindow({
+        title: config.renderConfig.layout.title,
         height: config.mainConfig.height,
         width: config.mainConfig.width,
         webPreferences: {
@@ -20,35 +28,70 @@ function createWindow() {
             webviewTag: true
         },
     });
-    mainWindow.loadURL(winURL);
+    if (process.env.WEBPACK_DEV_SERVER_URL) {
+        // Load the url of the dev server if in development mode
+        await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
+        if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
+    } else {
+        createProtocol("app");
+        mainWindow.loadURL(config.mainConfig.onlineUrl).then().catch(err => {
+            console.error(err)
+            // mainWindow.loadURL("app://./index.html");
+        });
+    }
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
+    mainWindow.once("ready-to-show", () => {
+        mainWindow.show();
+        mainWindow.fullScreen();
+        update();
+    });
     //=====================================render进程事件====================================//
-    ipcMain.on("vue-fresh-content", (event, status) => {
+    ipcMain.on("vue-fresh-content", () => {
         mainWindow.webContents.reload()
     });
-    ipcMain.on("vue-strong-fresh-content", (event, status) => {
+    ipcMain.on("vue-strong-fresh-content", () => {
         mainWindow.webContents.session.clearCache().then(() => {
             mainWindow.webContents.reload()
         });
     });
-    ipcMain.on("vue-open-dev-tools", (event, status) => {
+    ipcMain.on("vue-open-dev-tools", () => {
         mainWindow.webContents.openDevTools();
     });
-    //=====================================自动更新====================================//
-    update();
 }
 
-app.on("ready", createWindow);
 app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
         app.quit();
     }
 });
 app.on("activate", () => {
-    if (mainWindow === null) {
-        createWindow();
-    }
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
+app.on("ready", async () => {
+    if (isDevelopment && !process.env.IS_TEST) {
+        try {
+            await installExtension(VUEJS_DEVTOOLS);
+        } catch (e) {
+            console.error("Vue Devtools failed to install:", e.toString());
+        }
+    }
+    createWindow();
+});
+
+// Exit cleanly on request from parent process in development mode.
+if (isDevelopment) {
+    if (process.platform === "win32") {
+        process.on("message", (data) => {
+            if (data === "graceful-exit") {
+                app.quit();
+            }
+        });
+    } else {
+        process.on("SIGTERM", () => {
+            app.quit();
+        });
+    }
+}

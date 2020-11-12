@@ -6,11 +6,11 @@
 */
 <template>
     <s-dialog title="保存当前请求参数为模板" :isShow="visible" width="40%" @close="handleClose">
-       <s-form ref="form" showRules :formInfo="formInfo">
-           <s-form-item label="模板名称" vModel="name"></s-form-item>
+       <s-form ref="form" :formInfo="formInfo">
+           <s-form-item label="模板名称" vModel="name" oneLine required></s-form-item>
        </s-form>  
        <div slot="footer">
-            <el-button size="mini" type="primary" @click="handleSubmit">确定</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">确定</el-button>
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
         </div>
     </s-dialog>
@@ -27,13 +27,17 @@ export default {
             type: String,
             default: ""
         },
-        items: {
-            
+        templateParams: {
+            type: Array,
+            default() {
+                return [];
+            }
         },
     },
     data() {
         return {
             formInfo: {},
+            loading: false
         };
     },
     created() {
@@ -52,16 +56,16 @@ export default {
                         name: this.formInfo.name,
                         presetParamsType: this.type,
                         projectId: this.$route.query.id,
-                        items,
+                        items: this.templateParams,
                     };
-                    this.loading2 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
-                        this.getData();
-                        this.$emit("success")
+                    this.loading = true;
+                    this.axios.post("/api/project/doc_preset_params", params).then(() => {
+                        this.$emit("success");
+                        this.handleClose();
                     }).catch(err => {
                         console.error(err);
                     }).finally(() => {
-                        this.loading2 = false;
+                        this.loading = false;
                     });
                 } 
             });

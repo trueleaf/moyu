@@ -10,6 +10,7 @@
         <div class="item-list" @click="handleClickItem('closeLeft')">关闭左侧</div>
         <div class="item-list" @click="handleClickItem('closeCurrent')">关闭标签</div>
         <div class="item-list" @click="handleClickItem('closeOther')">关闭其他</div>
+        <!-- <div class="item-list" @click="handleClickItem('fresh')">刷新页面</div> -->
     </div>
 </template>
 
@@ -48,6 +49,9 @@ export default {
                     break;
                 case "closeOther":
                     this.$emit("closeOther")
+                    break;
+                case "fresh":
+                    this.$emit("fresh")
                     break;
                 default:
                     break;

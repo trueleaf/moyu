@@ -120,7 +120,7 @@ export default {
                         loginName: this.registerInfo.loginName,
                         password: this.registerInfo.password
                     };
-                    this.axios.post("/api/security/register", this.registerInfo).then(res => {
+                    this.axios.post("/api/security/register", this.registerInfo).then(() => {
                         this.axios.post("/api/security/login_password", userInfo).then(res => {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));

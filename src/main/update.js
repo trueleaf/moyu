@@ -5,7 +5,7 @@
  * @create             2020-09-30 22:28
  */
 import path from "path"
-import config from "../config/config.default"
+import config from "../config"
 import { autoUpdater } from "electron-updater"
 import { BrowserWindow, ipcMain } from "electron";
 

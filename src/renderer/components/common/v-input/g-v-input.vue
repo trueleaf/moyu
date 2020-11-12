@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div class="v-input" :class="{'valid-error': error}">
-        <el-input v-if="!remote" :value="value" v-bind="$attrs"  v-on="$listeners">
+    <div class="v-input" :class="{'valid-error': error.error}">
+        <el-input v-if="!remote" :value="value" v-bind="$attrs" v-on="$listeners">
             <template slot="prepend">
                 <slot name="prepend"/>
             </template>
@@ -21,6 +21,7 @@
                 :fetch-suggestions="querySearchAsync"
                 :trigger-on-focus="false"
                 :highlight-first-item="true"
+                @keydown.native="handleKeyDown"
                 @select="handleSelect"
                 @input="handleAutocompleteInput"
         >
@@ -31,9 +32,8 @@
                 <span class="f-sm gray-500">{{ item.type }}</span>
             </template>
         </el-autocomplete>
-        <span v-show="error" class="error-tip">
-            <span v-if="tip">{{ tip.message ? tip.message : tip }}</span>
-            <span v-show="tip && tip.reference" class="theme-color ml-2" @click="handleJumpToStander">查看规范</span>
+        <span v-show="error.error" class="error-tip">
+            <span>{{ error.message || "校验错误" }}</span>
             <slot name="tip" />
         </span>
     </div>
@@ -53,70 +53,65 @@ export default {
             }
         },
         error: { //-----------是否错误
-            type: Boolean,
-            default: false
+            type: Object,
+            default() {
+                return {}
+            }
         },
         remote: { //---------是否远程搜索
             type: Boolean,
             default: false
+        },
+        mindParams: {
+            type: Array,
+            default() {
+                return []
+            }
         }
     },
     data() {
         return {
-            mindParams: [], //-------------联想参数
             currentQuerystring: "", //-----当前键入的查询字符串
             couldGetMindParams: false, //--是否允许联想查询
-            cancelTimer: null
+            cancelTimer: null,
+            isPaste: false, //是否为粘贴
         };
-    },
-    computed: {
-        mindRequestParams() {
-            return this.$store.state.apidoc.mindParams.mindRequestParams
-        },
-        mindResponseParams() {
-            return this.$store.state.apidoc.mindParams.mindResponseParams
-        },
     },
     mounted() {
         
     },
     methods: {
-        //初始化联想参数
-        initMindParams() {
-            // const projectId = this.$route.query.id;
-            // let reqMindParams = localStorage.getItem("pages/mindParams/request") || "{}";
-            // let resMindParams = localStorage.getItem("pages/mindParams/response") || "{}";
-            // reqMindParams = JSON.parse(reqMindParams);
-            // resMindParams = JSON.parse(resMindParams);
-            // reqMindParams[projectId] || (reqMindParams[projectId] = []) 
-            // resMindParams[projectId] || (resMindParams[projectId] = []) 
-            // this.mindParams = [...reqMindParams[projectId], ...resMindParams[projectId]];
-        },
         //=====================================组件间交互====================================//  
-        //查看规范
-        handleJumpToStander() {
-            window.open(this.tip.reference)
-        },
         //联想输入
         querySearchAsync(queryString, cb) {
-            // if (!this.couldGetMindParams) { //必须在输入的时候才允许联想
-            //     cb([]);
-            // }
-            const mindParams = this.mindRequestParams.concat(this.mindResponseParams)
-            this.currentQuerystring = queryString;
-            const matchedParams = mindParams.filter(val => val.key.toLocaleLowerCase().includes(queryString))
-            // console.log(matchedParams, this.mindParams, queryString)
-            if (queryString.trim() === "") {
+            this.currentQuerystring = queryString.toLowerCase();
+            const matchedParams = this.mindParams.filter(val => val.key.toLocaleLowerCase().includes(queryString.toLowerCase()))
+            if (queryString.trim() === "" || this.isPaste) {
                 cb([]);
             } else if (matchedParams.length > 0) {
                 cb(matchedParams);
             } else {
                 cb([])
             }
+            this.isPaste = false;
         },
         //选择
         handleSelect(val) {
             this.$emit("mindParamsSelect", val);
+        },
+        //ctrl + v也会查询快捷参数一次
+        handleKeyDown(e) {
+            if (e.ctrlKey && e.key === "v") {
+                this.isPaste = true;
+                setTimeout(() => {
+                    const copyMindParams = JSON.parse(JSON.stringify(this.mindParams))
+                    const matchedParams = copyMindParams.filter(val => val.key.toLocaleLowerCase() === this.value.toLowerCase());
+                    if (matchedParams[0]) {
+                        matchedParams[0].key = this.value
+                        this.$emit("mindParamsSelect", matchedParams[0]);
+                    }
+                })
+            }
         },
         handleAutocompleteInput() {
             // this.couldGetMindParams = true;

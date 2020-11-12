@@ -3,6 +3,7 @@ import ElementUI from "element-ui";
 import router from "./router";
 import store from "./store";
 import App from "./App.vue";
+import MyDB from "@/indexedDB"
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
 import "./components/index";
@@ -11,8 +12,12 @@ import "./directive"
 import "@/assets/css/index.css"
 import axios from "./api/api"
 
-if (!process.env.IS_WEB) Vue.use(require("vue-electron"));
 
+
+
+const myDB = new MyDB();
+myDB.initDB();
+Vue.prototype.db = myDB;
 
 import Logs from "@/logs/index.js"
 const logs = new Logs()
@@ -34,10 +39,9 @@ Vue.config.warnHandler = logs.warningCatch;
 
 /* eslint-disable no-new */
 new Vue({
-    components: { App },
     router,
     store,
-    template: "<App/>",
+    render: h => h(App),
 }).$mount("#app");
 
 

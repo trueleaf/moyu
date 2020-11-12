@@ -60,6 +60,7 @@ export default {
         display: flex;
         align-items: center;;
         user-select: none;
+        color: $gray-800;
         &:hover {
             background: mix($theme-color, $white, 25%);
         }

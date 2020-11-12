@@ -91,7 +91,7 @@ export default {
         }
     },
     data() {
-        console.log(222, this.config)
+        
         return {
             //=====================================表格参数====================================//
             formInfo: {
@@ -209,6 +209,7 @@ export default {
                 this.loading2 = true;
                 this.axios.delete(this.deleteUrl, { data: params }).then(() => {
                     this.getData();
+                    this.$emit("deleteMany");
                 }).catch(err => {
                     this.$errorThrow(err, this);
                 }).finally(() => {

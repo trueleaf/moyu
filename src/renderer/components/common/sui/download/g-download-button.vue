@@ -5,7 +5,9 @@
     备注：xxxx
 */
 <template>
-    <el-button :loading="loading" :size="config.renderConfig.layout.size" :type="type" icon="el-icon-upload" v-bind="$attrs" v-on="$listeners" @click.stop="downloadFile">下载模板</el-button>
+    <el-button :loading="loading" :size="config.renderConfig.layout.size" :type="type" icon="el-icon-upload" v-bind="$attrs" v-on="$listeners" @click.stop="downloadFile">
+        <slot />
+    </el-button>
 </template>
 
 <script>
@@ -29,6 +31,10 @@ export default {
         type: {
             type: String,
             default: "primary"
+        },
+        fileName: {
+            type: String,
+            default: "未命名"
         }
     },
     data() {
@@ -41,7 +47,14 @@ export default {
         //导出任务明细
         downloadFile() {
             if (this.static) {
-                window.open(this.url);
+                // window.open(this.url);
+                const downloadElement = document.createElement("a");
+                downloadElement.href = this.url;
+                
+                downloadElement.download = decodeURIComponent(this.fileName); //下载后文件名
+                document.body.appendChild(downloadElement);
+                downloadElement.click(); //点击下载
+                document.body.removeChild(downloadElement); //下载完成移除元素
                 return
             }
             this.loading = true;

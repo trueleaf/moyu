@@ -6,12 +6,10 @@
 */
 <template>
     <span>
-
         <el-tooltip effect="light" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
             <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
         </el-tooltip>        
-        <!-- 拷贝图标 -->
-        <span v-if="copy" v-copy="value" class="el-icon-document-copy cursor-pointer orange"></span>
+        <!-- <span v-if="copy" v-copy="value" class="el-icon-document-copy cursor-pointer orange"></span> -->
     </span>
 
 </template>
@@ -69,7 +67,7 @@ export default {
                 textDom.style.maxWidth = this.maxWidth
             }
         },
-        handleSelect(e) {
+        handleSelect() {
             // const selection = window.getSelection();
             // selection.removeAllRanges();
             // const range = document.createRange();

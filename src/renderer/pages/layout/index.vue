@@ -10,7 +10,7 @@
             <div class="ml-5 header-left fl d-flex a-center">
                 <span class="f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.renderConfig.layout.title }}</span>
                 <el-menu :default-active="activeMenu" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
-                    <el-menu-item v-for="(item, index) in menus" :key="item.path" :index="item.path">{{ item.name }}</el-menu-item>
+                    <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">{{ item.name }}</el-menu-item>
                 </el-menu>
             </div>
             <div class="header-right mr-5 fr">
@@ -88,11 +88,11 @@ export default {
         initUploadEvent() {
             if (window.require) {
                 //存在可用更新
-                ipcRenderer.on("vue-update-available", (e) => {
+                ipcRenderer.on("vue-update-available", () => {
                     console.log("存在可用更新")
                 });
                 //没有可用更新
-                ipcRenderer.on("vue-update-not-available", (e, progressObj) => {
+                ipcRenderer.on("vue-update-not-available", () => {
                     console.log("没有可用更新")
                     this.downloading = false;
                     this.$message.warning("暂无可用更新");

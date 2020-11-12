@@ -9,6 +9,7 @@
         <!-- 新增数据 -->
         <div slot="left" v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="ml-1 flex1">
             <el-tabs v-model="activeName">
+                <!-- 新增 -->
                 <el-tab-pane label="新增参数" name="s-add">
                     <el-form ref="form" :model="addData" :rules="rules" label-width="120px">
                         <el-form-item label="参数名称：" prop="name">
@@ -21,13 +22,23 @@
                             </el-select>
                         </el-form-item>
                         <div class="scroll-y-450">
-                            <s-params-tree :tree-data="addData.presetParams" title="参数模板"></s-params-tree>
+                            <s-collapse-card title="参数模板">
+                                <s-params-tree 
+                                    ref="requestParams"
+                                    :tree-data="addData.presetParams"
+                                    :mind-params="mindParams"
+                                    nest
+                                    enable-form-data
+                                >
+                                </s-params-tree>
+                            </s-collapse-card>
                         </div>
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleAddPresetParams">确认新增</el-button>
                         </div>
                     </el-form>  
                 </el-tab-pane>
+                <!-- 修改 -->
                 <el-tab-pane label="修改参数" name="s-edit">
                     <el-form v-if="editData._id" ref="form" :model="editData" :rules="rules" label-width="120px">
                         <el-form-item label="参数名称：" prop="name">
@@ -40,7 +51,16 @@
                             </el-select>
                         </el-form-item>
                         <div class="scroll-y-450">
-                            <s-params-tree :tree-data="editData.presetParams" title="参数模板"></s-params-tree>
+                            <s-collapse-card title="参数模板">
+                                <s-params-tree 
+                                    ref="requestParams"
+                                    :tree-data="editData.presetParams"
+                                    nest
+                                    enable-form-data
+                                    :mind-params="mindParams"
+                                >
+                                </s-params-tree>
+                            </s-collapse-card>
                         </div>
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleEditPresetParams">确认修改</el-button>
@@ -52,7 +72,16 @@
         <!-- 数据展示 -->
         <div slot="right" class="pr-2">
             <el-divider content-position="left">数据展示</el-divider>
-            <s-table ref="table" url="/api/project/doc_preset_params_list" height="400px" :params="{projectId: $route.query.id}" deleteMany deleteUrl="/api/project/doc_preset_params" deleteKey="ids">
+            <s-table 
+                    ref="table"
+                    url="/api/project/doc_preset_params_list"
+                    height="400px"
+                    :params="{projectId: $route.query.id}"
+                    deleteMany
+                    deleteUrl="/api/project/doc_preset_params"
+                    deleteKey="ids"
+                    @deleteMany="$emit('change')"
+                >
                 <el-table-column label="参数名称" align="center">
                     <template slot-scope="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
@@ -79,20 +108,19 @@
 </template>
 
 <script>
-import paramsTree from "../components/params-tree"
 import uuid from "uuid/v4"
 export default {
-    components: {
-        "s-params-tree": paramsTree
-    },
     props: {
         visible: {
             type: Boolean,
             default: false
         },
-        type: { //快捷参数类型
-            type: String,
-            default: ""
+    },
+    computed: {
+        mindParams() { //----------联想参数
+            const mindReq =  this.$store.state.apidoc.mindParams.mindRequestParams;
+            const mindRes =  this.$store.state.apidoc.mindParams.mindResponseParams;
+            return mindReq.concat(mindRes);
         },
     },
     data() {
@@ -156,14 +184,14 @@ export default {
                 if (valid) {
                     const params = {
                         name: this.addData.name,
-                        presetParamsType: this.type,
+                        presetParamsType: this.addData.type,
                         projectId: this.$route.query.id,
                         items: this.addData.presetParams,
                     };
                     this.loading2 = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(res => {
+                    this.axios.post("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
-                        this.$emit("success")
+                        this.$emit("change")
                     }).catch(err => {
                         console.error(err);
                     }).finally(() => {
@@ -179,13 +207,13 @@ export default {
                     const params = {
                         _id: this.editData._id,
                         name: this.editData.name,
-                        presetParamsType: this.type,
+                        presetParamsType: this.addData.type,
                         items: this.editData.presetParams,
                     };
                     this.loading2 = true;
-                    this.axios.put("/api/project/doc_preset_params", params).then(res => {
+                    this.axios.put("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
-                        this.$emit("success")
+                        this.$emit("change")
                     }).catch(err => {
                         console.error(err);
                     }).finally(() => {
@@ -201,10 +229,10 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
-                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(res => {
+                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(() => {
                     this.$message.success("删除成功");
                     this.getData();
-                    this.$emit("success")
+                    this.$emit("change")
                 }).catch(err => {
                     this.$errorThrow(err, this);
                 });  

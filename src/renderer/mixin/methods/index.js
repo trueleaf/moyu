@@ -105,6 +105,47 @@ export default {
         downloadElement.click(); //点击下载
         document.body.removeChild(downloadElement); //下载完成移除元素
         window.URL.revokeObjectURL(blobUrl); //释放掉blob对象
-    }
+    },
+    /** 
+     * @description        判断一个变量是否为数字
+     * @author              shuxiaokai
+     * @create             2020-11-02 09:24
+     * @param {any}        variable - 任意类型变量       
+     * @return {boolean}   如果是数字则返回true，否则返回false
+     * @remark   
+     * null NaN undefined   => false
+     * "0.2" "5" => false
+     *  Infinity => false
+     * 
+     */
+    _isNumber(val) {
+        if (val == null) {
+            return false;
+        }
+        if (typeof val === "number" && isFinite(val) && !isNaN(val)) {
+            return true;
+        }
+    },
+
+    /** 
+     * @description        判断一个变量是否为类数字(严格意义数字或者可以转换为数字的字符串)
+     * @author              shuxiaokai
+     * @create             2020-11-02 09:29
+     * @param {any}        variable - 任意类型变量       
+     * @return {boolean}    返回字符串
+     * @remark   
+     * null NaN undefined   => false
+     *  Infinity => false
+     * "0.2" "5" => true
+     */
+    _isNumberLike(val) {
+        if (val.toString().match(/^-?(0\.\d+|[1-9]+\.\d+|[1-9]\d{0,20}|[0-9])$/) || this._isNumber(val)) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+
 };
 

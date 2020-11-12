@@ -10,6 +10,7 @@
         <div class="operation">
             <div class="item" title="默认情况数组数据只展示一个，展示全部将显示完整数据" :class="{active: activeFullArray}" @click="activeFullArray = !activeFullArray">完整数据</div>
             <div class="item" title="将当前返回值应用为响应参数" @click="handleExport">应用为响应值</div>
+            <div class="item" v-copy="JSON.stringify(data)">复制为json</div>
         </div>
         <s-json-inner :data="data" :check-data="checkData" :fullArray="activeFullArray"></s-json-inner>
     </div>
@@ -46,6 +47,7 @@ export default {
 
     },
     methods: {
+        //导出数据
         handleExport() {
             const copyData = JSON.parse(JSON.stringify(this.data));
             console.log(copyData)
@@ -62,7 +64,7 @@ export default {
                             result.push({
                                 key: i,
                                 type: valueType,
-                                value: obj[i].toString(),
+                                value: obj[i] == null ? "null" : obj[i].toString(),
                                 description
                             })
                         } else if (valueType === "object") {
@@ -148,11 +150,11 @@ export default {
     padding: size(10) size(10);
     position: relative; //递归组件只在外层添加relative，否则offsetleft取值会出现问题
     border-radius: $border-radius-sm;
-    background: #1E1E1E;
-    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     font-size: size(14);
     max-height: size(400);
     overflow-y: auto;
+    background: #282c34;
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     .operation {
         display: flex;
         align-items: center;

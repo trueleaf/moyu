@@ -3,8 +3,10 @@
  * @author             shuxiaokai
  * @create             2020-09-30 22:25
  */
-import packageJSON from "@/../../package.json"
-export default {
+
+const packageJSON = require("../../package.json")
+
+module.exports = {
     //更新相关配置
     updateConfig: {
         version: packageJSON.version, //当前项目版本
@@ -37,11 +39,20 @@ export default {
                 pageSize: 20, //每页默认显示数量
             }
         },
+        //本地数据库配置
+        indexedDB: {
+            dbName: "moyu",
+            version: 1,
+        }
     },
     //主进程配置
     mainConfig: {
-        width: 1024,
+        width: 1440,
         height: 768,
-        onlineUrl: "https://baidu.com", //线上地址
+        onlineUrl: "https://baidu.cn", //线上地址
     },
+    //打包相关配置
+    build: {
+        publicPath: ""
+    }
 };

@@ -61,8 +61,7 @@
 </template>
 
 <script>
-import Vue from "vue"
-import { findoNode, forEachForest, findPreviousSibling, findNextSibling, findParentNode, debounce } from "@/lib/index"
+import { debounce } from "@/lib/index"
 
 export default {
     components: {
@@ -115,7 +114,7 @@ export default {
             this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).then(() => {
                 this.loading = false;
             });
-            document.documentElement.addEventListener("click", (e) => {
+            document.documentElement.addEventListener("click", () => {
                 // e.stopPropagation();
                 this.clearContextmenu();
                 this.multiSelectNode = [];
