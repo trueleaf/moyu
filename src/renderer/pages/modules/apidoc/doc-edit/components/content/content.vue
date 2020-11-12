@@ -101,7 +101,7 @@ export default {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        console.log(222, this.currentSelectDoc.changed)
+                        // console.log(222, this.currentSelectDoc.changed)
                         if (!this.currentSelectDoc.changed) {
                             this.$store.commit("apidoc/clearRespons");
                             this.getDocDetail();
@@ -385,7 +385,7 @@ export default {
                     changed: true
                 });
             }
-            console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
+            // console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
         },
         //将变量转换为实际数据
         convertVariable(val) {
