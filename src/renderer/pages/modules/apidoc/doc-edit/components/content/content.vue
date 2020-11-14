@@ -101,7 +101,7 @@ export default {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        // console.log(222, this.currentSelectDoc.changed)
+                        console.log(222, this.currentSelectDoc.changed)
                         if (!this.currentSelectDoc.changed) {
                             this.$store.commit("apidoc/clearRespons");
                             this.getDocDetail();
@@ -110,8 +110,18 @@ export default {
                                 let localData = JSON.parse(localStorage.getItem("apidoc/request"));
                                 localData = localData[this.currentSelectDoc._id]
                                 this.formatRequestData(localData);
-                                this.$refs["requestParams"]?.selectChecked();
-                                this.$refs["headerParams"]?.selectAll()
+                                this.$refs["requestOperation"].fixContentType();
+                                if (this.watchFlag) { //去除watch数据对比
+                                    this.watchFlag();
+                                }
+                                this.watchFlag = this.$watch("request", debounce(() => {
+                                    this.syncRequestParams();
+                                    this.diffEditParams();
+                                }, 100), {
+                                    deep: true
+                                })  
+                                // this.$refs["requestParams"]?.selectChecked();
+                                // this.$refs["headerParams"]?.selectAll()
                             })
                         }
                     }
@@ -218,7 +228,8 @@ export default {
                         this.diffEditParams();
                     }, 100), {
                         deep: true
-                    })                    
+                    })   
+                    console.log(22222, this.request)                 
                 })
 
             }).catch(err => {
@@ -321,7 +332,6 @@ export default {
                 id: this.currentSelectDoc._id,
                 method: requestData.methods
             });
-            
         },
         generateParams() {
             return {
@@ -361,6 +371,7 @@ export default {
         //=====================================其他操作=====================================//
         //同步请求数据
         syncRequestParams() {
+            console.log("同步")
             let savedRequest = JSON.parse(localStorage.getItem("apidoc/request") || "{}");
             if (!savedRequest[this.currentSelectDoc._id]) {
                 savedRequest[this.currentSelectDoc._id] = {};
