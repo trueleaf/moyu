@@ -11,7 +11,8 @@
                 <el-radio :label="1">备选项</el-radio>
                 <el-radio :label="2">备选项2</el-radio>
             </el-radio-group>
-            <s-download-button url="/api/project/doc_word" :params="{ projectId: $route.query.id }">导出word</s-download-button>
+            <s-download-button url="/api/project/doc_word" :params="{ projectId: $route.query.id }">导出为Word</s-download-button>
+            <s-download-button url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }">导出为HTML</s-download-button>
         </div>
         <div slot="footer">
             <el-button size="mini" type="warning" @click="handleClose">关闭</el-button>

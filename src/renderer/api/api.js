@@ -25,12 +25,23 @@ export default {
         )
         //===============================axiosInstance响应钩子=======================================//
         axiosInstance.interceptors.response.use(
-            res => {
+            async res => {
                 const result = res.data;
                 const headers = res.headers || {};
                 const contentType = headers["content-type"];
+                let contentDisposition = headers["content-disposition"];
+                let fileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
+                fileName && ( fileName = decodeURIComponent(fileName[1]) )
+                
                 if (contentType.includes("application/json")) { //常规格式数据
-                    const code = res.data.code; //自定义请求状态码
+                    let code = null;
+                    if (res.data.constructor.name === "Blob") {
+                        let jsonData = await res.data.text()
+                        jsonData = JSON.parse(jsonData)
+                        code = jsonData.code;
+                    } else {
+                        code = res.data.code; //自定义请求状态码
+                    }
                     /*eslint-disable indent*/ 
                     switch (code) {
                         case 0: //正确请求
@@ -62,7 +73,10 @@ export default {
                     }
                     return result
                 } else {
-                    return result
+                    return {
+                        fileName,
+                        data: result
+                    }
                 }
             },
             err => {

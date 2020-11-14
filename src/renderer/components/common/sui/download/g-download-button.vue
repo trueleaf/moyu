@@ -64,7 +64,7 @@ export default {
             }).then(res => {
                 let blobUrl = "";
                 console.log(res)
-                blobUrl = URL.createObjectURL(res);
+                blobUrl = URL.createObjectURL(res.data);
                 const downloadElement = document.createElement("a");
                 downloadElement.href = blobUrl;
                 downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : "未命名"; //下载后文件名
