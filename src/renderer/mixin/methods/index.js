@@ -2,7 +2,7 @@ import tips from "./tips"
 export default {
     /**
         @description  随机生成提示信息
-        @autor        shuxiaokai
+        @author       shuxiaokai
         @create       2019-06-25 13:33"
         @params       
         @return       
@@ -20,7 +20,7 @@ export default {
 
     /** 
      * @description        获取祖先组件
-     * @autor              shuxiaokai
+     * @author             shuxiaokai
      * @updateAuthor       shuxiaokai
      * @create             2020-02-13 15:22
      * @update             2020-02-13 15:22
@@ -36,8 +36,35 @@ export default {
     },
 
     /** 
+     * @description        通过名称查找组件信息
+     * @author             shuxiaokai
+     * @create             2020-11-15 19:45
+     * @param {String}     componentName - 组件名称       
+     * @return {any}       若查询到组件则返回组件，否则返回null
+     */
+    getComponentByName(componentName = "") {
+        const root = this.$root;
+        const children = root.$children;
+        let matchedComponent = null;
+        const foo = (children) => {
+            for (let i = 0; i < children.length; i++) {
+                const component = children[i];
+                if (component.$options.name === componentName) {
+                    matchedComponent = component;
+                    return;
+                }
+                if (component.$children && component.$children.length > 0) {
+                    foo(component.$children);
+                }
+            }
+        }
+        foo(children);
+        return matchedComponent;
+    },
+
+    /** 
      * @description        向父元素触发事件
-     * @autor              shuxiaokai
+     * @author             shuxiaokai
      * @updateAuthor       shuxiaokai
      * @param {String}     componentName - 组件名称       
      * @param {String}     eventName - 事件名称       
@@ -66,7 +93,7 @@ export default {
 
     /** 
      * @description        向子元素广播事件
-     * @autor              shuxiaokai
+     * @author             shuxiaokai
      * @updateAuthor       shuxiaokai
      * @param {String}     componentName - 组件名称       
      * @param {String}     eventName - 事件名称       
