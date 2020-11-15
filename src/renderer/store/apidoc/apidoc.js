@@ -136,7 +136,6 @@ export default {
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
-            // console.log("change")
             const { projectId, docName, changed } = payload;
             this.commit("apidoc/changeTabInfoById", {
                 _id: state.activeDoc[projectId]._id,
@@ -148,7 +147,7 @@ export default {
             if (matchedData && docName) {
                 matchedData.docName = docName;
             }
-            if (matchedData && changed) {
+            if (matchedData && changed != null) {
                 matchedData.changed = changed;
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
