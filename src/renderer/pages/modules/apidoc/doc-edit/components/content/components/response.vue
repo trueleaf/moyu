@@ -112,7 +112,7 @@
         </s-collapse>
         <!-- 请求参数 -->
         <s-collapse title="请求参数" :active="false">
-            <s-tree-json :data="selectedRequestParams"></s-tree-json>
+            <s-tree-json :data="formatRequest.requestParams"></s-tree-json>
         </s-collapse>
         <!-- 响应参数 -->
         <s-collapse title="响应参数" :active="false">
@@ -247,7 +247,7 @@
 import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
 import { formatBytes } from "@/lib"
-import FileType from "file-type/browser"
+// import FileType from "file-type/browser"
 export default {
     props: {
         requestData: {
@@ -290,10 +290,10 @@ export default {
             return copyRequest;
         },
         publishInfo() {
-            const docInfo = this.$store.state.apidoc.docInfo;
+            const docFullInfo = this.$store.state.apidoc.docFullInfo;
             return {
-                publish: docInfo.publish,
-                publishRecords: docInfo.publishRecords ? docInfo.publishRecords.reverse() : []
+                publish: docFullInfo.publish,
+                publishRecords: docFullInfo.publishRecords ? docFullInfo.publishRecords.reverse() : []
             };
         },
         variables() { //全局变量
@@ -304,38 +304,30 @@ export default {
             const result = this.convertPlainParamsToTreeData(copyData);
             return result;
         },
-        selectedRequestParams() { //只显示选中的json数据
-            const copyData = this.requestData.requestParams
-            dfsForest(copyData, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: async (val, ) => {
-                    //文件类型需要处理value值
-                    if (val && val.value && val.type === "file") { 
-                        //获取文件类型
-                        const type = await FileType.fromBuffer(val.value);
-                        // console.log(type)
-                        const blobData = new Blob([val.value], { type: type.mime });
-                        const blobUrl = URL.createObjectURL(blobData)
-                        this.$set(val, "_fileInfo", {
-                            mime: type.mime,
-                            url: blobUrl,
-                        });
-                    }
-                    //处理是否选中
-                    // if (val && !val._select) {
-                    //     if (!parent) {
-                    //         copyData.splice(i, 1);
-                    //     } else {
-                    //         parent.children.splice(i, 1);
-                    //     }
-                    // }
-                }
-            });
-            return copyData;
-        },
+        // selectedRequestParams() { //只显示选中的json数据
+        //     const copyData = this.requestData.requestParams
+        //     dfsForest(copyData, {
+        //         rCondition(value) {
+        //             return value ? value.children : null;
+        //         },
+        //         rKey: "children",
+        //         hooks: async (val, ) => {
+        //             //文件类型需要处理value值
+        //             if (val && val._value && val.type === "file") { 
+        //                 //获取文件类型
+        //                 const type = await FileType.fromBuffer(val._value);
+        //                 // console.log(val._value)
+        //                 const blobData = new Blob([val._value], { type: type.mime });
+        //                 const blobUrl = URL.createObjectURL(blobData)
+        //                 this.$set(val, "_fileInfo", {
+        //                     mime: type.mime,
+        //                     url: blobUrl,
+        //                 });
+        //             }
+        //         }
+        //     });
+        //     return copyData;
+        // },
         remoteResponse() {  //远端返回数据结果
             return this.$store.state.apidoc.responseData;
         },
