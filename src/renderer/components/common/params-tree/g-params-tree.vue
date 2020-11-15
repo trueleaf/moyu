@@ -265,9 +265,9 @@ export default {
             if (data.type === "boolean") {
                 data.value = "true";
             }
-            // if (data.type === "file") {
-            //     data.value = "image"
-            // }
+            if (data.type === "file") {
+                data.value = "";
+            }
             if (data.type === "number") {
                 const couldConvertToNumber = !isNaN(Number(data.value));
                 if (!couldConvertToNumber) {

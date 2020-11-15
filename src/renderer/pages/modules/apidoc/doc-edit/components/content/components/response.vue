@@ -247,7 +247,6 @@
 import { dfsForest } from "@/lib/index"
 import uuid from "uuid/v4"
 import { formatBytes } from "@/lib"
-import deepmerge from "deepmerge"
 import FileType from "file-type/browser"
 export default {
     props: {
@@ -260,11 +259,7 @@ export default {
     },
     computed: {
         formatRequest() { //变量替换后的请求参数
-            const copyRequest = deepmerge({}, this.requestData, {
-                isMergeableObject(val) {
-                    return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
-                }
-            });
+            const copyRequest = this.requestData;
             dfsForest(copyRequest.requestParams, {
                 rCondition(value) {
                     return value ? value.children : null;
@@ -310,18 +305,13 @@ export default {
             return result;
         },
         selectedRequestParams() { //只显示选中的json数据
-            // const copyData = JSON.parse(JSON.stringify(this.requestData.requestParams)); //扁平数据拷贝
-            const copyData = deepmerge({}, this.requestData.requestParams, {
-                isMergeableObject(val) {
-                    return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
-                }
-            });
+            const copyData = this.requestData.requestParams
             dfsForest(copyData, {
                 rCondition(value) {
                     return value ? value.children : null;
                 },
                 rKey: "children",
-                hooks: async (val, i, forestData, parent) => {
+                hooks: async (val, ) => {
                     //文件类型需要处理value值
                     if (val && val.value && val.type === "file") { 
                         //获取文件类型
@@ -335,13 +325,13 @@ export default {
                         });
                     }
                     //处理是否选中
-                    if (val && !val._select) {
-                        if (!parent) {
-                            copyData.splice(i, 1);
-                        } else {
-                            parent.children.splice(i, 1);
-                        }
-                    }
+                    // if (val && !val._select) {
+                    //     if (!parent) {
+                    //         copyData.splice(i, 1);
+                    //     } else {
+                    //         parent.children.splice(i, 1);
+                    //     }
+                    // }
                 }
             });
             return copyData;

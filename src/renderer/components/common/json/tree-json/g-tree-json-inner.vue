@@ -9,7 +9,7 @@
         <span v-if="level === 0" class="symbol">{</span>
         <div v-for="(item, index) in data" :key="index" class="indent">
             <!-- 常规数据类型 -->
-            <template v-if="item.type !== 'array' && item.type !== 'object' && item.type !== 'file' && item.value">
+            <template v-if="item.type !== 'array' && item.type !== 'object' && item.type !== 'file' && item.value && item._select">
                 <span>
                     <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
                     <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
@@ -25,7 +25,7 @@
                 </span>                
             </template>
             <!-- 对象和数组类型 -->
-            <template v-else-if="item.type === 'array'|| item.type === 'object'">
+            <template v-else-if="(item.type === 'array'|| item.type === 'object') && item._select">
                 <span>
                     <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
                     <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
@@ -50,7 +50,7 @@
                 </span> 
             </template>
             <!-- 文件类型 -->
-            <template v-else-if="item.type === 'file'">
+            <template v-else-if="item.type === 'file' && item._select">
                 <span>
                     <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
                     <span class="key">{{ item.key }}</span><span class="symbol">:&nbsp;</span>
