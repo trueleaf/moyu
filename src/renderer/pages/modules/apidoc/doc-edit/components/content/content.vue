@@ -110,6 +110,7 @@ export default {
                                 let localData = JSON.parse(localStorage.getItem("apidoc/request"));
                                 localData = localData[this.currentSelectDoc._id]
                                 this.formatRequestData(localData);
+                                this.$refs["requestOperation"].fixContentType();
                                 this.$refs["requestParams"]?.selectChecked();
                                 this.$refs["headerParams"]?.selectAll()
                             })
