@@ -12,8 +12,9 @@ const axios = http.axios;
 export default {
     namespaced: true,
     state: {
-        docInfo: {}, //---------------完整的文档返回数据
-        editDocInfo: {}, //-----------文档可以变化得内容
+        docFullInfo: {}, //-----------完整的文档返回数据
+        docInfo: {}, //---------------只包含接口相关的文档返回数据
+        originDocInfo: {}, //---------存放文档原始数据
         defaultExpandKeys: [], //-----默认展开的节点
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
@@ -111,14 +112,8 @@ export default {
         deleteTabById(state, payload) {
             const { projectId, deleteIds } = payload;
             if (state.tabs[projectId]) {
-                const deleteIndexArr = [];
-                state.tabs[projectId].forEach((val, index) => {
-                    if (deleteIds.includes(val._id)) {
-                        deleteIndexArr.push(index);
-                    }
-                })
-                deleteIndexArr.forEach(index => {
-                    state.tabs[projectId].splice(index, 1);
+                state.tabs[projectId] = state.tabs[projectId].filter(val => {
+                    return deleteIds.indexOf(val._id) === -1;
                 })
             }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
@@ -147,7 +142,7 @@ export default {
             if (matchedData && docName) {
                 matchedData.docName = docName;
             }
-            if (matchedData && changed != null) {
+            if (matchedData) {
                 matchedData.changed = changed;
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
@@ -169,12 +164,15 @@ export default {
         },
         //改变文档信息
         changeDocResponseFullInfo(state, payload) {
+            state.docFullInfo = payload;
+        },
+        changeDocResponseInfo(state, payload) {
             state.docInfo = payload;
         },
         //将接口变化得内容存放起来，用于监听接口是否发生变化
         changeDocEditInfo(state, payload) {
             // description,header,methods,requestParams,responseParams,url
-            state.editDocInfo = JSON.parse(JSON.stringify(payload));
+            state.originDocInfo = JSON.parse(JSON.stringify(payload));
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
