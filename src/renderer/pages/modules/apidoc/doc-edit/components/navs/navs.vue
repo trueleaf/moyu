@@ -118,31 +118,63 @@ export default {
         },
         //关闭当前标签
         handleCloseCurrent(item, index) {
-            this.$store.commit("apidoc/deleteTabByPosition", {
-                projectId: this.$route.query.id,
-                start: index,
-                num: 1
-            });
-            if (item._id === this.currentSelectDoc._id) { //如果删除的是当前选择的doc
-                if (!this.tabs[index]) { //删除位置不存在节点则下一个元素作为选中的tab
-                    if (this.tabs[index - 1]) { //选择上一个元素作为
+            const deleteTab = () => {
+                this.$store.commit("apidoc/deleteTabByPosition", {
+                    projectId: this.$route.query.id,
+                    start: index,
+                    num: 1
+                });
+                if (item._id === this.currentSelectDoc._id) { //如果删除的是当前选择的doc
+                    if (!this.tabs[index]) { //删除位置不存在节点则下一个元素作为选中的tab
+                        if (this.tabs[index - 1]) { //选择上一个元素作为
+                            this.$store.commit("apidoc/changeCurrentTab", {
+                                projectId: this.$route.query.id,
+                                activeNode: this.tabs[index - 1],
+                            });
+                        } else { //上一个元素不存在则置空
+                            this.$store.commit("apidoc/changeCurrentTab", {
+                                projectId: this.$route.query.id,
+                                activeNode: {},
+                            });
+                        }
+                    } else {
                         this.$store.commit("apidoc/changeCurrentTab", {
                             projectId: this.$route.query.id,
-                            activeNode: this.tabs[index - 1],
-                        });
-                    } else { //上一个元素不存在则置空
-                        this.$store.commit("apidoc/changeCurrentTab", {
-                            projectId: this.$route.query.id,
-                            activeNode: {},
+                            activeNode: this.tabs[index],
                         });
                     }
-                } else {
-                    this.$store.commit("apidoc/changeCurrentTab", {
-                        projectId: this.$route.query.id,
-                        activeNode: this.tabs[index],
+                } 
+            }
+            if (item.changed) {
+                this.$confirm(`是否保存对 "${item.docName}" 接口的修改`, "提示", {
+                    confirmButtonText: "保存",
+                    cancelButtonText: "不保存",
+                    distinguishCancelAndClose: true,
+                    type: "warning"
+                }).then(() => {
+                    const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
+                    matchedComponent.saveRequest().then(() => {
+                        deleteTab();
+                    }).finally(() => {
+                        
                     });
-                }
-            } 
+                }).catch(err => {
+                    if (err === "cancel") { //不保存
+                        this.$store.commit("apidoc/changeCurrentTabById", {
+                            _id: this.currentSelectDoc._id,
+                            projectId: this.$route.query.id,
+                            changed: false
+                        });
+                        deleteTab();
+                        return;
+                    } else if (err === "close") {
+                        return
+                    }
+                    this.$errorThrow(err, this);
+                });
+            } else {
+                deleteTab()
+            }
         },
         //关闭右侧
         handleCloseRight(item, index) {
