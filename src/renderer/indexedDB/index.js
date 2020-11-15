@@ -25,9 +25,10 @@ class MyIndexedDB {
                 resolve(event);
             };
             //数据库升级，或者第一次创建
-            request.onupgradeneeded = () => {
+            request.onupgradeneeded = (event) => {
                 //创建文档详情
-              
+                const db = event.target.result;
+                db.createObjectStore("apidoc_doc", { keyPath: "id" });
             };
         })
 
@@ -48,15 +49,47 @@ class MyIndexedDB {
             };
         });
     }
-    read(key) {
+    findById(collection, id) {
         return new Promise((resolve, reject) => {
-            const request = this.dbInstance
-                .transaction(["user"])
-                .objectStore("user")
-                .get(key);
-
+            const objectStore = this.dbInstance.transaction([collection]).objectStore(collection);
+            const request = objectStore.get(id);
             request.onsuccess = function(event) {
-                resolve(event);
+                resolve(event.target.result);
+            };
+            request.onerror = function(event) {
+                reject(event)
+            };
+        });
+    }
+
+
+    async findByIdAndUpdate(collection, id, update) {
+        if (!id || !update) {
+            throw new Error("缺少id和update")
+        }   
+        const storeInfo = await navigator.storage.estimate();
+        if (storeInfo.usage > 1024 * 1024 * 500) {
+            alert(`您的本地存储数据大小已经超过${(storeInfo.usage/1024/1024).toFixed(1)}MB`)
+        }
+        return new Promise((resolve, reject) => {
+            const objectStore = this.dbInstance .transaction([collection], "readwrite").objectStore(collection)
+            const request = objectStore.get(id)
+            request.onsuccess = function(event) {
+                let data = event.target.result;
+                // 更新你想修改的数据
+                data = {
+                    id,
+                    ...update
+                };
+                // 把更新过的对象放回数据库
+                const requestUpdate = objectStore.put(data);
+                requestUpdate.onerror = function(event) {
+                    reject(event)
+                };
+                requestUpdate.onsuccess = function(event) {
+                    resolve(event);
+                };
+               
             };
 
             request.onerror = function(event) {
