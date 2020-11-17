@@ -67,8 +67,11 @@ class MyIndexedDB {
         if (!id || !update) {
             throw new Error("缺少id和update")
         }   
-        const storeInfo = await navigator.storage.estimate();
-        if (storeInfo.usage > 1024 * 1024 * 500) {
+        let storeInfo = null;
+        if (navigator.storage && navigator.storage.estimate) {
+            storeInfo = await navigator.storage.estimate();
+        }
+        if (storeInfo && storeInfo.usage > 1024 * 1024 * 500) {
             alert(`您的本地存储数据大小已经超过${(storeInfo.usage/1024/1024).toFixed(1)}MB`)
         }
         return new Promise((resolve, reject) => {
