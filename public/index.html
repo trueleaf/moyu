@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -13,8 +13,8 @@
                 快乐摸鱼
             <% } %>
         </title>
-        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1072300_s5782mcyxj8.css"/>
-        <script src="https://at.alicdn.com/t/font_1072300_s5782mcyxj8.js"></script>
+        <link rel="stylesheet" href="https://at.alicdn.com/t/font_1072300_tv6qoj9rq8m.css"/>
+        <script src="https://at.alicdn.com/t/font_1072300_tv6qoj9rq8m.js"></script>
         <% if (process.env.NODE_ENV === "production") { %>
             <script>
                 var _hmt = _hmt || [];
@@ -26,15 +26,15 @@
                     s.parentNode.insertBefore(hm, s);
                 })();
             </script>
+            <script>
+                window.SHARE_DATA = null;
+                window.PROJECT_ID = null;
+            </script>
         <% } %>
     </head>
     <body>
         <noscript>
-            <strong
-                >We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't
-                work properly without JavaScript enabled. Please enable it to
-                continue.</strong
-            >
+            <h2>请允许js</h2>
         </noscript>
         <div id="app"></div>
         <!-- built files will be auto injected -->

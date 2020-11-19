@@ -26,7 +26,7 @@
                         <use xlink:href="#iconlishi"></use>
                     </svg>               
                 </el-tooltip>
-                <svg class="item svg-icon" aria-hidden="true" @click="getDocBanner">
+                <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
                 <el-dropdown trigger="click" class="mr-1">
@@ -231,6 +231,12 @@ export default {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
             })
+        },
+        //刷新banner
+        freshBanner() {
+            if (!this.loading) {
+                this.getDocBanner();
+            }
         },
         getDocBanner() {
             this.loading = true;

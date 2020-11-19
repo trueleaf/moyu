@@ -71,6 +71,7 @@ import FileType from "file-type/browser"
 import buffer from "buffer"
 const Buffer = buffer.Buffer;
 export default {
+    name: "REQUEST_OPERATION",
     components: {
         "s-variable-dialog": variableDialog,
         "s-preset-params-dialog": presetParamsDialog,
@@ -228,59 +229,65 @@ export default {
         },
         //保存接口
         saveRequest() {
-            const validParams = this.validateParams();
-            if (validParams) {
-                const params = {
-                    _id: this.currentSelectDoc._id,
-                    projectId: this.$route.query.id,
-                    item: {
-                        requestType: this.request.requestType,
-                        methods: this.request.methods,
-                        url: {
-                            host: this.request.url.host, 
-                            path: this.request.url.path, 
-                        },
-                        requestParams: this.request.requestParams,
-                        responseParams: this.request.responseParams,
-                        header: this.request.header, 
-                        description: this.request.description, 
-                    }
-                };
-                console.log(params, "params")
-                this.saveMindParams(); //保存快捷联想参数
-                this.loading2 = true;
-                //取消未保存小圆点
-                this.$store.commit("apidoc/changeCurrentTabById", {
-                    _id: this.currentSelectDoc._id,
-                    projectId: this.$route.query.id,
-                    changed: false
-                });
-                this.axios.post("/api/project/fill_doc", params).then(() => {
-                    this.$store.commit("apidoc/changeTabInfoById", {
-                        projectId: this.$route.query.id,
+            return new Promise((resolve, reject) => {
+                const validParams = this.validateParams();
+                if (validParams) {
+                    const params = {
                         _id: this.currentSelectDoc._id,
-                        method: this.request.methods,
-                    })
-                    this.$store.commit("apidoc/changeDocEditInfo", {
-                        description: params.item.description,
-                        header: params.item.header,
-                        methods: params.item.methods,
-                        requestParams: params.item.requestParams,
-                        responseParams: params.item.responseParams,
-                        url: params.item.url
-                    }); //改变文档编辑内容，用于判断文档值是否发生了改变
-                    this.getMindParamsEnum();
-                }).catch(err => {
-                    this.$errorThrow(err, this);
+                        projectId: this.$route.query.id,
+                        item: {
+                            requestType: this.request.requestType,
+                            methods: this.request.methods,
+                            url: {
+                                host: this.request.url.host, 
+                                path: this.request.url.path, 
+                            },
+                            requestParams: this.request.requestParams,
+                            responseParams: this.request.responseParams,
+                            header: this.request.header, 
+                            description: this.request.description, 
+                        }
+                    };
+                    console.log(params, "params")
+                    this.saveMindParams(); //保存快捷联想参数
+                    this.loading2 = true;
+                    //取消未保存小圆点
                     this.$store.commit("apidoc/changeCurrentTabById", {
                         _id: this.currentSelectDoc._id,
                         projectId: this.$route.query.id,
-                        changed: true
+                        changed: false
                     });
-                }).finally(() => {
-                    this.loading2 = false;
-                });                 
-            }  
+                    this.axios.post("/api/project/fill_doc", params).then(() => {
+                        this.$store.commit("apidoc/changeTabInfoById", {
+                            projectId: this.$route.query.id,
+                            _id: this.currentSelectDoc._id,
+                            method: this.request.methods,
+                        })
+                        this.$store.commit("apidoc/changeDocEditInfo", {
+                            description: params.item.description,
+                            header: params.item.header,
+                            methods: params.item.methods,
+                            requestParams: params.item.requestParams,
+                            responseParams: params.item.responseParams,
+                            url: params.item.url
+                        }); //改变文档编辑内容，用于判断文档值是否发生了改变
+                        this.getMindParamsEnum();
+                        resolve();
+                    }).catch(err => {
+                        this.$errorThrow(err, this);
+                        this.$store.commit("apidoc/changeCurrentTabById", {
+                            _id: this.currentSelectDoc._id,
+                            projectId: this.$route.query.id,
+                            changed: true
+                        });
+                        reject();
+                    }).finally(() => {
+                        this.loading2 = false;
+                    });                 
+                } else {
+                    reject();
+                }                 
+            })
         },
         //发布接口
         async publishRequest() {

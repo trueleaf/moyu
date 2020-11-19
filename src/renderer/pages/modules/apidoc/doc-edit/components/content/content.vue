@@ -31,10 +31,11 @@
 </template>
 
 <script>
-import { debounce } from "@/lib"
+import { debounce, dfsForest } from "@/lib"
 import axios from "axios" 
 import uuid from "uuid/v4"
 import response from "./components/response"
+import FileType from "file-type/browser"
 //=========================================================================//
 import remarkManage from "./components/remark" //-----------------------------------接口备注
 import serverManage from "./components/server" //-----------------------------------请求地址列表
@@ -46,6 +47,7 @@ import emptyTip from "./components/empty-tip" //--------------------------------
 //=========================================================================//
 const CancelToken = axios.CancelToken;
 export default {
+    name: "APIDOC_CONTENT",
     components: {
         "s-request-params-manage": requestParamsManage,
         "s-response-params-manage": responseParamsManage,
@@ -93,7 +95,7 @@ export default {
             return this.$store.state.apidoc.variables || [];
         },
         originDocInfo() { //返回原始文档数据
-            return this.$store.state.apidoc.editDocInfo;
+            return this.$store.state.apidoc.originDocInfo;
         }
     },
     watch: {
@@ -101,18 +103,27 @@ export default {
             handler(val, oldVal) {
                 if (val) {
                     if (!oldVal || val._id !== oldVal._id) {
-                        console.log(222, this.currentSelectDoc.changed)
                         if (!this.currentSelectDoc.changed) {
                             this.$store.commit("apidoc/clearRespons");
                             this.getDocDetail();
                         } else {
-                            this.$nextTick(() => {
-                                let localData = JSON.parse(localStorage.getItem("apidoc/request"));
-                                localData = localData[this.currentSelectDoc._id]
-                                this.formatRequestData(localData);
-                                this.$refs["requestParams"]?.selectChecked();
-                                this.$refs["headerParams"]?.selectAll()
-                            })
+                            this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
+                                // let localData = JSON.parse(localStorage.getItem("apidoc/request"));
+                                // localData = localData[this.currentSelectDoc._id]
+                                // console.log(localData, data.docs)
+                                this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
+                                this.formatRequestData(data.docs);
+                                this.$refs["requestOperation"].fixContentType();
+                                if (this.watchFlag) { //去除watch数据对比
+                                    this.watchFlag();
+                                }
+                                this.watchFlag = this.$watch("request", debounce(() => {
+                                    this.syncRequestParams();
+                                    this.diffEditParams();
+                                }, 100), {
+                                    deep: true
+                                })                                  
+                            });
                         }
                     }
                 }
@@ -199,6 +210,7 @@ export default {
                     this.watchFlag();
                 }
                 this.$store.commit("apidoc/changeDocResponseFullInfo", res.data); //改变接口完整返回值
+                this.$store.commit("apidoc/changeDocResponseInfo", res.data.item); //改变接口内容
                 this.formatRequestData(res.data.item);
                 //触发子组件全选
                 Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
@@ -218,7 +230,8 @@ export default {
                         this.diffEditParams();
                     }, 100), {
                         deep: true
-                    })                    
+                    })   
+                    // console.log(22222, this.request)                 
                 })
 
             }).catch(err => {
@@ -230,6 +243,26 @@ export default {
         //将返回值
         formatRequestData(requestData) {
             Object.assign(this.request,requestData);
+            dfsForest(this.request.requestParams, {
+                rCondition(value) {
+                    return value ? value.children : null;
+                },
+                rKey: "children",
+                hooks: async (val, ) => {
+                    //文件类型需要处理value值
+                    if (val && val._value && val.type === "file") { 
+                        //获取文件类型
+                        const type = await FileType.fromBuffer(val._value);
+                        const blobData = new Blob([val._value], { type: type.mime });
+                        const blobUrl = URL.createObjectURL(blobData)
+                        this.$set(val, "_fileInfo", {
+                            mime: type.mime,
+                            url: blobUrl,
+                        });
+                    }
+                }
+            });
+
             this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
             this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
             this.request.header.forEach(val => {
@@ -321,7 +354,6 @@ export default {
                 id: this.currentSelectDoc._id,
                 method: requestData.methods
             });
-            
         },
         generateParams() {
             return {
@@ -361,6 +393,10 @@ export default {
         //=====================================其他操作=====================================//
         //同步请求数据
         syncRequestParams() {
+            console.log("同步");
+            this.db.findByIdAndUpdate("apidoc_doc", this.currentSelectDoc._id, {
+                docs: this.request
+            });
             let savedRequest = JSON.parse(localStorage.getItem("apidoc/request") || "{}");
             if (!savedRequest[this.currentSelectDoc._id]) {
                 savedRequest[this.currentSelectDoc._id] = {};
@@ -385,7 +421,7 @@ export default {
                     changed: true
                 });
             }
-            console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
+            // console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
         },
         //将变量转换为实际数据
         convertVariable(val) {

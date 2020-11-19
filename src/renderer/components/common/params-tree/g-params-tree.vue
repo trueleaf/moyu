@@ -177,7 +177,7 @@ export default {
             }
             data.children.push(params);
             setTimeout(() => { //hack，添加一个数据默认选中当前数据
-                this.$refs["tree"].setChecked(params.id, true);
+                this.$refs["tree"]?.setChecked(params.id, true);
             })
             data.value = "";
             this.$set(data, "_valueError", {
@@ -235,7 +235,7 @@ export default {
                         parentData.children.push(this.generateParams());
                     }
                 }
-                this.$refs["tree"].setChecked(data.id, true);
+                this.$refs["tree"]?.setChecked(data.id, true);
             }
         },
         //校验key值是否满足规范
@@ -265,9 +265,9 @@ export default {
             if (data.type === "boolean") {
                 data.value = "true";
             }
-            // if (data.type === "file") {
-            //     data.value = "image"
-            // }
+            if (data.type === "file") {
+                data.value = "";
+            }
             if (data.type === "number") {
                 const couldConvertToNumber = !isNaN(Number(data.value));
                 if (!couldConvertToNumber) {
@@ -369,7 +369,8 @@ export default {
             const file = e.target.files[0];
             if (file) {
                 file.arrayBuffer().then(res => {
-                    data.value = res;
+                    this.$set(data, "_value", res)
+                    data.value = file.type;
                     // console.log(222, res, data)
                 })
             } else {
@@ -383,7 +384,7 @@ export default {
             return new Promise((resolve, reject) => {
                 try {
                     setTimeout(() => {
-                        this.$refs["tree"].setCheckedNodes(this.treeData);
+                        this.$refs["tree"]?.setCheckedNodes(this.treeData);
                         resolve();
                     })             
                 } catch (error) {
@@ -408,7 +409,7 @@ export default {
                                 }
                             }
                         });
-                        this.$refs["tree"].setCheckedKeys(keys);
+                        this.$refs["tree"]?.setCheckedKeys(keys);
                         resolve();
                     })                    
                 } catch (error) {
@@ -441,7 +442,7 @@ export default {
                 dropNode.data.type = "object";
                 dropNode.data.value = "";
             }
-            this.$refs["tree"].setChecked(data.id, true);
+            this.$refs["tree"]?.setChecked(data.id, true);
         },
         //是否勾选请求参数
         handleCheckChange() {
@@ -455,8 +456,8 @@ export default {
                     this.$set(data, "_select", false);
                 }
             });
-            const checkedNodes = this.$refs["tree"].getCheckedNodes();
-            const halfCheckedNodes = this.$refs["tree"].getHalfCheckedNodes();
+            const checkedNodes = this.$refs["tree"]?.getCheckedNodes();
+            const halfCheckedNodes = this.$refs["tree"]?.getHalfCheckedNodes();
             checkedNodes.forEach(val => {
                 this.$set(val, "_select", true)
             })

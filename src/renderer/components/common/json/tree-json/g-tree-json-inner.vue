@@ -10,60 +10,120 @@
         <div v-for="(item, index) in data" :key="index" class="indent">
             <!-- 常规数据类型 -->
             <template v-if="item.type !== 'array' && item.type !== 'object' && item.type !== 'file' && item.value">
-                <span>
-                    <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
-                    <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
-                    <!-- 常规数据 -->
-                    <template>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
-                    </template>
-                    <span class="symbol">,</span>
-                    <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
-                    <span v-if="item.required" class="comment">(必填)</span>
-                </span>                
+                <template v-if="checkbox && item._select">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
+                        <!-- 常规数据 -->
+                        <template>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
+                        </template>
+                        <span class="symbol">,</span>
+                        <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                        <span v-if="item.required" class="comment">(必填)</span>
+                    </span>                      
+                </template>
+                <template v-if="!checkbox">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
+                        <!-- 常规数据 -->
+                        <template>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
+                        </template>
+                        <span class="symbol">,</span>
+                        <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                        <span v-if="item.required" class="comment">(必填)</span>
+                    </span>  
+                </template>
             </template>
             <!-- 对象和数组类型 -->
-            <template v-else-if="item.type === 'array'|| item.type === 'object'">
-                <span>
-                    <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
-                    <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
-                    <template v-if="item.type === 'object'">
-                        <span class="symbol">{</span>
-                        <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
-                        <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox"></s-tree-json>
-                        <span class="symbol">}</span>
-                    </template>
-                    <template v-else-if="item.type === 'array'">
-                        <span class="symbol">[</span>
-                        <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
-                        <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox" is-array></s-tree-json>
-                        <span class="symbol">]</span>
-                    </template>
-                    <template v-else>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
-                        <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
-                    </template>
-                    <span class="symbol">,</span>
-                </span> 
+            <template v-else-if="(item.type === 'array'|| item.type === 'object')">
+                <template v-if="checkbox && item._select">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
+                        <template v-if="item.type === 'object'">
+                            <span class="symbol">{</span>
+                            <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                            <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox"></s-tree-json>
+                            <span class="symbol">}</span>
+                        </template>
+                        <template v-else-if="item.type === 'array'">
+                            <span class="symbol">[</span>
+                            <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                            <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox" is-array></s-tree-json>
+                            <span class="symbol">]</span>
+                        </template>
+                        <template v-else>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
+                        </template>
+                        <span class="symbol">,</span>
+                    </span>                                        
+                </template>
+                <template v-if="!checkbox">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span v-if="!isArray" class="key">{{ item.key }}</span><span v-if="!isArray" class="symbol">:&nbsp;</span>
+                        <template v-if="item.type === 'object'">
+                            <span class="symbol">{</span>
+                            <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                            <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox"></s-tree-json>
+                            <span class="symbol">}</span>
+                        </template>
+                        <template v-else-if="item.type === 'array'">
+                            <span class="symbol">[</span>
+                            <s-ellipsis-content :max-width="valueWidth" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                            <s-tree-json :value-width="valueWidth" :data="item.children" :level="level + 1" :checkbox="checkbox" is-array></s-tree-json>
+                            <span class="symbol">]</span>
+                        </template>
+                        <template v-else>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'string'" class="string-value" :value='`"${item.value}"`'></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'number'" class="number-value" :value="item.value"></s-ellipsis-content>
+                            <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
+                        </template>
+                        <span class="symbol">,</span>
+                    </span> 
+                </template>
             </template>
             <!-- 文件类型 -->
-            <template v-else-if="item.type === 'file'">
-                <span>
-                    <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
-                    <span class="key">{{ item.key }}</span><span class="symbol">:&nbsp;</span>
-                    <span v-if="item.value">
-                        <s-popover-file v-if="item._fileInfo" :mime="item._fileInfo.mime" :url="item._fileInfo.url">
-                            <span slot="reference" class="teal cursor-pointer">查看</span>
-                        </s-popover-file>
-                        <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
-                    </span>
-                    <span class="symbol">,</span>   
-                    <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
-                    <span v-if="item.required" class="comment">(必填)</span>
-                </span>                
+            <template v-else-if="item.type === 'file' && (checkbox && item._select)">
+                <template v-if="checkbox && item._select">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span class="key">{{ item.key }}</span><span class="symbol">:&nbsp;</span>
+                        <span v-if="item.value">
+                            <s-popover-file v-if="item._fileInfo" :mime="item._fileInfo.mime" :url="item._fileInfo.url">
+                                <span slot="reference" class="teal cursor-pointer">查看</span>
+                            </s-popover-file>
+                            <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
+                        </span>
+                        <span class="symbol">,</span>   
+                        <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                        <span v-if="item.required" class="comment">(必填)</span>
+                    </span>                                       
+                </template>
+                <template v-if="!checkbox">
+                    <span>
+                        <input v-if="checkbox" v-model="item._select" type="checkbox" class="checkbox" @change="handleChangeCheckbox(item)">
+                        <span class="key">{{ item.key }}</span><span class="symbol">:&nbsp;</span>
+                        <span v-if="item.value">
+                            <s-popover-file v-if="item._fileInfo" :mime="item._fileInfo.mime" :url="item._fileInfo.url">
+                                <span slot="reference" class="teal cursor-pointer">查看</span>
+                            </s-popover-file>
+                            <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
+                        </span>
+                        <span class="symbol">,</span>   
+                        <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
+                        <span v-if="item.required" class="comment">(必填)</span>
+                    </span>   
+                </template>
             </template>
         </div>
         <span v-if="level === 0" class="symbol">}</span>
