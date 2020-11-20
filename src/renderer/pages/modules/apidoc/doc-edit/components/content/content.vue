@@ -10,8 +10,7 @@
             <!-- 基本配置 -->
             <div class="request mb-2">
                 <!-- 请求备注 -->
-                <s-remark-manage v-model="request.description"></s-remark-manage>
-                <hr>
+                <s-remark-manage v-if="0" v-model="request.description"></s-remark-manage>
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
@@ -23,6 +22,7 @@
                 <s-request-params-manage ref="requestParams" :request="request" :data-ready="docDataReady"></s-request-params-manage>
                 <s-response-params-manage ref="responseParams" :request="request" :data-ready="docDataReady"></s-response-params-manage>
                 <s-header-params-manage ref="headerParams" :request="request" :data-ready="docDataReady"></s-header-params-manage>
+                <s-remark-params-manage :request="request"></s-remark-params-manage>
             </div>            
         </div>
         <s-response class="response-wrap" ref="response" :request-data="request"></s-response>
@@ -43,6 +43,7 @@ import requestOperationManage from "./components/request-operation" //----------
 import requestParamsManage from "./components/request-params" //--------------------请求参数管理
 import responseParamsManage from "./components/response-params" //------------------返回参数管理
 import headerParamsManage from "./components/header-params" //----------------------请求头管理
+import remarkParamsManage from "./components/remark-params" //----------------------备注管理
 import emptyTip from "./components/empty-tip" //------------------------------------数据为空提示信息
 //=========================================================================//
 const CancelToken = axios.CancelToken;
@@ -52,6 +53,7 @@ export default {
         "s-request-params-manage": requestParamsManage,
         "s-response-params-manage": responseParamsManage,
         "s-header-params-manage": headerParamsManage,
+        "s-remark-params-manage": remarkParamsManage,
         "s-server-manage": serverManage,
         "s-remark-manage": remarkManage,
         "s-request-operation-manage": requestOperationManage,
