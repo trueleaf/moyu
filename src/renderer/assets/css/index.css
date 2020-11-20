@@ -26,7 +26,8 @@ ul {
 }
 
 a {
-    color: inherit;
+    color: #17a2b8;
+    cursor: pointer;
     text-decoration: none;
 }
 
