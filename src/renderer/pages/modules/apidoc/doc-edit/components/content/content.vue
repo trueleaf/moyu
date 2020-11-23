@@ -472,7 +472,7 @@ export default {
         flex: 1 0 35%;
     }
     .params-wrap {
-        max-height: calc(100vh - #{size(350)});
+        max-height: calc(100vh - #{size(300)});
         overflow-y: auto;
     }
 }
