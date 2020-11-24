@@ -234,3 +234,7 @@ $zIndex-tabs: 1995!default;
 $zIndex-bread: 1995!default;
 $zIndex-panel: 1996!default; //下拉面板层级
 $zIndex-contextmenu: 1996!default; //contextmenu弹窗
+$zIndex-editor: 1994!default; //富文本编辑器
+:export {
+    zIndexEditor: $zIndex-editor;
+}
