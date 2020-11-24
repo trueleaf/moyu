@@ -73,7 +73,7 @@ export default {
                 requestParams: [],
                 responseParams: [],
                 header: [], //----------------------------请求头信息
-                description: "在这里输入文档描述", //--------------请求描述
+                description: "", //--------------请求描述
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
             remoteResponse: {},
@@ -344,7 +344,7 @@ export default {
             if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
             if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
             // if (this.request.url.host === "") this.request.url.host = location.origin;
-            this.request.description = requestData.description || "在这里输入文档描述";
+            this.request.description = requestData.description;
             //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,
