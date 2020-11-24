@@ -14,6 +14,8 @@
 import E from "wangeditor"
 import hljs from "highlight.js"
 import OSS from "ali-oss"
+// import axios from "axios"
+import scssData from "@/scss/variables/_variables.scss"
 export default {
     props: {
         value: {
@@ -28,6 +30,7 @@ export default {
                 heigth: 300,
                 placeholder: "在这里可以添加一些描述信息",
                 showFullScreen: false,
+                zIndex: parseInt(scssData.zIndexEditor),
                 menus: [
                     "head",
                     "bold",
@@ -52,76 +55,62 @@ export default {
             },
             //=====================================图片相关====================================//
             expireTime: null, //票据过期时间
+            isSignImageUrl: false, //是否对图片url进行了转换
             aliOssConfig: null,
         };
     },
     mounted() {
         this.initEditor();
+        
     },
     methods: {
+        //初始化编辑器
         async initEditor() {
             this.editorInstance = new E("#editor");
             this.editorInstance.highlight = hljs
-            this.editorInstance.config.height = this.config.heigth;
-            this.editorInstance.config.placeholder = this.config.placeholder;
-            this.editorInstance.config.menus = this.config.menus;
-            this.editorInstance.config.showFullScreen = this.config.showFullScreen;
-            this.editorInstance.config.onchange = (value) => {
-                this.$emit("input", value);
-            }
+            Object.assign(this.editorInstance.config, this.config)
             if (!this.expireTime || this.expireTime * 1000 < Date.now()) {
                 await this.getStsToken();
             }
+            this.editorInstance.config.onchange = (value) => {
+                if (!this.isSignImageUrl) {
+                    this.$emit("input", value);
+                }
+                this.isSignImageUrl = false;
+            }
             this.initUploadFile();
-            this.editorInstance.txt.html(this.value)
             this.editorInstance.create();
+            const signValue = this.signAllImageUrl();
+            this.editorInstance.txt.html(signValue)
+        },
+        //将图片地址进行签名替换,只替换阿里oss上传的图片
+        signAllImageUrl() {
+            const ossBaseUrl = `${this.aliOssConfig.bucket}.${this.aliOssConfig.region}.aliyuncs.com`;
+            const urlRegExp = new RegExp(`https?://${ossBaseUrl}([^?]+)([^"]+)`, "g");
+            const signValue = this.value.replace(urlRegExp, ($1, $2) => {
+                const signUrl = this.client.signatureUrl($2, {
+                    expires: 60 * 60, //单位s
+                })
+                // console.log(signUrl)
+                this.isSignImageUrl = true;
+                return signUrl;
+            })
+            return signValue;
         },
         initUploadFile() {
-            console.log({
-                accessKeyId: this.aliOssConfig.accessKeyId,
-                accessKeySecret: this.aliOssConfig.accessKeySecret,
-                stsToken: this.aliOssConfig.stsToken,
-                bucket: this.aliOssConfig.bucket,
-                region: this.aliOssConfig.region,
-            })
             this.editorInstance.config.customUploadImg = async (resultFiles, cb) => {
                 if (!this.expireTime || this.expireTime * 1000 < Date.now()) {
                     await this.getStsToken();
                 }
-
-                const client = new OSS({
-                    accessKeyId: this.aliOssConfig.accessKeyId,
-                    accessKeySecret: this.aliOssConfig.accessKeySecret,
-                    stsToken: this.aliOssConfig.stsToken,
-                    bucket: this.aliOssConfig.bucket,
-                    region: this.aliOssConfig.region,
-                });
                 const fileName = `/${this.aliOssConfig.folder}/${Date.now()}_richtext`
-                client.put(fileName, resultFiles[0]).then(() => {
-                    cb(this.config.renderConfig.httpRequest.imgUrl + "/" + fileName)
+                this.client.put(fileName, resultFiles[0]).then(async () => {       
+                    const url = this.client.signatureUrl(fileName, {
+                        expires: 60 * 60, //单位s
+                    })
+                    cb(url)
                 }).catch(err => {
                     this.$errorThrow(err, this);
                 });  
-                // const formData = new FormData();
-                // const fileName = "richText" 
-                // const fileUrl = this.aliOssConfig.dir + Date.now() + "_" + fileName;
-                // formData.append("name", fileName);
-                // formData.append("key", fileUrl);
-                // formData.append("policy", this.aliOssConfig.policy);
-                // formData.append("OSSAccessKeyId", this.aliOssConfig.accessKeyId);
-                // formData.append("success_action_status", 200);
-                // formData.append("signature", this.aliOssConfig.signature);
-                // formData.append("file", resultFiles[0]);
-
-                // console.log(this.aliOssConfig, 999)
-
-                // axios.post(this.config.renderConfig.httpRequest.imgUrl, formData).then(res => {
-                //     console.log(res)
-                //     cb(this.config.renderConfig.httpRequest.imgUrl + "/" + fileUrl)
-                // }).catch(err => {
-                //     this.$errorThrow(err, this);
-                // });    
-                // console.log(this.aliOssConfig, resultFiles)
             }
         },
         getStsToken() {
@@ -129,6 +118,13 @@ export default {
                 this.axios.get("/api/oss/sts").then(res => {
                     this.aliOssConfig = res.data;
                     this.expireTime = new Date(res.data.expire).valueOf();
+                    this.client = new OSS({
+                        accessKeyId: this.aliOssConfig.accessKeyId,
+                        accessKeySecret: this.aliOssConfig.accessKeySecret,
+                        stsToken: this.aliOssConfig.stsToken,
+                        bucket: this.aliOssConfig.bucket,
+                        region: this.aliOssConfig.region,
+                    });
                     resolve();
                 }).catch(err => {
                     console.error(err);
