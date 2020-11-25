@@ -416,6 +416,7 @@ export default {
                 }
             }
             if (!data.isFolder) { //文件夹不做处理
+                data.tabType = "doc"
                 this.$store.commit("apidoc/addTab", data);
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
@@ -483,6 +484,7 @@ export default {
         //点击节点
         handleNodeClick(data, node) {
             if (!node.data.isFolder) { //文件夹不做处理
+                node.data.tabType = "doc"
                 this.$store.commit("apidoc/addTab", node.data);
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
@@ -506,6 +508,7 @@ export default {
                     pNode.data.children.push(res.data);
                 }
                 if (!res.data.isFolder) { //文件夹不做处理
+                    res.data.tabType = "doc"
                     this.$store.commit("apidoc/addTab", res.data);
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
