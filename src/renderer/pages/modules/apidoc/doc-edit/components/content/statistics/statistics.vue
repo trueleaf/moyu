@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-10-23 10:57
-    模块名称：未选中接口文档时候的提示
+    创建时间：2020-11-25 17:32
+    模块名称：数据统计
     备注：xxxx
 */
 <template>
-    <div class="empty-tip">
+    <div class="statistics">
         <img :src="require('@/assets/imgs/logo.png')" width="150px" height="150px" alt="logo图片" class="logo">
         <div class="f-base">
             <div>
@@ -42,7 +42,7 @@ export default {
 
 
 <style lang="scss">
-.empty-tip {
+.statistics {
     height: calc(100% - #{size(40)});
     display: flex;
     flex-direction: column;

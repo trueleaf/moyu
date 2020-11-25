@@ -26,6 +26,7 @@
                     <span v-if="item.item.methods === 'post'" class="yellow mr-2">POST</span>
                     <span v-if="item.item.methods === 'put'" class="blue mr-2">PUT</span>
                     <span v-if="item.item.methods === 'delete'" class="red mr-2">DEL</span>
+                    <span v-if="item.item.methods === 'config'" class="el-icon-setting f-base mr-2"></span>
                     <span class="item-text">{{ item.docName }}</span>
                     <span class="operaion">
                         <span v-show="item.changed" class="has-change">
