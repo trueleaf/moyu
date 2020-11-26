@@ -30,6 +30,7 @@
     "highlight.js": "^10.4.0",
     "js-beautify": "^1.13.0",
     "js-cookie": "^2.2.1",
+    "js-yaml": "^3.14.0",
     "json5": "^2.1.1",
     "md5": "^2.3.0",
     "mockjs": "^1.1.0",
