@@ -102,7 +102,7 @@
             </div>
         </s-collapse>
         <!-- 请求头 -->
-        <s-collapse title="请求头">
+        <s-collapse title="请求头" :active="false"> 
             <template v-if="formatRequest.header.length > 1">
                 <template v-for="(item, index) in formatRequest.header">
                     <s-label-value v-if="item.key" :label="item.key + '：'" :value="item.value" :key="index" class="w-100" label-width="auto"></s-label-value>
@@ -239,6 +239,9 @@
         </s-collapse>
         <s-collapse title="返回头" :active="false">
             <pre v-if="remoteResponse">{{ remoteResponse.headers }}</pre>
+        </s-collapse>
+        <s-collapse title="备注" :active="false">
+            <div v-html="formatRequest.description"></div>
         </s-collapse>
     </div>
 </template>
@@ -471,7 +474,7 @@ export default {
         }
     }   
     .response-wrapper {
-        min-height: size(200);
+        min-height: size(100);
         max-height: size(320);
         overflow-y: auto;
     }
@@ -503,6 +506,51 @@ export default {
     .office-style {
         font-size: fz(18);
         display: flex;
+    }
+    /* table 样式 */
+    table {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    }
+    table td,
+    table th {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    padding: 3px 5px;
+    }
+    table th {
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+    }
+
+    /* blockquote 样式 */
+    blockquote {
+    display: block;
+    border-left: 8px solid #d0e5f2;
+    padding: 5px 10px;
+    margin: 10px 0;
+    line-height: 1.4;
+    font-size: 100%;
+    background-color: #f1f1f1;
+    }
+
+    /* code 样式 */
+    code {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+    background-color: #f1f1f1;
+    border-radius: 3px;
+    padding: 3px 5px;
+    margin: 0 3px;
+    }
+    pre code {
+    display: block;
+    }
+
+    /* ul ol 样式 */
+    ul, ol {
+    margin: 10px 0 10px 20px;
     }
 }
 </style>

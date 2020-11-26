@@ -33,11 +33,10 @@
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item @click.native="dialogVisible = true">全局变量</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
-                    <el-dropdown-item @click.native="$emit('fresh')">刷新页面</el-dropdown-item>
+                    <el-dropdown-item @click.native="$emit('fresh')">接口刷新</el-dropdown-item>
+                    <el-dropdown-item @click.native="handleOpenConfigPage">全局配置</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
-            <!-- <el-button type="primary" size="small" @click="dialogVisible = true" @close="dialogVisible = false">全局变量</el-button>
-            <el-button type="primary" size="small" @click="dialogVisible2 = true" @close="dialogVisible2 = false">内置参数</el-button> -->
         </div>
         <!-- 请求参数展示 -->
         <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
@@ -56,12 +55,14 @@
         </div>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
         <s-preset-params-dialog :visible.sync="dialogVisible2" @success="getPresetEnum"></s-preset-params-dialog>
+        <s-config-dialog :visible.sync="dialogVisible3"></s-config-dialog>
     </div>         
 </template>
 
 <script>
 import variableDialog from "../dialog/variable-manage"
 import presetParamsDialog from "../dialog/preset-params"
+import configDialog from "../dialog/config"
 import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
@@ -75,6 +76,7 @@ export default {
     components: {
         "s-variable-dialog": variableDialog,
         "s-preset-params-dialog": presetParamsDialog,
+        "s-config-dialog": configDialog
     },
     props: {
         request: { //完整请求参数
@@ -123,6 +125,7 @@ export default {
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
             dialogVisible2: false, //------内置参数
+            dialogVisible3: false, //------全局配置
         };
     },
     mounted() {
@@ -708,6 +711,26 @@ export default {
                 return "string"
             }
         },
+        //打开配置界面
+        handleOpenConfigPage() {
+            const configTabInfo = {
+                _id: "idConfig",
+                projectId: this.$route.query.id,
+                docName: "文档全局配置",
+                item: {
+                    methods: "config"
+                },
+                tabType: "config"                
+            }
+            this.$store.commit("apidoc/addTab", {
+                projectId: this.$route.query.id,
+                ...configTabInfo
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                projectId: this.$route.query.id,
+                activeNode: configTabInfo
+            });
+        }
     }
 };
 </script>
