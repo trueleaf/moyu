@@ -6,9 +6,11 @@
 */
 <template>
     <div v-if="tabs && tabs.length > 0" class="workbench" tabindex="0">
-        <s-apidoc v-if="currentSelectDoc.tabType === 'doc'"></s-apidoc>
-        <s-config v-if="currentSelectDoc.tabType === 'config'"></s-config>
-        <s-statistics v-if="currentSelectDoc.tabType === 'statistics'"></s-statistics>
+        <keep-alive>
+            <s-apidoc v-if="currentSelectDoc.tabType === 'doc'"></s-apidoc>
+            <s-config v-if="currentSelectDoc.tabType === 'config'"></s-config>
+            <s-statistics v-if="currentSelectDoc.tabType === 'statistics'"></s-statistics>
+        </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
 </template>
@@ -62,5 +64,7 @@ export default {
 
 
 <style lang="scss">
-
+.workbench {
+    min-height: calc(100vh - #{size(100)});
+}
 </style>

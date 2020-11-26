@@ -100,7 +100,7 @@ export default {
     watch: {
         currentSelectDoc: {
             handler(val, oldVal) {
-                if (val) {
+                if (val && this.currentSelectDoc.tabType === "doc") {
                     if (!oldVal || val._id !== oldVal._id) {
                         if (!this.currentSelectDoc.changed) { //没有发生改变重新拉取数据
                             this.$store.commit("apidoc/clearRespons");
