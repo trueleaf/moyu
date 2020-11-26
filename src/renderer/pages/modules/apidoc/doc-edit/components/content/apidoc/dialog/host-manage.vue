@@ -107,6 +107,11 @@ export default {
             successLoading: false, //--------------是否添加成功
         };
     },
+    computed: {
+        docRules() { //文档规则
+            return this.$store.state.apidocRules;
+        },
+    },
     created() {
     },
     methods: {
@@ -114,6 +119,11 @@ export default {
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddHost() {
+            const total = this.$refs["table"].total;
+            if (this.docRules.dominLimit < total) {
+                this.$message.warning(`限制可维护域名数不超过${this.docRules.dominLimit}个`);
+                return
+            }
             this.$refs["form"].validate(valid => {
                 if (valid) {
                     this.loading = true;

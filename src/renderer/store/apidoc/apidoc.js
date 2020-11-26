@@ -84,7 +84,7 @@ export default {
             if (matchedData && docName) {
                 matchedData.docName = docName;
             }
-            if (matchedData && method) {
+            if (matchedData && method && matchedData.item) {
                 matchedData.item.methods = method;
             }
             if (matchedData && changed != null) {
