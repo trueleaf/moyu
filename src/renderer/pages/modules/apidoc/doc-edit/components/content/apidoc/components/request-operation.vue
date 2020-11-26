@@ -55,14 +55,12 @@
         </div>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
         <s-preset-params-dialog :visible.sync="dialogVisible2" @success="getPresetEnum"></s-preset-params-dialog>
-        <s-config-dialog :visible.sync="dialogVisible3"></s-config-dialog>
     </div>         
 </template>
 
 <script>
 import variableDialog from "../dialog/variable-manage"
 import presetParamsDialog from "../dialog/preset-params"
-import configDialog from "../dialog/config"
 import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
@@ -76,7 +74,6 @@ export default {
     components: {
         "s-variable-dialog": variableDialog,
         "s-preset-params-dialog": presetParamsDialog,
-        "s-config-dialog": configDialog
     },
     props: {
         request: { //完整请求参数
@@ -125,7 +122,6 @@ export default {
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
             dialogVisible2: false, //------内置参数
-            dialogVisible3: false, //------全局配置
         };
     },
     mounted() {
@@ -660,7 +656,7 @@ export default {
         //=====================================其他操作====================================//
         //修正contentType
         fixContentType() {
-            this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name === this.request.methods);
+            this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name.toLowerCase() === this.request.methods);
             if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
                 this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
             }
@@ -717,9 +713,6 @@ export default {
                 _id: "idConfig",
                 projectId: this.$route.query.id,
                 docName: "文档全局配置",
-                item: {
-                    methods: "config"
-                },
                 tabType: "config"                
             }
             this.$store.commit("apidoc/addTab", {
