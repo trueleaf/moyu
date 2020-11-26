@@ -1,6 +1,36 @@
 @charset "utf-8";
 
-
+@mixin tabs {
+    height: size(40);
+    display: flex;
+    align-items: center;
+    position: relative;
+    font-size: 12px;
+    flex: 0 0 auto;
+    width: 200px;
+    cursor: default;
+    padding: 0 size(10);
+    .item-text {
+        margin-left: size(5);
+        display: inline-block;
+        max-width: size(100);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    background: rgb(222, 225, 230);
+    &:hover {
+        background: #e2e2e2;
+    }
+    .iconfont {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+    }
+    &.active {
+        background: #f0f3fa;
+    }
+}
 
 
 

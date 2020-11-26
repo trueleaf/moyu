@@ -17,4 +17,7 @@ body {
     .el-image-viewer__close {
         color: $red;
     }
+    .el-form--label-top .el-form-item__label {
+        padding: 0;
+    }
 }

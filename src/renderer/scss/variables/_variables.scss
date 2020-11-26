@@ -237,4 +237,15 @@ $zIndex-contextmenu: 1996!default; //contextmenu弹窗
 $zIndex-editor: 1994!default; //富文本编辑器
 :export {
     zIndexEditor: $zIndex-editor;
+    colorBlue: $blue;
+    colorRed: $red;     
+    colorOrange: $orange;  
+    colorYellow: $yellow;  
+    colorGreen: $green;   
+    colorPurple: $purple;  
+    colorIndigo: $indigo;  
+    colorPink: $pink;    
+    colorTeal: $teal;    
+    colorCyan: $cyan;    
+    colorThemeColor: $theme-color;
 }

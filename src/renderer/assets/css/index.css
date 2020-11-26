@@ -72,7 +72,9 @@ pre {
 #app .el-table .cell {
     line-height: 24px;
 }
-
+#app .el-form--label-top .el-form-item__label {
+    padding: 0;
+}
 body .el-dropdown-menu {
     max-height: 300px;
     overflow-y: auto;
