@@ -12,11 +12,13 @@
                 <span>接口数量：</span>
                 <span>22</span>
             </div>
+            <input type="file" name="xxx" @change="handleChangeFile">
         </div>
     </div>
 </template>
 
 <script>
+import yaml from "js-yaml"
 export default {
     data() {
         return {
@@ -24,9 +26,16 @@ export default {
         };
     },
     created() {
-
+        
+        
     },
     methods: {
+        async handleChangeFile(e) {
+            const file = e.target.files[0];
+            const text = await file.text();
+            const jsonYaml = yaml.load(text);
+            console.log(jsonYaml)
+        }
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
