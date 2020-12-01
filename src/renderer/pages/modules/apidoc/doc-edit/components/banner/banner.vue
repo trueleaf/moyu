@@ -93,11 +93,14 @@
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
-                            <span v-if="scope.data.item.methods === 'get'" class="label green">get</span>
+                            <template v-for="(req) in requestConfig">
+                                <span v-if="scope.data.item.methods === req.name.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.nickname.toLowerCase() }}</span>
+                            </template>  
+                            <!-- <span v-if="scope.data.item.methods === 'get'" class="label green">get</span>
                             <span v-else-if="scope.data.item.methods === 'post'" class="label yellow">post</span>
                             <span v-else-if="scope.data.item.methods === 'put'" class="label blue">put</span>
                             <span v-else-if="scope.data.item.methods === 'delete'" class="label red">del</span>  
-                            <img v-else :src="require('@/assets/imgs/apidoc/file.png')" width="16px" height="16px"/> 
+                            <img v-else :src="require('@/assets/imgs/apidoc/file.png')" width="16px" height="16px"/>  -->
                             <s-emphasize v-if="renameNodeId !== scope.data._id" :title="scope.data.docName" :value="scope.data.docName" :keyword="queryData" class="node-name text-ellipsis ml-1"></s-emphasize>
                             <!-- <span v-if="renameNodeId !== scope.data._id" :title="scope.data.docName" class="node-name text-ellipsis ml-1">{{ scope.data.docName }}</span> -->
                             <input v-else v-model="scope.data.docName" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
@@ -186,6 +189,9 @@ export default {
         docRules() { //---------文档规则
             return this.$store.state.apidocRules;
         },
+        requestConfig() { //----请求配置信息
+            return this.$store.state.apidocRules.requestConfig.config;
+        }
     },
     watch: {
         currentSelectDoc: {
