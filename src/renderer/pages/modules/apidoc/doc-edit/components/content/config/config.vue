@@ -11,9 +11,11 @@
                 <el-tab-pane label="接口限制" name="s-a">
                     <el-form-item label="单个目录最大允许文档数量" prop="fileInFolderLimit">
                         <el-input-number v-model="apidocRules.fileInFolderLimit" :controls="false" size="mini" :step="1" class="w-50" :min="1" :max="999999999"></el-input-number>
+                        个
                     </el-form-item>
                     <el-form-item label="每个项目限制配置域名个数" prop="dominLimit">
                         <el-input-number v-model="apidocRules.dominLimit" size="mini" :controls="false" :step="1" class="w-50" :min="1" :max="999999999"></el-input-number>
+                        个
                     </el-form-item>
                     <el-form-item label="请求方式配置">
                         <s-collapse v-for="(item, index) in apidocRules.requestConfig.config" :key="index" :active="false">
@@ -28,7 +30,7 @@
                                 </div>
                             </el-form-item>
                             <el-form-item label="允许传参方式" prop="fileInFolderLimit">
-                                <el-checkbox-group v-model="item.enabledContenType">
+                                <el-checkbox-group v-model="item.enabledContenType" :min="1">
                                     <el-checkbox v-for="(ct) in apidocRules.requestConfig.contentTypeEnum" :key="ct.value" :label="ct.value" :disabled="item.name === 'get'">{{ ct.name }}</el-checkbox>
                                 </el-checkbox-group>
                             </el-form-item>
@@ -92,6 +94,7 @@ export default {
         height: 100%;
     }
     .el-form-item {
+        width: size(768);
         margin-bottom: 0;
     }
     .el-form-item__content {
