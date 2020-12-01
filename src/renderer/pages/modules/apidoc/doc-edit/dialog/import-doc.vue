@@ -62,8 +62,6 @@ export default {
         
     },
     methods: {
-
-
         //=====================================图片上传====================================//
         handleBeforeUpload(file) {
             const isJson = file.type === "application/json";

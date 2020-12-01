@@ -19,17 +19,24 @@
 
 <script>
 import yaml from "js-yaml"
+import apiTranslator from "./api-translator"
+import data from "./data"
 export default {
     data() {
         return {
-
+            apiTranslatorInstance: null
         };
     },
     created() {
-        
-        
+        this.apiTranslatorInstance = new apiTranslator(data, "openapi", {
+            projectId: this.$route.query.id
+        });
+        this.apiTranslatorInstance.getResult()
     },
     methods: {
+        
+
+
         async handleChangeFile(e) {
             const file = e.target.files[0];
             const text = await file.text();
