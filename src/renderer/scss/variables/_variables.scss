@@ -229,6 +229,8 @@ $cursors: (
 );
 
 //=====================================zIndex====================================//
+$zIndex-fieldset: 2!default; //fieldset组件zIndex
+$zIndex-contextmenu: 20!default; //contextmenu
 $zIndex-header: 1995!default;
 $zIndex-tabs: 1995!default;
 $zIndex-bread: 1995!default;
