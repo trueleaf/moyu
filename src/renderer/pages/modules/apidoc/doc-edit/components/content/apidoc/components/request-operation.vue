@@ -18,7 +18,7 @@
             >
                 <div slot="prepend" class="request-input">
                     <el-select v-model="request.methods" value-key="name" @change="handleChangeRequestMethods">
-                        <el-option v-for="(item, index) in docRules.requestConfig.config" :key="index" :value="item" :label="item.name"></el-option>
+                        <el-option v-for="(item, index) in enabledRequestMethods" :key="index" :value="item" :label="item.name"></el-option>
                     </el-select>
                 </div>                        
             </s-v-input>
@@ -44,7 +44,7 @@
         <div class="w-100 mt-2">
             <el-radio-group v-model="request.requestType" @change="handleChangeRequestMIMEType">
                 <el-radio 
-                        v-for="(item, index) in docRules.requestConfig.contentTypeEnum"
+                        v-for="(item, index) in enabledContentType"
                         :key="index"
                         :label="item.value"
                         :disabled="!currentReqeustLimit.enabledContenType.find(val => val === item.value)"
@@ -108,6 +108,12 @@ export default {
         },
         couldPublish() {
             return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
+        },
+        enabledRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
+        },
+        enabledContentType() {
+            return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
         }
     },
     data() {
@@ -201,7 +207,6 @@ export default {
                     if (storeCookie) {
                         headers["cookie"] = storeCookie;
                     }
-                    console.log("send", data)
                     this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
                         this.checkResponseParams(); //参数校验
                         this.injectCookie(res); //cookie注入
@@ -247,7 +252,6 @@ export default {
                             description: this.request.description, 
                         }
                     };
-                    console.log(params, "params")
                     this.saveMindParams(); //保存快捷联想参数
                     this.loading2 = true;
                     //取消未保存小圆点
@@ -465,7 +469,6 @@ export default {
                                     isValidRequest = false;
                                 }
                             }
-                            // console.log(222, key, description, params)
                             if (!isComplex && !isParentArray && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
                                 this.$set(params, "_descriptionError", {
                                     error: true,
@@ -493,7 +496,6 @@ export default {
         },
         //参数校验
         checkResponseParams() {
-            // console.log(this.request, 22)
             if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
                 const remoteParams = this.remoteResponse.data;
                 const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
@@ -514,7 +516,6 @@ export default {
                         const isTooMuchKey = !remoteKeys.every(val => localKeys.includes(val)); //远程结果是否超出字段
                         //字段超出或者缺少判断
                         if (isLackKey) {
-                            // console.log(2, remoteKeys, localKeys, localParams)
                             responseErrorType = "lackKey";
                             return;
                         }   
@@ -595,7 +596,7 @@ export default {
         //改变请求方法
         handleChangeRequestMethods(val) {
             this.currentReqeustLimit = val;
-            if (val.name === "get") { //get请求需要清空嵌套数据
+            if (val.value === "get") { //get请求需要清空嵌套数据
                 this.request.requestParams.forEach(params => {
                     params.children = [];
                     params.type = "string";
@@ -606,23 +607,22 @@ export default {
                     this.request.requestType = val.enabledContenType[0];
                 }
             } 
-            this.request.methods = val.name;
+            this.request.methods = val.value;
             //改变tabs导航请求方式
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
-                method: val.name
+                method: val.value
             });
             //改变banner请求方式
             this.$store.commit("apidoc/changeDocBannerInfoById", {
                 id: this.currentSelectDoc._id,
-                method: val.name
+                method: val.value
             });
             this.handleChangeRequestMIMEType(this.request.requestType);
         },
         //改变MimeType
         handleChangeRequestMIMEType(val) {
-            // console.log(val, "mime")
             if (val === "formData") {
                 this.request.header.forEach(header => {
                     if (header.key.toLowerCase() === "content-type") {
@@ -655,8 +655,13 @@ export default {
         },
         //=====================================其他操作====================================//
         //修正contentType
-        fixContentType() {
-            this.currentReqeustLimit = this.docRules.requestConfig.config.find(val => val.name.toLowerCase() === this.request.methods);
+        async fixContentType() {
+            if (this.docRules.cacheProjectId !== this.$route.query.id) {
+                await this.$store.dispatch("apidocRules/getRuels", {
+                    projectId: this.$route.query.id
+                });
+            }
+            this.currentReqeustLimit = this.docRules.requestMethods.find(val => val.value === this.request.methods);
             if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
                 this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
             }

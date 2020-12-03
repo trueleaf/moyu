@@ -93,8 +93,8 @@
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
-                            <template v-for="(req) in requestConfig">
-                                <span v-if="scope.data.item.methods === req.name.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.nickname.toLowerCase() }}</span>
+                            <template v-for="(req) in validRequestMethods">
+                                <span v-if="scope.data.item.methods === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                             </template>  
                             <!-- <span v-if="scope.data.item.methods === 'get'" class="label green">get</span>
                             <span v-else-if="scope.data.item.methods === 'post'" class="label yellow">post</span>
@@ -189,8 +189,8 @@ export default {
         docRules() { //---------文档规则
             return this.$store.state.apidocRules;
         },
-        requestConfig() { //----请求配置信息
-            return this.$store.state.apidocRules.requestConfig.config;
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
         }
     },
     watch: {
@@ -257,7 +257,6 @@ export default {
             switch (command) {
                 case "addFile":
                     this.docParentId = data._id;
-                    // console.log(node)
                     if (node && node.childNodes.length >= this.docRules.fileInFolderLimit) {
                         this.$message.warning(`单个文件夹里面文档个数不超过${this.docRules.fileInFolderLimit}个`);
                     } else {
@@ -339,7 +338,6 @@ export default {
             })
             this.contextmenu.$on("deleteMany", () => {
                 this.handleDeleteManyItem();
-                // console.log("deleteMany", this.multiSelectNode)
             })
             this.contextmenu.$on("template", () => {
                 this.addByTemplate(data);
@@ -432,7 +430,6 @@ export default {
         },
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
-            // console.log(draggingNode.data.isFolder, dropNode.data.isFolder, type)
             if (!draggingNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
                 return type !== "prev";
             }
