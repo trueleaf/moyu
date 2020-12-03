@@ -109,16 +109,20 @@ export default {
                             this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
                                 this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
                                 this.formatRequestData(data.docs);
-                                this.$refs["requestOperation"].fixContentType();
-                                if (this.watchFlag) { //去除watch数据对比
-                                    this.watchFlag();
-                                }
-                                this.watchFlag = this.$watch("request", debounce(() => {
-                                    this.syncRequestParams();
-                                    this.diffEditParams();
-                                }, 100), {
-                                    deep: true
-                                })                                  
+                                Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
+                                    console.error(err);
+                                }).finally(() => {
+                                    this.$refs["requestOperation"].fixContentType();
+                                    if (this.watchFlag) { //去除watch数据对比
+                                        this.watchFlag();
+                                    }
+                                    this.watchFlag = this.$watch("request", debounce(() => {
+                                        this.syncRequestParams();
+                                        this.diffEditParams();
+                                    }, 100), {
+                                        deep: true
+                                    });                                                    
+                                })
                             });
                         }
                     }
@@ -457,6 +461,4 @@ export default {
         overflow-y: auto;
     }
 }
-
-
 </style>
