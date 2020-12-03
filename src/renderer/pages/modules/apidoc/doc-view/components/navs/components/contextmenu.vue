@@ -65,7 +65,7 @@ export default {
         background: $white;
         border-radius: $border-radius-sm;
         box-shadow: $box-shadow-sm;
-        z-index: 20;
+        z-index: $zIndex-contextmenu;
         .item-list {
             line-height: 2em;
             padding: .3em 2em;
