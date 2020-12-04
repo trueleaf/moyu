@@ -39,7 +39,7 @@
             </el-dropdown>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100">{{ request.url.host }}{{ request.url.path }}</pre>
+        <pre class="w-100">{{ fullUrl }}</pre>
         <!-- 请求传参方式选择 -->
         <div class="w-100 mt-2">
             <el-radio-group v-model="request.requestType" @change="handleChangeRequestMIMEType">
@@ -114,6 +114,21 @@ export default {
         },
         enabledContentType() {
             return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
+        },
+        fullUrl() {
+            if (this.request.requestType === "query") {
+                let queryStr = "";
+                this.request.requestParams.map((val) => {
+                    if (val.key && val._select) {
+                        queryStr = `${queryStr}&${val.key}=${val.value}`
+                    }
+                })
+                queryStr = queryStr.replace(/&/, "")
+                queryStr = `${ queryStr ? "?" : ""}${queryStr}`
+                return this.request.url.host + this.request.url.path + queryStr;
+            } else {
+                return this.request.url.host + this.request.url.path;
+            }
         }
     },
     data() {
@@ -556,15 +571,17 @@ export default {
             // const dominReg = /[a-zA-Z0-9]+\./
             this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
             this.request.url.path.startsWith(",") ? (this.request.url.path = "/" + this.request.url.path) : "";
-            const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
-            const matchedPath = this.request.url.path.match(pathReg);
-            if (matchedPath) {
-                this.request.url.path = matchedPath[0];
-            } else if (this.request.url.path.trim() === "") {
-                this.request.url.path = "/";
-            } else if (!this.request.url.path.startsWith("/")) {
-                this.request.url.path = "/" + this.request.url.path;
-            }
+            // const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
+            // const matchedPath = this.request.url.path.match(pathReg);
+            // if (matchedPath) {
+            //     this.request.url.path = matchedPath[0];
+            // } else if (this.request.url.path.trim() === "") {
+            //     this.request.url.path = "/";
+            // } else if (!this.request.url.path.startsWith("/")) {
+            //     this.request.url.path = "/" + this.request.url.path;
+            // }
+            const queryReg = /\?.*/;
+            this.request.url.path = this.request.url.path.replace(queryReg, "")
             //检查url是否为空
             if (this.request.url.path.trim() === "") { 
                 this.urlError.error = true;
@@ -583,15 +600,19 @@ export default {
                 if (!reqParams.find(val => val.key === i)) {
                     this.request.requestParams.unshift({
                         id: uuid(),
+                        _id: uuid(),
                         key: i, //--------------请求参数键
                         value: queryParams[i], //------------请求参数值
                         type: "string", //-------------请求参数值类型
                         description: "", //------描述
                         required: true, //-------是否必填
                         children: [], //---------子参数
+                        _select: true, //默认选中
                     })
                 }
             }
+            const matchedComponent = this.getComponentByName("REQUEST_PARAMS");
+            matchedComponent.selectChecked();
         },
         //改变请求方法
         handleChangeRequestMethods(val) {
