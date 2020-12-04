@@ -77,6 +77,7 @@ import jsonSchema from "../dialog/json-schema"
 import presetParams from "../dialog/preset-params"
 import savePresetParamsTemplate from "../dialog/preset-params-temp"
 export default {
+    name: "REQUEST_PARAMS",
     components: {
         "s-json-schema": jsonSchema,
         "s-preset-params": presetParams,
