@@ -13,7 +13,7 @@ class ApiTranslator {
         this.projectId = payload.projectId;
         this.apiData = apiData;
         this.type = type;
-        this.contentTypeRules = store.state.apidocRules.requestConfig.config
+        this.contentTypeRules = store.state.apidocRules.contentType
     }
     /** 
      * @description        获取转换后结果
@@ -27,7 +27,6 @@ class ApiTranslator {
             if (!version || version.startsWith("3")) {
                 console.warn("未检测到版本信息或者版本信息低于3，将默认按照3.0进行解析");
             }
-            console.log(this.resolvingOepnapiPaths())
         }
     }
     //解析openapi接口
