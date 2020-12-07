@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card ref="collapse" title="备注信息" class="remark-params">
+    <s-collapse-card ref="collapse" title="备注信息" class="remark-params" fold>
         <div class="px-5 py-5">
             <s-rich-text v-model="request.description"></s-rich-text>
         </div>

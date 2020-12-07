@@ -24,8 +24,8 @@
                 >   
                     <!-- 接口文档 -->
                     <template v-if="item.tabType === 'doc'">
-                        <template v-for="(req) in requestConfig">
-                            <span v-if="item.item.methods === req.name.toLowerCase()" :key="req.name" class="mr-2" :style="{color: req.iconColor}">{{ req.nickname }}</span>
+                        <template v-for="(req) in validRequestMethods">
+                            <span v-if="item.item.methods === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
                         </template>                        
                     </template>
                     <!-- 其他 -->
@@ -77,8 +77,8 @@ export default {
         currentSelectDoc() {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
-        requestConfig() {
-            return this.$store.state.apidocRules.requestConfig.config;
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
         }
     },
     mounted() {

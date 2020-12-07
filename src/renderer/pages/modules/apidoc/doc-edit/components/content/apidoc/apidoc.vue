@@ -106,19 +106,30 @@ export default {
                             this.$store.commit("apidoc/clearRespons");
                             this.getDocDetail();
                         } else {
+                            //取消请求
+                            if (this.cancel.length > 0) {
+                                this.cancel.forEach(c => {
+                                    c("取消请求");
+                                })
+                            }
                             this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
                                 this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
+                                // console.log(JSON.parse(JSON.stringify(data.docs)))
                                 this.formatRequestData(data.docs);
-                                this.$refs["requestOperation"].fixContentType();
-                                if (this.watchFlag) { //去除watch数据对比
-                                    this.watchFlag();
-                                }
-                                this.watchFlag = this.$watch("request", debounce(() => {
-                                    this.syncRequestParams();
-                                    this.diffEditParams();
-                                }, 100), {
-                                    deep: true
-                                })                                  
+                                Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
+                                    console.error(err);
+                                }).finally(() => {
+                                    this.$refs["requestOperation"].fixContentType();
+                                    if (this.watchFlag) { //去除watch数据对比
+                                        this.watchFlag();
+                                    }
+                                    this.watchFlag = this.$watch("request", debounce(() => {
+                                        this.syncRequestParams();
+                                        this.diffEditParams();
+                                    }, 100), {
+                                        deep: true
+                                    });                                                    
+                                })
                             });
                         }
                     }
@@ -244,11 +255,28 @@ export default {
                     }
                 }
             });
-
-            this.request.requestParams.forEach(val => this.$set(val, "id", val._id))
-            this.request.responseParams.forEach(val => this.$set(val, "id", val._id))
+            //如果自定义字段不包含_id可能会导致选中错误
+            this.request.requestParams.forEach(val => {
+                if (val._id) {
+                    this.$set(val, "id", val._id)
+                } else {
+                    this.$set(val, "id", uuid())
+                }
+            })
+            this.request.responseParams.forEach(val => {
+                if (val._id) {
+                    this.$set(val, "id", val._id)
+                } else {
+                    this.$set(val, "id", uuid())
+                }
+            })
             this.request.header.forEach(val => {
-                this.$set(val, "id", val._id)
+                // this.$set(val, "id", val._id)
+                if (val._id) {
+                    this.$set(val, "id", val._id)
+                } else {
+                    this.$set(val, "id", uuid())
+                }
                 if (val.key.toLowerCase() === "host") {
                     this.$set(val, "_readOnly", true)
                     this.$set(val, "value", "")
@@ -457,6 +485,4 @@ export default {
         overflow-y: auto;
     }
 }
-
-
 </style>
