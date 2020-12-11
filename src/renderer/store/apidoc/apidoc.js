@@ -6,10 +6,9 @@
 import Vue from "vue"
 import http from "@/api/api.js"
 import { findoNode } from "@/lib"
-let ipcRenderer = null;
-if (window.require) {
-    ipcRenderer = window.require("electron").ipcRenderer;
-}
+import HttpClient from "@/../main/http"
+const httpClient = new HttpClient();
+
 const axios = http.axios;
 export default {
     namespaced: true,
@@ -276,20 +275,25 @@ export default {
                 });              
             })
         },
-        //发送请求
+        /** 
+         * @description        发送请求
+         * @author             shuxiaokai
+         * @create             2020-12-11 14:59
+         * @param {url}        url - 请求url       
+         * @param {method}     method - 请求方法       
+         * @param {headers}    headers - 请求头       
+         * @param {data}       data - 请求数据       
+         */
         async sendRequest(context, payload) {
             const { url, method, headers, data } = payload;
-            // console.log(url, method, headers, data);
-            ipcRenderer.send("vue-send-request", {
-                url,
+            console.log(url, method, headers, data);
+            httpClient.request(url, {
                 method,
                 headers,
                 data
-            });
-            ipcRenderer.on("http-response", (event, res) => {
-                console.log("response", res)
-            });
-            ipcRenderer.on("http-error", (event, err) => {
+            }).then(res => {
+                console.log(222, res)
+            }).catch(err => {
                 console.error(err);
             });
         },

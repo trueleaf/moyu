@@ -5,8 +5,6 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import config from "../config"
 import update from "./update"
-import HttpClient from "./http"
-const httpClient = new HttpClient();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -59,15 +57,6 @@ async function createWindow() {
     });
     ipcMain.on("vue-open-dev-tools", () => {
         mainWindow.webContents.openDevTools();
-    });
-    ipcMain.on("vue-send-request", (event, data) => {
-        httpClient.request(data.url, {
-            ...data
-        }).then(res => {
-            event.sender.send("http-response", res);
-        }).catch(err => {
-            event.sender.send("http-error", err);
-        });
     });
 }
 
