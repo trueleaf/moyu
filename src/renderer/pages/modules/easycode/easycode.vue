@@ -201,17 +201,19 @@ export default {
             listParams: [
                 {
                     key: "pageSize",
-                    type: "string",
+                    type: "number",
                     comment: "每页数据大小",
+                    convertType: "number",
                     required: true,
                     default: "10",
                     _enableList: true
                 },
                 {
                     key: "pageNum",
-                    type: "string",
+                    type: "number",
                     comment: "当前页码",
                     required: false,
+                    convertType: "number",
                     default: "1",
                     _enableList: true
                 },
@@ -220,7 +222,6 @@ export default {
                     type: "string",
                     comment: "起始日期",
                     required: false,
-                    default: "1",
                     _enableList: true
                 },
                 {
@@ -228,7 +229,6 @@ export default {
                     type: "string",
                     comment: "结束日期",
                     required: false,
-                    default: "1",
                     _enableList: true
                 }
             ],
@@ -566,13 +566,16 @@ export default {
                 const type = el.type; //类型
                 const defaultValue = el.default; //默认值
                 const comment = el.comment; //注释
+                const convertType = el.convertType; //是否进行类型转换
                 let defaultValueStr = "";
                 if (type === "string") {
                     defaultValueStr = `"${defaultValue}"`;
+                } else if (type === "number") {
+                    defaultValueStr = `${defaultValue}`;
                 }
                 const required = el.required; //是否必填
                 comments += `\n    @param {${type.toLowerCase()}${(!required || defaultValue) ? "?" : ""}}        ${key} ${comment}`;
-                reqRule += `${key}: { type: "${type.toLowerCase()}", ${(!required || defaultValue) ? "required: false," : ""} ${defaultValue ? `default: ${defaultValueStr}` : ""}},`;
+                reqRule += `${key}: { type: "${type.toLowerCase()}", ${convertType ? `convertType: "${type}",` : ""} ${(!required || defaultValue) ? "required: false," : ""} ${defaultValue ? `default: ${defaultValueStr}` : ""}},`;
             }
             const desc = this.formInfo.description;
             const creator = this.formInfo.creator;
@@ -674,7 +677,6 @@ export default {
             `;
             return result;
         },
-        
         //=====================================Service转换====================================//
         convertTreeDataToMongooseServiceData() {
             const createServiceStr = (this.formInfo.curd.includes("create")) ? this.generateCreateService() : "";
@@ -728,7 +730,7 @@ export default {
                 if (el._uniqueAdd) {
                     uniqueStr += `
                         // 判断${comment}是否已经存在
-                        const ${camelCase(`has_${key}`)} = await this.ctx.model.${filePathStr}findOne({ projectName, enabled: true });
+                        const ${camelCase(`has_${key}`)} = await this.ctx.model.${filePathStr}findOne({ ${key}, enabled: true });
                         if (${camelCase(`has_${key}`)}) {
                             this.ctx.helper.errorInfo("${comment}已经存在", 1003);
                         }

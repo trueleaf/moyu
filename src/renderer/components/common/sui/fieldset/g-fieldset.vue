@@ -7,7 +7,7 @@
 <template>
     <div class="s-fieldset">
         <div class="legend">{{ title }}</div>
-        <div class="w-100 pt-3">
+        <div class="content" :style="{height: height, 'max-height': maxHeight}">
             <slot></slot>
         </div>
         <div class="operation">
@@ -22,7 +22,15 @@ export default {
         title: {
             type: String,
             default: ""
-        }
+        },
+        height: {
+            type: String,
+            default: null
+        },
+        maxHeight: {
+            type: String,
+            default: null
+        },
     },
     data() {
         return {};
@@ -40,10 +48,9 @@ export default {
     min-height: 30px;
     position: relative;
     border: 1px solid $gray-400;
-    padding: 10px;
     margin-top: 20px;
     background: inherit;
-    box-shadow: $box-shadow;
+    // box-shadow: $box-shadow;
     & > .legend {
         position: absolute;
         height: 30px;
@@ -54,6 +61,13 @@ export default {
         padding: 0 20px;
         font-size: size(18);
         font-weight: bolder;
+        z-index: $zIndex-fieldset;
+    }
+    & > .content {
+        padding: 10px;
+        width: 100%;
+        padding-top: size(25);
+        overflow-y: auto;
     }
     .operation {
         text-align: right;

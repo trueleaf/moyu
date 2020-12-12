@@ -23,7 +23,7 @@ module.exports = {
         //http请求相关
         httpRequest: {
             url: process.env.NODE_ENV === "development" ? "http://127.0.0.1:7004" : "http://47.107.70.26:7005",
-            imgUrl: process.env.NODE_ENV === "development" ? "http://xx.0.0.1:7004" : "http://xxx.0.0.1:7004",
+            imgUrl: process.env.NODE_ENV === "development" ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
             whiteList: ["/login"]

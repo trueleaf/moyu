@@ -31,9 +31,9 @@
                         </div>
                     </div>
                 </div>
-                <div>
-                    <el-divider content-position="left">客户端</el-divider>
-                    <div>
+                <!-- 客户端信息 -->
+                <s-collapse title="客户端相关">
+                    <div class="my-2">
                         <!-- 代码仓库 -->
                         <div class="item-list">
                             <div class="prefix">
@@ -121,34 +121,116 @@
                                 </div>                                
                             </div>
                         </div> 
-                        <!-- 操作信息 -->
-                        <div class="d-flex a-center j-around mt-3">
-                            <div class="d-flex a-center">
-                                <span class=""></span> 
-                                <span class="hover-theme-color cursor-pointer mr-1">接口文档</span>
+
+                    </div>
+                </s-collapse>
+                <!-- 服务端信息 -->
+                <s-collapse title="服务端相关">
+                    <div class="my-2">
+                        <div class="item-list">
+                            <div class="prefix">
+                                <svg class="svg-icon mr-1" aria-hidden="true">
+                                    <use xlink:href="#icongithub"></use>
+                                </svg> 
+                                <span class="mr-1">代码仓库：</span>
                             </div>
-                            <el-divider direction="vertical"></el-divider>
-                            <div class="d-flex a-center">
-                                <span class=""></span>
-                                <span class="hover-theme-color cursor-pointer mr-1">持续集成</span>
+                            <div class="content">
+                                <el-popover placement="top-start" width="400" trigger="click">
+                                    <span slot="reference" class="theme-color cursor-pointer">[仓库地址]</span>
+                                    <div>
+                                        <div>
+                                            <el-divider content-position="left">地址</el-divider>
+                                            <span>http://192.168.0.109:8081/visual/suzhou/#/main/n</span>
+                                        </div>
+                                        <div>
+                                            <el-divider content-position="left">备注</el-divider>
+                                            <p>账号:admin   密码: 111111</p>
+                                        </div>
+                                        <div class="d-flex j-end">
+                                            <el-button type="primary" size="mini">修改</el-button>
+                                            <el-button type="success" size="mini">访问</el-button>
+                                        </div>
+                                    </div>
+                                </el-popover>
                             </div>
-                            <el-divider direction="vertical"></el-divider>
-                            <div class="d-flex a-center">
-                                <span class=""></span> 
-                                <span class="hover-theme-color cursor-pointer mr-1">UI文档</span>
-                            </div>
-                            <el-divider direction="vertical"></el-divider>
-                            <div class="d-flex a-center">
-                                <span class=""></span> 
-                                <span class="hover-theme-color cursor-pointer mr-1">产品文档</span>
+                            <div class="tail">
+                                <div class="d-flex a-center">
+                                    <span class="gray-600 mr-1">张三</span>
+                                    <svg class="svg-icon" aria-hidden="true">
+                                        <use xlink:href="#iconlishi"></use>
+                                    </svg>     
+                                </div>                                
                             </div>
                         </div> 
                     </div>
-                    <!-- <el-divider content-position="left">服务端</el-divider> -->
-                </div>
-                <div class="project-bottom d-flex">
-                   
-                </div>
+                </s-collapse>
+                <!-- 服务端信息 -->
+                <s-collapse title="产品相关">
+                    <div class="my-2">
+                        <div class="item-list">
+                            <div class="prefix">
+                                <svg class="svg-icon mr-1" aria-hidden="true">
+                                    <use xlink:href="#icongithub"></use>
+                                </svg> 
+                                <span class="mr-1">代码仓库：</span>
+                            </div>
+                            <div class="content">
+                                <el-popover placement="top-start" width="400" trigger="click">
+                                    <span slot="reference" class="theme-color cursor-pointer">[仓库地址]</span>
+                                    <div>
+                                        <div>
+                                            <el-divider content-position="left">地址</el-divider>
+                                            <span>http://192.168.0.109:8081/visual/suzhou/#/main/n</span>
+                                        </div>
+                                        <div>
+                                            <el-divider content-position="left">备注</el-divider>
+                                            <p>账号:admin   密码: 111111</p>
+                                        </div>
+                                        <div class="d-flex j-end">
+                                            <el-button type="primary" size="mini">修改</el-button>
+                                            <el-button type="success" size="mini">访问</el-button>
+                                        </div>
+                                    </div>
+                                </el-popover>
+                            </div>
+                            <div class="tail">
+                                <div class="d-flex a-center">
+                                    <span class="gray-600 mr-1">张三</span>
+                                    <svg class="svg-icon" aria-hidden="true">
+                                        <use xlink:href="#iconlishi"></use>
+                                    </svg>     
+                                </div>                                
+                            </div>
+                        </div> 
+                    </div>
+                </s-collapse>
+                <!-- 操作信息 -->
+                <div class="d-flex a-center j-around mt-3">
+                    <div class="d-flex a-center">
+                        <span class=""></span> 
+                        <span class="hover-theme-color cursor-pointer mr-1">接口文档</span>
+                    </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="d-flex a-center">
+                        <span class=""></span> 
+                        <span class="hover-theme-color cursor-pointer mr-1">测试管理</span>
+                    </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="d-flex a-center">
+                        <span class=""></span>
+                        <span class="hover-theme-color cursor-pointer mr-1">持续集成</span>
+                    </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="d-flex a-center">
+                        <span class=""></span> 
+                        <span class="hover-theme-color cursor-pointer mr-1">UI文档</span>
+                    </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="d-flex a-center">
+                        <span class=""></span> 
+                        <span class="hover-theme-color cursor-pointer mr-1">产品文档</span>
+                    </div>
+                </div> 
             </div>
         </div>
         <!-- 新增项目弹窗 -->

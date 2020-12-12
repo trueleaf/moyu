@@ -13,7 +13,6 @@
                 :highlight-current="true"
                 node-key="id" 
                 :expand-on-click-node="false" 
-                default-expand-all
                 :draggable="enableDrag"
                 :allow-drop="handleCheckNodeCouldDrop"
                 @node-drop="handleNodeDrop"

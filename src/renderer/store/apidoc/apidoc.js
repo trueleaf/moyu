@@ -6,8 +6,10 @@
 import Vue from "vue"
 import http from "@/api/api.js"
 import { findoNode } from "@/lib"
-import HttpClient from "@/api/net.js"
-const httpClient = new HttpClient();
+let ipcRenderer = null;
+if (window.require) {
+    ipcRenderer = window.require("electron").ipcRenderer;
+}
 const axios = http.axios;
 export default {
     namespaced: true,
@@ -84,7 +86,7 @@ export default {
             if (matchedData && docName) {
                 matchedData.docName = docName;
             }
-            if (matchedData && method) {
+            if (matchedData && method && matchedData.item) {
                 matchedData.item.methods = method;
             }
             if (matchedData && changed != null) {
@@ -277,31 +279,22 @@ export default {
         //发送请求
         async sendRequest(context, payload) {
             const { url, method, headers, data } = payload;
-            return new Promise((resolve, reject) => {
-                httpClient.request(url, {
-                    method,
-                    headers,
-                    data
-                })
-                httpClient.on("response", response => {
-                    context.commit("changeResponseInfo", response)
-                })   
-                httpClient.on("end", endResponse => {
-                    context.commit("changeResponseIndex", endResponse)
-                    resolve(context.state.responseData);
-                })    
-                httpClient.on("error", error => {
-                    reject(error);
-                })   
-                httpClient.on("loading", (speed, chunkSize) => {
-                    context.state.responseData.speed = speed;
-                    context.state.responseData.size = chunkSize;
-                })   
-            })
+            // console.log(url, method, headers, data);
+            ipcRenderer.send("vue-send-request", {
+                url,
+                method,
+                headers,
+                data
+            });
+            ipcRenderer.on("http-response", (event, res) => {
+                console.log("response", res)
+            });
+            ipcRenderer.on("http-error", (event, err) => {
+                console.error(err);
+            });
         },
         //取消请求
         stopRequest() {
-            httpClient.stopReqeust();
         },
     },
 };

@@ -8,7 +8,8 @@
     <div class="s-collaps mb-1">
         <div class="header" @click="isActive = !isActive">
             <span :class="{'el-icon-caret-bottom': isActive, 'el-icon-caret-right': !isActive}"></span>
-            <span class="ml-1">{{ title }}</span>
+            <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
+            <slot v-else name="title"/>
         </div>
         <div v-show="isActive" class="pr-2 pl-5 gray-700">
             <slot />            
@@ -64,10 +65,6 @@ export default {
         &:hover {
             background: mix($theme-color, $white, 25%);
         }
-    }
-    .h-0 {
-        height: 0;
-        overflow: hidden;
     }
 }
 </style>

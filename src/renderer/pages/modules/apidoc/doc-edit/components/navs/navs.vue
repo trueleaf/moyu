@@ -17,15 +17,21 @@
                         :key="index"
                         :title="item.docName"
                         :class="{active: currentSelectDoc && currentSelectDoc._id === item._id}"
-                        class="item d-flex a-center"
+                        class="item"
                         :data-index="index"
                         @click="selectCurrentTab(item)"
                         @contextmenu="handleRightClick($event, item, index)"
-                >
-                    <span v-if="item.item.methods === 'get'" class="green mr-2">GET</span>
-                    <span v-if="item.item.methods === 'post'" class="yellow mr-2">POST</span>
-                    <span v-if="item.item.methods === 'put'" class="blue mr-2">PUT</span>
-                    <span v-if="item.item.methods === 'delete'" class="red mr-2">DEL</span>
+                >   
+                    <!-- 接口文档 -->
+                    <template v-if="item.tabType === 'doc'">
+                        <template v-for="(req) in validRequestMethods">
+                            <span v-if="item.item.methods === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                        </template>                        
+                    </template>
+                    <!-- 其他 -->
+                    <template v-else>
+                        <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                    </template>
                     <span class="item-text">{{ item.docName }}</span>
                     <span class="operaion">
                         <span v-show="item.changed" class="has-change">
@@ -71,6 +77,9 @@ export default {
         currentSelectDoc() {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
+        }
     },
     mounted() {
         this.init();
@@ -345,6 +354,8 @@ export default {
             left: size(25);
             transition: left .1s;
             .item {
+                display: flex;
+                align-items: center;
                 position: relative;
                 font-size: 12px;
                 flex: 0 0 auto;
