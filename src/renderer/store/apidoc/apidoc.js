@@ -7,7 +7,9 @@ import Vue from "vue"
 import http from "@/api/api.js"
 import { findoNode } from "@/lib"
 import HttpClient from "@/../main/http"
+import { formatBytes } from "@/lib"
 const httpClient = new HttpClient();
+
 
 const axios = http.axios;
 export default {
@@ -296,6 +298,12 @@ export default {
             }).catch(err => {
                 console.error(err);
             });
+            httpClient.on("data", (data) => {
+                console.log("data", formatBytes(data.length))
+            })
+            httpClient.on("end", (result) => {
+                console.log("end", result)
+            })
         },
         //取消请求
         stopRequest() {
