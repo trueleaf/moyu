@@ -12,7 +12,6 @@ let got = null;
 import FileType from "file-type/browser"
 if (window.require) {
     got = window.require("electron").remote.require("got");
-    // FileType = window.require("electron").remote.require("file-type");
 }
 
 
@@ -83,6 +82,7 @@ const HttpClient = (function() {
          * @return {String}    返回字符串
          */
         sendGetRequest() {
+            // console.log(this.params)
             return new Promise((resolve, reject) => {
                 const instance = got.stream(this.url, {});
                 let streamData = Buffer.alloc(0);
@@ -97,6 +97,7 @@ const HttpClient = (function() {
                     const rt = this.responseData.timings.phases.total;
                     this.emit("end", {
                         ...result,
+                        size: streamData.length,
                         rt
                     });
                 });
