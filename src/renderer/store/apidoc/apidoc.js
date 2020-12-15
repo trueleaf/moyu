@@ -7,7 +7,6 @@ import Vue from "vue"
 import http from "@/api/api.js"
 import { findoNode } from "@/lib"
 import HttpClient from "@/../main/http"
-import { formatBytes } from "@/lib"
 const httpClient = new HttpClient();
 
 
@@ -24,11 +23,14 @@ export default {
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
         responseData: {
-            status: 0,
-            rt: 0,
-            data: {},
-            speed: 0,
-            size: 0,
+            headers: {},
+            contentType: null,
+            httpVersion: null,
+            statusCode: null,
+            mime: null,
+            rt: null,
+            value: null,
+            size: null,
         }, //-----------返回参数
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         presetParamsList: [], //-------预设参数列表
@@ -179,18 +181,21 @@ export default {
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
-            state.responseData.status = payload.status;
-            state.responseData.statusMessage = payload.statusMessage;
-            state.responseData.httpVersion = payload.httpVersion;
             state.responseData.headers = payload.headers;
-            state.responseData.contentType = payload.headers["content-type"];
-            state.responseData.size = payload.size;
+            state.responseData.contentType = payload.contentType;
+            state.responseData.httpVersion = payload.httpVersion;
+            state.responseData.statusCode = payload.statusCode;
+        },
+        //改变大小
+        changeResponseDataSize(state, payload) {
+            state.responseData.size = payload.size; 
         },
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
-            state.responseData.rt = payload.rt;
-            state.responseData.data = payload.data;            
+            state.responseData.mime = payload.mime;
+            state.responseData.rt = payload.rt;            
             state.responseData.size = payload.size;            
+            state.responseData.value = payload.value;            
         },
         //改变loading效果
         changeLoading(state, loading) {
@@ -199,11 +204,14 @@ export default {
         //重置返回值信息
         clearRespons(state) {
             state.responseData = {
-                status: 0,
-                rt: 0,
-                data: {},
-                speed: 0,
-                size: 0,
+                headers: {},
+                contentType: null,
+                httpVersion: null,
+                statusCode: null,
+                mime: null,
+                rt: null,
+                value: null,
+                size: null,
             };
             state.remoteResponseEqualToLocalResponse = false;
         },
@@ -286,27 +294,36 @@ export default {
          * @param {headers}    headers - 请求头       
          * @param {data}       data - 请求数据       
          */
-        async sendRequest(context, payload) {
-            const { url, method, headers, data } = payload;
-            console.log(url, method, headers, data);
-            httpClient.request(url, {
-                method,
-                headers,
-                data
-            }).then(res => {
-                console.log(222, res)
-            }).catch(err => {
-                console.error(err);
-            });
-            httpClient.on("data", (data) => {
-                console.log("data", formatBytes(data.length))
-            })
-            httpClient.on("end", (result) => {
-                console.log("end", result)
+        sendRequest(context, payload) {
+            return new Promise((resolve, reject) => {
+                const { url, method, headers, data } = payload;
+                console.log(url, method, headers, data);
+                context.commit("changeLoading", true)
+                httpClient.request(url, {
+                    method,
+                    headers,
+                    data
+                }).then(response => {
+                    context.commit("changeResponseIndex", response);
+                    resolve(response);
+                }).catch(err => {
+                    console.error(err);
+                    reject(err);
+                });
+                httpClient.on("data", (data) => {
+                    context.commit("changeResponseDataSize", {
+                        size: data.length
+                    });
+                })
+                httpClient.on("end", (result) => {
+                    context.commit("changeResponseIndex", result);
+                    context.commit("changeLoading", false)
+                })                
             })
         },
         //取消请求
         stopRequest() {
+            httpClient.cancel();
         },
     },
 };
