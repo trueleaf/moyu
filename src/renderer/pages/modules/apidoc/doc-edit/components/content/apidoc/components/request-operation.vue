@@ -103,9 +103,6 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
-        loading() {
-            return this.$store.state.apidoc.loading
-        },
         couldPublish() {
             return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
         },
@@ -139,6 +136,7 @@ export default {
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
             //=====================================其他参数====================================//
+            loading: false, //-------------发送请求
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
@@ -169,8 +167,8 @@ export default {
             const foo = async (resolve, reject) => {
                 const isValidateRequest = this.validateParams();
                 if (isValidateRequest) {
+                    this.loading = true;
                     const formData = new FormData();
-                    this.$store.commit("apidoc/changeLoading", true);
                     const copyRequestInfo = deepmerge({}, this.request, { //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
                         isMergeableObject(val) {
                             return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
@@ -230,7 +228,7 @@ export default {
                         console.error(err);
                         reject(err)
                     }).finally(() => {
-                        this.$store.commit("apidoc/changeLoading", false);
+                        this.loading = false;
                     });
                 } else {
                     reject("校验错误2")             
