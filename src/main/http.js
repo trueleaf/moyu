@@ -23,13 +23,15 @@ const HttpClient = (function() {
                 singleton = this;
             }
             this.instance = null; //当前请求实例
-            this.timeout = config.timeout || 60000; //超时时间
             this.method = null; //请求方式
             this.url = null; //请求地址
             this.headers = null; //请求头
             this.params = null; //请求参数
             this.responseData = null; //返回值
             this.events = [];
+            this.gotInstance = got.extend({
+                timeout: config.timeout || 60000, //超时时间
+            });
             return singleton;
         }
         on(name, handler) {
@@ -84,7 +86,7 @@ const HttpClient = (function() {
         sendGetRequest() {
             // console.log(this.params)
             return new Promise((resolve, reject) => {
-                const instance = got.stream(this.url, {});
+                const instance = this.gotInstance.stream(this.url, {});
                 let streamData = Buffer.alloc(0);
                 //获取流数据
                 instance.on("data", async (chunk) => {
@@ -116,8 +118,8 @@ const HttpClient = (function() {
                     console.log("重定向")
                 });
                 //下载进度
-                instance.on("downloadProgress", () => {
-                    
+                instance.on("downloadProgress", (process) => {
+                    this.emit("process", process);
                 });
             })
         }

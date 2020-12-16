@@ -31,6 +31,8 @@ export default {
             rt: null,
             value: null,
             size: null,
+            total: null,
+            percent: null
         }, //-----------返回参数
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         presetParamsList: [], //-------预设参数列表
@@ -187,8 +189,10 @@ export default {
             state.responseData.statusCode = payload.statusCode;
         },
         //改变大小
-        changeResponseDataSize(state, payload) {
+        changeResponseProcess(state, payload) {
             state.responseData.size = payload.size; 
+            state.responseData.percent = payload.percent; 
+            state.responseData.total = payload.total; 
         },
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
@@ -212,6 +216,8 @@ export default {
                 rt: null,
                 value: null,
                 size: null,
+                total: null,
+                percent: null
             };
             state.remoteResponseEqualToLocalResponse = false;
         },
@@ -307,18 +313,20 @@ export default {
                     context.commit("changeResponseIndex", response);
                     resolve(response);
                 }).catch(err => {
-                    console.error(err);
+                    console.dir(err);
                     reject(err);
                 });
-                httpClient.on("data", (data) => {
-                    context.commit("changeResponseDataSize", {
-                        size: data.length
-                    });
-                })
                 httpClient.on("end", (result) => {
                     context.commit("changeResponseIndex", result);
                     context.commit("changeLoading", false)
-                })                
+                })     
+                httpClient.on("process", (process) => {
+                    context.commit("changeResponseProcess", {
+                        size: process.transferred,
+                        percent: process.percent,
+                        total: process.total,
+                    });
+                })              
             })
         },
         //取消请求
