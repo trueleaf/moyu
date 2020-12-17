@@ -119,7 +119,7 @@ export default {
     .content {
         flex: 1;
         overflow: hidden;
-        box-shadow: 0px 2px 2px $gray-200;
+        // box-shadow: 0px 2px 2px $gray-200;
     }
 }
 </style>

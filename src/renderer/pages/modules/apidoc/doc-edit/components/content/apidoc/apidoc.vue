@@ -475,18 +475,21 @@ export default {
     }
     .workplace {
         border-right: 1px solid $gray-400;
-        padding: size(20);
+        // padding: size(20);
         flex: 0 0 65%;
     }
     .response-wrap {
         flex: 1 0 35%;
     }
     .base-params {
-        padding-bottom: size(10);
-        margin-bottom: size(10);
-        border-bottom: 1px solid $gray-500;
+        padding: size(20);
+        height: size(170);
+        box-shadow: 0 3px 2px $gray-400;
+        position: relative;
+        z-index: 1;
     }
     .params-wrap {
+        padding: size(20);
         max-height: calc(100vh - #{size(300)});
         overflow-y: auto;
     }
