@@ -249,10 +249,33 @@ export const dfsForest = (forestData, config) => {
 export const debounce = function(fn, delay = 300, immediate = false) {
     let timer = null;
     return function() {
-        clearInterval(timer);
+        clearTimeout(timer);
         timer = setTimeout(() => {
             fn.apply(this, arguments);
         }, delay, immediate);
+    }
+}
+
+/** 
+ * @description        throttle(n秒后才执行一次函数)
+ * @author             shuxiaokai
+ * @updateAuthor       shuxiaokai
+ * @create             2020-01-31 17:14
+ * @update             2020-01-31 17:14
+ * @param {Function}   fn - 被调用函数       
+ * @param {Number}     [interval=300] - 时间间隔       
+ * @return {null}     无返回值
+ */
+
+
+export const throttle = function(fn, interval = 300) {
+    let oldTime = Date.now();
+    return function() {
+        let nowTime = Date.now();
+        if (nowTime - oldTime > interval) {
+            fn.apply(this, arguments);
+            oldTime = nowTime;
+        }
     }
 }
 
