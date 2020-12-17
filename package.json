@@ -36,6 +36,7 @@
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.20.0",
     "nprogress": "^0.2.0",
+    "proxy-agent": "^4.0.0",
     "qs": "^6.9.4",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",

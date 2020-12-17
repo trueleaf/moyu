@@ -9,9 +9,11 @@
 
 
 let got = null;
+let ProxyAgent = null;
 import FileType from "file-type/browser"
 if (window.require) {
     got = window.require("electron").remote.require("got");
+    ProxyAgent = window.require("electron").remote.require("proxy-agent")
 }
 
 
@@ -31,6 +33,13 @@ const HttpClient = (function() {
             this.events = [];
             this.gotInstance = got.extend({
                 timeout: config.timeout || 60000, //超时时间
+                retry: 0,
+                headers: {
+                    "user-agent": "moyu(https://github.com/shuxiaokai3/moyu)"
+                },
+                agent: {
+                    http: new ProxyAgent("http://127.0.0.1:8888")
+                }
             });
             return singleton;
         }
@@ -86,7 +95,12 @@ const HttpClient = (function() {
         sendGetRequest() {
             // console.log(this.params)
             return new Promise((resolve, reject) => {
-                const instance = this.gotInstance.stream(this.url, {});
+                const searchParams = new URLSearchParams(this.params).toString();
+                const url = searchParams ? `${this.url}/?${searchParams}` : this.url;
+                const instance = this.gotInstance.stream(url, {
+                    method: "GET",
+                    headers: this.headers,
+                });
                 let streamData = Buffer.alloc(0);
                 //获取流数据
                 instance.on("data", async (chunk) => {
