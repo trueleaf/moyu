@@ -598,7 +598,6 @@ export default {
                 if (!reqParams.find(val => val.key === i)) {
                     this.request.requestParams.unshift({
                         id: uuid(),
-                        _id: uuid(),
                         key: i, //--------------请求参数键
                         value: queryParams[i], //------------请求参数值
                         type: "string", //-------------请求参数值类型
