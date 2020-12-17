@@ -5,7 +5,7 @@
  */
 import Vue from "vue"
 import http from "@/api/api.js"
-import { findoNode } from "@/lib"
+import { findoNode, throttle } from "@/lib"
 import HttpClient from "@/../main/http"
 const httpClient = new HttpClient();
 
@@ -190,9 +190,16 @@ export default {
         },
         //改变大小
         changeResponseProcess(state, payload) {
-            state.responseData.size = payload.size; 
-            state.responseData.percent = payload.percent; 
-            state.responseData.total = payload.total; 
+            const { size, percent, total } = payload;
+            if (size != null) {
+                state.responseData.size = size; 
+            }
+            if (percent != null) {
+                state.responseData.percent = percent; 
+            }
+            if (total != null) {
+                state.responseData.total = total; 
+            }
         },
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
@@ -319,14 +326,17 @@ export default {
                 httpClient.on("end", (result) => {
                     context.commit("changeResponseIndex", result);
                     context.commit("changeLoading", false)
+                    context.commit("changeResponseProcess", {
+                        percent: 1,
+                    });
                 })     
-                httpClient.on("process", (process) => {
+                httpClient.on("process", throttle((process) => {
                     context.commit("changeResponseProcess", {
                         size: process.transferred,
                         percent: process.percent,
                         total: process.total,
                     });
-                })              
+                }))              
             })
         },
         //取消请求
