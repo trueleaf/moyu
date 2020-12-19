@@ -11,6 +11,90 @@
             <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" @input="filterProject" clearable></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
         </div> 
+        <h2>最近访问</h2>
+        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
+            <div v-for="(item, index) in recentVisitProjects" :key="index" class="project-list">
+                <div class="project-header">
+                    <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                    <div class="operator">
+                        <div title="编辑" @click="handleOpenEditDialog(item)">
+                            <i class="el-icon-edit"></i>
+                        </div>
+                        <div title="成员管理" @click="handleOpenEditDialog(item)">
+                            <i class="el-icon-user"></i>
+                        </div>
+                        <!-- <div title="收藏" @click="handleStar(item)">
+                            <i class="el-icon-star-off"></i>
+                        </div>
+                        <div title="取消收藏" @click="handUnStar(item)">
+                            <i class="el-icon-star-on f-base yellow"></i>
+                        </div> -->
+                        <div title="删除" @click="deleteProject(item._id)">
+                            <i class="el-icon-delete"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex j-end a-center gray-500 mt-2">
+                    <span>最新更新:</span>
+                    <span>{{ new Date(item.updatedAt).toLocaleDateString() }}</span>&nbsp;&nbsp;
+                </div>
+                <div class="d-flex j-end a-center gray-500">
+                    <span>创建者:</span>
+                    <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+                </div>
+                <div class="project-bottom d-flex">
+                    <div>
+                        <span class="f-sm">接口数:</span>
+                        <span class="teal">{{ item.docNum }}</span>
+                    </div>
+                    <div class="ml-auto">
+                        <el-button v-if="item.owner.name !== userInfo.realName && (item.members && item.members.find(m => m.realName === userInfo.realName && m.permission === 'readOnly'))" type="primary" size="mini" @click="handleView(item)">查看</el-button>
+                        <el-button v-else type="primary" size="mini" @click="jumpToProject(item._id, item.projectName)">进入</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>已收藏项目</h2>
+        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
+            <div v-for="(item, index) in starProjects" :key="index" class="project-list">
+                <div class="project-header">
+                    <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                    <div class="operator">
+                        <div title="编辑" @click="handleOpenEditDialog(item)">
+                            <i class="el-icon-edit"></i>
+                        </div>
+                        <div title="成员管理" @click="handleOpenEditDialog(item)">
+                            <i class="el-icon-user"></i>
+                        </div>
+                        <div title="取消收藏" @click="handUnStar(item)">
+                            <i class="el-icon-star-on f-base yellow"></i>
+                        </div>
+                        <div title="删除" @click="deleteProject(item._id)">
+                            <i class="el-icon-delete"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex j-end a-center gray-500 mt-2">
+                    <span>最新更新:</span>
+                    <span>{{ new Date(item.updatedAt).toLocaleDateString() }}</span>&nbsp;&nbsp;
+                </div>
+                <div class="d-flex j-end a-center gray-500">
+                    <span>创建者:</span>
+                    <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+                </div>
+                <div class="project-bottom d-flex">
+                    <div>
+                        <span class="f-sm">接口数:</span>
+                        <span class="teal">{{ item.docNum }}</span>
+                    </div>
+                    <div class="ml-auto">
+                        <el-button v-if="item.owner.name !== userInfo.realName && (item.members && item.members.find(m => m.realName === userInfo.realName && m.permission === 'readOnly'))" type="primary" size="mini" @click="handleView(item)">查看</el-button>
+                        <el-button v-else type="primary" size="mini" @click="jumpToProject(item._id, item.projectName)">进入</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <h2>项目列表</h2>
         <!-- 项目列表 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
             <div v-for="(item, index) in projectList" :key="index" class="project-list">
@@ -23,8 +107,8 @@
                         <div title="成员管理" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
-                        <div title="查看" @click="handleView(item)">
-                            <i class="el-icon-view"></i>
+                        <div title="收藏" @click="handleStar(item)">
+                            <i class="el-icon-star-off"></i>
                         </div>
                         <div title="删除" @click="deleteProject(item._id)">
                             <i class="el-icon-delete"></i>
@@ -68,6 +152,8 @@ export default {
     data() {
         return {
             //=========================================================================//
+            recentVisitProjectIds: [],
+            starProjectIds: [],
             projectList: [], //------项目列表
             projectListCopy: [], //--项目列表拷贝用户数据过滤
             projectName: "", //------搜索框项目名称
@@ -76,12 +162,24 @@ export default {
             dialogVisible: false, //-新增项目弹窗
             dialogVisible2: false, //修改项目弹窗
             loading: false, //-------数据加载状态
+            starLoading: false, //---是否正在收藏
+            unStarLoading: false, //是否取消收藏
         };
     },
     computed: {
         userInfo() {
             return this.$store.state.permission.userInfo
         },
+        recentVisitProjects() {
+            return this.projectList.filter(project => {
+                return this.recentVisitProjectIds.find(id => id === project._id)
+            })
+        },
+        starProjects() {
+            return this.projectList.filter(project => {
+                return this.starProjectIds.find(id => id === project._id)
+            })
+        }
     },
     created() {
         this.getProjectList(); //获取项目列表
@@ -93,8 +191,10 @@ export default {
             const params = this.formInfo;
             this.loading = true;
             this.axios.get("/api/project/project_list", { params }).then(res => {
-                this.projectList = res.data.rows;
-                this.projectListCopy = res.data.rows;
+                this.projectList = res.data.list;
+                this.recentVisitProjectIds = res.data.recentVisitProjects;
+                this.starProjectIds = res.data.starProjects;
+                this.projectListCopy = res.data.list;
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -124,6 +224,34 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
+        //收藏项目
+        handleStar(item) {
+            if (this.starLoading) {
+                return;
+            }
+            this.starLoading = true;
+            this.axios.put("/api/project/star", { projectId: item._id}).then(() => {
+                
+            }).catch(err => {
+                console.error(err);
+            }).finally(() => {
+                this.starLoading = false;
+            })
+        },
+        //取消项目收藏
+        handleUnStar(item) {
+            if (this.unStarLoading) {
+                return;
+            }
+            this.unStarLoading = true;
+            this.axios.put("/api/project/unstar", { projectId: item._id}).then(() => {
+                
+            }).catch(err => {
+                console.error(err);
+            }).finally(() => {
+                this.unStarLoading = false;
+            })
+        },
         //=====================================组件间交互====================================//  
         //过滤项目
         filterProject() {
@@ -138,6 +266,9 @@ export default {
         },
         //跳转至界面详情
         jumpToProject(id, name) {
+            this.axios.put("/api/project/visited", { projectId: id }).catch(err => {
+                console.error(err);
+            });
             this.$router.push({
                 path: "/v1/apidoc/doc-edit",
                 query: {
@@ -148,6 +279,9 @@ export default {
         },
         //查看页面
         handleView(item) {
+            this.axios.put("/api/project/visited", { projectId: item._id }).catch(err => {
+                console.error(err);
+            });
             this.$router.push({
                 path: "/v1/apidoc/doc-view",
                 query: {
@@ -155,7 +289,7 @@ export default {
                     name: item.projectName
                 }
             });
-            console.log(item);
+            // console.log(item);
         },
         //=====================================其他操作=====================================//
     }
@@ -169,7 +303,7 @@ export default {
     .project-wrap {
         display: flex;
         flex-wrap: wrap;
-        min-height: 300px;
+        // min-height: 300px;
         align-items: flex-start;
         @media only screen and (max-width: 1199px) {
             justify-content: center;
