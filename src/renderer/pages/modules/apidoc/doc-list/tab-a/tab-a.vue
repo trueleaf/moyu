@@ -7,12 +7,12 @@
 <template>
     <div class="tab-a">
         <!-- 搜索条件 -->
-        <div class="search-item d-flex a-center">
-            <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" @input="filterProject" clearable></el-input>
+        <div class="search-item d-flex a-center mb-3">
+            <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
         </div> 
         <h2>最近访问</h2>
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
+        <div class="project-wrap">
             <div v-for="(item, index) in recentVisitProjects" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -26,9 +26,17 @@
                         <!-- <div title="收藏" @click="handleStar(item)">
                             <i class="el-icon-star-off"></i>
                         </div>
-                        <div title="取消收藏" @click="handUnStar(item)">
+                        <div title="取消收藏" @click="handleUnStar(item)">
                             <i class="el-icon-star-on f-base yellow"></i>
                         </div> -->
+                        <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
+                            <i v-if="!starLoading" class="el-icon-star-off"></i>
+                            <i v-if="starLoading" class="el-icon-loading"></i>
+                        </div>
+                        <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
+                            <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
+                            <i v-if="unStarLoading" class="el-icon-loading"></i>
+                        </div>
                         <div title="删除" @click="deleteProject(item._id)">
                             <i class="el-icon-delete"></i>
                         </div>
@@ -55,7 +63,7 @@
             </div>
         </div>
         <h2>已收藏项目</h2>
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
+        <div class="project-wrap">
             <div v-for="(item, index) in starProjects" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -66,8 +74,13 @@
                         <div title="成员管理" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
-                        <div title="取消收藏" @click="handUnStar(item)">
-                            <i class="el-icon-star-on f-base yellow"></i>
+                        <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
+                            <i v-if="!starLoading" class="el-icon-star-off"></i>
+                            <i v-if="starLoading" class="el-icon-loading"></i>
+                        </div>
+                        <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
+                            <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
+                            <i v-if="unStarLoading" class="el-icon-loading"></i>
                         </div>
                         <div title="删除" @click="deleteProject(item._id)">
                             <i class="el-icon-delete"></i>
@@ -96,7 +109,7 @@
         </div>
         <h2>项目列表</h2>
         <!-- 项目列表 -->
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap mt-3">
+        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="project-wrap">
             <div v-for="(item, index) in projectList" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -107,8 +120,13 @@
                         <div title="成员管理" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
-                        <div title="收藏" @click="handleStar(item)">
-                            <i class="el-icon-star-off"></i>
+                        <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
+                            <i v-if="!starLoading" class="el-icon-star-off"></i>
+                            <i v-if="starLoading" class="el-icon-loading"></i>
+                        </div>
+                        <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
+                            <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
+                            <i v-if="unStarLoading" class="el-icon-loading"></i>
                         </div>
                         <div title="删除" @click="deleteProject(item._id)">
                             <i class="el-icon-delete"></i>
@@ -154,7 +172,6 @@ export default {
             //=========================================================================//
             recentVisitProjectIds: [],
             starProjectIds: [],
-            projectList: [], //------项目列表
             projectListCopy: [], //--项目列表拷贝用户数据过滤
             projectName: "", //------搜索框项目名称
             projectId: "", //--------修改项目时候获取项目详情id
@@ -171,14 +188,26 @@ export default {
             return this.$store.state.permission.userInfo
         },
         recentVisitProjects() {
-            return this.projectList.filter(project => {
-                return this.recentVisitProjectIds.find(id => id === project._id)
+            return this.projectListCopy.filter(project => {
+                const isStared = this.starProjectIds.find(id => id === project._id)
+                return !isStared && this.recentVisitProjectIds.find(id => id === project._id)
             })
         },
         starProjects() {
-            return this.projectList.filter(project => {
+            return this.projectListCopy.filter(project => {
                 return this.starProjectIds.find(id => id === project._id)
             })
+        },
+        projectList() {
+            return this.projectListCopy.filter(val => {
+                return val.projectName.match(new RegExp(this.projectName, "gi"));
+            }).map(val => {
+                const isStared = this.starProjectIds.find(id => id === val._id)
+                return {
+                    ...val,
+                    isStared: !!isStared
+                }
+            });
         }
     },
     created() {
@@ -191,7 +220,7 @@ export default {
             const params = this.formInfo;
             this.loading = true;
             this.axios.get("/api/project/project_list", { params }).then(res => {
-                this.projectList = res.data.list;
+                // this.projectList = res.data.list;
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
                 this.projectListCopy = res.data.list;
@@ -231,7 +260,8 @@ export default {
             }
             this.starLoading = true;
             this.axios.put("/api/project/star", { projectId: item._id}).then(() => {
-                
+                this.$set(item, "isStared", true);
+                this.starProjectIds.push(item._id);
             }).catch(err => {
                 console.error(err);
             }).finally(() => {
@@ -245,7 +275,9 @@ export default {
             }
             this.unStarLoading = true;
             this.axios.put("/api/project/unstar", { projectId: item._id}).then(() => {
-                
+                this.$set(item, "isStared", false);
+                const delIndex = this.starProjectIds.findIndex(val => val === item._id)
+                this.starProjectIds.splice(delIndex, 1);
             }).catch(err => {
                 console.error(err);
             }).finally(() => {
@@ -253,12 +285,6 @@ export default {
             })
         },
         //=====================================组件间交互====================================//  
-        //过滤项目
-        filterProject() {
-            this.projectList = this.projectListCopy.filter(val => {
-                return val.projectName.match(new RegExp(this.projectName, "gi"));
-            });
-        },
         //打开修改弹窗
         handleOpenEditDialog(item) {
             this.dialogVisible2 = true;
@@ -300,6 +326,10 @@ export default {
 
 <style lang="scss" scoped>
 .tab-a {
+    &>h2 {
+        margin-top: 0;
+        margin-bottom: size(15);
+    }
     .project-wrap {
         display: flex;
         flex-wrap: wrap;
@@ -314,8 +344,8 @@ export default {
         // height: 180px;
         border: 1px solid $gray-200;
         box-shadow: $box-shadow-sm;
-        margin-right: 30px;
-        margin-bottom: 30px;
+        margin-right: size(30);
+        margin-bottom: size(20);
         padding: 10px;
         position: relative;
         @media only screen and (max-width: 1199px) {
