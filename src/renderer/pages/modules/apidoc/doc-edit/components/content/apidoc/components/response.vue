@@ -216,6 +216,11 @@ export default {
         margin-bottom: size(10);
         padding: size(10);
         height: size(170);
+        .svg-icon {
+            width: size(15);
+            height: size(15);
+            cursor: pointer;
+        }
     }
     .response-info {
         flex: 1;
