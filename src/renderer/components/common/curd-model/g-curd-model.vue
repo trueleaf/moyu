@@ -5,7 +5,7 @@
     备注：适用于字段较少的弹窗
 */
 <template>
-    <el-dialog :title="title" :visible.sync="isShow" :before-close="closeModel" :close-on-press-escape="false" :close-on-click-modal="false" :width="width">
+    <el-dialog :title="title" :visible.sync="isShow" :append-to-body="true" :before-close="closeModel" :close-on-press-escape="false" :close-on-click-modal="false" :width="width">
         <div ref="curdWrap" class="curd-model">
             <!-- 新增 -->
             <div ref="leftDom" class="left-wrap">
