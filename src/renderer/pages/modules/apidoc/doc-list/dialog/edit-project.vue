@@ -11,9 +11,9 @@
             <el-form-item label="项目名称：" prop="projectName">
                 <el-input v-model="formInfo.projectName" size="mini" placeholder="请输入项目名称"></el-input>
             </el-form-item>
-            <el-form-item label="备注：">
+            <!-- <el-form-item label="备注：">
                 <el-input v-model="formInfo.remark" size="mini" placeholder="请输入备注"></el-input>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item label="成员：">
                 <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" placeholder="输入用户名或真实姓名查找用户">
                     <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
