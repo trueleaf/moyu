@@ -38,7 +38,7 @@
                             <s-v-input 
                                     v-if="scope.row.__active"
                                     v-model="scope.row.url" 
-                                    :error="!isValidUrl" 
+                                    :error="urlError" 
                                     tip="eg:http://10.1.0.0:20 https://baidu.com" 
                                     size="mini" 
                                     class="w-100"
@@ -101,7 +101,11 @@ export default {
                 ],
             },
             //=====================================其他参数====================================//
-            isValidUrl: true, //-------------------是否显示服务器url验证错误信息
+            urlError: { //-----------------请求url错误
+                error: false,
+                message: "请求url不能为空"
+            },
+            // isValidUrl: true, //-------------------是否显示服务器url验证错误信息
             isEditing: false, //-------------------是否正在编辑
             loading: false, //---------------------添加按钮加载效果
             successLoading: false, //--------------是否添加成功
@@ -151,9 +155,9 @@ export default {
             const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,}$/; //ip+端口
             const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+$/;
             if (!url.match(ipReg) && !url.match(dominReg)) {
-                this.isValidUrl = false;
+                this.urlError.error = false;
             } else {
-                this.isValidUrl = true;
+                this.urlError.error = true;
             }
         },
         //=====================================修改====================================//
@@ -166,7 +170,7 @@ export default {
         //确认修改当前行
         handleSubmitEdit(row) {
             this.handleCheckHost(row.url);
-            if (!this.isValidUrl) {
+            if (!this.urlError.error) {
                 return;
             }
             row.__active = false;
