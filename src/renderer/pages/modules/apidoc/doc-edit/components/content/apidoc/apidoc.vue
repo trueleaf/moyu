@@ -276,10 +276,10 @@ export default {
                 } else {
                     this.$set(val, "id", uuid())
                 }
-                if (val.key.toLowerCase() === "host") {
-                    this.$set(val, "_readOnly", true)
-                    this.$set(val, "value", "")
-                }
+                // if (val.key.toLowerCase() === "host") {
+                //     this.$set(val, "_readOnly", true)
+                //     this.$set(val, "value", "")
+                // }
                 if (val.key.toLowerCase() === "content-type") {
                     this.$set(val, "_readOnly", true)
                     if (this.request.requestType === "query") {
@@ -293,28 +293,28 @@ export default {
                     }
                 }
             })
-            const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
-            if (!matchedHost) {
-                this.request.header.unshift({
-                    id: uuid(),
-                    key: "host", //--------------请求头键
-                    value: location.host, //------------请求头值
-                    type: "string", //-------请求头值类型
-                    description: "host", //------描述
-                    required: true, //-------是否必填
-                    children: [], //---------子参数
-                    _readOnly: true,
-                });                    
-            } else {
-                matchedHost.id = uuid();
-                matchedHost.key = "host";
-                matchedHost.value = location.host;
-                matchedHost.type = "string";
-                matchedHost.description = "host";
-                matchedHost.required = true;
-                matchedHost._readOnly = true;
-                matchedHost.children = [];
-            }
+            // const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
+            // if (!matchedHost) {
+            //     this.request.header.unshift({
+            //         id: uuid(),
+            //         key: "host", //--------------请求头键
+            //         value: location.host, //------------请求头值
+            //         type: "string", //-------请求头值类型
+            //         description: "host", //------描述
+            //         required: true, //-------是否必填
+            //         children: [], //---------子参数
+            //         _readOnly: true,
+            //     });                    
+            // } else {
+            //     matchedHost.id = uuid();
+            //     matchedHost.key = "host";
+            //     matchedHost.value = location.host;
+            //     matchedHost.type = "string";
+            //     matchedHost.description = "host";
+            //     matchedHost.required = true;
+            //     matchedHost._readOnly = true;
+            //     matchedHost.children = [];
+            // }
             const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
             if (!matchedContentType) {
                 this.request.header.unshift({
