@@ -9,11 +9,11 @@
 
 
 let got = null;
-let ProxyAgent = null;
+// let ProxyAgent = null;
 import FileType from "file-type/browser"
 if (window.require) {
     got = window.require("electron").remote.require("got");
-    ProxyAgent = window.require("electron").remote.require("proxy-agent")
+    // ProxyAgent = window.require("electron").remote.require("proxy-agent")
 }
 
 
@@ -34,12 +34,14 @@ const HttpClient = (function() {
             this.gotInstance = got.extend({
                 timeout: config.timeout || 60000, //超时时间
                 retry: 0,
+                throwHttpErrors: false,
+                followRedirect: false,
                 headers: {
                     "user-agent": "moyu(https://github.com/shuxiaokai3/moyu)"
                 },
-                agent: {
-                    http: new ProxyAgent("http://127.0.0.1:8888")
-                }
+                // agent: {
+                //     http: new ProxyAgent("http://127.0.0.1:8888")
+                // }
             });
             return singleton;
         }
@@ -52,6 +54,17 @@ const HttpClient = (function() {
                 })
             } else {
                 matchedEvent.handlers.push(handler)
+            }
+        }
+        once(name, handler){
+            const matchedEvent = this.events.find(val => val.name === name);
+            if (!matchedEvent) {
+                this.events.push({
+                    name,
+                    handlers: [handler]
+                })
+            } else {
+                matchedEvent.handlers[0] = handler
             }
         }
         emit(name, payload) {
@@ -102,10 +115,12 @@ const HttpClient = (function() {
                     headers: this.headers,
                 });
                 let streamData = Buffer.alloc(0);
-                //获取流数据
-                instance.on("data", async (chunk) => {
-                    this.emit("data", streamData);
-                    streamData = Buffer.concat([Buffer(chunk), streamData]);
+                //=====================================事件顺序很重要====================================//
+                //收到返回
+                instance.on("response", (response) => {
+                    this.responseData = response;
+                    const result = this.formatResponse(response);
+                    resolve(result);
                 });
                 //数据获取完毕
                 instance.on("end", async() => {
@@ -117,16 +132,19 @@ const HttpClient = (function() {
                         rt
                     });
                 });
+                //获取流数据
+                instance.on("data", async (chunk) => {
+                    // console.log("data", chunk)
+                    this.emit("data", streamData);
+                    streamData = Buffer.concat([Buffer(chunk), streamData]);
+                });
                 //错误处理
                 instance.on("error", error => {
-                    reject(error);
+                    console.error(error)
+                    this.emit("error", error);
+                    reject(error)
                 });
-                //收到返回
-                instance.on("response", (response) => {
-                    this.responseData = response;
-                    const result = this.formatResponse(response);
-                    resolve(result);
-                });
+
                 //重定向
                 instance.on("redirect", () => {
                     console.log("重定向")
@@ -206,12 +224,12 @@ const HttpClient = (function() {
         async formatData(body) {
             const typeInfo = await FileType.fromBuffer(body);
             const mime = typeInfo ? typeInfo.mime : this.responseData.headers["content-type"];
-            console.log("mime", typeInfo)
+            console.log("mime", typeInfo, mime)
             const data = {
                 mime,
                 value: ""
             };
-            if (mime.includes("text/") || mime === "application/json" || mime === "application/javascript" || mime === "application/xml") { //文本
+            if (mime.includes("text/") || mime.includes("application/json") || mime.includes("application/javascript") || mime.includes("application/xml")) { //文本
                 data.value = body.toString();
             } else if (mime.includes("image/svg+xml")) { //svg转换为文本
                 data.value = body.toString();
