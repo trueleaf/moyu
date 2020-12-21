@@ -317,26 +317,32 @@ export default {
                     headers,
                     data
                 }).then(response => {
-                    context.commit("changeResponseIndex", response);
+                    console.log("response", response)
+                    context.commit("changeResponseInfo", response);
                     resolve(response);
                 }).catch(err => {
                     console.dir(err);
                     reject(err);
                 });
-                httpClient.on("end", (result) => {
+                httpClient.once("end", (result) => {
+                    console.log("end", result)
                     context.commit("changeResponseIndex", result);
                     context.commit("changeLoading", false)
                     context.commit("changeResponseProcess", {
                         percent: 1,
                     });
+                    resolve(result);
                 })     
-                httpClient.on("process", throttle((process) => {
+                httpClient.once("process", throttle((process) => {
                     context.commit("changeResponseProcess", {
                         size: process.transferred,
                         percent: process.percent,
                         total: process.total,
                     });
-                }))              
+                }))    
+                httpClient.once("error", (err) => {
+                    console.error(err);
+                })              
             })
         },
         //取消请求
