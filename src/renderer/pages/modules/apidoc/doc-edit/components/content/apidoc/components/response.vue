@@ -55,7 +55,8 @@
             </s-collapse>
         </div>
         <div class="response-info">
-            <pre>{{ remoteResponse }}</pre>
+            <!-- <pre class="scroll-y-300">{{ remoteResponse }}</pre> -->
+            <s-response-view :response="remoteResponse"></s-response-view>
         </div>
     </div>
 </template>
