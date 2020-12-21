@@ -330,3 +330,23 @@ export const formatBytes = (byteNum) => {
     }
     return result;
 }
+
+/** 
+ * @description        将毫秒转换为易读单位
+ * @author              shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {string}      ms - 毫秒       
+ * @return {String}    返回字符串
+ */
+export const formatMs = (ms) => {
+    let result = "";
+    if (!ms) {
+        return "";
+    }
+    if (ms > 0 && ms < 1000) { //毫秒
+        result = ms + "ms";
+    } else if (ms >= 1000 && ms < 1000 * 60) { //秒
+        result = (ms / 1000).toFixed(2) + "s"
+    } 
+    return result;
+}
