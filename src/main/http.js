@@ -17,6 +17,9 @@ if (window.require) {
 }
 
 
+
+
+
 const HttpClient = (function() {
     let singleton = null;
     class _HttpClient {
@@ -73,30 +76,17 @@ const HttpClient = (function() {
                 handler(payload);
             })
         }
-    
         request(url, options) {
             this.method = options.method.toLowerCase();
             this.url = url;
             this.params = options.data;
             this.headers = options.headers;
             return new Promise((resolve, reject) => {
-                /*eslint-disable indent*/ 
-                switch (this.method) {
-                    case "get":
-                        this.sendGetRequest().then((res) => {
-                            resolve(res);
-                        }).catch(err => {
-                            reject(err);
-                        });
-                        break;
-                    default: //默认发送get请求
-                        this.sendGetRequest().then((res) => {
-                            resolve(res);
-                        }).catch(err => {
-                            reject(err);
-                        });
-                        break;
-                }
+                this.sendGetRequest().then((res) => {
+                    resolve(res);
+                }).catch(err => {
+                    reject(err);
+                });
             });
         }
         /** 
@@ -106,56 +96,64 @@ const HttpClient = (function() {
          * @return {String}    返回字符串
          */
         sendGetRequest() {
-            // console.log(this.params)
             return new Promise((resolve, reject) => {
-                const searchParams = new URLSearchParams(this.params).toString();
-                const url = searchParams ? `${this.url}/?${searchParams}` : this.url;
-                const instance = this.gotInstance.stream(url, {
-                    method: "GET",
-                    headers: this.headers,
-                });
-                let streamData = Buffer.alloc(0);
-                //=====================================事件顺序很重要====================================//
-                //收到返回
-                instance.on("response", (response) => {
-                    this.responseData = response;
-                    const result = this.formatResponse(response);
-                    resolve(result);
-                });
-                //数据获取完毕
-                instance.on("end", async() => {
-                    const result = await this.formatData(streamData);
-                    const rt = this.responseData.timings.phases.total;
-                    this.emit("end", {
-                        ...result,
-                        size: streamData.length,
-                        rt
+                try {
+                    let url = this.url;
+                    if (this.method.toUpperCase() === "GET") {
+                        const searchParams = new URLSearchParams(this.params).toString();
+                        url = searchParams ? `${this.url}/?${searchParams}` : this.url;
+                    }
+                    const instance = this.gotInstance.stream(url, {
+                        method: this.method,
+                        headers: this.headers,
+                        json: this.params
+                    })
+                    
+                    let streamData = Buffer.alloc(0);
+                    console.log(instance.cancel)
+                    //=====================================事件顺序很重要====================================//
+                    //收到返回
+                    instance.on("response", (response) => {
+                        this.responseData = response;
+                        const result = this.formatResponse(response);
+                        resolve(result);
                     });
-                });
-                //获取流数据
-                instance.on("data", async (chunk) => {
-                    // console.log("data", chunk)
-                    this.emit("data", streamData);
-                    streamData = Buffer.concat([Buffer(chunk), streamData]);
-                });
-                //错误处理
-                instance.on("error", error => {
-                    console.error(error)
-                    this.emit("error", error);
+                    //数据获取完毕
+                    instance.on("end", async() => {
+                        const result = await this.formatData(streamData);
+                        const rt = this.responseData.timings.phases.total;
+                        this.emit("end", {
+                            ...result,
+                            size: streamData.length,
+                            rt
+                        });
+                    });
+                    //获取流数据
+                    instance.on("data", async (chunk) => {
+                        // console.log("data", chunk)
+                        this.emit("data", streamData);
+                        streamData = Buffer.concat([Buffer(chunk), streamData]);
+                    });
+                    //错误处理
+                    instance.on("error", error => {
+                        console.error(error)
+                        this.emit("error", error);
+                        reject(error)
+                    });
+                    //重定向
+                    instance.on("redirect", () => {
+                        console.log("重定向")
+                    });
+                    //下载进度
+                    instance.on("downloadProgress", (process) => {
+                        this.emit("process", process);
+                    });                    
+                } catch (error) {
+                    console.error(error);
                     reject(error)
-                });
-
-                //重定向
-                instance.on("redirect", () => {
-                    console.log("重定向")
-                });
-                //下载进度
-                instance.on("downloadProgress", (process) => {
-                    this.emit("process", process);
-                });
+                }
             })
         }
-    
         /** 
          * @description        处理返回值
          * @author              shuxiaokai
