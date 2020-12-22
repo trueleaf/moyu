@@ -208,7 +208,7 @@ export default {
                             data = formData;
                             break;
                         case "x-www-form-urlencoded":
-                            headers["content-type"] = "x-www-form-urlencoded"
+                            headers["content-type"] = "application/x-www-form-urlencoded"
                             break;
                         default:
                             headers["content-type"] = "application/json"
