@@ -6,13 +6,13 @@
 */
 <template>
     <div class="response-view">
-        <div class="d-flex a-center">
+        <div class="d-flex a-center mb-2">
             <div>
                 <span>状态码：</span>
                 <template v-if="response.statusCode">
                     <span v-show="response.statusCode >= 100 && response.statusCode < 300" class="green">{{ response.statusCode }}</span>
                     <span v-show="response.statusCode >= 300 && response.statusCode < 400" class="orange">{{ response.statusCode }}</span>
-                    <span v-show="response.status >= 400" class="red">{{ response.statusCode }}</span>
+                    <span v-show="response.statusCode >= 400" class="red">{{ response.statusCode }}</span>
                 </template>
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
@@ -39,23 +39,61 @@
             <el-divider direction="vertical"></el-divider>
             <div class="d-flex a-center j-center">
                 <span>格式：</span>
-                <span v-if="response.mime">{{ response.mime }}</span>
+                <s-ellipsis-content v-if="response.mime" :value="response.mime" max-width="200px"></s-ellipsis-content>
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
         </div>
-        <div v-if="response.mime">
-            <div v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></div>
-            <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)"></s-json>
-            <pre v-else-if="response.mime.includes('text/')">{{ response.value }}</pre>
-            <el-image 
-                v-else-if="response.mime.includes('image/')"
-                class="img-style"
-                :src="response.value"
-                :preview-src-list="[response.value]"
-                fit="scale-down"
-            >
-            </el-image>
-        </div>
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="返回值" name="s-a">
+                <div v-if="response.mime">
+                    <!-- svg图片 -->
+                    <div v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></div>
+                    <!-- json格式 -->
+                    <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)"></s-json>
+                    <!-- 其他图片类型 -->
+                    <el-image 
+                        v-else-if="response.mime.includes('image/')"
+                        class="img-view"
+                        :src="response.value"
+                        :preview-src-list="[response.value]"
+                        fit="scale-down"
+                    >
+                    </el-image>
+                    <!-- 音频类型 -->
+                    <!-- 视频类型 -->
+                    <!-- 强制下载类型 -->
+                    <div v-else-if="response.mime.includes('application/octet-stream')">
+                        <i class="iconicon_weizhiwenjian"></i>
+                    </div>
+                    <!-- excel -->
+                    <div v-else-if="response.mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || response.mime.includes('application/vnd.ms-excel')">
+                        <svg class="res-icon" aria-hidden="true" title="Excel">
+                            <use xlink:href="#iconexcel"></use>
+                        </svg> 
+                    </div>
+                    <!-- word -->
+                    <div v-else-if="response.mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || response.mime.includes('application/msword')">
+                        <svg class="res-icon" aria-hidden="true" title="Excel">
+                            <use xlink:href="#iconWORD"></use>
+                        </svg> 
+                    </div>
+                    <!-- pdf -->
+                    <iframe v-else-if="response.mime.includes('application/pdf')" :src="response.value" class="pdf-view"></iframe>
+                    <!-- xml -->
+                    <pre v-else-if="response.mime.includes('application/xml')">{{ response.value }}</pre>
+                    <!-- javascript -->
+                    <pre v-else-if="response.mime.includes('application/javascript')">{{ response.value }}</pre>
+                    <!-- 文本类型 -->
+                    <pre v-else-if="response.mime.includes('text/')">{{ response.value }}</pre>
+                    <div v-else>
+                        <svg class="res-icon" aria-hidden="true" :title="response.mime">
+                            <use xlink:href="#iconicon_weizhiwenjian"></use>
+                        </svg> 
+                    </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="Cookie" name="s-b"> </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 
@@ -84,7 +122,7 @@ export default {
     },
     data() {
         return {
-
+            activeName: "s-a"
         };
     },
     created() {
@@ -107,9 +145,18 @@ export default {
 
 <style lang="scss">
 .response-view {
-    .img-style {
-        width: size(300);
+    padding: size(10);
+    .img-view {
+        width: size(200);
+        height: size(200);
+    }
+    .pdf-view {
+        width: 100%;
         height: size(300);
+    }
+    .res-icon {
+        width: size(200);
+        height: size(200);
     }
 }
 </style>
