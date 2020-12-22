@@ -43,19 +43,18 @@
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
         </div>
-        <div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <s-json v-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)"></s-json>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
-            <div v-if="response.mime === 'image/svg+xml'" v-html="response.value"></div>
+        <div v-if="response.mime">
+            <div v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></div>
+            <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)"></s-json>
+            <pre v-else-if="response.mime.includes('text/')">{{ response.value }}</pre>
+            <el-image 
+                v-else-if="response.mime.includes('image/')"
+                class="img-style"
+                :src="response.value"
+                :preview-src-list="[response.value]"
+                fit="scale-down"
+            >
+            </el-image>
         </div>
     </div>
 </template>
@@ -76,7 +75,12 @@ export default {
         },
         formatMs() {
             return this.$helper.formatMs(this.response.rt);
-        }
+        },
+        // responseParams() { //返回参数(对象类型)
+        //     const copyData = JSON.parse(JSON.stringify(this.requestData.responseParams)); //扁平数据拷贝
+        //     const result = this.convertPlainParamsToTreeData(copyData);
+        //     return result;
+        // },
     },
     data() {
         return {
@@ -103,6 +107,9 @@ export default {
 
 <style lang="scss">
 .response-view {
-    
+    .img-style {
+        width: size(300);
+        height: size(300);
+    }
 }
 </style>
