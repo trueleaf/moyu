@@ -78,79 +78,58 @@ const HttpClient = (function() {
             this.url = url;
             this.params = options.data;
             this.headers = options.headers;
-            return new Promise((resolve, reject) => {
-                this.sendGetRequest().then((res) => {
-                    resolve(res);
-                }).catch(err => {
-                    reject(err);
-                });
-            });
-        }
-        /** 
-         * @description        发送GET请求
-         * @author              shuxiaokai
-         * @create             2020-12-07 15:14
-         * @return {String}    返回字符串
-         */
-        sendGetRequest() {
-            return new Promise((resolve, reject) => {
-                try {
-                    let url = this.url;
-                    if (this.method.toUpperCase() === "GET") {
-                        const searchParams = new URLSearchParams(this.params).toString();
-                        url = searchParams ? `${this.url}/?${searchParams}` : this.url;
-                    }
-                    const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
-                    const instance = this.gotInstance(url, {
-                        isStream: true,
-                        method: this.method,
-                        headers: this.headers,
-                        body
-                    })
-                    let streamData = Buffer.alloc(0);
-                    //=====================================事件顺序很重要====================================//
-                    //收到返回
-                    instance.on("response", (response) => {
-                        this.responseData = response;
-                        const result = this.formatResponse(response);
-                        resolve(result);
-                    });
-                    //数据获取完毕
-                    instance.on("end", async() => {
-                        console.log("end")
-                        const result = await this.formatData(streamData);
-                        const rt = this.responseData.timings.phases.total;
-                        this.emit("end", {
-                            ...result,
-                            size: streamData.length,
-                            rt
-                        });
-                    });
-                    //获取流数据
-                    instance.on("data", async (chunk) => {
-                        console.log("data", chunk)
-                        this.emit("data", streamData);
-                        streamData = Buffer.concat([Buffer(chunk), streamData]);
-                    });
-                    //错误处理
-                    instance.on("error", error => {
-                        console.error(error)
-                        this.emit("error", error);
-                        reject(error)
-                    });
-                    //重定向
-                    instance.on("redirect", () => {
-                        console.log("重定向")
-                    });
-                    //下载进度
-                    instance.on("downloadProgress", (process) => {
-                        this.emit("process", process);
-                    });                    
-                } catch (error) {
-                    console.error(error);
-                    reject(error)
+            try {
+                let url = this.url;
+                if (this.method.toUpperCase() === "GET") {
+                    const searchParams = new URLSearchParams(this.params).toString();
+                    url = searchParams ? `${this.url}/?${searchParams}` : this.url;
                 }
-            })
+                const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
+                const instance = this.gotInstance(url, {
+                    isStream: true,
+                    method: this.method,
+                    headers: this.headers,
+                    body
+                })
+                let streamData = Buffer.alloc(0);
+                //=====================================事件顺序很重要====================================//
+                //收到返回
+                instance.on("response", (response) => {
+                    this.responseData = response;
+                    const result = this.formatResponse(response);
+                    this.emit("response", result);
+                });
+                //数据获取完毕
+                instance.on("end", async() => {
+                    const result = await this.formatData(streamData);
+                    const rt = this.responseData.timings.phases.total;
+                    this.emit("end", {
+                        ...result,
+                        size: streamData.length,
+                        rt
+                    });
+                });
+                //获取流数据
+                instance.on("data", async (chunk) => {
+                    this.emit("data", streamData);
+                    streamData = Buffer.concat([Buffer(chunk), streamData]);
+                });
+                //错误处理
+                instance.on("error", error => {
+                    this.emit("error", error);
+                });
+                //重定向
+                instance.on("redirect", () => {
+                    console.log("重定向")
+                });
+                //下载进度
+                instance.on("downloadProgress", (process) => {
+                    this.emit("process", process);
+                });                    
+            } catch (error) {
+                console.error(error);
+                this.emit("error", error);
+            }
         }
         /** 
          * @description        处理返回值
@@ -202,7 +181,7 @@ const HttpClient = (function() {
         */ 
         //=========================================================================//
         //格式化返回参数
-        async formatResponse(responseData) {
+        formatResponse(responseData) {
             const headers = responseData.headers;
             const httpVersion = responseData.httpVersion;
             const ip = responseData.ip;
