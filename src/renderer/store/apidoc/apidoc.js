@@ -331,7 +331,6 @@ export default {
                     context.commit("changeResponseProcess", {
                         percent: 1,
                     });
-                    resolve(result);
                 })     
                 httpClient.once("process", throttle((process) => {
                     context.commit("changeResponseProcess", {
