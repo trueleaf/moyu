@@ -131,26 +131,39 @@ export default {
         //=====================================前后端交互====================================//
         //修改项目
         handleEditProject() {
-            this.loading2 = true;
-            const params = {
-                _id: this.id,
-                ...this.formInfo,
-                members: this.selectUserData.map(val => {
-                    return {
-                        userId: val.userId,
-                        permission: val.permission,
-                        loginName: val.loginName,
-                        realName: val.realName
+            this.$refs["form"].validate((valid, invalidData) => {
+                if (valid) {
+                    this.loading2 = true;
+                    const params = {
+                        _id: this.id,
+                        ...this.formInfo,
+                        members: this.selectUserData.map(val => {
+                            return {
+                                userId: val.userId,
+                                permission: val.permission,
+                                loginName: val.loginName,
+                                realName: val.realName
+                            };
+                        })
                     };
-                })
-            };
-            this.axios.put("/api/project/edit_project", params).then(() => {
-                this.handleClose();
-                this.$emit("success");
-            }).catch(err => {
-                this.$errorThrow(err, this);
-            }).finally(() => {
-                this.loading2 = false;
+                    this.axios.put("/api/project/edit_project", params).then(() => {
+                        this.handleClose();
+                        this.$emit("success");
+                    }).catch(err => {
+                        this.$errorThrow(err, this);
+                    }).finally(() => {
+                        this.loading2 = false;
+                    });                    
+                } else {
+                    this.$nextTick(() => {
+                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                    });
+                    for (const invalid in invalidData) {
+                        console.log(invalidData[invalid]);
+                    }
+                    this.$message.warning("请完善必填信息");
+                    this.loading = false;
+                }
             });
         },
         //=====================================组件间交互====================================//  
