@@ -103,6 +103,7 @@ if (isShareDoc) {
                     "echarts",
                     "brace",
                     "urllib",
+                    "got"
                 ],
                 mainProcessFile: "src/main/index.js",
                 rendererProcessFile: "src/renderer/main.js",

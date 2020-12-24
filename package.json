@@ -42,7 +42,8 @@
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.4.0",
-    "wangeditor": "^4.5.0"
+    "wangeditor": "^4.5.0",
+    "got": "^11.8.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
@@ -70,5 +71,6 @@
     "hooks": {
       "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
     }
-  }
+  },
+  "__npminstall_done": false
 }
