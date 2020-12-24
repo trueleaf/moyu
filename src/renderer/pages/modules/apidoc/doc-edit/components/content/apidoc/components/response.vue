@@ -56,7 +56,7 @@
         </div>
         <div class="response-info">
             <!-- <pre class="scroll-y-300">{{ remoteResponse }}</pre> -->
-            <s-response-view :response="remoteResponse"></s-response-view>
+            <s-response-view :response="remoteResponse" :request-data="requestData"></s-response-view>
         </div>
     </div>
 </template>
