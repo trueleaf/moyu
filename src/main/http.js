@@ -12,13 +12,9 @@ let got = null;
 // let ProxyAgent = null;
 import FileType from "file-type/browser"
 if (window.require) {
-    got = window.require("electron").remote.require("got");
+    got = window.require("got");
     // ProxyAgent = window.require("electron").remote.require("proxy-agent")
 }
-
-
-
-
 
 const HttpClient = (function() {
     let singleton = null;
@@ -39,8 +35,9 @@ const HttpClient = (function() {
                 retry: 0,
                 throwHttpErrors: false,
                 followRedirect: false,
+                allowGetBody: true,
                 headers: {
-                    "user-agent": "moyu(https://github.com/shuxiaokai3/moyu)"
+                    "user-agent": "moyu(https://github.com/trueleaf/moyu)"
                 },
                 // agent: {
                 //     http: new ProxyAgent("http://127.0.0.1:8888")
@@ -103,14 +100,14 @@ const HttpClient = (function() {
                         const searchParams = new URLSearchParams(this.params).toString();
                         url = searchParams ? `${this.url}/?${searchParams}` : this.url;
                     }
-                    const instance = this.gotInstance.stream(url, {
+                    const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
+                    const instance = this.gotInstance(url, {
+                        isStream: true,
                         method: this.method,
                         headers: this.headers,
-                        json: this.params
+                        body
                     })
-                    
                     let streamData = Buffer.alloc(0);
-                    console.log(instance.cancel)
                     //=====================================事件顺序很重要====================================//
                     //收到返回
                     instance.on("response", (response) => {
@@ -120,6 +117,7 @@ const HttpClient = (function() {
                     });
                     //数据获取完毕
                     instance.on("end", async() => {
+                        console.log("end")
                         const result = await this.formatData(streamData);
                         const rt = this.responseData.timings.phases.total;
                         this.emit("end", {
@@ -130,7 +128,7 @@ const HttpClient = (function() {
                     });
                     //获取流数据
                     instance.on("data", async (chunk) => {
-                        // console.log("data", chunk)
+                        console.log("data", chunk)
                         this.emit("data", streamData);
                         streamData = Buffer.concat([Buffer(chunk), streamData]);
                     });

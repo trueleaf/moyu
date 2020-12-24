@@ -316,16 +316,16 @@ export default {
                     method,
                     headers,
                     data
-                }).then(response => {
+                })
+                httpClient.once("response", response => {
                     console.log("response", response)
                     context.commit("changeResponseInfo", response);
                     resolve(response);
-                }).catch(err => {
-                    console.dir(err);
+                })
+                httpClient.once(err => {
                     reject(err);
                 });
                 httpClient.once("end", (result) => {
-                    console.log("end", result)
                     context.commit("changeResponseIndex", result);
                     context.commit("changeLoading", false)
                     context.commit("changeResponseProcess", {
@@ -340,9 +340,6 @@ export default {
                         total: process.total,
                     });
                 }))    
-                httpClient.once("error", (err) => {
-                    console.error(err);
-                })              
             })
         },
         //取消请求
