@@ -30,7 +30,7 @@ const HttpClient = (function() {
             this.params = null; //请求参数
             this.responseData = null; //返回值
             this.events = [];
-            this.gotInstance = got.extend({
+            this.gotInstance = got?.extend({
                 timeout: config.timeout || 60000, //超时时间
                 retry: 0,
                 throwHttpErrors: false,
@@ -79,13 +79,13 @@ const HttpClient = (function() {
             this.params = options.data;
             this.headers = options.headers;
             try {
-                let url = this.url;
+                let requestUrl = this.url;
                 if (this.method.toUpperCase() === "GET") {
                     const searchParams = new URLSearchParams(this.params).toString();
-                    url = searchParams ? `${this.url}/?${searchParams}` : this.url;
+                    requestUrl = searchParams ? `${this.url}/?${searchParams}` : this.url;
                 }
                 const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
-                const instance = this.gotInstance(url, {
+                const instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
                     headers: this.headers,
@@ -101,6 +101,7 @@ const HttpClient = (function() {
                 });
                 //数据获取完毕
                 instance.on("end", async() => {
+                    console.log("end")
                     const result = await this.formatData(streamData);
                     const rt = this.responseData.timings.phases.total;
                     this.emit("end", {
@@ -110,7 +111,8 @@ const HttpClient = (function() {
                     });
                 });
                 //获取流数据
-                instance.on("data", async (chunk) => {
+                instance.on("data", (chunk) => {
+                    // console.log("data")
                     this.emit("data", streamData);
                     streamData = Buffer.concat([Buffer(chunk), streamData]);
                 });
@@ -124,6 +126,7 @@ const HttpClient = (function() {
                 });
                 //下载进度
                 instance.on("downloadProgress", (process) => {
+                    // console.log("process")
                     this.emit("process", process);
                 });                    
             } catch (error) {
