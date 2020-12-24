@@ -22,17 +22,18 @@
                 <template v-if="response.rt">
                     <span v-show="response.rt >= 0 && response.rt < 2000" class="green">{{ formatMs }}</span>
                     <span v-show="response.rt >= 2000 && response.rt < 5000" class="orange">{{ formatMs }}</span>
-                    <span v-show="response.status >= 5000" class="red">{{ formatMs }}</span>
+                    <span v-show="response.rt >= 5000" class="red">{{ formatMs }}</span>
                 </template>
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
             <el-divider direction="vertical"></el-divider>
             <div>
                 <span>大小：</span>
+                {{ response.value }}
                 <template v-if="response.size">
                     <span v-show="response.size >= 0 && response.size < 10000" class="green">{{ formatBytes }}</span>
                     <span v-show="response.size >= 10000 && response.size < 15000" class="orange">{{ formatBytes }}</span>
-                    <span v-show="response.status >= 15000" class="red">{{ formatBytes }}</span>
+                    <span v-show="response.size >= 15000" class="red">{{ formatBytes }}</span>
                 </template>
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
@@ -47,18 +48,17 @@
             <el-tab-pane label="返回值" name="s-a">
                 <div v-if="response.mime">
                     <!-- svg图片 -->
-                    <div v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></div>
+                    <span v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></span>
                     <!-- json格式 -->
                     <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)" :check-data="responseParams" @export="handleExport"></s-json>
                     <!-- 其他图片类型 -->
-                    <el-image 
+                    <img 
                         v-else-if="response.mime.includes('image/')"
                         class="img-view"
                         :src="response.value"
                         :preview-src-list="[response.value]"
                         fit="scale-down"
                     >
-                    </el-image>
                     <!-- 音频类型 -->
                     <!-- 视频类型 -->
                     <!-- 强制下载类型 -->
