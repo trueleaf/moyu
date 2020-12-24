@@ -237,7 +237,6 @@ export default {
             return new Promise((resolve, reject) => {
                 foo(resolve, reject);
             })
-
         },
         //取消发送
         stopRequest() {
@@ -310,6 +309,7 @@ export default {
             this.loading3 = true;
             try {
                 await this.sendRequest();
+                
                 if (this.couldPublish) {
                     this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then((res) => {
                         this.$message.success("发布成功");
@@ -509,8 +509,10 @@ export default {
         },
         //参数校验
         checkResponseParams() {
+            // console.log(9, this.remoteResponse)
             if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
-                const remoteParams = this.remoteResponse.data;
+                const remoteParams = JSON.parse(this.remoteResponse.value);
+                console.log(29, remoteParams)
                 const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
                 let responseErrorType = null; //校验错误类型
                 const hasOwn = Object.hasOwnProperty;
