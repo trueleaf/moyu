@@ -103,6 +103,7 @@ if (isShareDoc) {
                     "echarts",
                     "brace",
                     "urllib",
+                    "cookie-parser",
                     "got"
                 ],
                 mainProcessFile: "src/main/index.js",
