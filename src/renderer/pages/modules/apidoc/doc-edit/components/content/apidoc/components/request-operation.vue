@@ -240,6 +240,7 @@ export default {
         },
         //取消发送
         stopRequest() {
+            this.loading = false;
             this.$store.dispatch("apidoc/stopRequest");
             this.$store.commit("apidoc/changeLoading", false);
         },
