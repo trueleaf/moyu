@@ -34,7 +34,7 @@ const HttpClient = (function() {
                 timeout: config.timeout || 60000, //超时时间
                 retry: 0,
                 throwHttpErrors: false,
-                followRedirect: false,
+                followRedirect: true,
                 allowGetBody: true,
                 headers: {
                     "user-agent": "moyu(https://github.com/trueleaf/moyu)"
@@ -85,7 +85,7 @@ const HttpClient = (function() {
                     requestUrl = searchParams ? `${this.url}/?${searchParams}` : this.url;
                 }
                 const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
-                this.instance = this.gotInstance(url, {
+                this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
                     headers: this.headers,
@@ -203,7 +203,7 @@ const HttpClient = (function() {
         async formatData(body) {
             const typeInfo = await FileType.fromBuffer(body.buffer);
             const mime = typeInfo ? typeInfo.mime : this.responseData.headers["content-type"];
-            console.log("mime", typeInfo, mime, body)
+            // console.log("mime", typeInfo, mime, body)
             const data = {
                 mime,
                 value: ""
