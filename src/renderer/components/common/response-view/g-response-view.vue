@@ -29,7 +29,6 @@
             <el-divider direction="vertical"></el-divider>
             <div>
                 <span>大小：</span>
-                {{ response.value }}
                 <template v-if="response.size">
                     <span v-show="response.size >= 0 && response.size < 10000" class="green">{{ formatBytes }}</span>
                     <span v-show="response.size >= 10000 && response.size < 15000" class="orange">{{ formatBytes }}</span>
@@ -115,7 +114,6 @@
 </template>
 
 <script>
-import cookieParser from "cookie-parser"
 export default {
     props: {
         response: {
@@ -157,7 +155,7 @@ export default {
             const cookies = setCookie.map(val => {
                 const name = val.match(/[^=]+/);
                 const value = val.match(/(?<==).*/);
-                console.log(cookieParser.JSONCookie(val))
+                console.log(222, value)
                 return {
                     name: name ? name[0] : "",
                     value: value ? value[0] : ""

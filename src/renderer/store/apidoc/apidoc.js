@@ -318,14 +318,13 @@ export default {
                     data
                 })
                 httpClient.once("response", response => {
-                    console.log("response", response)
+                    // console.log("response", response)
                     context.commit("changeResponseInfo", response);
                 })
                 httpClient.once(err => {
                     reject(err);
                 });
                 httpClient.once("end", (result) => {
-                    console.log("eee", result)
                     context.commit("changeResponseIndex", result);
                     context.commit("changeLoading", false)
                     context.commit("changeResponseProcess", {
