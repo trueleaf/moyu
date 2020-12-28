@@ -5,6 +5,7 @@ const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin
 
 const isShareDoc = process.argv.find((val) => val === "--single");
 
+
 let vueConfig = {};
 if (isShareDoc) {
     vueConfig = {
@@ -85,6 +86,7 @@ if (isShareDoc) {
         },
         pluginOptions: {
             electronBuilder: {
+                extends: null,
                 externals: [
                     "vue",
                     "axios",
