@@ -124,7 +124,7 @@ export default {
         //新增表格数据
         handleAddHost() {
             const total = this.$refs["table"].total;
-            if (this.docRules.dominLimit < total) {
+            if (this.docRules.dominLimit <= total) {
                 this.$message.warning(`限制可维护域名数不超过${this.docRules.dominLimit}个`);
                 return
             }
