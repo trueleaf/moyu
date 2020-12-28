@@ -12,7 +12,8 @@
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
         </div> 
         <h2 v-show="recentVisitProjects.length > 0">最近访问</h2>
-        <div  v-show="recentVisitProjects.length > 0" class="project-wrap">
+        <div v-show="recentVisitProjects.length > 0" class="project-wrap">
+            <!-- {{ recentVisitProjects.map(val => val.id) }} -->
             <div v-for="(item, index) in recentVisitProjects" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -182,9 +183,14 @@ export default {
             return this.$store.state.permission.userInfo
         },
         recentVisitProjects() {
-            return this.projectList.filter(project => {
-                return this.recentVisitProjectIds.find(id => id === project._id)
-            }).reverse()
+            const recentResult = [];
+            this.recentVisitProjectIds.forEach(id => {
+                const matchedProject = this.projectList.find(val => val._id === id)
+                if (matchedProject) {
+                    recentResult.push(matchedProject);
+                }
+            })
+            return recentResult;       
         },
         starProjects() {
             return this.projectList.filter(project => {
