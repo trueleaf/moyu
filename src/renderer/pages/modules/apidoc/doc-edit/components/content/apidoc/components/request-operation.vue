@@ -113,7 +113,7 @@ export default {
             return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
         },
         fullUrl() {
-            if (this.request.requestType === "query") {
+            if (this.request.requestType === "params") {
                 let queryStr = "";
                 this.request.requestParams.map((val) => {
                     if (val.key && val._select) {
@@ -186,7 +186,7 @@ export default {
                     let data = requestParams;
                     /*eslint-disable indent*/ 
                     switch (this.request.requestType) {
-                        case "query":
+                        case "params":
                             headers["content-type"] = "application/json"
                             break;
                         case "json":
@@ -434,11 +434,12 @@ export default {
         validateParams() {
             let isValidRequest = true;
             //=====================================检查请求url====================================//
-            if (this.request.url.path.trim() === "") { 
-                this.urlError.error = true;
-                this.urlError.message = "请求url不能为空";
-                isValidRequest = false;
-            } else if (!this.request.url.host) {
+            // if (this.request.url.path.trim() === "") { 
+            //     this.urlError.error = true;
+            //     this.urlError.message = "请求url不能为空";
+            //     isValidRequest = false;
+            // } else 
+            if (!this.request.url.host) {
                 this.$message.error("请选择请求服务器");
                 isValidRequest = false;
             } else {
@@ -584,12 +585,12 @@ export default {
             const queryReg = /\?.*/;
             this.request.url.path = this.request.url.path.replace(queryReg, "")
             //检查url是否为空
-            if (this.request.url.path.trim() === "") { 
-                this.urlError.error = true;
-                this.urlError.message = "请求url不能为空";
-            } else {
-                this.urlError.error = false;
-            }
+            // if (this.request.url.path.trim() === "") { 
+            //     this.urlError.error = true;
+            //     this.urlError.message = "请求url不能为空";
+            // } else {
+            //     this.urlError.error = false;
+            // }
         },
         //将请求url后面查询参数转换为params
         convertQueryToParams() {
@@ -622,7 +623,7 @@ export default {
                     params.children = [];
                     params.type = "string";
                 })
-                this.request.requestType = "query"; 
+                this.request.requestType = "params"; 
             } else {
                 if (!val.enabledContenType.includes(this.request.requestType)) {
                     this.request.requestType = val.enabledContenType[0];
@@ -656,7 +657,7 @@ export default {
                         header.value = "application/json; charset=utf-8"
                     }
                 })
-            } else if (val === "query") {
+            } else if (val === "params") { //查询类型application无意义
                 this.request.header.forEach(header => {
                     if (header.key.toLowerCase() === "content-type") {
                         header.value = "application/json; charset=utf-8"
@@ -665,7 +666,7 @@ export default {
             } else if (val === "x-www-form-urlencoded") {
                 this.request.header.forEach(header => {
                     if (header.key.toLowerCase() === "content-type") {
-                        header.value = "x-www-form-urlencoded"
+                        header.value = "application/x-www-form-urlencoded"
                     }
                 })
             }
