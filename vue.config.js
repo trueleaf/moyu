@@ -106,7 +106,9 @@ if (isShareDoc) {
                     "brace",
                     "urllib",
                     "cookie-parser",
-                    "got"
+                    "got",
+                    "form-data",
+                    "proxy-agent"
                 ],
                 mainProcessFile: "src/main/index.js",
                 rendererProcessFile: "src/renderer/main.js",
