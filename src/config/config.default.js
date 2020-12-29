@@ -53,6 +53,6 @@ module.exports = {
     },
     //打包相关配置
     build: {
-        publicPath: ""
+        publicPath: "/jobtool"
     }
 };

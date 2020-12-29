@@ -124,7 +124,8 @@ export default {
         handleCheckUpdate() {
             this.downloading = true;
             if (window.require) {
-                ipcRenderer.send("checkUpdate");      
+                // ipcRenderer.send("checkUpdate"); 
+                ipcRenderer.send("vue-check-update")       
             }
         },
         //=========================================================================//

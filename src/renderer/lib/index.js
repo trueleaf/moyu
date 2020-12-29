@@ -5,8 +5,23 @@
  */
 
 
-
+import uuidV4 from "uuid/v4"
  
+
+/** 
+ * @description        生成uuid
+ * @author              shuxiaokai
+ * @create             2020-12-24 16:33
+ * @param {any}        variable - 任意类型变量       
+ * @param {String=}    [name=xxx] - 任意类型变量       
+ * @param {Number}     age - 数字类型       
+ * @return {String}    返回字符串
+ */
+export const uuid = function() {
+    return uuidV4();
+}
+ 
+
 /**
     @description  返回变量类型
     @author        shuxiaokai
@@ -249,10 +264,33 @@ export const dfsForest = (forestData, config) => {
 export const debounce = function(fn, delay = 300, immediate = false) {
     let timer = null;
     return function() {
-        clearInterval(timer);
+        clearTimeout(timer);
         timer = setTimeout(() => {
             fn.apply(this, arguments);
         }, delay, immediate);
+    }
+}
+
+/** 
+ * @description        throttle(n秒后才执行一次函数)
+ * @author             shuxiaokai
+ * @updateAuthor       shuxiaokai
+ * @create             2020-01-31 17:14
+ * @update             2020-01-31 17:14
+ * @param {Function}   fn - 被调用函数       
+ * @param {Number}     [interval=300] - 时间间隔       
+ * @return {null}     无返回值
+ */
+
+
+export const throttle = function(fn, interval = 300) {
+    let oldTime = Date.now();
+    return function() {
+        let nowTime = Date.now();
+        if (nowTime - oldTime > interval) {
+            fn.apply(this, arguments);
+            oldTime = nowTime;
+        }
     }
 }
 
@@ -305,5 +343,25 @@ export const formatBytes = (byteNum) => {
     } else if (byteNum >= 1024 * 1024 * 1024 && byteNum < 1024 * 1024 * 1024 * 1024) { //GB
         result = (byteNum / 1024 / 1024 / 1024).toFixed(2) + "GB"
     }
+    return result;
+}
+
+/** 
+ * @description        将毫秒转换为易读单位
+ * @author              shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {string}      ms - 毫秒       
+ * @return {String}    返回字符串
+ */
+export const formatMs = (ms) => {
+    let result = "";
+    if (!ms) {
+        return "";
+    }
+    if (ms > 0 && ms < 1000) { //毫秒
+        result = ms + "ms";
+    } else if (ms >= 1000 && ms < 1000 * 60) { //秒
+        result = (ms / 1000).toFixed(2) + "s"
+    } 
     return result;
 }

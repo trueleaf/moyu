@@ -11,8 +11,7 @@ import "./mixin"
 import "./directive"
 import "@/assets/css/index.css"
 import axios from "./api/api"
-
-
+import * as helper from "@/lib"
 
 
 const myDB = new MyDB();
@@ -28,7 +27,7 @@ Vue.use(axios)
 
 Vue.config.productionTip = true;
 
-
+Vue.prototype.$helper = helper;
 //挂载全局错误处理，处理请求报错
 Vue.prototype.$httpThrow = logs.httpCatch;
 Vue.prototype.$errorThrow = logs.errorCatch;

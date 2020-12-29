@@ -9,7 +9,7 @@
         <s-params-tree 
             ref="paramsTree"
             :tree-data="request.requestParams"
-            :nest="request.requestType !== 'query' && request.requestType !== 'formData'"
+            :nest="request.requestType === 'json'"
             :enable-form-data="request.requestType === 'formData'"
             :mind-params="mindParams.mindRequestParams"
             showCheckbox

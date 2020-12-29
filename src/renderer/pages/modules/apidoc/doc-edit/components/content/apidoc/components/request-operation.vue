@@ -65,7 +65,7 @@ import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
 import deepmerge from "deepmerge"
-import FormData from "form-data"
+import FormData from "form-data/lib/form_data"
 import FileType from "file-type/browser"
 import buffer from "buffer"
 const Buffer = buffer.Buffer;
@@ -103,9 +103,6 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
-        loading() {
-            return this.$store.state.apidoc.loading
-        },
         couldPublish() {
             return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
         },
@@ -116,7 +113,7 @@ export default {
             return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
         },
         fullUrl() {
-            if (this.request.requestType === "query") {
+            if (this.request.requestType === "params") {
                 let queryStr = "";
                 this.request.requestParams.map((val) => {
                     if (val.key && val._select) {
@@ -139,6 +136,7 @@ export default {
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
             //=====================================其他参数====================================//
+            loading: false, //-------------发送请求
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
@@ -169,8 +167,8 @@ export default {
             const foo = async (resolve, reject) => {
                 const isValidateRequest = this.validateParams();
                 if (isValidateRequest) {
+                    this.loading = true;
                     const formData = new FormData();
-                    this.$store.commit("apidoc/changeLoading", true);
                     const copyRequestInfo = deepmerge({}, this.request, { //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
                         isMergeableObject(val) {
                             return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
@@ -188,7 +186,7 @@ export default {
                     let data = requestParams;
                     /*eslint-disable indent*/ 
                     switch (this.request.requestType) {
-                        case "query":
+                        case "params":
                             headers["content-type"] = "application/json"
                             break;
                         case "json":
@@ -210,7 +208,19 @@ export default {
                             data = formData;
                             break;
                         case "x-www-form-urlencoded":
-                            headers["content-type"] = "x-www-form-urlencoded"
+                            headers["content-type"] = "application/x-www-form-urlencoded"
+                            // for (const key in data) {
+                            //     const hasOwn = Object.hasOwnProperty;
+                            //     if (hasOwn.call(data, key)) {
+                            //         if (data[key].constructor.name === "ArrayBuffer") {
+                            //             const type = await FileType.fromBuffer(data[key]);
+                            //             formData.append(key, Buffer(data[key]), { contentType: type.mime });
+                            //         } else {
+                            //             formData.append(key, data[key]);
+                            //         }
+                            //     }
+                            // }
+                            // data = formData;
                             break;
                         default:
                             headers["content-type"] = "application/json"
@@ -222,7 +232,7 @@ export default {
                     if (storeCookie) {
                         headers["cookie"] = storeCookie;
                     }
-                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data, requestType: this.request.requestType }).then(res => {
                         this.checkResponseParams(); //参数校验
                         this.injectCookie(res); //cookie注入
                         resolve();
@@ -230,7 +240,7 @@ export default {
                         console.error(err);
                         reject(err)
                     }).finally(() => {
-                        this.$store.commit("apidoc/changeLoading", false);
+                        this.loading = false;
                     });
                 } else {
                     reject("校验错误2")             
@@ -239,10 +249,10 @@ export default {
             return new Promise((resolve, reject) => {
                 foo(resolve, reject);
             })
-
         },
         //取消发送
         stopRequest() {
+            this.loading = false;
             this.$store.dispatch("apidoc/stopRequest");
             this.$store.commit("apidoc/changeLoading", false);
         },
@@ -312,6 +322,7 @@ export default {
             this.loading3 = true;
             try {
                 await this.sendRequest();
+                
                 if (this.couldPublish) {
                     this.axios.put("/api/project/publish_doc", { _id: this.currentSelectDoc._id }).then((res) => {
                         this.$message.success("发布成功");
@@ -435,11 +446,12 @@ export default {
         validateParams() {
             let isValidRequest = true;
             //=====================================检查请求url====================================//
-            if (this.request.url.path.trim() === "") { 
-                this.urlError.error = true;
-                this.urlError.message = "请求url不能为空";
-                isValidRequest = false;
-            } else if (!this.request.url.host) {
+            // if (this.request.url.path.trim() === "") { 
+            //     this.urlError.error = true;
+            //     this.urlError.message = "请求url不能为空";
+            //     isValidRequest = false;
+            // } else 
+            if (!this.request.url.host) {
                 this.$message.error("请选择请求服务器");
                 isValidRequest = false;
             } else {
@@ -511,8 +523,9 @@ export default {
         },
         //参数校验
         checkResponseParams() {
+            // console.log(9, this.remoteResponse)
             if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
-                const remoteParams = this.remoteResponse.data;
+                const remoteParams = JSON.parse(this.remoteResponse.value);
                 const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
                 let responseErrorType = null; //校验错误类型
                 const hasOwn = Object.hasOwnProperty;
@@ -583,12 +596,12 @@ export default {
             const queryReg = /\?.*/;
             this.request.url.path = this.request.url.path.replace(queryReg, "")
             //检查url是否为空
-            if (this.request.url.path.trim() === "") { 
-                this.urlError.error = true;
-                this.urlError.message = "请求url不能为空";
-            } else {
-                this.urlError.error = false;
-            }
+            // if (this.request.url.path.trim() === "") { 
+            //     this.urlError.error = true;
+            //     this.urlError.message = "请求url不能为空";
+            // } else {
+            //     this.urlError.error = false;
+            // }
         },
         //将请求url后面查询参数转换为params
         convertQueryToParams() {
@@ -600,7 +613,6 @@ export default {
                 if (!reqParams.find(val => val.key === i)) {
                     this.request.requestParams.unshift({
                         id: uuid(),
-                        _id: uuid(),
                         key: i, //--------------请求参数键
                         value: queryParams[i], //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -622,7 +634,7 @@ export default {
                     params.children = [];
                     params.type = "string";
                 })
-                this.request.requestType = "query"; 
+                this.request.requestType = "params"; 
             } else {
                 if (!val.enabledContenType.includes(this.request.requestType)) {
                     this.request.requestType = val.enabledContenType[0];
@@ -656,7 +668,7 @@ export default {
                         header.value = "application/json; charset=utf-8"
                     }
                 })
-            } else if (val === "query") {
+            } else if (val === "params") { //查询类型application无意义
                 this.request.header.forEach(header => {
                     if (header.key.toLowerCase() === "content-type") {
                         header.value = "application/json; charset=utf-8"
@@ -665,7 +677,7 @@ export default {
             } else if (val === "x-www-form-urlencoded") {
                 this.request.header.forEach(header => {
                     if (header.key.toLowerCase() === "content-type") {
-                        header.value = "x-www-form-urlencoded"
+                        header.value = "application/x-www-form-urlencoded"
                     }
                 })
             }

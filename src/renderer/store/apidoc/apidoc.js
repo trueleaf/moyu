@@ -5,11 +5,11 @@
  */
 import Vue from "vue"
 import http from "@/api/api.js"
-import { findoNode } from "@/lib"
-let ipcRenderer = null;
-if (window.require) {
-    ipcRenderer = window.require("electron").ipcRenderer;
-}
+import { findoNode, throttle } from "@/lib"
+import HttpClient from "@/../main/http"
+const httpClient = new HttpClient();
+
+
 const axios = http.axios;
 export default {
     namespaced: true,
@@ -23,11 +23,16 @@ export default {
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
         responseData: {
-            status: 0,
-            rt: 0,
-            data: {},
-            speed: 0,
-            size: 0,
+            headers: {},
+            contentType: null,
+            httpVersion: null,
+            statusCode: null,
+            mime: null,
+            rt: null,
+            value: null,
+            size: null,
+            total: null,
+            percent: null
         }, //-----------返回参数
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         presetParamsList: [], //-------预设参数列表
@@ -178,18 +183,30 @@ export default {
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
-            state.responseData.status = payload.status;
-            state.responseData.statusMessage = payload.statusMessage;
-            state.responseData.httpVersion = payload.httpVersion;
             state.responseData.headers = payload.headers;
-            state.responseData.contentType = payload.headers["content-type"];
-            state.responseData.size = payload.size;
+            state.responseData.contentType = payload.contentType;
+            state.responseData.httpVersion = payload.httpVersion;
+            state.responseData.statusCode = payload.statusCode;
+        },
+        //改变大小
+        changeResponseProcess(state, payload) {
+            const { size, percent, total } = payload;
+            if (size != null) {
+                state.responseData.size = size; 
+            }
+            if (percent != null) {
+                state.responseData.percent = percent; 
+            }
+            if (total != null) {
+                state.responseData.total = total; 
+            }
         },
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
-            state.responseData.rt = payload.rt;
-            state.responseData.data = payload.data;            
+            state.responseData.mime = payload.mime;
+            state.responseData.rt = payload.rt;            
             state.responseData.size = payload.size;            
+            state.responseData.value = payload.value;            
         },
         //改变loading效果
         changeLoading(state, loading) {
@@ -198,11 +215,16 @@ export default {
         //重置返回值信息
         clearRespons(state) {
             state.responseData = {
-                status: 0,
-                rt: 0,
-                data: {},
-                speed: 0,
-                size: 0,
+                headers: {},
+                contentType: null,
+                httpVersion: null,
+                statusCode: null,
+                mime: null,
+                rt: null,
+                value: null,
+                size: null,
+                total: null,
+                percent: null
             };
             state.remoteResponseEqualToLocalResponse = false;
         },
@@ -276,25 +298,53 @@ export default {
                 });              
             })
         },
-        //发送请求
-        async sendRequest(context, payload) {
-            const { url, method, headers, data } = payload;
-            // console.log(url, method, headers, data);
-            ipcRenderer.send("vue-send-request", {
-                url,
-                method,
-                headers,
-                data
-            });
-            ipcRenderer.on("http-response", (event, res) => {
-                console.log("response", res)
-            });
-            ipcRenderer.on("http-error", (event, err) => {
-                console.error(err);
-            });
+        /** 
+         * @description        发送请求
+         * @author             shuxiaokai
+         * @create             2020-12-11 14:59
+         * @param {url}        url - 请求url       
+         * @param {method}     method - 请求方法       
+         * @param {headers}    headers - 请求头       
+         * @param {data}       data - 请求数据       
+         */
+        sendRequest(context, payload) {
+            return new Promise((resolve, reject) => {
+                const { url, method, headers, data, requestType } = payload;
+                console.log(url, method, headers, data, requestType);
+                context.commit("changeLoading", true)
+                httpClient.request(url, {
+                    method,
+                    headers,
+                    data,
+                    requestType
+                })
+                httpClient.once("response", response => {
+                    // console.log("response", response)
+                    context.commit("changeResponseInfo", response);
+                })
+                httpClient.once(err => {
+                    reject(err);
+                });
+                httpClient.once("end", (result) => {
+                    context.commit("changeResponseIndex", result);
+                    context.commit("changeLoading", false)
+                    context.commit("changeResponseProcess", {
+                        percent: 1,
+                    });
+                    resolve(result);
+                })     
+                httpClient.once("process", throttle((process) => {
+                    context.commit("changeResponseProcess", {
+                        size: process.transferred,
+                        percent: process.percent,
+                        total: process.total,
+                    });
+                }))    
+            })
         },
         //取消请求
         stopRequest() {
+            httpClient.cancel();
         },
     },
 };

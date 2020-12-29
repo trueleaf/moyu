@@ -79,18 +79,19 @@ export default {
 <style lang="scss">
 .collapse-card {
     width: 100%;
-    border: 1px solid $gray-200;
+    // border: 1px solid $gray-300;
     background: $white;
-    border-radius: $border-radius-base;
+    // border-radius: $border-radius-base;
     display: flex;
     flex-direction: column;
+    margin-bottom: size(10);
     &.shadow {
         box-shadow: $box-shadow;
     }
     &>header {
         background: $gray-200;
         display: flex;
-        border-bottom: 1px solid $gray-200;
+        // border-bottom: 1px solid $gray-300;
         align-items: center;
         flex: 0 0 size(40);
         height: size(40);
@@ -118,6 +119,7 @@ export default {
     .content {
         flex: 1;
         overflow: hidden;
+        // box-shadow: 0px 2px 2px $gray-200;
     }
 }
 </style>

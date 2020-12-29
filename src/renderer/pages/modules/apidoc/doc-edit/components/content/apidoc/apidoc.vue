@@ -6,16 +6,15 @@
 */
 <template>
     <div class="edit-content">
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="border-right-teal workplace">
+        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="workplace">
             <!-- 基本配置 -->
-            <div class="request mb-2">
+            <div class="base-params">
                 <!-- 请求备注 -->
                 <s-remark-manage v-if="0" v-model="request.description"></s-remark-manage>
                 <!-- 服务端地址管理 -->
                 <s-server-manage v-model="request.url.host"></s-server-manage>
                 <!-- 请求操作区域 -->
                 <s-request-operation-manage ref="requestOperation" :request="request" :data-ready="docDataReady" @fresh="handleFresh"></s-request-operation-manage>
-                <hr>
             </div>
             <!-- 请求参数 -->
             <div class="params-wrap">
@@ -277,10 +276,10 @@ export default {
                 } else {
                     this.$set(val, "id", uuid())
                 }
-                if (val.key.toLowerCase() === "host") {
-                    this.$set(val, "_readOnly", true)
-                    this.$set(val, "value", "")
-                }
+                // if (val.key.toLowerCase() === "host") {
+                //     this.$set(val, "_readOnly", true)
+                //     this.$set(val, "value", "")
+                // }
                 if (val.key.toLowerCase() === "content-type") {
                     this.$set(val, "_readOnly", true)
                     if (this.request.requestType === "query") {
@@ -294,28 +293,28 @@ export default {
                     }
                 }
             })
-            const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
-            if (!matchedHost) {
-                this.request.header.unshift({
-                    id: uuid(),
-                    key: "host", //--------------请求头键
-                    value: location.host, //------------请求头值
-                    type: "string", //-------请求头值类型
-                    description: "host", //------描述
-                    required: true, //-------是否必填
-                    children: [], //---------子参数
-                    _readOnly: true,
-                });                    
-            } else {
-                matchedHost.id = uuid();
-                matchedHost.key = "host";
-                matchedHost.value = location.host;
-                matchedHost.type = "string";
-                matchedHost.description = "host";
-                matchedHost.required = true;
-                matchedHost._readOnly = true;
-                matchedHost.children = [];
-            }
+            // const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
+            // if (!matchedHost) {
+            //     this.request.header.unshift({
+            //         id: uuid(),
+            //         key: "host", //--------------请求头键
+            //         value: location.host, //------------请求头值
+            //         type: "string", //-------请求头值类型
+            //         description: "host", //------描述
+            //         required: true, //-------是否必填
+            //         children: [], //---------子参数
+            //         _readOnly: true,
+            //     });                    
+            // } else {
+            //     matchedHost.id = uuid();
+            //     matchedHost.key = "host";
+            //     matchedHost.value = location.host;
+            //     matchedHost.type = "string";
+            //     matchedHost.description = "host";
+            //     matchedHost.required = true;
+            //     matchedHost._readOnly = true;
+            //     matchedHost.children = [];
+            // }
             const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
             if (!matchedContentType) {
                 this.request.header.unshift({
@@ -461,7 +460,7 @@ export default {
 <style lang="scss">
 .edit-content {
     display: flex;
-    padding: size(10) size(0) size(10) size(20);
+    height: calc(100vh - 100px);
     @media only screen and (max-width: 1500px) {
         flex-direction: column;
         .response-wrap {
@@ -475,12 +474,22 @@ export default {
         }
     }
     .workplace {
+        border-right: 1px solid $gray-400;
+        // padding: size(20);
         flex: 0 0 65%;
     }
     .response-wrap {
         flex: 1 0 35%;
     }
+    .base-params {
+        padding: size(20);
+        height: size(170);
+        box-shadow: 0 3px 2px $gray-400;
+        position: relative;
+        z-index: 1;
+    }
     .params-wrap {
+        padding: size(20);
         max-height: calc(100vh - #{size(300)});
         overflow-y: auto;
     }

@@ -5,6 +5,7 @@ const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin
 
 const isShareDoc = process.argv.find((val) => val === "--single");
 
+
 let vueConfig = {};
 if (isShareDoc) {
     vueConfig = {
@@ -85,6 +86,7 @@ if (isShareDoc) {
         },
         pluginOptions: {
             electronBuilder: {
+                extends: null,
                 externals: [
                     "vue",
                     "axios",
@@ -103,10 +105,37 @@ if (isShareDoc) {
                     "echarts",
                     "brace",
                     "urllib",
+                    "cookie-parser",
+                    "got",
+                    "form-data",
+                    "proxy-agent"
                 ],
                 mainProcessFile: "src/main/index.js",
                 rendererProcessFile: "src/renderer/main.js",
                 mainProcessWatch: ["src/main/index.js"],
+                builderOptions: {
+                    productName: "快乐摸鱼",
+                    appId: "com.example.yourapp",
+                    publish: [
+                        {
+                            provider: "generic",
+                            url: ""
+                        }
+                    ],
+                    nsis: {
+                        oneClick: false, // 是否一键安装
+                        allowToChangeInstallationDirectory: true, // 允许修改安装目录
+                    },
+                    mac: {
+                        "icon": "build/icons/icon.icns"
+                    },
+                    win: {
+                        "icon": "build/icons/icon.ico"
+                    },
+                    linux: {
+                        "icon": "build/icons"
+                    }
+                },
             },
         },
 

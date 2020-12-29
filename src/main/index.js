@@ -5,8 +5,6 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import config from "../config"
 import update from "./update"
-import HttpClient from "./http"
-const httpClient = new HttpClient();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -43,10 +41,9 @@ async function createWindow() {
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
-    mainWindow.once("ready-to-show", () => {
+    mainWindow.on("ready-to-show", () => {
         mainWindow.show();
         mainWindow.fullScreen();
-        update();
     });
     //=====================================render进程事件====================================//
     ipcMain.on("vue-fresh-content", () => {
@@ -59,15 +56,6 @@ async function createWindow() {
     });
     ipcMain.on("vue-open-dev-tools", () => {
         mainWindow.webContents.openDevTools();
-    });
-    ipcMain.on("vue-send-request", (event, data) => {
-        httpClient.request(data.url, {
-            ...data
-        }).then(res => {
-            event.sender.send("http-response", res);
-        }).catch(err => {
-            event.sender.send("http-error", err);
-        });
     });
 }
 
@@ -89,6 +77,7 @@ app.on("ready", async () => {
         }
     }
     createWindow();
+    update();
 });
 
 // Exit cleanly on request from parent process in development mode.
