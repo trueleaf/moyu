@@ -1,6 +1,6 @@
 {
   "name": "moyu",
-  "version": "0.1.0",
+  "version": "0.1.3",
   "private": true,
   "scripts": {
     "dev:web": "vue-cli-service serve src/renderer/main.js",
@@ -12,9 +12,10 @@
     "build": "vue-cli-service electron:build",
     "dev": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "build:icon": "electron-icon-builder --input=./public/icon.png --output=build --flatten"
   },
-  "main": "src/main/index.js",
+  "main": "background.js",
   "dependencies": {
     "ali-oss": "^6.11.2",
     "axios": "^0.18.0",
@@ -58,6 +59,7 @@
     "base64-inline-loader": "^1.1.1",
     "electron": "^9.0.0",
     "electron-devtools-installer": "^3.1.0",
+    "electron-icon-builder": "^2.0.1",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
     "html-webpack-inline-source-plugin": "0.0.10",
@@ -71,6 +73,5 @@
     "hooks": {
       "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
     }
-  },
-  "__npminstall_done": false
+  }
 }
