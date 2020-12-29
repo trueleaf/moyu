@@ -41,10 +41,9 @@ async function createWindow() {
     mainWindow.on("closed", () => {
         mainWindow = null;
     });
-    mainWindow.once("ready-to-show", () => {
+    mainWindow.on("ready-to-show", () => {
         mainWindow.show();
         mainWindow.fullScreen();
-        update();
     });
     //=====================================render进程事件====================================//
     ipcMain.on("vue-fresh-content", () => {
@@ -78,6 +77,7 @@ app.on("ready", async () => {
         }
     }
     createWindow();
+    update();
 });
 
 // Exit cleanly on request from parent process in development mode.

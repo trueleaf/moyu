@@ -19,7 +19,8 @@ function update() {
         autoUpdater.updateConfigPath = path.join(__dirname, "../../dev-app-update.yml");
     }
     //=====================================render进程事件====================================//
-    ipcMain.on("checkUpdate", () => { 
+    ipcMain.on("vue-check-update", () => { 
+        console.log("check")
         autoUpdater.checkForUpdates()
     })
     ipcMain.on("quit-and-install", () => { 
