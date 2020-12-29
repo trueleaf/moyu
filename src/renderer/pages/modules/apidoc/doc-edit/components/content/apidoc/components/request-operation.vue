@@ -65,7 +65,7 @@ import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
 import deepmerge from "deepmerge"
-import FormData from "form-data"
+import FormData from "form-data/lib/form_data"
 import FileType from "file-type/browser"
 import buffer from "buffer"
 const Buffer = buffer.Buffer;
@@ -209,6 +209,18 @@ export default {
                             break;
                         case "x-www-form-urlencoded":
                             headers["content-type"] = "application/x-www-form-urlencoded"
+                            // for (const key in data) {
+                            //     const hasOwn = Object.hasOwnProperty;
+                            //     if (hasOwn.call(data, key)) {
+                            //         if (data[key].constructor.name === "ArrayBuffer") {
+                            //             const type = await FileType.fromBuffer(data[key]);
+                            //             formData.append(key, Buffer(data[key]), { contentType: type.mime });
+                            //         } else {
+                            //             formData.append(key, data[key]);
+                            //         }
+                            //     }
+                            // }
+                            // data = formData;
                             break;
                         default:
                             headers["content-type"] = "application/json"
@@ -220,7 +232,7 @@ export default {
                     if (storeCookie) {
                         headers["cookie"] = storeCookie;
                     }
-                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(res => {
+                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data, requestType: this.request.requestType }).then(res => {
                         this.checkResponseParams(); //参数校验
                         this.injectCookie(res); //cookie注入
                         resolve();
@@ -514,7 +526,6 @@ export default {
             // console.log(9, this.remoteResponse)
             if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
                 const remoteParams = JSON.parse(this.remoteResponse.value);
-                console.log(29, remoteParams)
                 const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
                 let responseErrorType = null; //校验错误类型
                 const hasOwn = Object.hasOwnProperty;

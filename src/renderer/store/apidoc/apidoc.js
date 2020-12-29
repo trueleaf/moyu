@@ -309,13 +309,14 @@ export default {
          */
         sendRequest(context, payload) {
             return new Promise((resolve, reject) => {
-                const { url, method, headers, data } = payload;
-                console.log(url, method, headers, data);
+                const { url, method, headers, data, requestType } = payload;
+                console.log(url, method, headers, data, requestType);
                 context.commit("changeLoading", true)
                 httpClient.request(url, {
                     method,
                     headers,
-                    data
+                    data,
+                    requestType
                 })
                 httpClient.once("response", response => {
                     // console.log("response", response)

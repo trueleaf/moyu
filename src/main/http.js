@@ -13,7 +13,7 @@ let got = null;
 import FileType from "file-type/browser"
 if (window.require) {
     got = window.require("got");
-    // ProxyAgent = window.require("electron").remote.require("proxy-agent")
+    // ProxyAgent = window.require("proxy-agent")
 }
 
 const HttpClient = (function() {
@@ -78,13 +78,27 @@ const HttpClient = (function() {
             this.url = url;
             this.params = options.data;
             this.headers = options.headers;
+            this.requestType = options.requestType;
             try {
                 let requestUrl = this.url;
+                let body = "";
                 if (this.method.toUpperCase() === "GET") {
                     const searchParams = new URLSearchParams(this.params).toString();
                     requestUrl = searchParams ? `${this.url}/?${searchParams}` : this.url;
                 }
-                const body = this.method.toUpperCase() === "GET" ? "" : JSON.stringify(this.params);
+                // const body = this.method.toUpperCase() === "GET" ? "" : this.params;
+                if (this.method.toUpperCase() === "GET") { //GET请求body为空，否则请求将被一直挂起
+                    body = "";
+                } else if (this.requestType === "params") {
+                    body = "";
+                } else if (this.requestType === "json") {
+                    body = JSON.stringify(this.params);
+                } else if (this.requestType === "form-data") {
+                    body = this.params;
+                } else if (this.requestType === "x-www-form-urlencoded") {
+                    body = new URLSearchParams(this.params).toString();
+                }
+                // console.log("body", this.requestType, body, options.headers)
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
