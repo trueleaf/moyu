@@ -111,6 +111,29 @@ if (isShareDoc) {
                 mainProcessFile: "src/main/index.js",
                 rendererProcessFile: "src/renderer/main.js",
                 mainProcessWatch: ["src/main/index.js"],
+                builderOptions: {
+                    productName: "快乐摸鱼",
+                    appId: "com.example.yourapp",
+                    publish: [
+                        {
+                            provider: "generic",
+                            url: ""
+                        }
+                    ],
+                    nsis: {
+                        oneClick: false, // 是否一键安装
+                        allowToChangeInstallationDirectory: true, // 允许修改安装目录
+                    },
+                    mac: {
+                        "icon": "build/icons/icon.icns"
+                    },
+                    win: {
+                        "icon": "build/icons/icon.ico"
+                    },
+                    linux: {
+                        "icon": "build/icons"
+                    }
+                },
             },
         },
 
