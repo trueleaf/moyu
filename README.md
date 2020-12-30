@@ -22,7 +22,6 @@
   </a>
 </div>
 
-
 ## 预览
 <div align="center">
     <img src="http://jobtool.cn/imgs/a.png" alt="logo"/>
@@ -34,31 +33,25 @@
     <img src="http://jobtool.cn/imgs/b.png" alt="logo"/>
 </div>
 
-## 联调中常见问题
+## 常用
+[服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
+[下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
+[完整文档](https://www.yuque.com/shuxiaokai/moyu) 
+[在线体验](http://47.107.70.26/jobtool)
+## 主要功能
 
-1. 后端通知前端联调，但是前端一调接口就404
-2. 后端接口文档只书写了4个字段，实际联调返回10个字段
-3. 为什么一个post请求什么传参方式都有呢，能不能限制每种类型请求传参方式呢
-4. 分页参数这种有时候传pageSize，有时候传size能不能统一一下呢
-5. 你接口修改了为什么不通知我
-6. 你这个字段备注都不写一个怎么知道什么意思呢
-
-## 优势
-1. 前后端基于MIT开源，你可以部署在任何地方使用任何的功能
-2. 在接口录入时候加入了很多限制,期望提高接口呈现的质量
-3. 尽最大可能提高接口录入效率
-
-
-## 功能
--   团队协作
--   接口录入与调试
--   自定义接口校验规则
--   文档导出为离线版本
--   权限管理
+1. 团队协作
+2. 自定义接口规则
+3. 支持常见请求方式
+4. 本地内网发送接口(类似postman)
+5. 优雅的离线版本导出
+6. 细粒度的权限管理
+7. 尽可能的提高录入接口效率
+8. 开源免费，内网部署安全有保障
 
 ## 详细文档
-[服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
 
+[服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
 [完整的开发和使用文档(语雀)](https://www.yuque.com/shuxiaokai/moyu)
 
 ## License
