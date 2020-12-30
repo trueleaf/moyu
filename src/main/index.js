@@ -32,11 +32,15 @@ async function createWindow() {
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else {
-        createProtocol("app");
-        mainWindow.loadURL(config.mainConfig.onlineUrl).then().catch(err => {
-            console.error(err)
-            // mainWindow.loadURL("app://./index.html");
-        });
+        if (!config.mainConfig.useLocalFile) { //使用远端地址
+            mainWindow.loadURL(config.mainConfig.onlineUrl).then().catch(err => {
+                console.error(err)
+            });            
+        } else { //使用本地文件
+            createProtocol("app");
+            mainWindow.loadURL("app://./index.html");
+        }
+
     }
     mainWindow.on("closed", () => {
         mainWindow = null;
