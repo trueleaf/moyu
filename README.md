@@ -125,7 +125,7 @@ module.exports = {
     }
 };
 ```
-注意：为了获取web的更新体验，打包后的electron
+注意：为了获取web的更新体验，你可以把electron当作一个壳，通过它来加载远端HTML页面。修改 `mainConfig.userLocalFile`为false，同时将 `mainConfig.onlineUrl`设置为远端地址，就可以享受web端的更新体验。
 
 
 
