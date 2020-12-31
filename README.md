@@ -56,6 +56,7 @@
 ### 环境要求
 * nodejs(10+)
 * mongodb(2.6+)
+* nginx(任意web服务器，可选)
 
 ### 主要技术栈
 * Vue
@@ -65,6 +66,7 @@
 * MongoDB
 
 ### 客户端部署
+> 请确保已经安装MongoDB和Node.js
 ```bash
 git clone https://github.com/trueleaf/moyu.git
 cd moyu
@@ -126,6 +128,46 @@ module.exports = {
 };
 ```
 注意：为了获取web的更新体验，你可以把electron当作一个壳，通过它来加载远端HTML页面。修改 `mainConfig.userLocalFile`为false，同时将 `mainConfig.onlineUrl`设置为远端地址，就可以享受web端的更新体验。
+
+### 服务端部署
+> 请确保已经安装MongoDB和Node.js
+```bash
+git clone https://github.com/trueleaf/moyu.git
+cd moyu
+npm install # 国内推荐使用cnpm进行安装
+# 运行不同命令
+npm run dev # 以开发模式启动项目
+npm run start # Egg.js自带进程守护
+```
+你可以通过修改配置文件来进行一些简单的自定义，配置文件路径为 `/src/config/config.default.js`
+
+* 修改MongoDB配置
+```js
+mongoose: {
+    url: "", //MongoDB地址
+    options: {
+        user: "", //用户名称(无账号和密码的数据库非常不安全)
+        pass: "", //密码
+        useUnifiedTopology: true,
+    },
+},
+```
+* 修改监听端口
+```js
+cluster = {
+    listen: {
+        port:7004, //如果你采用第三方云厂商，请确保在安全组中开启端口
+        hostname: "0.0.0.0", //为了安全你应该将hostname设置为你信任的ip
+    }
+};
+```
+* 短信和图片服务(基于阿里云)
+
+你可以根据需要开通这个两个服务，失去短信服务你将不能通过短信进行注册，失去图片服务你将不能在富文本中上传图片
+
+
+
+
 
 
 
