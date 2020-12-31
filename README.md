@@ -35,11 +35,13 @@
 
 ## 常用
 [服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
-[下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
-[完整文档](https://www.yuque.com/shuxiaokai/moyu) 
-[在线体验](http://47.107.70.26/jobtool)
-## 主要功能
 
+[客户端下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
+
+[完整文档](https://www.yuque.com/shuxiaokai/moyu) 
+
+[在线体验](http://47.107.70.26/jobtool)(由于浏览器限制，完整版功能需要下载客户端)
+## 主要功能
 1. 团队协作
 2. 自定义接口规则
 3. 支持常见请求方式
@@ -48,6 +50,87 @@
 6. 细粒度的权限管理
 7. 尽可能的提高录入接口效率
 8. 开源免费，内网部署安全有保障
+
+## 部署&二次开发
+
+### 环境要求
+* nodejs(10+)
+* mongodb(2.6+)
+
+### 主要技术栈
+* Vue
+* Electron
+* Egg.js
+* ElementUI
+* MongoDB
+
+### 客户端部署
+```bash
+git clone https://github.com/trueleaf/moyu.git
+cd moyu
+npm install # 国内推荐使用cnpm进行安装
+# 运行不同命令
+npm run dev # 以开发模式启动项目
+npm run build # 打包项目，会生成相应的安装包
+npm run build:web # 仅打包web版本
+```
+你可以通过修改配置文件来进行一些简单的自定义，配置文件路径为 `/src/config/config.default.js`
+
+```js
+module.exports = {
+    //更新相关配置
+    updateConfig: {
+        version: "", //当前项目版本
+        server: "", //更新服务器地址
+        filePath: "", //更新文件地址
+    },
+    //渲染进程配置
+    renderConfig: {
+        //布局相关
+        layout: {
+            title: "", //项目标题
+            size: "", //项目中组件库大小
+        },
+        //http请求相关
+        httpRequest: {
+            url: isDev ? "" : "", //后端请求url
+            imgUrl: isDev ? "" : "", //图片请求url
+            timeout: 20000, //请求超时时间
+            withCredentials: true, //是否携带cookie
+            whiteList: ["/login"], //前端路由白名单，白名单内路由不做权限校验
+        },
+        //全局组件配置
+        components: {
+            tableConfig: {
+                pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
+                pageSize: 20, //每页默认显示数量
+            }
+        },
+        //本地数据库配置
+        indexedDB: {
+            dbName: "moyu", //indexedDB名称
+            version: 1, //indexedDB版本信息
+        }
+    },
+    //主进程配置
+    mainConfig: {
+        width: 1440, //初始化窗口宽度
+        height: 768, //初始化窗口高度
+        useLocalFile: true, //使用本地文件作为主进程加载内容，版本更新会比较麻烦
+        onlineUrl: "", //线上地址
+    },
+    //打包相关配置
+    build: {
+        publicPath: "", 
+    }
+};
+```
+注意：为了获取web的更新体验，你可以把electron当作一个壳，通过它来加载远端HTML页面。修改 `mainConfig.userLocalFile`为false，同时将 `mainConfig.onlineUrl`设置为远端地址，就可以享受web端的更新体验。
+
+
+
+
+> 更详细的[部署细节](https://www.yuque.com/shuxiaokai/moyu)
 
 ## 详细文档
 
