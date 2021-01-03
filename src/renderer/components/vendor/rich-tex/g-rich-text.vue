@@ -69,19 +69,24 @@ export default {
             this.editorInstance = new E("#editor");
             this.editorInstance.highlight = hljs
             Object.assign(this.editorInstance.config, this.config)
-            if (!this.expireTime || this.expireTime * 1000 < Date.now()) {
-                await this.getStsToken();
-            }
+            const useOSS = this.config.renderConfig.components.richText.useOSS;
+            let initValue = this.value
+            
             this.editorInstance.config.onchange = (value) => {
                 if (!this.isSignImageUrl) {
                     this.$emit("input", value);
                 }
                 this.isSignImageUrl = false;
             }
-            this.initUploadFile();
+
+            if (useOSS && (!this.expireTime || this.expireTime * 1000 < Date.now())) {
+                await this.getStsToken();
+                this.initUploadFile();
+                initValue = this.signAllImageUrl();
+            }
+            //
             this.editorInstance.create();
-            const signValue = this.signAllImageUrl();
-            this.editorInstance.txt.html(signValue)
+            this.editorInstance.txt.html(initValue)
         },
         //将图片地址进行签名替换,只替换阿里oss上传的图片
         signAllImageUrl() {

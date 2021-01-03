@@ -38,6 +38,9 @@ module.exports = {
             tableConfig: {
                 pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
                 pageSize: 20, //每页默认显示数量
+            },
+            richText: {
+                useOss: false,
             }
         },
         //本地数据库配置
