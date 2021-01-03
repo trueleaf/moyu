@@ -5,20 +5,20 @@
 <h3 align="center">一款基于 Vue 和 Electron 的接口文档管理工具</h3>
 <div align="center">
 
-[下载](https://github.com/shuxiaokai3/jobtool-electron/releases) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](http://47.107.70.26/jobtool)
+[下载](https://github.com/trueleaf/releases) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](http://47.107.70.26/jobtool)
 
 </div>
 <div align="center">
-  <a href="https://github.com/shuxiaokai3/jobtool-electron/releases/latest">
-    <img src="https://img.shields.io/github/v/release/shuxiaokai3/jobtool-electron?style=flat-square" alt="">
+  <a href="https://github.com/trueleaf/releases/latest">
+    <img src="https://img.shields.io/github/v/release/trueleaf/moyu?style=flat-square" alt="">
   </a>
 
-  <a href="https://github.com/shuxiaokai3/jobtool-electron/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/shuxiaokai3/jobtool-electron" alt="LICENSE">
+  <a href="https://github.com/trueleaf/moyu/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/trueleaf/moyu" alt="LICENSE">
   </a>
 
-  <a href="https://github.com/shuxiaokai3/jobtool-electron/releases/latest">
-    <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/shuxiaokai3/jobtool-electron/total">
+  <a href="https://github.com/trueleaf/moyu/releases/latest">
+    <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/trueleaf/moyu/total">
   </a>
 </div>
 
@@ -42,7 +42,7 @@
 
 [服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
 
-[客户端下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
+[客户端下载](https://github.com/trueleaf/moyu/releases)
 
 [完整文档](https://www.yuque.com/shuxiaokai/moyu) 
 
