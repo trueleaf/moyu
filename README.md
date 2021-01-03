@@ -34,7 +34,9 @@
 </div>
 
 ## 常用
-[服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
+[客户端Git地址](https://github.com/trueleaf/moyu)
+
+[服务端Git地址](https://github.com/trueleaf/moyu-server)
 
 [客户端下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
 
@@ -144,7 +146,7 @@ npm run start # Egg.js自带进程守护
 * 修改MongoDB配置
 ```js
 mongoose: {
-    url: "", //MongoDB地址
+    url: "mongodb://127.0.0.1:27017", //MongoDB地址
     options: {
         user: "", //用户名称(无账号和密码的数据库非常不安全)
         pass: "", //密码
