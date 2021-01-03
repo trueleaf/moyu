@@ -46,6 +46,10 @@ export default {
                     switch (code) {
                         case 0: //正确请求
                             break;
+                        case 2006: //输入验证码
+                            break;
+                        case 2003: //ip锁定
+                            break;
                         case 4101: //登录有错
                             router.replace("/login");
                             Vue.prototype.$message.warning("暂无权限");
