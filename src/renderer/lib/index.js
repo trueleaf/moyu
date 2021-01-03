@@ -4,24 +4,6 @@
  * @create             2020-09-30 22:04
  */
 
-
-import uuidV4 from "uuid/v4"
- 
-
-/** 
- * @description        生成uuid
- * @author              shuxiaokai
- * @create             2020-12-24 16:33
- * @param {any}        variable - 任意类型变量       
- * @param {String=}    [name=xxx] - 任意类型变量       
- * @param {Number}     age - 数字类型       
- * @return {String}    返回字符串
- */
-export const uuid = function() {
-    return uuidV4();
-}
- 
-
 /**
     @description  返回变量类型
     @author        shuxiaokai

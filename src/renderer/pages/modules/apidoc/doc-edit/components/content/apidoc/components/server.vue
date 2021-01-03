@@ -33,7 +33,7 @@ export default {
     },
     data() {
         return {
-            mockServer: "", //-------------------mock服务器
+            mockServer: "http://47.107.70.26/mock", //-------------------mock服务器
             hostEnum: [], //---------------------域名列表
             dialogVisible: false, //-------------域名维护弹窗
         };

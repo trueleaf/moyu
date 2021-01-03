@@ -28,6 +28,7 @@
     "element-ui": "^2.13.0",
     "file-type": "^14.7.1",
     "form-data": "^3.0.0",
+    "got": "^11.8.1",
     "highlight.js": "^10.4.0",
     "js-beautify": "^1.13.0",
     "js-cookie": "^2.2.1",
@@ -39,12 +40,12 @@
     "nprogress": "^0.2.0",
     "proxy-agent": "^4.0.0",
     "qs": "^6.9.4",
+    "uuid": "^8.3.2",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.4.0",
-    "wangeditor": "^4.5.0",
-    "got": "^11.8.1"
+    "wangeditor": "^4.5.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
@@ -73,5 +74,6 @@
     "hooks": {
       "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
     }
-  }
+  },
+  "__npminstall_done": false
 }

@@ -253,7 +253,6 @@
 
 <script>
 import { dfsForest } from "@/lib/index"
-import uuid from "uuid/v4"
 import { formatBytes } from "@/lib"
 export default {
     props: {
@@ -390,7 +389,7 @@ export default {
                 hooks: (val) => {
                     val.description || (this.$set(val, "description", ""))
                     Object.assign(val, {
-                        id: uuid(),
+                        id: this.uuid(),
                         required: true, //-------是否必填
                     })
                 }
@@ -424,7 +423,7 @@ export default {
         //生成请求数据
         generateParams(type = "string") {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "",
                 description: "",
                 type: type,

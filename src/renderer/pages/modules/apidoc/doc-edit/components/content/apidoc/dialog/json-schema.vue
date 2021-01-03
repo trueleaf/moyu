@@ -22,7 +22,6 @@
 
 <script>
 import json5 from "json5"
-import uuid from "uuid/v4"
 export default {
     props: {
         visible: {
@@ -215,7 +214,7 @@ export default {
 
         generateParams(type = "string") {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "", //--------------参数键
                 value: "", //------------参数值
                 type, //-----------------参数值类型

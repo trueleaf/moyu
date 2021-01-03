@@ -31,7 +31,6 @@
 <script>
 import { debounce, dfsForest } from "@/lib"
 import axios from "axios" 
-import uuid from "uuid/v4"
 import response from "./components/response"
 import FileType from "file-type/browser"
 //=========================================================================//
@@ -259,14 +258,14 @@ export default {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", uuid())
+                    this.$set(val, "id", this.uuid())
                 }
             })
             this.request.responseParams.forEach(val => {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", uuid())
+                    this.$set(val, "id", this.uuid())
                 }
             })
             this.request.header.forEach(val => {
@@ -274,7 +273,7 @@ export default {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", uuid())
+                    this.$set(val, "id", this.uuid())
                 }
                 // if (val.key.toLowerCase() === "host") {
                 //     this.$set(val, "_readOnly", true)
@@ -296,7 +295,7 @@ export default {
             // const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
             // if (!matchedHost) {
             //     this.request.header.unshift({
-            //         id: uuid(),
+            //         id: this.uuid(),
             //         key: "host", //--------------请求头键
             //         value: location.host, //------------请求头值
             //         type: "string", //-------请求头值类型
@@ -306,7 +305,7 @@ export default {
             //         _readOnly: true,
             //     });                    
             // } else {
-            //     matchedHost.id = uuid();
+            //     matchedHost.id = this.uuid();
             //     matchedHost.key = "host";
             //     matchedHost.value = location.host;
             //     matchedHost.type = "string";
@@ -318,7 +317,7 @@ export default {
             const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
             if (!matchedContentType) {
                 this.request.header.unshift({
-                    id: uuid(),
+                    id: this.uuid(),
                     key: "content-type", //--------------请求头键
                     value: "application/json; charset=utf-8", //------------请求头值
                     type: "string", //-------请求头值类型
@@ -328,7 +327,7 @@ export default {
                     _readOnly: true,
                 });
             } else {
-                matchedContentType.id = uuid();
+                matchedContentType.id = this.uuid();
                 matchedContentType.key = "content-type";
                 matchedContentType.value = "application/json; charset=utf-8";
                 matchedContentType.type = "string";
@@ -366,7 +365,7 @@ export default {
         },
         generateParams() {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "", //--------------请求头键
                 value: "", //------------请求头值
                 type: "string", //-------请求头值类型

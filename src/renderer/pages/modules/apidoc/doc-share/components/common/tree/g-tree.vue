@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import uuid from "uuid/v4"
 export default {
     props: {
         data: {
@@ -60,7 +59,7 @@ export default {
                 if (this.isFirst && this.data && this.data[this.data.length - 1] && this.data[this.data.length - 1].key) {
                     this.isFirst = false;
                     this.data.push({
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "",
                         value: "",
                         description: "",
@@ -154,7 +153,7 @@ export default {
                             return;
                         } else {
                             parentNode.push({
-                                id: uuid(),
+                                id: this.uuid(),
                                 key: "",
                                 value: "",
                                 description: "",
@@ -185,7 +184,7 @@ export default {
             //     return;
             // }
             data.children.push({
-                id: uuid(),
+                id: this.uuid(),
                 key: "",
                 description: "",
                 type: "",

@@ -39,7 +39,6 @@
 
 <script>
 import { dfsForest } from "@/lib/index"
-import uuid from "uuid/v4"
 export default {
     props: {
         visible: { //弹窗是否显示
@@ -92,7 +91,7 @@ export default {
                     return value.item && value.item.length > 0;
                 },
                 hooks: (value) => {
-                    value.id = uuid();
+                    value.id = this.uuid();
                 },
                 rKey: "item"
             });

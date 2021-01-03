@@ -150,7 +150,6 @@
 </template>
 
 <script>
-import uuid from "uuid/v4"
 import { dfsForest } from "@/lib/index"
 export default {
     props: {
@@ -260,14 +259,14 @@ export default {
         },
         //快捷新增一条参数
         handleAddMindParams(data, val) {
-            val.uuid = uuid();
+            val.uuid = this.uuid();
             Object.assign(data, val)
         },
         //=====================================组件间交互====================================//  
         //生成请求数据
         generateParams() {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "", 
                 type: "String",
                 default: "",

@@ -155,7 +155,7 @@ export default {
             const cookies = setCookie.map(val => {
                 const name = val.match(/[^=]+/);
                 const value = val.match(/(?<==).*/);
-                console.log(222, value)
+                //console.log(222, value)
                 return {
                     name: name ? name[0] : "",
                     value: value ? value[0] : ""

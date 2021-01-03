@@ -61,7 +61,6 @@
 <script>
 import variableDialog from "../dialog/variable-manage"
 import presetParamsDialog from "../dialog/preset-params"
-import uuid from "uuid/v4"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
 import deepmerge from "deepmerge"
@@ -612,7 +611,7 @@ export default {
                 const reqParams = this.request.requestParams;
                 if (!reqParams.find(val => val.key === i)) {
                     this.request.requestParams.unshift({
-                        id: uuid(),
+                        id: this.uuid(),
                         key: i, //--------------请求参数键
                         value: queryParams[i], //------------请求参数值
                         type: "string", //-------------请求参数值类型
