@@ -33,6 +33,9 @@ export default {
         this.$store.dispatch("apidoc/getDocVariable", {
             projectId: this.$route.query.id
         });
+        this.$store.dispatch("apidocRules/getRuels", {
+            projectId: this.$route.query.id
+        });
     },
     methods: {
         //=====================================获取远程数据==================================//

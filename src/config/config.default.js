@@ -5,6 +5,7 @@
  */
 
 const packageJSON = require("../../package.json")
+const isDev = process.env.NODE_ENV === "development";
 
 module.exports = {
     //更新相关配置
@@ -17,13 +18,13 @@ module.exports = {
     renderConfig: {
         //布局相关
         layout: {
-            title: packageJSON.name,
-            size: "mini"
+            title: packageJSON.name, //项目标题
+            size: "mini", //项目中组件库大小
         },
         //http请求相关
         httpRequest: {
-            url: process.env.NODE_ENV === "development" ? "http://127.0.0.1:7004" : "http://47.107.70.26:7005",
-            imgUrl: process.env.NODE_ENV === "development" ? "http://xx.0.0.1:7004" : "http://xxx.0.0.1:7004",
+            url: isDev ? "http://127.0.0.1:7004" : "http://47.107.70.26:7005",
+            imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
             whiteList: ["/login"]
@@ -37,22 +38,26 @@ module.exports = {
             tableConfig: {
                 pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
                 pageSize: 20, //每页默认显示数量
+            },
+            richText: {
+                useOss: false,
             }
         },
         //本地数据库配置
         indexedDB: {
-            dbName: "moyu",
-            version: 1,
+            dbName: "moyu", //indexedDB名称
+            version: 1, //indexedDB版本信息
         }
     },
     //主进程配置
     mainConfig: {
         width: 1440,
         height: 768,
+        useLocalFile: true, //使用本地文件作为主进程加载内容
         onlineUrl: "https://baidu.cn", //线上地址
     },
     //打包相关配置
     build: {
-        publicPath: ""
+        publicPath: "/jobtool"
     }
 };

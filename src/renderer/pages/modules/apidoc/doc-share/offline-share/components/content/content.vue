@@ -96,7 +96,6 @@ import variableManage from "./dialog/variable-manage"
 import docRecord from "./dialog/doc-record/doc-record"
 import convertCode from "./dialog/convert-code"
 import { dfsForest } from "@/lib/index"
-import uuid from "uuid/v4"
 export default {
     components: {
         "s-host-manage": hostManage,
@@ -117,7 +116,7 @@ export default {
                 }, //----------------------------请求地址信息
                 requestParams: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -128,7 +127,7 @@ export default {
                 ],
                 responseParams: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -139,7 +138,7 @@ export default {
                 ],
                 header: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求头键
                         value: "", //------------请求头值
                         type: "string", //-------请求头值类型
@@ -285,7 +284,7 @@ export default {
         },
         generateParams() {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "", //--------------请求头键
                 value: "", //------------请求头值
                 type: "string", //-------请求头值类型

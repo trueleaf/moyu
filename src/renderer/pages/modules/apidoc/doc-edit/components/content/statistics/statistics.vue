@@ -1,32 +1,48 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-10-23 10:57
-    模块名称：未选中接口文档时候的提示
+    创建时间：2020-11-25 17:32
+    模块名称：数据统计
     备注：xxxx
 */
 <template>
-    <div class="empty-tip">
+    <div class="statistics">
         <img :src="require('@/assets/imgs/logo.png')" width="150px" height="150px" alt="logo图片" class="logo">
         <div class="f-base">
             <div>
                 <span>接口数量：</span>
                 <span>22</span>
             </div>
+            <input type="file" name="xxx" @change="handleChangeFile">
         </div>
     </div>
 </template>
 
 <script>
+import yaml from "js-yaml"
+import apiTranslator from "./api-translator"
+import data from "./data"
 export default {
     data() {
         return {
-
+            apiTranslatorInstance: null
         };
     },
     created() {
-
+        this.apiTranslatorInstance = new apiTranslator(data, "openapi", {
+            projectId: this.$route.query.id
+        });
+        this.apiTranslatorInstance.getResult()
     },
     methods: {
+        
+
+
+        async handleChangeFile(e) {
+            const file = e.target.files[0];
+            const text = await file.text();
+            const jsonYaml = yaml.load(text);
+            console.log(jsonYaml)
+        }
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
@@ -42,7 +58,7 @@ export default {
 
 
 <style lang="scss">
-.empty-tip {
+.statistics {
     height: calc(100% - #{size(40)});
     display: flex;
     flex-direction: column;

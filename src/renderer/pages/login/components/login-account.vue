@@ -34,18 +34,19 @@
             </div>
         </el-form-item>
         <div class="d-flex j-around">
-            <a href="https://github.com/shuzhikai/jobtool-electron" target="_blank" class="d-flex flex-column j-center a-center">
+            <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
                     <use xlink:href="#icongithub"></use>
                 </svg> 
                 <div>GitHub</div>
             </a>
-            <div class="d-flex flex-column j-center a-center">
+
+            <a href="https://gitee.com/shuzhikai/moyu" target="_blank"  class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转码云">
                     <use xlink:href="#icongitee"></use>
                 </svg> 
                 <div>码云</div>
-            </div>
+            </a>
         </div>
     </el-form>
 </template>

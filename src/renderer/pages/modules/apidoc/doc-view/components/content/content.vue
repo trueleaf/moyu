@@ -115,6 +115,9 @@
                         </template>
                     </s-tree-json>
                 </s-collapse>
+                <s-collapse title="备注">
+                    <div v-html="request.description"></div>
+                </s-collapse>
             </div>            
         </div>
         <div class="w-35 flex1">
@@ -136,7 +139,6 @@ import variableManage from "./dialog/variable-manage"
 import docRecord from "./dialog/doc-record/doc-record"
 import convertCode from "./dialog/convert-code"
 import { dfsForest } from "@/lib/index"
-import uuid from "uuid/v4"
 const CancelToken = axios.CancelToken;
 export default {
     components: {
@@ -158,7 +160,7 @@ export default {
                 }, //----------------------------请求地址信息
                 requestParams: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -169,7 +171,7 @@ export default {
                 ],
                 responseParams: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -180,7 +182,7 @@ export default {
                 ],
                 header: [
                     {
-                        id: uuid(),
+                        id: this.uuid(),
                         key: "", //--------------请求头键
                         value: "", //------------请求头值
                         type: "string", //-------请求头值类型
@@ -189,7 +191,7 @@ export default {
                         children: [], //---------子参数
                     }
                 ], //----------------------------请求头信息
-                description: "在这里输入文档描述", //--------------请求描述
+                description: "", //--------------请求描述
                 _description: "", //-------------请求描述拷贝
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
@@ -335,7 +337,7 @@ export default {
                 if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
                 if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
                 // if (this.request.url.host === "") this.request.url.host = location.origin;
-                this.request._description = res.data.item.description || "在这里输入文档描述";
+                this.request._description = res.data.item.description || "";
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -379,7 +381,7 @@ export default {
         },
         generateParams() {
             return {
-                id: uuid(),
+                id: this.uuid(),
                 key: "", //--------------请求头键
                 value: "", //------------请求头值
                 type: "string", //-------请求头值类型

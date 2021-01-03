@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="tree-json">
+    <div class="tree-json" :style="{height: height, maxHeight: maxHeight}">
         <div class="operation">
             <div v-copy="JSON.stringify(convertPlainParamsToTreeData(data))" class="item" title="复制为json" @click="handleCopy">复制为json</div>
             <slot name="operation" :data="opData" />
@@ -22,6 +22,14 @@ export default {
             default() {
                 return {};
             }
+        },
+        height: {
+            type: String,
+            default: null
+        },
+        maxHeight: {
+            type: String,
+            default: null
         },
     },
     computed: {
@@ -114,6 +122,7 @@ export default {
     padding: size(10) size(10);
     position: relative; //递归组件只在外层添加relative，否则offsetleft取值会出现问题
     border-radius: $border-radius-sm;
+    overflow-y: auto;
     .operation {
         display: flex;
         align-items: center;

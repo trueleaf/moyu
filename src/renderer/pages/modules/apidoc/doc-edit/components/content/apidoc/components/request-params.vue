@@ -9,7 +9,7 @@
         <s-params-tree 
             ref="paramsTree"
             :tree-data="request.requestParams"
-            :nest="request.requestType !== 'query' && request.requestType !== 'formData'"
+            :nest="request.requestType === 'json'"
             :enable-form-data="request.requestType === 'formData'"
             :mind-params="mindParams.mindRequestParams"
             showCheckbox
@@ -77,6 +77,7 @@ import jsonSchema from "../dialog/json-schema"
 import presetParams from "../dialog/preset-params"
 import savePresetParamsTemplate from "../dialog/preset-params-temp"
 export default {
+    name: "REQUEST_PARAMS",
     components: {
         "s-json-schema": jsonSchema,
         "s-preset-params": presetParams,
