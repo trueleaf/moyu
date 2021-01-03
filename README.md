@@ -132,7 +132,7 @@ module.exports = {
 ### 服务端部署
 > 请确保已经安装MongoDB和Node.js
 ```bash
-git clone https://github.com/trueleaf/moyu.git
+git clone https://github.com/trueleaf/moyu-server
 cd moyu
 npm install # 国内推荐使用cnpm进行安装
 # 运行不同命令
