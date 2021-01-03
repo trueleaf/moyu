@@ -128,9 +128,12 @@ export default {
                             };
                         })
                     };
-                    this.axios.post("/api/project/add_project", params).then(() => {
+                    this.axios.post("/api/project/add_project", params).then((res) => {
                         this.handleClose();
-                        this.$emit("success");
+                        this.$emit("success", {
+                            id: res.data,
+                            name: this.formInfo.projectName
+                        });
                     }).catch(err => {
                         this.$errorThrow(err, this);
                     }).finally(() => {

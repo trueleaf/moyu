@@ -149,7 +149,7 @@
             </div>
         </div>
         <!-- 新增项目弹窗 -->
-        <s-add-project-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @success="getProjectList"></s-add-project-dialog>
+        <s-add-project-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
         <s-edit-project-dialog v-if="dialogVisible2" :id="projectId" :visible.sync="dialogVisible2" @success="getProjectList"></s-edit-project-dialog>
     </div>
 </template>
@@ -315,6 +315,19 @@ export default {
                 }
             });
             // console.log(item);
+        },
+        //新增项目成功
+        handleAddSuccess(projectInfo) {
+            this.axios.put("/api/project/visited", { projectId: projectInfo.id }).catch(err => {
+                console.error(err);
+            });
+            this.$router.push({
+                path: "/v1/apidoc/doc-edit",
+                query: {
+                    id: projectInfo.id,
+                    name: projectInfo.name
+                },
+            });
         },
         //=====================================其他操作=====================================//
     }
