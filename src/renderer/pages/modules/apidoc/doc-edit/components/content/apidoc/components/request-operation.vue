@@ -257,6 +257,12 @@ export default {
         },
         //保存接口
         saveRequest() {
+            if (this.request.url.host) {
+                let storeEnvironment = localStorage.getItem("apidoc/environment") || "{}";
+                storeEnvironment = JSON.parse(storeEnvironment);
+                storeEnvironment[this.$route.query.id] = this.request.url.host;
+                localStorage.setItem("apidoc/environment", JSON.stringify(storeEnvironment))
+            }
             return new Promise((resolve, reject) => {
                 const validParams = this.validateParams();
                 if (validParams) {
@@ -611,7 +617,7 @@ export default {
                 const reqParams = this.request.requestParams;
                 if (!reqParams.find(val => val.key === i)) {
                     this.request.requestParams.unshift({
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: i, //--------------请求参数键
                         value: queryParams[i], //------------请求参数值
                         type: "string", //-------------请求参数值类型
