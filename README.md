@@ -1,7 +1,7 @@
 <div align="center" width="130px" height="130px">
     <img src="http://jobtool.cn/imgs/logo.png" alt="logo"/>
 </div>
-<h1 align="center">摸鱼</h1>
+<h1 align="center">摸鱼(客户端)</h1>
 <h3 align="center">一款基于 Vue 和 Electron 的接口文档管理工具</h3>
 <div align="center">
 
@@ -34,9 +34,13 @@
 </div>
 
 ## 常用
-[客户端Git地址](https://github.com/trueleaf/moyu)
+[客户端GitHub地址](https://github.com/trueleaf/moyu)
 
-[服务端Git地址](https://github.com/trueleaf/moyu-server)
+[服务端GitHub地址](https://github.com/trueleaf/moyu-server)
+
+[客户端Gitee地址](https://gitee.com/shuzhikai/moyu)
+
+[服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
 
 [客户端下载](https://github.com/shuxiaokai3/jobtool-electron/releases)
 
@@ -134,7 +138,7 @@ module.exports = {
 ### 服务端部署
 > 请确保已经安装MongoDB和Node.js
 ```bash
-git clone https://github.com/trueleaf/moyu.git
+git clone https://github.com/trueleaf/moyu-server.git
 cd moyu
 npm install # 国内推荐使用cnpm进行安装
 # 运行不同命令
