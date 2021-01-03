@@ -131,7 +131,7 @@ export default {
                 type: "request", //------------参数类型
                 presetParams: [
                     {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -147,7 +147,7 @@ export default {
                 type: "", //------------------参数类型
                 presetParams: [
                     {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -260,7 +260,7 @@ export default {
         //=====================================其他操作====================================//
         generateParams(type = "string") {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "", //--------------请求参数键
                 value: "", //------------请求参数值
                 type, //-----------------请求参数值类型

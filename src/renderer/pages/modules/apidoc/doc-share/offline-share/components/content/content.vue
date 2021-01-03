@@ -116,7 +116,7 @@ export default {
                 }, //----------------------------请求地址信息
                 requestParams: [
                     {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -127,7 +127,7 @@ export default {
                 ],
                 responseParams: [
                     {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "", //--------------请求参数键
                         value: "", //------------请求参数值
                         type: "string", //-------------请求参数值类型
@@ -138,7 +138,7 @@ export default {
                 ],
                 header: [
                     {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "", //--------------请求头键
                         value: "", //------------请求头值
                         type: "string", //-------请求头值类型
@@ -284,7 +284,7 @@ export default {
         },
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "", //--------------请求头键
                 value: "", //------------请求头值
                 type: "string", //-------请求头值类型

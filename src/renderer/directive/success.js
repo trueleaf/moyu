@@ -18,7 +18,6 @@ class SuccessTip {
     }
     update(el, binding) {
         const createDom = () => {
-            console.log(binding.value, binding.oldValue)
             this.clientX = el.getBoundingClientRect()["left"];
             this.clientY = el.getBoundingClientRect()["top"];
             const dom = document.createElement("div");

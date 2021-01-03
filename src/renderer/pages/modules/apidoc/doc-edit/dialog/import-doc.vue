@@ -91,7 +91,7 @@ export default {
                     return value.item && value.item.length > 0;
                 },
                 hooks: (value) => {
-                    value.id = this.uuid();
+                    value.id = this.$helper.uuid();
                 },
                 rKey: "item"
             });

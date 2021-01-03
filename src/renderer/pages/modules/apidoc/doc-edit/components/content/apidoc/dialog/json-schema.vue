@@ -112,40 +112,48 @@ export default {
                         const description = matchedVal ? matchedVal.description : ""
                         if (valueType === "string" || valueType === "number" || valueType === "boolean") {
                             result.push({
+                                id: this.$helper.uuid(),
                                 key: i,
                                 type: valueType,
                                 value: obj[i] == null ? "null" : obj[i].toString(),
                                 description,
-                                required: true
+                                required: true,
+                                _select: true
                             })
                         } else if (valueType === "object") {
                             const current = {
-                                key: i,
-                                type: valueType,
-                                value: "",
-                                required: true,
-                                children: []
-                            }
-                            result.push(current)
-                            foo(obj[i], current.children);
-                        } else if (valueType === "array") {
-                            const current = {
+                                id: this.$helper.uuid(),
                                 key: i,
                                 type: valueType,
                                 value: "",
                                 required: true,
                                 children: [],
-                                description
+                                _select: true
+                            }
+                            result.push(current)
+                            foo(obj[i], current.children);
+                        } else if (valueType === "array") {
+                            const current = {
+                                id: this.$helper.uuid(),
+                                key: i,
+                                type: valueType,
+                                value: "",
+                                required: true,
+                                children: [],
+                                description,
+                                _select: true
                             }
                             result.push(current);
                             if (this.getType(obj[i][0]) === "object") {
                                 current.children.push({
+                                    id: this.$helper.uuid(),
                                     key: "",
                                     type: "object",
                                     value: "",
                                     required: true,
                                     children: [],
-                                    description
+                                    description,
+                                    _select: true
                                 })
                                 foo(obj[i][0], current.children[0].children);
                             } else {
@@ -156,65 +164,22 @@ export default {
                 } else {
                     const valueType = this.getType(obj);
                     result.push({
+                        id: this.$helper.uuid(),
                         key: "",
                         required: true,
                         type: valueType,
                         value: obj,
+                        _select: true
                     })
                 }
             }
             foo(obj, result);
-            // const foo = (treeData, result) => {
-            //     const treeDataType = this.getType(treeData)
-            //     if (treeDataType !== "object" && treeDataType !== "array") {
-            //         result.push(Object.assign(this.generateParams(treeDataType), { value: treeData }))
-            //     } else {
-            //         for (const i in treeData) {
-            //             if (Array.isArray(treeData[i])) { //数组类型
-            //                 const firstEle = treeData[i][0];
-            //                 const data = Object.assign(this.generateParams("array"), { key: i });
-            //                 if (this.plain) {
-            //                     data.type = "string"
-            //                 }
-            //                 if (this.getType(firstEle) === "object") {
-            //                     result.push(data)
-            //                     if (!this.plain) {
-            //                         data.children[0] = this.generateParams("object");
-            //                         foo(treeData[i][0], data.children[0].children);   
-            //                     }
-            //                 } else {
-            //                     result.push(data)
-            //                     if (!this.plain) {
-            //                         foo(treeData[i][0], data.children);     
-            //                     }
-            //                 }
-            //             } else if (typeof treeData[i] === "object") { //对象类型
-            //                 const data = Object.assign(this.generateParams("object"), { key: i })
-            //                 if (this.plain) {
-            //                     data.type = "string"
-            //                 }
-            //                 result.push(data)
-            //                 const childData = data.children;
-            //                 if (!this.plain) {
-            //                     foo(treeData[i], childData);   
-            //                 }
-            //             } else {
-            //                 const data = Object.assign(this.generateParams("object"), { key: i, type: this.getType(treeData[i]), value: treeData[i] })
-            //                 if (this.plain) {
-            //                     data.type = "string"
-            //                 }
-            //                 result.push(data)
-            //             }
-            //         }                    
-            //     }
-            // }
-            // foo(obj, result);
             return result;
         },
 
         generateParams(type = "string") {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "", //--------------参数键
                 value: "", //------------参数值
                 type, //-----------------参数值类型

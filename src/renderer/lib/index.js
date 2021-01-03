@@ -1,8 +1,19 @@
-/** 
- * @description        基础库
- * @author             shuxiaokai
- * @create             2020-09-30 22:04
- */
+
+
+
+
+/**
+    @description  生成uuid
+    @author       shuxiaokai
+    @create       2019-10-29 16:32"
+    @return {string}      uuid
+*/
+import { v4 as uuidV4 } from "uuid";
+
+export const uuid = function() {
+    return uuidV4();
+}
+
 
 /**
     @description  返回变量类型

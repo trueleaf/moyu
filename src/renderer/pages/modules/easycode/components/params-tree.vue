@@ -259,14 +259,14 @@ export default {
         },
         //快捷新增一条参数
         handleAddMindParams(data, val) {
-            val.uuid = this.uuid();
+            val.uuid = this.$helper.uuid();
             Object.assign(data, val)
         },
         //=====================================组件间交互====================================//  
         //生成请求数据
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "", 
                 type: "String",
                 default: "",

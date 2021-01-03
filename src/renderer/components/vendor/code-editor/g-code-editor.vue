@@ -30,7 +30,6 @@ export default {
     },
     methods: {
         initEditor() {
-            console.log(this.type)
             const editor = ace.edit(this.$el);
             editor.getSession().setMode(`ace/mode/${this.type}`);
             editor.setTheme("ace/theme/github");

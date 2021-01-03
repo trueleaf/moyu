@@ -112,7 +112,6 @@ export default {
                             }
                             this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
                                 this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
-                                // console.log(JSON.parse(JSON.stringify(data.docs)))
                                 this.formatRequestData(data.docs);
                                 Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
                                     console.error(err);
@@ -231,8 +230,10 @@ export default {
                 this.loading = false;
             });
         },
-        //将返回值
+        //格式化返回值
         formatRequestData(requestData) {
+            // console.log("format", requestData.url.host)
+            
             Object.assign(this.request,requestData);
             dfsForest(this.request.requestParams, {
                 rCondition(value) {
@@ -258,14 +259,14 @@ export default {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", this.uuid())
+                    this.$set(val, "id", this.$helper.uuid())
                 }
             })
             this.request.responseParams.forEach(val => {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", this.uuid())
+                    this.$set(val, "id", this.$helper.uuid())
                 }
             })
             this.request.header.forEach(val => {
@@ -273,7 +274,7 @@ export default {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
-                    this.$set(val, "id", this.uuid())
+                    this.$set(val, "id", this.$helper.uuid())
                 }
                 // if (val.key.toLowerCase() === "host") {
                 //     this.$set(val, "_readOnly", true)
@@ -292,32 +293,10 @@ export default {
                     }
                 }
             })
-            // const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
-            // if (!matchedHost) {
-            //     this.request.header.unshift({
-            //         id: this.uuid(),
-            //         key: "host", //--------------请求头键
-            //         value: location.host, //------------请求头值
-            //         type: "string", //-------请求头值类型
-            //         description: "host", //------描述
-            //         required: true, //-------是否必填
-            //         children: [], //---------子参数
-            //         _readOnly: true,
-            //     });                    
-            // } else {
-            //     matchedHost.id = this.uuid();
-            //     matchedHost.key = "host";
-            //     matchedHost.value = location.host;
-            //     matchedHost.type = "string";
-            //     matchedHost.description = "host";
-            //     matchedHost.required = true;
-            //     matchedHost._readOnly = true;
-            //     matchedHost.children = [];
-            // }
             const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
             if (!matchedContentType) {
                 this.request.header.unshift({
-                    id: this.uuid(),
+                    id: this.$helper.uuid(),
                     key: "content-type", //--------------请求头键
                     value: "application/json; charset=utf-8", //------------请求头值
                     type: "string", //-------请求头值类型
@@ -327,7 +306,7 @@ export default {
                     _readOnly: true,
                 });
             } else {
-                matchedContentType.id = this.uuid();
+                matchedContentType.id = this.$helper.uuid();
                 matchedContentType.key = "content-type";
                 matchedContentType.value = "application/json; charset=utf-8";
                 matchedContentType.type = "string";
@@ -362,10 +341,16 @@ export default {
                 id: this.currentSelectDoc._id,
                 method: requestData.methods
             });
+            //若没有环境则取localstorage里面的环境
+            let localEnviroment = localStorage.getItem("apidoc/environment") || "{}";
+            localEnviroment = JSON.parse(localEnviroment)
+            if (localEnviroment[this.$route.query.id] && !requestData.url.host) {
+                requestData.url.host = localEnviroment[this.$route.query.id];
+            }
         },
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "", //--------------请求头键
                 value: "", //------------请求头值
                 type: "string", //-------请求头值类型
@@ -401,7 +386,7 @@ export default {
         //=====================================其他操作=====================================//
         //同步请求数据
         syncRequestParams() {
-            console.log("同步");
+            // console.log("同步");
             this.db.findByIdAndUpdate("apidoc_doc", this.currentSelectDoc._id, {
                 docs: this.request
             });

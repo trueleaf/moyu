@@ -161,6 +161,7 @@ export default {
                 }
             })
             this.request.requestParams = params;
+            this.selectChecked();
         },
         //刷新本地快捷参数
         freshLocalUsefulParams() {

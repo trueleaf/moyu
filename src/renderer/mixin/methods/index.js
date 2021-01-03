@@ -1,17 +1,6 @@
 import tips from "./tips"
-import { v4 as uuid } from "uuid";
 
 export default {
-    /** 
-     * @description        生成uuid
-     * @author              shuxiaokai
-     * @create             2021-01-03 15:33
-     * @return {String}    返回uuid
-     */
-    uuid() {
-        return uuid();
-    },
-
     /**
         @description  随机生成提示信息
         @author       shuxiaokai

@@ -210,7 +210,7 @@ export default {
             if (!this.nest && val.type !== "string") { //禁止嵌套并且参数类型不是字符串的统一转换为字符串
                 val.type = "string";
             }
-            val.uuid = this.uuid();
+            val.uuid = this.$helper.uuid();
             //通过快捷参数带出的数据需要把错误校验去掉
             this.$set(data, "_valueError", {
                 error: false
@@ -418,7 +418,7 @@ export default {
         //生成一条基础数据
         generateParams(type = "string") {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: type,

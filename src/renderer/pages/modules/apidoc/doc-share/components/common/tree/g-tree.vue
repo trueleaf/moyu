@@ -59,7 +59,7 @@ export default {
                 if (this.isFirst && this.data && this.data[this.data.length - 1] && this.data[this.data.length - 1].key) {
                     this.isFirst = false;
                     this.data.push({
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         key: "",
                         value: "",
                         description: "",
@@ -153,7 +153,7 @@ export default {
                             return;
                         } else {
                             parentNode.push({
-                                id: this.uuid(),
+                                id: this.$helper.uuid(),
                                 key: "",
                                 value: "",
                                 description: "",
@@ -184,7 +184,7 @@ export default {
             //     return;
             // }
             data.children.push({
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: "",

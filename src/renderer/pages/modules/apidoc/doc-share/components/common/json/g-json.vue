@@ -114,7 +114,7 @@ export default {
         //生成请求数据
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: 1,
