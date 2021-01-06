@@ -208,18 +208,6 @@ export default {
                             break;
                         case "x-www-form-urlencoded":
                             headers["content-type"] = "application/x-www-form-urlencoded"
-                            // for (const key in data) {
-                            //     const hasOwn = Object.hasOwnProperty;
-                            //     if (hasOwn.call(data, key)) {
-                            //         if (data[key].constructor.name === "ArrayBuffer") {
-                            //             const type = await FileType.fromBuffer(data[key]);
-                            //             formData.append(key, Buffer(data[key]), { contentType: type.mime });
-                            //         } else {
-                            //             formData.append(key, data[key]);
-                            //         }
-                            //     }
-                            // }
-                            // data = formData;
                             break;
                         default:
                             headers["content-type"] = "application/json"
@@ -404,7 +392,8 @@ export default {
         //将扁平数据转换为树形结构数据
         convertPlainParamsToTreeData(plainData, jumpChecked) {
             const result = {};
-            const foo = (plainData, result) => {
+            const parent = {};
+            const foo = (plainData, result, parent) => {
                 for(let i = 0,len = plainData.length; i < len; i++) {
                     if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
                         continue;
@@ -413,9 +402,12 @@ export default {
                     const value = this.convertVariable(plainData[i].value);
                     const type = plainData[i].type;
                     const valueTypeIsArray = Array.isArray(result);
+                    // const parentNode = findParentNode(params.id, rawData);
+                    const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
                     const isComplex = (type === "object" || type === "array");
+
                     let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-                    if (!isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
+                    if (!isParentArray && !isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
                         continue
                     }
                     /*eslint-disable indent*/ 
@@ -429,13 +421,15 @@ export default {
                         case "object":
                             valueTypeIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
                             if (plainData[i].children && plainData[i].children.length > 0) {
-                                foo(plainData[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key]);
+                                parent = plainData[i];
+                                foo(plainData[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key], parent);
                             }
                             break;
                         case "array":
                             result[key] = [];
                             if (plainData[i].children && plainData[i].children.length > 0) {
-                                foo(plainData[i].children, result[key]);
+                                parent = plainData[i];
+                                foo(plainData[i].children, result[key], parent);
                             }
                             break;
                         default: //字符串或其他类型类型不做处理
@@ -444,7 +438,8 @@ export default {
                     }
                 }
             }
-            foo(plainData, result);
+            foo(plainData, result, parent);
+            console.log(234, plainData, result)
             return result;
         },
         //数据校验

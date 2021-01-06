@@ -15,9 +15,10 @@
                 :expand-on-click-node="false" 
                 :draggable="enableDrag"
                 :allow-drop="handleCheckNodeCouldDrop"
+                :show-checkbox="showCheckbox"
+                :default-expanded-keys="defaultExpandedKeys"
                 @node-drop="handleNodeDrop"
                 @check-change="handleCheckChange"
-                :show-checkbox="showCheckbox"
         >
             <template slot-scope="scope">
                 <div class="custom-tree-node">
@@ -140,6 +141,7 @@ export default {
     },
     data() {
         return {
+            defaultExpandedKeys: [],
             enableDrag: true, //是否允许拖拽
         };
     },
@@ -187,6 +189,7 @@ export default {
             } else { //默认设置为object
                 data.type = "object"
             }
+            this.defaultExpandedKeys.push(params.id);
         },
         //删除一条数据
         deleteTreeData({ node, data }) {
