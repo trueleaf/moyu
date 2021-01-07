@@ -269,6 +269,7 @@ class OpenApiTranslate {
     convertRequestBody(requestBody, openApiDocInfo) {
         /** 
          * https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#mediaTypeObject
+         * 直解析非常准确的contentType, 不解析mediaTypeRange(eg: text/*) 
          * 只存在三个字段
          * required, description，content<MediaXType>
          * 
@@ -283,19 +284,36 @@ class OpenApiTranslate {
         const formDataContent = content["multipart/form-data"];
         params.description = requestBody.description || ""; //描述是所有参数都具有的属性
         requestBody.required ? (params.required = true) : (params.required = false) //必填是所有参数都具有的属性
+
+
         if (jsonContent) { //json格式优先解析，多种格式只解析一个
             const schema = jsonContent.schema;
-            let ref = schema.$ref; //注意：ref可能存在多种引用，只解析当前文件的引用(eg: #/components/schemas/Pet)
-            if (!ref.startsWith("#")) {
-                console.warn("只能解析当前文件的引用");
-            } else {
-                let referSchema = null;
-                ref = ref.replace("#/").split("/");
-                ref.forEach(val => {
-                    referSchema = openApiDocInfo[val];
-                })
-                console.log(referSchema)
-            }
+            /**
+             * schema<Schema Object|Reference Object>
+             * 1.类型为SchemaObject
+             * 2.类型为引用类型
+            */ 
+            
+            const moyuParams = this.convertSchema(schema);
+            console.log(moyuParams)
+
+
+
+            // let ref = schema.$ref; //注意：ref可能存在多种引用，只解析当前文件的引用(eg: #/components/schemas/Pet)
+            // const properties = schema.properties;
+            // //1.通过引用  2.直接书写在properties中
+            // if (!ref) {
+
+            // } else if (!ref.startsWith("#")) {
+            //     console.warn("只能解析当前文件的引用");
+            // } else {
+            //     let referSchema = null;
+            //     ref = ref.replace("#/").split("/");
+            //     ref.forEach(val => {
+            //         referSchema = openApiDocInfo[val];
+            //     })
+            //     console.log(referSchema)
+            // }
         } else if (formContent) {
             const schema = formContent.schema;
             let ref = schema.$ref; //注意：ref可能存在多种引用，只解析当前文件的引用(eg: #/components/schemas/Pet)
@@ -327,6 +345,32 @@ class OpenApiTranslate {
         }
         console.log("schema", requestBody, openApiDocInfo)
     }
+    //将schema转换为muyu参数
+    convertSchema(schema) {
+        const result = [];
+        const foo = (schema) => {
+            const moyuDoc = this.generateParams();
+            if (schema.$ref) { //存在引用类型
+
+            } else if (schema.type) { //根据不同type解析
+                const type = schema.type;
+                if (type === "integer" || type === "number") { //number
+                    moyuDoc.type = "number"
+                } else if (type === "string") { //string
+                    moyuDoc.type = "string"
+                } else if (type === "boolean") {
+                    moyuDoc.type = "boolean"
+                } else if (type === "array") {
+                    moyuDoc.type = "array"
+                } else if (type === "object") {
+                    moyuDoc.type = "object"
+                }
+            }
+        }
+        foo(schema);
+        console.log(result)
+    }
+
     //申请参数骨架
     generateParams() {
         return {
