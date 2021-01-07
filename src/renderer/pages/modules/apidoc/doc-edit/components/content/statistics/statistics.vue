@@ -18,31 +18,26 @@
 </template>
 
 <script>
-import yaml from "js-yaml"
-import apiTranslator from "./api-translator"
-import data from "./data"
+import OpenApiTranslator from "./open-api-translator"
 export default {
     data() {
         return {
-            apiTranslatorInstance: null
+            
         };
     },
     created() {
-        this.apiTranslatorInstance = new apiTranslator(data, "openapi", {
-            projectId: this.$route.query.id
-        });
-        this.apiTranslatorInstance.getResult()
+        this.init();
     },
     methods: {
+        init() {
+            new OpenApiTranslator().init();
+        },
+        handleChangeFile() {
+
+        },
+
+
         
-
-
-        async handleChangeFile(e) {
-            const file = e.target.files[0];
-            const text = await file.text();
-            const jsonYaml = yaml.load(text);
-            console.log(jsonYaml)
-        }
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
