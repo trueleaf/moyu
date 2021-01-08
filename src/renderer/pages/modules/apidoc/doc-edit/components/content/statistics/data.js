@@ -5,7 +5,9 @@ export default {
         description:
             "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters.",
         termsOfService: "http://swagger.io/terms/",
-        contact: { email: "apiteam@swagger.io" },
+        contact: {
+            email: "apiteam@swagger.io",
+        },
         license: {
             name: "Apache 2.0",
             url: "http://www.apache.org/licenses/LICENSE-2.0.html",
@@ -17,8 +19,12 @@ export default {
         url: "http://swagger.io",
     },
     servers: [
-        { url: "https://petstore.swagger.io/v2" },
-        { url: "http://petstore.swagger.io/v2" },
+        {
+            url: "https://petstore.swagger.io/v2",
+        },
+        {
+            url: "http://petstore.swagger.io/v2",
+        },
     ],
     tags: [
         {
@@ -29,7 +35,10 @@ export default {
                 url: "http://swagger.io",
             },
         },
-        { name: "store", description: "Access to Petstore orders" },
+        {
+            name: "store",
+            description: "Access to Petstore orders",
+        },
         {
             name: "user",
             description: "Operations about user",
@@ -50,20 +59,37 @@ export default {
                         "Pet object that needs to be added to the store",
                     content: {
                         "application/json": {
-                            schema: { $ref: "#/components/schemas/Pet" },
+                            schema: {
+                                $ref: "#/components/schemas/Pet",
+                            },
                         },
                         "application/xml": {
-                            schema: { $ref: "#/components/schemas/Pet" },
+                            schema: {
+                                $ref: "#/components/schemas/Pet",
+                            },
                         },
                     },
                     required: true,
                 },
                 responses: {
-                    "400": { description: "Invalid ID supplied", content: {} },
-                    "404": { description: "Pet not found", content: {} },
-                    "405": { description: "Validation exception", content: {} },
+                    "400": {
+                        description: "Invalid ID supplied",
+                        content: {},
+                    },
+                    "404": {
+                        description: "Pet not found",
+                        content: {},
+                    },
+                    "405": {
+                        description: "Validation exception",
+                        content: {},
+                    },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
                 "x-codegen-request-body-name": "body",
             },
             post: {
@@ -75,18 +101,29 @@ export default {
                         "Pet object that needs to be added to the store",
                     content: {
                         "application/json": {
-                            schema: { $ref: "#/components/schemas/Pet" },
+                            schema: {
+                                $ref: "#/components/schemas/Pet",
+                            },
                         },
                         "application/xml": {
-                            schema: { $ref: "#/components/schemas/Pet" },
+                            schema: {
+                                $ref: "#/components/schemas/Pet",
+                            },
                         },
                     },
                     required: true,
                 },
                 responses: {
-                    "405": { description: "Invalid input", content: {} },
+                    "405": {
+                        description: "Invalid input",
+                        content: {},
+                    },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
                 "x-codegen-request-body-name": "body",
             },
         },
@@ -123,20 +160,31 @@ export default {
                             "application/xml": {
                                 schema: {
                                     type: "array",
-                                    items: { $ref: "#/components/schemas/Pet" },
+                                    items: {
+                                        $ref: "#/components/schemas/Pet",
+                                    },
                                 },
                             },
                             "application/json": {
                                 schema: {
                                     type: "array",
-                                    items: { $ref: "#/components/schemas/Pet" },
+                                    items: {
+                                        $ref: "#/components/schemas/Pet",
+                                    },
                                 },
                             },
                         },
                     },
-                    "400": { description: "Invalid status value", content: {} },
+                    "400": {
+                        description: "Invalid status value",
+                        content: {},
+                    },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
             },
         },
         "/pet/findByTags": {
@@ -154,7 +202,12 @@ export default {
                         required: true,
                         style: "form",
                         explode: true,
-                        schema: { type: "array", items: { type: "string" } },
+                        schema: {
+                            type: "array",
+                            items: {
+                                type: "string",
+                            },
+                        },
                     },
                 ],
                 responses: {
@@ -164,21 +217,32 @@ export default {
                             "application/xml": {
                                 schema: {
                                     type: "array",
-                                    items: { $ref: "#/components/schemas/Pet" },
+                                    items: {
+                                        $ref: "#/components/schemas/Pet",
+                                    },
                                 },
                             },
                             "application/json": {
                                 schema: {
                                     type: "array",
-                                    items: { $ref: "#/components/schemas/Pet" },
+                                    items: {
+                                        $ref: "#/components/schemas/Pet",
+                                    },
                                 },
                             },
                         },
                     },
-                    "400": { description: "Invalid tag value", content: {} },
+                    "400": {
+                        description: "Invalid tag value",
+                        content: {},
+                    },
                 },
                 deprecated: true,
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
             },
         },
         "/pet/{petId}": {
@@ -193,7 +257,10 @@ export default {
                         in: "path",
                         description: "ID of pet to return",
                         required: true,
-                        schema: { type: "integer", format: "int64" },
+                        schema: {
+                            type: "integer",
+                            format: "int64",
+                        },
                     },
                 ],
                 responses: {
@@ -201,17 +268,31 @@ export default {
                         description: "successful operation",
                         content: {
                             "application/xml": {
-                                schema: { $ref: "#/components/schemas/Pet" },
+                                schema: {
+                                    $ref: "#/components/schemas/Pet",
+                                },
                             },
                             "application/json": {
-                                schema: { $ref: "#/components/schemas/Pet" },
+                                schema: {
+                                    $ref: "#/components/schemas/Pet",
+                                },
                             },
                         },
                     },
-                    "400": { description: "Invalid ID supplied", content: {} },
-                    "404": { description: "Pet not found", content: {} },
+                    "400": {
+                        description: "Invalid ID supplied",
+                        content: {},
+                    },
+                    "404": {
+                        description: "Pet not found",
+                        content: {},
+                    },
                 },
-                security: [{ api_key: [] }],
+                security: [
+                    {
+                        api_key: [],
+                    },
+                ],
             },
             post: {
                 tags: ["pet"],
@@ -223,7 +304,10 @@ export default {
                         in: "path",
                         description: "ID of pet that needs to be updated",
                         required: true,
-                        schema: { type: "integer", format: "int64" },
+                        schema: {
+                            type: "integer",
+                            format: "int64",
+                        },
                     },
                 ],
                 requestBody: {
@@ -246,9 +330,16 @@ export default {
                     },
                 },
                 responses: {
-                    "405": { description: "Invalid input", content: {} },
+                    "405": {
+                        description: "Invalid input",
+                        content: {},
+                    },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
             },
             delete: {
                 tags: ["pet"],
@@ -258,21 +349,36 @@ export default {
                     {
                         name: "api_key",
                         in: "header",
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                     {
                         name: "petId",
                         in: "path",
                         description: "Pet id to delete",
                         required: true,
-                        schema: { type: "integer", format: "int64" },
+                        schema: {
+                            type: "integer",
+                            format: "int64",
+                        },
                     },
                 ],
                 responses: {
-                    "400": { description: "Invalid ID supplied", content: {} },
-                    "404": { description: "Pet not found", content: {} },
+                    "400": {
+                        description: "Invalid ID supplied",
+                        content: {},
+                    },
+                    "404": {
+                        description: "Pet not found",
+                        content: {},
+                    },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
             },
         },
         "/pet/{petId}/uploadImage": {
@@ -286,7 +392,10 @@ export default {
                         in: "path",
                         description: "ID of pet to update",
                         required: true,
-                        schema: { type: "integer", format: "int64" },
+                        schema: {
+                            type: "integer",
+                            format: "int64",
+                        },
                     },
                 ],
                 requestBody: {
@@ -321,7 +430,11 @@ export default {
                         },
                     },
                 },
-                security: [{ petstore_auth: ["write:pets", "read:pets"] }],
+                security: [
+                    {
+                        petstore_auth: ["write:pets", "read:pets"],
+                    },
+                ],
             },
         },
         "/store/inventory": {
@@ -346,7 +459,11 @@ export default {
                         },
                     },
                 },
-                security: [{ api_key: [] }],
+                security: [
+                    {
+                        api_key: [],
+                    },
+                ],
             },
         },
         "/store/order": {
@@ -358,7 +475,9 @@ export default {
                     description: "order placed for purchasing the pet",
                     content: {
                         "*/*": {
-                            schema: { $ref: "#/components/schemas/Order" },
+                            schema: {
+                                $ref: "#/components/schemas/Order",
+                            },
                         },
                     },
                     required: true,
@@ -368,14 +487,21 @@ export default {
                         description: "successful operation",
                         content: {
                             "application/xml": {
-                                schema: { $ref: "#/components/schemas/Order" },
+                                schema: {
+                                    $ref: "#/components/schemas/Order",
+                                },
                             },
                             "application/json": {
-                                schema: { $ref: "#/components/schemas/Order" },
+                                schema: {
+                                    $ref: "#/components/schemas/Order",
+                                },
                             },
                         },
                     },
-                    "400": { description: "Invalid Order", content: {} },
+                    "400": {
+                        description: "Invalid Order",
+                        content: {},
+                    },
                 },
                 "x-codegen-request-body-name": "body",
             },
@@ -406,15 +532,25 @@ export default {
                         description: "successful operation",
                         content: {
                             "application/xml": {
-                                schema: { $ref: "#/components/schemas/Order" },
+                                schema: {
+                                    $ref: "#/components/schemas/Order",
+                                },
                             },
                             "application/json": {
-                                schema: { $ref: "#/components/schemas/Order" },
+                                schema: {
+                                    $ref: "#/components/schemas/Order",
+                                },
                             },
                         },
                     },
-                    "400": { description: "Invalid ID supplied", content: {} },
-                    "404": { description: "Order not found", content: {} },
+                    "400": {
+                        description: "Invalid ID supplied",
+                        content: {},
+                    },
+                    "404": {
+                        description: "Order not found",
+                        content: {},
+                    },
                 },
             },
             delete: {
@@ -437,8 +573,14 @@ export default {
                     },
                 ],
                 responses: {
-                    "400": { description: "Invalid ID supplied", content: {} },
-                    "404": { description: "Order not found", content: {} },
+                    "400": {
+                        description: "Invalid ID supplied",
+                        content: {},
+                    },
+                    "404": {
+                        description: "Order not found",
+                        content: {},
+                    },
                 },
             },
         },
@@ -452,7 +594,9 @@ export default {
                     description: "Created user object",
                     content: {
                         "*/*": {
-                            schema: { $ref: "#/components/schemas/User" },
+                            schema: {
+                                $ref: "#/components/schemas/User",
+                            },
                         },
                     },
                     required: true,
@@ -477,7 +621,9 @@ export default {
                         "*/*": {
                             schema: {
                                 type: "array",
-                                items: { $ref: "#/components/schemas/User" },
+                                items: {
+                                    $ref: "#/components/schemas/User",
+                                },
                             },
                         },
                     },
@@ -503,7 +649,9 @@ export default {
                         "*/*": {
                             schema: {
                                 type: "array",
-                                items: { $ref: "#/components/schemas/User" },
+                                items: {
+                                    $ref: "#/components/schemas/User",
+                                },
                             },
                         },
                     },
@@ -529,14 +677,18 @@ export default {
                         in: "query",
                         description: "The user name for login",
                         required: true,
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                     {
                         name: "password",
                         in: "query",
                         description: "The password for login in clear text",
                         required: true,
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                 ],
                 responses: {
@@ -546,16 +698,30 @@ export default {
                             "X-Rate-Limit": {
                                 description:
                                     "calls per hour allowed by the user",
-                                schema: { type: "integer", format: "int32" },
+                                schema: {
+                                    type: "integer",
+                                    format: "int32",
+                                },
                             },
                             "X-Expires-After": {
                                 description: "date in UTC when token expires",
-                                schema: { type: "string", format: "date-time" },
+                                schema: {
+                                    type: "string",
+                                    format: "date-time",
+                                },
                             },
                         },
                         content: {
-                            "application/xml": { schema: { type: "string" } },
-                            "application/json": { schema: { type: "string" } },
+                            "application/xml": {
+                                schema: {
+                                    type: "string",
+                                },
+                            },
+                            "application/json": {
+                                schema: {
+                                    type: "string",
+                                },
+                            },
                         },
                     },
                     "400": {
@@ -590,7 +756,9 @@ export default {
                         description:
                             "The name that needs to be fetched. Use user1 for testing. ",
                         required: true,
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                 ],
                 responses: {
@@ -598,10 +766,14 @@ export default {
                         description: "successful operation",
                         content: {
                             "application/xml": {
-                                schema: { $ref: "#/components/schemas/User" },
+                                schema: {
+                                    $ref: "#/components/schemas/User",
+                                },
                             },
                             "application/json": {
-                                schema: { $ref: "#/components/schemas/User" },
+                                schema: {
+                                    $ref: "#/components/schemas/User",
+                                },
                             },
                         },
                     },
@@ -609,7 +781,10 @@ export default {
                         description: "Invalid username supplied",
                         content: {},
                     },
-                    "404": { description: "User not found", content: {} },
+                    "404": {
+                        description: "User not found",
+                        content: {},
+                    },
                 },
             },
             put: {
@@ -623,14 +798,18 @@ export default {
                         in: "path",
                         description: "name that need to be updated",
                         required: true,
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                 ],
                 requestBody: {
                     description: "Updated user object",
                     content: {
                         "*/*": {
-                            schema: { $ref: "#/components/schemas/User" },
+                            schema: {
+                                $ref: "#/components/schemas/User",
+                            },
                         },
                     },
                     required: true,
@@ -640,7 +819,10 @@ export default {
                         description: "Invalid user supplied",
                         content: {},
                     },
-                    "404": { description: "User not found", content: {} },
+                    "404": {
+                        description: "User not found",
+                        content: {},
+                    },
                 },
                 "x-codegen-request-body-name": "body",
             },
@@ -655,7 +837,9 @@ export default {
                         in: "path",
                         description: "The name that needs to be deleted",
                         required: true,
-                        schema: { type: "string" },
+                        schema: {
+                            type: "string",
+                        },
                     },
                 ],
                 responses: {
@@ -663,7 +847,10 @@ export default {
                         description: "Invalid username supplied",
                         content: {},
                     },
-                    "404": { description: "User not found", content: {} },
+                    "404": {
+                        description: "User not found",
+                        content: {},
+                    },
                 },
             },
         },
@@ -673,69 +860,135 @@ export default {
             Order: {
                 type: "object",
                 properties: {
-                    id: { type: "integer", format: "int64" },
-                    petId: { type: "integer", format: "int64" },
-                    quantity: { type: "integer", format: "int32" },
-                    shipDate: { type: "string", format: "date-time" },
+                    id: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    petId: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    quantity: {
+                        type: "integer",
+                        format: "int32",
+                    },
+                    shipDate: {
+                        type: "string",
+                        format: "date-time",
+                    },
                     status: {
                         type: "string",
                         description: "Order Status",
                         enum: ["placed", "approved", "delivered"],
                     },
-                    complete: { type: "boolean", default: false },
+                    complete: {
+                        type: "boolean",
+                        default: false,
+                    },
                 },
-                xml: { name: "Order" },
+                xml: {
+                    name: "Order",
+                },
             },
             Category: {
                 type: "object",
                 properties: {
-                    id: { type: "integer", format: "int64" },
-                    name: { type: "string" },
+                    id: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    name: {
+                        type: "string",
+                    },
                 },
-                xml: { name: "Category" },
+                xml: {
+                    name: "Category",
+                },
             },
             User: {
                 type: "object",
                 properties: {
-                    id: { type: "integer", format: "int64" },
-                    username: { type: "string" },
-                    firstName: { type: "string" },
-                    lastName: { type: "string" },
-                    email: { type: "string" },
-                    password: { type: "string" },
-                    phone: { type: "string" },
+                    id: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    username: {
+                        type: "string",
+                    },
+                    firstName: {
+                        type: "string",
+                    },
+                    lastName: {
+                        type: "string",
+                    },
+                    email: {
+                        type: "string",
+                    },
+                    password: {
+                        type: "string",
+                    },
+                    phone: {
+                        type: "string",
+                    },
                     userStatus: {
                         type: "integer",
                         description: "User Status",
                         format: "int32",
                     },
                 },
-                xml: { name: "User" },
+                xml: {
+                    name: "User",
+                },
             },
             Tag: {
                 type: "object",
                 properties: {
-                    id: { type: "integer", format: "int64" },
-                    name: { type: "string" },
+                    id: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    name: {
+                        type: "string",
+                    },
                 },
-                xml: { name: "Tag" },
+                xml: {
+                    name: "Tag",
+                },
             },
             Pet: {
                 required: ["name", "photoUrls"],
                 type: "object",
                 properties: {
-                    id: { type: "integer", format: "int64" },
-                    category: { $ref: "#/components/schemas/Category" },
-                    name: { type: "string", example: "doggie" },
+                    id: {
+                        type: "integer",
+                        format: "int64",
+                    },
+                    category: {
+                        $ref: "#/components/schemas/Category",
+                    },
+                    name: {
+                        type: "string",
+                        example: "doggie",
+                    },
                     photoUrls: {
                         type: "array",
-                        xml: { name: "photoUrl", wrapped: true },
-                        items: { type: "string" },
+                        xml: {
+                            name: "photoUrl",
+                            wrapped: true,
+                        },
+                        items: {
+                            type: "string",
+                        },
                     },
                     tags: {
                         type: "array",
-                        xml: { name: "tag", wrapped: true },
-                        items: { $ref: "#/components/schemas/Tag" },
+                        xml: {
+                            name: "tag",
+                            wrapped: true,
+                        },
+                        items: {
+                            $ref: "#/components/schemas/Tag",
+                        },
                     },
                     status: {
                         type: "string",
@@ -743,14 +996,23 @@ export default {
                         enum: ["available", "pending", "sold"],
                     },
                 },
-                xml: { name: "Pet" },
+                xml: {
+                    name: "Pet",
+                },
             },
             ApiResponse: {
                 type: "object",
                 properties: {
-                    code: { type: "integer", format: "int32" },
-                    type: { type: "string" },
-                    message: { type: "string" },
+                    code: {
+                        type: "integer",
+                        format: "int32",
+                    },
+                    type: {
+                        type: "string",
+                    },
+                    message: {
+                        type: "string",
+                    },
                 },
             },
         },
@@ -768,7 +1030,11 @@ export default {
                     },
                 },
             },
-            api_key: { type: "apiKey", name: "api_key", in: "header" },
+            api_key: {
+                type: "apiKey",
+                name: "api_key",
+                in: "header",
+            },
         },
     },
 };
