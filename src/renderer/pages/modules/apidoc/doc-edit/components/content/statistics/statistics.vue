@@ -13,36 +13,48 @@
                 <span>22</span>
             </div>
             <input type="file" name="xxx" @change="handleChangeFile">
+            <el-button :disabled="!jsonYaml" :loading="loading" @click="importOpenApiDoc">确认导入</el-button>
         </div>
     </div>
 </template>
 
 <script>
+import OpenApiTranslator from "./open-api-translator"
 import yaml from "js-yaml"
-import apiTranslator from "./api-translator"
-import data from "./data"
 export default {
     data() {
         return {
-            apiTranslatorInstance: null
+            openApiTranslatorInstance: null,
+            loading: false,
+            jsonYaml: ""
         };
     },
     created() {
-        this.apiTranslatorInstance = new apiTranslator(data, "openapi", {
-            projectId: this.$route.query.id
-        });
-        this.apiTranslatorInstance.getResult()
+        this.init();
     },
     methods: {
-        
-
-
+        init() {
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id)
+        },
+        importOpenApiDoc() {
+            const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);
+            this.loading = false;
+            this.axios.post("/api/project/doc_multi", { docs: moyuDocs, projectId: this.$route.query.id }).then(() => {
+                this.getComponentByName("SDocEditBanner").getDocBanner();
+            }).catch(err => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
         async handleChangeFile(e) {
             const file = e.target.files[0];
             const text = await file.text();
-            const jsonYaml = yaml.load(text);
-            console.log(jsonYaml)
+            this.jsonYaml = yaml.load(text);
         }
+
+
+        
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//

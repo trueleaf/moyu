@@ -168,6 +168,7 @@ import templateDialog from "./dialog/template"
 import exportDialog from "./dialog/export"
 import contextmenu from "./components/contextmenu"
 export default {
+    name: "SDocEditBanner",
     components: {
         "s-add-folder-dialog": addFolderDialog,
         "s-add-file-dialog": addFileDialog,
