@@ -9,31 +9,70 @@
 
 
 
-import data from "./data"
+
 import { uuid } from "@/lib"
 
 class OpenApiTranslate {
     constructor(projectId) {
         this.projectId = projectId; //项目id
-        this.openApiData = data; //openapi数据
+        this.openApiData = null; //openapi数据
         this.moyuProjectInfo = {}; //转换后符合规范的数据
     }
-    init() {
-        // console.log("openApi", this.openApiData);
-        // console.log("info", this.getProjectInfo());
-        // console.log("servers", this.getServers());
-        // console.log("docs", this.getDocInfo());
-        // this.getDocInfo()
+    convertToMoyuDocs(data) {
+        if (!data) {
+            throw new Error("缺少转换数据");
+        }
+        this.openApiData = data;
+        const moyuDocs = [];
         const simplifyRequests = this.getSimplifyRequests();
+        //生成目录信息
         simplifyRequests.forEach(simplifyRequest => {
             const moyuDoc = this.generateDoc();
-            moyuDoc.docName = simplifyRequest.description;
+            const id = uuid();
+            moyuDoc.uuid = id;
+            simplifyRequest.uuid = id;
+            moyuDoc.docName = simplifyRequest.description || "未命名文档";
+            moyuDoc.isFolder = true;
             moyuDoc.sort = Date.now();
-            moyuDoc.pid = simplifyRequest.folderName;
-            moyuDoc.pid.item.methods = simplifyRequest.method;
-
+            moyuDocs.push(moyuDoc)
+        })
+        //生成文档
+        simplifyRequests.forEach(simplifyRequest => {
+            const moyuDoc = this.generateDoc();
+            moyuDoc.pid = simplifyRequest.uuid;
+            moyuDoc.docName = simplifyRequest.description || "未命名文档";
+            moyuDoc.sort = Date.now();
+            moyuDoc.id = simplifyRequest.folderName;
+            moyuDoc.item.methods = simplifyRequest.method;
+            moyuDoc.item.requestType = simplifyRequest.method === "get" ? "params" : "json"
+            moyuDoc.item.requestParams = simplifyRequest.method === "get" ? simplifyRequest.parameters : simplifyRequest.requestBody.values
+            moyuDoc.item.responseParams = simplifyRequest.responses[0] ? simplifyRequest.responses[0].values : []
+            moyuDocs.push(moyuDoc)
         })  
-        console.log(simplifyRequests)
+        // console.log(simplifyRequests)
+        // {
+        //     pid: "", //父元素id用于判断是否是目录
+        //     docName: "", //文档名称
+        //     isFolder: false, //是否是文件夹
+        //     sort: 0, //排序，js时间戳保留到毫秒
+        //     projectId: this.projectId, //项目id
+        //     enabled: true, //使能
+        //     publish: false, //是否发布   
+        //     item: {
+        //         methods: "get", //---------------请求方式
+        //         requestType: "params", //
+        //         url: {
+        //             host: "", //-----------------主机(服务器)地址
+        //             path: "", //-----------------接口路径
+        //         }, //----------------------------请求地址信息
+        //         requestParams: [],
+        //         responseParams: [],
+        //         header: [], //-------------------请求头信息
+        //         description: "", //--------------请求描述
+        //     },
+        // }
+        // console.log(moyuDocs)
+        return moyuDocs;
 
     }
     /** 

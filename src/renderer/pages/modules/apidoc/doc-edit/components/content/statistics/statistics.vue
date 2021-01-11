@@ -13,16 +13,20 @@
                 <span>22</span>
             </div>
             <input type="file" name="xxx" @change="handleChangeFile">
+            <el-button :disabled="!jsonYaml" :loading="loading" @click="importOpenApiDoc">确认导入</el-button>
         </div>
     </div>
 </template>
 
 <script>
 import OpenApiTranslator from "./open-api-translator"
+import yaml from "js-yaml"
 export default {
     data() {
         return {
-            
+            openApiTranslatorInstance: null,
+            loading: false,
+            jsonYaml: ""
         };
     },
     created() {
@@ -30,11 +34,24 @@ export default {
     },
     methods: {
         init() {
-            new OpenApiTranslator().init();
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id)
         },
-        handleChangeFile() {
-
+        importOpenApiDoc() {
+            const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);
+            this.loading = false;
+            this.axios.post("/api/project/doc_multi", { docs: moyuDocs, projectId: this.$route.query.id }).then(() => {
+                this.getComponentByName("SDocEditBanner").getDocBanner();
+            }).catch(err => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading = false;
+            });
         },
+        async handleChangeFile(e) {
+            const file = e.target.files[0];
+            const text = await file.text();
+            this.jsonYaml = yaml.load(text);
+        }
 
 
         
