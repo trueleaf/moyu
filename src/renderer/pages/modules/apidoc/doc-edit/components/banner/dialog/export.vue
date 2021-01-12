@@ -7,12 +7,9 @@
 <template>
     <s-dialog title="导出文档" :isShow="visible" width="40%" @close="handleClose">
         <div>
-            <el-radio-group v-model="exportType">
-                <el-radio :label="1">备选项</el-radio>
-                <el-radio :label="2">备选项2</el-radio>
-            </el-radio-group>
             <s-download-button url="/api/project/doc_word" :params="{ projectId: $route.query.id }">导出为Word</s-download-button>
             <s-download-button url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }">导出为HTML</s-download-button>
+            <s-download-button url="/api/project/export/moyu" :params="{ projectId: $route.query.id }">导出为摸鱼文档</s-download-button>
         </div>
         <div slot="footer">
             <el-button size="mini" type="warning" @click="handleClose">关闭</el-button>
@@ -30,7 +27,6 @@ export default {
     },
     data() {
         return {
-            exportType: "word",
             formInfo: {
                 name: "", //------文件名称
             }, 
