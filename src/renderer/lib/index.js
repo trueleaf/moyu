@@ -358,3 +358,144 @@ export const formatMs = (ms) => {
     } 
     return result;
 }
+
+
+
+
+
+//=====================================树形数据操作====================================//
+/** 
+    @description  根据id查找父元素
+    @author       shuxiaokai
+    @create       2019-10-22 09:13"
+    @param {String}       节点的id值
+    @param {Array}        需要查找的树形组件
+    @param {options?}
+           -id: string 默认值为 "id"  查询的id在真实数据中的含义
+           -hook  可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准    
+    @return       父节点(如果未找到返回null)
+*/
+export const findParentNodeById = function(treeData, id, options = {}) {
+    const pathId = options.id || "id";
+    const hook =  options.hook
+    let result = null;
+    const parent = null;
+    if (id == null) {
+        return null;
+    }
+    const findPNode = (id, treeData, parent) => {
+        treeData.forEach(val => {
+            if ((hook && hook(val) === true) || val[pathId] === id) {
+                result = parent;
+                return;
+            }
+            if (val.children && val.children.length > 0) {
+                findPNode(id, val.children, val);
+            }
+        })
+    }
+    findPNode(id, treeData, parent);
+    return result;
+};
+/** 
+    @description  根据id查找节点
+    @author        shuxiaokai
+    @create       2019-10-23 19:23"
+    @param {String}       节点的id值
+    @param {Array}        需要查找的树形组件
+    @param {Object}
+            -id: string 默认值为 "id"  查询的id在真实数据中的含义
+            -hook  可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准
+    @return       节点(如果未找到返回null)
+*/
+export const findNodeById = function(treeData, id, options) {
+    const pathId = options.id || "id";
+    const fn = options.hook;
+    let result = null;
+    if (id == null) {
+        console.warn("未传入id");
+        return null;
+    }
+    if (!treeData || !Array.isArray(treeData)) {
+        throw new Error("第一个参数必须为数组");
+    }
+    const findNodeId = (id, treeData) => {
+        for (let i = 0; i < treeData.length; i++) {
+            if ((fn && fn(treeData[i]) === true) || treeData[i][pathId] === id) {
+                result = treeData[i];
+                break
+            } 
+            if (treeData[i].children && treeData[i].children.length > 0) {
+                findNodeId(id, treeData[i].children);
+            }
+        }
+    }
+    findNodeId(id, treeData);
+    return result;
+};
+
+/**
+    @description  根据id查找上一个兄弟节点
+    @author       shuxiaokai
+    @create       2019-10-23 19:23"
+    @param {String}       节点的id值
+    @param {Array}        需要查找的树形组件
+    @param {Object}
+            -id: string 默认值为 "id"  查询的id在真实数据中的含义
+            -hook  可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准
+    @return       节点(如果未找到返回null)
+*/
+export const findPreviousSiblingById = function(treeData, id, options) {
+    const pathId = options.id || "id";
+    const hook = options.hook;
+    let sibling = null;
+    if (id == null) {
+        return null;
+    }
+    const findPreviouseNode = (id, treeData) => {
+        for (let i = 0; i < treeData.length; i++) {
+            if ((hook && hook(treeData[i]) === true) || treeData[i][pathId] === id) {
+                sibling = treeData[i - 1] || null;
+                break
+            } 
+            if (treeData[i].children && treeData[i].children.length > 0) {
+                findPreviouseNode(id, treeData[i].children);
+            }
+        }
+    }
+    findPreviouseNode(id, treeData);
+    return sibling;
+};
+
+/**
+    @description  查找下一个兄弟元素
+    @author        shuxiaokai
+    @create       2019-10-23 19:23"
+    @param {String}       节点的id值
+    @param {Array}        需要查找的树形组件
+    @param {Object}
+            -id: string 默认值为 "id"  查询的id在真实数据中的含义
+            -hook  可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准
+    @return       节点(如果未找到返回null)
+*/
+export const findNextSiblingById = function(treeData, id, options) {
+    const pathId = options.id || "id";
+    const hook = options.hook;
+    let sibling = null;
+    if (id == null) {
+        return null;
+    }
+    const findNextNode = (id, treeData) => {
+        for (let i = 0; i < treeData.length; i++) {
+            if ((hook && hook(treeData[i]) === true) || treeData[i][pathId] === id) {
+                sibling = treeData[i + 1] || null;
+                break
+            } 
+            if (treeData[i].children && treeData[i].children.length > 0) {
+                findNextNode(id, treeData[i].children);
+            }
+        }
+    }
+    findNextNode(id, treeData);
+    return sibling;
+};
