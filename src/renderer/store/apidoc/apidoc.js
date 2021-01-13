@@ -238,14 +238,13 @@ export default {
         async getDocBanner(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    _id: payload._id
+                    projectId: payload.projectId
                 };
                 axios.get("/api/project/doc_tree_node", { params }).then(res => {
                     const result = res.data;
                     context.commit("changeDocBanner", result);
                     resolve();
                 }).catch(err => {
-                    console.error(err);
                     reject(err);
                 });                
             })

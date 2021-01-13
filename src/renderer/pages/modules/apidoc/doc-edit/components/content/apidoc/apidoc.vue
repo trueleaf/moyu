@@ -6,13 +6,11 @@
 */
 <template>
     <div class="edit-content">
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="workplace">
+        <s-loading :loading="loading" class="workplace">
             <!-- 基本配置 -->
             <div class="base-params">
-                <!-- 请求备注 -->
-                <s-remark-manage v-if="0" v-model="request.description"></s-remark-manage>
                 <!-- 服务端地址管理 -->
-                <s-server-manage v-model="request.url.host"></s-server-manage>
+                <s-servers-manage v-model="request.url.host"></s-servers-manage>
                 <!-- 请求操作区域 -->
                 <s-request-operation-manage ref="requestOperation" :request="request" :data-ready="docDataReady" @fresh="handleFresh"></s-request-operation-manage>
             </div>
@@ -23,7 +21,7 @@
                 <s-header-params-manage ref="headerParams" :request="request" :data-ready="docDataReady"></s-header-params-manage>
                 <s-remark-params-manage :request="request"></s-remark-params-manage>
             </div>            
-        </div>
+        </s-loading>
         <s-response class="response-wrap" ref="response" :request-data="request"></s-response>            
     </div>
 </template>
@@ -34,8 +32,7 @@ import axios from "axios"
 import response from "./components/response"
 import FileType from "file-type/browser"
 //=========================================================================//
-import remarkManage from "./components/remark" //-----------------------------------接口备注
-import serverManage from "./components/server" //-----------------------------------请求地址列表
+import serversManage from "./components/servers" //---------------------------------请求地址列表
 import requestOperationManage from "./components/request-operation" //--------------请求操作和url管理
 import requestParamsManage from "./components/request-params" //--------------------请求参数管理
 import responseParamsManage from "./components/response-params" //------------------返回参数管理
@@ -50,8 +47,7 @@ export default {
         "s-response-params-manage": responseParamsManage,
         "s-header-params-manage": headerParamsManage,
         "s-remark-params-manage": remarkParamsManage,
-        "s-server-manage": serverManage,
-        "s-remark-manage": remarkManage,
+        "s-servers-manage": serversManage,
         "s-request-operation-manage": requestOperationManage,
         "s-response": response,
     },
@@ -59,20 +55,10 @@ export default {
         return {
             //=====================================请求基本信息====================================//
             request: {
-                methods: "get", //---------------请求方式
-                requestType: "query", //
-                url: {
-                    host: "", //-----------------主机(服务器)地址
-                    path: "", //-----------------接口路径
-                }, //----------------------------请求地址信息
-                requestParams: [],
-                responseParams: [],
-                header: [], //----------------------------请求头信息
-                description: "", //--------------请求描述
                 _variableChange: true, //----------hack强制触发request数据发生改变
             },
             remoteResponse: {},
-            //=====================================快捷参数====================================//
+            //=====================================其他参数====================================//
             watchFlag: null,
             debounceFn: null, //防抖函数
             cancel: [], //请求取消
@@ -172,7 +158,8 @@ export default {
                 return
             }
             const params = {
-                _id: this.currentSelectDoc._id
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id
             };
             if (this.cancel.length > 0) {
                 this.cancel.forEach(c => {

@@ -111,7 +111,9 @@ export default {
         //=====================================初始化相关====================================//
         init() {
             this.loading = true;
-            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).then(() => {
+            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).catch(err => {
+                console.error(err);
+            }).finally(() => {
                 this.loading = false;
             });
             document.documentElement.addEventListener("click", () => {

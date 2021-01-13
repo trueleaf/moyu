@@ -15,7 +15,7 @@
                         v-for="(item, index) in tabs"
                         ref="tabItem"
                         :key="index"
-                        :title="item.docName"
+                        :title="item.name"
                         :class="{active: currentSelectDoc && currentSelectDoc._id === item._id}"
                         class="item"
                         :data-index="index"
@@ -25,14 +25,14 @@
                     <!-- 接口文档 -->
                     <template v-if="item.tabType === 'doc'">
                         <template v-for="(req) in validRequestMethods">
-                            <span v-if="item.item.methods === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                            <span v-if="item.method === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
                         </template>                        
                     </template>
                     <!-- 其他 -->
                     <template v-else>
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
                     </template>
-                    <span class="item-text">{{ item.docName }}</span>
+                    <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
                         <span v-show="item.changed" class="has-change">
                             <span class="dot"></span>
@@ -155,7 +155,7 @@ export default {
                 } 
             }
             if (item.changed) {
-                this.$confirm(`是否保存对 "${item.docName}" 接口的修改`, "提示", {
+                this.$confirm(`是否保存对 "${item.name}" 接口的修改`, "提示", {
                     confirmButtonText: "保存",
                     cancelButtonText: "不保存",
                     distinguishCancelAndClose: true,

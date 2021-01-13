@@ -62,8 +62,8 @@ export default {
                 if (valid) {
                     this.loading = true;
                     const params = {
-                        docName: this.formInfo.name,
-                        isFolder: false,
+                        name: this.formInfo.name,
+                        type: "api",
                         projectId: this.$route.query.id,
                         pid: this.pid,
                     };
