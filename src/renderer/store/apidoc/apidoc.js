@@ -14,12 +14,21 @@ const axios = http.axios;
 export default {
     namespaced: true,
     state: {
-        //====================================远程返回数据==============================//
-        apidocInfo: {}, //---------------接口文档详情
+        //========================初始化接口所需参数数据=======================//
+        variables: [], //--------------接口文档全局变量
+        hostEnum: [], //---------------全局host数据
+        mindParams: { //--------------文档联想参数
+            mindRequestParams: [],
+            mindResponseParams: []
+        },
+        presetParamsList: [], //-------预设参数列表
+
+        //===============================远程返回数据=========================//
+        apidocInfo: {}, //------------接口文档详情
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
-        variables: [], //--------------api文档全局变量
+        
         responseData: {//返回参数
             headers: {},
             contentType: null,
@@ -33,19 +42,31 @@ export default {
             percent: null
         }, 
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
-        presetParamsList: [], //-------预设参数列表
-        mindParams: { //--------------文档联想参数
-            mindRequestParams: [],
-            mindResponseParams: []
-        },
+        
+        
         //=====================================其他参数====================================//
+        apidocLoading: false, //是否正在请求api文档
         loading: false, //是否正在请求数据
         paramsValid: true, //参数是否满足校验需求
     },
     mutations: {
-        //=====================================全局变量====================================//
-        changeVariable(state, payload) {
+        //===============初始化接口所需参数数据(例如：全局变量，全局域名信息等)==============//
+        //初始化全局变量
+        initVariables(state, payload) {
             state.variables = payload;
+        },
+        //初始化host枚举
+        initHostEnum(state, payload) {
+            state.hostEnum = payload;
+        },
+        //初始化联想参数，输入提示
+        initMindParams(state, payload) {
+            state.mindParams.mindRequestParams = payload.mindRequestParams;
+            state.mindParams.mindResponseParams = payload.mindResponseParams;
+        },
+        //初始化预设参数模板
+        initPresetParams(state, payload) {
+            state.presetParamsList = payload;
         },
         //=====================================banner====================================//
         //改变文档banner
@@ -152,25 +173,28 @@ export default {
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
         },
-        //=====================================联想参数====================================//
-        //更新联想参数，输入提示
-        changeMindParams(state, payload) {
-            state.mindParams.mindRequestParams = payload.mindRequestParams;
-            state.mindParams.mindResponseParams = payload.mindResponseParams;
+        //=====================================请求参数录入====================================//
+        //改变接口请求状态
+        changeApidocLoading(state, loading) {
+            state.apidocLoading = loading;
         },
-        //更新预设参数模板
-        changePresetParams(state, payload) {
-            state.presetParamsList = payload;
-        },
-        //=====================================发送请求====================================//
-        //改变接口反沪指
+        //改变接口返回值
         changeDocDetail(state, payload) {
             state.apidocInfo = payload;
         },
-
-
-
-
+        //改变host的值
+        changeDocHost(state, payload) {
+            state.apidocInfo.item.url.host = payload;
+        },
+        //改变请求路径
+        changeDocPath(state, payload) {
+            state.apidocInfo.item.url.path = payload;
+        },
+        //改变请求方法
+        changeDocMethod(state, payload) {
+            state.apidocInfo.item.method = payload;
+        },
+        //=====================================发送请求====================================//
         //是否校验通过
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid
@@ -263,7 +287,7 @@ export default {
                 };
                 axios.get("/api/project/project_variable_enum", { params }).then(res => {
                     const result = res.data;
-                    context.commit("changeVariable", result);
+                    context.commit("initVariables", result);
                     resolve();
                 }).catch(err => {
                     console.error(err);
@@ -279,7 +303,7 @@ export default {
                 };
                 axios.get("/api/project/doc_params_mind", { params }).then(res => {
                     const result = res.data;
-                    context.commit("changeMindParams", result);
+                    context.commit("initMindParams", result);
                     resolve();
                 }).catch(err => {
                     reject(err)
@@ -295,7 +319,7 @@ export default {
                 };
                 axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
                     const result = res.data;
-                    context.commit("changePresetParams", result);
+                    context.commit("initPresetParams", result);
                     resolve();
                 }).catch(err => {
                     reject(err)
@@ -303,6 +327,23 @@ export default {
                 });              
             })
         },
+        //获取全局host
+        async getHostEnum(context, payload) {
+            return new Promise((resolve, reject) => {
+                const params = {
+                    projectId: payload.projectId
+                };
+                axios.get("/api/project/doc_service", { params }).then(res => {
+                    context.commit("initHostEnum", res.data);
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                })
+                            
+            })
+        },
+
+
         /** 
          * @description        发送请求
          * @author             shuxiaokai
