@@ -394,7 +394,7 @@ export default {
             if (data.type !== "folder") { //文件夹不做处理
                 data.tabType = "doc"
                 this.$store.commit("apidoc/addTab", {
-                        data,
+                        ...data,
                         projectId: this.$route.query.id
                     });
                 this.$store.commit("apidoc/changeCurrentTab", {
