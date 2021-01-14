@@ -14,15 +14,13 @@ const axios = http.axios;
 export default {
     namespaced: true,
     state: {
-        docFullInfo: {}, //-----------完整的文档返回数据
-        docInfo: {}, //---------------只包含接口相关的文档返回数据
-        originDocInfo: {}, //---------存放文档原始数据
-        defaultExpandKeys: [], //-----默认展开的节点
+        //====================================远程返回数据==============================//
+        apidocInfo: {}, //---------------接口文档详情
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
         variables: [], //--------------api文档全局变量
-        responseData: {
+        responseData: {//返回参数
             headers: {},
             contentType: null,
             httpVersion: null,
@@ -33,13 +31,14 @@ export default {
             size: null,
             total: null,
             percent: null
-        }, //-----------返回参数
+        }, 
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         presetParamsList: [], //-------预设参数列表
         mindParams: { //--------------文档联想参数
             mindRequestParams: [],
             mindResponseParams: []
         },
+        //=====================================其他参数====================================//
         loading: false, //是否正在请求数据
         paramsValid: true, //参数是否满足校验需求
     },
@@ -80,16 +79,15 @@ export default {
                 } else {
                     state.tabs[projectId].push(docInfo);
                 }
-                
                 localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
             }
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
-            const { _id, projectId, docName, method, changed } = payload;
+            const { _id, projectId, name, method, changed } = payload;
             const matchedData = state.tabs[projectId].find(val => val._id === _id);
-            if (matchedData && docName) {
-                matchedData.docName = docName;
+            if (matchedData && name) {
+                matchedData.name = name;
             }
             if (matchedData && method && matchedData.item) {
                 matchedData.item.methods = method;
@@ -138,16 +136,16 @@ export default {
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
-            const { projectId, docName, changed } = payload;
+            const { projectId, name, changed } = payload;
             this.commit("apidoc/changeTabInfoById", {
                 _id: state.activeDoc[projectId]._id,
                 projectId,
-                docName,
+                name,
                 changed
             });
             const matchedData = state.activeDoc[projectId];
-            if (matchedData && docName) {
-                matchedData.docName = docName;
+            if (matchedData && name) {
+                matchedData.name = name;
             }
             if (matchedData) {
                 matchedData.changed = changed;
@@ -165,6 +163,14 @@ export default {
             state.presetParamsList = payload;
         },
         //=====================================发送请求====================================//
+        //改变接口反沪指
+        changeDocDetail(state, payload) {
+            state.apidocInfo = payload;
+        },
+
+
+
+
         //是否校验通过
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid

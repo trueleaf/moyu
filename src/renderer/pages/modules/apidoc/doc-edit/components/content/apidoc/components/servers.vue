@@ -26,9 +26,11 @@ export default {
         "s-host-manage": hostManage,
     },
     props: {
-        value: {
-            type: String,
-            default: ""
+        request: {
+            type: Object,
+            default() {
+                return {}
+            }
         }
     },
     data() {
