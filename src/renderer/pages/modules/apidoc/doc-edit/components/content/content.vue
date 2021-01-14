@@ -40,23 +40,10 @@ export default {
         },
     },
     mounted() {
-        this.getMindParamsEnum(); //获取联想参数枚举
-        this.getPresetParams(); //获取预设参数
+        
     },
     methods: {
-        //=====================================获取数据====================================//
-        //获取联想参数
-        getMindParamsEnum() {
-            this.$store.dispatch("apidoc/getMindParamsEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取预设参数
-        getPresetParams() {
-            this.$store.dispatch("apidoc/getPresetParams", {
-                projectId: this.$route.query.id,
-            });
-        },
+        
     }
 };
 </script>

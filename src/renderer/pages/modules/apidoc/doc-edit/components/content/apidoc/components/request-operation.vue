@@ -9,7 +9,7 @@
         <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input 
-                    v-model="request.url.path"
+                    v-model="requestPath"
                     placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
                     :error="urlError"
                     size="small"
@@ -17,7 +17,7 @@
                     @keyup.enter.native.stop="formatUrl"
             >
                 <div slot="prepend" class="request-input">
-                    <el-select v-model="request.methods" value-key="name" @change="handleChangeRequestMethods">
+                    <el-select v-model="requestMethod" value-key="name" @change="handleChangeRequestMethods">
                         <el-option v-for="(item, index) in enabledRequestMethods" :key="index" :value="item" :label="item.name"></el-option>
                     </el-select>
                 </div>                        
@@ -39,7 +39,7 @@
             </el-dropdown>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100">{{ fullUrl }}</pre>
+        <pre class="w-100"></pre>
         <!-- 请求传参方式选择 -->
         <div class="w-100 mt-2">
             <el-radio-group v-model="request.requestType" @change="handleChangeRequestMIMEType">
@@ -111,19 +111,35 @@ export default {
         enabledContentType() {
             return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
         },
-        fullUrl() {
-            if (this.request.requestType === "params") {
-                let queryStr = "";
-                this.request.requestParams.map((val) => {
-                    if (val.key && val._select) {
-                        queryStr = `${queryStr}&${val.key}=${val.value}`
-                    }
-                })
-                queryStr = queryStr.replace(/&/, "")
-                queryStr = `${ queryStr ? "?" : ""}${queryStr}`
-                return this.request.url.host + this.request.url.path + queryStr;
-            } else {
-                return this.request.url.host + this.request.url.path;
+        // fullUrl() {
+        //     if (this.request.requestType === "params") {
+        //         let queryStr = "";
+        //         this.request.requestParams.map((val) => {
+        //             if (val.key && val._select) {
+        //                 queryStr = `${queryStr}&${val.key}=${val.value}`
+        //             }
+        //         })
+        //         queryStr = queryStr.replace(/&/, "")
+        //         queryStr = `${ queryStr ? "?" : ""}${queryStr}`
+        //         return this.request.url.host + this.requestPath + queryStr;
+        //     } else {
+        //         return this.request.url.host + this.requestPath;
+        //     }
+        // },
+        requestPath: { //请求路径
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.item?.url.path;
+            },
+            set(val) {
+                this.$store.commit("apidoc/changeDocPath", val);
+            }
+        },
+        requestMethod: { //请求方法
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.item?.method;
+            },
+            set(val) {
+                this.$store.commit("apidoc/changeDocMethod", val.value);
             }
         }
     },
@@ -262,7 +278,7 @@ export default {
                             methods: this.request.methods,
                             url: {
                                 host: this.request.url.host, 
-                                path: this.request.url.path, 
+                                path: this.requestPath, 
                             },
                             requestParams: this.request.requestParams,
                             responseParams: this.request.responseParams,
@@ -446,7 +462,7 @@ export default {
         validateParams() {
             let isValidRequest = true;
             //=====================================检查请求url====================================//
-            // if (this.request.url.path.trim() === "") { 
+            // if (this.requestPath.trim() === "") { 
             //     this.urlError.error = true;
             //     this.urlError.message = "请求url不能为空";
             //     isValidRequest = false;
@@ -582,21 +598,21 @@ export default {
             this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
             // const dominReg = /[a-zA-Z0-9]+\./
-            this.request.url.path = this.request.url.path.replace(protocolReg, ""); //去除掉协议
-            this.request.url.path.startsWith(",") ? (this.request.url.path = "/" + this.request.url.path) : "";
+            this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
+            this.requestPath.startsWith(",") ? (this.requestPath = "/" + this.requestPath) : "";
             // const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
-            // const matchedPath = this.request.url.path.match(pathReg);
+            // const matchedPath = this.requestPath.match(pathReg);
             // if (matchedPath) {
-            //     this.request.url.path = matchedPath[0];
-            // } else if (this.request.url.path.trim() === "") {
-            //     this.request.url.path = "/";
-            // } else if (!this.request.url.path.startsWith("/")) {
-            //     this.request.url.path = "/" + this.request.url.path;
+            //     this.requestPath = matchedPath[0];
+            // } else if (this.requestPath.trim() === "") {
+            //     this.requestPath = "/";
+            // } else if (!this.requestPath.startsWith("/")) {
+            //     this.requestPath = "/" + this.requestPath;
             // }
             const queryReg = /\?.*/;
-            this.request.url.path = this.request.url.path.replace(queryReg, "")
+            this.requestPath = this.requestPath.replace(queryReg, "")
             //检查url是否为空
-            // if (this.request.url.path.trim() === "") { 
+            // if (this.requestPath.trim() === "") { 
             //     this.urlError.error = true;
             //     this.urlError.message = "请求url不能为空";
             // } else {
@@ -605,7 +621,7 @@ export default {
         },
         //将请求url后面查询参数转换为params
         convertQueryToParams() {
-            let queryString = this.request.url.path.split("?") || "";
+            let queryString = this.requestPath.split("?") || "";
             queryString = queryString ? queryString[1] : "";
             const queryParams = qs.parse(queryString);
             for (const i in queryParams) {
@@ -640,7 +656,6 @@ export default {
                     this.request.requestType = val.enabledContenType[0];
                 }
             } 
-            this.request.methods = val.value;
             //改变tabs导航请求方式
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,

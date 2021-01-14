@@ -9,11 +9,12 @@
         <s-loading :loading="loading" class="edit-area">
             <!-- 基本配置 -->
             <div class="info-wrap">
-                <pre>{{ apidocInfo }}</pre>
+                <s-host-manage></s-host-manage>
+                <s-request-operation-manage></s-request-operation-manage>
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap">
-               
+                <pre>{{ apidocInfo }}</pre>
             </div>            
         </s-loading>
         <div class="view-area"></div>
@@ -22,12 +23,15 @@
 
 <script>
 import axios from "axios" 
+import hostManage from "./components/host" //---------------------------------请求地址列表
+import requestOperationManage from "./components/request-operation" //--------请求操作和url管理
 const CancelToken = axios.CancelToken;
 //=========================================================================//
 export default {
     name: "APIDOC_CONTENT",
     components: {
-        
+        "s-host-manage": hostManage,
+        "s-request-operation-manage": requestOperationManage,
     },
     watch: {
         currentSelectDoc: {
@@ -48,15 +52,15 @@ export default {
         apidocInfo() { //接口文档信息
             return this.$store.state.apidoc.apidocInfo;
         },
-
+        loading() {
+            return this.$store.state.apidoc.apidocLoading;
+        },
     },
     data() {
         return {
             //=====================================请求基本信息================================//
             //=====================================其他参数====================================//
-            docDataReady: false, //文档数据是否加载完成
             cancel: [], //----请求列表
-            loading: false, //请求加载效果
         };
     },
     mounted() {
@@ -94,8 +98,7 @@ export default {
                 })
             }
             setTimeout(() => { //hack让请求加载不受取消影响
-                this.loading = true;
-                this.docDataReady = false;
+                this.$store.commit("apidoc/changeApidocLoading", true);
             })
             this.axios.get("/api/project/doc_detail", {
                 params,
@@ -115,7 +118,7 @@ export default {
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
-                this.loading = false;
+                this.$store.commit("apidoc/changeApidocLoading", false);
             });
         },
         //=====================================组件间操作====================================//

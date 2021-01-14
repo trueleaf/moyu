@@ -30,16 +30,44 @@ export default {
         };
     },
     created() {
-        this.$store.dispatch("apidoc/getDocVariable", {
-            projectId: this.$route.query.id
-        });
-        this.$store.dispatch("apidocRules/getRuels", {
-            projectId: this.$route.query.id
-        });
+        this.getMindParamsEnum(); //获取联想参数枚举
+        this.getPresetParams(); //获取预设参数
+        this.getHostEnum(); //获取host值
+        this.getVariables(); //获取全局变量
+        this.getProjectRules(); //获取项目规则
     },
     methods: {
         //=====================================获取远程数据==================================//
-
+        //获取联想参数
+        getMindParamsEnum() {
+            this.$store.dispatch("apidoc/getMindParamsEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取预设参数
+        getPresetParams() {
+            this.$store.dispatch("apidoc/getPresetParams", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取host值
+        getHostEnum() {
+            this.$store.dispatch("apidoc/getHostEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取全局变量
+        getVariables() {
+            this.$store.dispatch("apidoc/getDocVariable", {
+                projectId: this.$route.query.id
+            });
+        },
+        //获取项目规则
+        getProjectRules() {
+            this.$store.dispatch("apidocRules/getRuels", {
+                projectId: this.$route.query.id
+            });
+        },
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//  
