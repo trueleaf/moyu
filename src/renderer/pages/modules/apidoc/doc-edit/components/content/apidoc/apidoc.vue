@@ -14,6 +14,8 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap">
+                <s-request-query-params></s-request-query-params>
+                <s-request-body-params></s-request-body-params>
                 <pre>{{ apidocInfo }}</pre>
             </div>            
         </s-loading>
@@ -25,6 +27,8 @@
 import axios from "axios" 
 import hostManage from "./components/host" //---------------------------------请求地址列表
 import requestOperationManage from "./components/request-operation" //--------请求操作和url管理
+import requestQueryParams from "./components/request-params/query" //查询字符串
+import requestBodyParams from "./components/request-params/body" //body请求参数
 const CancelToken = axios.CancelToken;
 //=========================================================================//
 export default {
@@ -32,6 +36,8 @@ export default {
     components: {
         "s-host-manage": hostManage,
         "s-request-operation-manage": requestOperationManage,
+        "s-request-query-params": requestQueryParams,
+        "s-request-body-params": requestBodyParams,
     },
     watch: {
         currentSelectDoc: {
@@ -165,8 +171,8 @@ export default {
         border-right: 1px solid $gray-400;
         flex: 0 0 65%;
         .info-wrap {
-            padding: size(20);
-            height: size(170);
+            padding: size(10) size(20);
+            // height: size(170);
             box-shadow: 0 3px 2px $gray-400;
             position: relative;
             z-index: 1;

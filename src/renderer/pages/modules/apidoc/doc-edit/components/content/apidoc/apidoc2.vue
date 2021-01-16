@@ -319,6 +319,7 @@ export default {
             //改变banner请求方式
             this.$store.commit("apidoc/changeDocBannerInfoById", {
                 id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
                 method: requestData.methods
             });
             //若没有环境则取localstorage里面的环境
