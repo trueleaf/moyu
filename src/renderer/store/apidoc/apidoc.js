@@ -194,6 +194,27 @@ export default {
         changeDocMethod(state, payload) {
             state.apidocInfo.item.method = payload;
         },
+        //改变查询字符串参数
+        changeQueryParams(state, payload) {
+            state.apidocInfo.item.queryParams = payload;
+        },
+        //新增一个查询字符串参数
+        addQueryParams(state, payload) {
+            state.apidocInfo.item.queryParams.push(payload);
+        },
+        //改变requestBody
+        changeRequestBody(state, payload) {
+            state.apidocInfo.item.requestBody = payload;
+        },
+        //新增一个body查询字符串
+        addBodyParams(state, payload) {
+            state.apidocInfo.item.bodyParams.push(payload);
+        },
+        //改变请求contentType值
+        changeContentType(state, payload) {
+            state.apidocInfo.item.contentType = payload;
+        },
+
         //=====================================发送请求====================================//
         //是否校验通过
         changeParamsValid(state, isValid) {
