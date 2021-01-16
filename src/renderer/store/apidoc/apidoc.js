@@ -5,7 +5,7 @@
  */
 import Vue from "vue"
 import http from "@/api/api.js"
-import { findoNode, throttle } from "@/lib"
+import { findNodeById, throttle } from "@/lib"
 import HttpClient from "@/../main/http"
 const httpClient = new HttpClient();
 
@@ -76,11 +76,11 @@ export default {
         //根据id改变文档banner信息
         changeDocBannerInfoById(state, payload) {
             const { id, method } = payload;
-            const matchedData = findoNode(id, state.banner, null, { id: "_id" });
-            if (matchedData && method) {
-                matchedData.item.methods = method;
+            const matchedBannerData = findNodeById(state.banner, id,{ id: "_id" });
+            // console.log(matchedBannerData, state.banner, state.tabs[projectId])
+            if (matchedBannerData && method) {
+                matchedBannerData.method = method;
             }
-            // console.log(state.banner, matchedData, 222)
         },
         //=====================================tabs====================================//
         //新增一个tab
@@ -110,8 +110,8 @@ export default {
             if (matchedData && name) {
                 matchedData.name = name;
             }
-            if (matchedData && method && matchedData.item) {
-                matchedData.item.methods = method;
+            if (matchedData && method) {
+                matchedData.method = method;
             }
             if (matchedData && changed != null) {
                 Vue.set(matchedData, "changed", changed)
@@ -208,7 +208,7 @@ export default {
         },
         //将接口变化得内容存放起来，用于监听接口是否发生变化
         changeDocEditInfo(state, payload) {
-            // description,header,methods,requestParams,responseParams,url
+            // description,header,,requestParams,responseParams,url
             state.originDocInfo = JSON.parse(JSON.stringify(payload));
         },
         //改变基础返回信息

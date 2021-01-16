@@ -136,7 +136,7 @@ export default {
         },
         requestMethod: { //请求方法
             get() {
-                return this.$store.state.apidoc.apidocInfo?.item?.method;
+                return this.$store.state.apidoc.apidocInfo?.item?.method.toUpperCase();
             },
             set(val) {
                 this.$store.commit("apidoc/changeDocMethod", val.value);
@@ -593,31 +593,23 @@ export default {
             }
         },
         //=====================================url操作====================================//
-        //删除无效请求字符
+        //删除无效请求字符并且提取查询字符串
         formatUrl() {
-            this.convertQueryToParams();
+            // this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
-            // const dominReg = /[a-zA-Z0-9]+\./
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = "/" + this.requestPath) : "";
-            // const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
-            // const matchedPath = this.requestPath.match(pathReg);
-            // if (matchedPath) {
-            //     this.requestPath = matchedPath[0];
-            // } else if (this.requestPath.trim() === "") {
-            //     this.requestPath = "/";
-            // } else if (!this.requestPath.startsWith("/")) {
-            //     this.requestPath = "/" + this.requestPath;
-            // }
+            const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
+            const matchedPath = this.requestPath.match(pathReg);
+            if (matchedPath) {
+                this.requestPath = matchedPath[0];
+            } else if (this.requestPath.trim() === "") {
+                this.requestPath = "/";
+            } else if (!this.requestPath.startsWith("/")) {
+                this.requestPath = "/" + this.requestPath;
+            }
             const queryReg = /\?.*/;
             this.requestPath = this.requestPath.replace(queryReg, "")
-            //检查url是否为空
-            // if (this.requestPath.trim() === "") { 
-            //     this.urlError.error = true;
-            //     this.urlError.message = "请求url不能为空";
-            // } else {
-            //     this.urlError.error = false;
-            // }
         },
         //将请求url后面查询参数转换为params
         convertQueryToParams() {
@@ -644,18 +636,18 @@ export default {
         },
         //改变请求方法
         handleChangeRequestMethods(val) {
-            this.currentReqeustLimit = val;
-            if (val.value === "get") { //get请求需要清空嵌套数据
-                this.request.requestParams.forEach(params => {
-                    params.children = [];
-                    params.type = "string";
-                })
-                this.request.requestType = "params"; 
-            } else {
-                if (!val.enabledContenType.includes(this.request.requestType)) {
-                    this.request.requestType = val.enabledContenType[0];
-                }
-            } 
+            // this.currentReqeustLimit = val;
+            // if (val.value === "get") { //get请求需要清空嵌套数据
+            //     this.request.requestParams.forEach(params => {
+            //         params.children = [];
+            //         params.type = "string";
+            //     })
+            //     this.request.requestType = "params"; 
+            // } else {
+            //     if (!val.enabledContenType.includes(this.request.requestType)) {
+            //         this.request.requestType = val.enabledContenType[0];
+            //     }
+            // } 
             //改变tabs导航请求方式
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,
@@ -665,9 +657,10 @@ export default {
             //改变banner请求方式
             this.$store.commit("apidoc/changeDocBannerInfoById", {
                 id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
                 method: val.value
             });
-            this.handleChangeRequestMIMEType(this.request.requestType);
+            //this.handleChangeRequestMIMEType(this.request.requestType);
         },
         //改变MimeType
         handleChangeRequestMIMEType(val) {
