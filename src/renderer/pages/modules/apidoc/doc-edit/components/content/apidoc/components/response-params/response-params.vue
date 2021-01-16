@@ -1,39 +1,33 @@
 /*
     创建者：shuxiaokai
-    创建时间：2021-01-16 13:57
-    模块名称：查询字符串
+    创建时间：2021-01-16 21:59
+    模块名称：返回参数
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="请求参数(params)">
-        <s-params-tree 
+    <s-collapse-card title="返回参数">
+        <!-- <s-params-tree 
             ref="paramsTree"
-            :tree-data="queryParams"
+            :tree-data="responseParams"
             :nest="false"
             :mind-params="mindParams.mindRequestParams"
             showCheckbox
         >
-        </s-params-tree>
+        </s-params-tree> -->
+        {{ responseParams }}
     </s-collapse-card>
 </template>
 
 <script>
-import paramsTree from "../params-tree/params-tree"
 export default {
-    components: {
-        "s-params-tree": paramsTree
-    },
     computed: {
-        queryParams: { //请求参数
+        responseParams: { //请求参数
             get(){
-                return this.$store.state.apidoc.apidocInfo?.item?.queryParams;
+                return this.$store.state.apidoc.apidocInfo?.item?.responseParams;
             },
             set(val) {
-                this.$store.commit("apidoc/changeQueryParams", val);
+                this.$store.commit("apidoc/changeresponseParams", val);
             }
-        },
-        mindParams() { //联想参数
-            return this.$store.state.apidoc.mindParams;
         },
     },
     data() {
@@ -42,7 +36,7 @@ export default {
         };
     },
     created() {
-        
+
     },
     methods: {
         //=====================================获取远程数据==================================//

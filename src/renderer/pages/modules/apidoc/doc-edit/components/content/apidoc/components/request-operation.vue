@@ -40,19 +40,6 @@
         </div>
         <!-- 请求参数展示 -->
         <pre class="w-100"></pre>
-        <!-- 请求传参方式选择 -->
-        <div class="w-100 mt-2">
-            <el-radio-group v-model="request.requestType" @change="handleChangeRequestMIMEType">
-                <el-radio 
-                        v-for="(item, index) in enabledContentType"
-                        :key="index"
-                        :label="item.value"
-                        :disabled="!currentReqeustLimit.enabledContenType.find(val => val === item.value)"
-                >
-                    {{ item.name }}
-                </el-radio>
-            </el-radio-group>
-        </div>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
         <s-preset-params-dialog :visible.sync="dialogVisible2" @success="getPresetEnum"></s-preset-params-dialog>
     </div>         
@@ -107,9 +94,6 @@ export default {
         },
         enabledRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
-        },
-        enabledContentType() {
-            return this.$store.state.apidocRules.contentType.filter(val => val.enabled);
         },
         // fullUrl() {
         //     if (this.request.requestType === "params") {
