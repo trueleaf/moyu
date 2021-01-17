@@ -46,8 +46,8 @@
 </template>
 
 <script>
-import variableDialog from "../dialog/variable-manage"
-import presetParamsDialog from "../dialog/preset-params"
+import variableDialog from "../../dialog/variable-manage"
+import presetParamsDialog from "../../dialog/preset-params"
 import qs from "qs"
 import { dfsForest, findParentNode } from "@/lib/index"
 import deepmerge from "deepmerge"

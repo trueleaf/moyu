@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import hostManage from "../dialog/host-manage"
+import hostManage from "../../dialog/host-manage"
 export default {
     components: {
         "s-host-manage": hostManage,
