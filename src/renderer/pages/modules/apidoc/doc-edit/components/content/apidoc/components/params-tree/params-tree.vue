@@ -10,7 +10,6 @@
                 ref="tree"
                 :data="treeData" 
                 :indent="50"
-                :highlight-current="true"
                 node-key="id" 
                 :expand-on-click-node="false" 
                 :draggable="enableDrag"
@@ -315,7 +314,6 @@ export default {
                 return;
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验 
-                console.log(this.getType(realValue), this._isNumberLike(realValue))
                 if (data.type === "number" && !this._isNumberLike(realValue)) {
                     this.$set(data, "_valueError", {
                         error: true,
@@ -509,6 +507,9 @@ export default {
         border-radius: 0;
         border: none;
         border-bottom: 1px solid $gray-300;
+    }
+    .el-tree-node:focus>.el-tree-node__content {
+        background: none;
     }
     .custom-tree-node {
         width: 100%;
