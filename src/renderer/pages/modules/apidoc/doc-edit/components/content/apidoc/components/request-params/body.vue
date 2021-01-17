@@ -5,8 +5,12 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="请求参数(body)">
-        <div class="px-5 py-2 border-bottom-gray-300">
+    <s-collapse-card>
+        <div slot="head">
+            <span>请求参数</span>
+            <span>(body)</span>
+        </div>
+        <div class="d-flex a-center j-center py-2">
             <el-radio-group v-model="contentType">
                 <el-radio label="application/json">json</el-radio>
                 <el-radio label="multipart/from-data">from-data</el-radio>

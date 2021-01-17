@@ -22,13 +22,15 @@ export default {
             mindResponseParams: []
         },
         presetParamsList: [], //-------预设参数列表
-
-        //===============================远程返回数据=========================//
+        //===============================接口录入相关=========================//
         apidocInfo: {}, //------------接口文档详情
+        originApidocInfo: {}, //------原始接口信息，用于对比接口是否发生变化
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
         
+
+
         responseData: {//返回参数
             headers: {},
             contentType: null,
@@ -178,9 +180,13 @@ export default {
         changeApidocLoading(state, loading) {
             state.apidocLoading = loading;
         },
-        //改变接口返回值
-        changeDocDetail(state, payload) {
+        //改变接口文档的值
+        changeApidocInfo(state, payload) {
             state.apidocInfo = payload;
+        },
+        //存储一份原始接口文档值，用于和变化后的值做对比
+        changeOriginApidocInfo(state, payload) {
+            state.originApidocInfo = JSON.parse(JSON.stringify(payload));
         },
         //改变host的值
         changeDocHost(state, payload) {
@@ -214,7 +220,22 @@ export default {
         changeContentType(state, payload) {
             state.apidocInfo.item.contentType = payload;
         },
-
+        //改变response参数
+        changeResponse(state, payload) {
+            state.apidocInfo.item.responseParams = payload;
+        },
+        //新增一个response参数
+        addResponse(state, payload) {
+            state.apidocInfo.item.responseParams.push(payload);
+        },
+        //删除一个response参数
+        deleteResponse(state, deleteIndex) {
+            state.apidocInfo.item.responseParams.splice(deleteIndex, 1);
+        },
+        //改变请求头
+        changeHeaders(state, payload) {
+            state.apidocInfo.item.headers = payload;
+        },
         //=====================================发送请求====================================//
         //是否校验通过
         changeParamsValid(state, isValid) {

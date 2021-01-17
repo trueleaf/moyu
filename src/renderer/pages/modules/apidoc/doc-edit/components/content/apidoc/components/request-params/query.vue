@@ -5,7 +5,11 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card title="请求参数(params)">
+    <s-collapse-card>
+        <div slot="head">
+            <span>请求参数</span>
+            <span>(params)</span>
+        </div>
         <s-params-tree 
             ref="paramsTree"
             :tree-data="queryParams"
@@ -29,6 +33,7 @@ export default {
                 return this.$store.state.apidoc.apidocInfo?.item?.queryParams;
             },
             set(val) {
+                console.log(222222)
                 this.$store.commit("apidoc/changeQueryParams", val);
             }
         },

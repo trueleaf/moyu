@@ -16,10 +16,14 @@
             <div class="params-wrap">
                 <s-request-query-params></s-request-query-params>
                 <s-request-body-params></s-request-body-params>
-                <pre class="h-300px scroll-y">{{ apidocInfo }}</pre>
+                <s-response-params></s-response-params>
+                <s-header-params></s-header-params>
+                <pre class="h-300px scroll-y">{{ originApidocInfo }}</pre>
             </div>            
         </s-loading>
-        <div class="view-area"></div>
+        <div class="view-area">
+            <s-overview></s-overview>
+        </div>
     </div>
 </template>
 
@@ -30,6 +34,9 @@ import hostManage from "./components/host" //---------------------------------�
 import requestOperationManage from "./components/request-operation" //--------请求操作和url管理
 import requestQueryParams from "./components/request-params/query" //查询字符串
 import requestBodyParams from "./components/request-params/body" //body请求参数
+import responseParams from "./components/response-params/response-params" //返回参数
+import headerParams from "./components/header-params" //请求头
+import overview from "./components/overview"
 const CancelToken = axios.CancelToken;
 //=========================================================================//
 export default {
@@ -40,11 +47,17 @@ export default {
         "s-request-operation-manage": requestOperationManage,
         "s-request-query-params": requestQueryParams,
         "s-request-body-params": requestBodyParams,
+        "s-response-params": responseParams,
+        "s-header-params": headerParams,
+        "s-overview": overview,
     },
     watch: {
         currentSelectDoc: {
-            handler(currentDoc) {
-                this.checkCache(currentDoc);
+            handler(currentDoc, oldDoc) {
+                if (currentDoc.tabType !== "doc") return; //只处理类型为doc数据
+                if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
+                    this.checkCache(currentDoc);
+                }
             },
             deep: true,
             immediate: true
@@ -57,6 +70,9 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
+        originApidocInfo() { //原始接口文档信息
+            return this.$store.state.apidoc.originApidocInfo;
+        },
         apidocInfo() { //接口文档信息
             return this.$store.state.apidoc.apidocInfo;
         },
@@ -68,6 +84,7 @@ export default {
         return {
             //=====================================请求基本信息================================//
             //=====================================其他参数====================================//
+            watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
         };
     },
@@ -85,7 +102,23 @@ export default {
                 })
             }
             if (currentDoc.changed) { //存在缓存直接应用缓存
-                
+                this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
+                    this.$store.commit("apidoc/changeApidocInfo", data.docs);
+                    // Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
+                    //     console.error(err);
+                    // }).finally(() => {
+                    //     this.$refs["requestOperation"].fixContentType();
+                    //     if (this.watchFlag) { //去除watch数据对比
+                    //         this.watchFlag();
+                    //     }
+                    //     this.watchFlag = this.$watch("request", debounce(() => {
+                    //         this.syncRequestParams();
+                    //         this.diffEditParams();
+                    //     }, 100), {
+                    //         deep: true
+                    //     });                                                    
+                    // })
+                });
             } else {
                 this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
                 this.getDocDetail();
@@ -123,7 +156,17 @@ export default {
                 }
                 const resData = res.data;
                 this.addOperateDateForApidoc(resData);
-                this.$store.commit("apidoc/changeDocDetail", resData);
+                this.$store.commit("apidoc/changeApidocInfo", resData);
+                this.$store.commit("apidoc/changeOriginApidocInfo", resData);
+
+
+                this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
+                    this.syncRequestParams();
+                    this.diffEditParams();
+                    // console.log("change")
+                }, 100), {
+                    deep: true
+                })
             }).catch(err => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -166,7 +209,7 @@ export default {
             const request = resData.item;
             const queryParams = request.queryParams;
             const requestBody = request.requestBody;
-            const responses = request.responses;
+            const responseParams = request.responseParams;
             const headers = request.headers;
             if (lastItemIsEmpty(queryParams)) {
                 queryParams.push(this.generateProperty());
@@ -174,13 +217,43 @@ export default {
             if (lastItemIsEmpty(requestBody)) {
                 requestBody.push(this.generateProperty());
             }
-            if (lastItemIsEmpty(responses)) {
-                responses.push(this.generateProperty());
-            }
             if (lastItemIsEmpty(headers)) {
                 headers.push(this.generateProperty());
             }
-        }
+            responseParams.forEach(response => {
+                if (lastItemIsEmpty(response.values)) {
+                    response.values.push(this.generateProperty());
+                }
+            })
+        },
+        //同步请求数据
+        syncRequestParams() {
+            this.db.findByIdAndUpdate("apidoc_doc", this.currentSelectDoc._id, {
+                docs: this.apidocInfo
+            });
+            let savedDocInfo = JSON.parse(localStorage.getItem("apidoc/docInfo") || "{}");
+            if (!savedDocInfo[this.currentSelectDoc._id]) {
+                savedDocInfo[this.currentSelectDoc._id] = {};
+            }
+            savedDocInfo[this.currentSelectDoc._id] = this.apidocInfo;
+            localStorage.setItem("apidoc/docInfo", JSON.stringify(savedDocInfo))
+        },
+        //对比填写参数是否发送变化
+        diffEditParams() {
+            const originApidocInfoText = JSON.stringify(this.originApidocInfo);
+            const apidocInfoText = JSON.stringify(this.apidocInfo);
+            if (originApidocInfoText === apidocInfoText) {
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: false
+                });
+            } else {
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: true
+                });
+            }
+        },
     }
 };
 </script>
