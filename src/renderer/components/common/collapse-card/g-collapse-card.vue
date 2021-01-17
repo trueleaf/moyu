@@ -10,11 +10,12 @@
             :class="{shadow: shadow}"
             :style="{ width: width }"
     >
-        <header v-if="$slots.operation || title">
+        <header v-if="$slots.operation || title || $slots.head">
             <div class="head" @click="showContent = !showContent">
-                <span v-if="!showContent" class="el-icon-caret-right"></span>
-                <span v-else class="el-icon-caret-bottom"></span>
-                <div class="ml-2 title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+                <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
+                <span v-else class="el-icon-caret-bottom mr-2"></span>
+                <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+                <slot v-else name="head">{{ title }}</slot>
             </div>
             <slot name="operation"></slot>
             <div class="tail">
@@ -96,10 +97,14 @@ export default {
         height: size(40);
         user-select: none;
         .head {
-            padding-left: size(20);
+            padding-left: size(10);
+            padding-right: size(20);
             cursor: pointer;
             display: flex;
             align-items: center;
+            height: 100%;
+            min-width: size(150);
+            border-right: 1px solid $gray-300;
             &:hover {
                 background: $gray-300;
             }            
@@ -111,8 +116,6 @@ export default {
             white-space: nowrap;
             height: size(40);
             line-height: size(40);
-            padding-right: size(20);
-            border-right: 1px solid $gray-300;
         }
         .tail {
             padding-right: size(20);
