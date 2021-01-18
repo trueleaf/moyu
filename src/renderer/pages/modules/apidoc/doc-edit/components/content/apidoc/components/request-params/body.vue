@@ -8,7 +8,7 @@
     <s-collapse-card>
         <div slot="head">
             <span>请求参数</span>
-            <span>(body)</span>
+            <span>(Body)</span>
         </div>
         <div class="d-flex a-center j-center py-2">
             <el-radio-group v-model="contentType">
@@ -115,7 +115,16 @@ export default {
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//  
-        
+        //选中_select为true的参数
+        selectChecked() {
+            return new Promise((resolve, reject) => {
+                Promise.all([this.$refs["jsonTree"]?.selectChecked(), this.$refs["formDataTree"]?.selectChecked(), this.$refs["formUrlTree"]?.selectChecked()]).then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                })
+            })
+        },
         //=====================================其他操作=====================================//
 
     }
