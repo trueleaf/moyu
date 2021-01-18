@@ -25,7 +25,7 @@ export default {
          */
         generateProperty(type = "string") {
             return {
-                id: this.$helper.uuid(),
+                _id: this.$helper.uuid(),
                 key: "",
                 type, 
                 description: "",
