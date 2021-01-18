@@ -57,15 +57,7 @@ export default {
     created() {
     },
     methods: {
-        selectAll() {
-            return new Promise((resolve, reject) => {
-                this.$refs["paramsTree"].selectAll().then(() => {
-                    resolve();
-                }).catch(err => {
-                    reject(err)
-                });
-            })
-        },
+        //选中_select为true的参数
         selectChecked() {
             return new Promise((resolve, reject) => {
                 this.$refs["paramsTree"].selectChecked().then(() => {

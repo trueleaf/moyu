@@ -14,11 +14,11 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap">
-                <s-request-query-params></s-request-query-params>
-                <s-request-body-params></s-request-body-params>
-                <s-response-params></s-response-params>
-                <s-header-params></s-header-params>
-                <pre class="h-300px scroll-y">{{ originApidocInfo }}</pre>
+                <s-request-query-params ref="query"></s-request-query-params>
+                <s-request-body-params ref="body"></s-request-body-params>
+                <s-response-params ref="response"></s-response-params>
+                <s-header-params ref="header"></s-header-params>
+                <pre class="h-300px scroll-y">{{ apidocInfo }}</pre>
             </div>            
         </s-loading>
         <div class="view-area">
@@ -104,20 +104,16 @@ export default {
             if (currentDoc.changed) { //存在缓存直接应用缓存
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
-                    // Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
-                    //     console.error(err);
-                    // }).finally(() => {
-                    //     this.$refs["requestOperation"].fixContentType();
-                    //     if (this.watchFlag) { //去除watch数据对比
-                    //         this.watchFlag();
-                    //     }
-                    //     this.watchFlag = this.$watch("request", debounce(() => {
-                    //         this.syncRequestParams();
-                    //         this.diffEditParams();
-                    //     }, 100), {
-                    //         deep: true
-                    //     });                                                    
-                    // })
+                    Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
+                            this.syncRequestParams();
+                            this.diffEditParams();
+                        }, 100), {
+                            deep: true
+                        })
+                    })
                 });
             } else {
                 this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
@@ -158,14 +154,15 @@ export default {
                 this.addOperateDateForApidoc(resData);
                 this.$store.commit("apidoc/changeApidocInfo", resData);
                 this.$store.commit("apidoc/changeOriginApidocInfo", resData);
-
-
-                this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
-                    this.syncRequestParams();
-                    this.diffEditParams();
-                    // console.log("change")
-                }, 100), {
-                    deep: true
+                Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                    console.error(err);
+                }).finally(() => {
+                    this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
+                        this.syncRequestParams();
+                        this.diffEditParams();
+                    }, 100), {
+                        deep: true
+                    })
                 })
             }).catch(err => {
                 this.$errorThrow(err, this);
@@ -276,7 +273,7 @@ export default {
         }
         .params-wrap {
             padding: size(20);
-            max-height: calc(100vh - #{size(300)});
+            max-height: calc(100vh - #{size(230)});
             overflow-y: auto;
         }
     }

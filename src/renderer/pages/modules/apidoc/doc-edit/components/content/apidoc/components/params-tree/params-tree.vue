@@ -10,7 +10,7 @@
                 ref="tree"
                 :data="treeData" 
                 :indent="50"
-                node-key="id" 
+                node-key="_id" 
                 :expand-on-click-node="false" 
                 :draggable="enableDrag"
                 :allow-drop="handleCheckNodeCouldDrop"
@@ -406,7 +406,7 @@ export default {
                             rKey: "children",
                             hooks: (data) => {
                                 if (data._select) {
-                                    keys.push(data.id);
+                                    keys.push(data._id);
                                 }
                             }
                         });

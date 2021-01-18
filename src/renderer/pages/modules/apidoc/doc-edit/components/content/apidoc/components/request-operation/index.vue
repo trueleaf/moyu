@@ -41,15 +41,13 @@
         <!-- 请求参数展示 -->
         <pre class="w-100"></pre>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
-        <s-preset-params-dialog :visible.sync="dialogVisible2" @success="getPresetEnum"></s-preset-params-dialog>
     </div>         
 </template>
 
 <script>
 import variableDialog from "../../dialog/variable-manage"
-import presetParamsDialog from "../../dialog/preset-params"
 import qs from "qs"
-import { dfsForest, findParentNode } from "@/lib/index"
+import { dfsForest } from "@/lib/index"
 import deepmerge from "deepmerge"
 import FormData from "form-data/lib/form_data"
 import FileType from "file-type/browser"
@@ -59,7 +57,6 @@ export default {
     name: "REQUEST_OPERATION",
     components: {
         "s-variable-dialog": variableDialog,
-        "s-preset-params-dialog": presetParamsDialog,
     },
     props: {
         request: { //完整请求参数
@@ -74,6 +71,9 @@ export default {
         },
     },
     computed: {
+        apidocInfo() { //接口文档信息
+            return this.$store.state.apidoc.apidocInfo;
+        },
         docRules() { //文档规则
             return this.$store.state.apidocRules;
         },
@@ -105,11 +105,14 @@ export default {
         //         })
         //         queryStr = queryStr.replace(/&/, "")
         //         queryStr = `${ queryStr ? "?" : ""}${queryStr}`
-        //         return this.request.url.host + this.requestPath + queryStr;
+        //         return this.host + this.requestPath + queryStr;
         //     } else {
-        //         return this.request.url.host + this.requestPath;
+        //         return this.host + this.requestPath;
         //     }
         // },
+        host() {
+            return this.$store.state.apidoc.apidocInfo?.item?.url.host;
+        },
         requestPath: { //请求路径
             get() {
                 return this.$store.state.apidoc.apidocInfo?.item?.url.path;
@@ -245,70 +248,43 @@ export default {
         },
         //保存接口
         saveRequest() {
-            if (this.request.url.host) {
+            if (this.host) { //保存默认环境，下次自动应用本次保存的host值
                 let storeEnvironment = localStorage.getItem("apidoc/environment") || "{}";
                 storeEnvironment = JSON.parse(storeEnvironment);
-                storeEnvironment[this.$route.query.id] = this.request.url.host;
+                storeEnvironment[this.$route.query.id] = this.host;
                 localStorage.setItem("apidoc/environment", JSON.stringify(storeEnvironment))
             }
-            return new Promise((resolve, reject) => {
-                const validParams = this.validateParams();
-                if (validParams) {
-                    const params = {
-                        _id: this.currentSelectDoc._id,
-                        projectId: this.$route.query.id,
-                        item: {
-                            requestType: this.request.requestType,
-                            methods: this.request.methods,
-                            url: {
-                                host: this.request.url.host, 
-                                path: this.requestPath, 
-                            },
-                            requestParams: this.request.requestParams,
-                            responseParams: this.request.responseParams,
-                            header: this.request.header, 
-                            description: this.request.description, 
-                        }
-                    };
-                    this.saveMindParams(); //保存快捷联想参数
-                    this.loading2 = true;
-                    //取消未保存小圆点
-                    this.$store.commit("apidoc/changeCurrentTabById", {
-                        _id: this.currentSelectDoc._id,
-                        projectId: this.$route.query.id,
-                        changed: false
-                    });
-                    this.axios.post("/api/project/fill_doc", params).then(() => {
-                        this.$store.commit("apidoc/changeTabInfoById", {
-                            projectId: this.$route.query.id,
-                            _id: this.currentSelectDoc._id,
-                            method: this.request.methods,
-                        })
-                        this.$store.commit("apidoc/changeDocEditInfo", {
-                            description: params.item.description,
-                            header: params.item.header,
-                            methods: params.item.methods,
-                            requestParams: params.item.requestParams,
-                            responseParams: params.item.responseParams,
-                            url: params.item.url
-                        }); //改变文档编辑内容，用于判断文档值是否发生了改变
-                        this.getMindParamsEnum();
-                        resolve();
-                    }).catch(err => {
-                        this.$errorThrow(err, this);
-                        this.$store.commit("apidoc/changeCurrentTabById", {
-                            _id: this.currentSelectDoc._id,
-                            projectId: this.$route.query.id,
-                            changed: true
-                        });
-                        reject();
-                    }).finally(() => {
-                        this.loading2 = false;
-                    });                 
-                } else {
-                    reject();
-                }                 
-            })
+            const params = {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                info: this.apidocInfo.info,
+                item: this.apidocInfo.item,
+            };
+            //this.saveMindParams(); //保存快捷联想参数
+            //取消未保存小圆点
+            this.$store.commit("apidoc/changeCurrentTabById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                changed: false
+            });
+            this.loading2 = true;
+            this.axios.post("/api/project/fill_doc", params).then(() => {
+                this.$store.commit("apidoc/changeTabInfoById", {
+                    projectId: this.$route.query.id,
+                    _id: this.currentSelectDoc._id,
+                    method: this.request.methods,
+                })
+                this.getMindParamsEnum();
+            }).catch(err => {
+                this.$errorThrow(err, this);
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    changed: true
+                });
+            }).finally(() => {
+                this.loading2 = false;
+            }); 
         },
         //发布接口
         async publishRequest() {
@@ -441,140 +417,6 @@ export default {
             foo(plainData, result, parent);
             console.log(234, plainData, result)
             return result;
-        },
-        //数据校验
-        validateParams() {
-            let isValidRequest = true;
-            //=====================================检查请求url====================================//
-            // if (this.requestPath.trim() === "") { 
-            //     this.urlError.error = true;
-            //     this.urlError.message = "请求url不能为空";
-            //     isValidRequest = false;
-            // } else 
-            if (!this.request.url.host) {
-                this.$message.error("请选择请求服务器");
-                isValidRequest = false;
-            } else {
-                this.urlError.error = false;
-                isValidRequest = true;
-            }
-            //===========================检查参数是否必填或者按照规范填写======================//
-            const validate =  (rawData) => {
-                const deepMap = (requestData) => {
-                    for (let i = 0, len = requestData.length; i < len; i++) {
-                        const params = requestData[i];
-                        if (params.children) {
-                            deepMap(params.children);
-                        }
-                        if (i !== len - 1 || params.key.trim() !== "") { //最后一个数据并且未填写值则不做处理
-                            const valueType = params.type;
-                            const parentNode = findParentNode(params.id, rawData);
-                            const isParentArray = (parentNode && parentNode.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                            const isComplex = (valueType === "object" || valueType === "array" || valueType === "file"); //自身类型为复杂类型不校验参数值，参数值写在树形组件下层
-                            const key = params.key;
-                            const value = this.convertVariable(params.value);
-                            const description = params.description || "";
-                            if (!isParentArray && (key.trim() === "" || key.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(key)
-                                this.$set(params, "_keyError", {
-                                    error: true,
-                                    message: "不能存在空白字符串"
-                                });
-                                isValidRequest = false;
-                            }
-                            if (!isComplex && !isParentArray) { //非对象，数组并且父元素不为数组，父元素为数组不必填写key和description
-                                if (value.trim() === "" || value.match(/(^\s+)|(\s+$)/)) { //非空判断
-                                    this.$set(params, "_valueError", {
-                                        error: true,
-                                        message: "不能存在空白字符串"
-                                    });
-                                    isValidRequest = false;
-                                } else if (valueType === "number" && !this._isNumberLike(value)) {
-                                    this.$set(params, "_valueError", {
-                                        error: true,
-                                        message: "参数值必须为数字类型"
-                                    });
-                                    isValidRequest = false;
-                                }
-                            }
-                            if (!isComplex && !isParentArray && (description.trim() === "" || description.match(/(^\s+)|(\s+$)/))) { //禁止包含空字符串(description)
-                                this.$set(params, "_descriptionError", {
-                                    error: true,
-                                    message: "不能存在空白字符串"
-                                });
-                                isValidRequest = false;
-                            }
-                        }
-                    }
-                }   
-                deepMap(rawData);             
-            }
-
-            validate(this.request.requestParams);
-            validate(this.request.header);
-
-            if (!isValidRequest) {
-                this.$nextTick(() => {
-                    const errorIptDom = document.querySelector(".v-input.valid-error .el-input__inner");
-                    errorIptDom ? errorIptDom.focus() : null;
-                })
-            }
-            this.$store.commit("apidoc/changeParamsValid", isValidRequest)
-            return isValidRequest;
-        },
-        //参数校验
-        checkResponseParams() {
-            // console.log(9, this.remoteResponse)
-            if (this.remoteResponse.contentType && this.remoteResponse.contentType.includes("application/json")) {
-                const remoteParams = JSON.parse(this.remoteResponse.value);
-                const localParams = this.convertPlainParamsToTreeData(this.request.responseParams);
-                let responseErrorType = null; //校验错误类型
-                const hasOwn = Object.hasOwnProperty;
-
-                if (Object.keys(localParams).length === 0) {
-                    responseErrorType = "lackKey"
-                }
-                const foo = (localData, remoteData) => {
-                    for (let i in localData) { //不处理原型链上的数据
-                        if (!hasOwn.call(localData, i)) {
-                            continue;
-                        }
-                        const remoteKeys = Object.keys(remoteData); //-----远程keys
-                        const localKeys = Object.keys(localData); //-------本地keys
-                        const isLackKey = localKeys.some(val => !remoteKeys.includes(val)); //远程结果是否缺少对应字段
-                        const isTooMuchKey = !remoteKeys.every(val => localKeys.includes(val)); //远程结果是否超出字段
-                        //字段超出或者缺少判断
-                        if (isLackKey) {
-                            responseErrorType = "lackKey";
-                            return;
-                        }   
-                        if (isTooMuchKey) {
-                            responseErrorType = "tooMuchKey"
-                            return
-                        }
-                        //判断字段类型是否一致
-                        const localValue = localData[i];
-                        const remoteValue = remoteData[i];
-                        const localType = this.getType(localValue);
-                        const remoteType = this.getType(remoteValue);
-                        if (localType !== remoteType) {
-                            responseErrorType = "typeError"
-                            return
-                        }
-                        if (localType === "object") {
-                            foo(localValue, remoteValue);
-                        }
-                        if (localType === "array" && remoteValue[0]) {
-                            foo(localValue[0], remoteValue[0]);
-                        }
-                    }                    
-                }
-                foo(localParams, remoteParams);
-                if (responseErrorType) {
-                    this.$store.commit("apidoc/changeCondition", false)
-                } else {
-                    this.$store.commit("apidoc/changeCondition", true)
-                }
-            }
         },
         //=====================================url操作====================================//
         //删除无效请求字符并且提取查询字符串

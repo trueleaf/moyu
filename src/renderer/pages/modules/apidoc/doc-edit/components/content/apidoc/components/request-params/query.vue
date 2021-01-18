@@ -8,7 +8,7 @@
     <s-collapse-card>
         <div slot="head">
             <span>请求参数</span>
-            <span>(params)</span>
+            <span>(Params)</span>
         </div>
         <s-params-tree 
             ref="paramsTree"
@@ -33,7 +33,6 @@ export default {
                 return this.$store.state.apidoc.apidocInfo?.item?.queryParams;
             },
             set(val) {
-                console.log(222222)
                 this.$store.commit("apidoc/changeQueryParams", val);
             }
         },
@@ -55,7 +54,16 @@ export default {
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//  
-        
+        //选中_select为true的参数
+        selectChecked() {
+            return new Promise((resolve, reject) => {
+                this.$refs["paramsTree"].selectChecked().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err)
+                });
+            })
+        },
         //=====================================其他操作=====================================//
 
     }
