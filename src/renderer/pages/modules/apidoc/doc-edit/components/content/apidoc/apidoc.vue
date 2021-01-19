@@ -106,6 +106,9 @@ export default {
                     Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
+                        if (this.watchFlag) { //去除watch数据对比
+                            this.watchFlag();
+                        }
                         this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                             this.syncRequestParams();
                             this.diffEditParams();
@@ -158,6 +161,9 @@ export default {
                 Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
+                    if (this.watchFlag) { //去除watch数据对比
+                        this.watchFlag();
+                    }
                     this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                         this.syncRequestParams();
                         this.diffEditParams();
