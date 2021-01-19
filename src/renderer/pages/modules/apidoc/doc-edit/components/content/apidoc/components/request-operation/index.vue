@@ -25,21 +25,21 @@
             <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" class="mr-1" @click="publishRequest">发布接口</el-button>
+            <el-button :loading="loading3" type="primary" size="small" class="mr-1" @click="handleFreshApidoc">接口刷新</el-button>
             <el-dropdown trigger="click" class="mr-1">
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item @click.native="publishRequest">发布接口</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">全局变量</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
-                    <el-dropdown-item @click.native="$emit('fresh')">接口刷新</el-dropdown-item>
                     <el-dropdown-item @click.native="handleOpenConfigPage">全局配置</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100"></pre>
+        <pre class="w-100">{{ fullUrl }}</pre>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
     </div>         
 </template>
@@ -95,21 +95,20 @@ export default {
         enabledRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
         },
-        // fullUrl() {
-        //     if (this.request.requestType === "params") {
-        //         let queryStr = "";
-        //         this.request.requestParams.map((val) => {
-        //             if (val.key && val._select) {
-        //                 queryStr = `${queryStr}&${val.key}=${val.value}`
-        //             }
-        //         })
-        //         queryStr = queryStr.replace(/&/, "")
-        //         queryStr = `${ queryStr ? "?" : ""}${queryStr}`
-        //         return this.host + this.requestPath + queryStr;
-        //     } else {
-        //         return this.host + this.requestPath;
-        //     }
-        // },
+        fullUrl() {
+            const apidoc = this.$store.state.apidoc.apidocInfo;
+            const url = apidoc?.item?.url || {}; 
+            const queryParams =  apidoc?.item?.queryParams || [];
+            let queryStr = "";
+            queryParams.map((val) => {
+                if (val.key && val._select) {
+                    queryStr = `${queryStr}&${val.key}=${val.value}`
+                }
+            })
+            queryStr = queryStr.replace(/&/, "")
+            queryStr = `${ queryStr ? "?" : ""}${queryStr}`
+            return url.host + url.path + queryStr;
+        },
         host() {
             return this.$store.state.apidoc.apidocInfo?.item?.url.host;
         },
@@ -153,10 +152,6 @@ export default {
     },
     methods: {
         //=====================================获取数据====================================//
-        //预设参数
-        getPresetEnum() {
-
-        },
         //获取联想参数枚举
         getMindParamsEnum() {
             this.$store.dispatch("apidoc/getMindParamsEnum", {
@@ -519,6 +514,32 @@ export default {
         //hack通过改变_variableChange触发watch事件刷新变量值
         handleVariableChange() {
             this.request._variableChange = !this.request._variableChange;
+        },
+        //刷新请求页面
+        handleFreshApidoc() {
+            if (!this.currentSelectDoc.changed) {
+                this.$store.commit("apidoc/clearRespons");
+                this.getComponentByName("APIDOC_CONTENT").getDocDetail();
+            } else {
+                this.$confirm("刷新后未保存数据据将丢失", "提示", {
+                    confirmButtonText: "刷新",
+                    cancelButtonText: "取消",
+                    type: "warning"
+                }).then(() => {
+                    this.$store.commit("apidoc/clearRespons");
+                    this.getComponentByName("APIDOC_CONTENT").getDocDetail();
+                    this.$store.commit("apidoc/changeCurrentTabById", {
+                        _id: this.currentSelectDoc._id,
+                        projectId: this.$route.query.id,
+                        changed: false
+                    });
+                }).catch(err => {
+                    if (err === "cancel" || err === "close") {
+                        return;
+                    }
+                    this.$errorThrow(err, this);
+                });
+            }
         },
         //=====================================其他操作====================================//
         //修正contentType
