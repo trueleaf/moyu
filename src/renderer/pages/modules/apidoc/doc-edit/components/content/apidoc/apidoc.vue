@@ -15,7 +15,7 @@
             <!-- 参数录入 -->
             <div class="params-wrap">
                 <s-request-query-params ref="query"></s-request-query-params>
-                <s-request-body-params ref="body"></s-request-body-params>
+                <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <pre class="h-300px scroll-y">{{ apidocInfo }}</pre>
@@ -82,7 +82,6 @@ export default {
     },
     data() {
         return {
-            //=====================================请求基本信息================================//
             //=====================================其他参数====================================//
             watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
@@ -152,8 +151,10 @@ export default {
                 }
                 const resData = res.data;
                 this.addOperateDateForApidoc(resData);
-                this.$store.commit("apidoc/changeApidocInfo", resData);
-                this.$store.commit("apidoc/changeOriginApidocInfo", resData);
+                const a = JSON.parse(JSON.stringify(resData));
+                const b = JSON.parse(JSON.stringify(resData));
+                this.$store.commit("apidoc/changeApidocInfo", a);
+                this.$store.commit("apidoc/changeOriginApidocInfo", b);
                 Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
@@ -237,8 +238,11 @@ export default {
         },
         //对比填写参数是否发送变化
         diffEditParams() {
+            // const originInfoText = JSON.stringify(this.originApidocInfo.info);
+            // const infoText = JSON.stringify(this.apidocInfo.info);
             const originApidocInfoText = JSON.stringify(this.originApidocInfo);
             const apidocInfoText = JSON.stringify(this.apidocInfo);
+            // console.log(originApidocInfoText, apidocInfoText, originApidocInfoText === apidocInfoText)
             if (originApidocInfoText === apidocInfoText) {
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
