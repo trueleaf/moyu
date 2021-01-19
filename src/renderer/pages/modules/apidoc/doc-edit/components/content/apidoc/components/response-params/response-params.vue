@@ -12,7 +12,6 @@
                 :tree-data="item.values"
                 nest
                 :mind-params="mindParams.mindRequestParams"
-                showCheckbox
             >
             </s-params-tree>
             <div slot="head" class="h-100 d-flex a-center">
@@ -42,8 +41,13 @@
 
 <script>
 import mixin from "../../mixin" //公用数据和函数
+import paramsTree from "../params-tree/params-tree"
+
 export default {
     mixins: [mixin],
+    components: {
+        "s-params-tree": paramsTree
+    },
     computed: {
         responseParams: { //请求参数
             get(){
