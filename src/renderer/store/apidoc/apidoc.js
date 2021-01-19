@@ -52,13 +52,13 @@ export default {
         paramsValid: true, //参数是否满足校验需求
     },
     mutations: {
-        //===============初始化接口所需参数数据(例如：全局变量，全局域名信息等)==============//
+        //===============初始化或改变接口所需参数数据(例如：全局变量，全局域名信息等)==============//
         //初始化全局变量
         initVariables(state, payload) {
             state.variables = payload;
         },
         //初始化host枚举
-        initHostEnum(state, payload) {
+        initAndChangeHostEnum(state, payload) {
             state.hostEnum = payload;
         },
         //初始化联想参数，输入提示
@@ -186,7 +186,7 @@ export default {
         },
         //存储一份原始接口文档值，用于和变化后的值做对比
         changeOriginApidocInfo(state, payload) {
-            state.originApidocInfo = JSON.parse(JSON.stringify(payload));
+            state.originApidocInfo = payload;
         },
         //改变host的值
         changeDocHost(state, payload) {
@@ -376,7 +376,7 @@ export default {
                     projectId: payload.projectId
                 };
                 axios.get("/api/project/doc_service", { params }).then(res => {
-                    context.commit("initHostEnum", res.data);
+                    context.commit("initAndChangeHostEnum", res.data);
                     resolve();
                 }).catch(err => {
                     reject(err)
