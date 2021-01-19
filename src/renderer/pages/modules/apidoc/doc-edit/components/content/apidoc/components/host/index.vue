@@ -43,10 +43,15 @@ export default {
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
-        hostEnum() {
-            return this.$store.state.apidoc.hostEnum;
+        hostEnum: {
+            get() {
+                return this.$store.state.apidoc.hostEnum;
+            },
+            set(val) {
+                this.$store.commit("apidoc/initAndChangeHostEnum", val);
+            },
         },
-        host: { //接口文档信息
+        host: { //host信息
             get() {
                 return this.$store.state.apidoc.apidocInfo?.item?.url.host;
             },
