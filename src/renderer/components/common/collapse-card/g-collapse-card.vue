@@ -10,19 +10,26 @@
             :class="{shadow: shadow}"
             :style="{ width: width }"
     >
-        <header v-if="$slots.operation || title || $slots.head">
+        <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
             <div class="head" @click="showContent = !showContent">
-                <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
-                <span v-else class="el-icon-caret-bottom mr-2"></span>
+                <template v-if="!disabled">
+                    <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
+                    <span v-else class="el-icon-caret-bottom mr-2"></span> 
+                </template>
+                <template v-else>
+                    <svg class="disabled-icon mr-2" aria-hidden="true">
+                        <use xlink:href="#iconweibiaoti-"></use>
+                    </svg>  
+                </template>
                 <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
                 <slot v-else name="head">{{ title }}</slot>
             </div>
             <slot name="operation"></slot>
             <div class="tail">
                 <slot name="tail"></slot>
-            </div>
+            </div>            
         </header>
-        <section v-show="showContent" ref="content" class="content">
+        <section v-show="!disabled && showContent" ref="content" class="content">
             <slot></slot>
         </section>
     </div>
@@ -54,7 +61,15 @@ export default {
         shadow: {
             type: Boolean,
             default: false
-        }
+        },
+        disabled: { //是否禁用，禁用后内容区域不显示
+            type: Boolean,
+            default: false,
+        },
+        disabledTip: {
+            type: String,
+            default: "",
+        },
     },
     watch: {
         fold(val) {
@@ -121,6 +136,20 @@ export default {
             padding-right: size(20);
             margin-left: auto;
         }
+        &.disabled {
+            cursor: not-allowed;
+            background: $gray-100;
+            .head {
+                cursor: not-allowed;
+                &:hover {
+                    background: none;
+                } 
+            }
+        }
+    }
+    .disabled-icon {
+        width: size(15);
+        height: size(15);
     }
     // 内容区域
     .content {
