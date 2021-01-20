@@ -103,13 +103,13 @@ export default {
      * @update             2020-02-10 11:21
      */
     broadcast(componentName, eventName, params) {
-        const foo = (data, componentName, eventName, params) => {
-            for(let i = 0; i < data.length; i++) {
-                if (data[i].$options.name === componentName) {
-                    data[i].$emit(eventName, params);
+        const foo = (children, componentName, eventName, params) => {
+            for(let i = 0; i < children.length; i++) {
+                if (children[i].$options.name === componentName) {
+                    children[i].$emit(eventName, params);
                 }
-                if (data[i].$children && data[i].$children.length > 0) {
-                    foo(data[i].$children, componentName, eventName, params);
+                if (children[i].$children && children[i].$children.length > 0) {
+                    foo(children[i].$children, componentName, eventName, params);
                 }
             }
         }
