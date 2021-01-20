@@ -25,7 +25,7 @@
             <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" class="mr-1" @click="handleFreshApidoc">接口刷新</el-button>
+            <el-button :loading="loading3" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
             <el-dropdown trigger="click" class="mr-1">
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
@@ -47,28 +47,15 @@
 <script>
 import variableDialog from "../../dialog/variable-manage"
 import qs from "qs"
-import { dfsForest } from "@/lib/index"
-import deepmerge from "deepmerge"
-import FormData from "form-data/lib/form_data"
-import FileType from "file-type/browser"
-import buffer from "buffer"
-const Buffer = buffer.Buffer;
+// import deepmerge from "deepmerge"
+// import FormData from "form-data/lib/form_data"
+// import FileType from "file-type/browser"
+// import buffer from "buffer"
+// const Buffer = buffer.Buffer;
 export default {
     name: "REQUEST_OPERATION",
     components: {
         "s-variable-dialog": variableDialog,
-    },
-    props: {
-        request: { //完整请求参数
-            type: Object,
-            default() {
-                return {};
-            }
-        },
-        dataReady: { //数据是否请求回来
-            type: Boolean,
-            default: false
-        },
     },
     computed: {
         apidocInfo() { //接口文档信息
@@ -88,9 +75,6 @@ export default {
         },
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-        couldPublish() {
-            return this.$store.state.apidoc.remoteResponseEqualToLocalResponse
         },
         enabledRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
@@ -151,89 +135,10 @@ export default {
         window.removeEventListener("keydown", this.shortcutSave)
     },
     methods: {
-        //=====================================获取数据====================================//
-        //获取联想参数枚举
-        getMindParamsEnum() {
-            this.$store.dispatch("apidoc/getMindParamsEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            const foo = async (resolve, reject) => {
-                const isValidateRequest = this.validateParams();
-                if (isValidateRequest) {
-                    this.loading = true;
-                    const formData = new FormData();
-                    const copyRequestInfo = deepmerge({}, this.request, { //数据拷贝,防止数据处理过程中改变拷贝请求参数的值
-                        isMergeableObject(val) {
-                            return typeof val === "object" && Object.prototype.toString.call(val).slice(8, -1) !== "Object"
-                        }
-                    });
-                    const requestParams = this.convertPlainParamsToTreeData(copyRequestInfo.requestParams, true); //跳过未选中的参数
-                    const headerParams = this.convertPlainParamsToTreeData(copyRequestInfo.header);
-                    const url = copyRequestInfo.url.host + copyRequestInfo.url.path;
-                    const method = copyRequestInfo.methods.toLowerCase();
-                    const headers = headerParams;
-                    delete headers["content-type"];
-                    delete headers["Content-type"];
-                    delete headers["content-Type"];
-                    delete headers["Content-Type"];
-                    let data = requestParams;
-                    /*eslint-disable indent*/ 
-                    switch (this.request.requestType) {
-                        case "params":
-                            headers["content-type"] = "application/json"
-                            break;
-                        case "json":
-                            headers["content-type"] = "application/json"
-                            break;
-                        case "formData":
-                            headers["content-type"] = formData.getHeaders()["content-type"];
-                            for (const key in data) {
-                                const hasOwn = Object.hasOwnProperty;
-                                if (hasOwn.call(data, key)) {
-                                    if (data[key].constructor.name === "ArrayBuffer") {
-                                        const type = await FileType.fromBuffer(data[key]);
-                                        formData.append(key, Buffer(data[key]), { contentType: type.mime });
-                                    } else {
-                                        formData.append(key, data[key]);
-                                    }
-                                }
-                            }
-                            data = formData;
-                            break;
-                        case "x-www-form-urlencoded":
-                            headers["content-type"] = "application/x-www-form-urlencoded"
-                            break;
-                        default:
-                            headers["content-type"] = "application/json"
-                            break;
-                    }
-                    let storeCookie = localStorage.getItem("pages/cookies") || "{}";
-                    storeCookie = JSON.parse(storeCookie);
-                    storeCookie = storeCookie[this.$route.query.id];
-                    if (storeCookie) {
-                        headers["cookie"] = storeCookie;
-                    }
-                    this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data, requestType: this.request.requestType }).then(res => {
-                        this.checkResponseParams(); //参数校验
-                        this.injectCookie(res); //cookie注入
-                        resolve();
-                    }).catch(err => {
-                        console.error(err);
-                        reject(err)
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    reject("校验错误2")             
-                }
-            }
-            return new Promise((resolve, reject) => {
-                foo(resolve, reject);
-            })
+            console.log(this.apidocInfo)
         },
         //取消发送
         stopRequest() {
@@ -255,7 +160,7 @@ export default {
                 info: this.apidocInfo.info,
                 item: this.apidocInfo.item,
             };
-            //this.saveMindParams(); //保存快捷联想参数
+            this.saveMindParams(); //保存联想参数
             //取消未保存小圆点
             this.$store.commit("apidoc/changeCurrentTabById", {
                 _id: this.currentSelectDoc._id,
@@ -264,12 +169,7 @@ export default {
             });
             this.loading2 = true;
             this.axios.post("/api/project/fill_doc", params).then(() => {
-                this.$store.commit("apidoc/changeTabInfoById", {
-                    projectId: this.$route.query.id,
-                    _id: this.currentSelectDoc._id,
-                    method: this.request.methods,
-                })
-                this.getMindParamsEnum();
+               
             }).catch(err => {
                 this.$errorThrow(err, this);
                 this.$store.commit("apidoc/changeCurrentTabById", {
@@ -317,47 +217,49 @@ export default {
         //=====================================联想参数====================================//
         //保存联想参数(将之前录入过的参数保存起来)
         saveMindParams() {
-            const mindRequestParams = [];
-            const mindResponseParams = [];
-            dfsForest(this.request.responseParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data) => {
-                    if (data.key !== "" && data.value !== "" && data.description !== "") {
-                        const copyData = JSON.parse(JSON.stringify(data));
-                        mindResponseParams.push(copyData);
-                    }
-                    if (data.key !== "" && (data.type === "object" || data.type === "array") && data.description !== "") {
-                        const copyData = JSON.parse(JSON.stringify(data));
-                        copyData.children = []; //只记录扁平数据
-                        mindResponseParams.push(copyData);
-                    }
-                }
-            });
-            dfsForest(this.request.requestParams, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data) => {
-                    if (data.key !== "" && data.value !== "" && data.description !== "") {
-                        mindRequestParams.push(data);
-                    }
-                }
-            });
+            let allResponse = [];
+            this.apidocInfo.item.responseParams.forEach(response => {
+                allResponse = allResponse.concat(response.values);
+            })
+            const paths = this.filterInvalidParams(this.apidocInfo.item.paths);
+            const queryParams = this.filterInvalidParams(this.apidocInfo.item.queryParams);
+            const requestBody = this.filterInvalidParams(this.apidocInfo.item.requestBody);
+            const responseParams = this.filterInvalidParams(allResponse);
             const projectId = this.$route.query.id;
             const params = {
                 projectId,
-                mindRequestParams,
-                mindResponseParams,
+                paths,
+                queryParams,
+                requestBody,
+                responseParams,
             };
-            this.axios.post("/api/project/doc_params_mind", params).then(() => {
-                
+            this.axios.post("/api/project/doc_params_mind", params).then((res) => {
+                if (res.data != null) {
+                    this.$store.commit("apidoc/initAndChangeMindParams", res.data);
+                }
             }).catch(err => {
                 this.$errorThrow(err, this);
             });
+        },
+        //过滤无效参数数据
+        filterInvalidParams(arrayParams) {
+            const result = [];
+            this.$helper.dfsForest(arrayParams, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks: (data) => {
+                    const isComplex = data.type === "object" || data.type === "array";
+                    const copyData = this.$helper.cloneDeep(data);
+                    if (!isComplex && data.key !== "" && data.value !== "" && data.description !== "") { //常规数据
+                        result.push(copyData);
+                    } else if (isComplex && data.key !== "" && data.description !== "") {
+                        result.push(copyData);
+                    }
+                }
+            });
+            return result;
         },
         //=====================================数据处理和校验====================================//
         //将扁平数据转换为树形结构数据
