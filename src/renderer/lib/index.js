@@ -9,7 +9,22 @@
     @return {string}      uuid
 */
 import { v4 as uuidV4 } from "uuid";
+import lodashIsEqual from "lodash/isEqual"
+import lodashCloneDeep from "lodash/cloneDeep"
 
+
+
+//对象对比
+export const isEqual = lodashIsEqual
+//深拷贝
+export const cloneDeep = lodashCloneDeep
+
+
+/** 
+ * @description        返回uuid
+ * @author             shuxiaokai
+ * @create             2021-01-20 10:52
+ */
 export const uuid = function() {
     return uuidV4();
 }
@@ -219,6 +234,7 @@ export const forEachForest = function(forest, fn, options = {}) {
 export const dfsForest = (forestData, config) => {
     const { rCondition, rKey, hooks } = config;
     if (!Array.isArray(forestData)) {
+        console.log(forestData);
         throw new Error("第一个参数必须为数组结构森林");
     }
     if (!rKey) {
