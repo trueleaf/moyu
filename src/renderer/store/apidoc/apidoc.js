@@ -5,7 +5,7 @@
  */
 import Vue from "vue"
 import http from "@/api/api.js"
-import { findNodeById, throttle } from "@/lib"
+import { findNodeById, throttle, uuid } from "@/lib"
 import HttpClient from "@/../main/http"
 const httpClient = new HttpClient();
 
@@ -18,8 +18,10 @@ export default {
         variables: [], //--------------接口文档全局变量
         hostEnum: [], //---------------全局host数据
         mindParams: { //--------------文档联想参数
-            mindRequestParams: [],
-            mindResponseParams: []
+            paths: [],
+            queryParams: [],
+            requestBody: [],
+            responseParams: [],
         },
         presetParamsList: [], //-------预设参数列表
         //===============================接口录入相关=========================//
@@ -62,9 +64,19 @@ export default {
             state.hostEnum = payload;
         },
         //初始化联想参数，输入提示
-        initMindParams(state, payload) {
-            state.mindParams.mindRequestParams = payload.mindRequestParams;
-            state.mindParams.mindResponseParams = payload.mindResponseParams;
+        initAndChangeMindParams(state, payload) {
+            state.mindParams.paths = payload.paths.map(val => {
+                return { ...val, _id: uuid(), _select: true }
+            });
+            state.mindParams.queryParams = payload.queryParams.map(val => {
+                return { ...val, _id: uuid(), _select: true }
+            });
+            state.mindParams.requestBody = payload.requestBody.map(val => {
+                return { ...val, _id: uuid(), _select: true }
+            });
+            state.mindParams.responseParams = payload.responseParams.map(val => {
+                return { ...val, _id: uuid(), _select: true }
+            });
         },
         //初始化预设参数模板
         initPresetParams(state, payload) {
@@ -236,6 +248,12 @@ export default {
         changeHeaders(state, payload) {
             state.apidocInfo.item.headers = payload;
         },
+        //改变备注信息
+        changeDescription(state, payload) {
+            if (state.apidocInfo.info) { //刚创建的时候info值可能不存在
+                state.apidocInfo.info.description = payload;
+            }
+        },
         //=====================================发送请求====================================//
         //是否校验通过
         changeParamsValid(state, isValid) {
@@ -337,7 +355,7 @@ export default {
                 });                
             })
         },
-        //获取文档请求参数
+        //获取文档联想参数
         async getMindParamsEnum(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
@@ -345,7 +363,7 @@ export default {
                 };
                 axios.get("/api/project/doc_params_mind", { params }).then(res => {
                     const result = res.data;
-                    context.commit("initMindParams", result);
+                    context.commit("initAndChangeMindParams", result);
                     resolve();
                 }).catch(err => {
                     reject(err)
@@ -384,8 +402,6 @@ export default {
                             
             })
         },
-
-
         /** 
          * @description        发送请求
          * @author             shuxiaokai

@@ -23,7 +23,7 @@
             ref="jsonTree"
             :tree-data="jsonBody"
             nest
-            :mind-params="mindParams.mindRequestParams"
+            :mind-params="mindParams.requestBody"
             showCheckbox
         >
         </s-params-tree>
@@ -33,7 +33,7 @@
             ref="formDataTree"
             :tree-data="formDataBody"
             :nest="false"
-            :mind-params="mindParams.mindRequestParams"
+            :mind-params="mindParams.requestBody"
             enable-form-data
             showCheckbox
         >
@@ -44,7 +44,7 @@
             ref="formUrlTree"
             :tree-data="formUrlBody"
             :nest="false"
-            :mind-params="mindParams.mindRequestParams"
+            :mind-params="mindParams.requestBody"
             showCheckbox
         >
         </s-params-tree>
