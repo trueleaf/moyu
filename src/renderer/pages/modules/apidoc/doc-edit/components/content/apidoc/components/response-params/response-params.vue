@@ -11,7 +11,7 @@
                 ref="paramsTree"
                 :tree-data="item.values"
                 nest
-                :mind-params="mindParams.mindRequestParams"
+                :mind-params="mindParams.responseParams"
             >
             </s-params-tree>
             <div slot="head" class="h-100 d-flex a-center">

@@ -14,7 +14,7 @@
             ref="paramsTree"
             :tree-data="queryParams"
             :nest="false"
-            :mind-params="mindParams.mindRequestParams"
+            :mind-params="mindParams.queryParams"
             showCheckbox
         >
         </s-params-tree>
