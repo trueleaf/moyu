@@ -6,21 +6,23 @@
 */
 <template>
     <s-collapse-card ref="collapse" title="备注信息" class="remark-params" fold>
-        <div class="px-5 py-5">
-            <s-rich-text v-model="request.description"></s-rich-text>
+        <div class="px-5 py-2">
+            <s-rich-text v-model="description"></s-rich-text>
         </div>
     </s-collapse-card>
 </template>
 
 <script>
 export default {
-    props: {
-        request: {
-            type: Object,
-            default() {
-                return {};
-            }
-        }
+    computed: {
+        description: {
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.info?.description;
+            },
+            set(val) {
+                this.$store.commit("apidoc/changeDescription", val);
+            },
+        },
     },
     data() {
         return {

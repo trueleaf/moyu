@@ -178,7 +178,8 @@ export default {
             }
             data.children.push(params);
             setTimeout(() => { //hack，添加一个数据默认选中当前数据
-                this.$refs["tree"]?.setChecked(params.id, true);
+                this.$refs["tree"]?.setChecked(params._id, true);
+                this.defaultExpandedKeys.push(params._id);
             })
             data.value = "";
             this.$set(data, "_valueError", {
@@ -190,20 +191,20 @@ export default {
             } else { //默认设置为object
                 data.type = "object"
             }
-            this.defaultExpandedKeys.push(params.id);
+            
         },
         //删除一条数据
         deleteTreeData({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
             if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-                const deleteIndex = parentData.findIndex(val => val.id === data.id);
+                const deleteIndex = parentData.findIndex(val => val._id === data._id);
                 if (parentData.length - 1 === deleteIndex) { //不允许删除最后一个元素
                     return;
                 }
                 parentData.splice(deleteIndex, 1);
             } else {
-                const deleteIndex = parentData.children.findIndex(val => val.id === data.id);
+                const deleteIndex = parentData.children.findIndex(val => val._id === data._id);
                 parentData.children.splice(deleteIndex, 1)
             }
         },
@@ -237,14 +238,14 @@ export default {
                         parentData.children.push(this.generateProperty());
                     }
                 }
-                this.$refs["tree"]?.setChecked(data.id, true);
+                this.$refs["tree"]?.setChecked(data._id, true);
             }
         },
         //校验key值是否满足规范
         handleCheckKeyField({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
@@ -304,7 +305,7 @@ export default {
         handleCheckValue({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
             const realValue = this.convertVariable(data.value);
             // console.log(realValue)
             if (data.type === "object" || data.type === "array") { //数据和对象不必校验
@@ -340,7 +341,7 @@ export default {
         handleCheckDescription({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
@@ -433,7 +434,7 @@ export default {
                 dropNode.data.type = "object";
                 dropNode.data.value = "";
             }
-            this.$refs["tree"]?.setChecked(data.id, true);
+            this.$refs["tree"]?.setChecked(data._id, true);
         },
         //是否勾选请求参数
         handleCheckChange() {
