@@ -106,6 +106,7 @@ export default {
             if (currentDoc.changed) { //存在缓存直接应用缓存
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
+                    this.broadcast("REQUEST_BODY", "dataReady");
                     Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
@@ -115,7 +116,7 @@ export default {
                         this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                             this.syncRequestParams();
                             this.diffEditParams();
-                        }, 100), {
+                        }), {
                             deep: true
                         })
                     })
@@ -161,8 +162,9 @@ export default {
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
-                console.log(222, JSON.parse(JSON.stringify(apidocInfo)))
-                Promise.all([this.$refs["query"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                this.broadcast("REQUEST_BODY", "dataReady");
+                // console.log(222, JSON.parse(JSON.stringify(apidocInfo)))
+                Promise.all([this.$refs["query"].selectChecked(),  this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -171,7 +173,7 @@ export default {
                     this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                         this.syncRequestParams();
                         this.diffEditParams();
-                    }, 100), {
+                    }), {
                         deep: true
                     })
                 })
@@ -255,6 +257,7 @@ export default {
                     changed: false
                 });
             } else {
+                //???????????????????  blur会导致添加额外参数，然后触发diff导致小圆点
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
                     changed: true

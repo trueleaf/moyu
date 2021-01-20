@@ -55,11 +55,15 @@
 import paramsTree from "../params-tree/params-tree"
 import mixin from "../../mixin" //公用数据和函数
 export default {
+    name: "REQUEST_BODY",
     mixins: [mixin],
     components: {
         "s-params-tree": paramsTree
     },
     computed: {
+        requestBody() { //请求body
+            return this.$store.state.apidoc.apidocInfo?.item?.requestBody;
+        },
         contentType: { //请求contentType类型
             get() {
                 return this.$store.state.apidoc.apidocInfo?.item?.contentType;
@@ -80,41 +84,64 @@ export default {
             jsonBody: [], //application/json
             formDataBody: [], //multipart/from-data
             formUrlBody: [], //application/x-www-form-urlencoded
+            //=====================================其他参数====================================//
+            jsonWatchFlag: null, //watch标识用于清空数据
+            formDataWatchFlag: null, //watch标识用于清空数据
+            formUrlWatchFlag: null, //watch标识用于清空数据
         };
     },
     created() {
-        this.initTempRequestBody();
-        this.initWatchTempRequestBody();
+        this.$on("dataReady", () => {
+            this.initRequestBody();
+        });
     },
     methods: {
         //=====================================初始化&获取远程数据===========================//
         //初始化requestBody
-        initTempRequestBody() {
-            this.jsonBody.push(this.generateProperty());
-            this.formDataBody.push(this.generateProperty());
-            this.formUrlBody.push(this.generateProperty());
+        initRequestBody() {
+            this.jsonBody = [];
+            this.formDataBody = [];
+            this.formUrlBody = [];
+            if (this.contentType === "application/json") {
+                this.jsonBody = this.$helper.cloneDeep(this.requestBody);
+                this.formDataBody = [this.generateProperty()];
+                this.formUrlBody = [this.generateProperty()];
+            } else if (this.contentType === "application/x-www-form-urlencoded") {
+                this.formUrlBody = this.$helper.cloneDeep(this.requestBody);
+                this.jsonBody = [this.generateProperty()];
+                this.formDataBody = [this.generateProperty()];
+            } else if (this.contentType === "multipart/form-data") {
+                this.formDataBody = this.$helper.cloneDeep(this.requestBody);
+                this.jsonBody = [this.generateProperty()];
+                this.formUrlBody = [this.generateProperty()];
+            } else { //默认按照json进行处理
+                this.jsonBody = this.$helper.cloneDeep(this.requestBody);
+                this.formDataBody = [this.generateProperty()];
+                this.formUrlBody = [this.generateProperty()];
+            }
+            this.initWatchTempRequestBody();
         },
         //初始化以后绑定对参数的监听
         initWatchTempRequestBody() {
-            this.$watch("jsonBody", this.$helper.debounce((val) => {
+            this.jsonWatchFlag && this.jsonWatchFlag();
+            this.formDataWatchFlag && this.formDataWatchFlag();
+            this.formUrlWatchFlag && this.formUrlWatchFlag();
+            this.jsonWatchFlag = this.$watch("jsonBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
             }), {
                 deep: true
             });  
-            this.$watch("formDataBody", this.$helper.debounce((val) => {
+            this.formDataWatchFlag = this.$watch("formDataBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
             }), {
                 deep: true
             });  
-            this.$watch("formUrlBody", this.$helper.debounce((val) => {
+            this.formUrlWatchFlag = this.$watch("formUrlBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
             }), {
                 deep: true
             });  
         },
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//  
         //选中_select为true的参数
         selectChecked() {
             return new Promise((resolve, reject) => {
@@ -125,6 +152,9 @@ export default {
                 })
             })
         },
+        //=====================================前后端交互====================================//
+
+       
         //=====================================其他操作=====================================//
 
     }
