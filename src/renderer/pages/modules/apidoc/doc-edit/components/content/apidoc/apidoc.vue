@@ -18,7 +18,8 @@
                 <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
-                <pre class="h-300px scroll-y">{{ apidocInfo }}</pre>
+                <s-remark></s-remark>
+                <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.queryParams }}</pre>
             </div>            
         </s-loading>
         <div class="view-area">
@@ -30,13 +31,14 @@
 <script>
 import axios from "axios" 
 import mixin from "./mixin" //公用数据和函数
-import hostManage from "./components/host" //---------------------------------请求地址列表
-import requestOperationManage from "./components/request-operation" //--------请求操作和url管理
+import hostManage from "./components/host/host" //---------------------------------请求地址列表
+import requestOperationManage from "./components/request-operation/request-operation" //--------请求操作和url管理
 import requestQueryParams from "./components/request-params/query" //查询字符串
 import requestBodyParams from "./components/request-params/body" //body请求参数
 import responseParams from "./components/response-params/response-params" //返回参数
 import headerParams from "./components/header-params" //请求头
-import overview from "./components/overview"
+import remark from "./components/remark/remark" //备注信息
+import overview from "./components/overview/overview" //展示区域
 const CancelToken = axios.CancelToken;
 //=========================================================================//
 export default {
@@ -49,6 +51,7 @@ export default {
         "s-request-body-params": requestBodyParams,
         "s-response-params": responseParams,
         "s-header-params": headerParams,
+        "s-remark": remark,
         "s-overview": overview,
     },
     watch: {
@@ -154,11 +157,12 @@ export default {
                 }
                 const resData = res.data;
                 this.addOperateDateForApidoc(resData);
-                const a = JSON.parse(JSON.stringify(resData));
-                const b = JSON.parse(JSON.stringify(resData));
-                this.$store.commit("apidoc/changeApidocInfo", a);
-                this.$store.commit("apidoc/changeOriginApidocInfo", b);
-                Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                const apidocInfo = JSON.parse(JSON.stringify(resData));
+                const originApidocInfo = JSON.parse(JSON.stringify(resData));
+                this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
+                this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
+                console.log(222, JSON.parse(JSON.stringify(apidocInfo)))
+                Promise.all([this.$refs["query"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -244,12 +248,8 @@ export default {
         },
         //对比填写参数是否发送变化
         diffEditParams() {
-            // const originInfoText = JSON.stringify(this.originApidocInfo.info);
-            // const infoText = JSON.stringify(this.apidocInfo.info);
-            const originApidocInfoText = JSON.stringify(this.originApidocInfo);
-            const apidocInfoText = JSON.stringify(this.apidocInfo);
-            // console.log(originApidocInfoText, apidocInfoText, originApidocInfoText === apidocInfoText)
-            if (originApidocInfoText === apidocInfoText) {
+            const isEqual = this.$helper.isEqual(this.originApidocInfo, this.apidocInfo)
+            if (isEqual) {
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
                     changed: false
