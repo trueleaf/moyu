@@ -439,15 +439,15 @@ export default {
         //是否勾选请求参数
         handleCheckChange() {
             //首先清空所有选中数据  
-            dfsForest(this.treeData, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (data) => {
-                    this.$set(data, "_select", false);
-                }
-            });
+            // dfsForest(this.treeData, {
+            //     rCondition(value) {
+            //         return value.children;
+            //     },
+            //     rKey: "children",
+            //     hooks: (data) => {
+            //         this.$set(data, "_select", false);
+            //     }
+            // });
             const checkedNodes = this.$refs["tree"]?.getCheckedNodes();
             const halfCheckedNodes = this.$refs["tree"]?.getHalfCheckedNodes();
             checkedNodes.forEach(val => {
