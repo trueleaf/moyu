@@ -163,7 +163,6 @@ export default {
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
-                // console.log(222, JSON.parse(JSON.stringify(apidocInfo)))
                 Promise.all([this.$refs["query"].selectChecked(),  this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
@@ -250,14 +249,42 @@ export default {
         },
         //对比填写参数是否发送变化
         diffEditParams() {
-            const isEqual = this.$helper.isEqual(this.originApidocInfo, this.apidocInfo)
+            //挑选参数字段需要对比的参数
+            const pickerProperty = (property) => {
+                return {
+                    key: property.key,
+                    type: property.type,
+                    description: property.description,
+                    value: property.value,
+                    required: property.required,
+                    _select: property._select,
+                };
+            }
+            //挑选整个接口文档需要对比的参数
+            const pickerValidDiffParams = (docInfo) => {
+                return {
+                    info: docInfo.info,
+                    item: {
+                        method: docInfo.item.method,
+                        url: docInfo.item.url,
+                        paths: docInfo.item.paths.map(val => pickerProperty(val)),
+                        queryParams: docInfo.item.queryParams.map(val => pickerProperty(val)),
+                        requestBody: docInfo.item.requestBody.map(val => pickerProperty(val)),
+                        responseParams: docInfo.item.responseParams.map(val => pickerProperty(val)),
+                        headers: docInfo.item.headers.map(val => pickerProperty(val)),
+                        contentType: docInfo.item.contentType,
+                    },
+                }
+            }
+            const diffOriginApidocInfo = pickerValidDiffParams(this.originApidocInfo);
+            const diffApidocInfo = pickerValidDiffParams(this.apidocInfo);
+            const isEqual = this.$helper.isEqual(diffOriginApidocInfo, diffApidocInfo);
             if (isEqual) {
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
                     changed: false
                 });
             } else {
-                //???????????????????  blur会导致添加额外参数，然后触发diff导致小圆点
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
                     changed: true
