@@ -122,12 +122,6 @@ export default {
                 return {};
             }
         },
-        requestData: {
-            type: Object,
-            default() {
-                return {}
-            }
-        }
     },
     computed: {
         formatBytes() {
@@ -143,15 +137,15 @@ export default {
         },
         //发送请求状态
         loading() {
-            return this.$store.state.apidoc.loading;
+            return this.$store.state.apidoc.sendRequestLoading;
         },
         //远端返回数据结果
         remoteResponse() {  
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         //远端cookies
         cookies() {
-            const setCookie = this.$store.state.apidoc.responseData?.headers["set-cookie"] || [];
+            const setCookie = this.$store.state.apidoc.remoteResponse?.headers["set-cookie"] || [];
             const cookies = setCookie.map(val => {
                 const name = val.match(/[^=]+/);
                 const value = val.match(/(?<==).*/);
@@ -279,6 +273,7 @@ export default {
 .response-view {
     padding: size(10);
     .remote-view {
+        width: 100%;
         height: calc(100vh - #{size(410)});
         overflow-y: auto;
     }
