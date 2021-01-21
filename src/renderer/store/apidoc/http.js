@@ -17,7 +17,7 @@ if (window.require) {
 }
 
 const HttpClient = (function() {
-    let singleton = null;
+    let singleton = null; //单例
     class _HttpClient {
         constructor(config = {}) {
             if (!singleton) {
@@ -73,36 +73,50 @@ const HttpClient = (function() {
                 handler(payload);
             })
         }
-        request(url, options) {
+        /** 
+         * @description                 发送请求
+         * @author                      shuxiaokai
+         * @create                      2020-12-11 14:59
+         * @param {url}                 url - 请求url       
+         * @param {string}              method - 请求方法   
+         * @param {string}              contentType - 参数类型   
+         * @param {Array<Property>}     paths - 路径参数   
+         * @param {Array<Property>}     queryParams - 请求参数   
+         * @param {Array<Property>}     requestBody - 请求body   
+         * @param {Array<Property>}     headers - 请求头       
+         */
+        request(options) {
+            this.url = options.url.host + options.url.path;
             this.method = options.method.toLowerCase();
-            this.url = url;
-            this.params = options.data;
-            this.headers = options.headers;
-            this.requestType = options.requestType;
+            this.contentType = options.contentType;
+            this.paths = options.paths;
+            this.queryParams = options.queryParams;
+            this.requestBody = options.requestBody;
+            // this.headers = options.headers;
+            console.log("发送请求", options)
             try {
-                let requestUrl = this.url;
                 let body = "";
-                if (this.method.toUpperCase() === "GET") {
-                    const searchParams = new URLSearchParams(this.params).toString();
-                    requestUrl = searchParams ? `${this.url}/?${searchParams}` : this.url;
-                }
-                // const body = this.method.toUpperCase() === "GET" ? "" : this.params;
-                if (this.method.toUpperCase() === "GET") { //GET请求body为空，否则请求将被一直挂起
+                const searchParams = new URLSearchParams(this.queryParams).toString();
+                const requestUrl = searchParams ? `${this.url}?${searchParams}` : this.url;
+                if (this.method === "get") { //GET请求body为空，否则请求将被一直挂起
                     body = "";
-                } else if (this.requestType === "params") {
-                    body = "";
-                } else if (this.requestType === "json") {
-                    body = JSON.stringify(this.params);
-                } else if (this.requestType === "form-data") {
-                    body = this.params;
-                } else if (this.requestType === "x-www-form-urlencoded") {
-                    body = new URLSearchParams(this.params).toString();
+                } else {
+                    switch (this.contentType) {
+                    case "application/json":
+                        body = JSON.stringify(this.requestBody);
+                        break;
+                    case "multipart/form-data":
+                        body = this.requestBody;
+                        break;
+                    case "application/x-www-form-urlencode":
+                        body = new URLSearchParams(this.requestBody).toString();
+                        break;
+                    }
                 }
-                // console.log("body", this.requestType, body, options.headers)
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
-                    headers: this.headers,
+                    // headers: this.headers,
                     body
                 })
                 let streamData = [];
@@ -134,6 +148,7 @@ const HttpClient = (function() {
                 });
                 //错误处理
                 this.instance.on("error", error => {
+                    console.error(error);
                     this.emit("error", error);
                 });
                 //重定向
@@ -145,7 +160,6 @@ const HttpClient = (function() {
                     this.emit("process", process);
                 });   
             } catch (error) {
-                console.error(error);
                 this.emit("error", error);
             }
         }
@@ -233,6 +247,7 @@ const HttpClient = (function() {
             }
             return data;
         }
+        //取消请求
         cancel() {
             this.instance.destroy();
         }
