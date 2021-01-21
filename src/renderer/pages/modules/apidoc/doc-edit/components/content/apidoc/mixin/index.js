@@ -4,6 +4,11 @@
  * @create             2021-01-16 17:30
  */
 export default {
+    computed: {
+        variables() { //全局变量
+            return this.$store.state.apidoc.variables || [];
+        },
+    },
     methods: {
         /** 
          * @description        生成参数
@@ -34,6 +39,87 @@ export default {
                 children: [],
                 _select: true,
             }
-        }
+        },
+        /** 
+         * @description              将扁平数据转换为树形结构数据
+         * @author                   shuxiaokai
+         * @create                   2021-01-21 19:21
+         * @param {Array<Property>}  properties - 参数数组       
+         * @param {boolean}          jumpChecked - 是否跳过       
+         * @return {JSON}            返回JSON字符串
+         */
+        convertPlainParamsToTreeData(properties, jumpChecked) {
+            const result = {};
+            const parent = {};
+            const foo = (properties, result, parent) => {
+                for(let i = 0; i < properties.length; i++) {
+                    if (jumpChecked && !properties[i]._select) { //若请求参数未选中则不发送请求
+                        continue;
+                    }
+                    const key = properties[i].key.trim();
+                    const value = this.convertVariable(properties[i].value);
+                    const type = properties[i].type; // object,array,file
+                    const valueTypeIsArray = Array.isArray(result);
+                    const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+                    const isComplex = (type === "object" || type === "array" || type === "file");
+                    let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
+                    if (!isParentArray && !isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才被视作合法
+                        continue
+                    }
+                    switch (type) {
+                    case "number": //数字类型需要转换为数字，转换前所有值都为字符串
+                        valueTypeIsArray ? result.push(Number(value)) : result[key] = Number(value);
+                        break;
+                    case "boolean": //布尔值处理
+                        valueTypeIsArray ? result.push(result[key] = (value === "true" ? true : false)) : (result[key] = (value === "true" ? true : false));
+                        break;
+                    case "object":
+                        valueTypeIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
+                        if (properties[i].children && properties[i].children.length > 0) {
+                            parent = properties[i];
+                            foo(properties[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key], parent);
+                        }
+                        break;
+                    case "array":
+                        result[key] = [];
+                        if (properties[i].children && properties[i].children.length > 0) {
+                            parent = properties[i];
+                            foo(properties[i].children, result[key], parent);
+                        }
+                        break;
+                    case "file":
+                        result[key] = value;
+                        break;
+                    default: //字符串或其他类型类型不做处理
+                        valueTypeIsArray ? result.push(value) : (result[key] = value);
+                        break;
+                    }
+                }
+            }
+            foo(properties, result, parent);
+            return result;
+        },
+        //将变量转换为实际数据
+        convertVariable(val) {
+            if (val == null) {
+                return;
+            }
+            if (Object.prototype.toString.call(val).slice(8, -1) === "ArrayBuffer") { //ArrayBuffer文件类型
+                return val;
+            }
+            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
+            if (val && matchedData) {
+                const varInfo = this.variables.find(v => {
+                    return v.name === matchedData[1];
+                });
+                if (varInfo) {
+                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
+                } else {
+                    return val;
+                }
+            } else {
+                return val;
+            }
+        },
     },
 }
