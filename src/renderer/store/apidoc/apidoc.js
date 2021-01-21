@@ -6,7 +6,7 @@
 import Vue from "vue"
 import http from "@/api/api.js"
 import { findNodeById, throttle, uuid } from "@/lib"
-import HttpClient from "@/../main/http"
+import HttpClient from "./http"
 const httpClient = new HttpClient();
 
 
@@ -30,8 +30,8 @@ export default {
         banner: [], //----------------树形导航
         tabs: {}, //------------------api文档tabs
         activeDoc: {}, //-------------当前被选中的tab页
-        
-
+        //============================发送请求===============================//
+        sendRequestLoading: false, //是否正在请求数据
 
         responseData: {//返回参数
             headers: {},
@@ -46,11 +46,9 @@ export default {
             percent: null
         }, 
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
-        
-        
         //=====================================其他参数====================================//
         apidocLoading: false, //是否正在请求api文档
-        loading: false, //是否正在请求数据
+        
         paramsValid: true, //参数是否满足校验需求
     },
     mutations: {
@@ -91,7 +89,6 @@ export default {
         changeDocBannerInfoById(state, payload) {
             const { id, method } = payload;
             const matchedBannerData = findNodeById(state.banner, id,{ id: "_id" });
-            // console.log(matchedBannerData, state.banner, state.tabs[projectId])
             if (matchedBannerData && method) {
                 matchedBannerData.method = method;
             }
@@ -255,6 +252,32 @@ export default {
             }
         },
         //=====================================发送请求====================================//
+        //改变模拟发送请求返回结果loading效果
+        changeSendRequestLoading(state, loading) {
+            state.sendRequestLoading = loading;
+        },
+        //改变大小
+        changeResponseProcess(state, payload) {
+            const { size, percent, total } = payload;
+            if (size != null) {
+                state.responseData.size = size; 
+            }
+            if (percent != null) {
+                state.responseData.percent = percent; 
+            }
+            if (total != null) {
+                state.responseData.total = total; 
+            }
+        },
+        //改变基础返回信息
+        changeResponseInfo(state, payload) {
+            state.responseData.headers = payload.headers;
+            state.responseData.contentType = payload.contentType;
+            state.responseData.httpVersion = payload.httpVersion;
+            state.responseData.statusCode = payload.statusCode;
+        },
+
+
         //是否校验通过
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid
@@ -271,26 +294,8 @@ export default {
             // description,header,,requestParams,responseParams,url
             state.originDocInfo = JSON.parse(JSON.stringify(payload));
         },
-        //改变基础返回信息
-        changeResponseInfo(state, payload) {
-            state.responseData.headers = payload.headers;
-            state.responseData.contentType = payload.contentType;
-            state.responseData.httpVersion = payload.httpVersion;
-            state.responseData.statusCode = payload.statusCode;
-        },
-        //改变大小
-        changeResponseProcess(state, payload) {
-            const { size, percent, total } = payload;
-            if (size != null) {
-                state.responseData.size = size; 
-            }
-            if (percent != null) {
-                state.responseData.percent = percent; 
-            }
-            if (total != null) {
-                state.responseData.total = total; 
-            }
-        },
+        
+        
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
             state.responseData.mime = payload.mime;
@@ -298,10 +303,7 @@ export default {
             state.responseData.size = payload.size;            
             state.responseData.value = payload.value;            
         },
-        //改变loading效果
-        changeLoading(state, loading) {
-            state.loading = loading;
-        },
+        
         //重置返回值信息
         clearRespons(state) {
             state.responseData = {
@@ -403,35 +405,39 @@ export default {
             })
         },
         /** 
-         * @description        发送请求
-         * @author             shuxiaokai
-         * @create             2020-12-11 14:59
-         * @param {url}        url - 请求url       
-         * @param {method}     method - 请求方法       
-         * @param {headers}    headers - 请求头       
-         * @param {data}       data - 请求数据       
+         * @description                 发送请求
+         * @author                      shuxiaokai
+         * @create                      2020-12-11 14:59
+         * @param {url}                 url - 请求url       
+         * @param {string}              method - 请求方法   
+         * @param {string}              contentType - 参数类型   
+         * @param {Array<Property>}     paths - 路径参数   
+         * @param {Array<Property>}     queryParams - 请求参数   
+         * @param {Array<Property>}     requestBody - 请求body   
+         * @param {Array<Property>}     headers - 请求头       
          */
         sendRequest(context, payload) {
             return new Promise((resolve, reject) => {
-                const { url, method, headers, data, requestType } = payload;
-                console.log(url, method, headers, data, requestType);
-                context.commit("changeLoading", true)
-                httpClient.request(url, {
+                const { url, method, contentType, paths, queryParams, requestBody, headers } = payload;
+                context.commit("changeSendRequestLoading", true)
+                httpClient.request({
+                    url,
                     method,
+                    contentType,
+                    paths,
+                    queryParams,
                     headers,
-                    data,
-                    requestType
+                    requestBody
                 })
                 httpClient.once("response", response => {
-                    // console.log("response", response)
                     context.commit("changeResponseInfo", response);
                 })
-                httpClient.once(err => {
+                httpClient.once("error", err => {
                     reject(err);
                 });
                 httpClient.once("end", (result) => {
                     context.commit("changeResponseIndex", result);
-                    context.commit("changeLoading", false)
+                    context.commit("changeSendRequestLoading", false)
                     context.commit("changeResponseProcess", {
                         percent: 1,
                     });
@@ -447,8 +453,9 @@ export default {
             })
         },
         //取消请求
-        stopRequest() {
+        stopRequest(context) {
             httpClient.cancel();
+            context.commit("changeSendRequestLoading", false)
         },
     },
 };

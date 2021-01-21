@@ -22,7 +22,7 @@
                     </el-select>
                 </div>                        
             </s-v-input>
-            <el-button v-if="!loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
+            <el-button v-if="!loading" :loading="loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
@@ -47,6 +47,7 @@
 <script>
 import variableDialog from "../../dialog/variable-manage"
 import qs from "qs"
+import mixin from "../../mixin" //公用数据和函数
 // import deepmerge from "deepmerge"
 // import FormData from "form-data/lib/form_data"
 // import FileType from "file-type/browser"
@@ -54,6 +55,7 @@ import qs from "qs"
 // const Buffer = buffer.Buffer;
 export default {
     name: "REQUEST_OPERATION",
+    mixins: [mixin],
     components: {
         "s-variable-dialog": variableDialog,
     },
@@ -111,7 +113,11 @@ export default {
             set(val) {
                 this.$store.commit("apidoc/changeDocMethod", val.value);
             }
-        }
+        },
+        loading() { //发送请求loading效果
+            return this.$store.state.apidoc.sendRequestLoading;
+        }, 
+
     },
     data() {
         return {
@@ -121,7 +127,6 @@ export default {
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
             //=====================================其他参数====================================//
-            loading: false, //-------------发送请求
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
             dialogVisible: false, //-------全局变量
@@ -138,13 +143,27 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            console.log(this.apidocInfo)
+            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
+            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
+            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
+            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            this.$store.dispatch("apidoc/sendRequest", {
+                url: this.apidocInfo.item.url,
+                method: this.apidocInfo.item.method,
+                contentType: this.apidocInfo.item.contentType,
+                paths,
+                queryParams,
+                requestBody,
+                headers
+            }).then(res => {
+                console.log(res)
+            }).catch(err => {
+                console.error(err);
+            });
         },
         //取消发送
         stopRequest() {
-            this.loading = false;
             this.$store.dispatch("apidoc/stopRequest");
-            this.$store.commit("apidoc/changeLoading", false);
         },
         //保存接口
         saveRequest() {
@@ -262,59 +281,6 @@ export default {
             return result;
         },
         //=====================================数据处理和校验====================================//
-        //将扁平数据转换为树形结构数据
-        convertPlainParamsToTreeData(plainData, jumpChecked) {
-            const result = {};
-            const parent = {};
-            const foo = (plainData, result, parent) => {
-                for(let i = 0,len = plainData.length; i < len; i++) {
-                    if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
-                        continue;
-                    }
-                    const key = plainData[i].key.trim();
-                    const value = this.convertVariable(plainData[i].value);
-                    const type = plainData[i].type;
-                    const valueTypeIsArray = Array.isArray(result);
-                    // const parentNode = findParentNode(params.id, rawData);
-                    const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                    const isComplex = (type === "object" || type === "array");
-
-                    let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-                    if (!isParentArray && !isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
-                        continue
-                    }
-                    /*eslint-disable indent*/ 
-                    switch (type) {
-                        case "number": //数字类型需要转换为数字，转换前所有值都为字符串
-                            valueTypeIsArray ? result.push(Number(value)) : result[key] = Number(value);
-                            break;
-                        case "boolean": //字符串类型不做处理
-                            valueTypeIsArray ? result.push(result[key] = (value === "true" ? true : false)) : (result[key] = (value === "true" ? true : false));
-                            break;
-                        case "object":
-                            valueTypeIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
-                            if (plainData[i].children && plainData[i].children.length > 0) {
-                                parent = plainData[i];
-                                foo(plainData[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key], parent);
-                            }
-                            break;
-                        case "array":
-                            result[key] = [];
-                            if (plainData[i].children && plainData[i].children.length > 0) {
-                                parent = plainData[i];
-                                foo(plainData[i].children, result[key], parent);
-                            }
-                            break;
-                        default: //字符串或其他类型类型不做处理
-                            valueTypeIsArray ? result.push(value) : (result[key] = value);
-                            break;
-                    }
-                }
-            }
-            foo(plainData, result, parent);
-            console.log(234, plainData, result)
-            return result;
-        },
         //=====================================url操作====================================//
         //删除无效请求字符并且提取查询字符串
         formatUrl() {

@@ -13,13 +13,13 @@
         <div class="d-flex a-center j-center py-2">
             <el-radio-group v-model="contentType">
                 <el-radio label="application/json">json</el-radio>
-                <el-radio label="multipart/from-data">from-data</el-radio>
+                <el-radio label="multipart/form-data">form-data</el-radio>
                 <el-radio label="application/x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
             </el-radio-group>
         </div>
         <!-- json -->
         <s-params-tree 
-            v-if="contentType === 'application/json'"
+            v-show="contentType === 'application/json'"
             ref="jsonTree"
             :tree-data="jsonBody"
             nest
@@ -27,9 +27,9 @@
             showCheckbox
         >
         </s-params-tree>
-        <!-- from-data -->
+        <!-- form-data -->
         <s-params-tree 
-            v-if="contentType === 'multipart/from-data'"
+            v-show="contentType === 'multipart/form-data'"
             ref="formDataTree"
             :tree-data="formDataBody"
             :nest="false"
@@ -40,7 +40,7 @@
         </s-params-tree>
         <!-- x-www-form-urlencoded -->
         <s-params-tree 
-            v-if="contentType === 'application/x-www-form-urlencoded'"
+            v-show="contentType === 'application/x-www-form-urlencoded'"
             ref="formUrlTree"
             :tree-data="formUrlBody"
             :nest="false"
@@ -82,9 +82,10 @@ export default {
     data() {
         return {
             jsonBody: [], //application/json
-            formDataBody: [], //multipart/from-data
+            formDataBody: [], //multipart/form-data
             formUrlBody: [], //application/x-www-form-urlencoded
             //=====================================其他参数====================================//
+            contentTypeWatchFlag: null, //内容区域watch
             jsonWatchFlag: null, //watch标识用于清空数据
             formDataWatchFlag: null, //watch标识用于清空数据
             formUrlWatchFlag: null, //watch标识用于清空数据
@@ -119,28 +120,44 @@ export default {
                 this.formDataBody = [this.generateProperty()];
                 this.formUrlBody = [this.generateProperty()];
             }
-            this.initWatchTempRequestBody();
+            this.initWatch();
         },
         //初始化以后绑定对参数的监听
-        initWatchTempRequestBody() {
+        initWatch() {
             this.jsonWatchFlag && this.jsonWatchFlag();
             this.formDataWatchFlag && this.formDataWatchFlag();
             this.formUrlWatchFlag && this.formUrlWatchFlag();
+            this.contentTypeWatchFlag && this.contentTypeWatchFlag();
+            //=========================================================================//
             this.jsonWatchFlag = this.$watch("jsonBody", this.$helper.debounce((val) => {
-                this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
+                this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
                 deep: true
             });  
             this.formDataWatchFlag = this.$watch("formDataBody", this.$helper.debounce((val) => {
-                this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
+                this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
                 deep: true
             });  
             this.formUrlWatchFlag = this.$watch("formUrlBody", this.$helper.debounce((val) => {
-                this.$store.commit("apidoc/changeRequestBody", JSON.parse(JSON.stringify(val)));
+                this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
                 deep: true
             });  
+            //=========================================================================//
+            this.contentTypeWatchFlag = this.$watch("contentType", this.$helper.debounce((contentType) => {
+                if (contentType === "application/json") {
+                    this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.jsonBody));
+                } else if (contentType === "application/x-www-form-urlencoded") {
+                    this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.formUrlBody));
+                } else if (contentType === "multipart/form-data") {
+                    this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.formDataBody));
+                } else { //默认按照json进行处理
+                    this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.jsonBody));
+                }
+            }), {
+                deep: true
+            }); 
         },
         //选中_select为true的参数
         selectChecked() {
