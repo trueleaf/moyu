@@ -78,7 +78,7 @@ export default {
     },
     computed: {
         remoteResponse() {  //远端返回数据结果
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         formatRequestData() { //变量替换后的请求参数
             const copyRequest = this.requestData;

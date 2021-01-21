@@ -70,7 +70,7 @@ export default {
             return this.$store.state.apidoc.variables || [];
         },
         remoteResponse() {  //远端返回数据结果
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];

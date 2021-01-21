@@ -33,7 +33,7 @@ export default {
         //============================发送请求===============================//
         sendRequestLoading: false, //是否正在请求数据
 
-        responseData: {//返回参数
+        remoteResponse: {//返回参数
             headers: {},
             contentType: null,
             httpVersion: null,
@@ -259,22 +259,23 @@ export default {
         //改变大小
         changeResponseProcess(state, payload) {
             const { size, percent, total } = payload;
-            if (size != null) {
-                state.responseData.size = size; 
-            }
-            if (percent != null) {
-                state.responseData.percent = percent; 
-            }
-            if (total != null) {
-                state.responseData.total = total; 
-            }
+            if (size != null) state.remoteResponse.size = size;
+            if (percent != null) state.remoteResponse.percent = percent;
+            if (total != null) state.remoteResponse.total = total; 
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
-            state.responseData.headers = payload.headers;
-            state.responseData.contentType = payload.contentType;
-            state.responseData.httpVersion = payload.httpVersion;
-            state.responseData.statusCode = payload.statusCode;
+            state.remoteResponse.headers = payload.headers;
+            state.remoteResponse.contentType = payload.contentType;
+            state.remoteResponse.httpVersion = payload.httpVersion;
+            state.remoteResponse.statusCode = payload.statusCode;
+        },
+        //改变基础返回指标数据
+        changeResponseIndex(state, payload) {
+            state.remoteResponse.mime = payload.mime;
+            state.remoteResponse.rt = payload.rt;            
+            state.remoteResponse.size = payload.size;            
+            state.remoteResponse.value = payload.value;            
         },
 
 
@@ -282,31 +283,9 @@ export default {
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid
         },
-        //改变文档信息
-        changeDocResponseFullInfo(state, payload) {
-            state.docFullInfo = payload;
-        },
-        changeDocResponseInfo(state, payload) {
-            state.docInfo = payload;
-        },
-        //将接口变化得内容存放起来，用于监听接口是否发生变化
-        changeDocEditInfo(state, payload) {
-            // description,header,,requestParams,responseParams,url
-            state.originDocInfo = JSON.parse(JSON.stringify(payload));
-        },
-        
-        
-        //改变基础返回指标数据
-        changeResponseIndex(state, payload) {
-            state.responseData.mime = payload.mime;
-            state.responseData.rt = payload.rt;            
-            state.responseData.size = payload.size;            
-            state.responseData.value = payload.value;            
-        },
-        
         //重置返回值信息
         clearRespons(state) {
-            state.responseData = {
+            state.remoteResponse = {
                 headers: {},
                 contentType: null,
                 httpVersion: null,
