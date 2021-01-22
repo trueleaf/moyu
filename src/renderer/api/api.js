@@ -1,8 +1,7 @@
-
-import axios from "axios"
-import router from "../router"
-import config from "@/../config"
-import jsCookie from "js-cookie"
+import axios from "axios";
+import jsCookie from "js-cookie";
+import router from "../router";
+import config from "@/../config";
 
 
 const axiosInstance = axios.create();

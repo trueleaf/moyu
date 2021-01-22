@@ -1,19 +1,13 @@
-"use strict";
-
 import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
-import config from "../config"
-import update from "./update"
+import config from "../config";
+import update from "./update";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-// Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
     { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
-
-
 
 async function createWindow() {
     // Create the browser window.
@@ -24,23 +18,25 @@ async function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             nodeIntegrationInWorker: true,
-            webviewTag: true
+            webviewTag: true,
         },
     });
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
+    } else if (!config.mainConfig.useLocalFile) {
+        //使用远端地址
+        mainWindow
+            .loadURL(config.mainConfig.onlineUrl)
+            .then()
+            .catch((err) => {
+                console.error(err);
+            });
     } else {
-        if (!config.mainConfig.useLocalFile) { //使用远端地址
-            mainWindow.loadURL(config.mainConfig.onlineUrl).then().catch(err => {
-                console.error(err)
-            });            
-        } else { //使用本地文件
-            createProtocol("app");
-            mainWindow.loadURL("app://./index.html");
-        }
-
+        //使用本地文件
+        createProtocol("app");
+        mainWindow.loadURL("app://./index.html");
     }
     mainWindow.on("closed", () => {
         mainWindow = null;
@@ -51,11 +47,11 @@ async function createWindow() {
     });
     //=====================================render进程事件====================================//
     ipcMain.on("vue-fresh-content", () => {
-        mainWindow.webContents.reload()
+        mainWindow.webContents.reload();
     });
     ipcMain.on("vue-strong-fresh-content", () => {
         mainWindow.webContents.session.clearCache().then(() => {
-            mainWindow.webContents.reload()
+            mainWindow.webContents.reload();
         });
     });
     ipcMain.on("vue-open-dev-tools", () => {

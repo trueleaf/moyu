@@ -1,29 +1,27 @@
 import Vue from "vue";
 import ElementUI from "element-ui";
-import router from "./router";
+import MyDB from "@/indexedDB";
+import * as helper from "@/lib";
+import Logs from "@/logs/index";
+import { router } from "./router";
 import store from "./store";
 import App from "./App.vue";
-import MyDB from "@/indexedDB"
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
 import "./components/index";
-import "./mixin"
-import "./directive"
-import "@/assets/css/index.css"
-import axios from "./api/api"
-import * as helper from "@/lib"
-
+import "./mixin";
+import "./directive";
+import "@/assets/css/index.css";
+import axios from "./api/api";
 
 const myDB = new MyDB();
 myDB.initDB();
 Vue.prototype.db = myDB;
 
-import Logs from "@/logs/index.js"
-const logs = new Logs()
+const logs = new Logs();
 
 Vue.use(ElementUI);
-Vue.use(axios)
-
+Vue.use(axios);
 
 Vue.config.productionTip = true;
 
@@ -40,9 +38,5 @@ Vue.config.warnHandler = logs.warningCatch;
 new Vue({
     router,
     store,
-    render: h => h(App),
+    render: (h) => h(App),
 }).$mount("#app");
-
-
-
-
