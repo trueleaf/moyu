@@ -244,16 +244,16 @@ export default {
             // return copyData;
         },
         remoteResponse() {  //远端返回数据结果
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         loading() { //是否正在请求数据
-            return this.$store.state.apidoc.loading
+            return this.$store.state.apidoc.sendRequestLoading
         },
         size() { //当前返回值大小
-            return formatBytes(this.$store.state.apidoc.responseData.size)
+            return formatBytes(this.$store.state.apidoc.remoteResponse.size)
         },
         speed() { //实时请求速度
-            return formatBytes(this.$store.state.apidoc.responseData.speed)
+            return formatBytes(this.$store.state.apidoc.remoteResponse.speed)
         },
     },
     data() {

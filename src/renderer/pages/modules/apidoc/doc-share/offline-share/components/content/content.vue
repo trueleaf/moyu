@@ -199,7 +199,7 @@ export default {
         },
         //发送请求状态
         loading3() {
-            return this.$store.state.apidoc.loading;
+            return this.$store.state.apidoc.sendRequestLoading;
         },
         publishRecords() {
             if (this.docInfo.publishRecords) {

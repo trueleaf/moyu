@@ -58,13 +58,18 @@
         </div>
         <div class="response-view">
             <!-- <pre class="scroll-y-300">{{ remoteResponse }}</pre> -->
-            <!-- <s-response-view :response="remoteResponse" :request-data="requestData"></s-response-view> -->
+            <s-response-view :response="remoteResponse"></s-response-view>
         </div>
     </div>
 </template>
 
 <script>
+import responseView from "./response-view/response-view"
+
 export default {
+    components: {
+        "s-response-view": responseView
+    },
     data() {
         return {
 
@@ -72,7 +77,7 @@ export default {
     },
     computed: {
         remoteResponse() {  //远端返回数据结果
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         formatRequestData() { //变量替换后的请求参数
             const apiInfo = this.$store.state.apidoc.apidocInfo;
