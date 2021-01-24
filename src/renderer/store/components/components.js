@@ -1,4 +1,4 @@
-/** 
+/**
  * @description        公共组件相关内容
  * @author             shuxiaokai
  * @create             2020-05-31 15:15
@@ -11,7 +11,6 @@ export default {
     mutations: {
         changeSearchLoading(state, payload) {
             state.searchLoading = payload;
-        }
+        },
     },
-}
-
+};

@@ -1,16 +1,17 @@
+/* eslint-disable no-underscore-dangle */
 /**
  * @description        apidoc相关store
  * @author             shuxiaokai
  * @create             2020-06-25 11:25
  */
-import Vue from "vue"
-import http from "@/api/api.js"
-import { findNodeById, throttle, uuid } from "@/lib"
-import HttpClient from "./http"
+import Vue from "vue";
+import http from "@/api/api";
+import { findNodeById, throttle, uuid } from "@/lib";
+import HttpClient from "./http";
+
 const httpClient = new HttpClient();
+const { axios } = http;
 
-
-const axios = http.axios;
 export default {
     namespaced: true,
     state: {
@@ -33,7 +34,7 @@ export default {
         //============================发送请求===============================//
         sendRequestLoading: false, //是否正在请求数据
 
-        remoteResponse: {//返回参数
+        remoteResponse: { //返回参数
             headers: {},
             contentType: null,
             httpVersion: null,
@@ -43,12 +44,11 @@ export default {
             value: null,
             size: null,
             total: null,
-            percent: null
-        }, 
+            percent: null,
+        },
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
         //=====================================其他参数====================================//
         apidocLoading: false, //是否正在请求api文档
-        
         paramsValid: true, //参数是否满足校验需求
     },
     mutations: {
@@ -63,18 +63,10 @@ export default {
         },
         //初始化联想参数，输入提示
         initAndChangeMindParams(state, payload) {
-            state.mindParams.paths = payload.paths.map(val => {
-                return { ...val, _id: uuid(), _select: true }
-            });
-            state.mindParams.queryParams = payload.queryParams.map(val => {
-                return { ...val, _id: uuid(), _select: true }
-            });
-            state.mindParams.requestBody = payload.requestBody.map(val => {
-                return { ...val, _id: uuid(), _select: true }
-            });
-            state.mindParams.responseParams = payload.responseParams.map(val => {
-                return { ...val, _id: uuid(), _select: true }
-            });
+            state.mindParams.paths = payload.paths.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.queryParams = payload.queryParams.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.requestBody = payload.requestBody.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.responseParams = payload.responseParams.map((val) => ({ ...val, _id: uuid(), _select: true }));
         },
         //初始化预设参数模板
         initPresetParams(state, payload) {
@@ -88,7 +80,7 @@ export default {
         //根据id改变文档banner信息
         changeDocBannerInfoById(state, payload) {
             const { id, method } = payload;
-            const matchedBannerData = findNodeById(state.banner, id,{ id: "_id" });
+            const matchedBannerData = findNodeById(state.banner, id, { id: "_id" });
             if (matchedBannerData && method) {
                 matchedBannerData.method = method;
             }
@@ -102,7 +94,7 @@ export default {
             if (!isInProject) {
                 Vue.set(state.tabs, projectId, []);
             }
-            const hasTab = state.tabs[projectId].find(val => val._id === _id);
+            const hasTab = state.tabs[projectId].find((val) => val._id === _id);
             if (!hasTab) {
                 if (state.tabs[projectId].length === 7) { //7这个值是预估的不准确
                     state.tabs[projectId].unshift(docInfo);
@@ -111,13 +103,13 @@ export default {
                 } else {
                     state.tabs[projectId].push(docInfo);
                 }
-                localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
+                localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
             }
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
             const { _id, projectId, name, method, changed } = payload;
-            const matchedData = state.tabs[projectId].find(val => val._id === _id);
+            const matchedData = state.tabs[projectId].find((val) => val._id === _id);
             if (matchedData && name) {
                 matchedData.name = name;
             }
@@ -125,9 +117,9 @@ export default {
                 matchedData.method = method;
             }
             if (matchedData && changed != null) {
-                Vue.set(matchedData, "changed", changed)
+                Vue.set(matchedData, "changed", changed);
             }
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
         //更新所有tab
         updateAllTabs(state, payload) {
@@ -143,17 +135,15 @@ export default {
             if (state.tabs[projectId]) {
                 state.tabs[projectId].splice(start, num);
             }
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
         //根据id删除tab
         deleteTabById(state, payload) {
             const { projectId, deleteIds } = payload;
             if (state.tabs[projectId]) {
-                state.tabs[projectId] = state.tabs[projectId].filter(val => {
-                    return deleteIds.indexOf(val._id) === -1;
-                })
+                state.tabs[projectId] = state.tabs[projectId].filter((val) => (deleteIds.indexOf(val._id) === -1));
             }
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs))
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
         //=====================================当前选中的tab====================================//
         //更新当前被选中的文档(不能为folder)
@@ -164,7 +154,7 @@ export default {
                 Vue.set(state.activeDoc, projectId, {});
             }
             state.activeDoc[projectId] = activeNode;
-            localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
+            localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
@@ -173,7 +163,7 @@ export default {
                 _id: state.activeDoc[projectId]._id,
                 projectId,
                 name,
-                changed
+                changed,
             });
             const matchedData = state.activeDoc[projectId];
             if (matchedData && name) {
@@ -182,7 +172,7 @@ export default {
             if (matchedData) {
                 matchedData.changed = changed;
             }
-            localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc))
+            localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
         //=====================================请求参数录入====================================//
         //改变接口请求状态
@@ -261,7 +251,7 @@ export default {
             const { size, percent, total } = payload;
             if (size != null) state.remoteResponse.size = size;
             if (percent != null) state.remoteResponse.percent = percent;
-            if (total != null) state.remoteResponse.total = total; 
+            if (total != null) state.remoteResponse.total = total;
         },
         //改变基础返回信息
         changeResponseInfo(state, payload) {
@@ -273,15 +263,13 @@ export default {
         //改变基础返回指标数据
         changeResponseIndex(state, payload) {
             state.remoteResponse.mime = payload.mime;
-            state.remoteResponse.rt = payload.rt;            
-            state.remoteResponse.size = payload.size;            
-            state.remoteResponse.value = payload.value;            
+            state.remoteResponse.rt = payload.rt;
+            state.remoteResponse.size = payload.size;
+            state.remoteResponse.value = payload.value;
         },
-
-
         //是否校验通过
         changeParamsValid(state, isValid) {
-            state.paramsValid = isValid
+            state.paramsValid = isValid;
         },
         //重置返回值信息
         clearRespons(state) {
@@ -295,7 +283,7 @@ export default {
                 value: null,
                 size: null,
                 total: null,
-                percent: null
+                percent: null,
             };
             state.remoteResponseEqualToLocalResponse = false;
         },
@@ -309,96 +297,95 @@ export default {
         async getDocBanner(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    projectId: payload.projectId
+                    projectId: payload.projectId,
                 };
-                axios.get("/api/project/doc_tree_node", { params }).then(res => {
+                axios.get("/api/project/doc_tree_node", { params }).then((res) => {
                     const result = res.data;
                     context.commit("changeDocBanner", result);
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     reject(err);
-                });                
-            })
+                });
+            });
         },
         //获取全局变量
         async getDocVariable(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    projectId: payload.projectId
+                    projectId: payload.projectId,
                 };
-                axios.get("/api/project/project_variable_enum", { params }).then(res => {
+                axios.get("/api/project/project_variable_enum", { params }).then((res) => {
                     const result = res.data;
                     context.commit("initVariables", result);
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     console.error(err);
                     reject(err);
-                });                
-            })
+                });
+            });
         },
         //获取文档联想参数
         async getMindParamsEnum(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    projectId: payload.projectId
+                    projectId: payload.projectId,
                 };
-                axios.get("/api/project/doc_params_mind", { params }).then(res => {
+                axios.get("/api/project/doc_params_mind", { params }).then((res) => {
                     const result = res.data;
                     context.commit("initAndChangeMindParams", result);
                     resolve();
-                }).catch(err => {
-                    reject(err)
+                }).catch((err) => {
+                    reject(err);
                     console.error(err);
-                });              
-            })
+                });
+            });
         },
         //获取预设参数列表
         async getPresetParams(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    projectId: payload.projectId
+                    projectId: payload.projectId,
                 };
-                axios.get("/api/project/doc_preset_params_enum", { params }).then(res => {
+                axios.get("/api/project/doc_preset_params_enum", { params }).then((res) => {
                     const result = res.data;
                     context.commit("initPresetParams", result);
                     resolve();
-                }).catch(err => {
-                    reject(err)
+                }).catch((err) => {
+                    reject(err);
                     console.error(err);
-                });              
-            })
+                });
+            });
         },
         //获取全局host
         async getHostEnum(context, payload) {
             return new Promise((resolve, reject) => {
                 const params = {
-                    projectId: payload.projectId
+                    projectId: payload.projectId,
                 };
-                axios.get("/api/project/doc_service", { params }).then(res => {
+                axios.get("/api/project/doc_service", { params }).then((res) => {
                     context.commit("initAndChangeHostEnum", res.data);
                     resolve();
-                }).catch(err => {
-                    reject(err)
-                })
-                            
-            })
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
         },
-        /** 
+        /**
          * @description                 发送请求
          * @author                      shuxiaokai
          * @create                      2020-12-11 14:59
-         * @param {url}                 url - 请求url       
-         * @param {string}              method - 请求方法   
-         * @param {string}              contentType - 参数类型   
-         * @param {Array<Property>}     paths - 路径参数   
-         * @param {Array<Property>}     queryParams - 请求参数   
-         * @param {Array<Property>}     requestBody - 请求body   
-         * @param {Array<Property>}     headers - 请求头       
+         * @param {url}                 url - 请求url
+         * @param {string}              method - 请求方法
+         * @param {string}              contentType - 参数类型
+         * @param {Array<Property>}     paths - 路径参数
+         * @param {Array<Property>}     queryParams - 请求参数
+         * @param {Array<Property>}     requestBody - 请求body
+         * @param {Array<Property>}     headers - 请求头
          */
         sendRequest(context, payload) {
             return new Promise((resolve, reject) => {
                 const { url, method, contentType, paths, queryParams, requestBody, headers } = payload;
-                context.commit("changeSendRequestLoading", true)
+                context.commit("changeSendRequestLoading", true);
                 httpClient.request({
                     url,
                     method,
@@ -406,35 +393,35 @@ export default {
                     paths,
                     queryParams,
                     headers,
-                    requestBody
-                })
-                httpClient.once("response", response => {
+                    requestBody,
+                });
+                httpClient.once("response", (response) => {
                     context.commit("changeResponseInfo", response);
-                })
-                httpClient.once("error", err => {
+                });
+                httpClient.once("error", (err) => {
                     reject(err);
                 });
                 httpClient.once("end", (result) => {
                     context.commit("changeResponseIndex", result);
-                    context.commit("changeSendRequestLoading", false)
+                    context.commit("changeSendRequestLoading", false);
                     context.commit("changeResponseProcess", {
                         percent: 1,
                     });
                     resolve(result);
-                })     
+                });
                 httpClient.once("process", throttle((process) => {
                     context.commit("changeResponseProcess", {
                         size: process.transferred,
                         percent: process.percent,
                         total: process.total,
                     });
-                }))    
-            })
+                }));
+            });
         },
         //取消请求
         stopRequest(context) {
             httpClient.cancel();
-            context.commit("changeSendRequestLoading", false)
+            context.commit("changeSendRequestLoading", false);
         },
     },
 };

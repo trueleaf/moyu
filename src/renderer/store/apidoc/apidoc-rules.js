@@ -3,8 +3,9 @@
  * @author             shuxiaokai
  * @create             2020-06-25 11:25
  */
-import http from "@/api/api.js"
-const axios = http.axios;
+import http from "@/api/api";
+
+const { axios } = http;
 export default {
     namespaced: true,
     state: {
@@ -21,27 +22,27 @@ export default {
             state.contentType = payload.contentType;
             state.requestMethods = payload.requestMethods;
             state.cacheProjectId = payload.cacheProjectId;
-        }
+        },
     },
     actions: {
         getRuels(state, payload) {
             return new Promise((resolve, reject) => {
                 const { projectId } = payload;
                 const params = { projectId };
-                axios.get("/api/apidoc/project/project_rules", { params }).then(res => {
+                axios.get("/api/apidoc/project/project_rules", { params }).then((res) => {
                     this.commit("apidocRules/changeRules", {
                         dominLimit: res.data.dominLimit,
                         fileInFolderLimit: res.data.fileInFolderLimit,
                         contentType: res.data.contentType,
                         requestMethods: res.data.requestMethods,
-                        cacheProjectId: projectId
+                        cacheProjectId: projectId,
                     });
                     resolve(res);
-                }).catch(err => {
+                }).catch((err) => {
                     console.error(err);
                     reject(err);
-                });                
+                });
             });
-        }
+        },
     },
 };

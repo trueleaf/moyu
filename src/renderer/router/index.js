@@ -111,7 +111,7 @@ router.afterEach((to) => {
     NProgress.done(); // 页面顶部的加载条
 });
 
-export default {
+export {
     router,
-    routes: allRoutes,
+    allRoutes as routes,
 };

@@ -1,22 +1,18 @@
-/** 
+/**
  * @description        HTTP请求封装---基于got  https://www.npmjs.com/package/got
  * @author              shuxiaokai
  * @create             2020-12-07 19:02
  */
-
-
-
-
+import FileType from "file-type/browser";
 
 let got = null;
 // let ProxyAgent = null;
-import FileType from "file-type/browser"
 if (window.require) {
     got = window.require("got");
     // ProxyAgent = window.require("proxy-agent")
 }
 
-const HttpClient = (function() {
+const HttpClient = (() => {
     let singleton = null; //单例
     class _HttpClient {
         constructor(config = {}) {
@@ -37,7 +33,7 @@ const HttpClient = (function() {
                 followRedirect: true,
                 allowGetBody: true,
                 headers: {
-                    "user-agent": "moyu(https://github.com/trueleaf/moyu)"
+                    "user-agent": "moyu(https://github.com/trueleaf/moyu)",
                 },
                 // agent: {
                 //     http: new ProxyAgent("http://127.0.0.1:8888")
@@ -45,45 +41,51 @@ const HttpClient = (function() {
             });
             return singleton;
         }
+
         on(name, handler) {
-            const matchedEvent = this.events.find(val => val.name === name);
+            const matchedEvent = this.events.find((val) => val.name === name);
             if (!matchedEvent) {
                 this.events.push({
                     name,
-                    handlers: [handler]
-                })
+                    handlers: [handler],
+                });
             } else {
-                matchedEvent.handlers.push(handler)
+                matchedEvent.handlers.push(handler);
             }
         }
-        once(name, handler){
-            const matchedEvent = this.events.find(val => val.name === name);
+
+        once(name, handler) {
+            const matchedEvent = this.events.find((val) => val.name === name);
             if (!matchedEvent) {
                 this.events.push({
                     name,
-                    handlers: [handler]
-                })
+                    handlers: [handler],
+                });
             } else {
-                matchedEvent.handlers[0] = handler
+                matchedEvent.handlers[0] = handler;
             }
         }
+
         emit(name, payload) {
-            const matchedEvent = this.events.find(val => val.name === name);
-            matchedEvent?.handlers.forEach(handler => {
-                handler(payload);
-            })
+            const matchedEvent = this.events.find((val) => val.name === name);
+            if (matchedEvent) {
+                matchedEvent.handlers.forEach((handler) => {
+                    handler(payload);
+                });
+            }
         }
-        /** 
+
+        /**
          * @description                 发送请求
          * @author                      shuxiaokai
          * @create                      2020-12-11 14:59
-         * @param {url}                 url - 请求url       
-         * @param {string}              method - 请求方法   
-         * @param {string}              contentType - 参数类型   
-         * @param {Array<Property>}     paths - 路径参数   
-         * @param {Array<Property>}     queryParams - 请求参数   
-         * @param {Array<Property>}     requestBody - 请求body   
-         * @param {Array<Property>}     headers - 请求头       
+         * @param {url}                 url - 请求url
+         * @param {string}              method - 请求方法
+         * @param {string}              contentType - 参数类型
+         * @param {Array<Property>}     paths - 路径参数
+         * @param {Array<Property>}     queryParams - 请求参数
+         * @param {Array<Property>}     requestBody - 请求body
+         * @param {Array<Property>}     headers - 请求头
          */
         request(options) {
             this.url = options.url.host + options.url.path;
@@ -93,7 +95,7 @@ const HttpClient = (function() {
             this.queryParams = options.queryParams;
             this.requestBody = options.requestBody;
             // this.headers = options.headers;
-            console.log("发送请求", options)
+            console.log("发送请求", options);
             try {
                 let body = "";
                 const searchParams = new URLSearchParams(this.queryParams).toString();
@@ -101,6 +103,7 @@ const HttpClient = (function() {
                 if (this.method === "get") { //GET请求body为空，否则请求将被一直挂起
                     body = "";
                 } else {
+                    // eslint-disable-next-line default-case
                     switch (this.contentType) {
                     case "application/json":
                         body = JSON.stringify(this.requestBody);
@@ -117,9 +120,9 @@ const HttpClient = (function() {
                     isStream: true,
                     method: this.method,
                     // headers: this.headers,
-                    body
-                })
-                let streamData = [];
+                    body,
+                });
+                const streamData = [];
                 let streamSize = 0;
                 //=====================================事件顺序很重要====================================//
                 //收到返回
@@ -129,50 +132,50 @@ const HttpClient = (function() {
                     this.emit("response", result);
                 });
                 //数据获取完毕
-                this.instance.on("end", async() => {
-                    const buf = Buffer.concat(streamData, streamSize)
+                this.instance.on("end", async () => {
+                    const buf = Buffer.concat(streamData, streamSize);
                     const result = await this.formatData(buf);
                     const rt = this.responseData.timings.phases.total;
                     this.emit("end", {
                         ...result,
                         size: streamSize,
                         rt,
-                        headers: this.responseData.headers
+                        headers: this.responseData.headers,
                     });
                 });
                 //获取流数据
                 this.instance.on("data", (chunk) => {
-                    streamData.push(Buffer(chunk));
+                    streamData.push(Buffer.from(chunk));
                     streamSize += chunk.length;
                     this.emit("data", streamData);
                 });
                 //错误处理
-                this.instance.on("error", error => {
+                this.instance.on("error", (error) => {
                     console.error(error);
                     this.emit("error", error);
                 });
                 //重定向
                 this.instance.on("redirect", () => {
-                    console.log("重定向")
+                    console.log("重定向");
                 });
                 //下载进度
                 this.instance.on("downloadProgress", (process) => {
                     this.emit("process", process);
-                });   
+                });
             } catch (error) {
                 this.emit("error", error);
             }
         }
-        /** 
+
+        /**
          * @description        处理返回值
          * @author              shuxiaokai
          * @create             2020-12-11 15:19
-         * @param {res}        responseData - 返回值       
+         * @param {res}        responseData - 返回值
          * @return {formatResponse}    返回格式化后数据
          * interface FormatResponse {
          *      headers: Headers,
          * }
-         * 
          */
         //=========================================================================//
         /*
@@ -199,7 +202,7 @@ const HttpClient = (function() {
             5. video/*    //视频类型展示播放界面
                -video/webm
                -video/ogg
-            6. application/*    
+            6. application/*
                -application/octet-stream   //强制下载类型
                -application/json           //纯文本展示
                -application/javascript     //纯文本展示
@@ -210,23 +213,21 @@ const HttpClient = (function() {
                -application/vnd.openxmlformats-officedocument.wordprocessingml.document //word
                -application/msword         //word
             7. unknown  //未知类型
-        */ 
-        //=========================================================================//
+        */
+
         //格式化返回参数
-        formatResponse(responseData) {
-            const headers = responseData.headers;
-            const httpVersion = responseData.httpVersion;
-            const ip = responseData.ip;
-            const statusCode = responseData.statusCode;
+        static formatResponse(responseData) {
+            const { headers, httpVersion, ip, statusCode } = responseData;
             const result = {
                 headers,
                 contentType: headers["content-type"],
-                httpVersion, 
-                ip, 
+                httpVersion,
+                ip,
                 statusCode,
-            }
+            };
             return result;
         }
+
         //格式化数据
         async formatData(body) {
             const typeInfo = await FileType.fromBuffer(body.buffer);
@@ -234,7 +235,7 @@ const HttpClient = (function() {
             // console.log("mime", typeInfo, mime, body)
             const data = {
                 mime,
-                value: ""
+                value: "",
             };
             if (mime.includes("text/") || mime.includes("application/json") || mime.includes("application/javascript") || mime.includes("application/xml")) { //文本
                 data.value = body.toString();
@@ -242,19 +243,18 @@ const HttpClient = (function() {
                 data.value = body.toString();
             } else {
                 const blobData = new Blob([body], { type: mime });
-                const blobUrl = URL.createObjectURL(blobData)
+                const blobUrl = URL.createObjectURL(blobData);
                 data.value = blobUrl;
             }
             return data;
         }
+
         //取消请求
         cancel() {
             this.instance.destroy();
         }
-
     }
     return _HttpClient;
-}())
+})();
 
-
-export default HttpClient
+export default HttpClient;
