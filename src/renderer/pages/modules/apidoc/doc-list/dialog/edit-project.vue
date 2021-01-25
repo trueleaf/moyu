@@ -75,18 +75,18 @@ export default {
         },
         id: { //项目id
             type: String,
-            default: ""
+            default: "",
         },
     },
     data() {
         return {
             //=====================================修改项目====================================//
             formInfo: {
-                projectName: "",//----项目名称
-                remark: "",//---------项目备注
-            }, 
+                projectName: "", //----项目名称
+                remark: "", //---------项目备注
+            },
             rules: {
-                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }]
+                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
             }, //----------------------修改项目校验规则
             remoteMembers: [], //------远程用户列表
             selectUserData: [], //-----已选中的用户
@@ -105,10 +105,10 @@ export default {
         //获取项目基本信息
         getProjectInfo() {
             this.loading3 = true;
-            this.axios.get("/api/project/project_info", { params: { _id: this.id } }).then(res => {
+            this.axios.get("/api/project/project_info", { params: { _id: this.id } }).then((res) => {
                 Object.assign(this.formInfo, res.data);
                 this.selectUserData = res.data.members || [];
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading3 = false;
@@ -118,65 +118,63 @@ export default {
         getRemoteUserByName(query) {
             this.loading = true;
             const params = {
-                name: query
+                name: query,
             };
-            this.axios.get("/api/security/userListByName", { params }).then(res => {
+            this.axios.get("/api/security/userListByName", { params }).then((res) => {
                 this.remoteMembers = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
-            });  
+            });
         },
         //=====================================前后端交互====================================//
         //修改项目
         handleEditProject() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading2 = true;
                     const params = {
                         _id: this.id,
                         ...this.formInfo,
-                        members: this.selectUserData.map(val => {
-                            return {
-                                userId: val.userId,
-                                permission: val.permission,
-                                loginName: val.loginName,
-                                realName: val.realName
-                            };
-                        })
+                        members: this.selectUserData.map((val) => ({
+                            userId: val.userId,
+                            permission: val.permission,
+                            loginName: val.loginName,
+                            realName: val.realName,
+                        })),
                     };
                     this.axios.put("/api/project/edit_project", params).then(() => {
                         this.handleClose();
                         this.$emit("success");
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading2 = false;
-                    });                    
+                    });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                     this.$message.warning("请完善必填信息");
                     this.loading = false;
                 }
             });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         //选取用户
         handleSelectUser(item) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
-            const hasUser = this.selectUserData.find(val => val.userId === item.userId);
+            const hasUser = this.selectUserData.find((val) => val.userId === item.userId);
             if (hasUser) {
                 this.$message.warning("请勿重复添加");
                 return;
             }
-            this.$set(item, "permission", "readAndWrite")
+            this.$set(item, "permission", "readAndWrite");
             this.selectUserData.push(item);
         },
         //删除成员
@@ -184,27 +182,24 @@ export default {
             this.$confirm("确认删除当前成员吗?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
-                this.selectUserData.splice(index, 1)
-            }).catch(err => {
+                this.selectUserData.splice(index, 1);
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
                 this.$errorThrow(err, this);
             });
-            
         },
         //=====================================其他操作=====================================//
         //关闭弹窗
         handleClose() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

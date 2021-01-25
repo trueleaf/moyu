@@ -17,7 +17,7 @@ module.exports = {
                 "doc", //文档更新(README更新)
                 "clear", //注释内容处理，console之内无用代码删除
                 "cli", //构建工具改变
-            ]
-        ]
-    }
+            ],
+        ],
+    },
 };

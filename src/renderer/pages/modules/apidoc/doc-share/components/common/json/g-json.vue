@@ -57,7 +57,7 @@ export default {
                     for(let i in obj) {
                         if (!hasOwn.call(obj, i)) continue;
                         const valueType = this.getType(obj[i]);
-                        const matchedVal = this.mindResponseParams.find(val => val.key === i);
+                        const matchedVal = this.mindResponseParams.find((val) => val.key === i);
                         const description = matchedVal ? matchedVal.description : ""
                         if (valueType === "string" || valueType === "number" || valueType === "boolean") {
                             result.push({

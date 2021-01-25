@@ -52,7 +52,7 @@
                         <!-- json格式 -->
                         <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)" :check-data="responseParams" @export="handleExport"></s-json>
                         <!-- 其他图片类型 -->
-                        <el-image 
+                        <el-image
                             v-else-if="response.mime.includes('image/')"
                             class="img-view"
                             :src="response.value"
@@ -70,13 +70,13 @@
                         <div v-else-if="response.mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || response.mime.includes('application/vnd.ms-excel')">
                             <svg class="res-icon" aria-hidden="true" title="Excel">
                                 <use xlink:href="#iconexcel"></use>
-                            </svg> 
+                            </svg>
                         </div>
                         <!-- word -->
                         <div v-else-if="response.mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || response.mime.includes('application/msword')">
                             <svg class="res-icon" aria-hidden="true" title="Excel">
                                 <use xlink:href="#iconWORD"></use>
-                            </svg> 
+                            </svg>
                         </div>
                         <!-- pdf -->
                         <iframe v-else-if="response.mime.includes('application/pdf')" :src="response.value" class="pdf-view"></iframe>
@@ -89,8 +89,8 @@
                         <div v-else>
                             <svg class="res-icon" aria-hidden="true" :title="response.mime">
                                 <use xlink:href="#iconicon_weizhiwenjian"></use>
-                            </svg> 
-                        </div>                        
+                            </svg>
+                        </div>
                     </template>
                     <s-empty v-else></s-empty>
                 </div>
@@ -120,7 +120,7 @@ export default {
             type: Object,
             default() {
                 return {};
-            }
+            },
         },
     },
     computed: {
@@ -140,27 +140,26 @@ export default {
             return this.$store.state.apidoc.sendRequestLoading;
         },
         //远端返回数据结果
-        remoteResponse() {  
+        remoteResponse() {
             return this.$store.state.apidoc.remoteResponse;
         },
         //远端cookies
         cookies() {
             const setCookie = this.$store.state.apidoc.remoteResponse?.headers["set-cookie"] || [];
-            const cookies = setCookie.map(val => {
+            const cookies = setCookie.map((val) => {
                 const name = val.match(/[^=]+/);
                 const value = val.match(/(?<==).*/);
-                //console.log(222, value)
                 return {
                     name: name ? name[0] : "",
-                    value: value ? value[0] : ""
+                    value: value ? value[0] : "",
                 }
             })
             return cookies;
-        }
+        },
     },
     data() {
         return {
-            activeName: "s-a"
+            activeName: "s-a",
         };
     },
     created() {
@@ -169,87 +168,101 @@ export default {
     methods: {
         //导出数据
         handleExport(data) {
-            const copyData =JSON.parse(JSON.stringify(data))
+            const copyData = JSON.parse(JSON.stringify(data))
             this.$helper.dfsForest(copyData, {
                 rCondition(value) {
                     return value.children;
                 },
                 rKey: "children",
                 hooks: (val) => {
-                    val.description || (this.$set(val, "description", ""))
+                    if (!val.description) {
+                        this.$set(val, "description", "");
+                    }
                     Object.assign(val, {
                         id: this.$helper.uuid(),
                         required: true, //-------是否必填
                     })
-                }
+                },
             });
             copyData.push(this.generateParams());
             this.requestData.responseParams = copyData
         },
         //将扁平数据转换为树形结构数据
-        convertPlainParamsToTreeData(plainData, jumpChecked) {
-            const result = {};
-            const foo = (plainData, result) => {
-                for(let i = 0,len = plainData.length; i < len; i++) {
+        convertPlainParamsToTreeData(data, jumpChecked) {
+            const result2 = {};
+            const foo = (plainData, _result) => {
+                for (let i = 0, len = plainData.length; i < len; i += 1) {
                     if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则忽略掉
                         continue;
                     }
                     const key = plainData[i].key.trim();
                     const value = this.convertVariable(plainData[i].value);
-                    const type = plainData[i].type;
-                    const resultIsArray = Array.isArray(result);
+                    const { type } = plainData[i];
+                    const resultIsArray = Array.isArray(_result);
                     const isComplex = (type === "object" || type === "array");
                     let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
                     if (!isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
                         continue
                     }
-                    /*eslint-disable indent*/ 
+                    /*eslint-disable indent*/
                     switch (type) {
                         case "number": //数字类型需要转换为数字，转换前所有值都为字符串
-                            resultIsArray ? result.push(Number(value)) : result[key] = Number(value);
+                            if (resultIsArray) {
+                                _result.push(Number(value))
+                            } else {
+                                _result[key] = Number(value)
+                            }
                             break;
                         case "boolean": //字符串类型不做处理
-                            resultIsArray ? result.push(result[key] = (value === "true" ? true : false)) : (result[key] = (value === "true" ? true : false));
+                            if (resultIsArray) {
+                                _result.push(_result[key] = (value === "true"))
+                            } else {
+                                _result[key] = value === "true"
+                            }
                             break;
                         case "object":
-                            resultIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
+                            if (resultIsArray) {
+                                arrTypeResultLength = _result.push({})
+                            } else {
+                                _result[key] = {}
+                            }
                             if (plainData[i].children && plainData[i].children.length > 0) {
-                                foo(plainData[i].children, resultIsArray ? (result[arrTypeResultLength - 1]) : result[key]);
+                                foo(plainData[i].children, resultIsArray ? (_result[arrTypeResultLength - 1]) : _result[key]);
                             }
                             break;
                         case "array":
-                            result[key] = [];
+                            _result[key] = [];
                             if (plainData[i].children && plainData[i].children.length > 0) {
-                                foo(plainData[i].children, result[key]);
+                                foo(plainData[i].children, _result[key]);
                             }
                             break;
                         default: //字符串或其他类型类型不做处理
-                            resultIsArray ? result.push(value) : (result[key] = value);
+                            if (resultIsArray) {
+                                _result.push(value)
+                            } else {
+                                _result[key] = value
+                            }
                             break;
                     }
                 }
             }
-            foo(plainData, result);
-            return result;
+            foo(data, result2);
+            return result2;
         },
         //将变量转换为实际数据
         convertVariable(val) {
             if (val == null) {
-                return;
+                return null;
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
-                    return v.name === matchedData[1];
-                });
+                const varInfo = this.variables.find((v) => v.name === matchedData[1]);
                 if (varInfo) {
                     return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                } else {
-                    return val;
                 }
-            } else {
                 return val;
             }
+            return val;
         },
         //生成请求数据
         generateParams(type = "string") {
@@ -257,17 +270,14 @@ export default {
                 id: this.$helper.uuid(),
                 key: "",
                 description: "",
-                type: type,
+                type,
                 value: "",
                 required: true,
             }
         },
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .response-view {

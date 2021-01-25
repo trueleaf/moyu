@@ -12,7 +12,7 @@
             <slot v-else name="title"/>
         </div>
         <div v-show="isActive" class="pr-2 pl-5 gray-700">
-            <slot />            
+            <slot />
         </div>
     </div>
 </template>
@@ -22,16 +22,16 @@ export default {
     props: {
         title: {
             type: String,
-            default: "请输入标题"
+            default: "请输入标题",
         },
         active: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
     data() {
         return {
-            isActive: false
+            isActive: false,
         };
     },
     watch: {
@@ -39,19 +39,15 @@ export default {
             handler() {
                 this.isActive = this.active;
             },
-            immediate: true
+            immediate: true,
         },
     },
     created() {
 
     },
-    methods: {
-
-    }
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .s-collaps {

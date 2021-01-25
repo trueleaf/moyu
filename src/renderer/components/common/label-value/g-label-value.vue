@@ -7,7 +7,6 @@
 <template>
     <div class="label-value">
         <span class="label" :style="{width: labelWidth}">
-            <!-- <span class="el-icon-user-solid mr-1"></span> -->
             <span>{{ label }}</span>
         </span>
         <span v-if="!$slots.default" class="value">{{ value }}</span>
@@ -20,16 +19,16 @@ export default {
     props: {
         label: {
             type: String,
-            default: ""
+            default: "",
         },
         labelWidth: {
             type: String,
-            default: "80px"
+            default: "80px",
         },
         value: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     },
     data() {
         return {};
@@ -43,8 +42,6 @@ export default {
     },
 };
 </script>
-
-
 
 <style lang="scss">
 .label-value {

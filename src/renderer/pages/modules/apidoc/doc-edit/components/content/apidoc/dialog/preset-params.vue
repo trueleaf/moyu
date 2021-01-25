@@ -23,7 +23,7 @@
                         </el-form-item>
                         <div class="scroll-y-450">
                             <s-collapse-card title="参数模板">
-                                <s-params-tree 
+                                <s-params-tree
                                     ref="requestParams"
                                     :tree-data="addData.presetParams"
                                     :mind-params="mindParams"
@@ -36,7 +36,7 @@
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleAddPresetParams">确认新增</el-button>
                         </div>
-                    </el-form>  
+                    </el-form>
                 </el-tab-pane>
                 <!-- 修改 -->
                 <el-tab-pane label="修改参数" name="s-edit">
@@ -52,7 +52,7 @@
                         </el-form-item>
                         <div class="scroll-y-450">
                             <s-collapse-card title="参数模板">
-                                <s-params-tree 
+                                <s-params-tree
                                     ref="requestParams"
                                     :tree-data="editData.presetParams"
                                     nest
@@ -65,14 +65,14 @@
                         <div class="d-flex j-end">
                             <el-button :loading="loading2" type="success" size="mini" @click="handleEditPresetParams">确认修改</el-button>
                         </div>
-                    </el-form> 
+                    </el-form>
                 </el-tab-pane>
             </el-tabs>
         </div>
         <!-- 数据展示 -->
         <div slot="right" class="pr-2">
             <el-divider content-position="left">数据展示</el-divider>
-            <s-table 
+            <s-table
                     ref="table"
                     url="/api/project/doc_preset_params_list"
                     height="400px"
@@ -112,13 +112,13 @@ export default {
     props: {
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     computed: {
         mindParams() { //----------联想参数
-            const mindReq =  this.$store.state.apidoc.mindParams.mindRequestParams;
-            const mindRes =  this.$store.state.apidoc.mindParams.mindResponseParams;
+            const mindReq = this.$store.state.apidoc.mindParams.mindRequestParams;
+            const mindRes = this.$store.state.apidoc.mindParams.mindResponseParams;
             return mindReq.concat(mindRes);
         },
     },
@@ -138,7 +138,7 @@ export default {
                         description: "", //------描述
                         required: true, //-------是否必填
                         children: [], //---------子参数
-                    }
+                    },
                 ],
             },
             editData: {
@@ -154,7 +154,7 @@ export default {
                         description: "", //------描述
                         required: true, //-------是否必填
                         children: [], //---------子参数
-                    }
+                    },
                 ],
             },
             //=====================================验证参数====================================//
@@ -168,18 +168,16 @@ export default {
             loading2: false, //---------------------添加按钮加载效果
         };
     },
-    created() {
-        
-    },
+    created() {},
     methods: {
         //=====================================表格相关====================================//
         getData() {
-            this.$refs["table"].getData();
+            this.$refs.table.getData();
         },
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddPresetParams() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const params = {
                         name: this.addData.name,
@@ -191,17 +189,17 @@ export default {
                     this.axios.post("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
                         this.$emit("change")
-                    }).catch(err => {
+                    }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         this.loading2 = false;
                     });
-                } 
+                }
             });
         },
         //修改快捷操作
         handleEditPresetParams() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const params = {
                         _id: this.editData._id,
@@ -213,12 +211,12 @@ export default {
                     this.axios.put("/api/project/doc_preset_params", params).then(() => {
                         this.getData();
                         this.$emit("change")
-                    }).catch(err => {
+                    }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         this.loading2 = false;
                     });
-                } 
+                }
             });
         },
         //删除
@@ -226,23 +224,21 @@ export default {
             this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] }}).then(() => {
+                this.axios.delete("/api/project/doc_preset_params", { data: { ids: [_id] } }).then(() => {
                     this.$message.success("删除成功");
                     this.getData();
                     this.$emit("change")
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                });  
-            }).catch(() => {
-                    
+                });
             });
         },
         //=====================================操作====================================//
         //修改
         handleChangeOpToEdit(row) {
-            this.activeName= "s-edit";
+            this.activeName = "s-edit";
             this.editData._id = row._id;
             this.editData.name = row.name;
             this.editData.presetParams = JSON.parse(JSON.stringify(row.items));
@@ -273,7 +269,6 @@ export default {
         closeModel() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-

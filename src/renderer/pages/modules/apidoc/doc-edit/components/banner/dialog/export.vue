@@ -22,27 +22,23 @@ export default {
     props: {
         visible: { //是否现实弹窗
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
         return {
             formInfo: {
                 name: "", //------文件名称
-            }, 
+            },
             //=====================================其他参数====================================//
             loading: false, //----确认按钮状态
         };
     },
-    mounted() {
-        
-    },
+    mounted() {},
     methods: {
         handleExport() {
             this.loading = true;
-            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(() => {
-                
-            }).catch(err => {
+            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(() => {}).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
@@ -54,11 +50,9 @@ export default {
             this.$emit("update:visible", false);
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

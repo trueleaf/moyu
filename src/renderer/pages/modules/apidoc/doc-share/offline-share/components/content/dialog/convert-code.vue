@@ -76,7 +76,7 @@ export default {
         },
         convertToTableCode() {
             let tableCodeStr = "";
-            this.selectData.forEach(data => {
+            this.selectData.forEach((data) => {
                 tableCodeStr += `<el-table-column prop="${data.key}" label="${data.description}" align="center"></el-table-column>\n`
             })
             return tableCodeStr;

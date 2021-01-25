@@ -12,35 +12,35 @@
             <div v-else-if="mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document')">
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconWORD"></use>
-                </svg> 
+                </svg>
             </div>
             <div v-else-if="mime.includes('application/msword')">
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconWORD"></use>
-                </svg> 
+                </svg>
             </div>
             <!-- excel -->
             <div v-else-if="mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')">
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconexcel"></use>
-                </svg> 
+                </svg>
             </div>
             <div v-else-if="mime.includes('application/vnd.ms-excel')">
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconexcel"></use>
-                </svg> 
+                </svg>
             </div>
             <!-- pdf -->
             <div v-else-if="mime.includes('application/pdf')">
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconpdfwenjian"></use>
-                </svg> 
+                </svg>
             </div>
             <!-- 未知类型 -->
             <div v-else>
                 <svg class="type-icon" aria-hidden="true" title="word">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
-                </svg> 
+                </svg>
             </div>
         </div>
         <span slot="reference">
@@ -54,11 +54,11 @@ export default {
     props: {
         url: {
             type: String,
-            default: ""
+            default: "",
         },
         mime: {
             type: String,
-            default: ""
+            default: "",
         },
     },
     data() {
@@ -74,8 +74,6 @@ export default {
 };
 </script>
 
-
-
 <style lang="scss" scoped>
 .file-view {
     width: size(150);
@@ -87,6 +85,5 @@ export default {
         width: size(120);
         height: size(120);
     }
-}    
-
+}
 </style>

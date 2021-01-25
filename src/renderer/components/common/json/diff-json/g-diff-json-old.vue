@@ -23,7 +23,7 @@
                     <span class="symbol">,</span>
                     <s-ellipsis-content v-show="item.type.old !== 'object' || item.type.old !== 'array'" ref="comment" class="comment" :value="`//${item.description.old}`"></s-ellipsis-content>
                     <span v-if="item.required" class="comment">(必填)</span>
-                </span>      
+                </span>
                 <span v-else-if="item.operation.oldOp === 'empty'" class="d-inline-block w-100 empty-line">&nbsp;</span>
             </template>
             <!-- 对象和数组类型 -->
@@ -49,7 +49,7 @@
                         <s-ellipsis-content v-if="item.type.old === 'boolean'" class="boolean-value" :value="item.value.old"></s-ellipsis-content>
                     </template>
                     <span class="symbol">,</span>
-                </span> 
+                </span>
             </template>
         </div>
         <span v-if="level === 0" class="symbol">}</span>
@@ -64,45 +64,36 @@ export default {
             type: [Object, Array],
             default() {
                 return {};
-            }
+            },
         },
         level: {
             type: Number,
-            default: 0
+            default: 0,
         },
         isArray: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     watch: {
         data: {
             handler(val) {
-                if (val && this.$refs["comment"] && this.$refs["comment"].length > 0) {
-                    this.$refs["comment"].forEach(commentDom => {
-                        commentDom.$el.style.marginLeft = 5 + "px"
+                if (val && this.$refs.comment && this.$refs.comment.length > 0) {
+                    this.$refs.comment.forEach((commentDom) => {
+                        commentDom.$el.style.marginLeft = "5px";
                     });
                 }
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
     data() {
-        return { 
-        };
+        return {};
     },
-    mounted() {
-        
-    },
-    methods: {
-        
-        //=====================================其他操作=====================================//
-
-    }
+    mounted() {},
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .diff-tree-json-old {
@@ -135,7 +126,5 @@ export default {
         width: 100%;
         background: $gray-700;
     }
-
 }
-
 </style>

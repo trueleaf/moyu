@@ -19,7 +19,7 @@
                 <div class="d-flex j-end">
                     <el-button v-success="successLoading" :loading="loading" type="primary" size="mini" @click="handleAddHost">确认添加</el-button>
                 </div>
-            </el-form>  
+            </el-form>
         </div>
         <!-- 数据展示 -->
         <div slot="right" class="ml-1 flex1">
@@ -35,12 +35,12 @@
                 <el-table-column label="服务器url" align="center">
                     <template slot-scope="scope">
                         <div class="h-60px d-flex a-center j-center">
-                            <s-v-input 
+                            <s-v-input
                                     v-if="scope.row.__active"
-                                    v-model="scope.row.url" 
-                                    :error="urlError" 
-                                    tip="eg:http://10.1.0.0:20 https://baidu.com" 
-                                    size="mini" 
+                                    v-model="scope.row.url"
+                                    :error="urlError"
+                                    tip="eg:http://10.1.0.0:20 https://baidu.com"
+                                    size="mini"
                                     class="w-100"
                                     maxlength="100"
                                     clearable
@@ -69,7 +69,7 @@ export default {
     props: {
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
@@ -103,7 +103,7 @@ export default {
             //=====================================其他参数====================================//
             urlError: { //-----------------请求url错误
                 error: false,
-                message: "请求url不能为空"
+                message: "请求url不能为空",
             },
             // isValidUrl: true, //-------------------是否显示服务器url验证错误信息
             isEditing: false, //-------------------是否正在编辑
@@ -123,30 +123,30 @@ export default {
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddHost() {
-            const total = this.$refs["table"].total;
+            const { total } = this.$refs.table;
             if (this.docRules.dominLimit <= total) {
                 this.$message.warning(`限制可维护域名数不超过${this.docRules.dominLimit}个`);
                 return
             }
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
                     const params = {
                         name: this.formInfo.name,
                         url: this.formInfo.url,
-                        projectId: this.$route.query.id
+                        projectId: this.$route.query.id,
                     };
                     this.successLoading = false;
                     this.axios.post("/api/project/doc_service", params).then(() => {
                         this.successLoading = true;
-                        this.$refs["table"].getData();
+                        this.$refs.table.getData();
                         this.$emit("change");
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
-                    });                    
-                } 
+                    });
+                }
             });
         },
         //检查host值是否有效
@@ -179,7 +179,7 @@ export default {
                 this.$message.success("修改成功");
                 this.isEditing = false;
                 this.$emit("change");
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
@@ -195,18 +195,18 @@ export default {
             this.$confirm("此操作将永久删除该域名, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
-                this.axios.delete("api/project/doc_service", { data: { ids: [_id] }}).then(() => {
-                    this.$refs["table"].getData();
+                this.axios.delete("api/project/doc_service", { data: { ids: [_id] } }).then(() => {
+                    this.$refs.table.getData();
                     this.$emit("change");
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
                 }).finally(() => {
                     this.isEditing = false;
-                });  
-            }).catch(() => {
-                    
+                });
+            }).catch((err) => {
+                console.error(err);
             });
         },
         //=====================================其他操作====================================//
@@ -216,7 +216,6 @@ export default {
             this.$emit("close");
             this.$emit("update:visible");
         },
-    }
+    },
 };
 </script>
-

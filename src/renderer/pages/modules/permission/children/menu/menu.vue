@@ -9,25 +9,25 @@
         <s-left-right>
             <s-card slot="left" v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" title="菜单列表" class="tree" @contextmenu.native="handleContextmenuBlankTree">
                 <el-button slot="operation" size="mini" type="text" @click="handleOpenAddDialog">新增</el-button>
-                <el-tree 
+                <el-tree
                         ref="docTree"
-                        :data="treeData" 
-                        node-key="id" 
+                        :data="treeData"
+                        node-key="id"
                         :draggable="true"
                         empty-text="暂无数据"
-                        :expand-on-click-node="false" 
-                        :render-content="renderContent" 
+                        :expand-on-click-node="false"
+                        :render-content="renderContent"
                         :highlight-current="true"
                         :default-expanded-keys="defaultExpandKeys"
                         @node-drop="handleNodeDropSuccess"
-                        @node-expand="nodeExpand" 
-                        @node-collapse="nodeCollapse" 
-                        @current-change="handleNodeChange" 
-                        @node-click="handleNodeClick" 
+                        @node-expand="nodeExpand"
+                        @node-collapse="nodeCollapse"
+                        @current-change="handleNodeChange"
+                        @node-click="handleNodeClick"
                         @node-contextmenu="handleContextmenu"
                 >
                 </el-tree>
-            </s-card>  
+            </s-card>
             <s-card slot="right" title="修改菜单">
                 <s-form v-if="currentActiveNode" ref="form2" showRules :editData="currentActiveNode">
                     <s-form-item label="名称" vModel="name" required oneLine></s-form-item>
@@ -35,14 +35,14 @@
                     <s-form-item type="submit">
                         <el-button :loading="loading3" type="primary" size="mini" @click="handleEditMenu">确认修改</el-button>
                     </s-form-item>
-                </s-form>  
-            </s-card>              
+                </s-form>
+            </s-card>
         </s-left-right>
         <s-dialog title="新增菜单" :isShow.sync="isShow" width="40%">
             <s-form v-if="isShow" ref="form" showTip :editData="formInfo">
                 <s-form-item label="菜单名称" vModel="name" oneLine required></s-form-item>
                 <s-form-item label="路径" vModel="path" oneLine required></s-form-item>
-            </s-form>  
+            </s-form>
             <div slot="footer">
                 <el-button :loading="loading2" size="mini" type="primary" @click="handleAddMenu">确定</el-button>
                 <el-button size="mini" type="warning" @click="isShow = false">取消</el-button>
@@ -52,9 +52,11 @@
 </template>
 
 <script>
-import { recursion, findParentNode } from "@/lib/index"
-import contextmenu from "./children/contextmenu"
-import Vue from "vue"
+/* eslint-disable no-underscore-dangle */
+import Vue from "vue";
+import { recursion, findParentNode } from "@/lib/index";
+import contextmenu from "./children/contextmenu.vue";
+
 export default {
     data() {
         return {
@@ -76,33 +78,28 @@ export default {
     created() {
         this.getData();
         document.body.addEventListener("click", () => {
-            // e.stopPropagation();
             if (this.mouseContext) {
-                document.body.removeChild(this.mouseContext.$el)
+                document.body.removeChild(this.mouseContext.$el);
                 this.mouseContext = null;
             }
-        })  
+        });
     },
     methods: {
         //=====================================数据获取====================================//
         //获取树形菜单结构
         getData() {
             this.loading = true;
-            this.axios.get("/api/security/client_menu_tree").then(res => {
+            this.axios.get("/api/security/client_menu_tree").then((res) => {
                 recursion({
                     data: res.data,
                     before: (val) => {
                         val.id = val._id;
                     },
-                    condition: (val) => {
-                        return val.children && val.children.length > 0;
-                    },
-                    next: (val) => {
-                        return val.children
-                    }
+                    condition: (val) => val.children && val.children.length > 0,
+                    next: (val) => val.children,
                 });
                 this.treeData = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -111,11 +108,12 @@ export default {
         //=====================================树形组件渲染====================================//
         //渲染树形组件
         renderContent(h, { data }) {
-            const iconBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACRElEQVRYR+2XQWtTQRDH//NMqkmgeRS1qR6MFws1hx48iZD6CYyg4EkRquitfgFTv4B60SJCq3dBPQoe0oOgeDBBqUI9RKRqUJtXq01e0vdG5tm0NSTZ102iRBx4PNjZnf3t7MzuDmFNLsy8jsNx0gROAWTW2nX+DOQNF8dvnk9kVeOp1uHi7VcTIFxjIEfMlrQbRIH+SHDQIARUhkS/UnHMcsVdg2eLXDqqgtgE8DIDouTUeMJrKxbZtMl+ASDuZ3Lpk5lbxOzcIkbj/cjmvwFQQzQFKBTtFBPf9zv5ZoAzyb2wVlbx8HlBCdEU4GOxNElEaV2A+K4Qsu+WPQhmXjKYxhptR1cBBF4F0XUAgfhk2ZjOLDiVqvO93hN/BKAVREcBns5beJT7gmg44GVCvRQsG28+/IABPLkxnjgi+o4CiMG7swvIfy61jN1YNPg1fXJ4Z1cAVFlz5d5bDJl9S5dPHPAOrI574N8DkBSSfS1XXdXiGuqTIwMYGxlY1215C0pVF8/mvbtJS+RElK8mWwbQmrXFoP8AvecByYJbj99rh8LwnghOHR5qLwhVR2srOjMShBneeNH13hZo+77JwN70wF+NAZlc7gJdkYfJsUO728sCSUXdy2jQ3I5Q0GgPQHf1jcb5DkKdwsQPqG8AKc3KKGeJaJ8fw377CECoj3JXTx8crXuS/SpOwcgyYaM4DQdifotTFcRq1d2xbDsxMC5NnUtc/w1AynNynElmThFRVGVMRy8lGhE9KG2LTNw5u99b5E8iCxg/2kxzLAAAAABJRU5ErkJggg=="
+            // eslint-disable-next-line max-len
+            const iconBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACRElEQVRYR+2XQWtTQRDH//NMqkmgeRS1qR6MFws1hx48iZD6CYyg4EkRquitfgFTv4B60SJCq3dBPQoe0oOgeDBBqUI9RKRqUJtXq01e0vdG5tm0NSTZ102iRBx4PNjZnf3t7MzuDmFNLsy8jsNx0gROAWTW2nX+DOQNF8dvnk9kVeOp1uHi7VcTIFxjIEfMlrQbRIH+SHDQIARUhkS/UnHMcsVdg2eLXDqqgtgE8DIDouTUeMJrKxbZtMl+ASDuZ3Lpk5lbxOzcIkbj/cjmvwFQQzQFKBTtFBPf9zv5ZoAzyb2wVlbx8HlBCdEU4GOxNElEaV2A+K4Qsu+WPQhmXjKYxhptR1cBBF4F0XUAgfhk2ZjOLDiVqvO93hN/BKAVREcBns5beJT7gmg44GVCvRQsG28+/IABPLkxnjgi+o4CiMG7swvIfy61jN1YNPg1fXJ4Z1cAVFlz5d5bDJl9S5dPHPAOrI574N8DkBSSfS1XXdXiGuqTIwMYGxlY1215C0pVF8/mvbtJS+RElK8mWwbQmrXFoP8AvecByYJbj99rh8LwnghOHR5qLwhVR2srOjMShBneeNH13hZo+77JwN70wF+NAZlc7gJdkYfJsUO728sCSUXdy2jQ3I5Q0GgPQHf1jcb5DkKdwsQPqG8AKc3KKGeJaJ8fw377CECoj3JXTx8crXuS/SpOwcgyYaM4DQdifotTFcRq1d2xbDsxMC5NnUtc/w1AynNynElmThFRVGVMRy8lGhE9KG2LTNw5u99b5E8iCxg/2kxzLAAAAABJRU5ErkJggg==";
             const navTitleDom = this.getRenderNavTitleDom(data);
             const navMoreDom = this.getRenderNavMoreDom(data);
             return (
-                <div class={["custom-tree-node"]} on-mouseover={(e) => {e.target.classList.add("active")}} on-mouseleave={(e) => {e.target.classList.remove("active")}}>
+                <div class={["custom-tree-node"]} on-mouseover={(e) => { e.target.classList.add("active"); }} on-mouseleave={(e) => { e.target.classList.remove("active"); }}>
                     <img src={iconBase64} width="16px" height="16px"/>
                     { navTitleDom }
                     { navMoreDom }
@@ -124,13 +122,13 @@ export default {
         },
         //渲染导航title文字或者编辑时候的输入框
         getRenderNavTitleDom(data) {
-            const isActiveTitle = this.currentFileTab && this.currentFileTab.id === data._id
-            return (<span class={["node-name", "text-ellipsis", "ml-1", isActiveTitle ? "bg-active" : ""]} title={data.name}>{data.name}</span>)
+            const isActiveTitle = this.currentFileTab && this.currentFileTab.id === data._id;
+            return (<span class={["node-name", "text-ellipsis", "ml-1", isActiveTitle ? "bg-active" : ""]} title={data.name}>{data.name}</span>);
         },
         //渲染导航文字末尾更多选项
         getRenderNavMoreDom(data) {
             return (
-                <el-dropdown class="node-more ml-auto mr-2" trigger="hover" nativeOnClick={ (e) => {e.stopPropagation();} } on-command={(command) => { this.handleSelectDropdown(command, data) }}>
+                <el-dropdown class="node-more ml-auto mr-2" trigger="hover" nativeOnClick={ (e) => { e.stopPropagation(); } } on-command={(command) => { this.handleSelectDropdown(command, data); }}>
                     <span class="el-icon-more"></span>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item command="newMenu">新增菜单</el-dropdown-item>
@@ -147,7 +145,7 @@ export default {
                 pid: "", //父元素
                 sort: 0, //当前节点排序效果
             };
-            let pNode = null; 
+            let pNode = null;
             if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
                 pNode = findParentNode(node.data._id, this.treeData);
                 params.pid = pNode ? pNode.id : "";
@@ -168,12 +166,9 @@ export default {
             } else if (type === "inner") {
                 params.sort = Date.now();
             }
-            console.log(params)
-            this.axios.put("/api/security/client_menu_position", params).then(() => {
-                
-            }).catch(err => {
+            this.axios.put("/api/security/client_menu_position", params).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
-            })
+            });
         },
         //点击节点
         handleNodeClick(data) {
@@ -206,17 +201,17 @@ export default {
                 propsData: {
                     operations: ["add", "delete"],
                     left: x,
-                    top: y
+                    top: y,
                 },
             }).$mount();
             document.body.appendChild(this.mouseContext.$el);
             this.mouseContext.$on("menu", () => {
                 this.isShow = true;
                 this.parentId = data._id;
-            })
+            });
             this.mouseContext.$on("delete", () => {
                 this.deleteCurrentNode(data);
-            })
+            });
         },
         //点击空白处弹出新增根节点
         handleContextmenuBlankTree(e) {
@@ -234,14 +229,14 @@ export default {
                 propsData: {
                     operations: ["add"],
                     left: x,
-                    top: y
+                    top: y,
                 },
             }).$mount();
             document.body.appendChild(this.mouseContext.$el);
             this.mouseContext.$on("menu", () => {
                 this.isShow = true;
                 this.parentId = "";
-            })
+            });
         },
         //清除鼠标右键dom节点信息
         clearContextNode() {
@@ -267,91 +262,84 @@ export default {
         },
         //删除节点
         deleteCurrentNode(data) {
-            console.log(data)
-            const cpData = JSON.parse(JSON.stringify(data))
+            const cpData = JSON.parse(JSON.stringify(data));
             const ids = [cpData._id];
-            
             recursion({
                 data: cpData.children || [],
                 before: (val) => {
-                    ids.push(val._id)
+                    ids.push(val._id);
                 },
-                condition: (val) => {
-                    return val.children && val.children.length > 0;
-                },
-                next: (val) => {
-                    return val.children || []
-                }
+                condition: (val) => val.children && val.children.length > 0,
+                next: (val) => val.children || [],
             });
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = {
-                    ids
+                    ids,
                 };
                 this.axios.delete("/api/security/client_menu", { data: params }).then(() => {
                     this.getData();
                     this.currentActiveNode = null;
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                })            
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
                 this.$errorThrow(err, this);
             });
         },
-        //修改节点
-        handleEditNode() {
-            
-        },
         //=====================================前后端交互====================================//
         handleAddMenu() {
-            this.$refs["form"].validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading2 = true;
                     const params = {
                         ...this.formInfo,
-                        pid: this.parentId
+                        pid: this.parentId,
                     };
-                    this.axios.post("/api/security/client_menu", params).then(res => {
+                    this.axios.post("/api/security/client_menu", params).then((res) => {
                         this.getData();
                         this.isShow = false;
                         this.defaultExpandKeys.push(res.data._id);
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading2 = false;
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
                     this.loading2 = false;
                 }
             });
         },
         handleEditMenu() {
-            this.$refs["form2"].validate((valid, invalidData) => {
+            this.$refs.form2.validate((valid) => {
                 if (valid) {
                     this.loading3 = true;
                     this.axios.put("/api/security/client_menu", this.currentActiveNode).then(() => {
-                        this.$message.success("修改成功")
-                    }).catch(err => {
+                        this.$message.success("修改成功");
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading3 = false;
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                 }
             });
         },
@@ -361,11 +349,9 @@ export default {
             this.formInfo = {};
             this.isShow = true;
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .g-menu {
@@ -391,14 +377,6 @@ export default {
                     background: $theme-color;
                     color: #fff;
                 }
-                // &.active {
-                //     .node-more {
-                //         display: inline-block;
-                //     } 
-                // }
-                // .node-more {
-                //     display: none;
-                // }
                 .new-input {
                     margin-left: 10px;
                 }
@@ -408,7 +386,7 @@ export default {
                 height: 30px;
                 display: flex;
                 align-items: center;
-                justify-content: center; 
+                justify-content: center;
             }
         }
         .edit {

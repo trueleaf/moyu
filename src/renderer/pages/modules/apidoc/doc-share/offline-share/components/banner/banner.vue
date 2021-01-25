@@ -29,7 +29,7 @@
                 <template slot-scope="scope">
                     <div 
                             class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find(val => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
                             tabindex="1"
                             @click="handleClickNode($event, scope)"
                             @mouseover="hoverNodeId = scope.data._id"
@@ -126,7 +126,7 @@ export default {
         handleClickNode(e, { node },) {
             if (this.pressCtrl) {
                 e.stopPropagation();
-                const delIndex = this.multiSelectNode.findIndex(val => val._id === node.data._id);
+                const delIndex = this.multiSelectNode.findIndex((val) => val._id === node.data._id);
                 if (delIndex !== -1) {
                     this.multiSelectNode.splice(delIndex, 1);
                 } else {
@@ -153,22 +153,22 @@ export default {
             this.search();
         },
         search: debounce(function() {
-            let filterData = window.SHARE_DATA.docs.filter(val => {
+            let filterData = window.SHARE_DATA.docs.filter((val) => {
                 return val.docName.includes(this.queryData) || val.item.url.path.includes(this.queryData)
-            }).map(val => {
+            }).map((val) => {
                 return {
                     _id: val._id,
                     docName: val.docName
                 }
             })
             this.searchResult = [];
-            this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(filterData.map(val => val._id))))
-            this.searchResult = Array.from(new Set(this.searchResult.concat(filterData.map(val => val))));                    
+            this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(filterData.map((val) => val._id))))
+            this.searchResult = Array.from(new Set(this.searchResult.concat(filterData.map((val) => val))));                    
             this.$refs.docTree.filter();
         }),
         filterNode(value, data) {
-            const matchName = !!this.searchResult.find(val => val.docName === data.label);
-            const matchUrl = !!this.searchResult.find(val => val._id === data._id);
+            const matchName = !!this.searchResult.find((val) => val.docName === data.label);
+            const matchUrl = !!this.searchResult.find((val) => val._id === data._id);
             const matchAll = this.queryData.trim() === "";
             return matchName || matchUrl || matchAll;
         },
@@ -179,7 +179,7 @@ export default {
                 projectId: this.$root.$data._shareConfig.id,
                 deleteIds: deleteIds
             });
-            if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$root.$data._shareConfig.id,
                     activeNode: this.tabs[this.tabs.length - 1],

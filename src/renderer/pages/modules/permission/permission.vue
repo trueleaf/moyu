@@ -17,10 +17,11 @@
 </template>
 
 <script>
-import user from "./children/user/user"
-import role from "./children/role/role"
-import routes from "./children/routes/routes"
-import menu from "./children/menu/menu"
+import user from "./children/user/user.vue";
+import role from "./children/role/role.vue";
+import routes from "./children/routes/routes.vue";
+import menu from "./children/menu/menu.vue";
+
 export default {
     components: {
         "s-user": user,
@@ -30,26 +31,18 @@ export default {
     },
     data() {
         return {
-            activeName: "s-user"
+            activeName: "s-user",
         };
     },
-    created() {
-
-    },
+    created() {},
     methods: {
         //=====================================获取远程数据==================================//
-
         //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//  
-        
+        //=====================================组件间交互====================================//
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .g-container {

@@ -92,11 +92,11 @@ export default {
                         } else {
                             //取消请求
                             if (this.cancel.length > 0) {
-                                this.cancel.forEach(c => {
+                                this.cancel.forEach((c) => {
                                     c("取消请求");
                                 })
                             }
-                            this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
+                            this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                                 this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
                                 this.formatRequestData(data.docs);
                                 Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
@@ -144,7 +144,7 @@ export default {
                         projectId: this.$route.query.id,
                         changed: false
                     });
-                }).catch(err => {
+                }).catch((err) => {
                     if (err === "cancel" || err === "close") {
                         return;
                     }
@@ -162,7 +162,7 @@ export default {
                 projectId: this.$route.query.id
             };
             if (this.cancel.length > 0) {
-                this.cancel.forEach(c => {
+                this.cancel.forEach((c) => {
                     c("取消请求");
                 })
             }
@@ -175,7 +175,7 @@ export default {
                 cancelToken: new CancelToken((c) => {
                     this.cancel.push(c);
                 })
-            }).then(res => {
+            }).then((res) => {
                 if (res === undefined) { //取消接口
                     return
                 }
@@ -210,7 +210,7 @@ export default {
                     })   
                 })
 
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -239,21 +239,21 @@ export default {
                 }
             });
             //如果自定义字段不包含_id可能会导致选中错误
-            this.request.requestParams.forEach(val => {
+            this.request.requestParams.forEach((val) => {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
                     this.$set(val, "id", this.$helper.uuid())
                 }
             })
-            this.request.responseParams.forEach(val => {
+            this.request.responseParams.forEach((val) => {
                 if (val._id) {
                     this.$set(val, "id", val._id)
                 } else {
                     this.$set(val, "id", this.$helper.uuid())
                 }
             })
-            this.request.header.forEach(val => {
+            this.request.header.forEach((val) => {
                 // this.$set(val, "id", val._id)
                 if (val._id) {
                     this.$set(val, "id", val._id)
@@ -273,7 +273,7 @@ export default {
                     }
                 }
             })
-            const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
+            const matchedContentType = this.request.header.find((val) => val.key.toLowerCase() === "content-type");
             if (!matchedContentType) {
                 this.request.header.unshift({
                     id: this.$helper.uuid(),
@@ -295,7 +295,7 @@ export default {
                 matchedContentType._readOnly = true;
                 matchedContentType.children = [];
             }
-            // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
+            // this.currentReqeustLimit = this.docRules.requestMethod.config.find((val) => val.name === res.data.item.methods);
             const reqParams = this.request.requestParams;
             const resParams = this.request.responseParams;
             const headerParams = this.request.header;
@@ -351,13 +351,13 @@ export default {
                     projectId: this.$route.query.id,
                     deleteIds: [this.currentSelectDoc._id]
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
                         activeNode: this.tabs[this.tabs.length - 1],
                     });
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -404,7 +404,7 @@ export default {
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
+                const varInfo = this.variables.find((v) => {
                     return v.name === matchedData[1];
                 });
                 if (varInfo) {

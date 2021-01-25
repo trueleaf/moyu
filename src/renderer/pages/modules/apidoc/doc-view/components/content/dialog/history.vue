@@ -111,10 +111,10 @@ export default {
             const params = {
                 projectId: this.$route.query.id
             };
-            this.axios.get("/api/docs/docs_history", { params }).then(res => {
+            this.axios.get("/api/docs/docs_history", { params }).then((res) => {
                 var datas = res.data.rows;
                 this.tableInfo = datas;
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;

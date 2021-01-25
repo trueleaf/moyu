@@ -9,7 +9,7 @@ export default (function() {
         // 匹配基础组件文件名的正则表达式
         /g-.+\.(vue|js)$/
     );
-    requireComponent.keys().forEach(fileName => {
+    requireComponent.keys().forEach(fileNam(e) => {
         // 获取组件配置
         const componentConfig = requireComponent(fileName);
         let componentName = "";

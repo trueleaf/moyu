@@ -20,34 +20,29 @@ export default {
     props: {
         visible: { //是否现实弹窗
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
         return {
             formInfo: {
                 name: "", //------文件名称
-            }, 
+            },
             //=====================================其他参数====================================//
             loading: false, //----确认按钮状态
         };
     },
-    mounted() {
-        
-    },
+    mounted() {},
     methods: {
-        
         //=====================================其他操作=====================================//
         //关闭弹窗
         handleClose() {
             this.$emit("update:visible", false);
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

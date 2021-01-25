@@ -11,10 +11,9 @@
 </template>
 
 <script>
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js"; //基础api
-import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution.js" //语言类型
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api"; //基础api
+import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"; //语言类型
 // import "monaco-editor/esm/vs/basic-languages/json/json.contribution.js" //语言类型
-
 
 export default {
     data() {
@@ -30,27 +29,24 @@ export default {
         //=====================================初始化====================================//
         initEditor() {
             this.editorInstance = monaco.editor.create(
-                this.$refs["monaco"],
+                this.$refs.monaco,
                 {
                     acceptSuggestionOnEnter: "on",
                     language: "javascript",
-                    theme: "vs-dark"
-                }
+                    theme: "vs-dark",
+                },
             );
             this.editorInstance.onDidChangeModelContent(() => {
                 const newValue = this.editorInstance.getValue();
-                console.log(newValue)
-            })
+                console.log(newValue);
+            });
         },
         //=====================================前后端交互====================================//
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .e {

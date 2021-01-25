@@ -17,16 +17,16 @@ export default {
     props: {
         value: {
             type: String,
-            default: ""
+            default: "",
         },
         keyword: {
             type: String,
-            default: ""
+            default: "",
         },
         activeColor: {
             type: String,
-            default: "#f60"
-        }
+            default: "#f60",
+        },
     },
     data() {
         return {
@@ -40,13 +40,13 @@ export default {
             handler() {
                 this.spliceStr();
             },
-            immediate: true
+            immediate: true,
         },
         value: {
             handler() {
                 this.spliceStr();
             },
-            immediate: true
+            immediate: true,
         },
     },
     methods: {
@@ -63,12 +63,10 @@ export default {
             this.leftStr = strArr.slice(0, index).join("");
             this.emphasizeStr = strArr.slice(index, index + offset).join("");
             this.rightStr = strArr.slice(index + offset).join("");
-        }
-    }
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

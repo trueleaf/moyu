@@ -10,15 +10,16 @@
 
 <script>
 import ace from "brace";
-import "brace/mode/json"
-import "brace/mode/javascript"
-import "brace/theme/github"
+import "brace/mode/json";
+import "brace/mode/javascript";
+import "brace/theme/github";
+
 export default {
     props: {
         type: {
             type: String,
-            default: "javascript"
-        }        
+            default: "javascript",
+        },
     },
     data() {
         return {
@@ -43,12 +44,10 @@ export default {
                 this.$emit("input", content);
             });
             this.$emit("ready", editor);
-        }
-    }
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     #editor {

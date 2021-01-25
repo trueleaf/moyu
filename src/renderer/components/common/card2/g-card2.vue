@@ -1,4 +1,4 @@
-/** 
+/**
  * @description        全局卡片
  * @author             shuxiaokai
  * @updateAuthor       shuxiaokai
@@ -6,8 +6,8 @@
  * @update             2020-02-17 15:28
  */
 <template>
-    <div 
-            class="widget-card" 
+    <div
+            class="widget-card"
             :class="{shadow: shadow}"
             :style="{ width: width }"
     >
@@ -30,19 +30,19 @@ export default {
     props: {
         title: { // card头部标题
             type: String,
-            default: ""
+            default: "",
         },
         width: { //宽度
             type: String,
-            default: "100%"
+            default: "100%",
         },
         inline: {
             type: Boolean,
-            default: false
+            default: false,
         },
         titleColor: {
             type: String,
-            default: "#444"
+            default: "#444",
         },
         collapse: { //是否允许折叠
             type: Boolean,
@@ -50,34 +50,29 @@ export default {
         },
         fold: { //默认是否折叠
             type: Boolean,
-            default: false
+            default: false,
         },
         shadow: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     watch: {
-        fold(val) {
-            console.log(val)
+        fold() {
             this.showContent = !this.fold;
-        }
+        },
     },
     data() {
         return {
-            showContent: true
+            showContent: true,
         };
     },
     mounted() {
         this.showContent = !this.fold;
     },
-    methods: {
-        
-    }
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .widget-card {
@@ -102,13 +97,12 @@ export default {
         align-items: center;
         flex: 0 0 size(40);
         height: size(40);
-        // padding: 0 size(20);
         .tail {
             padding-left: size(20);
             cursor: pointer;
             &:hover {
                 background: $gray-300;
-            }            
+            }
         }
         .title {
             max-width: 80%;

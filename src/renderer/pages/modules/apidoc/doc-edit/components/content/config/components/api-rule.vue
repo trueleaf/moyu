@@ -89,7 +89,7 @@ export default {
     data() {
         return {
             copyApiRules: {},
-            loading: true
+            loading: true,
         };
     },
     // watch: {
@@ -110,10 +110,10 @@ export default {
         getRules() {
             this.loading = true;
             this.$store.dispatch("apidocRules/getRuels", {
-                projectId: this.$route.query.id
-            }).then(res => {
+                projectId: this.$route.query.id,
+            }).then((res) => {
                 this.copyApiRules = JSON.parse(JSON.stringify(res.data))
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -124,13 +124,13 @@ export default {
             this.loading = true;
             const params = {
                 projectId: this.$route.query.id,
-                ...this.copyApiRules
+                ...this.copyApiRules,
             };
             this.axios.put("/api/apidoc/project/project_rules", params).then(() => {
                 this.$store.commit("apidocRules/changeRules", {
-                    ...JSON.parse(JSON.stringify(this.copyApiRules))
+                    ...JSON.parse(JSON.stringify(this.copyApiRules)),
                 })
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -138,17 +138,15 @@ export default {
         },
         //改变ContentType值
         handleChangeContentType() {
-            // this.copyApiRules.requestMethods.forEach(val => {
+            // this.copyApiRules.requestMethods.forEach((val) => {
             //     const enabledContenType = val.enabledContenType;
             //     const delIndex = enabledContenType.findIndex(ct => ct === item.value)
             // })
             // console.log(item, this.copyApiRules)
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .api-rule {

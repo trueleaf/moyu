@@ -22,7 +22,7 @@
                     <!-- 注册 -->
                     <el-tab-pane label="账号注册" name="third">
                         <s-register></s-register>
-                    </el-tab-pane>  
+                    </el-tab-pane>
                 </el-tabs>
             </div>
         </div>
@@ -30,9 +30,10 @@
 </template>
 
 <script>
-import loginAccount from "./components/login-account"
-import loginPhone from "./components/login-phone"
-import register from "./components/register"
+import loginAccount from "./components/login-account.vue";
+import loginPhone from "./components/login-phone.vue";
+import register from "./components/register.vue";
+
 export default {
     components: {
         "s-login-account": loginAccount,
@@ -49,13 +50,11 @@ export default {
         //=====================================组件操作====================================//
         handleClickTabs() {},
         handleJumpToRegister() {
-            this.activeName = "third"
+            this.activeName = "third";
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .login-container {

@@ -35,7 +35,7 @@ export default {
                 smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
             },
             //=====================================其他参数====================================//
-            loading: false
+            loading: false,
         };
     },
     created() {},
@@ -45,24 +45,21 @@ export default {
             if (this.userInfo.phone.length !== 11) {
                 this.$message.warning("请填写正确手机号");
                 return false;
-            } else {
-                return true;
             }
+            return true;
         },
         //获取短信验证码
         getSmsCode() {
             const params = {
-                phone: this.userInfo.phone
+                phone: this.userInfo.phone,
             };
-            this.axios.get("/api/security/sms", { params }).then(() => {
-                
-            }).catch(err => {
+            this.axios.get("/api/security/sms", { params }).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
-            });                
+            });
         },
         //手机号登录
         handleLogin() {
-            this.$refs["form"].validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
                     this.axios.post("/api/security/login_phone", this.userInfo).then((res) => {
@@ -73,14 +70,17 @@ export default {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
                 }
             });
@@ -88,8 +88,6 @@ export default {
     },
 };
 </script>
-
-
 
 <style lang="scss">
 </style>

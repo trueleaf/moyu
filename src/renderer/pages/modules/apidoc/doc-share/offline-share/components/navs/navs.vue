@@ -80,7 +80,7 @@ export default {
                     this.mouseContext = null;
                 }
             });
-            this.$el.addEventListener("contextmenu", e => {
+            this.$el.addEventListener("contextmenu", (e) => {
                 e.returnValue = false;
             });
             //获取本地tabs信息
@@ -147,7 +147,7 @@ export default {
                     start: index + 1,
                     num: this.tabs.length - index - 1
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$root.$data._shareConfig.id,
                         activeNode: this.tabs[this.tabs.length - 1],
@@ -163,7 +163,7 @@ export default {
                     start: 0,
                     num: index
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$root.$data._shareConfig.id,
                         activeNode: this.tabs[0],

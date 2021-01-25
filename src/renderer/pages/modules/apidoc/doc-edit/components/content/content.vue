@@ -16,9 +16,9 @@
 </template>
 
 <script>
-import apidoc from "./apidoc/apidoc"
-import config from "./config/config"
-import statistics from "./statistics/statistics"
+import apidoc from "./apidoc/apidoc.vue";
+import config from "./config/config.vue";
+import statistics from "./statistics/statistics.vue";
 
 export default {
     components: {
@@ -27,9 +27,7 @@ export default {
         "s-statistics": statistics,
     },
     data() {
-        return {
-           
-        };
+        return {};
     },
     computed: {
         currentSelectDoc() { //当前选中的doc
@@ -39,16 +37,10 @@ export default {
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
     },
-    mounted() {
-        
-    },
-    methods: {
-        
-    }
+    mounted() {},
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .workbench {

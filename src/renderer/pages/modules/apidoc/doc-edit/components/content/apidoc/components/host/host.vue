@@ -20,7 +20,8 @@
 </template>
 
 <script>
-import hostManage from "../../dialog/host-manage"
+import hostManage from "../../dialog/host-manage.vue"
+
 export default {
     components: {
         "s-host-manage": hostManage,
@@ -30,8 +31,8 @@ export default {
             type: Object,
             default() {
                 return {}
-            }
-        }
+            },
+        },
     },
     data() {
         return {
@@ -57,10 +58,9 @@ export default {
             },
             set(val) {
                 this.$store.commit("apidoc/changeDocHost", val);
-            }
+            },
         },
     },
-    
     methods: {
         //=====================================获取远程数据==================================//
         //获取host枚举值
@@ -68,9 +68,9 @@ export default {
             const params = {
                 projectId: this.$route.query.id,
             };
-            this.axios.get("/api/project/doc_service", { params }).then(res => {
+            this.axios.get("/api/project/doc_service", { params }).then((res) => {
                 this.hostEnum = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             })
         },
@@ -78,14 +78,10 @@ export default {
         handleInput(value) {
             console.log(value)
         },
-        //=====================================组件间交互====================================//  
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

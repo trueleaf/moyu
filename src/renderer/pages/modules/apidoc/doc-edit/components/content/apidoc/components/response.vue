@@ -122,7 +122,7 @@ export default {
             };
         },
         validRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         }
     },
     created() {
@@ -186,7 +186,7 @@ export default {
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
+                const varInfo = this.variables.find((v) => {
                     return v.name === matchedData[1];
                 });
                 if (varInfo) {

@@ -194,13 +194,13 @@ export default {
             const parentNode = node.parent;
             const parentData = node.parent.data;
             if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-                const deleteIndex = parentData.findIndex(val => val.id === data.id);
+                const deleteIndex = parentData.findIndex((val) => val.id === data.id);
                 if (parentData.length - 1 === deleteIndex) { //不允许删除最后一个元素
                     return;
                 }
                 parentData.splice(deleteIndex, 1);
             } else {
-                const deleteIndex = parentData.children.findIndex(val => val.id === data.id);
+                const deleteIndex = parentData.children.findIndex((val) => val.id === data.id);
                 parentData.children.splice(deleteIndex, 1)
             }
         },
@@ -241,7 +241,7 @@ export default {
         handleCheckKeyField({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val.id === data.id) : parentData.children.findIndex((val) => val.id === data.id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
@@ -301,7 +301,7 @@ export default {
         handleCheckValue({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val.id === data.id) : parentData.children.findIndex((val) => val.id === data.id);
             const realValue = this.convertVariable(data.value);
             // console.log(realValue)
             if (data.type === "object" || data.type === "array") { //数据和对象不必校验
@@ -311,7 +311,7 @@ export default {
                 return;
             }
             if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验 
-                if (data.type === "number" && !this._isNumberLike(realValue)) {
+                if (data.type === "number" && !this.isNumberLike(realValue)) {
                     this.$set(data, "_valueError", {
                         error: true,
                         message: "参数值必须为数字类型"
@@ -337,7 +337,7 @@ export default {
         handleCheckDescription({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val.id === data.id) : parentData.children.findIndex(val => val.id === data.id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val.id === data.id) : parentData.children.findIndex((val) => val.id === data.id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
@@ -366,7 +366,7 @@ export default {
         handleSelectFile(e, data) {
             const file = e.target.files[0];
             if (file) {
-                file.arrayBuffer().then(res => {
+                file.arrayBuffer().then((res) => {
                     data.value = res;
                     // console.log(222, res, data)
                 })
@@ -455,10 +455,10 @@ export default {
             });
             const checkedNodes = this.$refs["tree"].getCheckedNodes();
             const halfCheckedNodes = this.$refs["tree"].getHalfCheckedNodes();
-            checkedNodes.forEach(val => {
+            checkedNodes.forEach((val) => {
                 this.$set(val, "_select", true)
             })
-            halfCheckedNodes.forEach(val => {
+            halfCheckedNodes.forEach((val) => {
                 this.$set(val, "_select", true)
             })
         },
@@ -469,7 +469,7 @@ export default {
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
+                const varInfo = this.variables.find((v) => {
                     return v.name === matchedData[1];
                 });
                 if (varInfo) {

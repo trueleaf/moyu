@@ -12,12 +12,13 @@ class MyIndexedDB {
         this.dbName = config.renderConfig.indexedDB.dbName;
         this.dbVersion = config.renderConfig.indexedDB.version;
     }
+
     initDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(this.dbName, this.dbVersion);
             //错误处理
             request.onerror = (event) => {
-                reject(event)
+                reject(event);
             };
             //打开数据库成功
             request.onsuccess = (event) => {
@@ -30,9 +31,9 @@ class MyIndexedDB {
                 const db = event.target.result;
                 db.createObjectStore("apidoc_doc", { keyPath: "id" });
             };
-        })
-
+        });
     }
+
     create(collection, value) {
         return new Promise((resolve, reject) => {
             const request = this.dbInstance
@@ -40,63 +41,67 @@ class MyIndexedDB {
                 .objectStore(collection)
                 .add(value);
 
-            request.onsuccess = function(event) {
+            request.onsuccess = (event) => {
                 resolve(event);
             };
 
-            request.onerror = function(event) {
-                reject(event)
-            };
-        });
-    }
-    findById(collection, id) {
-        return new Promise((resolve, reject) => {
-            const objectStore = this.dbInstance.transaction([collection]).objectStore(collection);
-            const request = objectStore.get(id);
-            request.onsuccess = function(event) {
-                resolve(event.target.result);
-            };
-            request.onerror = function(event) {
-                reject(event)
+            request.onerror = (event) => {
+                reject(event);
             };
         });
     }
 
+    findById(collection, id) {
+        return new Promise((resolve, reject) => {
+            const objectStore = this.dbInstance
+                .transaction([collection])
+                .objectStore(collection);
+            const request = objectStore.get(id);
+            request.onsuccess = (event) => {
+                resolve(event.target.result);
+            };
+            request.onerror = (event) => {
+                reject(event);
+            };
+        });
+    }
 
     async findByIdAndUpdate(collection, id, update) {
         if (!id || !update) {
-            throw new Error("缺少id和update")
-        }   
+            throw new Error("缺少id和update");
+        }
         let storeInfo = null;
         if (navigator.storage && navigator.storage.estimate) {
             storeInfo = await navigator.storage.estimate();
         }
         if (storeInfo && storeInfo.usage > 1024 * 1024 * 500) {
-            alert(`您的本地存储数据大小已经超过${(storeInfo.usage/1024/1024).toFixed(1)}MB`)
+            console.warn(`您的本地存储数据大小已经超过${(storeInfo.usage / 1024 / 1024).toFixed(1)}MB`);
         }
         return new Promise((resolve, reject) => {
-            const objectStore = this.dbInstance .transaction([collection], "readwrite").objectStore(collection)
-            const request = objectStore.get(id)
-            request.onsuccess = function(event) {
+            const objectStore = this.dbInstance
+                .transaction([collection], "readwrite")
+                .objectStore(collection);
+            const request = objectStore.get(id);
+            request.onsuccess = (event) => {
                 let data = event.target.result;
                 // 更新你想修改的数据
                 data = {
                     id,
-                    ...update
+                    ...update,
                 };
                 // 把更新过的对象放回数据库
                 const requestUpdate = objectStore.put(data);
-                requestUpdate.onerror = function(event) {
-                    reject(event)
+
+                requestUpdate.onerror = (e) => {
+                    reject(e);
                 };
-                requestUpdate.onsuccess = function(event) {
-                    resolve(event);
+                requestUpdate.onsuccess = (e) => {
+                    resolve(e);
                 };
-               
             };
 
-            request.onerror = function(event) {
-                reject(event)
+            request.onerror = (event) => {
+                reject(event);
             };
         });
     }

@@ -16,27 +16,21 @@
 </template>
 
 <script>
-import apiRule from "./components/api-rule"
+import apiRule from "./components/api-rule.vue"
+
 export default {
     components: {
-        "s-api-rule": apiRule
+        "s-api-rule": apiRule,
     },
     data() {
         return {
             activeName: "s-a",
         };
     },
-    
-    created() {
-        
-    },
-    methods: {
-
-    }
+    created() {},
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .config {

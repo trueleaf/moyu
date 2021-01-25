@@ -18,7 +18,7 @@
             </el-radio-group>
         </div>
         <!-- json -->
-        <s-params-tree 
+        <s-params-tree
             v-show="contentType === 'application/json'"
             ref="jsonTree"
             :tree-data="jsonBody"
@@ -28,7 +28,7 @@
         >
         </s-params-tree>
         <!-- form-data -->
-        <s-params-tree 
+        <s-params-tree
             v-show="contentType === 'multipart/form-data'"
             ref="formDataTree"
             :tree-data="formDataBody"
@@ -39,7 +39,7 @@
         >
         </s-params-tree>
         <!-- x-www-form-urlencoded -->
-        <s-params-tree 
+        <s-params-tree
             v-show="contentType === 'application/x-www-form-urlencoded'"
             ref="formUrlTree"
             :tree-data="formUrlBody"
@@ -52,13 +52,14 @@
 </template>
 
 <script>
-import paramsTree from "../params-tree/params-tree"
+import paramsTree from "../params-tree/params-tree.vue"
 import mixin from "../../mixin" //公用数据和函数
+
 export default {
     name: "REQUEST_BODY",
     mixins: [mixin],
     components: {
-        "s-params-tree": paramsTree
+        "s-params-tree": paramsTree,
     },
     computed: {
         requestBody() { //请求body
@@ -69,11 +70,11 @@ export default {
                 return this.$store.state.apidoc.apidocInfo?.item?.contentType;
             },
             set(val) {
-                this.$refs["jsonTree"]?.selectChecked();
-                this.$refs["formDataTree"]?.selectChecked();
-                this.$refs["formUrlTree"]?.selectChecked();
+                this.$refs.jsonTree?.selectChecked();
+                this.$refs.formDataTree?.selectChecked();
+                this.$refs.formUrlTree?.selectChecked();
                 this.$store.commit("apidoc/changeContentType", val);
-            }
+            },
         },
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
@@ -132,18 +133,18 @@ export default {
             this.jsonWatchFlag = this.$watch("jsonBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
-                deep: true
-            });  
+                deep: true,
+            });
             this.formDataWatchFlag = this.$watch("formDataBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
-                deep: true
-            });  
+                deep: true,
+            });
             this.formUrlWatchFlag = this.$watch("formUrlBody", this.$helper.debounce((val) => {
                 this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
-                deep: true
-            });  
+                deep: true,
+            });
             //=========================================================================//
             this.contentTypeWatchFlag = this.$watch("contentType", this.$helper.debounce((contentType) => {
                 if (contentType === "application/json") {
@@ -156,29 +157,24 @@ export default {
                     this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.jsonBody));
                 }
             }), {
-                deep: true
-            }); 
+                deep: true,
+            });
         },
         //选中_select为true的参数
         selectChecked() {
             return new Promise((resolve, reject) => {
-                Promise.all([this.$refs["jsonTree"]?.selectChecked(), this.$refs["formDataTree"]?.selectChecked(), this.$refs["formUrlTree"]?.selectChecked()]).then(() => {
+                Promise.all([this.$refs.jsonTree?.selectChecked(), this.$refs.formDataTree?.selectChecked(), this.$refs.formUrlTree?.selectChecked()]).then(() => {
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     reject(err)
                 })
             })
         },
-        //=====================================前后端交互====================================//
-
-       
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

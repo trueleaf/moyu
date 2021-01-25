@@ -148,7 +148,7 @@ export default {
             const remoteKeys = Object.keys(this.data);
             const lackKeys = [];
             for(let i = 0; i < localKeys.length; i++) {
-                if (remoteKeys.every(val => val !== localKeys[i])) {
+                if (remoteKeys.every((val) => val !== localKeys[i])) {
                     lackKeys.push(localKeys[i])
                 }
             }

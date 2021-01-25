@@ -15,9 +15,10 @@
 </template>
 
 <script>
-import banner from "./components/banner/banner"
-import navs from "./components/navs/navs"
-import content from "./components/content/content"
+import banner from "./components/banner/banner.vue";
+import navs from "./components/navs/navs.vue";
+import content from "./components/content/content.vue";
+
 export default {
     components: {
         "s-banner": banner,
@@ -25,29 +26,21 @@ export default {
         "s-content": content,
     },
     data() {
-        return {
-
-        };
+        return {};
     },
     created() {
         this.$store.dispatch("apidoc/getDocVariable", {
-            projectId: this.$route.query.id
+            projectId: this.$route.query.id,
         });
     },
     methods: {
         //=====================================获取远程数据==================================//
-
         //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//  
-        
+        //=====================================组件间交互====================================//
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .doc-view {

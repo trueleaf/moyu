@@ -11,7 +11,7 @@
                 <slot name="prepend"/>
             </template>
         </el-input>
-        <el-autocomplete 
+        <el-autocomplete
                 v-else :value="value"
                 v-bind="$attrs"
                 value-key="key"
@@ -44,30 +44,30 @@ export default {
     props: {
         value: { //-----------v-model的值
             type: [String, Number],
-            default: ""
+            default: "",
         },
         tip: { //-------------错误提示信息
             type: [Object, String],
             default() {
                 return null;
-            }
+            },
         },
         error: { //-----------是否错误
             type: Object,
             default() {
-                return {}
-            }
+                return {};
+            },
         },
         remote: { //---------是否远程搜索
             type: Boolean,
-            default: false
+            default: false,
         },
         mindParams: {
             type: Array,
             default() {
-                return []
-            }
-        }
+                return [];
+            },
+        },
     },
     data() {
         return {
@@ -77,21 +77,19 @@ export default {
             isPaste: false, //是否为粘贴
         };
     },
-    mounted() {
-        
-    },
+    mounted() {},
     methods: {
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         //联想输入
         querySearchAsync(queryString, cb) {
             this.currentQuerystring = queryString.toLowerCase();
-            const matchedParams = this.mindParams.filter(val => val.key.toLocaleLowerCase().includes(queryString.toLowerCase()))
+            const matchedParams = this.mindParams.filter((val) => val.key.toLocaleLowerCase().includes(queryString.toLowerCase()));
             if (queryString.trim() === "" || this.isPaste) {
                 cb([]);
             } else if (matchedParams.length > 0) {
                 cb(matchedParams);
             } else {
-                cb([])
+                cb([]);
             }
             this.isPaste = false;
         },
@@ -104,13 +102,13 @@ export default {
             if (e.ctrlKey && e.key === "v") {
                 this.isPaste = true;
                 setTimeout(() => {
-                    const copyMindParams = JSON.parse(JSON.stringify(this.mindParams))
-                    const matchedParams = copyMindParams.filter(val => val.key.toLocaleLowerCase() === this.value.toLowerCase());
+                    const copyMindParams = JSON.parse(JSON.stringify(this.mindParams));
+                    const matchedParams = copyMindParams.filter((val) => val.key.toLocaleLowerCase() === this.value.toLowerCase());
                     if (matchedParams[0]) {
-                        matchedParams[0].key = this.value
+                        matchedParams[0].key = this.value;
                         this.$emit("mindParamsSelect", matchedParams[0]);
                     }
-                })
+                });
             }
         },
         handleAutocompleteInput() {
@@ -122,11 +120,9 @@ export default {
         },
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .v-input {

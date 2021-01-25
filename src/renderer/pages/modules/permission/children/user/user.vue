@@ -104,10 +104,10 @@ export default {
                 };
                 this.axios.put("/api/security/user_state", params).then(() => {
                     this.$refs["table"].getData();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
                 });            
-            }).catch(err => {
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }

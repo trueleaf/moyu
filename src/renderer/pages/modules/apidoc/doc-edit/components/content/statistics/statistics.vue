@@ -19,14 +19,15 @@
 </template>
 
 <script>
-import OpenApiTranslator from "./open-api-translator"
 import yaml from "js-yaml"
+import OpenApiTranslator from "./open-api-translator"
+
 export default {
     data() {
         return {
             openApiTranslatorInstance: null,
             loading: false,
-            jsonYaml: ""
+            jsonYaml: "",
         };
     },
     created() {
@@ -41,7 +42,7 @@ export default {
             this.loading = false;
             this.axios.post("/api/project/doc_multi", { docs: moyuDocs, projectId: this.$route.query.id }).then(() => {
                 this.getComponentByName("SDocEditBanner").getDocBanner();
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -51,23 +52,18 @@ export default {
             const file = e.target.files[0];
             const text = await file.text();
             this.jsonYaml = yaml.load(text);
-        }
-
-
-        
+        },
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
 
-        //=====================================组件间交互====================================//  
-        
+        //=====================================组件间交互====================================//
+
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .statistics {

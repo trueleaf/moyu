@@ -8,7 +8,7 @@
     <s-dialog title="数据转换" :isShow="visible" @close="closeModel">
         <el-divider content-position="left">支持标准json,json5</el-divider>
         <div class="d-flex j-end">
-            <el-button type="text" @click="formatJSON">格式化JSON</el-button>   
+            <el-button type="text" @click="formatJSON">格式化JSON</el-button>
         </div>
         <div class="coder-wrap">
             <s-code-editor v-model="jsonParams" type="json" @ready="handleCodeReady"></s-code-editor>
@@ -22,15 +22,16 @@
 
 <script>
 import json5 from "json5"
+
 export default {
     props: {
         visible: {
             type: Boolean,
-            default: false
+            default: false,
         },
         plain: { //为true代表不解析嵌套数据，适用于get请求
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     computed: {
@@ -44,9 +45,7 @@ export default {
             editorInstance: null,
         };
     },
-    mounted() {
-       
-    },
+    mounted() {},
     methods: {
         handleCodeReady(editor) {
             this.editorInstance = editor;
@@ -80,16 +79,15 @@ export default {
                 this.$message.error("无法解析该字符串");
             }
         },
-        /** 
+        /**
          * @description        将对象转换为后台接受的请求参数
          * @author             shuxiaokai
          * @updateAuthor       shuxiaokai
          * @create             2019-11-25 15:14
          * @update             2019-11-25 15:14
-         * @param {object}     obj - 标准对象       
+         * @param {object}     obj - 标准对象
          * @return {object}    符合后台接受规范的数据
-         * 
-         * @example 返回值  
+         * @example 返回值
          *  description: "项目类型名称"
          *  key: "code"
          *  required: true
@@ -97,18 +95,15 @@ export default {
          *  value: "0"
          *  id: "xxx",
          *  children
-         * 
-         * 
          */
         convertObjectToParams(obj) {
             const result = [];
-            const hasOwn = Object.hasOwnProperty;
+            // eslint-disable-next-line no-shadow
             const foo = (obj, result) => {
                 if (this.getType(obj) === "object") {
-                    for(let i in obj) {
-                        if (!hasOwn.call(obj, i)) continue;
+                    Object.keys(obj).forEach((i) => {
                         const valueType = this.getType(obj[i]);
-                        const matchedVal = this.mindResponseParams.find(val => val.key === i);
+                        const matchedVal = this.mindResponseParams.find((val) => val.key === i);
                         const description = matchedVal ? matchedVal.description : ""
                         if (valueType === "string" || valueType === "number" || valueType === "boolean") {
                             result.push({
@@ -118,7 +113,7 @@ export default {
                                 value: obj[i] == null ? "null" : obj[i].toString(),
                                 description,
                                 required: true,
-                                _select: true
+                                _select: true,
                             })
                         } else if (valueType === "object") {
                             const current = {
@@ -128,7 +123,7 @@ export default {
                                 value: "",
                                 required: true,
                                 children: [],
-                                _select: true
+                                _select: true,
                             }
                             result.push(current)
                             foo(obj[i], current.children);
@@ -141,7 +136,7 @@ export default {
                                 required: true,
                                 children: [],
                                 description,
-                                _select: true
+                                _select: true,
                             }
                             result.push(current);
                             if (this.getType(obj[i][0]) === "object") {
@@ -153,14 +148,14 @@ export default {
                                     required: true,
                                     children: [],
                                     description,
-                                    _select: true
+                                    _select: true,
                                 })
                                 foo(obj[i][0], current.children[0].children);
                             } else {
                                 foo(obj[i][0], current.children);
                             }
                         }
-                    }
+                    });
                 } else {
                     const valueType = this.getType(obj);
                     result.push({
@@ -169,14 +164,13 @@ export default {
                         required: true,
                         type: valueType,
                         value: obj,
-                        _select: true
+                        _select: true,
                     })
                 }
             }
             foo(obj, result);
             return result;
         },
-
         generateParams(type = "string") {
             return {
                 id: this.$helper.uuid(),
@@ -186,41 +180,35 @@ export default {
                 description: "", //------描述
                 required: true, //-------是否必填
                 children: [], //---------子参数
-                _select: true
+                _select: true,
             };
         },
         //获取参数类型
         getType(value) {
+            let result = "string";
             if (typeof value === "string") {
-                return "string"
+                result = "string"
             } else if (typeof value === "number") { //NaN
-                return "number"
+                result = "number"
             } else if (typeof value === "boolean") {
-                return "boolean"
+                result = "boolean"
             } else if (Array.isArray(value)) {
-                return "array"
+                result = "array"
             } else if (typeof value === "object" && value !== null) {
-                return "object"
+                result = "object"
             } else { // null undefined ...
-                return "string"
+                result = "string"
             }
+            return result;
         },
         //=========================================================================//
-        /* 
-            @description  关闭弹窗
-            @author        shuxiaokai
-            @create       2019-10-19 22:39"
-            @params       null
-            @return       null
-        */
+        //关闭弹窗
         closeModel() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .coder-wrap {

@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div 
-            class="collapse-card" 
+    <div
+            class="collapse-card"
             :class="{shadow: shadow}"
             :style="{ width: width }"
     >
@@ -14,12 +14,12 @@
             <div class="head" @click="showContent = !showContent">
                 <template v-if="!disabled">
                     <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
-                    <span v-else class="el-icon-caret-bottom mr-2"></span> 
+                    <span v-else class="el-icon-caret-bottom mr-2"></span>
                 </template>
                 <template v-else>
                     <svg class="disabled-icon mr-2" aria-hidden="true">
                         <use xlink:href="#iconweibiaoti-"></use>
-                    </svg>  
+                    </svg>
                 </template>
                 <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
                 <slot v-else name="head">{{ title }}</slot>
@@ -27,7 +27,7 @@
             <slot name="operation"></slot>
             <div class="tail">
                 <slot name="tail"></slot>
-            </div>            
+            </div>
         </header>
         <section v-show="!disabled && showContent" ref="content" class="content">
             <slot></slot>
@@ -40,27 +40,27 @@ export default {
     props: {
         title: { // card头部标题
             type: String,
-            default: ""
+            default: "",
         },
         width: { //宽度
             type: String,
-            default: "100%"
+            default: "100%",
         },
         inline: {
             type: Boolean,
-            default: false
+            default: false,
         },
         titleColor: {
             type: String,
-            default: "#444"
+            default: "#444",
         },
         fold: { //默认是否折叠
             type: Boolean,
-            default: false
+            default: false,
         },
         shadow: {
             type: Boolean,
-            default: false
+            default: false,
         },
         disabled: { //是否禁用，禁用后内容区域不显示
             type: Boolean,
@@ -72,14 +72,13 @@ export default {
         },
     },
     watch: {
-        fold(val) {
-            console.log(val)
+        fold() {
             this.showContent = !this.fold;
-        }
+        },
     },
     data() {
         return {
-            showContent: true
+            showContent: true,
         };
     },
     mounted() {
@@ -88,12 +87,10 @@ export default {
     methods: {
         expand() {
             this.showContent = true;
-        }
-    }
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .collapse-card {
@@ -122,7 +119,7 @@ export default {
             border-right: 1px solid $gray-300;
             &:hover {
                 background: $gray-300;
-            }            
+            }
         }
         .title {
             max-width: size(300);
@@ -143,7 +140,7 @@ export default {
                 cursor: not-allowed;
                 &:hover {
                     background: none;
-                } 
+                }
             }
         }
     }

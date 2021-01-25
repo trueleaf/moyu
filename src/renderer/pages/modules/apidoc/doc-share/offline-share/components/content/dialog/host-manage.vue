@@ -114,7 +114,7 @@ export default {
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddHost() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate(valid => {
                 if (valid) {
                     this.loading = true;
                     const params = {
@@ -127,7 +127,7 @@ export default {
                         this.successLoading = true;
                         this.$refs["table"].getData();
                         this.$emit("change");
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
@@ -165,7 +165,7 @@ export default {
                 this.$message.success("修改成功");
                 this.isEditing = false;
                 this.$emit("change");
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
@@ -186,7 +186,7 @@ export default {
                 this.axios.delete("api/project/doc_service", { data: { ids: [_id] }}).then(() => {
                     this.$refs["table"].getData();
                     this.$emit("change");
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
                 }).finally(() => {
                     this.isEditing = false;

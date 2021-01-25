@@ -20,7 +20,7 @@
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
                 <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.queryParams }}</pre>
-            </div>            
+            </div>
         </s-loading>
         <div class="view-area">
             <s-overview></s-overview>
@@ -29,17 +29,18 @@
 </template>
 
 <script>
-import axios from "axios" 
+import axios from "axios"
 import mixin from "./mixin" //公用数据和函数
-import hostManage from "./components/host/host" //---------------------------------请求地址列表
-import requestOperationManage from "./components/request-operation/request-operation" //--------请求操作和url管理
-import requestQueryParams from "./components/request-params/query" //查询字符串
-import requestBodyParams from "./components/request-params/body" //body请求参数
-import responseParams from "./components/response-params/response-params" //返回参数
-import headerParams from "./components/header-params" //请求头
-import remark from "./components/remark/remark" //备注信息
-import overview from "./components/overview/overview" //展示区域
-const CancelToken = axios.CancelToken;
+import hostManage from "./components/host/host.vue" //---------------------------------请求地址列表
+import requestOperationManage from "./components/request-operation/request-operation.vue" //--------请求操作和url管理
+import requestQueryParams from "./components/request-params/query.vue" //查询字符串
+import requestBodyParams from "./components/request-params/body.vue" //body请求参数
+import resParams from "./components/response-params/response-params.vue" //返回参数
+import headerParams from "./components/header-params/header-params.vue" //请求头
+import remark from "./components/remark/remark.vue" //备注信息
+import overview from "./components/overview/overview.vue" //展示区域
+
+const { CancelToken } = axios;
 //=========================================================================//
 export default {
     name: "APIDOC_CONTENT",
@@ -49,7 +50,7 @@ export default {
         "s-request-operation-manage": requestOperationManage,
         "s-request-query-params": requestQueryParams,
         "s-request-body-params": requestBodyParams,
-        "s-response-params": responseParams,
+        "s-response-params": resParams,
         "s-header-params": headerParams,
         "s-remark": remark,
         "s-overview": overview,
@@ -63,7 +64,7 @@ export default {
                 }
             },
             deep: true,
-            immediate: true
+            immediate: true,
         },
     },
     computed: {
@@ -90,24 +91,22 @@ export default {
             cancel: [], //----请求列表
         };
     },
-    mounted() {
-        
-    },
+    mounted() {},
     methods: {
         //=====================================获取数据====================================//
         //查看是否存在缓存
         checkCache(currentDoc) {
             //不管有没有缓存，都取消上一次的请求
             if (this.cancel.length > 0) {
-                this.cancel.forEach(c => {
+                this.cancel.forEach((c) => {
                     c("取消请求");
                 })
             }
             if (currentDoc.changed) { //存在缓存直接应用缓存
-                this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
+                this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    Promise.all([this.$refs["query"].selectChecked(), this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                    Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -117,7 +116,7 @@ export default {
                             this.syncRequestParams();
                             this.diffEditParams();
                         }), {
-                            deep: true
+                            deep: true,
                         })
                     })
                 });
@@ -133,10 +132,10 @@ export default {
             }
             const params = {
                 _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id
+                projectId: this.$route.query.id,
             };
             if (this.cancel.length > 0) {
-                this.cancel.forEach(c => {
+                this.cancel.forEach((c) => {
                     c("取消请求");
                 })
             }
@@ -147,8 +146,8 @@ export default {
                 params,
                 cancelToken: new CancelToken((c) => {
                     this.cancel.push(c);
-                })
-            }).then(res => {
+                }),
+            }).then((res) => {
                 if (res === undefined) { //取消接口
                     return
                 }
@@ -163,7 +162,7 @@ export default {
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
-                Promise.all([this.$refs["query"].selectChecked(),  this.$refs["body"].selectChecked(), this.$refs["header"].selectChecked()]).catch((err) => {
+                Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -173,10 +172,10 @@ export default {
                         this.syncRequestParams();
                         this.diffEditParams();
                     }), {
-                        deep: true
+                        deep: true,
                     })
                 })
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.$store.commit("apidoc/changeApidocLoading", false);
@@ -188,19 +187,19 @@ export default {
             this.$confirm("当前接口不存在，可能已经被删除!", "提示", {
                 confirmButtonText: "关闭接口",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 this.$store.commit("apidoc/deleteTabById", {
                     projectId: this.$route.query.id,
-                    deleteIds: [this.currentSelectDoc._id]
+                    deleteIds: [this.currentSelectDoc._id],
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
                         activeNode: this.tabs[this.tabs.length - 1],
                     });
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -216,10 +215,7 @@ export default {
                 return lastIsEmpty;
             }
             const request = resData.item;
-            const queryParams = request.queryParams;
-            const requestBody = request.requestBody;
-            const responseParams = request.responseParams;
-            const headers = request.headers;
+            const { queryParams, requestBody, responseParams, headers } = request;
             if (lastItemIsEmpty(queryParams)) {
                 queryParams.push(this.generateProperty());
             }
@@ -229,7 +225,7 @@ export default {
             if (lastItemIsEmpty(headers)) {
                 headers.push(this.generateProperty());
             }
-            responseParams.forEach(response => {
+            responseParams.forEach((response) => {
                 if (lastItemIsEmpty(response.values)) {
                     response.values.push(this.generateProperty());
                 }
@@ -238,9 +234,9 @@ export default {
         //同步请求数据
         syncRequestParams() {
             this.db.findByIdAndUpdate("apidoc_doc", this.currentSelectDoc._id, {
-                docs: this.apidocInfo
+                docs: this.apidocInfo,
             });
-            let savedDocInfo = JSON.parse(localStorage.getItem("apidoc/docInfo") || "{}");
+            const savedDocInfo = JSON.parse(localStorage.getItem("apidoc/docInfo") || "{}");
             if (!savedDocInfo[this.currentSelectDoc._id]) {
                 savedDocInfo[this.currentSelectDoc._id] = {};
             }
@@ -250,31 +246,30 @@ export default {
         //对比填写参数是否发送变化
         diffEditParams() {
             //挑选参数字段需要对比的参数
-            const pickerProperty = (property) => {
-                return {
-                    key: property.key,
-                    type: property.type,
-                    description: property.description,
-                    value: property.value,
-                    required: property.required,
-                    _select: property._select,
-                };
-            }
+            const pickerProperty = (property) => ({
+                key: property.key,
+                type: property.type,
+                description: property.description,
+                value: property.value,
+                required: property.required,
+                _select: property._select,
+            });
             //挑选整个接口文档需要对比的参数
             const pickerValidDiffParams = (docInfo) => {
-                return {
+                const result = {
                     info: docInfo.info,
                     item: {
                         method: docInfo.item.method,
                         url: docInfo.item.url,
-                        paths: docInfo.item.paths.map(val => pickerProperty(val)),
-                        queryParams: docInfo.item.queryParams.map(val => pickerProperty(val)),
-                        requestBody: docInfo.item.requestBody.map(val => pickerProperty(val)),
-                        responseParams: docInfo.item.responseParams.map(val => pickerProperty(val)),
-                        headers: docInfo.item.headers.map(val => pickerProperty(val)),
+                        paths: docInfo.item.paths.map((val) => pickerProperty(val)),
+                        queryParams: docInfo.item.queryParams.map((val) => pickerProperty(val)),
+                        requestBody: docInfo.item.requestBody.map((val) => pickerProperty(val)),
+                        responseParams: docInfo.item.responseParams.map((val) => pickerProperty(val)),
+                        headers: docInfo.item.headers.map((val) => pickerProperty(val)),
                         contentType: docInfo.item.contentType,
                     },
                 }
+                return result;
             }
             const diffOriginApidocInfo = pickerValidDiffParams(this.originApidocInfo);
             const diffApidocInfo = pickerValidDiffParams(this.apidocInfo);
@@ -282,20 +277,18 @@ export default {
             if (isEqual) {
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
-                    changed: false
+                    changed: false,
                 });
             } else {
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     projectId: this.$route.query.id,
-                    changed: true
+                    changed: true,
                 });
             }
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .edit-content {

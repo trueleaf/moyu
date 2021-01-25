@@ -13,23 +13,23 @@
         </div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
-            <el-tree 
+            <el-tree
                     ref="docTree"
-                    :data="navTreeData" 
-                    node-key="_id" 
+                    :data="navTreeData"
+                    node-key="_id"
                     empty-text="暂无数据"
                     :default-expanded-keys="defaultExpandedKeys"
-                    :expand-on-click-node="true" 
+                    :expand-on-click-node="true"
                     :draggable="enableDrag"
                     :filter-node-method="filterNode"
                     @node-expand="clearContextmenu"
                     @node-collapse="clearContextmenu"
-                    @node-click="handleNodeClick" 
+                    @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
-                    <div 
+                    <div
                             class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find(val => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
                             tabindex="1"
                             @click="handleClickNode($event, scope)"
                             @mouseover="hoverNodeId = scope.data._id"
@@ -61,12 +61,9 @@
 </template>
 
 <script>
-import { debounce } from "@/lib/index"
+import { debounce } from "@/lib/index";
 
 export default {
-    components: {
-        
-    },
     computed: {
         navTreeData() { //----树形导航数据
             return this.$store.state.apidoc.banner;
@@ -85,8 +82,8 @@ export default {
                     this.defaultExpandedKeys.splice(0, 1, val._id);
                 }
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
     data() {
         return {
@@ -111,7 +108,7 @@ export default {
         //=====================================初始化相关====================================//
         init() {
             this.loading = true;
-            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).catch(err => {
+            this.$store.dispatch("apidoc/getDocBanner", { _id: this.$route.query.id }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
@@ -120,15 +117,14 @@ export default {
                 // e.stopPropagation();
                 this.clearContextmenu();
                 this.multiSelectNode = [];
-            })
+            });
         },
         //=====================================导航操作==================================//
-      
         //点击节点
-        handleClickNode(e, { node },) {
+        handleClickNode(e, { node }) {
             if (this.pressCtrl) {
                 e.stopPropagation();
-                const delIndex = this.multiSelectNode.findIndex(val => val._id === node.data._id);
+                const delIndex = this.multiSelectNode.findIndex((val) => val._id === node.data._id);
                 if (delIndex !== -1) {
                     this.multiSelectNode.splice(delIndex, 1);
                 } else {
@@ -136,14 +132,13 @@ export default {
                 }
             }
         },
-      
         //点击节点
         handleNodeClick(data, node) {
             if (!node.data.isFolder) { //文件夹不做处理
                 this.$store.commit("apidoc/addTab", node.data);
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
-                    activeNode: node.data
+                    activeNode: node.data,
                 });
             }
             this.clearContextmenu();
@@ -160,24 +155,24 @@ export default {
                 projectId: this.$route.query.id,
                 url: this.queryData.trim()
             };
-            this.axios.get("/api/project/filter_doc", { params }).then(res => {
+            this.axios.get("/api/project/filter_doc", { params }).then((res) => {
                 if (res.data.length === 0) {
                     this.defaultExpandedKeys = [];
                     this.searchResult = [];
                 } else {
-                    this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(res.data.map(val => val._id))))
-                    this.searchResult = Array.from(new Set(this.searchResult.concat(res.data.map(val => val))));                    
+                    this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(res.data.map((val) => val._id))))
+                    this.searchResult = Array.from(new Set(this.searchResult.concat(res.data.map((val) => val))));
                 }
                 this.$refs.docTree.filter();
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
             });
         }),
         filterNode(value, data) {
-            const matchName = !!this.searchResult.find(val => val.docName === data.label);
-            const matchUrl = !!this.searchResult.find(val => val._id === data._id);
+            const matchName = !!this.searchResult.find((val) => val.docName === data.label);
+            const matchUrl = !!this.searchResult.find((val) => val._id === data._id);
             const matchAll = this.queryData.trim() === "";
             return matchName || matchUrl || matchAll;
         },
@@ -188,7 +183,7 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds: deleteIds
             });
-            if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
                     activeNode: this.tabs[this.tabs.length - 1],

@@ -2,9 +2,10 @@ import Vue from "vue";
 import Vuex from "vuex";
 import userInfo from "./userInfo/userInfo";
 import components from "./components/components";
-// import permission from "./permission/permission";
-// import apidoc from "./apidoc/apidoc";
-// import apidocRules from "./apidoc/apidoc-rules";
+import permission from "./permission/permission";
+import apidoc from "./apidoc/apidoc";
+import apidocRules from "./apidoc/apidoc-rules";
+
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -13,9 +14,9 @@ const store = new Vuex.Store({
     modules: {
         userInfo,
         components,
-        // permission,
+        permission,
         apidoc,
-        // apidocRules,
+        apidocRules,
     },
     strict: false,
 });

@@ -101,7 +101,7 @@ export default {
         },
         presetParamsList() { //----预设参数列表
             const allTemplateList = this.$store.state.apidoc.presetParamsList;
-            return allTemplateList.filter(val => val.presetParamsType === "request");
+            return allTemplateList.filter((val) => val.presetParamsType === "request");
         },
     },
     watch: {
@@ -131,7 +131,7 @@ export default {
             return new Promise((resolve, reject) => {
                 this.$refs["paramsTree"].selectAll().then(() => {
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     reject(err)
                 });
             })
@@ -140,7 +140,7 @@ export default {
             return new Promise((resolve, reject) => {
                 this.$refs["paramsTree"].selectChecked().then(() => {
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     reject(err)
                 });
             })
@@ -154,7 +154,7 @@ export default {
         },
         //将json转换为标准请求格式
         handleConvertJsonToParams(params) {
-            params.forEach(val => {
+            params.forEach((val) => {
                 const matchMindParams = this.mindParams.mindRequestParams.find(p => p.key === val.key)
                 if (matchMindParams) {
                     val.description = matchMindParams.description;
@@ -181,7 +181,7 @@ export default {
                 currentLocalData[this.$route.query.id] = [];
             }
             
-            const findDoc = currentLocalData[this.$route.query.id].find(val => val._id === template._id);
+            const findDoc = currentLocalData[this.$route.query.id].find((val) => val._id === template._id);
             if (!findDoc) {
                 currentLocalData[this.$route.query.id].push(template)
             } else {
@@ -191,7 +191,7 @@ export default {
                 findDoc.selectNum ++;                
             }
             localStorage.setItem("pages/presetParams/request", JSON.stringify(currentLocalData))
-            const preParams = template.items.filter(val => val.key !== "" && val.value !== "");
+            const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
             const reqParams = this.request.requestParams;
             for(let i = 0, len = preParams.length; i < len; i++) {
                 const element = preParams[i];
@@ -199,7 +199,7 @@ export default {
                     console.log(222, element.type, element.key, element.value)
                     continue;
                 }
-                if (!reqParams.find(val => val.key === element.key)) {
+                if (!reqParams.find((val) => val.key === element.key)) {
                     element.id = element._id;
                     reqParams.unshift(element);
                     this.$refs["requestParams"].selectAll()

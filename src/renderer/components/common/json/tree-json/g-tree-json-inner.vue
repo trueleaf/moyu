@@ -23,7 +23,7 @@
                         <span class="symbol">,</span>
                         <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
                         <span v-if="item.required" class="comment">(必填)</span>
-                    </span>                      
+                    </span>
                 </template>
                 <template v-if="!checkbox">
                     <span>
@@ -38,7 +38,7 @@
                         <span class="symbol">,</span>
                         <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
                         <span v-if="item.required" class="comment">(必填)</span>
-                    </span>  
+                    </span>
                 </template>
             </template>
             <!-- 对象和数组类型 -->
@@ -65,7 +65,7 @@
                             <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
                         </template>
                         <span class="symbol">,</span>
-                    </span>                                        
+                    </span>
                 </template>
                 <template v-if="!checkbox">
                     <span>
@@ -89,7 +89,7 @@
                             <s-ellipsis-content :max-width="valueWidth" v-if="item.type === 'boolean'" class="boolean-value" :value="item.value"></s-ellipsis-content>
                         </template>
                         <span class="symbol">,</span>
-                    </span> 
+                    </span>
                 </template>
             </template>
             <!-- 文件类型 -->
@@ -104,10 +104,10 @@
                             </s-popover-file>
                             <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
                         </span>
-                        <span class="symbol">,</span>   
+                        <span class="symbol">,</span>
                         <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
                         <span v-if="item.required" class="comment">(必填)</span>
-                    </span>                                       
+                    </span>
                 </template>
                 <template v-if="!checkbox">
                     <span>
@@ -119,10 +119,10 @@
                             </s-popover-file>
                             <s-ellipsis-content v-if="item._fileInfo" :max-width="200" class="white" :value="item._fileInfo.mime"></s-ellipsis-content>
                         </span>
-                        <span class="symbol">,</span>   
+                        <span class="symbol">,</span>
                         <s-ellipsis-content :max-width="valueWidth" v-show="item.type !== 'object' || item.type !== 'array'" ref="comment" class="comment" :value="`${item.description ? '//' + item.description : ''}`"></s-ellipsis-content>
                         <span v-if="item.required" class="comment">(必填)</span>
-                    </span>   
+                    </span>
                 </template>
             </template>
         </div>
@@ -131,7 +131,8 @@
 </template>
 
 <script>
-import { dfsForest } from "@/lib/index"
+import { dfsForest } from "@/lib/index";
+
 export default {
     name: "STreeJson",
     props: {
@@ -139,19 +140,19 @@ export default {
             type: [Object, Array],
             default() {
                 return {};
-            }
+            },
         },
         level: {
             type: Number,
-            default: 0
+            default: 0,
         },
         indent: {
             type: Number,
-            default: 20
+            default: 20,
         },
         path: {
             type: String,
-            default: ""
+            default: "",
         },
         options: {
             type: Object,
@@ -160,54 +161,48 @@ export default {
                     key: "key",
                     value: "value",
                     type: "type",
-                    description: "description"
-                }
-            }
+                    description: "description",
+                };
+            },
         },
         isArray: {
             type: Boolean,
-            default: false
+            default: false,
         },
         type: {
             type: String,
-            default: ""
+            default: "",
         },
         valueWidth: {
             type: String,
-            default: "200px"
+            default: "200px",
         },
         checkbox: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
     watch: {
         data: {
             handler(val) {
                 // console.log(222, val)
-                if (val && this.$refs["comment"] && this.$refs["comment"].length > 0) {
-                    this.$refs["comment"].forEach(commentDom => {
-                        // const previouseElementSiblingOffsetLeft = commentDom.$el.previousElementSibling.offsetLeft;
-                        commentDom.$el.style.marginLeft = 5 + "px"
+                if (val && this.$refs.comment && this.$refs.comment.length > 0) {
+                    this.$refs.comment.forEach((commentDom) => {
+                        commentDom.$el.style.marginLeft = "5px";
                     });
                 }
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
     data() {
-        return { 
-        };
+        return {};
     },
-    mounted() {
-        
-    },
+    mounted() {},
     methods: {
-        
         //多选框
         handleChangeCheckbox(node) {
-            const children = node.children;
-            // console.log(22, children, this.data)
+            const { children } = node;
             if (Array.isArray(children)) {
                 dfsForest(children, {
                     rCondition(value) {
@@ -215,18 +210,17 @@ export default {
                     },
                     rKey: "children",
                     hooks: (val) => {
-                        this.$set(val, "_select", node._select)
-                    }
+                        // eslint-disable-next-line no-underscore-dangle
+                        this.$set(val, "_select", node._select);
+                    },
                 });
             }
         },
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .tree-json-inner {

@@ -72,17 +72,17 @@ export default {
         visible: {
             type: Boolean,
             default: false,
-        }
+        },
     },
     data() {
         return {
             //=====================================新建项目====================================//
             formInfo: {
-                projectName: "",//----项目名称
-                remark: "",//---------项目备注
-            }, 
+                projectName: "", //----项目名称
+                remark: "", //---------项目备注
+            },
             rules: {
-                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }]
+                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
             }, //----------------------新增项目校验规则
             remoteMembers: [], //------远程用户列表
             selectUserData: [], //-----已选中的用户
@@ -101,83 +101,79 @@ export default {
         getRemoteUserByName(query) {
             this.loading = true;
             const params = {
-                name: query
+                name: query,
             };
-            this.axios.get("/api/security/userListByName", { params }).then(res => {
+            this.axios.get("/api/security/userListByName", { params }).then((res) => {
                 this.remoteMembers = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
-            });  
+            });
         },
         //=====================================前后端交互====================================//
         //新增项目
         handleAddProject() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading2 = true;
                     const params = {
                         ...this.formInfo,
-                        members: this.selectUserData.map(val => {
-                            return {
-                                userId: val.userId,
-                                permission: val.permission,
-                                loginName: val.loginName,
-                                realName: val.realName
-                            };
-                        })
+                        members: this.selectUserData.map((val) => ({
+                            userId: val.userId,
+                            permission: val.permission,
+                            loginName: val.loginName,
+                            realName: val.realName,
+                        })),
                     };
                     this.axios.post("/api/project/add_project", params).then((res) => {
                         this.handleClose();
                         this.$emit("success", {
                             id: res.data,
-                            name: this.formInfo.projectName
+                            name: this.formInfo.projectName,
                         });
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading2 = false;
-                    });                    
+                    });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                     this.$message.warning("请完善必填信息");
                     this.loading = false;
                 }
             });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         //选取用户
         handleSelectUser(item) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
-            const hasUser = this.selectUserData.find(val => val.userId === item.userId);
+            const hasUser = this.selectUserData.find((val) => val.userId === item.userId);
             if (hasUser) {
                 this.$message.warning("请勿重复添加");
                 return;
             }
-            this.$set(item, "permission", "readAndWrite")
+            this.$set(item, "permission", "readAndWrite");
             this.selectUserData.push(item);
         },
         //删除成员
         handleDeleteMember(index) {
-            this.selectUserData.splice(index, 1)
+            this.selectUserData.splice(index, 1);
         },
         //=====================================其他操作=====================================//
         //关闭弹窗
         handleClose() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

@@ -108,7 +108,7 @@ export default {
                                         </span>    
                                     </el-popover>
                                 </div>
-                                { this.savedParams.map(val => {
+                                { this.savedParams.map((val) => {
                                     return <el-dropdown-item command={val}>
                                         <span class="d-flex between">
                                             <span>{val.label}</span>
@@ -149,7 +149,7 @@ export default {
             const findNode = (treeData, nodeId) => {
                 for (let i = 0; i < treeData.length; i++) {
                     if (treeData[i].id === nodeId) {
-                        if (parentNode.some(val => !val.key || val.key.trim() === "")) {
+                        if (parentNode.some((val) => !val.key || val.key.trim() === "")) {
                             return;
                         } else {
                             parentNode.push({
@@ -180,7 +180,7 @@ export default {
             if (data.children == null) {
                 this.$set(data, "children", [])
             }
-            // if (data.children.some(val => val.key.trim() === "")) {
+            // if (data.children.some((val) => val.key.trim() === "")) {
             //     return;
             // }
             data.children.push({
@@ -267,9 +267,9 @@ export default {
                 name: queryString.trim().replace(/\\/, ""),
                 projectId: this.$route.query._id
             };
-            this.axios.get("/api/project/doc_params_mind", { params }).then(res => {
+            this.axios.get("/api/project/doc_params_mind", { params }).then((res) => {
                 cb(res.data);                
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },

@@ -37,10 +37,10 @@
                             </span>
                             <el-button slot="tail" type="text" @click.stop="handleOpenClientEditDialog(item)">修改</el-button>
                             <el-button slot="tail" type="text" @click.stop="handleDeleteClientRoute(item)">删除</el-button>
-                        </s-card-list-item>                        
+                        </s-card-list-item>
                     </template>
                     <s-empty v-else></s-empty>
-                </s-card-list>  
+                </s-card-list>
             </div>
             <!-- 后端路由 -->
             <div slot="right">
@@ -51,7 +51,7 @@
                             <el-checkbox-group v-model="serverSelectType">
                                 <el-checkbox v-for="(item, index) in serverTypeArr" :key="index" :label="item.groupName"></el-checkbox>
                                 <el-checkbox label="">_缺省</el-checkbox>
-                            </el-checkbox-group>                            
+                            </el-checkbox-group>
                         </div>
                         <div class="d-flex a-center">
                             <div class="flex0 mr-2">
@@ -75,7 +75,7 @@
                             </span>
                             <el-button slot="tail" type="text" @click.stop="handleOpenServerEditDialog(item)">修改</el-button>
                             <el-button slot="tail" type="text" @click.stop="handleDeleteServerRoute(item)">删除</el-button>
-                        </s-card-list-item>                        
+                        </s-card-list-item>
                     </template>
                     <s-empty v-else></s-empty>
                 </s-card-list>
@@ -93,11 +93,13 @@
 </template>
 
 <script>
-import { unique } from "@/lib"
-import addClientRouteDialog from "./dialog/add-client"
-import editClientRouteDialog from "./dialog/edit-client"
-import addServerRouteDialog from "./dialog/add-server"
-import editServerRouteDialog from "./dialog/edit-server"
+/* eslint-disable no-underscore-dangle */
+import { unique } from "@/lib";
+import addClientRouteDialog from "./dialog/add-client.vue";
+import editClientRouteDialog from "./dialog/edit-client.vue";
+import addServerRouteDialog from "./dialog/add-server.vue";
+import editServerRouteDialog from "./dialog/edit-server.vue";
+
 export default {
     components: {
         "s-add-client-route-dialog": addClientRouteDialog,
@@ -132,20 +134,22 @@ export default {
     },
     computed: {
         _clientRoutes() {
-            return this.clientRoutes.filter(val => {
-                return val.name.includes(this.clientRouteName) && (this.clientSelectType.length === 0 || (this.clientSelectType.length > 0 && this.clientSelectType.includes(val.groupName)));
-            })
+            return this.clientRoutes.filter((val) => {
+                const matchedName = val.name.includes(this.clientRouteName);
+                return matchedName && (this.clientSelectType.length === 0 || (this.clientSelectType.length > 0 && this.clientSelectType.includes(val.groupName)));
+            });
         },
         _serverRoutes() {
-            return this.serverRoutes.filter(val => {
-                return val.name.includes(this.serverRouteName) && (this.serverSelectType.length === 0 || (this.serverSelectType.length > 0 && this.serverSelectType.includes(val.groupName)));
-            })
+            return this.serverRoutes.filter((val) => {
+                const matchedName = val.name.includes(this.serverRouteName);
+                return matchedName && (this.serverSelectType.length === 0 || (this.serverSelectType.length > 0 && this.serverSelectType.includes(val.groupName)));
+            });
         },
         selectServerRoutes() { //已经选中得服务端路由
-            return this.serverRoutes.filter(val => val.__active)
+            return this.serverRoutes.filter((val) => val.__active);
         },
         selectClientRoutes() { //已经选中得前端路由
-            return this.clientRoutes.filter(val => val.__active)
+            return this.clientRoutes.filter((val) => val.__active);
         },
     },
     created() {
@@ -157,10 +161,10 @@ export default {
         //获取前端路由信息
         getClientRoutes() {
             this.loading = true;
-            this.axios.get("/api/security/client_routes").then(res => {
+            this.axios.get("/api/security/client_routes").then((res) => {
                 this.clientRoutes = res.data;
                 this.clientTypeArr = unique(res.data, "groupName");
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -169,16 +173,16 @@ export default {
         //获取后端路由信息
         getServerRoutes() {
             this.loading2 = true;
-            this.axios.get("/api/security/server_routes").then(res => {
+            this.axios.get("/api/security/server_routes").then((res) => {
                 this.serverRoutes = res.data;
                 this.serverTypeArr = unique(res.data, "groupName");
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading2 = false;
             });
         },
-        //=====================================前端路由====================================// 
+        //=====================================前端路由====================================//
         //选择前端路由
         handleSelectClientRoute(item) {
             if (!item.__active) {
@@ -186,7 +190,7 @@ export default {
             } else {
                 item.__active = !item.__active;
             }
-        }, 
+        },
         //搜索前端路由
         handleFilterClientRoute(name) {
             this.clientRouteName = name;
@@ -201,15 +205,15 @@ export default {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = { ids: [item._id] };
                 this.axios.delete("/api/security/client_routes", { data: params }).then(() => {
                     this.getClientRoutes();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                })
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -219,16 +223,14 @@ export default {
         //批量修改前端路由分类
         handleEditClientRouteType() {
             const params = {
-                ids: this.selectClientRoutes.map(val => val._id),
-                groupName: this.clientTypeName
+                ids: this.selectClientRoutes.map((val) => val._id),
+                groupName: this.clientTypeName,
             };
-            this.axios.put("/api/security/client_routes_type", params).then(() => {
-                
-            }).catch(err => {
+            this.axios.put("/api/security/client_routes_type", params).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.clientTypeName = "";
-                this.clientRoutes.forEach(val => {
+                this.clientRoutes.forEach((val) => {
                     val.__active = false;
                 });
                 this.getClientRoutes();
@@ -257,15 +259,15 @@ export default {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = { ids: [item._id] };
                 this.axios.delete("/api/security/server_routes", { data: params }).then(() => {
                     this.getServerRoutes();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                })
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -275,16 +277,14 @@ export default {
         //批量修改分类
         handleEditServerRouteType() {
             const params = {
-                ids: this.selectServerRoutes.map(val => val._id),
-                groupName: this.serverTypeName
+                ids: this.selectServerRoutes.map((val) => val._id),
+                groupName: this.serverTypeName,
             };
-            this.axios.put("/api/security/server_routes_type", params).then(() => {
-                
-            }).catch(err => {
+            this.axios.put("/api/security/server_routes_type", params).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.serverTypeName = "";
-                this.serverRoutes.forEach(val => {
+                this.serverRoutes.forEach((val) => {
                     val.__active = false;
                 });
                 this.getServerRoutes();
@@ -292,11 +292,9 @@ export default {
         },
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .g-permission {

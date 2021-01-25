@@ -11,14 +11,14 @@
             <el-radio-group v-model="formInfo.type">
                 <el-radio label="postman">postman 2.1</el-radio>
                 <el-radio label="moyu">摸鱼文档</el-radio>
-            </el-radio-group>            
+            </el-radio-group>
         </div>
         <div class="mb-5">
             <span>导入方式：</span>
             <el-radio-group v-model="formInfo.cover" size="mini">
                 <el-radio-button :label="true">覆盖方式</el-radio-button>
                 <el-radio-button :label="false">追加方式</el-radio-button>
-            </el-radio-group>            
+            </el-radio-group>
         </div>
         <el-upload
                 class="w-100"
@@ -42,23 +42,21 @@ export default {
     props: {
         visible: { //弹窗是否显示
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
         return {
             formInfo: {
                 type: "moyu",
-                cover: true
+                cover: true,
             }, //-------项目信息
             docs: [], //-----------导入的文档列表
             loading: false, //-----导入第三方加载效果
             jsonText: "",
         };
     },
-    created() {
-        
-    },
+    created() {},
     methods: {
         //=====================================图片上传====================================//
         handleBeforeUpload(file) {
@@ -73,26 +71,23 @@ export default {
             return isJson && isLt10M;
         },
         requestHook(e) {
-            e.file.text().then(jsonText => {
+            e.file.text().then((jsonText) => {
                 this.jsonText = jsonText;
-                console.log(this.jsonText)
-            })
+                console.log(this.jsonText);
+            });
         },
-     
-
         //=====================================原始数据转换====================================//
         convertRawData(data) {
-            data.forEach(val => {
-                val.uuid = val._id
-                val.enabled = true
+            data.forEach((val) => {
+                val.uuid = val._id;
+                val.enabled = true;
                 if (val.item.requestType === "query") {
-                    val.item.requestType = "params"
+                    val.item.requestType = "params";
                 }
-            })
-            console.log(222, data)
+            });
             this.docs = data;
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleSubmit() {
             this.loading = true;
             try {
@@ -101,7 +96,7 @@ export default {
                 } else if (this.formInfo.type === "moyu") {
                     const jsonText = JSON.parse(this.jsonText);
                     this.convertRawData(jsonText.docs);
-                }                
+                }
             } catch (error) {
                 console.error(error);
                 this.loading = false;
@@ -109,7 +104,7 @@ export default {
             this.axios.post("/api/project/doc_multi", { docs: this.docs, projectId: this.$route.query.id }).then(() => {
                 this.$emit("success");
                 this.handleClose();
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -119,11 +114,9 @@ export default {
         handleClose() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .import-doc {

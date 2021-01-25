@@ -8,7 +8,7 @@
     <s-dialog title="保存当前请求参数为模板" :isShow="visible" width="40%" @close="handleClose">
        <s-form ref="form" :formInfo="formInfo">
            <s-form-item label="模板名称" vModel="name" oneLine required></s-form-item>
-       </s-form>  
+       </s-form>
        <div slot="footer">
             <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">确定</el-button>
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
@@ -21,23 +21,23 @@ export default {
     props: {
         visible: { //弹窗是否显示
             type: Boolean,
-            default: false
+            default: false,
         },
         type: { //保存模板类型(请求模板，返回模板)
             type: String,
-            default: ""
+            default: "",
         },
         templateParams: {
             type: Array,
             default() {
                 return [];
-            }
+            },
         },
     },
     data() {
         return {
             formInfo: {},
-            loading: false
+            loading: false,
         };
     },
     created() {
@@ -45,12 +45,11 @@ export default {
     },
     methods: {
         //=====================================获取远程数据==================================//
-       
         //=====================================前后端交互====================================//
 
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleSubmit() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const params = {
                         name: this.formInfo.name,
@@ -62,23 +61,21 @@ export default {
                     this.axios.post("/api/project/doc_preset_params", params).then(() => {
                         this.$emit("success");
                         this.handleClose();
-                    }).catch(err => {
+                    }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         this.loading = false;
                     });
-                } 
+                }
             });
         },
         //=====================================其他操作=====================================//
         handleClose() {
             this.$emit("update:visible", false);
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

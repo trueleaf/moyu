@@ -53,22 +53,6 @@ const allRoutes = [
         },
         component: () => import("@/pages/modules/permission/permission"),
     },
-    {
-        path: "/v1/easycode",
-        name: "代码生成",
-        meta: {
-            title: "代码生成",
-        },
-        component: () => import("@/pages/modules/easycode/easycode"),
-    },
-    {
-        path: "/v1/ci-cd",
-        name: "持续集成",
-        meta: {
-            title: "持续集成",
-        },
-        component: () => import("@/pages/modules/ci-cd/index"),
-    },
 ];
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 const router = new Router({

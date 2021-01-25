@@ -7,13 +7,6 @@
 <template>
     <div class="history-dailog">
         <el-drawer title="查看历史记录" :visible="visible" direction="rtl" size="60%" :before-close="handleClose">
-            <!-- <span v-if="scope.row.docInfo[0].url" class="mr-2">
-                <span v-if="scope.row.docInfo[0].method === 'get'" class="green">GET</span>
-                <span v-else-if="scope.row.docInfo[0].method === 'post'" class="yellow">POST</span>
-                <span v-else-if="scope.row.docInfo[0].method === 'put'" class="blue">PUT</span>
-                <span v-else-if="scope.row.docInfo[0].method === 'delete'" class="red">DEL</span>
-                <span>{{ scope.row.docInfo[0].url }}</span>                            
-            </span> -->
            <!-- 表格展示 -->
            <s-table ref="table" url="/api/docs/docs_history" :index="false" :params="{projectId: $route.query.id}">
                 <el-table-column label="操作详情" header-align="center" show-overflow-tooltip min-width="100px">
@@ -40,7 +33,7 @@
                             <template v-if="scope.row.operation === 'addFolder'">
                                 <svg v-if="scope.row.docInfo[0].isFolder" class="svg-icon mr-1">
                                     <use xlink:href="#icon-folder-empty"></use>
-                                </svg> 
+                                </svg>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                                 <span class="green">++</span>
                             </template>
@@ -53,7 +46,7 @@
                             <template v-if="scope.row.operation === 'deleteDoc'">
                                 <svg class="svg-icon mr-1">
                                     <use xlink:href="#icondel"></use>
-                                </svg> 
+                                </svg>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                                 <span class="red">&nbsp;-&nbsp;-</span>
                             </template>
@@ -61,28 +54,27 @@
                             <template v-if="scope.row.operation === 'deleteFolder'">
                                 <svg v-if="scope.row.docInfo[0].isFolder" class="svg-icon mr-1">
                                     <use xlink:href="#iconshanchuwenjianjia"></use>
-                                </svg> 
+                                </svg>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                                 <span class="red">&nbsp;-&nbsp;-</span>
                             </template>
                             <!-- 删除多个 -->
                             <template v-if="scope.row.operation === 'deleteMany'">
-                                <span class="svg-icon mr-1 red">批</span> 
+                                <span class="svg-icon mr-1 red">批</span>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                                 <span class="red">&nbsp;-&nbsp;-</span>
                             </template>
                             <!-- 修改文档内容 -->
                             <template v-if="scope.row.operation === 'editDoc'">
-                                <span class="svg-icon mr-1 orange">修</span> 
+                                <span class="svg-icon mr-1 orange">修</span>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                             </template>
                             <!-- 改变文档位置 -->
                             <template v-if="scope.row.operation === 'position'">
-                                <span class="svg-icon mr-1 orange">位</span> 
+                                <span class="svg-icon mr-1 orange">位</span>
                                 <span>{{ scope.row.docInfo[0].docName }}</span>
                                 <span class="red">&nbsp;-&nbsp;-</span>
                             </template>
-                            
                         </div>
                    </template>
                 </el-table-column>
@@ -131,7 +123,7 @@ export default {
     props: {
         visible: { //是否现实弹窗
             type: Boolean,
-            default: true
+            default: true,
         },
     },
     data() {
@@ -143,8 +135,10 @@ export default {
     },
     watch: {
         visible() {
-            this.$refs["table"] && this.$refs["table"].getData();
-        }
+            if (this.$refs.table) {
+                this.$refs.table.getData();
+            }
+        },
     },
     created() {
     },
@@ -155,9 +149,9 @@ export default {
             const params = {
                 docId,
             };
-            this.axios.get("/api/docs/docs_records", { params }).then(res => {
+            this.axios.get("/api/docs/docs_records", { params }).then((res) => {
                 this.historyDetail = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
@@ -169,11 +163,9 @@ export default {
             this.$emit("update:visible", false);
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .history-dailog {
@@ -186,8 +178,6 @@ export default {
         justify-content: center;
         border: 1px solid $gray-300;
         border-radius: 50%;
-    }   
+    }
 }
-
-
 </style>

@@ -26,7 +26,7 @@
                 <div class="d-flex j-end">
                     <el-button v-success="successLoading" :loading="loading" type="primary" size="mini" @click="handleAddHost">确认添加</el-button>
                 </div>
-            </el-form>  
+            </el-form>
         </div>
         <!-- 数据展示 -->
         <div slot="right" class="ml-1 flex1">
@@ -74,7 +74,7 @@ export default {
     props: {
         visible: {
             type: Boolean,
-            default: true
+            default: true,
         },
     },
     data() {
@@ -102,31 +102,31 @@ export default {
     },
     methods: {
         getData() {
-            this.$refs["table"].getData();
+            this.$refs.table.getData();
             this.$store.dispatch("apidoc/getDocVariable", {
-                projectId: this.$route.query.id
+                projectId: this.$route.query.id,
             });
         },
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddHost() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
                     const params = Object.assign(this.formInfo, {
-                        projectId: this.$route.query.id
+                        projectId: this.$route.query.id,
                     });
                     this.successLoading = false;
                     this.axios.post("/api/project/project_variable", params).then(() => {
                         this.successLoading = true;
                         this.$emit("change")
                         this.getData();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
-                    });                    
-                } 
+                    });
+                }
             });
         },
         //=====================================修改====================================//
@@ -145,7 +145,7 @@ export default {
                 this.$emit("change")
                 this.getData();
                 this.isEditing = false;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
@@ -161,21 +161,19 @@ export default {
             this.$confirm("此操作将永久删除该域名, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/project_variable", { data: { ids: [_id] }}).then(() => {
+                this.axios.delete("/api/project/project_variable", { data: { ids: [_id] } }).then(() => {
                     this.$message.success("删除成功");
                     this.$emit("change")
                     this.getData();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                });  
-            }).catch(() => {
-                    
+                });
             });
         },
         //=====================================其他操作====================================//
-        /** 
+        /**
             @description  关闭弹窗
             @autor        shuxiaokai
             @create       2019-10-19 22:39"
@@ -184,7 +182,6 @@ export default {
             this.$emit("update:visible", false)
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-

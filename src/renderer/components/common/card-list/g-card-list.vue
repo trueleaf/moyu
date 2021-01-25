@@ -11,7 +11,7 @@
             <div>
                 <span>共</span>
                 <span class="orange">&nbsp;{{ $slots.default ? $slots.default.length : 0 }}&nbsp;</span>
-                <span>条数据</span>                            
+                <span>条数据</span>
             </div>
             <div class="ml-auto">
                 <el-input v-model="name" placeholder="输入名称或者路由" prefix-icon="el-icon-search" size="mini" clearable @input="handleFilterClientRoute"></el-input>
@@ -30,16 +30,16 @@ export default {
         title: {
             //标题
             type: String,
-            default: ""
+            default: "",
         },
         height: {
             type: String,
-            default: "300px"
-        }
+            default: "300px",
+        },
     },
     data() {
         return {
-            name: ""
+            name: "",
         };
     },
     created() {},
@@ -51,11 +51,9 @@ export default {
             this.$emit("search", this.name);
         },
         //=====================================其他操作=====================================//
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .s-card-list {

@@ -16,24 +16,25 @@
 </template>
 
 <script>
-import { debounce } from "@/lib"
+import { debounce } from "@/lib";
+
 export default {
     props: {
         placeholder: { //placeholder
             type: String,
-            default: "请输入..."
+            default: "请输入...",
         },
         remoteMethods: { //远程搜索方法
             type: Function,
-            default: null
+            default: null,
         },
         loading: { //数据加载状态
             type: Boolean,
-            default: false
+            default: false,
         },
         value: { //用于处理v-model
             type: String,
-            default: ""
+            default: "",
         },
     },
     data() {
@@ -52,7 +53,7 @@ export default {
                     this.debounceFn = debounce((query) => {
                         this.getData(query);
                     });
-                } 
+                }
                 this.debounceFn(val);
             }
         },
@@ -61,10 +62,7 @@ export default {
         },
         value(val) {
             this.query = val;
-        }
-    },
-    created() {
-        
+        },
     },
     methods: {
         //=====================================获取远程数据==================================//
@@ -77,17 +75,9 @@ export default {
         handleInput() {
             this.$emit("input", this.query);
         },
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//  
-        
-        //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .remote-select {
@@ -105,7 +95,7 @@ export default {
         &::-webkit-input-placeholder {
             color: $gray-500;
         }
-    }    
+    }
     .select-panel {
         position: absolute;
         left: 0;

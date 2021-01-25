@@ -6,12 +6,12 @@
 */
 <template>
     <div class="params-tree">
-        <el-tree 
+        <el-tree
                 ref="tree"
-                :data="treeData" 
+                :data="treeData"
                 :indent="50"
-                node-key="_id" 
-                :expand-on-click-node="false" 
+                node-key="_id"
+                :expand-on-click-node="false"
                 :draggable="enableDrag"
                 :allow-drop="handleCheckNodeCouldDrop"
                 :show-checkbox="showCheckbox"
@@ -24,7 +24,7 @@
                     <!-- 新增嵌套数据按钮 -->
                     <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="scope.data._readOnly || !nest" @click="addNestTreeData(scope.data)"></el-button>
                     <!-- 删除一行数据按钮 -->
-                    <el-button 
+                    <el-button
                             class="mr-2"
                             :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
                             :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
@@ -34,8 +34,8 @@
                     </el-button>
                     <!-- 参数key值输入框 -->
                     <div class="w-20 mr-2 d-flex a-center">
-                        <s-v-input 
-                                v-model="scope.data.key" 
+                        <s-v-input
+                                v-model="scope.data.key"
                                 size="mini"
                                 :error="scope.data._keyError"
                                 :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
@@ -60,7 +60,7 @@
                         <el-option :disabled="!enableFormData" title="传输数据类型为formData才能使用file类型" label="file" value="file"></el-option>
                     </el-select>
                     <!-- 参数值 -->
-                    <s-v-input 
+                    <s-v-input
                             v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
                             :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
                             title="对象和数组不必填写参数值"
@@ -86,9 +86,9 @@
                     <!-- 参数是否必填 -->
                     <el-checkbox v-model="scope.data.required" :disabled="scope.data._readOnly" label="必有"></el-checkbox>
                     <!-- 参数描述 -->
-                    <s-v-input 
+                    <s-v-input
                             v-model="scope.data.description"
-                            size="mini" 
+                            size="mini"
                             :error="scope.data._descriptionError"
                             :disabled="scope.node.parent.data.type === 'array'"
                             class="w-40 ml-2"
@@ -96,7 +96,7 @@
                             @focus="enableDrag = false"
                             @blur="handleCheckDescription(scope);enableDrag=true">
                     </s-v-input>
-                    <!-- 
+                    <!--
                     <el-select v-if="isFormData && scope.data.type === 'file'" v-model="scope.data.value" placeholder="浏览器限制" size="mini">
                         <el-option label="图片" value="image"></el-option>
                         <el-option label="pdf" value="pdf"></el-option>
@@ -105,13 +105,14 @@
                     -->
                 </div>
             </template>
-        </el-tree> 
-    </div>  
+        </el-tree>
+    </div>
 </template>
 
 <script>
 import { dfsForest } from "@/lib/index"
 import mixin from "../../mixin" //公用数据和函数
+
 export default {
     mixins: [mixin],
     props: {
@@ -119,17 +120,17 @@ export default {
             type: Array,
             default() {
                 return [];
-            }
+            },
         },
         treeData: { //树形数据
             type: Array,
             default() {
                 return []
-            }
+            },
         },
         showCheckbox: { //是否展示checkbox, eg: 请求参数可以进行选择
             type: Boolean,
-            default: false
+            default: false,
         },
         nest: { //是否允许参数嵌套，eg：当请求方式为get时，请求参数只能为扁平数据
             type: Boolean,
@@ -137,7 +138,7 @@ export default {
         },
         enableFormData: { //是否允许formData
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
@@ -150,16 +151,14 @@ export default {
         addNestTip() {
             if (!this.nest) {
                 return "参数不允许嵌套，eg：当请求方式为get时，请求参数只能为扁平数据";
-            } else {
-                return "添加一条嵌套数据";
             }
+            return "添加一条嵌套数据";
         },
         disableTypeTip() {
             if (!this.nest) {
                 return "参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string"
-            } else {
-                return ""
             }
+            return "";
         },
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
@@ -178,33 +177,30 @@ export default {
             }
             data.children.push(params);
             setTimeout(() => { //hack，添加一个数据默认选中当前数据
-                this.$refs["tree"]?.setChecked(params._id, true);
+                this.$refs.tree?.setChecked(params._id, true);
                 this.defaultExpandedKeys.push(params._id);
             })
             data.value = "";
             this.$set(data, "_valueError", {
-                error: false
+                error: false,
             });
             this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
-            if (data.type === "object" || data.type === "array") {
-                return
-            } else { //默认设置为object
+            if (data.type !== "object" && data.type !== "array") {
                 data.type = "object"
             }
-            
         },
         //删除一条数据
         deleteTreeData({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
             if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-                const deleteIndex = parentData.findIndex(val => val._id === data._id);
+                const deleteIndex = parentData.findIndex((val) => val._id === data._id);
                 if (parentData.length - 1 === deleteIndex) { //不允许删除最后一个元素
                     return;
                 }
                 parentData.splice(deleteIndex, 1);
             } else {
-                const deleteIndex = parentData.children.findIndex(val => val._id === data._id);
+                const deleteIndex = parentData.children.findIndex((val) => val._id === data._id);
                 parentData.children.splice(deleteIndex, 1)
             }
         },
@@ -217,10 +213,10 @@ export default {
             val.uuid = this.$helper.uuid();
             //通过快捷参数带出的数据需要把错误校验去掉
             this.$set(data, "_valueError", {
-                error: false
+                error: false,
             })
             this.$set(data, "_descriptionError", {
-                error: false
+                error: false,
             })
             Object.assign(data, val);
         },
@@ -233,35 +229,33 @@ export default {
                     if (parentData[parentData.length - 1].key && parentData[parentData.length - 1].key.trim() !== "") {
                         parentData.push(this.generateProperty());
                     }
-                } else {
-                    if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
-                        parentData.children.push(this.generateProperty());
-                    }
+                } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
+                    parentData.children.push(this.generateProperty());
                 }
-                this.$refs["tree"]?.setChecked(data._id, true);
+                this.$refs.tree?.setChecked(data._id, true);
             }
         },
         //校验key值是否满足规范
         handleCheckKeyField({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要做数据校验 
+            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要做数据校验
                 if (data.key.trim() === "" || data.key.match(/(^\s+)|(\s+$)/)) { //非空校验
                     this.$set(data, "_keyError", {
                         error: true,
-                        message: "不能存在空白字符串"
+                        message: "不能存在空白字符串",
                     })
                 } else {
                     this.$set(data, "_keyError", {
-                        error: false
+                        error: false,
                     })
-                }         
-            } 
-        },    
+                }
+            }
+        },
         //=====================================type操作====================================//
         //改变请求参数类型
         handleChangeParamsType(data) {
@@ -272,7 +266,7 @@ export default {
                 data.value = "";
             }
             if (data.type === "number") {
-                const couldConvertToNumber = !isNaN(Number(data.value));
+                const couldConvertToNumber = !Number.isNaN(Number(data.value));
                 if (!couldConvertToNumber) {
                     data.value = "0"
                 }
@@ -284,17 +278,17 @@ export default {
                             return value.children;
                         },
                         rKey: "children",
-                        hooks: (data) => {
-                            data.key = "";
-                            this.$set(data, "_keyError", {
-                                error: false
+                        hooks: (_data) => {
+                            _data.key = "";
+                            this.$set(_data, "_keyError", {
+                                error: false,
                             }); //清除子元素key值校验
-                        }
+                        },
                     });
                 }
                 data.value = "";
                 this.$set(data, "_valueError", {
-                    error: false
+                    error: false,
                 });
                 this.$set(data, "_valuePlaceholder", "对象和数组不必填写参数值");
             } else {
@@ -305,75 +299,73 @@ export default {
         handleCheckValue({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
             const realValue = this.convertVariable(data.value);
-            // console.log(realValue)
             if (data.type === "object" || data.type === "array") { //数据和对象不必校验
                 return;
             }
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验 
-                if (data.type === "number" && !this._isNumberLike(realValue)) {
+            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验
+                if (data.type === "number" && !this.isNumberLike(realValue)) {
                     this.$set(data, "_valueError", {
                         error: true,
-                        message: "参数值必须为数字类型"
+                        message: "参数值必须为数字类型",
                     });
                 } else if (realValue == null) {
                     this.$set(data, "_valueError", {
                         error: true,
-                        message: "不能为null或者undefined"
+                        message: "不能为null或者undefined",
                     });
                 } else if (realValue.trim() === "" || realValue.match(/(^\s+)|(\s+$)/)) { //前后不能存在空格中间可以存在空格
                     this.$set(data, "_valueError", {
                         error: true,
-                        message: "不能存在空白字符串"
+                        message: "不能存在空白字符串",
                     });
                 } else {
                     this.$set(data, "_valueError", {
                         error: false,
                     });
-                }     
-            } 
+                }
+            }
         },
         //=====================================参数描述====================================//
         handleCheckDescription({ node, data }) {
             const parentNode = node.parent;
             const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex(val => val._id === data._id) : parentData.children.findIndex(val => val._id === data._id);
+            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
             if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
                 return;
             }
             if (parentData.type === "array") { //父元素为数组不用书写描述
                 return
             }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验 
+            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要坐数据校验
                 if (data.description == null) {
                     this.$set(data, "_descriptionError", {
                         error: true,
-                        message: "不能为null或者undefined"
+                        message: "不能为null或者undefined",
                     })
-                }else if (data.description.trim() === "" || data.description.match(/(^\s+)|(\s+$)/)) { //非空校验
+                } else if (data.description.trim() === "" || data.description.match(/(^\s+)|(\s+$)/)) { //非空校验
                     this.$set(data, "_descriptionError", {
                         error: true,
-                        message: "不能存在空白字符串"
+                        message: "不能存在空白字符串",
                     })
                 } else {
                     this.$set(data, "_descriptionError", {
-                        error: false
+                        error: false,
                     })
-                }                
-            } 
+                }
+            }
         },
         //=====================================file操作====================================//
         handleSelectFile(e, data) {
             const file = e.target.files[0];
             if (file) {
-                file.arrayBuffer().then(res => {
+                file.arrayBuffer().then((res) => {
                     this.$set(data, "_value", res)
                     data.value = file.type;
-                    // console.log(222, res, data)
                 })
             } else {
                 data.value = ""
@@ -386,16 +378,16 @@ export default {
             return new Promise((resolve, reject) => {
                 try {
                     setTimeout(() => {
-                        this.$refs["tree"]?.setCheckedNodes(this.treeData);
+                        this.$refs.tree?.setCheckedNodes(this.treeData);
                         resolve();
-                    })             
+                    });
                 } catch (error) {
                     reject(error)
                 }
             })
-        },  
+        },
         //选中已经checked
-        selectChecked(){
+        selectChecked() {
             return new Promise((resolve, reject) => {
                 try {
                     setTimeout(() => {
@@ -409,24 +401,22 @@ export default {
                                 if (data._select) {
                                     keys.push(data._id);
                                 }
-                            }
+                            },
                         });
-                        this.$refs["tree"]?.setCheckedKeys(keys);
+                        this.$refs.tree?.setCheckedKeys(keys);
                         resolve();
-                    })                    
+                    })
                 } catch (error) {
                     reject(error)
                 }
             })
         },
-       
         //判断是否允许拖拽
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
             if (!this.nest) {
                 return type !== "inner";
-            } else {
-                return true;
             }
+            return true;
         },
         //处理nodedrop
         handleNodeDrop({ data }, dropNode, type) {
@@ -434,11 +424,11 @@ export default {
                 dropNode.data.type = "object";
                 dropNode.data.value = "";
             }
-            this.$refs["tree"]?.setChecked(data._id, true);
+            this.$refs.tree?.setChecked(data._id, true);
         },
         //是否勾选请求参数
         handleCheckChange() {
-            //首先清空所有选中数据  
+            //首先清空所有选中数据
             // dfsForest(this.treeData, {
             //     rCondition(value) {
             //         return value.children;
@@ -448,55 +438,51 @@ export default {
             //         this.$set(data, "_select", false);
             //     }
             // });
-            const checkedNodes = this.$refs["tree"]?.getCheckedNodes();
-            const halfCheckedNodes = this.$refs["tree"]?.getHalfCheckedNodes();
-            checkedNodes.forEach(val => {
+            const checkedNodes = this.$refs.tree?.getCheckedNodes();
+            const halfCheckedNodes = this.$refs.tree?.getHalfCheckedNodes();
+            checkedNodes.forEach((val) => {
                 this.$set(val, "_select", true)
             })
-            halfCheckedNodes.forEach(val => {
+            halfCheckedNodes.forEach((val) => {
                 this.$set(val, "_select", true)
             })
         },
         //改变变量信息
         convertVariable(val) {
             if (val == null) {
-                return;
+                return null;
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
-                    return v.name === matchedData[1];
-                });
+                const varInfo = this.variables.find((v) => v.name === matchedData[1]);
                 if (varInfo) {
                     return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                } else {
-                    return val;
                 }
-            } else {
                 return val;
             }
+            return val;
         },
         //获取参数类型
         getType(value) {
+            let result = "string";
             if (typeof value === "string") {
-                return "string"
+                result = "string"
             } else if (typeof value === "number") { //NaN
-                return "number"
+                result = "number"
             } else if (typeof value === "boolean") {
-                return "boolean"
+                result = "boolean"
             } else if (Array.isArray(value)) {
-                return "array"
+                result = "array"
             } else if (typeof value === "object" && value !== null) {
-                return "object"
+                result = "object"
             } else { // null undefined ...
-                return "string"
+                result = "string"
             }
-        }
-    }
+            return result;
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .params-tree {

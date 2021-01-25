@@ -240,7 +240,7 @@ export default {
                 return
             }
             if (window.SHARE_DATA) {
-                const docData = window.SHARE_DATA.docs.find(val => {
+                const docData = window.SHARE_DATA.docs.find((val) => {
                     return val._id === this.currentSelectDoc._id
                 })
                 this.docInfo = docData;
@@ -252,9 +252,9 @@ export default {
             const params = {
                 projectId: this.$root.$data._shareConfig.id,
             };
-            this.axios.get("/api/project/doc_service", { params }).then(res => {
+            this.axios.get("/api/project/doc_service", { params }).then((res) => {
                 this.hostEnum = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             })
         },
@@ -269,13 +269,13 @@ export default {
                     projectId: this.$root.$data._shareConfig.id,
                     deleteIds: [this.currentSelectDoc._id]
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$root.$data._shareConfig.id,
                         activeNode: this.tabs[this.tabs.length - 1],
                     });
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -308,7 +308,7 @@ export default {
                 console.log(data, 222)
                 this.$store.dispatch("apidoc/sendRequest", { url, method, headers, data }).then(() => {
                     resolve();
-                }).catch(err => {
+                }).catch((err) => {
                     console.error(err);
                     reject(err)
                 }).finally(() => {
@@ -380,7 +380,7 @@ export default {
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
+                const varInfo = this.variables.find((v) => {
                     return v.name === matchedData[1];
                 });
                 if (varInfo) {
