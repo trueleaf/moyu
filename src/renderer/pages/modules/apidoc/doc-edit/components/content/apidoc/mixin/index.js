@@ -101,6 +101,84 @@ export default {
             foo(properties, result, parent);
             return result;
         },
+
+        /**
+         * @description        将json类型数据转换为扁平数据
+         * @author             shuxiaokai
+         * @create             2021-01-26 13:35
+         * @param {json}       jsonData - 任意类型变量
+         * @param {any}         mindParams - 联想参数
+         * @return {String}    返回字符串
+         */
+        convertTreeDataToPlainParams(jsonData, mindParams) {
+            const result = [];
+            const foo = (obj, result) => {
+                if (this.getType(obj) === "object") {
+                    Object.keys(obj).forEach((i) => {
+                        const valueType = this.getType(obj[i]);
+                        const matchedVal = mindParams?.find((val) => val.key === i);
+                        const description = matchedVal ? matchedVal.description : ""
+                        if (valueType === "string" || valueType === "number" || valueType === "boolean") {
+                            const property = this.generateProperty(valueType);
+                            property.key = i;
+                            property.value = obj[i] == null ? "null" : obj[i].toString();
+                            property.description = description;
+                            result.push(property)
+                        } else if (valueType === "object") {
+                            const property = this.generateProperty(valueType);
+                            property.key = i;
+                            property.description = description;
+                            result.push(property)
+                            foo(obj[i], property.children);
+                        } else if (valueType === "array") {
+                            const property = this.generateProperty(valueType);
+                            property.key = i;
+                            property.description = description;
+                            result.push(property);
+                            if (this.getType(obj[i][0]) === "object") {
+                                const property2 = this.generateProperty("object");
+                                property2.description = description;
+                                property.children.push(property2)
+                                foo(obj[i][0], property.children[0].children);
+                            } else {
+                                foo(obj[i][0], property.children);
+                            }
+                        }
+                    });
+                } else {
+                    const valueType = this.getType(obj);
+                    const property = this.generateProperty(valueType);
+                    result.push(property)
+                }
+            }
+            foo(jsonData, result);
+            return result;
+        },
+
+        /**
+         * @description        获取property字段类型
+         * @author             shuxiaokai
+         * @create             2021-01-26 13:38
+         * @param {any}        value - 任意类型变量
+         * @return {string}    返回参数类型
+         */
+        getType(value) {
+            let result = "string";
+            if (typeof value === "string") {
+                result = "string"
+            } else if (typeof value === "number") { //NaN
+                result = "number"
+            } else if (typeof value === "boolean") {
+                result = "boolean"
+            } else if (Array.isArray(value)) {
+                result = "array"
+            } else if (typeof value === "object" && value !== null) {
+                result = "object"
+            } else { // null undefined ...
+                result = "string"
+            }
+            return result;
+        },
         //将变量转换为实际数据
         convertVariable(val) {
             if (val == null) {
