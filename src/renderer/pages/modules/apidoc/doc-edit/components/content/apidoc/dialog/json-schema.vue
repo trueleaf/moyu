@@ -6,7 +6,10 @@
 */
 <template>
     <s-dialog title="数据转换" :isShow="visible" @close="closeModel">
-        <el-divider content-position="left">支持标准json,json5</el-divider>
+        <el-radio-group v-model="convertType">
+            <el-radio label="append">追加</el-radio>
+            <el-radio label="override">替换</el-radio>
+        </el-radio-group>
         <div class="d-flex j-end">
             <el-button type="text" @click="formatJSON">格式化JSON</el-button>
         </div>
@@ -22,27 +25,27 @@
 
 <script>
 import json5 from "json5"
+import mixin from "../mixin/index"
 
 export default {
+    mixins: [mixin],
     props: {
-        visible: {
+        visible: { //是否显示弹窗
             type: Boolean,
             default: false,
         },
-        plain: { //为true代表不解析嵌套数据，适用于get请求
-            type: Boolean,
-            default: false,
-        },
-    },
-    computed: {
-        mindResponseParams() {
-            return this.$store.state.apidoc.mindParams.mindResponseParams;
+        mindParams: { //联想参数
+            type: [Object, Array],
+            default() {
+                return {};
+            },
         },
     },
     data() {
         return {
-            jsonParams: "",
-            editorInstance: null,
+            convertType: "append", //转换方式，追加还是替换
+            jsonParams: "", //json参数
+            editorInstance: null, //编辑器实例
         };
     },
     mounted() {},
@@ -70,136 +73,16 @@ export default {
         // 新增数据参数转换
         addNewParams() {
             try {
-                const convertResult = this.convertObjectToParams(json5.parse(this.jsonParams));
-                convertResult.push(this.generateParams()); //粘贴json默认多追加一行参数
-                this.$emit("success", convertResult);
+                const convertResult = this.convertTreeDataToPlainParams(json5.parse(this.jsonParams), this.mindParams);
+                if (this.convertType === "override") {
+                    convertResult.push(this.generateProperty()); //粘贴json默认多追加一行参数
+                }
+                this.$emit("success", convertResult, this.convertType);
                 this.closeModel();
             } catch (e) {
                 console.error(e);
                 this.$message.error("无法解析该字符串");
             }
-        },
-        /**
-         * @description        将对象转换为后台接受的请求参数
-         * @author             shuxiaokai
-         * @updateAuthor       shuxiaokai
-         * @create             2019-11-25 15:14
-         * @update             2019-11-25 15:14
-         * @param {object}     obj - 标准对象
-         * @return {object}    符合后台接受规范的数据
-         * @example 返回值
-         *  description: "项目类型名称"
-         *  key: "code"
-         *  required: true
-         *  type: "string"
-         *  value: "0"
-         *  id: "xxx",
-         *  children
-         */
-        convertObjectToParams(obj) {
-            const result = [];
-            // eslint-disable-next-line no-shadow
-            const foo = (obj, result) => {
-                if (this.getType(obj) === "object") {
-                    Object.keys(obj).forEach((i) => {
-                        const valueType = this.getType(obj[i]);
-                        const matchedVal = this.mindResponseParams.find((val) => val.key === i);
-                        const description = matchedVal ? matchedVal.description : ""
-                        if (valueType === "string" || valueType === "number" || valueType === "boolean") {
-                            result.push({
-                                id: this.$helper.uuid(),
-                                key: i,
-                                type: valueType,
-                                value: obj[i] == null ? "null" : obj[i].toString(),
-                                description,
-                                required: true,
-                                _select: true,
-                            })
-                        } else if (valueType === "object") {
-                            const current = {
-                                id: this.$helper.uuid(),
-                                key: i,
-                                type: valueType,
-                                value: "",
-                                required: true,
-                                children: [],
-                                _select: true,
-                            }
-                            result.push(current)
-                            foo(obj[i], current.children);
-                        } else if (valueType === "array") {
-                            const current = {
-                                id: this.$helper.uuid(),
-                                key: i,
-                                type: valueType,
-                                value: "",
-                                required: true,
-                                children: [],
-                                description,
-                                _select: true,
-                            }
-                            result.push(current);
-                            if (this.getType(obj[i][0]) === "object") {
-                                current.children.push({
-                                    id: this.$helper.uuid(),
-                                    key: "",
-                                    type: "object",
-                                    value: "",
-                                    required: true,
-                                    children: [],
-                                    description,
-                                    _select: true,
-                                })
-                                foo(obj[i][0], current.children[0].children);
-                            } else {
-                                foo(obj[i][0], current.children);
-                            }
-                        }
-                    });
-                } else {
-                    const valueType = this.getType(obj);
-                    result.push({
-                        id: this.$helper.uuid(),
-                        key: "",
-                        required: true,
-                        type: valueType,
-                        value: obj,
-                        _select: true,
-                    })
-                }
-            }
-            foo(obj, result);
-            return result;
-        },
-        generateParams(type = "string") {
-            return {
-                id: this.$helper.uuid(),
-                key: "", //--------------参数键
-                value: "", //------------参数值
-                type, //-----------------参数值类型
-                description: "", //------描述
-                required: true, //-------是否必填
-                children: [], //---------子参数
-                _select: true,
-            };
-        },
-        //获取参数类型
-        getType(value) {
-            let result = "string";
-            if (typeof value === "string") {
-                result = "string"
-            } else if (typeof value === "number") { //NaN
-                result = "number"
-            } else if (typeof value === "boolean") {
-                result = "boolean"
-            } else if (Array.isArray(value)) {
-                result = "array"
-            } else if (typeof value === "object" && value !== null) {
-                result = "object"
-            } else { // null undefined ...
-                result = "string"
-            }
-            return result;
         },
         //=========================================================================//
         //关闭弹窗

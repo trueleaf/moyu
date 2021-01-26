@@ -12,10 +12,40 @@
             <span>(Params)</span>
         </div>
         <!-- 快捷操作 -->
-        <div slot="operation" class="px-5">
+        <div slot="operation" class="d-flex">
             <!-- json转换 -->
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible = true">
                 <span>json转换</span>
+            </div>
+            <!-- 模板选择 -->
+            <div class="cursor-pointer hover-theme-color mr-3">
+                <el-dropdown ref="dropdown" trigger="click" :show-timeout="0" @command="handleSelectPresetParams">
+                    <div @click.stop.prevent="freshLocalUsefulParams">
+                        <span class="cursor-pointer hover-theme-color">应用模板</span>
+                    </div>
+                    <div slot="dropdown">
+                        <el-dropdown-menu>
+                            <div class="apply-template">
+                                <div class="cyan mb-2">常用</div>
+                                <template v-for="(item, index) in usefulPresetRequestParamsList.slice(0, 3)">
+                                    <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
+                                </template>
+                                <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
+                                <hr>
+                            </div>
+                            <el-dropdown-item v-for="(item, index) in presetParamsList" :key="index" :command="item">
+                                <span class="d-flex j-between">
+                                    <span>{{ item.name }}</span>
+                                    <span class="gray-400">{{ item.creatorName }}</span>
+                                </span>
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </div>
+                </el-dropdown>
+            </div>
+            <!-- 保存为模板 -->
+            <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
+                <span>保存为模板</span>
             </div>
         </div>
         <!-- 参数录入 -->
@@ -28,18 +58,24 @@
         >
         </s-params-tree>
         <!-- 弹窗 -->
-        <s-json-schema :visible.sync="dialogVisible" @success="handleConvertJsonToParams"></s-json-schema>
+        <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.queryParams" @success="handleConvertJsonToParams"></s-json-schema>
+        <s-curd-params-template :visible.sync="dialogVisible2"></s-curd-params-template>
+        <s-params-template :items="queryParams" type="queryParams" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
     </s-collapse-card>
 </template>
 
 <script>
 import paramsTree from "../params-tree/params-tree.vue"
 import jsonSchema from "../../dialog/json-schema.vue"
+import paramsTemplate from "../../dialog/params-template.vue"
+import paramsTemplateCurd from "../../dialog/params-template-curd.vue"
 
 export default {
     components: {
         "s-params-tree": paramsTree,
         "s-json-schema": jsonSchema,
+        "s-params-template": paramsTemplate,
+        "s-curd-params-template": paramsTemplateCurd,
     },
     computed: {
         queryParams: { //请求参数
@@ -53,11 +89,17 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
+        presetParamsList() { //参数模板列表
+            return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "queryParams");
+        },
     },
     data() {
         return {
+            usefulPresetRequestParamsList: [], //常用参数模板
             //=====================================其他参数====================================//
             dialogVisible: false, //将json转换为请求参数弹窗
+            dialogVisible2: false, //模板维护增删改查
+            dialogVisible3: false, //保存当前参数为模板
         };
     },
     methods: {
@@ -77,8 +119,22 @@ export default {
             })
         },
         //将json数据转换为参数
-        handleConvertJsonToParams() {
-
+        handleConvertJsonToParams(result, convertType) {
+            if (convertType === "append") {
+                this.$store.commit("apidoc/unshiftQueryParams", result)
+            } else if (convertType === "override") {
+                this.$store.commit("apidoc/changeQueryParams", result)
+            }
+            this.$refs.paramsTree.selectChecked();
+            console.log(result, convertType);
+        },
+        //选择模板
+        handleSelectPresetParams() {},
+        //每次选择都增加当前选中模板的权重
+        freshLocalUsefulParams() {},
+        //新增模板成功后
+        handleAddParamsTemplate(template) {
+            console.log(template)
         },
         //=====================================其他操作=====================================//
 
@@ -87,5 +143,7 @@ export default {
 </script>
 
 <style lang="scss">
-
+.apply-template {
+    @include apply-template;
+}
 </style>
