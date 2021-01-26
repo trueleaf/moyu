@@ -207,6 +207,16 @@ export default {
         addQueryParams(state, payload) {
             state.apidocInfo.item.queryParams.push(payload);
         },
+        //新增一个或多个查询字符串
+        unshiftQueryParams(state, payload) {
+            if (Array.isArray(payload)) { //新增多个
+                payload.forEach((param) => {
+                    state.apidocInfo.item.queryParams.unshift(param);
+                })
+            } else {
+                state.apidocInfo.item.queryParams.unshift(payload);
+            }
+        },
         //改变requestBody
         changeRequestBody(state, payload) {
             state.apidocInfo.item.requestBody = payload;
