@@ -93,7 +93,7 @@ export default {
                 return null;
             })
             queryStr = queryStr.replace(/&/, "");
-            queryStr = `${queryStr ? "?" : ""}`;
+            queryStr = `${queryStr ? "?" : ""}${queryStr}`;
             return url.host + url.path + queryStr;
         },
         host() {
