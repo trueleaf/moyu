@@ -1,5 +1,6 @@
 @charset "utf-8";
 
+// 接口文档tabs样式
 @mixin tabs {
     height: size(40);
     display: flex;
@@ -32,7 +33,47 @@
     }
 }
 
+// 参数录入快捷方式(应用模板)
+@mixin apply-template {
+    width: size(350);
+    position: sticky;
+    top: 0;
+    background: $white;
+    padding: size(10) size(15) 0;
+    .manage-config {
+        padding: size(0) size(10);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: size(30);
+        background: $theme-color;
+    }
+    .manage-ipt {
+        display: flex;
+        align-items: center;
+        border-top: 1px dashed $gray-400;
+        margin-top: size(10);
+        input {
+            flex: 1;
+            height: size(30);
+            line-height: size(30);
+            border: none;
+            text-indent: 1em;
+            border-right: 1px solid $gray-400;
+        }
+    }
+    .params-item {
+        display: inline-block;
+        padding: size(2) size(10);
+        cursor: pointer;
+        background: $gray-200;
+        margin-left: size(10);
+        &:hover {
+            background: $gray-300;
+        }
 
+    }
+}
 
 
 
