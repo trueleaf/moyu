@@ -24,10 +24,11 @@ export default {
             default: false,
         },
         type: { //保存模板类型(请求模板，返回模板)
-            type: String,
-            default: "",
+            validator(value) {
+                return ["queryParams", "requestBody", "responseParams"].indexOf(value) !== -1;
+            },
         },
-        templateParams: {
+        items: {
             type: Array,
             default() {
                 return [];
@@ -55,7 +56,7 @@ export default {
                         name: this.formInfo.name,
                         presetParamsType: this.type,
                         projectId: this.$route.query.id,
-                        items: this.templateParams,
+                        items: this.items,
                     };
                     this.loading = true;
                     this.axios.post("/api/project/doc_preset_params", params).then(() => {

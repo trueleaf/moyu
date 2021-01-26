@@ -108,18 +108,22 @@
 </template>
 
 <script>
+import paramsTree from "../components/params-tree/params-tree.vue"
+
 export default {
+    components: {
+        "s-params-tree": paramsTree,
+    },
     props: {
         visible: {
             type: Boolean,
             default: false,
         },
-    },
-    computed: {
-        mindParams() { //----------联想参数
-            const mindReq = this.$store.state.apidoc.mindParams.mindRequestParams;
-            const mindRes = this.$store.state.apidoc.mindParams.mindResponseParams;
-            return mindReq.concat(mindRes);
+        mindParams: {
+            type: Array,
+            default() {
+                return [];
+            },
         },
     },
     data() {
