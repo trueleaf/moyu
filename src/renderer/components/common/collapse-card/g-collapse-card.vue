@@ -24,7 +24,9 @@
                 <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
                 <slot v-else name="head">{{ title }}</slot>
             </div>
-            <slot name="operation"></slot>
+            <div class="operation">
+                <slot name="operation"></slot>
+            </div>
             <div class="tail">
                 <slot name="tail"></slot>
             </div>
@@ -128,6 +130,10 @@ export default {
             white-space: nowrap;
             height: size(40);
             line-height: size(40);
+        }
+        .operation {
+            flex: 1;
+            padding: 0 size(20);
         }
         .tail {
             padding-right: size(20);
