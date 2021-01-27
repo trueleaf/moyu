@@ -27,13 +27,13 @@
                         <el-dropdown-menu>
                             <div class="apply-template">
                                 <div class="cyan mb-2">常用</div>
-                                <template v-for="(item, index) in usefulPresetRequestParamsList.slice(0, 3)">
+                                <template v-for="(item, index) in usefulPresetRequestParamsList">
                                     <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
-                                <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
+                                <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                 <hr>
                             </div>
-                            <el-dropdown-item v-for="(item, index) in presetParamsList" :key="index" :command="item">
+                            <el-dropdown-item v-for="(item, index) in queryParamsTemplate" :key="index" :command="item">
                                 <span class="d-flex j-between">
                                     <span>{{ item.name }}</span>
                                     <span class="gray-400">{{ item.creatorName }}</span>
@@ -89,7 +89,7 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
-        presetParamsList() { //参数模板列表
+        queryParamsTemplate() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "queryParams");
         },
     },
@@ -129,12 +129,65 @@ export default {
             console.log(result, convertType);
         },
         //选择模板
-        handleSelectPresetParams() {},
+        handleSelectPresetParams(template) {
+            this.$refs.dropdown.hide();
+            let currentLocalData = localStorage.getItem("apidoc/queryParamsTemplate") || "{}";
+            currentLocalData = JSON.parse(currentLocalData);
+            if (!currentLocalData[this.$route.query.id]) {
+                currentLocalData[this.$route.query.id] = [];
+            }
+            const findDoc = currentLocalData[this.$route.query.id].find((val) => val._id === template._id);
+            if (!findDoc) {
+                currentLocalData[this.$route.query.id].push(template)
+            } else {
+                if (!findDoc.selectNum) {
+                    findDoc.selectNum = 0;
+                }
+                findDoc.selectNum += 1;
+            }
+            localStorage.setItem("apidoc/queryParamsTemplate", JSON.stringify(currentLocalData));
+
+            const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
+            for (let i = 0, len = preParams.length; i < len; i += 1) {
+                const element = preParams[i];
+                const isComplex = element.type !== "object" && element.type !== "array";
+                if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
+                    continue;
+                }
+                if (!this.queryParams.find((val) => val.key === element.key)) {
+                    this.queryParams.unshift(element);
+                    this.$refs.paramsTree.selectChecked()
+                }
+            }
+        },
         //每次选择都增加当前选中模板的权重
-        freshLocalUsefulParams() {},
+        freshLocalUsefulParams() {
+            let currentLocalData = localStorage.getItem("apidoc/queryParamsTemplate") || "{}";
+            currentLocalData = JSON.parse(currentLocalData);
+            currentLocalData = currentLocalData[this.$route.query.id] || [];
+            this.usefulPresetRequestParamsList = currentLocalData.sort((a, b) => a.selectNum - b.selectNum > 0).slice(0, 3)
+        },
         //新增模板成功后
         handleAddParamsTemplate(template) {
             console.log(template)
+            this.$store.commit("apidoc/addPresetParams", template);
+        },
+        //打开模板维护模块
+        handleOpenParamsTemplate() {
+            this.$store.commit("apidoc/addTab", {
+                id: "idParamsTemplate",
+                projectId: this.$route.query.id,
+                name: "参数模板",
+                changed: false,
+                tabType: "paramsTemplate",
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                id: "idParamsTemplate",
+                projectId: this.$route.query.id,
+                name: "参数模板",
+                changed: false,
+                tabType: "paramsTemplate",
+            });
         },
         //=====================================其他操作=====================================//
 

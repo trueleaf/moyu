@@ -60,7 +60,7 @@ export default {
                     };
                     this.loading = true;
                     this.axios.post("/api/project/doc_preset_params", params).then(() => {
-                        this.$emit("success");
+                        this.$emit("success", params);
                         this.handleClose();
                     }).catch((err) => {
                         console.error(err);

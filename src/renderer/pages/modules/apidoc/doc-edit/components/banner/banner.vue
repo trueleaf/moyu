@@ -395,14 +395,21 @@ export default {
                 }
             }
             if (data.type !== "folder") { //文件夹不做处理
-                data.tabType = "doc";
                 this.$store.commit("apidoc/addTab", {
-                        ...data,
-                        projectId: this.$route.query.id,
-                    });
-                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: data._id,
+                    name: data.name,
+                    changed: data.changed,
+                    tail: data.method,
+                    tabType: "doc",
                     projectId: this.$route.query.id,
-                    activeNode: data,
+                });
+                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: data._id,
+                    name: data.name,
+                    changed: data.changed,
+                    tail: data.method,
+                    tabType: "doc",
+                    projectId: this.$route.query.id,
                 });
             }
         },
@@ -446,14 +453,21 @@ export default {
         //点击节点
         handleNodeClick(data, node) {
             if (!node.data.isFolder) { //文件夹不做处理
-                node.data.tabType = "doc";
                 this.$store.commit("apidoc/addTab", {
-                        ...node.data,
-                        projectId: this.$route.query.id,
-                    });
-                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: node.data._id,
+                    name: node.data.name,
+                    changed: node.data.changed,
+                    tail: node.data.method,
+                    tabType: "doc",
                     projectId: this.$route.query.id,
-                    activeNode: node.data,
+                });
+                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: node.data._id,
+                    name: node.data.name,
+                    changed: node.data.changed,
+                    tail: node.data.method,
+                    tabType: "doc",
+                    projectId: this.$route.query.id,
                 });
             }
             this.clearContextmenu();
@@ -476,12 +490,20 @@ export default {
                 if (!res.data.isFolder) { //文件夹不做处理
                     res.data.tabType = "doc";
                     this.$store.commit("apidoc/addTab", {
-                        ...res.data,
+                        _id: res.data._id,
+                        name: res.data.name,
+                        changed: res.data.changed,
+                        tail: res.data.method,
+                        tabType: "doc",
                         projectId: this.$route.query.id,
                     });
                     this.$store.commit("apidoc/changeCurrentTab", {
+                        _id: res.data._id,
+                        name: res.data.name,
+                        changed: res.data.changed,
+                        tail: res.data.method,
+                        tabType: "doc",
                         projectId: this.$route.query.id,
-                        activeNode: res.data,
                     });
                 }
             }).catch((err) => {
@@ -600,8 +622,12 @@ export default {
             });
             if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                 this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: this.tabs[this.tabs.length - 1]._id,
                     projectId: this.$route.query.id,
-                    activeNode: this.tabs[this.tabs.length - 1],
+                    name: this.tabs[this.tabs.length - 1].name,
+                    changed: this.tabs[this.tabs.length - 1].changed,
+                    tail: this.tabs[this.tabs.length - 1].tail,
+                    tabType: "doc",
                 });
             }
         },

@@ -10,9 +10,9 @@
         <div v-show="operations.includes('folder')" class="item-list" @click="handleClickItem('folder')">新建文件夹</div>
         <div v-show="operations.includes('template')" class="item-list" @click="handleClickItem('template')">以模板新建</div>
         <div v-show="operations.includes('rename')" class="item-list" @click="handleClickItem('rename')">重命名</div>
-        <div v-show="operations.includes('copy')" class="item-list" @click="handleClickItem('copy')">复制接口</div>                    
-        <div v-show="operations.includes('delete')" class="item-list" @click="handleClickItem('delete')">删除</div>                    
-        <div v-show="operations.includes('deleteMany')" class="item-list" @click="handleClickItem('deleteMany')">批量删除</div>                    
+        <div v-show="operations.includes('copy')" class="item-list" @click="handleClickItem('copy')">复制接口</div>
+        <div v-show="operations.includes('delete')" class="item-list" @click="handleClickItem('delete')">删除</div>
+        <div v-show="operations.includes('deleteMany')" class="item-list" @click="handleClickItem('deleteMany')">批量删除</div>
     </div>
 </template>
 
@@ -23,21 +23,19 @@ export default {
             type: Array,
             default() {
                 return ["file", "folder"];
-            }
+            },
         },
         left: {
             type: Number,
-            default: 0
+            default: 0,
         },
         top: {
             type: Number,
-            default: 0
+            default: 0,
         },
     },
     data() {
-        return {
-            
-        };
+        return {};
     },
     created() {
 
@@ -69,13 +67,11 @@ export default {
                     break;
                 default:
                     break;
-            } 
+            }
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .ctx-wrap {

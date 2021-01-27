@@ -25,12 +25,13 @@
                     <!-- 接口文档 -->
                     <template v-if="item.tabType === 'doc'">
                         <template v-for="(req) in validRequestMethods">
-                            <span v-if="item.method === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                            <span v-if="item.tail === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
                         </template>
                     </template>
                     <!-- 其他 -->
                     <template v-else>
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                        <span v-if="item.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
@@ -110,7 +111,7 @@ export default {
             });
             this.$store.commit("apidoc/changeCurrentTab", {
                 projectId,
-                activeNode: activeDoc,
+                ...activeDoc,
             });
             //绑定tabs移动事件
             const wrap = this.$refs.tabWrap.$el;
@@ -123,7 +124,7 @@ export default {
         selectCurrentTab(item) {
             this.$store.commit("apidoc/changeCurrentTab", {
                 projectId: this.$route.query.id,
-                activeNode: item,
+                ...item,
             });
         },
         //关闭当前标签
@@ -139,18 +140,17 @@ export default {
                         if (this.tabs[index - 1]) { //选择上一个元素作为
                             this.$store.commit("apidoc/changeCurrentTab", {
                                 projectId: this.$route.query.id,
-                                activeNode: this.tabs[index - 1],
+                                ...this.tabs[index - 1],
                             });
                         } else { //上一个元素不存在则置空
                             this.$store.commit("apidoc/changeCurrentTab", {
                                 projectId: this.$route.query.id,
-                                activeNode: {},
                             });
                         }
                     } else {
                         this.$store.commit("apidoc/changeCurrentTab", {
                             projectId: this.$route.query.id,
-                            activeNode: this.tabs[index],
+                            ...this.tabs[index],
                         });
                     }
                 }
@@ -194,7 +194,7 @@ export default {
                 if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[this.tabs.length - 1],
+                        ...this.tabs[this.tabs.length - 1],
                     });
                 }
             }
@@ -210,7 +210,7 @@ export default {
                 if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[0],
+                        ...this.tabs[0],
                     });
                 }
             }
@@ -230,7 +230,7 @@ export default {
                 });
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
-                    activeNode: this.tabs[0],
+                    ...this.tabs[0],
                 });
             }
         },

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import mixin from "../../mixin" //公用数据和函数
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import paramsTree from "../params-tree/params-tree.vue"
 
 export default {

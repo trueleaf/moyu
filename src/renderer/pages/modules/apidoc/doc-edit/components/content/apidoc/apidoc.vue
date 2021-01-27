@@ -30,7 +30,7 @@
 
 <script>
 import axios from "axios"
-import mixin from "./mixin" //公用数据和函数
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import hostManage from "./components/host/host.vue" //---------------------------------请求地址列表
 import requestOperationManage from "./components/request-operation/request-operation.vue" //--------请求操作和url管理
 import requestQueryParams from "./components/request-params/query.vue" //查询字符串
@@ -195,8 +195,12 @@ export default {
                 });
                 if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
+                        _id: this.tabs[this.tabs.length - 1]._id,
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[this.tabs.length - 1],
+                        name: this.tabs[this.tabs.length - 1].name,
+                        changed: this.tabs[this.tabs.length - 1].changed,
+                        tail: this.tabs[this.tabs.length - 1].tail,
+                        tabType: "doc",
                     });
                 }
             }).catch((err) => {

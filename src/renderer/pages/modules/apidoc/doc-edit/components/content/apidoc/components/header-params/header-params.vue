@@ -19,8 +19,8 @@
 </template>
 
 <script>
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import paramsTree from "../params-tree/params-tree.vue"
-import mixin from "../../mixin" //公用数据和函数
 
 export default {
     mixins: [mixin],

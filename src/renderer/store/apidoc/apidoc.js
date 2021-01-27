@@ -69,7 +69,7 @@ export default {
             state.mindParams.responseParams = payload.responseParams.map((val) => ({ ...val, _id: uuid(), _select: true }));
         },
         //初始化预设参数模板
-        initPresetParams(state, payload) {
+        initAndChangePresetParams(state, payload) {
             state.presetParamsList = payload;
         },
         //=====================================banner====================================//
@@ -148,12 +148,12 @@ export default {
         //=====================================当前选中的tab====================================//
         //更新当前被选中的文档(不能为folder)
         changeCurrentTab(state, payload) {
-            const { projectId, activeNode } = payload;
+            const { projectId } = payload;
             const isInProject = state.activeDoc[projectId]; //当前项目是否存在tabs
             if (!isInProject) {
                 Vue.set(state.activeDoc, projectId, {});
             }
-            state.activeDoc[projectId] = activeNode;
+            state.activeDoc[projectId] = payload;
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
         //改变当前选中tab的基本信息
@@ -250,6 +250,10 @@ export default {
             if (state.apidocInfo.info) { //刚创建的时候info值可能不存在
                 state.apidocInfo.info.description = payload;
             }
+        },
+        //新增一条模板数据
+        addPresetParams(state, payload) {
+            state.presetParamsList.push(payload);
         },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
@@ -358,7 +362,7 @@ export default {
                 };
                 axios.get("/api/project/doc_preset_params_enum", { params }).then((res) => {
                     const result = res.data;
-                    context.commit("initPresetParams", result);
+                    context.commit("initAndChangePresetParams", result);
                     resolve();
                 }).catch((err) => {
                     reject(err);

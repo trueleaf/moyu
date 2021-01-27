@@ -46,8 +46,8 @@
 
 <script>
 import qs from "qs"
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import variableDialog from "../../dialog/variable-manage.vue"
-import mixin from "../../mixin" //公用数据和函数
 // import deepmerge from "deepmerge"
 // import FormData from "form-data/lib/form_data"
 // import FileType from "file-type/browser"
@@ -224,7 +224,9 @@ export default {
         },
         //快捷保存
         shortcutSave(e) {
-            if (this.tabs && this.tabs.length > 0 && e.ctrlKey && e.key === "s" && this.loading2 === false) {
+            const hasTabs = this.tabs && this.tabs.length > 0;
+            const currentTabIsDoc = this.currentSelectDoc.tabType === "doc";
+            if (hasTabs && currentTabIsDoc && e.ctrlKey && e.key === "s" && this.loading2 === false) {
                 e.preventDefault();
                 e.stopPropagation();
                 this.saveRequest()
@@ -465,19 +467,21 @@ export default {
         },
         //打开配置界面
         handleOpenConfigPage() {
-            const configTabInfo = {
+            this.$store.commit("apidoc/addTab", {
                 _id: "idConfig",
                 projectId: this.$route.query.id,
-                docName: "文档全局配置",
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
                 tabType: "config",
-            }
-            this.$store.commit("apidoc/addTab", {
-                projectId: this.$route.query.id,
-                ...configTabInfo,
             });
             this.$store.commit("apidoc/changeCurrentTab", {
+                _id: "idConfig",
                 projectId: this.$route.query.id,
-                activeNode: configTabInfo,
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
+                tabType: "config",
             });
         },
     },
