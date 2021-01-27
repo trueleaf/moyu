@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import hostManage from "../../dialog/host-manage.vue"
+import hostManage from "@/pages/modules/apidoc/doc-edit/dialog/host-manage.vue"
 
 export default {
     components: {

@@ -15,7 +15,6 @@
                     deleteMany
                     deleteUrl="/api/project/doc_preset_params"
                     deleteKey="ids"
-                    @deleteMany="handleDeleteMany"
                 >
                 <el-table-column label="模板名称" align="center">
                     <template slot-scope="scope">
@@ -65,6 +64,12 @@
                                     :mind-params="mindParams[addData.presetParamsType]"
                                 >
                                 </s-params-tree>
+                                <!-- json转换 -->
+                                <div slot="operation">
+                                    <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible = true">
+                                        <span>json转换</span>
+                                    </div>
+                                </div>
                             </s-collapse-card>
                         </div>
                         <div class="d-flex j-end">
@@ -103,19 +108,16 @@
                     </el-form>
                 </el-tab-pane>
             </el-tabs>
+            <!-- <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.queryParams" @success="handleConvertJsonToParams"></s-json-schema> -->
         </div>
     </s-left-right>
 </template>
 
 <script>
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
-import paramsTree from "../apidoc/components/params-tree/params-tree.vue"
 
 export default {
     mixins: [mixin],
-    components: {
-        "s-params-tree": paramsTree,
-    },
     data() {
         return {
             //=================================表单与表格参数================================//
@@ -138,7 +140,8 @@ export default {
             //===================================业务参数====================================//
 
             //===================================其他参数====================================//
-            activeName: "s-add",
+            activeName: "s-add", //当前tab切换状态
+            dialogVisible: false, //json转换弹窗
             loading: false, //----------------------表格加载效果
             loading2: false, //---------------------添加按钮加载效果
         };
@@ -155,10 +158,6 @@ export default {
         //==================================初始化&获取远端数据===============================//
 
         //=====================================前后端交互====================================//
-        //批量删除模板
-        handleDeleteMany() {
-
-        },
         //新增模板
         handleAddTemplate() {
             this.$refs.form.validate((valid) => {
@@ -179,7 +178,20 @@ export default {
                     });
                 }
             });
-            console.log(this.addData)
+        },
+        //修改参数信息
+        handleChangeOpToEdit() {
+            this.activeName = "s-edit"
+        },
+        //将json数据转换为参数
+        handleConvertJsonToParams(result, convertType) {
+            if (convertType === "append") {
+                this.$store.commit("apidoc/unshiftQueryParams", result)
+            } else if (convertType === "override") {
+                this.$store.commit("apidoc/changeQueryParams", result)
+            }
+            this.$refs.paramsTree.selectChecked();
+            console.log(result, convertType);
         },
         //=====================================组件间交互====================================//
 

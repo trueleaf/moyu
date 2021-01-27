@@ -108,12 +108,8 @@
 </template>
 
 <script>
-import paramsTree from "../components/params-tree/params-tree.vue"
 
 export default {
-    components: {
-        "s-params-tree": paramsTree,
-    },
     props: {
         visible: {
             type: Boolean,

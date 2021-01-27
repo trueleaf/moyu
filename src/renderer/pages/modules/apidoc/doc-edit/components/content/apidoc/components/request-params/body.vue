@@ -94,16 +94,14 @@
 
 <script>
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
-import paramsTree from "../params-tree/params-tree.vue"
-import jsonSchema from "../../dialog/json-schema.vue"
-import paramsTemplate from "../../dialog/params-template.vue"
-import paramsTemplateCurd from "../../dialog/params-template-curd.vue"
+import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
+import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
+import paramsTemplateCurd from "@/pages/modules/apidoc/doc-edit/dialog/params-template-curd.vue"
 
 export default {
     name: "REQUEST_BODY",
     mixins: [mixin],
     components: {
-        "s-params-tree": paramsTree,
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
         "s-curd-params-template": paramsTemplateCurd,

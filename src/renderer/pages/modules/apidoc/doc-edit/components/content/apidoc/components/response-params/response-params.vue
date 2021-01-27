@@ -41,13 +41,9 @@
 
 <script>
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
-import paramsTree from "../params-tree/params-tree.vue"
 
 export default {
     mixins: [mixin],
-    components: {
-        "s-params-tree": paramsTree,
-    },
     computed: {
         responseParams: { //请求参数
             get() {

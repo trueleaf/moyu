@@ -65,14 +65,12 @@
 </template>
 
 <script>
-import paramsTree from "../params-tree/params-tree.vue"
-import jsonSchema from "../../dialog/json-schema.vue"
-import paramsTemplate from "../../dialog/params-template.vue"
-import paramsTemplateCurd from "../../dialog/params-template-curd.vue"
+import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
+import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
+import paramsTemplateCurd from "@/pages/modules/apidoc/doc-edit/dialog/params-template-curd.vue"
 
 export default {
     components: {
-        "s-params-tree": paramsTree,
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
         "s-curd-params-template": paramsTemplateCurd,
