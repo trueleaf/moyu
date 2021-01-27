@@ -31,8 +31,10 @@ export default {
                     if (res.data.constructor.name === "Blob") {
                         let jsonData = await res.data.text();
                         jsonData = JSON.parse(jsonData);
+                        // eslint-disable-next-line prefer-destructuring
                         code = jsonData.code;
                     } else {
+                        // eslint-disable-next-line prefer-destructuring
                         code = res.data.code; //自定义请求状态码
                     }
                     /*eslint-disable indent*/
