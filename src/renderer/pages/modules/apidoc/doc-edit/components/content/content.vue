@@ -7,9 +7,14 @@
 <template>
     <div v-if="tabs && tabs.length > 0" class="workbench" tabindex="0">
         <keep-alive>
+            <!-- 文档页面 -->
             <s-apidoc v-if="currentSelectDoc.tabType === 'doc'"></s-apidoc>
+            <!-- 配置页面 -->
             <s-config v-if="currentSelectDoc.tabType === 'config'"></s-config>
+            <!-- 统计页面 -->
             <s-statistics v-if="currentSelectDoc.tabType === 'statistics'"></s-statistics>
+            <!-- 参数模板 -->
+            <s-params-template v-if="currentSelectDoc.tabType === 'paramsTemplate'"></s-params-template>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
@@ -19,12 +24,14 @@
 import apidoc from "./apidoc/apidoc.vue";
 import config from "./config/config.vue";
 import statistics from "./statistics/statistics.vue";
+import paramsTemplate from "./params-template/params-template.vue";
 
 export default {
     components: {
         "s-apidoc": apidoc,
         "s-config": config,
         "s-statistics": statistics,
+        "s-params-template": paramsTemplate,
     },
     data() {
         return {};
