@@ -4,6 +4,7 @@
  * @create             2020-12-07 19:02
  */
 import FileType from "file-type/browser";
+import FormData from "form-data/lib/form_data"
 
 let got = null;
 // let ProxyAgent = null;
@@ -103,13 +104,18 @@ const HttpClient = (() => {
                 if (this.method === "get") { //GET请求body为空，否则请求将被一直挂起
                     body = "";
                 } else {
+                    const formData = new FormData();
                     // eslint-disable-next-line default-case
                     switch (this.contentType) {
                     case "application/json":
                         body = JSON.stringify(this.requestBody);
                         break;
                     case "multipart/form-data":
-                        body = this.requestBody;
+                        Object.keys(this.requestBody).forEach((key) => {
+                            formData.append(key, this.requestBody[key]);
+                        })
+                        console.log(formData)
+                        body = formData;
                         break;
                     case "application/x-www-form-urlencode":
                         body = new URLSearchParams(this.requestBody).toString();
