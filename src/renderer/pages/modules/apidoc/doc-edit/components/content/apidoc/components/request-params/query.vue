@@ -13,9 +13,9 @@
         </div>
         <!-- 快捷操作 -->
         <div slot="operation" class="d-flex">
-            <!-- json转换 -->
+            <!-- 导入参数 -->
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible = true">
-                <span>json转换</span>
+                <span>导入参数</span>
             </div>
             <!-- 模板选择 -->
             <div class="cursor-pointer hover-theme-color mr-3">
