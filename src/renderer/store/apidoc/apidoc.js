@@ -63,10 +63,10 @@ export default {
         },
         //初始化联想参数，输入提示
         initAndChangeMindParams(state, payload) {
-            state.mindParams.paths = payload.paths.map((val) => ({ ...val, _id: uuid(), _select: true }));
-            state.mindParams.queryParams = payload.queryParams.map((val) => ({ ...val, _id: uuid(), _select: true }));
-            state.mindParams.requestBody = payload.requestBody.map((val) => ({ ...val, _id: uuid(), _select: true }));
-            state.mindParams.responseParams = payload.responseParams.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.paths = payload.paths?.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.queryParams = payload.queryParams?.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.requestBody = payload.requestBody?.map((val) => ({ ...val, _id: uuid(), _select: true }));
+            state.mindParams.responseParams = payload.responseParams?.map((val) => ({ ...val, _id: uuid(), _select: true }));
         },
         //初始化预设参数模板
         initAndChangePresetParams(state, payload) {
