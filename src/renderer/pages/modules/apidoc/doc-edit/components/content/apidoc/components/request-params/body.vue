@@ -32,7 +32,7 @@
                                 <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
                                 <hr>
                             </div>
-                            <el-dropdown-item v-for="(item, index) in queryParamsTemplate" :key="index" :command="item">
+                            <el-dropdown-item v-for="(item, index) in templateList" :key="index" :command="item">
                                 <span class="d-flex j-between">
                                     <span>{{ item.name }}</span>
                                     <span class="gray-400">{{ item.creatorName }}</span>
@@ -121,7 +121,7 @@ export default {
                 this.$store.commit("apidoc/changeContentType", val);
             },
         },
-        queryParamsTemplate() { //参数模板列表
+        templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "requestBody");
         },
         mindParams() { //联想参数
@@ -228,17 +228,34 @@ export default {
         //将json数据转换为参数
         handleConvertJsonToParams(result, convertType) {
             if (convertType === "append") {
-                this.$store.commit("apidoc/unshiftQueryParams", result)
+                if (this.contentType === "application/json") {
+                    result.forEach((val) => {
+                        this.jsonBody.unshift(val);
+                    })
+                } else if (this.contentType === "application/x-www-form-urlencoded") {
+                    result.forEach((val) => {
+                        this.formUrlBody.unshift(val);
+                    })
+                } else if (this.contentType === "multipart/form-data") {
+                    result.forEach((val) => {
+                        this.formDataBody.unshift(val);
+                    })
+                }
             } else if (convertType === "override") {
-                this.$store.commit("apidoc/changeQueryParams", result)
+                if (this.contentType === "application/json") {
+                    this.jsonBody = result;
+                } else if (this.contentType === "application/x-www-form-urlencoded") {
+                    this.formUrlBody = result;
+                } else if (this.contentType === "multipart/form-data") {
+                    this.formDataBody = result;
+                }
             }
-            this.$refs.paramsTree.selectChecked();
-            console.log(result, convertType);
+            this.selectChecked();
         },
         //选择模板
         handleSelectPresetParams(template) {
             this.$refs.dropdown.hide();
-            let currentLocalData = localStorage.getItem("apidoc/queryParamsTemplate") || "{}";
+            let currentLocalData = localStorage.getItem("apidoc/requestBodyTemplate") || "{}";
             currentLocalData = JSON.parse(currentLocalData);
             if (!currentLocalData[this.$route.query.id]) {
                 currentLocalData[this.$route.query.id] = [];
@@ -252,7 +269,7 @@ export default {
                 }
                 findDoc.selectNum += 1;
             }
-            localStorage.setItem("apidoc/queryParamsTemplate", JSON.stringify(currentLocalData));
+            localStorage.setItem("apidoc/requestBodyTemplate", JSON.stringify(currentLocalData));
 
             const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
             for (let i = 0, len = preParams.length; i < len; i += 1) {
@@ -261,15 +278,21 @@ export default {
                 if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
                     continue;
                 }
-                if (!this.queryParams.find((val) => val.key === element.key)) {
-                    this.queryParams.unshift(element);
-                    this.$refs.paramsTree.selectChecked()
+                if (!this.requestBody.find((val) => val.key === element.key)) {
+                    if (this.contentType === "application/json") {
+                        this.jsonBody.unshift(element);
+                    } else if (this.contentType === "application/x-www-form-urlencoded") {
+                        this.formUrlBody.unshift(element);
+                    } else if (this.contentType === "multipart/form-data") {
+                        this.formDataBody.unshift(element);
+                    }
+                    this.selectChecked()
                 }
             }
         },
         //每次选择都增加当前选中模板的权重
         freshLocalUsefulParams() {
-            let currentLocalData = localStorage.getItem("apidoc/queryParamsTemplate") || "{}";
+            let currentLocalData = localStorage.getItem("apidoc/requestBodyTemplate") || "{}";
             currentLocalData = JSON.parse(currentLocalData);
             currentLocalData = currentLocalData[this.$route.query.id] || [];
             this.usefulPresetRequestParamsList = currentLocalData.sort((a, b) => a.selectNum - b.selectNum > 0).slice(0, 3)
