@@ -24,7 +24,7 @@
                 <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
                 <slot v-else name="head">{{ title }}</slot>
             </div>
-            <div class="operation">
+            <div v-show="!disabled" class="operation">
                 <slot name="operation"></slot>
             </div>
             <div class="tail">
