@@ -265,10 +265,10 @@ export function dfsForest(forestData, config) {
 
 export function debounce(fn, delay = 300, immediate = false) {
     let timer = null;
-    return function foo() {
+    return function foo(...args) {
         clearTimeout(timer);
         timer = setTimeout(
-            (...args) => {
+            () => {
                 fn.apply(this, args);
             },
             delay,
