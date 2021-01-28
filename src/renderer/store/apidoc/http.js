@@ -128,7 +128,7 @@ const HttpClient = (() => {
                 //收到返回
                 this.instance.on("response", (response) => {
                     this.responseData = response;
-                    const result = this.formatResponse(response);
+                    const result = _HttpClient.formatResponse(response);
                     this.emit("response", result);
                 });
                 //数据获取完毕
