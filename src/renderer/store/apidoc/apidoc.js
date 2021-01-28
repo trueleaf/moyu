@@ -221,6 +221,16 @@ export default {
         changeRequestBody(state, payload) {
             state.apidocInfo.item.requestBody = payload;
         },
+        //新增一个或多个requestBody
+        unshiftBodyParams(state, payload) {
+            if (Array.isArray(payload)) { //新增多个
+                payload.forEach((param) => {
+                    state.apidocInfo.item.requestBody.unshift(param);
+                })
+            } else {
+                state.apidocInfo.item.requestBody.unshift(payload);
+            }
+        },
         //新增一个body查询字符串
         addBodyParams(state, payload) {
             state.apidocInfo.item.bodyParams.push(payload);
