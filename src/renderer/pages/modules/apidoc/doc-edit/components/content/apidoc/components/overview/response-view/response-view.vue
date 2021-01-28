@@ -50,7 +50,7 @@
                         <!-- svg图片 -->
                         <div v-if="response.mime.includes('image/svg+xml')" v-html="response.value"></div>
                         <!-- json格式 -->
-                        <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)" :check-data="responseParams" @export="handleExport"></s-json>
+                        <s-json v-else-if="response.mime.includes('application/json')" :data="JSON.parse(response.value)" @export="handleExport"></s-json>
                         <!-- 其他图片类型 -->
                         <el-image
                             v-else-if="response.mime.includes('image/')"
