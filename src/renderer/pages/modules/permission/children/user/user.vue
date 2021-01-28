@@ -59,12 +59,13 @@
 </template>
 
 <script>
-import addUser from "./add/add"
-import editUser from "./edit/edit"
+import addUser from "./add/add.vue"
+import editUser from "./edit/edit.vue"
+
 export default {
     components: {
-        "s-add-user": addUser, 
-        "s-edit-user": editUser, 
+        "s-add-user": addUser,
+        "s-edit-user": editUser,
     },
     data() {
         return {
@@ -84,29 +85,29 @@ export default {
     methods: {
         //=====================================获取远程数据==================================//
         getData(params) {
-            this.$refs["table"].getData(params);
+            this.$refs.table.getData(params);
         },
         //=====================================前后端交互====================================//
         handleChange(params) {
             this.getData(params);
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleForbidRole(_id, enable) {
             const tipLabel = enable ? "禁用" : "启用";
             this.$confirm(`确实要${tipLabel}该用户吗?`, "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = {
                     _id,
-                    enable: !enable  
+                    enable: !enable,
                 };
                 this.axios.put("/api/security/user_state", params).then(() => {
-                    this.$refs["table"].getData();
+                    this.$refs.table.getData();
                 }).catch((err) => {
                     this.$errorThrow(err, this);
-                });            
+                });
             }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
@@ -123,12 +124,9 @@ export default {
 
         },
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 
