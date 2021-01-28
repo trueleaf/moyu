@@ -33,7 +33,7 @@
                                 <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                 <hr>
                             </div>
-                            <el-dropdown-item v-for="(item, index) in queryParamsTemplate" :key="index" :command="item">
+                            <el-dropdown-item v-for="(item, index) in templateList" :key="index" :command="item">
                                 <span class="d-flex j-between">
                                     <span>{{ item.name }}</span>
                                     <span class="gray-400">{{ item.creatorName }}</span>
@@ -87,7 +87,7 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
-        queryParamsTemplate() { //参数模板列表
+        templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "queryParams");
         },
     },
