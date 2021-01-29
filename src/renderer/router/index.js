@@ -53,6 +53,14 @@ const allRoutes = [
         },
         component: () => import("@/pages/modules/permission/permission"),
     },
+    {
+        path: "/v1/dictionary/dictionary",
+        name: "名词库维护",
+        meta: {
+            title: "名词库维护",
+        },
+        component: () => import("@/pages/modules/dictionary/dictionary"),
+    },
 ];
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 const router = new Router({
