@@ -19,12 +19,6 @@ body {
     color: #495057;
 }
 
-ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
 a {
     color: #17a2b8;
     cursor: pointer;
@@ -62,8 +56,9 @@ pre {
     -webkit-text-stroke-width: 0.2px;
     -moz-osx-font-smoothing: grayscale;
 }
-#app .el-divider__text {
+body .el-divider__text {
     color: #17a2b8;
+    font-size: 16px;
 }
 #app .is-view .el-form-item {
     margin-bottom: 0;
