@@ -43,14 +43,14 @@ export default {
 <style lang="scss">
 .s-fieldset {
     display: block;
-    min-height: 30px;
+    min-height: size(30);
     position: relative;
     border: 1px solid $gray-400;
     margin-top: 20px;
     background: inherit;
     & > .legend {
         position: absolute;
-        height: 30px;
+        height: size(30);
         left: 20px;
         top: -10px;
         color: $gray-700;
@@ -63,7 +63,7 @@ export default {
     & > .content {
         padding: 10px;
         width: 100%;
-        padding-top: size(25);
+        padding-top: size(15);
         overflow-y: auto;
     }
     .operation {
