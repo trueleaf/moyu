@@ -19,7 +19,7 @@
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
-                <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.queryParams }}</pre>
+                <!-- <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.headers }}</pre> -->
             </div>
         </s-loading>
         <div class="view-area">
@@ -226,14 +226,35 @@ export default {
             if (lastItemIsEmpty(requestBody)) {
                 requestBody.push(this.generateProperty());
             }
-            if (lastItemIsEmpty(headers)) {
-                headers.push(this.generateProperty());
+            //添加默认headers
+            const defaultHeaders = this.generateDefaultHeaders();
+            request.headers = this.$helper.unique(defaultHeaders.concat(headers), "key"); //默认header会覆盖远程返回header
+            if (lastItemIsEmpty(request.headers)) {
+                request.headers.push(this.generateProperty());
             }
             responseParams.forEach((response) => {
                 if (lastItemIsEmpty(response.values)) {
                     response.values.push(this.generateProperty());
                 }
             })
+        },
+        //生成默认请求头
+        generateDefaultHeaders() {
+            const userAgent = this.generateProperty();
+            const contentType = this.generateProperty();
+            const host = this.generateProperty();
+            host._readOnly = true;
+            host.key = "Host";
+            host.description = "主机信息";
+            host.value = "自动生成";
+            userAgent._readOnly = true;
+            userAgent.key = "user-agent";
+            userAgent.value = "moyu(https://github.com/trueleaf/moyu)";
+            userAgent.description = "用户代理";
+            contentType._readOnly = true;
+            contentType.key = "content-type";
+            contentType.description = "内容类型";
+            return [userAgent, contentType, host];
         },
         //同步请求数据
         syncRequestParams() {
