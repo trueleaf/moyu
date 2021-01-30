@@ -7,11 +7,12 @@ import FileType from "file-type/browser";
 import FormData from "form-data/lib/form_data"
 
 let got = null;
-// let ProxyAgent = null;
+let ProxyAgent = null;
 if (window.require) {
     got = window.require("got");
-    // ProxyAgent = window.require("proxy-agent")
+    ProxyAgent = window.require("proxy-agent")
 }
+const INVALID_HEADER_KEYS = ["content-type", "Content-type", "content-Type", "ContentType", "contentType", "host", "HOST", "Host", "user-agent", "userAgent", "UserAgent"];
 
 const HttpClient = (() => {
     let singleton = null; //单例
@@ -27,6 +28,14 @@ const HttpClient = (() => {
             this.params = null; //请求参数
             this.responseData = null; //返回值
             this.events = [];
+            this.initInstance(config);
+            return singleton;
+        }
+
+        initInstance(config) {
+            const agent = {
+                http: new ProxyAgent("http://127.0.0.1:8888"),
+            };
             this.gotInstance = got?.extend({
                 timeout: config.timeout || 60000, //超时时间
                 retry: 0,
@@ -36,11 +45,8 @@ const HttpClient = (() => {
                 headers: {
                     "user-agent": "moyu(https://github.com/trueleaf/moyu)",
                 },
-                // agent: {
-                //     http: new ProxyAgent("http://127.0.0.1:8888")
-                // }
+                agent: process.env.NODE_ENV === "development" ? agent : {},
             });
-            return singleton;
         }
 
         on(name, handler) {
@@ -95,7 +101,11 @@ const HttpClient = (() => {
             this.paths = options.paths;
             this.queryParams = options.queryParams;
             this.requestBody = options.requestBody;
-            // this.headers = options.headers;
+            this.headers = options.headers;
+            //删除默认请求头
+            INVALID_HEADER_KEYS.forEach((key) => {
+                delete this.headers[key];
+            })
             console.log("发送请求", options);
             try {
                 let body = "";
@@ -125,7 +135,7 @@ const HttpClient = (() => {
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
-                    // headers: this.headers,
+                    headers: this.headers,
                     body,
                 });
                 const streamData = [];
