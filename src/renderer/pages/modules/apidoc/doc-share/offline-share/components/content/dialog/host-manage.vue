@@ -1,11 +1,11 @@
 /**
     创建者：shuxiaokai
     创建时间：2020-01-15 13:31"
-    模块名称：域名维护curd弹窗
+    模块名称：服务器地址维护curd弹窗
     备注：xxxx
 */
 <template>
-    <s-curd-model v-if="visible" title="域名维护" :left-width="500" @close="closeModel">
+    <s-curd-model v-if="visible" title="服务器地址维护" :left-width="500" @close="closeModel">
         <!-- 新增数据 -->
         <div slot="left" class="pr-2">
             <el-divider content-position="left">添加域名</el-divider>

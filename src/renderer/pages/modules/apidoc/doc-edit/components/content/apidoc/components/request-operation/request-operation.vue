@@ -48,11 +48,7 @@
 import qs from "qs"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import variableDialog from "@/pages/modules/apidoc/doc-edit/dialog/variable-manage.vue"
-// import deepmerge from "deepmerge"
-// import FormData from "form-data/lib/form_data"
-// import FileType from "file-type/browser"
-// import buffer from "buffer"
-// const Buffer = buffer.Buffer;
+
 export default {
     name: "REQUEST_OPERATION",
     mixins: [mixin],

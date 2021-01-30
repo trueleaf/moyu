@@ -1,21 +1,51 @@
 /**
     创建者：shuxiaokai
     创建时间：2020-01-15 13:31"
-    模块名称：域名维护curd弹窗
+    模块名称：服务器地址维护curd弹窗
     备注：xxxx
 */
 <template>
-    <s-curd-model v-if="visible" title="域名维护" :left-width="500" @close="closeModel">
+    <s-curd-model v-if="visible" title="服务器地址维护" :left-width="500" class="host-manage" @close="closeModel">
         <!-- 新增数据 -->
         <div slot="left" class="pr-2">
-            <el-divider content-position="left">添加域名</el-divider>
-            <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px">
+            <!-- <el-divider content-position="left">添加域名</el-divider> -->
+            <s-fieldset title="符合规范的服务器地址组成">
+                <ul>
+                    <li class="mb-2">
+                        <div class="mb-1">ip地址+路径(可选)</div>
+                        <div class="gray-600">
+                            <span>eg:</span>
+                            <span class="ml-1">http://127.0.0.199:81</span>
+                            <el-divider direction="vertical"></el-divider>
+                            <span>http://127.0.0.199:81/api</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="mb-1">域名+路径(可选)</div>
+                        <div class="gray-600">
+                            <span>eg:</span>
+                            <span class="ml-1">www.demo.com</span>
+                            <el-divider direction="vertical"></el-divider>
+                            <span>www.demo.com/api</span>
+                        </div>
+                    </li>
+                </ul>
+            </s-fieldset>
+            <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px" class="mt-2">
                 <el-form-item label="服务器名称：" prop="name">
                     <el-input v-model="formInfo.name" size="mini" placeholder="例如：张三本地" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                 </el-form-item>
-                <el-form-item label="域名(ip)：" prop="url">
-                    <el-input v-model="formInfo.url" name="name" size="mini" placeholder="例如：http://127.0.0.1:8080,http://baidu.com" class="w-100" maxlength="100" clearable></el-input>
+                <el-form-item label="服务器地址：" prop="server">
+                    <el-input v-model="formInfo.server" name="name" size="mini" placeholder="服务器地址+请求地址" class="w-100" maxlength="100" clearable>
+                        <template slot="prepend">
+                            <el-select v-model="formInfo.protocol" class="w-100px" size="mini">
+                                <el-option value="http://" label="http://"></el-option>
+                                <el-option value="https://" label="https://"></el-option>
+                            </el-select>
+                        </template>
+                    </el-input>
                 </el-form-item>
+                <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ url }}</div>
                 <div class="d-flex j-end">
                     <el-button v-success="successLoading" :loading="loading" type="primary" size="mini" @click="handleAddHost">确认添加</el-button>
                 </div>
@@ -32,7 +62,7 @@
                         <span v-else>{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column label="服务器url" align="center">
+                <el-table-column label="服务器地址" align="center">
                     <template slot-scope="scope">
                         <div class="h-60px d-flex a-center j-center">
                             <s-v-input
@@ -74,29 +104,28 @@ export default {
     },
     data() {
         const validateHost = (rule, value, callback) => {
+            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,5}(\/.+)?$/; //ip+端口
+            const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
             if (value === "") {
-                callback(new Error("例如：http://192.168.0.0:8080 https://baidu.com,不支持localhost"));
+                callback(new Error("不能为空"));
+            } else if (!value.match(ipReg) && !value.match(dominReg)) {
+                callback(new Error("服务器地址不符合规范"))
             } else {
-                const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,5}$/; //ip+端口
-                const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+$/;
-                if (value.match(ipReg) || value.match(dominReg)) {
-                    callback()
-                } else {
-                    callback(new Error("例如：http://192.168.0.0:8080 https://baidu.com,不支持localhost"))
-                }
+                callback();
             }
         }
         return {
             //=====================================请求参数====================================//
             formInfo: {
                 name: "", //-------------------服务器名称
-                url: "", //--------------------服务器url
+                protocol: "http://", //--------协议
+                server: "", //-----------------服务器url
             },
             oldEditingData: null,
             //=====================================验证参数====================================//
             rules: {
                 name: [{ required: true, message: "请输入服务器名称", trigger: "blur" }],
-                url: [
+                server: [
                     { required: true, validator: validateHost, trigger: "blur" },
                 ],
             },
@@ -105,7 +134,6 @@ export default {
                 error: false,
                 message: "请求url不能为空",
             },
-            // isValidUrl: true, //-------------------是否显示服务器url验证错误信息
             isEditing: false, //-------------------是否正在编辑
             loading: false, //---------------------添加按钮加载效果
             successLoading: false, //--------------是否添加成功
@@ -115,8 +143,9 @@ export default {
         docRules() { //文档规则
             return this.$store.state.apidocRules;
         },
-    },
-    created() {
+        url() {
+            return this.formInfo.protocol + this.formInfo.server;
+        },
     },
     methods: {
 
@@ -133,7 +162,7 @@ export default {
                     this.loading = true;
                     const params = {
                         name: this.formInfo.name,
-                        url: this.formInfo.url,
+                        url: this.formInfo.protocol + this.formInfo.server,
                         projectId: this.$route.query.id,
                     };
                     this.successLoading = false;
@@ -219,3 +248,12 @@ export default {
     },
 };
 </script>
+<style lang="scss">
+.host-manage {
+    .el-form-item__content {
+        display: flex;
+        align-items: center;
+        height: size(40);
+    }
+}
+</style>

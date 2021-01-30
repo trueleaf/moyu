@@ -14,7 +14,7 @@
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
             </el-popover>
         </el-radio-group>
-        <el-button type="text" size="small" @click="dialogVisible = true;">域名维护</el-button>
+        <el-button type="text" size="small" @click="dialogVisible = true;">服务器地址维护</el-button>
         <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
     </div>
 </template>
