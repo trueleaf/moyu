@@ -319,7 +319,7 @@ export function unique(array = [], key) {
     } else {
         for (let i = 0, len = array.length; i < len; i += 1) {
             const isInResult = result.find((val) => val[key] === array[i][key]);
-            if (array[i][key] && !isInResult) {
+            if (array[i][key] != null && !isInResult) {
                 result.push(array[i]);
             }
         }
