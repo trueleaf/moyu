@@ -110,7 +110,6 @@
 </template>
 
 <script>
-import { dfsForest } from "@/lib/index"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
@@ -228,6 +227,7 @@ export default {
                 if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
                     if (parentData[parentData.length - 1].key && parentData[parentData.length - 1].key.trim() !== "") {
                         parentData.push(this.generateProperty());
+                        console.log(11, parentData)
                     }
                 } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
                     parentData.children.push(this.generateProperty());
@@ -273,7 +273,7 @@ export default {
             }
             if (data.type === "object" || data.type === "array") {
                 if (data.type === "array" && data.children && data.children.length > 0) { //清空子元素所有参数名称
-                    dfsForest(data.children, {
+                    this.$helper.dfsForest(data.children, {
                         rCondition(value) {
                             return value.children;
                         },
@@ -392,7 +392,7 @@ export default {
                 try {
                     setTimeout(() => {
                         const keys = [];
-                        dfsForest(this.treeData, {
+                        this.$helper.dfsForest(this.treeData, {
                             rCondition(value) {
                                 return value.children;
                             },
