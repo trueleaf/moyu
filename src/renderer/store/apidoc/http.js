@@ -33,11 +33,12 @@ const HttpClient = (() => {
         }
 
         initInstance(config) {
+            const { timeout, proxy } = config;
             const agent = {
-                http: new ProxyAgent("http://127.0.0.1:8888"),
+                http: new ProxyAgent(proxy),
             };
             this.gotInstance = got?.extend({
-                timeout: config.timeout || 60000, //超时时间
+                timeout: timeout || 60000, //超时时间
                 retry: 0,
                 throwHttpErrors: false,
                 followRedirect: true,
@@ -167,7 +168,6 @@ const HttpClient = (() => {
                 });
                 //错误处理
                 this.instance.on("error", (error) => {
-                    console.error(error);
                     this.emit("error", error);
                 });
                 //重定向

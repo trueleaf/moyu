@@ -423,6 +423,12 @@ export default {
                     context.commit("changeResponseInfo", response);
                 });
                 httpClient.once("error", (err) => {
+                    context.commit("changeSendRequestLoading", false);
+                    context.commit("changeResponseIndex", {
+                        mime: "error",
+                        value: err.message,
+                        rt: err?.timings?.phases?.total,
+                    });
                     reject(err);
                 });
                 httpClient.once("end", (result) => {
