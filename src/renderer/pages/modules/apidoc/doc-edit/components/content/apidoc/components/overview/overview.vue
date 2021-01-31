@@ -21,23 +21,6 @@
                         <span v-if="formatRequestData.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                     </template>
                 </s-label-value>
-                <!-- <s-label-value label="发布状态：" class="d-flex">
-                    <el-tag v-if="publishInfo.publish" size="mini" type="success" class="mr-1">已发布</el-tag>
-                    <el-tag v-else size="mini" type="info" class="mr-1">未发布</el-tag>
-                    <el-popover v-if="publishInfo.publish" placement="bottom-start" width="400" trigger="hover">
-                        <el-table :data="publishInfo.publishRecords" size="mini" max-height="300px">
-                            <el-table-column prop="publisher" label="发布者" align="center"></el-table-column>
-                            <el-table-column prop="time" label="发布时间" align="center">
-                                <template slot-scope="scope">
-                                    {{ new Date(scope.row.time).toLocaleString() }}
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                        <svg slot="reference" class="svg-icon" aria-hidden="true">
-                            <use xlink:href="#iconlishi"></use>
-                        </svg>
-                    </el-popover>
-                </s-label-value> -->
                 <s-label-value label="请求参数：" class="d-flex">
                     <el-popover placement="left-end" width="600" trigger="hover" :close-delay="0">
                         <s-tree-json :data="formatRequestData.item.queryParams" max-height="400px"></s-tree-json>
@@ -56,10 +39,7 @@
                 </s-label-value>
             </s-collapse>
         </div>
-        <div class="response-view">
-            <!-- <pre class="scroll-y-300">{{ remoteResponse }}</pre> -->
-            <s-response-view :response="remoteResponse"></s-response-view>
-        </div>
+        <s-response-view class="response-view"></s-response-view>
     </div>
 </template>
 
@@ -76,9 +56,6 @@ export default {
         };
     },
     computed: {
-        remoteResponse() { //远端返回数据结果
-            return this.$store.state.apidoc.remoteResponse;
-        },
         formatRequestData() { //变量替换后的请求参数
             const apiInfo = this.$store.state.apidoc.apidocInfo;
             const queryParams = apiInfo.queryParams || [];
@@ -155,6 +132,7 @@ export default {
 
 <style lang="scss">
 .overview {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -172,7 +150,10 @@ export default {
         }
     }
     .response-view {
-        flex: 1;
+        width: 100%;
+        padding: size(10) size(10);
+        flex: 0 0 calc(100vh - #{size(290)});
+        overflow-x: hidden;
         overflow-y: auto;
     }
 }

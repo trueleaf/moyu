@@ -322,7 +322,7 @@ export default {
     // 编辑区域
     .edit-area {
         border-right: 1px solid $gray-400;
-        flex: 0 0 65%;
+        flex: 1;
         .info-wrap {
             padding: size(10) size(20);
             box-shadow: 0 3px 2px $gray-400;
@@ -337,7 +337,9 @@ export default {
     }
     // 展示区域
     .view-area {
-        flex: 1 0 35%;
+        flex-grow: 0;
+        flex-shrink: 0;
+        width: size(550);
     }
     @media only screen and (max-width: 1440px) {
         flex-direction: column;
@@ -345,7 +347,7 @@ export default {
             flex: 0 0 auto;
         }
         .view-area {
-            flex: 0 0 auto;
+            width: 100%;
         }
     }
 }
