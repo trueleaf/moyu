@@ -283,7 +283,7 @@ export default {
             const protocolReg = /(\/?https?:\/\/)?/;
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = `/${this.requestPath}`) : "";
-            const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
+            const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
             const matchedPath = this.requestPath.match(pathReg);
             if (matchedPath) {
                 this.requestPath = matchedPath[0];
