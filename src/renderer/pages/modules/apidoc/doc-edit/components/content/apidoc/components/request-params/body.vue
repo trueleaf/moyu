@@ -26,10 +26,10 @@
                         <el-dropdown-menu>
                             <div class="apply-template">
                                 <div class="cyan mb-2">常用</div>
-                                <template v-for="(item, index) in usefulPresetRequestParamsList">
+                                <template v-for="(item, index) in usefulPresetParamsList">
                                     <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
-                                <span class="theme-color cursor-pointer ml-2" @click="dialogVisible2 = true">维护</span>
+                                <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                 <hr>
                             </div>
                             <el-dropdown-item v-for="(item, index) in templateList" :key="index" :command="item">
@@ -87,7 +87,6 @@
         </s-params-tree>
         <!-- 弹窗 -->
         <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.requestBody" @success="handleConvertJsonToParams"></s-json-schema>
-        <s-curd-params-template :visible.sync="dialogVisible2"></s-curd-params-template>
         <s-params-template :items="requestBody" type="requestBody" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
     </s-collapse-card>
 </template>
@@ -96,7 +95,6 @@
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
-import paramsTemplateCurd from "@/pages/modules/apidoc/doc-edit/dialog/params-template-curd.vue"
 
 export default {
     name: "REQUEST_BODY",
@@ -104,7 +102,6 @@ export default {
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
-        "s-curd-params-template": paramsTemplateCurd,
     },
     computed: {
         requestBody() { //请求body
@@ -130,7 +127,7 @@ export default {
     },
     data() {
         return {
-            usefulPresetRequestParamsList: [], //常用参数模板
+            usefulPresetParamsList: [], //常用参数模板
             //=========================================================================//
             jsonBody: [], //application/json
             formDataBody: [], //multipart/form-data
@@ -142,7 +139,6 @@ export default {
             formUrlWatchFlag: null, //watch标识用于清空数据
             //=====================================其他参数====================================//
             dialogVisible: false, //将json转换为请求参数弹窗
-            dialogVisible2: false, //模板维护增删改查
             dialogVisible3: false, //保存当前参数为模板
         };
     },
@@ -295,11 +291,29 @@ export default {
             let currentLocalData = localStorage.getItem("apidoc/requestBodyTemplate") || "{}";
             currentLocalData = JSON.parse(currentLocalData);
             currentLocalData = currentLocalData[this.$route.query.id] || [];
-            this.usefulPresetRequestParamsList = currentLocalData.sort((a, b) => a.selectNum - b.selectNum > 0).slice(0, 3)
+            this.usefulPresetParamsList = currentLocalData.sort((a, b) => a.selectNum - b.selectNum > 0).slice(0, 3)
         },
         //新增模板成功后
         handleAddParamsTemplate(template) {
             this.$store.commit("apidoc/addPresetParams", template);
+        },
+        //打开模板维护模块
+        handleOpenParamsTemplate() {
+            console.log("open");
+            this.$store.commit("apidoc/addTab", {
+                id: "idParamsTemplate",
+                projectId: this.$route.query.id,
+                name: "参数模板",
+                changed: false,
+                tabType: "paramsTemplate",
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                id: "idParamsTemplate",
+                projectId: this.$route.query.id,
+                name: "参数模板",
+                changed: false,
+                tabType: "paramsTemplate",
+            });
         },
     },
 };
