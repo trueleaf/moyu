@@ -58,7 +58,14 @@ export default {
     watch: {
         currentSelectDoc: {
             handler(currentDoc, oldDoc) {
-                if (currentDoc.tabType !== "doc") return; //只处理类型为doc数据
+                if (currentDoc.tabType !== "doc") { //只处理类型为doc数据
+                    if (this.cancel.length > 0) { //切换时都清除上一次请求
+                        this.cancel.forEach((c) => {
+                            c("取消请求");
+                        })
+                    }
+                    return;
+                }
                 if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
                     this.checkCache(currentDoc);
                 }
@@ -281,17 +288,23 @@ export default {
             });
             //挑选整个接口文档需要对比的参数
             const pickerValidDiffParams = (docInfo) => {
+                const responseParams = [];
+                docInfo.item?.responseParams.forEach((response) => {
+                    response.values.forEach((val) => {
+                        responseParams.push(val);
+                    });
+                })
                 const result = {
                     info: docInfo.info,
                     item: {
-                        method: docInfo.item.method,
-                        url: docInfo.item.url,
-                        paths: docInfo.item.paths.map((val) => pickerProperty(val)),
-                        queryParams: docInfo.item.queryParams.map((val) => pickerProperty(val)),
-                        requestBody: docInfo.item.requestBody.map((val) => pickerProperty(val)),
-                        responseParams: docInfo.item.responseParams.map((val) => pickerProperty(val)),
-                        headers: docInfo.item.headers.map((val) => pickerProperty(val)),
-                        contentType: docInfo.item.contentType,
+                        method: docInfo.item?.method,
+                        url: docInfo.item?.url,
+                        paths: docInfo.item?.paths.map((val) => pickerProperty(val)),
+                        queryParams: docInfo.item?.queryParams.map((val) => pickerProperty(val)),
+                        requestBody: docInfo.item?.requestBody.map((val) => pickerProperty(val)),
+                        responseParams: responseParams?.map((val) => pickerProperty(val)),
+                        headers: docInfo.item?.headers.map((val) => pickerProperty(val)),
+                        contentType: docInfo.item?.contentType,
                     },
                 }
                 return result;
