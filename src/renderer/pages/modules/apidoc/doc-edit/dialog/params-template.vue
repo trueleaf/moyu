@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
     创建时间：2020-09-28 13:19"
-    模块名称：保存当前请求参数为模板
+    模块名称：保存当前参数为模板
     备注：xxxx
 */
 <template>
-    <s-dialog title="保存当前请求参数为模板" :isShow="visible" width="40%" @close="handleClose">
+    <s-dialog title="保存当前参数为模板" :isShow="visible" width="40%" @close="handleClose">
        <s-form ref="form" :formInfo="formInfo">
            <s-form-item label="模板名称" vModel="name" oneLine required></s-form-item>
        </s-form>
