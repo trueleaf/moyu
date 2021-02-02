@@ -299,7 +299,6 @@ export default {
         },
         //打开模板维护模块
         handleOpenParamsTemplate() {
-            console.log("open");
             this.$store.commit("apidoc/addTab", {
                 id: "idParamsTemplate",
                 projectId: this.$route.query.id,

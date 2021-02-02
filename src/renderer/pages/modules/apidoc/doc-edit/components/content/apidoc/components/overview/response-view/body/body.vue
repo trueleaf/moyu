@@ -10,7 +10,7 @@
             <!-- svg图片 -->
             <div v-if="remoteResponse.mime.includes('image/svg+xml')" v-html="remoteResponse.value"></div>
             <!-- json格式 -->
-            <s-json v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)" @export="handleExport"></s-json>
+            <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :json-data="JSON.parse(remoteResponse.value)" @export="handleExport"></s-json-view>
             <!-- 其他图片类型 -->
             <el-image
                 v-else-if="remoteResponse.mime.includes('image/')"
@@ -44,8 +44,10 @@
             <pre v-else-if="remoteResponse.mime.includes('application/xml')">{{ remoteResponse.value }}</pre>
             <!-- javascript -->
             <pre v-else-if="remoteResponse.mime.includes('application/javascript')">{{ remoteResponse.value }}</pre>
-            <!-- 文本类型 -->
-            <pre v-else-if="remoteResponse.mime.includes('text/')">{{ remoteResponse.value }}</pre>
+            <!-- HTML文本类型 -->
+            <pre v-else-if="remoteResponse.mime.includes('text/html')">{{ beautifyHtml(remoteResponse.value) }}</pre>
+            <!-- 其他文本类型 -->
+            <pre v-else-if="remoteResponse.mime.includes('text/')">{{ beautifyHtml(remoteResponse.value) }}</pre>
             <!-- 请求错误 -->
             <pre v-else-if="remoteResponse.mime.includes('error')">{{ remoteResponse.value }}</pre>
             <div v-else>
@@ -59,6 +61,8 @@
 </template>
 
 <script>
+import beautify from "js-beautify"
+
 export default {
     computed: {
         remoteResponse() { //远端返回数据结果
@@ -109,6 +113,10 @@ export default {
             });
             copyData.push(this.generateParams());
             this.requestData.responseParams = copyData
+        },
+        //美化html文件
+        beautifyHtml(str) {
+            return beautify.html(str, { indent_size: 4 })
         },
         //=====================================其他操作=====================================//
 
