@@ -10,7 +10,7 @@
             <!-- svg图片 -->
             <div v-if="remoteResponse.mime.includes('image/svg+xml')" v-html="remoteResponse.value"></div>
             <!-- json格式 -->
-            <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :json-data="JSON.parse(remoteResponse.value)" @export="handleExport"></s-json-view>
+            <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)" @export="handleExport"></s-json-view>
             <!-- 其他图片类型 -->
             <el-image
                 v-else-if="remoteResponse.mime.includes('image/')"
@@ -127,7 +127,7 @@ export default {
 <style lang="scss">
 .body-view {
     width: 100%;
-    height: calc(100vh - #{size(410)});
+    height: calc(100vh - #{size(400)});
     overflow-y: auto;
     .img-view {
         width: size(200);
