@@ -102,7 +102,6 @@ export default {
             if (moveLeft < this.minLeftWidth) {
                 return;
             }
-            // console.log(this.leftDomWidth / this.wrapWidth)
             this.leftDom.style.width = moveLeft / this.wrapWidth * 100 + "%";
             this.rightDom.style.width = (1 - moveLeft / this.wrapWidth) * 100 + "%";
         },

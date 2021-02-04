@@ -156,7 +156,6 @@ export default {
                 this.itemDom = this.$slots.default[0].elm
                 itemHeight = this.itemDom.getBoundingClientRect()["height"];
             }
-            // console.log(realHeight, itemHeight, 9999)
             this.couldExpand = realHeight > 1 * itemHeight;
             if (realHeight === itemHeight) {
                 this.isExpand = false;

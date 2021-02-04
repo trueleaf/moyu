@@ -219,7 +219,6 @@ export function forEachForest(forest, fn, options = {}) {
 export function dfsForest(forestData, config) {
     const { rCondition, rKey, hooks } = config;
     if (!Array.isArray(forestData)) {
-        console.log(forestData);
         throw new Error("第一个参数必须为数组结构森林");
     }
     if (!rKey) {

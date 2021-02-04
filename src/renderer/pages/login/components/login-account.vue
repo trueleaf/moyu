@@ -20,12 +20,12 @@
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" type="primary" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading"  size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
             </div>
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading"  size="small" class="w-100" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
+                <el-button :loading="loading" native-type="submit" size="small" class="w-100">登录</el-button>
             </div>
         </el-form-item>
         <el-form-item>

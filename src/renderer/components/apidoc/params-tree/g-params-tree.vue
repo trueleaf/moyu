@@ -227,7 +227,6 @@ export default {
                 if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
                     if (parentData[parentData.length - 1].key && parentData[parentData.length - 1].key.trim() !== "") {
                         parentData.push(this.generateProperty());
-                        console.log(11, parentData)
                     }
                 } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
                     parentData.children.push(this.generateProperty());
@@ -370,7 +369,6 @@ export default {
             } else {
                 data.value = ""
             }
-            console.log(file)
         },
         //=====================================其他操作====================================//
         //选中所有数据

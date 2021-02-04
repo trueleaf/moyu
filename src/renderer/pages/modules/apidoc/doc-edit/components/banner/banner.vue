@@ -444,7 +444,6 @@ export default {
                 const nextSiblingSort = nextSibling.sort || Date.now();
                 params.sort = (nextSiblingSort + previousSiblingSort) / 2;
                 node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-                console.log(nextSibling, previousSibling)
             }
             this.axios.put("/api/project/change_doc_pos", params).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);

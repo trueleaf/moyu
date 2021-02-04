@@ -56,7 +56,18 @@
                 </svg>
             </div>
         </template>
-        <s-empty v-else></s-empty>
+        <s-empty v-else>
+            <div v-if="!config.isElectron">等待发送请求</div>
+            <div v-else class="f-bg">
+                <div class="mb-2">
+                    <i slot="reference" class="el-icon-warning orange mr-2"></i>
+                    <span>因浏览器限制，请在Electron环境进行请求发送</span>
+                </div>
+                <div>
+                    <a href="https://gitee.com/shuzhikai/moyu/attach_files/573739/download/Setup.0.1.3.exe">下载Electron</a>
+                </div>
+            </div>
+        </s-empty>
     </s-loading>
 </template>
 

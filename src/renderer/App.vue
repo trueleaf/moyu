@@ -3,10 +3,10 @@
         <router-view></router-view>
     </div>
 </template>
- 
 <script>
 let ipcRenderer = null;
 if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
     ipcRenderer = window.require("electron").ipcRenderer;
 }
 export default {
@@ -40,8 +40,6 @@ export default {
     },
 };
 </script>
-
- 
 
 <style lang="scss">
 #app {

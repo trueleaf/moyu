@@ -172,7 +172,6 @@ export default {
                 //填充必填项目rule规则
                 if (propsData.required === "" || propsData.required) {
                     const inputType = propsData.type;
-                    // console.log(propsData)
                     if (inputType == null || inputType === "input" || inputType === "textarea" || inputType === "remarks" || inputType === "password" || inputType === "number") { //普通输入框blur触发验证
                         this.rules[rulePath].push({ required: true, message: `请输入${propsData.label}`, trigger: "blur" });
                     } else if (inputType === "select" || inputType === "date" || inputType === "daterange") { //日期，单选，多选触发 blur

@@ -35,7 +35,7 @@ const HttpClient = (() => {
         initInstance(config) {
             const { timeout, proxy } = config;
             const agent = {
-                http: new ProxyAgent(proxy),
+                http: ProxyAgent ? new ProxyAgent(proxy) : "",
             };
             this.gotInstance = got?.extend({
                 timeout: timeout || 60000, //超时时间

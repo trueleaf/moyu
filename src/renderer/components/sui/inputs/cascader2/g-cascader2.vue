@@ -148,8 +148,6 @@ export default {
             this.cascaderEnum = []
             for (let i = 0; i < this.options.length; i++) {
                 this.$set(this.cascaderData, this.options[i].vModel, this.options[i].value || null);
-
-                console.log(this.options[i].value, this.cascaderEnum[i])
                 if (i === 0) {
                     const areaData = await this.getData();
                     this.$set(this.cascaderEnum, i, areaData)
@@ -159,7 +157,6 @@ export default {
                     this.$set(this.cascaderEnum, i + 1, areaData)
                 }
             }
-            console.log(this.cascaderEnum)
         },
         //=====================================获取远程数据==================================//
         getData(pid) {

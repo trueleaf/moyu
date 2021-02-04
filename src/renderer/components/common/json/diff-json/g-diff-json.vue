@@ -28,7 +28,6 @@ export default {
     watch: {
         data: {
             handler() {
-                console.log(this.data, 99);
             },
             deep: true,
         },

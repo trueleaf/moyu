@@ -22,7 +22,16 @@
                     </el-select>
                 </div>
             </s-v-input>
-            <el-button v-if="!loading" :loading="loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
+            <el-button
+                v-if="!loading"
+                :loading="loading"
+                :disabled="!config.isElectron"
+                :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
+                type="success"
+                size="small"
+                @click="sendRequest">
+                发送请求
+            </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
