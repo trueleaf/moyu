@@ -21,9 +21,14 @@
                         <use xlink:href="#iconwenjian"></use>
                     </svg>
                 </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="历史记录" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible4 = true">
-                        <use xlink:href="#iconlishi"></use>
+                <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible6 = true">
+                        <use xlink:href="#icondaochu1"></use>
+                    </svg>
+                </el-tooltip>
+                <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
+                        <use xlink:href="#icondaoru"></use>
                     </svg>
                 </el-tooltip>
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
@@ -33,8 +38,7 @@
                     <i class="more-op el-icon-more" title="更多操作"></i>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible6 = true">导出文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
+                        <el-dropdown-item @click.native="dialogVisible4 = true">历史记录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
