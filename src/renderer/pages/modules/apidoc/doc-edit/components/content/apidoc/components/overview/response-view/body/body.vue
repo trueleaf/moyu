@@ -57,7 +57,7 @@
             </div>
         </template>
         <s-empty v-else>
-            <div v-if="!config.isElectron">等待发送请求</div>
+            <div v-if="config.isElectron">等待发送请求</div>
             <div v-else class="f-bg">
                 <div class="mb-2">
                     <i slot="reference" class="el-icon-warning orange mr-2"></i>
