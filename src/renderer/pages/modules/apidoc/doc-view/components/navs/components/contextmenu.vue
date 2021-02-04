@@ -10,6 +10,7 @@
         <div class="item-list" @click="handleClickItem('closeLeft')">关闭左侧</div>
         <div class="item-list" @click="handleClickItem('closeCurrent')">关闭标签</div>
         <div class="item-list" @click="handleClickItem('closeOther')">关闭其他</div>
+        <!-- <div class="item-list" @click="handleClickItem('fresh')">刷新页面</div> -->
     </div>
 </template>
 
@@ -18,17 +19,15 @@ export default {
     props: {
         left: {
             type: Number,
-            default: 0
+            default: 0,
         },
         top: {
             type: Number,
-            default: 0
+            default: 0,
         },
     },
     data() {
-        return {
-            
-        };
+        return {};
     },
     created() {
 
@@ -49,15 +48,16 @@ export default {
                 case "closeOther":
                     this.$emit("closeOther")
                     break;
+                case "fresh":
+                    this.$emit("fresh")
+                    break;
                 default:
                     break;
-            } 
+            }
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .ctx-wrap {
