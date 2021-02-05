@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="label-value">
+    <div class="label-value" :style="{width: halfLine ? '50%' : ''}">
         <span class="label" :style="{width: labelWidth}">
             <span>{{ label }}</span>
         </span>
@@ -28,6 +28,14 @@ export default {
         value: {
             type: String,
             default: "",
+        },
+        halfLine: {
+            type: Boolean,
+            default: false,
+        },
+        oneLine: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {

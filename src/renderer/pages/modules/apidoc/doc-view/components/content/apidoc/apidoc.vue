@@ -7,10 +7,19 @@
 <template>
     <div class="view-content">
         <s-loading :loading="loading" class="view-area">
-           <h2>基本信息</h2>
-           <div>asdsad</div>
-           <h2>请求头</h2>
-           <div>asdsad</div>
+            <s-base-info></s-base-info>
+            <div class="params-view">
+                <s-collapse title="请求参数(Params)">
+                    <s-array-view :data="apidocItem.requestBody"></s-array-view>
+                </s-collapse>
+                <s-collapse title="请求参数(Body)">
+                    <pre>{{ convertPlainParamsToTreeData(apidocItem.requestBody || []) }}</pre>
+                </s-collapse>
+                <s-collapse title="返回参数">
+                </s-collapse>
+                <s-collapse title="请求头">
+                </s-collapse>
+            </div>
         </s-loading>
         <div class="remote-view">
             <s-overview></s-overview>
@@ -22,6 +31,7 @@
 import axios from "axios"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import overview from "./components/overview/overview.vue" //展示区域
+import baseInfo from "./components/base-info/base-info.vue" //基础信息区域
 
 const { CancelToken } = axios;
 //=========================================================================//
@@ -30,6 +40,7 @@ export default {
     mixins: [mixin],
     components: {
         "s-overview": overview,
+        "s-base-info": baseInfo,
     },
     watch: {
         currentSelectDoc: {
@@ -58,11 +69,14 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
-        apidocInfo() { //接口文档信息
-            return this.$store.state.apidoc.apidocInfo;
+        apidocItem() { //接口文档信息
+            return this.$store.state.apidoc.apidocInfo?.item || {};
         },
         loading() {
             return this.$store.state.apidoc.apidocLoading;
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         },
     },
     data() {
@@ -153,19 +167,10 @@ export default {
     height: calc(100vh - #{size(100)});
     // 编辑区域
     .view-area {
-        padding: size(10);
         border-right: 1px solid $gray-400;
         flex: 1;
-        .info-wrap {
+        .params-view {
             padding: size(10) size(20);
-            box-shadow: 0 3px 2px $gray-400;
-            position: relative;
-            z-index: 1;
-        }
-        .params-wrap {
-            padding: size(20);
-            max-height: calc(100vh - #{size(230)});
-            overflow-y: auto;
         }
     }
     // 数据返回区域
