@@ -23,7 +23,6 @@ function isElectron() {
     }
     return false;
 }
-
 const isDev = process.env.NODE_ENV === "development";
 module.exports = {
     isElectron: isElectron(), //是否为electron环境
