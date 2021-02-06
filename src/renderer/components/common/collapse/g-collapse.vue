@@ -51,7 +51,7 @@ export default {
 
 <style lang="scss">
 .s-collaps {
-    .header {
+    &>.header {
         cursor: pointer;
         height: size(25);
         display: flex;
