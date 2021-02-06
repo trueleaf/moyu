@@ -9,13 +9,20 @@
         <s-loading :loading="loading" class="view-area">
             <s-base-info></s-base-info>
             <div class="params-view">
-                <s-collapse title="请求参数(Params)">
-                    <s-array-view :data="apidocItem.requestBody"></s-array-view>
+                <s-collapse v-if="apidocItem.queryParams && apidocItem.queryParams.length > 1" title="请求参数(Params)">
+                    <s-array-view :data="apidocItem.queryParams">
+                        <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
+                    </s-array-view>
                 </s-collapse>
-                <s-collapse title="请求参数(Body)">
-                    <pre>{{ convertPlainParamsToTreeData(apidocItem.requestBody || []) }}</pre>
+                <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1" title="请求参数(Body)">
+                    <s-array-view :data="apidocItem.requestBody">
+                        <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                    </s-array-view>
                 </s-collapse>
-                <s-collapse title="返回参数">
+                <s-collapse v-for="(item, index) in apidocItem.responseParams" :key="index" title="返回参数">
+                    <s-array-view :data="item.values">
+                        <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                    </s-array-view>
                 </s-collapse>
                 <s-collapse title="请求头">
                 </s-collapse>
@@ -77,6 +84,16 @@ export default {
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        jsonRequestBody() {
+            const requestBody = this.$store.state.apidoc.apidocInfo?.item?.requestBody;
+            const convertRequestBody = this.convertPlainParamsToTreeData(requestBody || []);
+            return JSON.stringify(convertRequestBody, null, 4);
+        },
+        jsonQueryParams() {
+            const queryParams = this.$store.state.apidoc.apidocInfo?.item?.queryParams;
+            const convertQueryParams = this.convertPlainParamsToTreeData(queryParams || []);
+            return JSON.stringify(convertQueryParams, null, 4);
         },
     },
     data() {
@@ -171,6 +188,13 @@ export default {
         flex: 1;
         .params-view {
             padding: size(10) size(20);
+        }
+        .copy-json {
+            cursor: pointer;
+            margin-left: auto;
+            &:hover {
+                color: lighten($gray-300, 20%);
+            }
         }
     }
     // 数据返回区域
