@@ -56,6 +56,9 @@ export default {
                 this.$store.commit("apidoc/initAndChangeHostEnum", val);
             },
         },
+        apidocInfo() {
+            return this.$store.state.apidoc.apidocInfo;
+        },
         baseInfo() {
             const { apidocInfo } = this.$store.state.apidoc;
             const result = {
