@@ -55,11 +55,15 @@ export default {
             /* eslint-disable no-param-reassign */
             const foo = (properties, result, parent) => {
                 for (let i = 0; i < properties.length; i += 1) {
-                    if (jumpChecked && !properties[i]._select) { //若请求参数未选中则不发送请求
+                    const isSimpleType = ((properties[i].type === "string") || (properties[i].type === "boolean") || (properties[i].type === "number"));
+                    if (jumpChecked && !properties[i]._select) { //过滤掉_select属性为false的值
                         continue;
                     }
                     const key = properties[i].key.trim();
                     const value = this.convertVariable(properties[i].value);
+                    if (isSimpleType && !key && !value) {
+                        continue;
+                    }
                     const { type } = properties[i]; // object,array,file
                     const valueTypeIsArray = Array.isArray(result);
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
