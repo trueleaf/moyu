@@ -7,7 +7,7 @@
 <template>
     <div class="s-array-view">
         <div class="header">
-            <div class="copy-json">复制为json</div>
+            <slot name="header"/>
         </div>
         <div class="content">
             <div class="code-banner">
@@ -40,6 +40,8 @@
                             <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
                             <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                             <span class="comma">{{ item.comma }}</span>
+                            <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
+                            <span v-if="item.description" class="description ml-1">//{{ item.description }}</span>
                         </span>
                         <span v-show="item._close" class="number-value"></span>
                     </span>
@@ -134,8 +136,16 @@ export default {
          * undefined              undefined
         */
         astJson(rawData) {
+            if (!Array.isArray(rawData)) {
+                return;
+            }
             const result = [];
             const indent = 4;
+            const rootLeftCurlInfo = this.generateAstInfo();
+            rootLeftCurlInfo.leftCurlBrace.pairId = "root";
+            rootLeftCurlInfo.indent = 0;
+            rootLeftCurlInfo.leftCurlBrace.value = "{";
+            result.push(rootLeftCurlInfo);
             const foo = (arrayData, level, deepth) => {
                 for (let i = 0; i < arrayData.length; i += 1) {
                     const item = arrayData[i];
@@ -144,7 +154,6 @@ export default {
                     const itemPath = item.key;
                     const isObject = itemType === "object";
                     const isArray = itemType === "array";
-                    // console.log(JSON.parse(JSON.stringify(item)), isArray)
                     const objectHasValue = (isObject && item.children.length > 0);
                     const arrayHasValue = (isArray && item.children.length > 0);
                     const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "null") || (itemType === "undefined"));
@@ -152,6 +161,8 @@ export default {
                     if (isSimpleType && !itemValue && !itemPath) {
                         continue;
                     }
+                    astInfo.description = item.description;
+                    astInfo.required = item.required;
                     if (isSimpleType) { //简单类型数据 x: 1
                         astInfo.indent = indent * level;
                         astInfo.path.value = itemPath;
@@ -180,9 +191,9 @@ export default {
                         astInfo.leftCurlBrace.pairId = uuid;
                         astInfo.leftCurlBrace.value = "{";
                         astInfo.indent = indent * level;
-                        astInfo.colon = ":";
+                        astInfo.colon = itemPath ? ":" : ""; //无key值代表父元素为数组类型
                         result.push(astInfo);
-                        foo(item.children, level + 1, deepth + 1, false);
+                        foo(item.children, level + 1, deepth + 1);
                         rightCurlyBraceInfo.indent = indent * level;
                         rightCurlyBraceInfo.rightCurlBrace.value = "}";
                         rightCurlyBraceInfo.comma = ",";
@@ -209,7 +220,7 @@ export default {
                         astInfo.indent = currentLevel;
                         astInfo.colon = ":";
                         result.push(astInfo);
-                        foo(item.children, level + 1, deepth + 1, true);
+                        foo(item.children, level + 1, deepth + 1);
                         rightBracketInfo.indent = currentLevel;
                         rightBracketInfo.rightBracket.value = "]";
                         rightBracketInfo.rightBracket.pairId = uuid;
@@ -219,13 +230,17 @@ export default {
                     }
                 }
             };
-            console.log(222, rawData)
-            foo(rawData?.slice(1, 1), 0, 1, true);
+            foo(rawData, 1, 1, true);
+            const rootRightCurlInfo = this.generateAstInfo();
+            rootRightCurlInfo.rightCurlBrace.pairId = "root";
+            rootRightCurlInfo.indent = 0;
+            rootRightCurlInfo.rightCurlBrace.value = "}";
+            result.push(rootRightCurlInfo);
             result.forEach((astItem, index) => {
                 astItem.line = index + 1;
             });
             this.astValue = result.slice(0, 500);
-            console.log(this.astValue)
+            // console.log(JSON.parse(JSON.stringify(this.astValue)))
         },
         //=====================================其他操作=====================================//
         //获取参数类型
@@ -283,6 +298,8 @@ export default {
                 valueType: "", //值类型
                 colon: "", //冒号
                 comma: "", //逗号
+                description: "", //备注信息
+                required: true, //是否必填
                 leftCurlBrace: { //左花括号
                     pairId: "", //与之相匹配的另一个括号id
                     value: "", //值
@@ -304,28 +321,37 @@ export default {
 </script>
 
 <style lang="scss">
+$theme-color: #282c34;
+// $theme-color: #282c34;
 .s-array-view {
     min-width: 100%;
-    min-height: size(400);
     background: $gray-200;
     position: relative;
     font-size: size(14);
-    background: #282c34;
+    background: $theme-color;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
     .header {
-        height: size(25);
+        padding: 0 size(20);
+        height: size(30);
         color: $gray-300;
         display: flex;
         align-items: center;
-        .copy-json {
-            cursor: pointer;
-            &:hover {
-                color: lighten($gray-300, 20%);
-            }
-        }
     }
     .content {
         display: inline-flex;
+        width: 100%;
+        overflow-y: auto;
+        max-height: size(400);
+        padding-bottom: size(15);
+        &::-webkit-scrollbar {
+            background: lighten($theme-color, 30%);
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $gray-600;
+        }
+        &::-webkit-scrollbar-track {
+            background: $theme-color;
+        }
         .code-banner {
             flex: 0 0 auto;
             width: size(50);
@@ -377,8 +403,9 @@ export default {
                 display: flex;
                 align-items: center;
                 width: 100%;
+                position: relative;
                 &:hover {
-                    background: $gray-700;
+                    background: lighten($theme-color, 10%);
                 }
                 &.active {
                     background: $gray-700;
@@ -406,6 +433,9 @@ export default {
             }
             .path {
                 color: #f8c555,
+            }
+            .description {
+                color: #6A9955;
             }
             .colon, .bracket, .comma, .curly-brace {
                 color: #ccc;
