@@ -234,7 +234,7 @@ export default {
                 requestBody.push(this.generateProperty());
             }
             //添加默认headers
-            const defaultHeaders = this.generateDefaultHeaders();
+            const defaultHeaders = this.generateDefaultHeaders(resData);
             request.headers = this.$helper.unique(defaultHeaders.concat(headers), "key"); //默认header会覆盖远程返回header
             if (lastItemIsEmpty(request.headers)) {
                 request.headers.push(this.generateProperty());
@@ -246,7 +246,7 @@ export default {
             })
         },
         //生成默认请求头
-        generateDefaultHeaders() {
+        generateDefaultHeaders(resData) {
             const userAgent = this.generateProperty();
             const contentType = this.generateProperty();
             const host = this.generateProperty();
@@ -260,6 +260,7 @@ export default {
             userAgent.description = "用户代理";
             contentType._readOnly = true;
             contentType.key = "content-type";
+            contentType.value = resData.item.contentType;
             contentType.description = "内容类型";
             return [userAgent, contentType, host];
         },
