@@ -150,7 +150,8 @@ export default {
             rootLeftCurlInfo.indent = 0;
             rootLeftCurlInfo.leftCurlBrace.value = "{";
             result.push(rootLeftCurlInfo);
-            const foo = (arrayData, level, deepth) => {
+            const foo = (arrayData, level, deepth, parent) => {
+                const parentIsArray = (parent && parent.type === "array");
                 for (let i = 0; i < arrayData.length; i += 1) {
                     const item = arrayData[i];
                     const itemValue = item.value;
@@ -170,8 +171,8 @@ export default {
                     if (isSimpleType) { //简单类型数据 x: 1
                         astInfo.indent = indent * level;
                         astInfo.path.value = itemPath;
-                        astInfo.colon = ":";
-                        astInfo.value = itemValue;
+                        astInfo.colon = parentIsArray ? "" : ":";
+                        astInfo.value = itemType === "string" ? `"${itemValue}"` : itemValue;
                         astInfo.valueType = itemType;
                         astInfo.comma = ",";
                         result.push(astInfo);
@@ -197,7 +198,7 @@ export default {
                         astInfo.indent = indent * level;
                         astInfo.colon = itemPath ? ":" : ""; //无key值代表父元素为数组类型
                         result.push(astInfo);
-                        foo(item.children, level + 1, deepth + 1);
+                        foo(item.children, level + 1, deepth + 1, item);
                         rightCurlyBraceInfo.indent = indent * level;
                         rightCurlyBraceInfo.rightCurlBrace.value = "}";
                         rightCurlyBraceInfo.comma = ",";
@@ -224,7 +225,7 @@ export default {
                         astInfo.indent = currentLevel;
                         astInfo.colon = ":";
                         result.push(astInfo);
-                        foo(item.children, level + 1, deepth + 1);
+                        foo(item.children, level + 1, deepth + 1, item);
                         rightBracketInfo.indent = currentLevel;
                         rightBracketInfo.rightBracket.value = "]";
                         rightBracketInfo.rightBracket.pairId = uuid;
@@ -234,7 +235,7 @@ export default {
                     }
                 }
             };
-            foo(rawData, 1, 1, true);
+            foo(rawData, 1, 1, null);
             const rootRightCurlInfo = this.generateAstInfo();
             rootRightCurlInfo.rightCurlBrace.pairId = "root";
             rootRightCurlInfo.indent = 0;
