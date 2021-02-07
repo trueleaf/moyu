@@ -6,7 +6,7 @@
 */
 <template>
     <div class="response-wrap">
-        <s-collapse-card v-for="(item, index) in responseParams" :key="index">
+        <s-collapse-card v-for="(item, index) in responseParams" :fold="index !== 0" :key="index">
             <s-params-tree
                 ref="paramsTree"
                 :tree-data="item.values"
@@ -28,7 +28,7 @@
                     @blur="handleBlur(item)">
                 <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleConfirmHead(item)">确定</span>
                 <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleCancelEditHead(item)">取消</span>
-                <span v-if="index !== 0 && !item._isEdit" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleEditHead(item, index)"></span>
+                <span v-if="!item._isEdit" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleEditHead(item, index)"></span>
             </div>
             <div slot="tail" class="d-flex">
                 <div v-if="index === 0" class="green cursor-pointer" @click="handleAddResponse">新增</div>
@@ -67,13 +67,13 @@
                     </el-dropdown>
                 </div>
                 <!-- 保存为模板 -->
-                <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
+                <div class="cursor-pointer hover-theme-color mr-3" @click.stop="handleOpenSaveTemplate(item)">
                     <span>保存为模板</span>
                 </div>
             </div>
             <!-- 弹窗 -->
             <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.responseParams" @success="handleConvertJsonToParams"></s-json-schema>
-            <s-params-template :items="responseParams" type="responseParams" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
+            <s-params-template :items="currentResponseParams.values" type="responseParams" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
         </s-collapse-card>
     </div>
 
@@ -109,7 +109,7 @@ export default {
     data() {
         return {
             usefulPresetParamsList: [], //常用参数模板
-            currentResponseParams: null, //当前response值，因为有多个，操作时将当前值指向选中的response
+            currentResponseParams: {}, //当前response值，因为有多个，操作时将当前值指向选中的response
             //=====================================其他参数====================================//
             dialogVisible: false, //将json转换为请求参数弹窗
             dialogVisible2: false, //模板维护增删改查
@@ -124,8 +124,8 @@ export default {
         //=====================================组件间交互====================================//
         //新增一个返回参数
         handleAddResponse() {
-            if (this.responseParams.length > 3) {
-                this.$message.warning("返回参数数量不超过3个")
+            if (this.responseParams.length > 5) {
+                this.$message.warning("返回参数数量不超过5个")
                 return;
             }
             const response = {
@@ -168,6 +168,11 @@ export default {
                 item._title = item.title;
                 item._isEdit = false;
             }
+        },
+        //打开保存模板弹窗
+        handleOpenSaveTemplate(item) {
+            this.currentResponseParams = item;
+            this.dialogVisible3 = true
         },
         //=====================================其他操作=====================================//
         //将json数据转换为参数
