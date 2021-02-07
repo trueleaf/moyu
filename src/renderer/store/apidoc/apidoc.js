@@ -108,13 +108,13 @@ export default {
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
-            const { _id, projectId, name, method, changed } = payload;
+            const { _id, projectId, name, tail, changed } = payload;
             const matchedData = state.tabs[projectId].find((val) => val._id === _id);
             if (matchedData && name) {
                 matchedData.name = name;
             }
-            if (matchedData && method) {
-                matchedData.method = method;
+            if (matchedData && tail) {
+                matchedData.tail = tail;
             }
             if (matchedData && changed != null) {
                 Vue.set(matchedData, "changed", changed);
@@ -158,7 +158,7 @@ export default {
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
-            const { projectId, name, changed } = payload;
+            const { projectId, name, changed, tail } = payload;
             this.commit("apidoc/changeTabInfoById", {
                 _id: state.activeDoc[projectId]._id,
                 projectId,
@@ -171,6 +171,9 @@ export default {
             }
             if (matchedData) {
                 matchedData.changed = changed;
+            }
+            if (matchedData && tail) {
+                matchedData.tail = tail;
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
