@@ -6,9 +6,7 @@
 */
 <template>
     <div class="s-json-view">
-        <div class="header">
-            <div class="copy-json">复制为json</div>
-        </div>
+        <slot name="header"/>
         <div class="content">
             <div class="code-banner">
                 <template v-for="(item, index) in astValue">
@@ -362,18 +360,6 @@ export default {
     font-size: size(14);
     background: #282c34;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
-    .header {
-        height: size(25);
-        color: $gray-300;
-        display: flex;
-        align-items: center;
-        .copy-json {
-            cursor: pointer;
-            &:hover {
-                color: lighten($gray-300, 20%);
-            }
-        }
-    }
     .content {
         display: inline-flex;
         .code-banner {

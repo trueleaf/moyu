@@ -181,12 +181,17 @@ export default {
         //检查host值是否有效
         handleCheckHost(url) {
             // 0-9  10-99 100-199 200-255
-            const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,}$/; //ip+端口
-            const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+$/;
+            const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,5}(\/.+)?$/; //ip+端口
+            const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
+            // console.log(url, !url.match(ipReg) && !url.match(dominReg))
             if (!url.match(ipReg) && !url.match(dominReg)) {
-                this.urlError.error = false;
-            } else {
                 this.urlError.error = true;
+                this.urlError.message = "服务器地址不符合规范";
+            } else if (url.trim() === "") {
+                this.urlError.error = true;
+                this.urlError.message = "服务器地址不能为空";
+            } else {
+                this.urlError.error = false;
             }
         },
         //=====================================修改====================================//
@@ -199,7 +204,7 @@ export default {
         //确认修改当前行
         handleSubmitEdit(row) {
             this.handleCheckHost(row.url);
-            if (!this.urlError.error) {
+            if (this.urlError.error) {
                 return;
             }
             row.__active = false;

@@ -329,23 +329,17 @@ export default {
         },
         //改变请求方法
         handleChangeRequestMethods(val) {
-            // this.currentReqeustLimit = val;
-            // if (val.value === "get") { //get请求需要清空嵌套数据
-            //     this.request.requestParams.forEach(params => {
-            //         params.children = [];
-            //         params.type = "string";
-            //     })
-            //     this.request.requestType = "params";
-            // } else {
-            //     if (!val.enabledContenType.includes(this.request.requestType)) {
-            //         this.request.requestType = val.enabledContenType[0];
-            //     }
-            // }
             //改变tabs导航请求方式
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
-                method: val.value,
+                tail: val.value,
+            });
+            //改变当前tab导航信息
+            this.$store.commit("apidoc/changeCurrentTabById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                tail: val.value,
             });
             //改变banner请求方式
             this.$store.commit("apidoc/changeDocBannerInfoById", {

@@ -54,6 +54,7 @@
 <script>
 let ipcRenderer = null;
 if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
     ipcRenderer = window.require("electron").ipcRenderer;
 }
 

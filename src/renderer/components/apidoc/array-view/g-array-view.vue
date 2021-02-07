@@ -28,8 +28,12 @@
                     <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @mousedown.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
                         <span>
+                            <!-- <label v-if="item.path.value" class="checkbox">
+                                <input type="checkbox">
+                                <i class="el-icon-check"></i>
+                            </label> -->
                             <span class="path">{{ item.path.value }}</span>
-                            <span class="colon">{{ item.colon }}&nbsp;</span>
+                            <span v-if="item.colon" class="colon">{{ item.colon }}&nbsp;</span>
                             <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                             <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
                             <span v-if="item.valueType === 'string'" class="string-value">{{ item.value }}</span>
@@ -421,6 +425,17 @@ $theme-color: #282c34;
                     100% {
                         background: inherit;
                     }
+                }
+            }
+            .checkbox {
+                display: inline-flex;
+                width: size(10);
+                height: size(10);
+                margin-right: size(5);
+                background: $gray-500;
+                border: 1px solid $gray-500;
+                input[type=checkbox] {
+                    display: none;
                 }
             }
             .indent {
