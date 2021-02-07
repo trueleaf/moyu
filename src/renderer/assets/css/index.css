@@ -67,7 +67,6 @@ body .el-divider__text {
 body .el-dropdown-menu {
     max-height: 300px;
     overflow-y: auto;
-    padding: 0 0 10px 0;
 }
 body .el-dropdown-menu .popper__arrow {
     display: none;

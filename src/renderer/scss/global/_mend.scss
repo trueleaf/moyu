@@ -3,7 +3,6 @@ body {
     .el-dropdown-menu {
         max-height: size(300);
         overflow-y: auto;
-        padding: 0 0 size(10) 0;
         .popper__arrow {
             display: none;
         }
