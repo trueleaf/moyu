@@ -46,7 +46,7 @@ const HttpClient = (() => {
                 headers: {
                     "user-agent": "moyu(https://github.com/trueleaf/moyu)",
                 },
-                agent: process.env.NODE_ENV === "development" ? agent : {},
+                agent: process.env.NODE_ENV === "development" ? agent : null,
             });
         }
 
@@ -107,6 +107,7 @@ const HttpClient = (() => {
             INVALID_HEADER_KEYS.forEach((key) => {
                 delete this.headers[key];
             })
+            this.headers["content-type"] = this.contentType; //赋值contentType
             console.log("发送请求", options);
             try {
                 let body = "";
