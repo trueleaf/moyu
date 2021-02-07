@@ -244,6 +244,31 @@ export default {
                 this.loading3 = false;
             });
         },
+        //删除模板
+        handleDelete(id) {
+            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                const params = {
+                    ids: [id],
+                    projectId: this.$route.query.id,
+                };
+                this.axios.delete("/api/project/doc_preset_params", { data: params }).then(() => {
+                    this.$refs.table.getData();
+                }).catch((err) => {
+                    console.error(err);
+                }).finally(() => {
+                    this.loading = false;
+                });
+            }).catch((err) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                this.$errorThrow(err, this);
+            });
+        },
         //=====================================组件间交互====================================//
 
         //=====================================其他操作=====================================//
