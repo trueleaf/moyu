@@ -93,6 +93,10 @@ export default {
     },
     data() {
         return {
+            //=====================================记录录入时长===============================//
+            startTime: null, //开始时间
+            endTime: null, //结束时间
+            writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
             //=====================================其他参数====================================//
             watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
@@ -122,6 +126,7 @@ export default {
                         this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                             this.syncRequestParams();
                             this.diffEditParams();
+                            this.calcSpendTime(); //计算编写接口花费的时间
                         }), {
                             deep: true,
                         })
@@ -178,6 +183,7 @@ export default {
                     this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                         this.syncRequestParams();
                         this.diffEditParams();
+                        this.calcSpendTime(); //计算编写接口花费的时间
                     }), {
                         deep: true,
                     })
@@ -324,6 +330,27 @@ export default {
                     changed: true,
                 });
             }
+        },
+        //计算接口录入花费的时间
+        calcSpendTime() {
+            let spendTime = 0;
+            if (!this.startTime) { //开始时间
+                this.startTime = Date.now() - 300;
+            }
+            if (Date.now() - this.startTime > this.writeSensitivity) { //超过限制时间没有录入接口则默认花费时间为0
+                this.startTime = null;
+                this.endTime = null;
+                spendTime = 0;
+            } else { //在限制时间内则说明用户一直在录入
+                spendTime = Date.now() - this.startTime;
+                this.startTime = Date.now();
+            }
+            const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
+            if (!currentDocUsedTime[this.currentSelectDoc._id]) {
+                currentDocUsedTime[this.currentSelectDoc._id] = 0;
+            }
+            currentDocUsedTime[this.currentSelectDoc._id] += spendTime;
+            localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
         },
     },
 };

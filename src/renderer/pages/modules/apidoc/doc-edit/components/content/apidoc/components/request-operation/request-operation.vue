@@ -123,6 +123,9 @@ export default {
         loading() { //发送请求loading效果
             return this.$store.state.apidoc.sendRequestLoading;
         },
+        mindParams() { //联想参数
+            return this.$store.state.apidoc.mindParams;
+        },
     },
     data() {
         return {
@@ -172,19 +175,26 @@ export default {
         },
         //保存接口
         saveRequest() {
+            //保存接口使用时长
+            const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
+            const spendTime = currentDocUsedTime[this.currentSelectDoc._id];
             if (this.host) { //保存默认环境，下次自动应用本次保存的host值
                 let storeEnvironment = localStorage.getItem("apidoc/environment") || "{}";
                 storeEnvironment = JSON.parse(storeEnvironment);
                 storeEnvironment[this.$route.query.id] = this.host;
                 localStorage.setItem("apidoc/environment", JSON.stringify(storeEnvironment))
             }
+            this.$store.commit("apidoc/changeDocUpdateTime");
             const params = {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
                 info: this.apidocInfo.info,
                 item: this.apidocInfo.item,
+                spendTime: spendTime || 0,
             };
             this.saveMindParams(); //保存联想参数
+            const originApidocInfo = this.$helper.cloneDeep(this.$store.state.apidoc.apidocInfo)
+            this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
             //取消未保存小圆点
             this.$store.commit("apidoc/changeCurrentTabById", {
                 _id: this.currentSelectDoc._id,
@@ -192,7 +202,12 @@ export default {
                 changed: false,
             });
             this.loading2 = true;
-            this.axios.post("/api/project/fill_doc", params).then(() => {}).catch((err) => {
+            this.axios.post("/api/project/fill_doc", params).then(() => {
+                if (currentDocUsedTime[this.currentSelectDoc._id]) { //存在文档录入时间，清空时长
+                    currentDocUsedTime[this.currentSelectDoc._id] = 0;
+                    localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
+                }
+            }).catch((err) => {
                 this.$errorThrow(err, this);
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     _id: this.currentSelectDoc._id,
@@ -288,7 +303,7 @@ export default {
         //=====================================url操作====================================//
         //删除无效请求字符并且提取查询字符串
         formatUrl() {
-            // this.convertQueryToParams();
+            this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = `/${this.requestPath}`) : "";
@@ -309,22 +324,9 @@ export default {
             let queryString = this.requestPath.split("?") || "";
             queryString = queryString ? queryString[1] : "";
             const queryParams = qs.parse(queryString);
-            Object.keys(queryParams).forEach((i) => {
-                const reqParams = this.request.requestParams;
-                if (!reqParams.find((val) => val.key === i)) {
-                    this.request.requestParams.unshift({
-                        id: this.$helper.uuid(),
-                        key: i, //--------------请求参数键
-                        value: queryParams[i], //------------请求参数值
-                        type: "string", //-------------请求参数值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                        _select: true, //默认选中
-                    })
-                }
-            })
-            const matchedComponent = this.getComponentByName("REQUEST_PARAMS");
+            const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
+            this.$store.commit("apidoc/unshiftQueryParams", params)
+            const matchedComponent = this.getComponentByName("QUERY_PARAMS");
             matchedComponent.selectChecked();
         },
         //改变请求方法
@@ -347,35 +349,6 @@ export default {
                 projectId: this.$route.query.id,
                 method: val.value,
             });
-            //this.handleChangeRequestMIMEType(this.request.requestType);
-        },
-        //改变MimeType
-        handleChangeRequestMIMEType(val) {
-            if (val === "formData") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "multipart/form-data"
-                    }
-                })
-            } else if (val === "json") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/json; charset=utf-8"
-                    }
-                })
-            } else if (val === "params") { //查询类型application无意义
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/json; charset=utf-8"
-                    }
-                })
-            } else if (val === "x-www-form-urlencoded") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/x-www-form-urlencoded"
-                    }
-                })
-            }
         },
         //hack通过改变_variableChange触发watch事件刷新变量值
         handleVariableChange() {
@@ -408,62 +381,6 @@ export default {
             }
         },
         //=====================================其他操作====================================//
-        //修正contentType
-        async fixContentType() {
-            if (this.docRules.cacheProjectId !== this.$route.query.id) {
-                await this.$store.dispatch("apidocRules/getRuels", {
-                    projectId: this.$route.query.id,
-                });
-            }
-            this.currentReqeustLimit = this.docRules.requestMethods.find((val) => val.value === this.request.methods);
-            if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
-                this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
-            }
-        },
-        //cookie注入
-        injectCookie(res) {
-            const cookies = res.headers["set-cookie"] || [];
-            const cookie = cookies.join(",");
-            if (cookie) {
-                let storeCookie = localStorage.getItem("pages/cookies") || "{}";
-                storeCookie = JSON.parse(storeCookie);
-                storeCookie[this.$route.query.id] = cookie;
-                localStorage.setItem("pages/cookies", JSON.stringify(storeCookie))
-            }
-        },
-        //改变变量信息
-        convertVariable(val) {
-            if (val == null) {
-                return null;
-            }
-            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
-            if (val && matchedData) {
-                const varInfo = this.variables.find((v) => v.name === matchedData[1]);
-                if (varInfo) {
-                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                }
-                return val;
-            }
-            return val;
-        },
-        //获取参数类型
-        getType(value) {
-            let result = "string"
-            if (typeof value === "string") {
-                result = "string"
-            } else if (typeof value === "number") { //NaN
-                result = "number"
-            } else if (typeof value === "boolean") {
-                result = "boolean"
-            } else if (Array.isArray(value)) {
-                result = "array"
-            } else if (typeof value === "object" && value !== null) {
-                result = "object"
-            } else { // null undefined ...
-                result = "string"
-            }
-            return result;
-        },
         //打开配置界面
         handleOpenConfigPage() {
             this.$store.commit("apidoc/addTab", {

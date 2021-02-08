@@ -268,6 +268,12 @@ export default {
         addPresetParams(state, payload) {
             state.presetParamsList.push(payload);
         },
+        //改变最近更新日期
+        changeDocUpdateTime(state) {
+            const nowTime = new Date()
+            state.apidocInfo.updatedAt = nowTime;
+            state.originApidocInfo.updatedAt = nowTime; //若不改变原始文档信息将导致同步错误
+        },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
         changeSendRequestLoading(state, loading) {
