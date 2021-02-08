@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import tips from "./tips";
 
 export default {
@@ -169,5 +170,19 @@ export default {
             return true;
         }
         return false;
+    },
+
+    /**
+     * @description        格式化日期
+     * @author             shuxiaokai
+     * @create             2021-02-08 09:51
+     * @param {Date}       date - 日期对象
+     * @param {string}     rule - 规则
+     * @return {String}    返回自定义日期格式
+     */
+    formatDate(date, rule) {
+        const realRule = rule || "YYYY-MM-DD HH:mm"
+        const result = dayjs(date).format(realRule);
+        return result;
     },
 };

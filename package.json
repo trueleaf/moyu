@@ -23,6 +23,7 @@
     "buffer": "^6.0.1",
     "camelcase": "^6.0.0",
     "core-js": "^3.6.5",
+    "dayjs": "^1.10.4",
     "deepmerge": "^4.2.2",
     "electron-updater": "^4.3.5",
     "element-ui": "^2.13.0",
