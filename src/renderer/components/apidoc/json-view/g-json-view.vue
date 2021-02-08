@@ -354,7 +354,8 @@ export default {
 <style lang="scss">
 .s-json-view {
     min-width: 100%;
-    min-height: size(400);
+    padding-bottom: size(20);
+    // min-height: size(400);
     background: $gray-200;
     position: relative;
     font-size: size(14);

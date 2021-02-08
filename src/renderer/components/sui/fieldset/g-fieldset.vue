@@ -45,7 +45,7 @@ export default {
     display: block;
     min-height: size(30);
     position: relative;
-    border: 1px solid $gray-400;
+    border: 1px solid $gray-500;
     margin-top: 20px;
     background: inherit;
     & > .legend {
@@ -63,7 +63,7 @@ export default {
     & > .content {
         padding: 10px;
         width: 100%;
-        padding-top: size(15);
+        padding-top: size(25);
         overflow-y: auto;
     }
     .operation {
