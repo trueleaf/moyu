@@ -9,31 +9,34 @@
         <s-loading :loading="loading" class="view-area">
             <s-base-info class="base-view"></s-base-info>
             <div class="params-view">
-                <s-collapse v-if="apidocItem.queryParams && apidocItem.queryParams.length > 1" title="请求参数(Params)">
-                    <s-array-view :data="apidocItem.queryParams" class="mt-2">
-                        <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
-                    </s-array-view>
-                </s-collapse>
-                <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1" title="">
-                    <div slot="title">
-                        <span class="mr-2">请求参数(Body)</span>
-                        <span class="theme-color">{{ apidocItem.contentType  }}</span>
-                    </div>
-                    <s-array-view :data="apidocItem.requestBody" class="mt-2">
-                        <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
-                    </s-array-view>
-                </s-collapse>
-                <hr>
-                <s-collapse v-for="(item, index) in apidocItem.responseParams" :key="index" :title="item.title">
-                    <s-array-view v-if="item.values.length > 1" :data="item.values" class="mt-2">
-                        <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
-                    </s-array-view>
-                </s-collapse>
-                <s-collapse title="请求头" :active="false">
+                <s-fieldset title="请求参数" class="mb-5">
+                    <s-collapse v-if="apidocItem.queryParams && apidocItem.queryParams.length > 1" title="请求参数(Params)">
+                        <s-array-view :data="apidocItem.queryParams" class="mt-2">
+                            <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
+                        </s-array-view>
+                    </s-collapse>
+                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1" title="">
+                        <div slot="title">
+                            <span class="mr-2">请求参数(Body)</span>
+                            <span class="theme-color">{{ apidocItem.contentType  }}</span>
+                        </div>
+                        <s-array-view :data="apidocItem.requestBody" class="mt-2">
+                            <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                        </s-array-view>
+                    </s-collapse>
+                </s-fieldset>
+                <s-fieldset title="返回参数">
+                    <s-collapse v-for="(item, index) in apidocItem.responseParams" :active="index === 0" :key="index" :title="item.title">
+                        <s-array-view v-if="item.values.length > 1" :data="item.values" class="mt-2">
+                            <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                        </s-array-view>
+                    </s-collapse>
+                </s-fieldset>
+                <s-fieldset title="请求头">
                     <s-array-view :data="apidocItem.headers">
                         <div v-copy="jsonHeaders" slot="header" class="copy-json">复制为json</div>
                     </s-array-view>
-                </s-collapse>
+                </s-fieldset>
             </div>
         </s-loading>
         <div class="remote-view">

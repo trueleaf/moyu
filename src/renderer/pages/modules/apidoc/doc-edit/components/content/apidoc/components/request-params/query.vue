@@ -68,6 +68,7 @@ import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
 
 export default {
+    name: "QUERY_PARAMS",
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
