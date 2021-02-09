@@ -5,11 +5,11 @@
     备注：xxxx
 */
 <template>
-    <span>
+    <span class="s-ellipsis d-flex a-center">
         <el-tooltip effect="light" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
             <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
         </el-tooltip>
-        <!-- <span v-if="copy" v-copy="value" class="el-icon-document-copy cursor-pointer orange"></span> -->
+        <span v-if="copy || isOverflow" v-copy="value" class="copy el-icon-document-copy cursor-pointer orange"></span>
     </span>
 
 </template>
@@ -37,9 +37,7 @@ export default {
                 setTimeout(() => {
                     const textDom = this.$refs.text;
                     if (textDom) {
-                        const textOverWidth = textDom.scrollWidth;
-                        const warpWidth = textDom.getBoundingClientRect().width;
-                        this.isOverflow = textOverWidth > Math.ceil(warpWidth);
+                        this.isOverflow = textDom.clientWidth < textDom.scrollWidth;
                     }
                 });
             },
@@ -66,12 +64,12 @@ export default {
                 textDom.style.maxWidth = this.maxWidth;
             }
         },
-        handleSelect() {
-            // const selection = window.getSelection();
-            // selection.removeAllRanges();
-            // const range = document.createRange();
-            // range.selectNodeContents(e.target);
-            // selection.addRange(range);
+        handleSelect(e) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            const range = document.createRange();
+            range.selectNodeContents(e.target);
+            selection.addRange(range);
         },
         //=====================================获取远程数据==================================//
 
@@ -85,11 +83,18 @@ export default {
 </script>
 
 <style lang="scss">
-.s-ellipsis-content {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    vertical-align: -3px;
-    display: inline-block;
+.s-ellipsis {
+    .s-ellipsis-content {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: -3px;
+        display: inline-block;
+        margin-right: size(10);
+    }
+    .copy {
+        margin-right: size(10);
+    }
 }
+
 </style>
