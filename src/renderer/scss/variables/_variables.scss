@@ -237,8 +237,10 @@ $zIndex-bread: 1995!default;
 $zIndex-panel: 1996!default; //下拉面板层级
 $zIndex-contextmenu: 1996!default; //contextmenu弹窗
 $zIndex-editor: 1994!default; //富文本编辑器
+$zIndex-copy: 2599!default; //拷贝文案层级,高于UI组件库所有层级
 :export {
     zIndexEditor: $zIndex-editor;
+    zIndexCopy: $zIndex-copy;
     colorBlue: $blue;
     colorRed: $red;     
     colorOrange: $orange;  
