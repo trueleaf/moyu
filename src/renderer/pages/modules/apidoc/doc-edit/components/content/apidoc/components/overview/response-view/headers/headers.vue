@@ -64,6 +64,9 @@ export default {
 
 <style lang="scss">
 .header-view {
+    width: 100%;
+    height: calc(100vh - #{size(400)});
+    overflow-y: auto;
     .table-wrap {
         height: calc(100vh - #{size(400)});
     }

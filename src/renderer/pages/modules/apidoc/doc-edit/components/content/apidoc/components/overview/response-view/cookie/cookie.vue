@@ -70,6 +70,9 @@ export default {
 
 <style lang="scss">
 .cookies-view {
+    width: 100%;
+    height: calc(100vh - #{size(400)});
+    overflow-y: auto;
     .table-wrap {
         height: calc(100vh - #{size(400)});
     }

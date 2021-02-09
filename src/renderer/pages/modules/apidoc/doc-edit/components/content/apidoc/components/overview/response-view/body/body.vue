@@ -12,7 +12,7 @@
             <!-- json格式 -->
             <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)">
                 <div slot="header" class="operation">
-                    <el-dropdown trigger="click">
+                    <el-dropdown trigger="click" size="small">
                         <span>
                             <span class="gray-300 hover-gray-100 cursor-pointer">应用为响应值</span>
                             <i class="el-icon-arrow-down el-icon--right"></i>
