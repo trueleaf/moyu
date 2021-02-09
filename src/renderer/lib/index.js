@@ -365,12 +365,12 @@ export const formatMs = (ms) => {
     if (!ms) {
         return "";
     }
-    if (ms > 0 && ms < 1000) {
-        //毫秒
+    if (ms > 0 && ms < 1000) { //毫秒
         result = `${ms}ms`;
-    } else if (ms >= 1000 && ms < 1000 * 60) {
-        //秒
+    } else if (ms >= 1000 && ms < 1000 * 60) { //秒
         result = `${(ms / 1000).toFixed(2)}s`;
+    } else if (ms >= 1000 * 60) { //分钟
+        result = `${(ms / 1000 / 60).toFixed(2)}m`;
     }
     return result;
 };
