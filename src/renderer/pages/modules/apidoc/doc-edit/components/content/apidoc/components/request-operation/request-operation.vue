@@ -161,6 +161,7 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
+            this.$event.emit("apidoc/sendRequest");
             const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
             const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
             const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
@@ -169,7 +170,6 @@ export default {
                 cookie: this.cookie,
                 ...headers,
             };
-            console.log(222, realHeaders)
             this.$store.dispatch("apidoc/sendRequest", {
                 url: this.apidocInfo.item.url,
                 method: this.apidocInfo.item.method,
@@ -184,10 +184,13 @@ export default {
                 let localCookies = localStorage.getItem("apidoc/cookies") || "{}";
                 localCookies = JSON.parse(localCookies);
                 if (!localCookies[this.$route.query.id]) {
-                    localCookies[this.$route.query.id] = cookies;
+                    localCookies[this.$route.query.id] = [];
                 }
-                localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
-                this.$store.commit("apidoc/changeCookies", cookies);
+                if (cookies.length > 0) { //有setCookie值
+                    localCookies[this.$route.query.id] = cookies;
+                    localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
+                    this.$store.commit("apidoc/changeCookies", cookies);
+                }
             }).catch((err) => {
                 console.error(err);
             });

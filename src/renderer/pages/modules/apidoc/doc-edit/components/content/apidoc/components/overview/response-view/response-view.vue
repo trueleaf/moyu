@@ -105,9 +105,14 @@ export default {
         };
     },
     created() {
-
+        this.initEvent(); //初始化全局事件
     },
     methods: {
+        initEvent() {
+            this.$event.on("apidoc/sendRequest", () => {
+                this.activeName = "s-a";
+            })
+        },
     },
 };
 </script>

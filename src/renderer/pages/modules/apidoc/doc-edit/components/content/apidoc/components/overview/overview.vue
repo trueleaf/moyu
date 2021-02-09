@@ -17,11 +17,16 @@
                     </template>
                 </s-label-value>
                 <div>
-                    <s-label-value label="维护人员：" class="d-inline-flex w-45">
+                    <s-label-value label="维护人员：" label-width="auto" class="d-inline-flex">
                         <span class="mr-2">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                     </s-label-value>
-                    <s-label-value label="创建人员：" class="d-inline-flex ml-2">
+                    <el-divider direction="vertical"></el-divider>
+                    <s-label-value label="创建人员：" label-width="auto" class="d-inline-flex ml-2">
                         <span class="mr-2">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                    </s-label-value>
+                    <el-divider direction="vertical"></el-divider>
+                    <s-label-value label="累计用时：" label-width="auto" class="d-inline-flex ml-2">
+                        <span class="mr-2">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
                     </s-label-value>
                 </div>
                 <s-label-value label="更新日期：" label-width="auto" class="d-inline-flex w-45">
@@ -50,7 +55,6 @@ export default {
     },
     computed: {
         apidocInfo() { //接口文档信息
-            // console.log(this.$store.state.apidoc.apidocInfo);
             return this.$store.state.apidoc.apidocInfo;
         },
         validRequestMethods() {
