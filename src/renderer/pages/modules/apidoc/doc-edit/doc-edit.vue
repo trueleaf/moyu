@@ -34,6 +34,7 @@ export default {
         this.getHostEnum(); //获取host值
         this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
+        this.getLocalCookies(); //获取本地cookies
     },
     methods: {
         //=====================================获取远程数据==================================//
@@ -66,6 +67,14 @@ export default {
             this.$store.dispatch("apidocRules/getRuels", {
                 projectId: this.$route.query.id,
             });
+        },
+        //获取本地cookies
+        getLocalCookies() {
+            let localCookies = localStorage.getItem("apidoc/cookies") || "[]";
+            localCookies = JSON.parse(localCookies);
+            localCookies = localCookies[this.$route.query.id] || [];
+            console.log(localCookies)
+            this.$store.commit("apidoc/changeCookies", localCookies);
         },
         //=====================================前后端交互====================================//
 

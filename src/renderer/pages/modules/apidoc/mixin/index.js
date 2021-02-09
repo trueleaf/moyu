@@ -201,5 +201,21 @@ export default {
             }
             return val;
         },
+        //获取cookie
+        getCookies(rawCookies) {
+            const result = [];
+            if (!rawCookies || rawCookies.length === 0) {
+                return [];
+            }
+            rawCookies.forEach((val) => {
+                const name = val.match(/[^=]+/);
+                const value = val.match(/(?<==)[^;]*/);
+                result.push({
+                    name: name[0],
+                    value: value[0],
+                })
+            })
+            return result;
+        },
     },
 }

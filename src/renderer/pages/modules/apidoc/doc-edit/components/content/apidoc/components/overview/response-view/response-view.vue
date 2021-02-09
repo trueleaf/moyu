@@ -52,7 +52,8 @@
                     <span>Cookie&nbsp;</span>
                     <span v-if="cookieLength > 0" class="orange">({{ cookieLength }})</span>
                 </div>
-                <s-cookie></s-cookie>
+                <!-- fix: 文字隐藏组件获取dom宽度失败 -->
+                <s-cookie v-if="activeName === 's-b'"></s-cookie>
             </el-tab-pane>
             <el-tab-pane name="s-c">
                 <div slot="label">

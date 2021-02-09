@@ -25,6 +25,7 @@ export default {
             responseParams: [],
         },
         presetParamsList: [], //-------预设参数列表
+        cookies: [], //全局cookie信息
         //===============================接口录入相关=========================//
         apidocInfo: {}, //------------接口文档详情
         originApidocInfo: {}, //------原始接口信息，用于对比接口是否发生变化
@@ -33,7 +34,6 @@ export default {
         activeDoc: {}, //-------------当前被选中的tab页
         //============================发送请求===============================//
         sendRequestLoading: false, //是否正在请求数据
-
         remoteResponse: { //返回参数
             headers: {},
             contentType: null,
@@ -274,6 +274,10 @@ export default {
             state.apidocInfo.updatedAt = nowTime;
             state.originApidocInfo.updatedAt = nowTime; //若不改变原始文档信息将导致同步错误
         },
+        //改变项目全局cookie值
+        changeCookies(state, payload) {
+            state.cookies = payload;
+        },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
         changeSendRequestLoading(state, loading) {
@@ -432,6 +436,7 @@ export default {
                     context.commit("changeResponseInfo", response);
                 });
                 httpClient.once("error", (err) => {
+                    console.error(err);
                     context.commit("changeSendRequestLoading", false);
                     context.commit("changeResponseIndex", {
                         mime: "error",
@@ -439,6 +444,12 @@ export default {
                         rt: err?.timings?.phases?.total,
                     });
                     reject(err);
+                });
+                httpClient.once("cancel", () => {
+                    context.commit("changeResponseIndex", {
+                        mime: "error",
+                        value: "请求已被取消",
+                    });
                 });
                 httpClient.once("end", (result) => {
                     context.commit("changeResponseIndex", result);

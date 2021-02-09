@@ -126,6 +126,16 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
+        cookie() {
+            const { cookies } = this.$store.state.apidoc;
+            return cookies.reduce((accumulator, current) => {
+                const currentCookie = `${current.name}=${current.value}`;
+                if (accumulator === "") {
+                    return currentCookie;
+                }
+                return `${accumulator};${currentCookie}`;
+            }, "");
+        },
     },
     data() {
         return {
@@ -155,6 +165,11 @@ export default {
             const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
             const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
             const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            const realHeaders = { //自定义cookie会覆盖默认cookie
+                cookie: this.cookie,
+                ...headers,
+            };
+            console.log(222, realHeaders)
             this.$store.dispatch("apidoc/sendRequest", {
                 url: this.apidocInfo.item.url,
                 method: this.apidocInfo.item.method,
@@ -162,9 +177,17 @@ export default {
                 paths,
                 queryParams,
                 requestBody,
-                headers,
+                headers: realHeaders,
             }).then((res) => {
-                console.log(res)
+                const rawCookies = res.headers["set-cookie"] || [];
+                const cookies = this.getCookies(rawCookies);
+                let localCookies = localStorage.getItem("apidoc/cookies") || "{}";
+                localCookies = JSON.parse(localCookies);
+                if (!localCookies[this.$route.query.id]) {
+                    localCookies[this.$route.query.id] = cookies;
+                }
+                localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
+                this.$store.commit("apidoc/changeCookies", cookies);
             }).catch((err) => {
                 console.error(err);
             });

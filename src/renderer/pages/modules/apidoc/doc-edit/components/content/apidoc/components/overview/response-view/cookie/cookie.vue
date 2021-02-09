@@ -9,8 +9,14 @@
         <template v-if="cookies.length > 0">
             <div class="table-wrap">
                 <el-table :data="cookies" stripe border size="mini" height="100%">
-                    <el-table-column prop="name" label="名称" align="left"></el-table-column>
-                    <el-table-column prop="value" label="值" align="left"></el-table-column>
+                    <el-table-column prop="name" label="名称" align="left" width="120px"></el-table-column>
+                    <el-table-column label="值" align="left">
+                        <template slot-scope="scope">
+                            <div v-for="(item, index) in scope.row.value" :key="index">
+                                <s-ellipsis-content :value="item" max-width="100%"></s-ellipsis-content>
+                            </div>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </div>
         </template>
@@ -29,7 +35,7 @@ export default {
                 const value = val.match(/(?<==).*/);
                 return {
                     name: name ? name[0] : "",
-                    value: value ? value[0] : "",
+                    value: value ? value[0].split(";") : [],
                 }
             })
             return cookies;
