@@ -7,7 +7,7 @@
 <template>
     <div>
         <div class="d-flex a-center mb-2">
-            <div>
+            <div class="flex0">
                 <span>状态码：</span>
                 <template v-if="remoteResponse.statusCode">
                     <span v-show="remoteResponse.statusCode >= 100 && remoteResponse.statusCode < 300" class="green">{{ remoteResponse.statusCode }}</span>
@@ -17,7 +17,7 @@
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
             <el-divider direction="vertical"></el-divider>
-            <div>
+            <div class="flex0">
                 <span>时长：</span>
                 <template v-if="remoteResponse.rt">
                     <span v-show="remoteResponse.rt >= 0 && remoteResponse.rt < 2000" class="green">{{ formatMs }}</span>
@@ -27,7 +27,7 @@
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
             <el-divider direction="vertical"></el-divider>
-            <div>
+            <div class="flex0">
                 <span>大小：</span>
                 <template v-if="remoteResponse.size">
                     <span v-show="remoteResponse.size >= 0 && remoteResponse.size < 10000" class="green">{{ formatBytes }}</span>
@@ -37,7 +37,7 @@
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
             </div>
             <el-divider direction="vertical"></el-divider>
-            <div class="d-flex a-center j-center">
+            <div class="flex0 d-flex a-center j-center">
                 <span>格式：</span>
                 <s-ellipsis-content v-if="remoteResponse.mime" :value="remoteResponse.mime" max-width="200px"></s-ellipsis-content>
                 <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
@@ -52,7 +52,8 @@
                     <span>Cookie&nbsp;</span>
                     <span v-if="cookieLength > 0" class="orange">({{ cookieLength }})</span>
                 </div>
-                <s-cookie></s-cookie>
+                <!-- fix: 文字隐藏组件获取dom宽度失败 -->
+                <s-cookie v-if="activeName === 's-b'"></s-cookie>
             </el-tab-pane>
             <el-tab-pane name="s-c">
                 <div slot="label">
@@ -104,9 +105,14 @@ export default {
         };
     },
     created() {
-
+        this.initEvent(); //初始化全局事件
     },
     methods: {
+        initEvent() {
+            this.$event.on("apidoc/sendRequest", () => {
+                this.activeName = "s-a";
+            })
+        },
     },
 };
 </script>
