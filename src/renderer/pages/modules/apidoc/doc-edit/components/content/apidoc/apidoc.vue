@@ -168,6 +168,7 @@ export default {
                     return;
                 }
                 const resData = res.data;
+                console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
@@ -250,6 +251,13 @@ export default {
                     response.values.push(this.generateProperty());
                 }
             })
+            //如果无请求server则添加本地上次选择的server
+            let localServer = localStorage.getItem("apidoc/server") || "{}";
+            localServer = JSON.parse(localServer);
+            localServer = localServer[this.$route.query.id];
+            if (localServer && !resData.item.url.host) {
+                resData.item.url.host = localServer;
+            }
         },
         //生成默认请求头
         generateDefaultHeaders(resData) {

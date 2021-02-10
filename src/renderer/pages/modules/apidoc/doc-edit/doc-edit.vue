@@ -73,7 +73,6 @@ export default {
             let localCookies = localStorage.getItem("apidoc/cookies") || "[]";
             localCookies = JSON.parse(localCookies);
             localCookies = localCookies[this.$route.query.id] || [];
-            console.log(localCookies)
             this.$store.commit("apidoc/changeCookies", localCookies);
         },
         //=====================================前后端交互====================================//
