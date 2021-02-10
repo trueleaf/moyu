@@ -8,7 +8,7 @@
     <s-dialog class="g-user" title="给用户添加角色" :isShow="isShow" @close="handleClose">
         <s-form ref="form" showRules :formInfo="formInfo">
             <s-form-item label="输入框" vModel="a"></s-form-item>
-        </s-form>  
+        </s-form>
         <el-checkbox-group v-model="formInfo.roleIds">
             <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
         </el-checkbox-group>
@@ -24,17 +24,17 @@ export default {
     props: {
         isShow: {
             type: Boolean,
-            default: false
+            default: false,
         },
         id: {
             type: String,
-            default: ""
+            default: "",
         },
         roleIds: {
             type: Array,
             default() {
-                return []
-            }
+                return [];
+            },
         },
     },
     data() {
@@ -51,12 +51,11 @@ export default {
     watch: {
         roleIds: {
             handler() {
-                console.log(this.roleIds, 22)
                 this.formInfo.roleIds = this.roleIds;
             },
             immediate: true,
-            deep: true
-        }
+            deep: true,
+        },
     },
     created() {
         this.getRoleEnum();
@@ -64,40 +63,36 @@ export default {
     methods: {
         //=====================================获取远程数据==================================//
         getRoleEnum() {
-            this.axios.get("/api/security/role_enum").then(res => {
+            this.axios.get("/api/security/role_enum").then((res) => {
                 this.roleEnum = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
         //=====================================前后端交互====================================//
         //修改用户权限
         handleEidtUser() {
-            this.formInfo.roleNames = this.formInfo.roleIds.map(val => {
-                const user = this.roleEnum.find(role => role._id === val)
+            this.formInfo.roleNames = this.formInfo.roleIds.map((val) => {
+                const user = this.roleEnum.find((role) => role._id === val);
                 return user ? user.roleName : "";
-            })
+            });
             this.loading = true;
-            this.axios.put("/api/security/user_permission", this.formInfo).then(res => {
+            this.axios.put("/api/security/user_permission", this.formInfo).then(() => {
                 this.$emit("success");
                 this.handleClose();
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
             });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleClose() {
             this.$emit("update:isShow", false);
         },
-        //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

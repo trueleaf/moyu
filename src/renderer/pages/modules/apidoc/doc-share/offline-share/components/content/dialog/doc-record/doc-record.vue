@@ -139,7 +139,7 @@ export default {
                         // const newElementValue = newElement.value; //最新数据value值
                         // const newElementType = newElement.type; //最新数据type值
                         // const newElementDescription = newElement.description; //最新数据description值
-                        const oldElement = oldData.find(val => val.key === newElementKey); //旧数据
+                        const oldElement = oldData.find((val) => val.key === newElementKey); //旧数据
                         let retData = {};
                         if (oldElement) { //原始数据key值在历史数据中存在
                             retData = this.generateDiffDocInfo(newElement, oldElement);
@@ -166,7 +166,7 @@ export default {
                         // const oldElementType = oldElement.type; //历史数据type值
                         // const oldElementDescription = oldElement.description; //历史数据description值
                         //=========================================================================//
-                        const newElement = newData.find(val => val.key === oldElementKey); //新数据
+                        const newElement = newData.find((val) => val.key === oldElementKey); //新数据
                         if (!newElement) { //原始数据key值在历史数据中存在
                             const retData = this.generateDiffDocInfo(null, oldElement);
                             result.push(retData)
@@ -201,7 +201,7 @@ export default {
                         // const newElementValue = newElement.value; //最新数据value值
                         // const newElementType = newElement.type; //最新数据type值
                         // const newElementDescription = newElement.description; //最新数据description值
-                        const oldElement = oldData.find(val => val.key === newElementKey); //旧数据
+                        const oldElement = oldData.find((val) => val.key === newElementKey); //旧数据
                         let retData = {};
                         if (oldElement) { //原始数据key值在历史数据中存在
                             retData = this.generateDiffDocInfo(newElement, oldElement);
@@ -228,7 +228,7 @@ export default {
                         // const oldElementType = oldElement.type; //历史数据type值
                         // const oldElementDescription = oldElement.description; //历史数据description值
                         //=========================================================================//
-                        const newElement = newData.find(val => val.key === oldElementKey); //新数据
+                        const newElement = newData.find((val) => val.key === oldElementKey); //新数据
                         if (!newElement) { //原始数据key值在历史数据中存在
                             const retData = this.generateDiffDocInfo(null, oldElement);
                             result.push(retData)
@@ -301,7 +301,7 @@ export default {
             const params = {
                 docId: this.currentSelectDoc._id
             };
-            this.axios.get("/api/docs/docs_records", { params }).then(res => {
+            this.axios.get("/api/docs/docs_records", { params }).then((res) => {
                 if (res.data && res.data.length > 0) {
                     const docInfo = res.data[0];
                     this.newDocInfo.base = {
@@ -318,7 +318,7 @@ export default {
                         this.generateOldDocInfo(res.data[1]);
                     }
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;

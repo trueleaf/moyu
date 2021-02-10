@@ -5,9 +5,13 @@
     备注：
 */
 <template>
-    <div class="g-ctx-wrap" :style="{left: left + 'px', top: top + 'px'}">
-        <div v-show="operations.includes('add')" class="item-list" @click="handleClickItem('menu')">新增菜单</div>
-        <div v-show="operations.includes('delete')" class="item-list" @click="handleClickItem('delete')">删除</div>                    
+    <div class="g-ctx-wrap" :style="{ left: left + 'px', top: top + 'px' }">
+        <div v-show="operations.includes('add')" class="item-list" @click="handleClickItem('menu')">
+            新增菜单
+        </div>
+        <div v-show="operations.includes('delete')" class="item-list" @click="handleClickItem('delete')">
+            删除
+        </div>
     </div>
 </template>
 
@@ -17,60 +21,54 @@ export default {
         operations: {
             type: Array,
             default() {
-                return []
-            }
+                return [];
+            },
         },
         left: {
             type: Number,
-            default: 0
+            default: 0,
         },
         top: {
             type: Number,
-            default: 0
+            default: 0,
         },
     },
     data() {
-        return {
-            
-        };
+        return {};
     },
-    created() {
-
-    },
+    created() {},
     methods: {
         handleClickItem(type) {
             /*eslint-disable indent*/
             switch (type) {
                 case "menu":
-                    this.$emit("menu")
+                    this.$emit("menu");
                     break;
                 case "delete":
-                    this.$emit("delete")
+                    this.$emit("delete");
                     break;
                 default:
                     break;
-            } 
+            }
         },
-    }
+    },
 };
 </script>
 
-
-
 <style lang="scss">
-    .g-ctx-wrap {
-        position: fixed;
-        background: $white;
-        border-radius: $border-radius-sm;
-        box-shadow: $box-shadow-sm;
-        z-index: $zIndex-contextmenu;
-        .item-list {
-            line-height: 2em;
-            padding: .3em 2em;
-            cursor: pointer;
-            &:hover {
-                background: rgba(0,0,0,0.04);
-            }
+.g-ctx-wrap {
+    position: fixed;
+    background: $white;
+    border-radius: $border-radius-sm;
+    box-shadow: $box-shadow-sm;
+    z-index: $zIndex-contextmenu;
+    .item-list {
+        line-height: 2em;
+        padding: 0.3em 2em;
+        cursor: pointer;
+        &:hover {
+            background: rgba(0, 0, 0, 0.04);
         }
     }
+}
 </style>

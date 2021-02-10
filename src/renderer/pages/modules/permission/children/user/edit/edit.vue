@@ -14,7 +14,7 @@
             <s-form-item label="部门" vModel="department" required halfLine></s-form-item>
             <s-form-item label="职位" vModel="title" required halfLine></s-form-item>
             <s-form-item label="qq号" vModel="qq" required halfLine></s-form-item>
-        </s-form>  
+        </s-form>
         <el-divider content-position="left">角色选择</el-divider>
         <el-checkbox-group v-model="formInfo.roleIds">
             <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
@@ -31,13 +31,12 @@ export default {
     props: {
         isShow: {
             type: Boolean,
-            default: false
+            default: false,
         },
         id: {
             type: String,
-            default: ""
+            default: "",
         },
-       
     },
     data() {
         return {
@@ -61,9 +60,9 @@ export default {
         //获取用户基本信息
         getUserInfo() {
             this.loading2 = true;
-            this.axios.get("/api/security/user_info_by_id", { params: { _id: this.id }}).then(res => {
+            this.axios.get("/api/security/user_info_by_id", { params: { _id: this.id } }).then((res) => {
                 this.formInfo = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading2 = false;
@@ -71,53 +70,50 @@ export default {
         },
         //获取角色枚举
         getRoleEnum() {
-            this.axios.get("/api/security/role_enum").then(res => {
+            this.axios.get("/api/security/role_enum").then((res) => {
                 this.roleEnum = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
         //=====================================前后端交互====================================//
         //修改用户权限
         handleEidtUser() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
-                    this.formInfo.roleNames = this.formInfo.roleIds.map(val => {
-                        const user = this.roleEnum.find(role => role._id === val)
+                    this.formInfo.roleNames = this.formInfo.roleIds.map((val) => {
+                        const user = this.roleEnum.find((role) => role._id === val);
                         return user ? user.roleName : "";
-                    })
+                    });
                     this.loading = true;
                     this.axios.put("/api/security/user_permission", this.formInfo).then(() => {
                         this.$emit("success");
                         this.handleClose();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
-                    });                    
+                    });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                     this.$message.warning("请完善必填信息");
                     this.loading = false;
                 }
             });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleClose() {
             this.$emit("update:isShow", false);
         },
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

@@ -31,7 +31,7 @@
                 <div class="flex1">
                     <div>所拥有项目</div>
                 </div>
-            </div>            
+            </div>
         </s-card>
         <s-dialog title="修改密码" :isShow.sync="dialogVisible">
             <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
@@ -44,7 +44,7 @@
                 <el-form-item label="确认密码" prop="newPassword2">
                     <el-input v-model="formInfo.newPassword2" show-password size="mini" placeholder="请再次输入新密码" class="w-100" maxlength="100"></el-input>
                 </el-form-item>
-            </el-form>  
+            </el-form>
             <div slot="footer">
                 <el-button :loading="loading2" size="mini" type="primary" @click="handleChangePassword">确定</el-button>
                 <el-button size="mini" type="warning" @click="dialogVisible = false">取消</el-button>
@@ -58,7 +58,7 @@ export default {
     data() {
         const matchString = /[a-zA-Z]/;
         const matchNumber = /\d/;
-        const inValidKey = /[^\w\d!@#]/
+        const inValidKey = /[^\w\d!@#]/;
         const validatePassword = (rule, value, callback) => {
             if (value.trim() === "") {
                 callback(new Error("请输入密码"));
@@ -103,7 +103,7 @@ export default {
                 ],
                 newPassword2: [
                     { required: true, message: "请再次输入密码", trigger: "blur" },
-                    { validator: validatePassword2, trigger: "blur" }
+                    { validator: validatePassword2, trigger: "blur" },
                 ],
             },
             //=========================================================================//
@@ -119,9 +119,9 @@ export default {
         //=====================================获取远程数据==================================//
         getUserBaseInfo() {
             this.loading = true;
-            this.axios.get("/api/security/user_info").then(res => {
+            this.axios.get("/api/security/user_info").then((res) => {
                 this.userInfo = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
@@ -130,13 +130,13 @@ export default {
 
         //=====================================前后端交互====================================//
         handleChangePassword() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading2 = true;
                     this.axios.put("/api/security/user_password", this.formInfo).then(() => {
                         this.dialogVisible = false;
                         this.$message.success("修改成功");
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading2 = false;
@@ -144,27 +144,24 @@ export default {
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                     this.$message.warning("请完善必填信息");
                     this.loading = false;
                 }
             });
         },
-        //=====================================组件间交互====================================//  
-        
+        //=====================================组件间交互====================================//
         //=====================================其他操作=====================================//
         handleBack() {
             this.$router.go("-1");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .user-setting {

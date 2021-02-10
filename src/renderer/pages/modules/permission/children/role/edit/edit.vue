@@ -11,7 +11,7 @@
                 <s-form ref="form" :formInfo="formInfo">
                     <s-form-item label="角色名称" vModel="roleName" required oneLine></s-form-item>
                     <s-form-item label="备注" vModel="remark" required oneLine></s-form-item>
-                </s-form>                   
+                </s-form>
             </s-fieldset>
             <s-fieldset title="权限选择">
                 <el-tabs v-model="activeName">
@@ -21,9 +21,9 @@
                             <div v-for="(item, title) in clientRoutes" :key="title">
                                 <el-divider content-position="left">{{ title }}</el-divider>
                                 <div class="pl-5">
-                                    <el-checkbox 
-                                            v-model="item.__select" 
-                                            :indeterminate="!!formInfo.clientRoutes.find(val => item.find(i => i._id === val)) && !item.every(val => formInfo.clientRoutes.find(i => i === val._id ))"
+                                    <el-checkbox
+                                            v-model="item.__select"
+                                            :indeterminate="!!formInfo.clientRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.clientRoutes.find(i => i === val._id ))"
                                             label="全选"
                                             @change="handleSelectAllClientRoutes(item)">
                                     </el-checkbox>
@@ -31,7 +31,7 @@
                                         <el-checkbox v-for="(item2, index) in item" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
                                     </el-checkbox-group>
                                 </div>
-                            </div>                        
+                            </div>
                         </s-card>
                     </el-tab-pane>
                     <!-- 后端路由 -->
@@ -40,9 +40,9 @@
                             <div v-for="(item, title) in serverRoutes" :key="title">
                                 <el-divider content-position="left">{{ title }}</el-divider>
                                 <div class="pl-5">
-                                    <el-checkbox 
-                                            v-model="item.__select" 
-                                            :indeterminate="!!formInfo.serverRoutes.find(val => item.find(i => i._id === val)) && !item.every(val => formInfo.serverRoutes.find(i => i === val._id ))"
+                                    <el-checkbox
+                                            v-model="item.__select"
+                                            :indeterminate="!!formInfo.serverRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.serverRoutes.find(i => i === val._id ))"
                                             label="全选"
                                             @change="handleSelectAllServerRoutes(item)">
                                     </el-checkbox>
@@ -50,31 +50,31 @@
                                         <el-checkbox v-for="(item2, index) in item" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
                                     </el-checkbox-group>
                                 </div>
-                            </div>       
+                            </div>
                         </s-card>
                     </el-tab-pane>
                     <!-- 前端菜单 -->
                     <el-tab-pane name="clientMenu" label="前端菜单">
                         <div class="wrap">
-                            <el-tree 
+                            <el-tree
                                     ref="docTree"
                                     class="tree"
-                                    :data="clientMenu" 
+                                    :data="clientMenu"
                                     show-checkbox
-                                    node-key="_id" 
+                                    node-key="_id"
                                     :draggable="false"
                                     empty-text="暂无数据"
-                                    :expand-on-click-node="false" 
-                                    :render-content="renderContent" 
+                                    :expand-on-click-node="false"
+                                    :render-content="renderContent"
                                     :highlight-current="true"
                                     @check-change="handleSelectClientMenu"
                             >
                             </el-tree>
                         </div>
                     </el-tab-pane>
-                </el-tabs>                                
+                </el-tabs>
             </s-fieldset>
-        </div>        
+        </div>
         <div slot="footer">
             <el-button :loading="loading" size="mini" type="primary" @click="handleEditRole">确定</el-button>
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
@@ -84,17 +84,19 @@
 </template>
 
 <script>
-import { recursion } from "@/lib/index"
+/* eslint-disable no-underscore-dangle */
+import { recursion } from "@/lib/index";
+
 export default {
     props: {
         isShow: {
             type: Boolean,
-            default: false
+            default: false,
         },
         id: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
     },
     data() {
         return {
@@ -109,7 +111,7 @@ export default {
                 serverRoutes: [], //已选后端路由
             },
             //=========================================================================//
-            loading: false
+            loading: false,
         };
     },
     created() {
@@ -123,23 +125,23 @@ export default {
         getRoleInfo() {
             this.loading = true;
             const params = {
-                _id: this.id
+                _id: this.id,
             };
-            this.axios.get("/api/security/role_info", { params }).then(res => {
-                res.data.clientBanner.forEach(val => {
-                    this.$refs["docTree"].setChecked(val, true);
-                })
+            this.axios.get("/api/security/role_info", { params }).then((res) => {
+                res.data.clientBanner.forEach((val) => {
+                    this.$refs.docTree.setChecked(val, true);
+                });
                 setTimeout(() => { //hack不知道为什么不回显数据
-                    res.data.clientBanner.forEach(val => {
-                        this.$refs["docTree"].setChecked(val, true);
-                    })
-                }, 1000)
+                    res.data.clientBanner.forEach((val) => {
+                        this.$refs.docTree.setChecked(val, true);
+                    });
+                }, 1000);
                 this.formInfo.clientBanner = res.data.clientBanner;
                 this.formInfo.clientRoutes = res.data.clientRoutes;
                 this.formInfo.serverRoutes = res.data.serverRoutes;
                 this.formInfo.roleName = res.data.roleName;
                 this.formInfo.remark = res.data.remark;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -148,21 +150,17 @@ export default {
         //获取树形菜单结构
         getClientMenu() {
             this.loading = true;
-            this.axios.get("/api/security/client_menu_tree").then(res => {
+            this.axios.get("/api/security/client_menu_tree").then((res) => {
                 recursion({
                     data: res.data,
                     before: (val) => {
                         val.id = val._id;
                     },
-                    condition: (val) => {
-                        return val.children && val.children.length > 0;
-                    },
-                    next: (val) => {
-                        return val.children
-                    }
+                    condition: (val) => val.children && val.children.length > 0,
+                    next: (val) => val.children,
                 });
                 this.clientMenu = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -171,17 +169,17 @@ export default {
         //获取前端路由信息
         getClientRoutes() {
             this.loading = true;
-            this.axios.get("/api/security/client_routes").then(res => {
-                const data = res.data;
-                data.forEach(val => {
+            this.axios.get("/api/security/client_routes").then((res) => {
+                const { data } = res;
+                data.forEach((val) => {
                     if (!this.clientRoutes[val.groupName || "__default"]) {
-                        this.$set(this.clientRoutes, val.groupName || "__default", [])
+                        this.$set(this.clientRoutes, val.groupName || "__default", []);
                     }
                     this.clientRoutes[val.groupName || "__default"].push({
-                        ...val
+                        ...val,
                     });
-                })
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -190,17 +188,17 @@ export default {
         //获取后端路由信息
         getServerRoutes() {
             this.loading3 = true;
-            this.axios.get("/api/security/server_routes").then(res => {
-                const data = res.data;
-                data.forEach(val => {
+            this.axios.get("/api/security/server_routes").then((res) => {
+                const { data } = res;
+                data.forEach((val) => {
                     if (!this.serverRoutes[val.groupName || "__default"]) {
-                        this.$set(this.serverRoutes, val.groupName || "__default", [])
+                        this.$set(this.serverRoutes, val.groupName || "__default", []);
                     }
                     this.serverRoutes[val.groupName || "__default"].push({
-                        ...val
+                        ...val,
                     });
-                })
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading3 = false;
@@ -209,73 +207,69 @@ export default {
         //=====================================前后端交互====================================//
         //保存角色
         handleEditRole() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const params = {
                         _id: this.id,
-                        ...this.formInfo
+                        ...this.formInfo,
                     };
                     this.loading = true;
                     this.axios.put("/api/security/role", params).then(() => {
                         this.$emit("success");
                         this.handleClose();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
-                    });                    
+                    });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                 }
             });
         },
         //=====================================组件间交互====================================//
-        //全选前端路由  
+        //全选前端路由
         handleSelectAllClientRoutes(routes) {
             if (routes.__select === true) {
-                routes.forEach(route => {
-                    if (!this.formInfo.clientRoutes.find(val => val === route._id)) {
+                routes.forEach((route) => {
+                    if (!this.formInfo.clientRoutes.find((val) => val === route._id)) {
                         this.formInfo.clientRoutes.push(route._id);
                     }
-                })
+                });
             } else {
-                routes.forEach(route => {
-                    const index = this.formInfo.clientRoutes.findIndex(val => val === route._id);
-                    this.formInfo.clientRoutes.splice(index, 1)
-                })
+                routes.forEach((route) => {
+                    const index = this.formInfo.clientRoutes.findIndex((val) => val === route._id);
+                    this.formInfo.clientRoutes.splice(index, 1);
+                });
             }
         },
         //全选后端路由
         handleSelectAllServerRoutes(routes) {
             if (routes.__select === true) {
-                routes.forEach(route => {
-                    if (!this.formInfo.serverRoutes.find(val => val === route._id)) {
+                routes.forEach((route) => {
+                    if (!this.formInfo.serverRoutes.find((val) => val === route._id)) {
                         this.formInfo.serverRoutes.push(route._id);
                     }
-                })
+                });
             } else {
-                routes.forEach(route => {
-                    const index = this.formInfo.serverRoutes.findIndex(val => val === route._id);
-                    this.formInfo.serverRoutes.splice(index, 1)
-                })
+                routes.forEach((route) => {
+                    const index = this.formInfo.serverRoutes.findIndex((val) => val === route._id);
+                    this.formInfo.serverRoutes.splice(index, 1);
+                });
             }
         },
         //判断是否全选
         handleCheckSelectAllClientRoutes(item) {
-            const isSelectAll = item.every(val => {
-                return this.formInfo.clientRoutes.find(v => v === val._id);
-            });
+            const isSelectAll = item.every((val) => this.formInfo.clientRoutes.find((v) => v === val._id));
             this.$set(item, "__select", isSelectAll);
         },
         handleCheckSelectAllServerRoutes(item) {
-            const isSelectAll = item.every(val => {
-                return this.formInfo.serverRoutes.find(v => v === val._id);
-            });
+            const isSelectAll = item.every((val) => this.formInfo.serverRoutes.find((v) => v === val._id));
             this.$set(item, "__select", isSelectAll);
         },
         //=====================================树形组建操作==================================//
@@ -283,15 +277,15 @@ export default {
         renderContent(h, { data }) {
             const navTitleDom = this.getRenderNavTitleDom(data);
             return (
-                <div class={["custom-tree-node"]} on-mouseover={(e) => {e.target.classList.add("active")}} on-mouseleave={(e) => {e.target.classList.remove("active")}}>
+                <div class={["custom-tree-node"]} on-mouseover={(e) => { e.target.classList.add("active"); }} on-mouseleave={(e) => { e.target.classList.remove("active"); }}>
                     { navTitleDom }
                 </div>
             );
         },
         //渲染导航title文字或者编辑时候的输入框
         getRenderNavTitleDom(data) {
-            const isActiveTitle = this.currentFileTab && this.currentFileTab.id === data._id
-            return (<span class={["node-name", "text-ellipsis", "ml-1", isActiveTitle ? "bg-active" : ""]} title={data.name}>{data.name}</span>)
+            const isActiveTitle = this.currentFileTab && this.currentFileTab.id === data._id;
+            return (<span class={["node-name", "text-ellipsis", "ml-1", isActiveTitle ? "bg-active" : ""]} title={data.name}>{data.name}</span>);
         },
         //选择前端菜单
         handleSelectClientMenu() {
@@ -304,11 +298,9 @@ export default {
             this.$emit("update:isShow", false);
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .g-role {

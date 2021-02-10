@@ -1,10 +1,9 @@
 const path = require("path");
-const config = require("./src/config");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const config = require("./src/config");
 
 const isShareDoc = process.argv.find((val) => val === "--single");
-
 
 let vueConfig = {};
 if (isShareDoc) {
@@ -42,13 +41,13 @@ if (isShareDoc) {
                 new HtmlWebpackInlineSourcePlugin(),
             ],
         },
-        chainWebpack: (config) => {
-            const fontsRule = config.module.rule("fonts");
+        chainWebpack: (webpackConfig) => {
+            const fontsRule = webpackConfig.module.rule("fonts");
             // clear all existing loaders.
             // if you don't do this, the loader below will be appended to
             // existing loaders of the rule.
             fontsRule.uses.clear();
-            config.module
+            webpackConfig.module
                 .rule("fonts")
                 .test(/\.(ttf|otf|eot|woff|woff2)$/)
                 .use("base64-inline-loader")
@@ -108,7 +107,7 @@ if (isShareDoc) {
                     "cookie-parser",
                     "got",
                     "form-data",
-                    "proxy-agent"
+                    "proxy-agent",
                 ],
                 mainProcessFile: "src/main/index.js",
                 rendererProcessFile: "src/renderer/main.js",
@@ -119,22 +118,22 @@ if (isShareDoc) {
                     publish: [
                         {
                             provider: "generic",
-                            url: ""
-                        }
+                            url: "",
+                        },
                     ],
                     nsis: {
                         oneClick: false, // 是否一键安装
                         allowToChangeInstallationDirectory: true, // 允许修改安装目录
                     },
                     mac: {
-                        "icon": "build/icons/icon.icns"
+                        icon: "build/icons/icon.icns",
                     },
                     win: {
-                        "icon": "build/icons/icon.ico"
+                        icon: "build/icons/icon.ico",
                     },
                     linux: {
-                        "icon": "build/icons"
-                    }
+                        icon: "build/icons",
+                    },
                 },
             },
         },

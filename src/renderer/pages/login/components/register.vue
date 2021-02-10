@@ -35,7 +35,7 @@ export default {
     data() {
         const matchString = /[a-zA-Z]/;
         const matchNumber = /\d/;
-        const inValidKey = /[^\w\d!@#]/
+        const inValidKey = /[^\w\d!@#]/;
         const validatePassword = (rule, value, callback) => {
             if (value.trim() === "") {
                 callback(new Error("请输入密码"));
@@ -81,13 +81,13 @@ export default {
                 ],
                 password2: [
                     { required: true, message: "请再次输入密码", trigger: "blur" },
-                    { validator: validatePassword2, trigger: "blur" }
+                    { validator: validatePassword2, trigger: "blur" },
                 ],
                 phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
                 smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
             },
             //=====================================其他参数====================================//
-            loading: false
+            loading: false,
         };
     },
     created() {},
@@ -97,49 +97,46 @@ export default {
             if (this.registerInfo.phone.length !== 11) {
                 this.$message.warning("请填写正确手机号");
                 return false;
-            } else {
-                return true;
             }
+            return true;
         },
         //获取短信验证码
         getSmsCode() {
             const params = {
-                phone: this.registerInfo.phone
+                phone: this.registerInfo.phone,
             };
-            this.axios.get("/api/security/sms", { params }).then(() => {
-                
-            }).catch(err => {
+            this.axios.get("/api/security/sms", { params }).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
-            });                
+            });
         },
         //用户注册
         handleRegister() {
-            this.$refs["form"].validate((valid, invalidData) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const userInfo = {
                         loginName: this.registerInfo.loginName,
-                        password: this.registerInfo.password
+                        password: this.registerInfo.password,
                     };
                     this.axios.post("/api/security/register", this.registerInfo).then(() => {
-                        this.axios.post("/api/security/login_password", userInfo).then(res => {
+                        this.axios.post("/api/security/login_password", userInfo).then((res) => {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-                        }).catch(err => {
+                        }).catch((err) => {
                             this.$errorThrow(err, this);
                         }).finally(() => {
                             this.loading = false;
                         });
-                    }).catch(err => {
+                    }).catch((err) => {
                         console.error(err);
                         this.loading = false;
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
-                    for (const invalid in invalidData) {
-                        console.log(invalidData[invalid]);
-                    }
                     this.$message.warning("请完善必填信息");
                     this.loading = false;
                 }
@@ -148,8 +145,6 @@ export default {
     },
 };
 </script>
-
-
 
 <style lang="scss">
 </style>

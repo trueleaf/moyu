@@ -110,7 +110,7 @@ export default {
         //=====================================前后端交互操作====================================//
         //新增表格数据
         handleAddHost() {
-            this.$refs["form"].validate(valid => {
+            this.$refs.form.validate(valid => {
                 if (valid) {
                     this.loading = true;
                     const params = Object.assign(this.formInfo, {
@@ -121,7 +121,7 @@ export default {
                         this.successLoading = true;
                         this.$emit("change")
                         this.getData();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
@@ -145,7 +145,7 @@ export default {
                 this.$emit("change")
                 this.getData();
                 this.isEditing = false;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
@@ -167,7 +167,7 @@ export default {
                     this.$message.success("删除成功");
                     this.$emit("change")
                     this.getData();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
                 });  
             }).catch(() => {

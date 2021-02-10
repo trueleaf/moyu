@@ -24,8 +24,8 @@
                         <span class="el-icon-back"></span>
                     </div>
                     <div class="op_item" @click="goForward">
-                        <span title="前进" class="el-icon-right"></span>    
-                    </div>  
+                        <span title="前进" class="el-icon-right"></span>
+                    </div>
                 </div>
                 <div v-if="downloading" class="process">
                     <span v-if="progress !== 100" title="更新进度">{{ progress.toFixed(1) }}%</span>
@@ -54,6 +54,7 @@
 <script>
 let ipcRenderer = null;
 if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
     ipcRenderer = window.require("electron").ipcRenderer;
 }
 
@@ -64,7 +65,7 @@ export default {
             progress: 0,
             downloading: false,
             isWeb: !window.require,
-            ip: null
+            ip: null,
         };
     },
     computed: {
@@ -72,7 +73,7 @@ export default {
             return this.$store.state.permission.menus;
         },
         userInfo() {
-            return this.$store.state.permission.userInfo
+            return this.$store.state.permission.userInfo;
         },
     },
     watch: {
@@ -89,11 +90,11 @@ export default {
             if (window.require) {
                 //存在可用更新
                 ipcRenderer.on("vue-update-available", () => {
-                    console.log("存在可用更新")
+                    console.log("存在可用更新");
                 });
                 //没有可用更新
                 ipcRenderer.on("vue-update-not-available", () => {
-                    console.log("没有可用更新")
+                    console.log("没有可用更新");
                     this.downloading = false;
                     this.$message.warning("暂无可用更新");
                 });
@@ -112,20 +113,19 @@ export default {
                     this.$message.warning("更新异常请稍后再试");
                     this.downloading = false;
                     console.error(error);
-                });                
+                });
             }
-
         },
         handleInstall() {
             if (window.require) {
-                ipcRenderer.send("quit-and-install");          
+                ipcRenderer.send("quit-and-install");
             }
         },
         handleCheckUpdate() {
             this.downloading = true;
             if (window.require) {
-                // ipcRenderer.send("checkUpdate"); 
-                ipcRenderer.send("vue-check-update")       
+                // ipcRenderer.send("checkUpdate");
+                ipcRenderer.send("vue-check-update");
             }
         },
         //=========================================================================//
@@ -138,7 +138,7 @@ export default {
         },
         //跳转到用户设置
         jumpToUserSetting() {
-            this.$router.push("/v1/settings/user")
+            this.$router.push("/v1/settings/user");
         },
         //退出登录
         logout() {
@@ -150,23 +150,20 @@ export default {
         //刷新页面
         freshContent() {
             if (window.require) {
-                ipcRenderer.send("vue-fresh-content")      
+                ipcRenderer.send("vue-fresh-content");
             }
         },
         //后退
         goBack() {
-            this.$router.back()
+            this.$router.back();
         },
         //前进
         goForward() {
             this.$router.forward();
-        }
-
-    }
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .s-content {
@@ -199,7 +196,6 @@ export default {
                     border-radius: 50%;
                     &:hover {
                         background: $gray-600;
-                        // color: $theme-color;
                     }
                 }
             }

@@ -5,20 +5,33 @@
     备注：xxxx
 */
 <template>
-    <div 
-            class="collapse-card" 
+    <div
+            class="collapse-card"
             :class="{shadow: shadow}"
             :style="{ width: width }"
     >
-        <header v-if="$slots.operation || title">
-            <div class="tail d-flex flex0 a-center" @click="showContent = !showContent">
-                <span v-if="!showContent" class="el-icon-caret-right"></span>
-                <span v-else class="el-icon-caret-bottom"></span>
-                <div class="ml-2 title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+        <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
+            <div class="head" @click="showContent = !showContent">
+                <template v-if="!disabled">
+                    <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
+                    <span v-else class="el-icon-caret-bottom mr-2"></span>
+                </template>
+                <template v-else>
+                    <svg class="disabled-icon mr-2" aria-hidden="true">
+                        <use xlink:href="#iconweibiaoti-"></use>
+                    </svg>
+                </template>
+                <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+                <slot v-else name="head">{{ title }}</slot>
             </div>
-            <slot name="operation"></slot>
+            <div v-show="!disabled" class="operation">
+                <slot name="operation"></slot>
+            </div>
+            <div class="tail">
+                <slot name="tail"></slot>
+            </div>
         </header>
-        <section v-show="showContent" ref="content" class="content">
+        <section v-show="!disabled && showContent" ref="content" class="content">
             <slot></slot>
         </section>
     </div>
@@ -29,38 +42,45 @@ export default {
     props: {
         title: { // card头部标题
             type: String,
-            default: ""
+            default: "",
         },
         width: { //宽度
             type: String,
-            default: "100%"
+            default: "100%",
         },
         inline: {
             type: Boolean,
-            default: false
+            default: false,
         },
         titleColor: {
             type: String,
-            default: "#444"
+            default: "#444",
         },
         fold: { //默认是否折叠
             type: Boolean,
-            default: false
+            default: false,
         },
         shadow: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
+        disabled: { //是否禁用，禁用后内容区域不显示
+            type: Boolean,
+            default: false,
+        },
+        disabledTip: {
+            type: String,
+            default: "",
+        },
     },
     watch: {
-        fold(val) {
-            console.log(val)
+        fold() {
             this.showContent = !this.fold;
-        }
+        },
     },
     data() {
         return {
-            showContent: true
+            showContent: true,
         };
     },
     mounted() {
@@ -69,19 +89,15 @@ export default {
     methods: {
         expand() {
             this.showContent = true;
-        }
-    }
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .collapse-card {
     width: 100%;
-    // border: 1px solid $gray-300;
     background: $white;
-    // border-radius: $border-radius-base;
     display: flex;
     flex-direction: column;
     margin-bottom: size(10);
@@ -91,35 +107,57 @@ export default {
     &>header {
         background: $gray-200;
         display: flex;
-        // border-bottom: 1px solid $gray-300;
         align-items: center;
-        flex: 0 0 size(40);
         height: size(40);
-        // padding: 0 size(20);
         user-select: none;
-        .tail {
-            padding-left: size(20);
+        .head {
+            padding-left: size(10);
+            padding-right: size(20);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            min-width: size(150);
+            border-right: 1px solid $gray-300;
             &:hover {
                 background: $gray-300;
-            }            
+            }
         }
         .title {
-            max-width: 80%;
+            max-width: size(300);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             height: size(40);
             line-height: size(40);
-            padding-right: size(20);
-            border-right: 1px solid $gray-300;
         }
+        .operation {
+            flex: 1;
+            padding: 0 size(20);
+        }
+        .tail {
+            padding-right: size(20);
+            margin-left: auto;
+        }
+        &.disabled {
+            cursor: not-allowed;
+            background: $gray-100;
+            .head {
+                cursor: not-allowed;
+                &:hover {
+                    background: none;
+                }
+            }
+        }
+    }
+    .disabled-icon {
+        width: size(15);
+        height: size(15);
     }
     // 内容区域
     .content {
         flex: 1;
         overflow: hidden;
-        // box-shadow: 0px 2px 2px $gray-200;
     }
 }
 </style>

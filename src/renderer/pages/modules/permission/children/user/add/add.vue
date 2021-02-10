@@ -14,7 +14,7 @@
             <s-form-item label="部门" vModel="department" required halfLine></s-form-item>
             <s-form-item label="职位" vModel="title" required halfLine></s-form-item>
             <s-form-item label="qq号" vModel="qq" required halfLine></s-form-item>
-        </s-form>  
+        </s-form>
         <el-divider content-position="left">角色选择</el-divider>
         <el-checkbox-group v-model="formInfo.roleIds">
             <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
@@ -31,7 +31,7 @@ export default {
     props: {
         isShow: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
@@ -50,49 +50,49 @@ export default {
     methods: {
         //=====================================获取远程数据==================================//
         getRoleEnum() {
-            this.axios.get("/api/security/role_enum").then(res => {
+            this.axios.get("/api/security/role_enum").then((res) => {
                 this.roleEnum = res.data;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             });
         },
         //=====================================前后端交互====================================//
         //新增用户
         handleAddUser() {
-            this.$refs["form"].validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
-                    this.formInfo.roleNames = this.formInfo.roleIds.map(val => {
-                        const user = this.roleEnum.find(role => role._id === val)
+                    this.formInfo.roleNames = this.formInfo.roleIds.map((val) => {
+                        const user = this.roleEnum.find((role) => role._id === val);
                         return user ? user.roleName : "";
-                    })
+                    });
                     this.loading = true;
                     this.axios.post("/api/security/useradd", this.formInfo).then(() => {
                         this.$emit("success");
                         this.handleClose();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
-                    });                    
+                    });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
                     this.loading = false;
                 }
             });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleClose() {
             this.$emit("update:isShow", false);
         },
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .g-user {

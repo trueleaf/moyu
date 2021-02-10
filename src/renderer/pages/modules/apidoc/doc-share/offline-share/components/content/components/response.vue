@@ -244,16 +244,16 @@ export default {
             // return copyData;
         },
         remoteResponse() {  //远端返回数据结果
-            return this.$store.state.apidoc.responseData;
+            return this.$store.state.apidoc.remoteResponse;
         },
         loading() { //是否正在请求数据
-            return this.$store.state.apidoc.loading
+            return this.$store.state.apidoc.sendRequestLoading
         },
         size() { //当前返回值大小
-            return formatBytes(this.$store.state.apidoc.responseData.size)
+            return formatBytes(this.$store.state.apidoc.remoteResponse.size)
         },
         speed() { //实时请求速度
-            return formatBytes(this.$store.state.apidoc.responseData.speed)
+            return formatBytes(this.$store.state.apidoc.remoteResponse.speed)
         },
     },
     data() {
@@ -323,7 +323,7 @@ export default {
                 hooks: (val) => {
                     val.description || (this.$set(val, "description", ""))
                     Object.assign(val, {
-                        id: this.uuid(),
+                        id: this.$helper.uuid(),
                         required: true, //-------是否必填
                     })
                 }
@@ -339,7 +339,7 @@ export default {
             }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
+                const varInfo = this.variables.find((v) => {
                     return v.name === matchedData[1];
                 });
                 if (varInfo) {
@@ -354,7 +354,7 @@ export default {
         //生成请求数据
         generateParams(type = "string") {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: type,

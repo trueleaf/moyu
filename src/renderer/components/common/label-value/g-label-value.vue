@@ -5,9 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div class="label-value">
+    <div class="label-value" :style="{width: halfLine ? '50%' : ''}">
         <span class="label" :style="{width: labelWidth}">
-            <!-- <span class="el-icon-user-solid mr-1"></span> -->
             <span>{{ label }}</span>
         </span>
         <span v-if="!$slots.default" class="value">{{ value }}</span>
@@ -20,16 +19,24 @@ export default {
     props: {
         label: {
             type: String,
-            default: ""
+            default: "",
         },
         labelWidth: {
             type: String,
-            default: "80px"
+            default: "80px",
         },
         value: {
             type: String,
-            default: ""
-        }
+            default: "",
+        },
+        halfLine: {
+            type: Boolean,
+            default: false,
+        },
+        oneLine: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {};
@@ -43,8 +50,6 @@ export default {
     },
 };
 </script>
-
-
 
 <style lang="scss">
 .label-value {

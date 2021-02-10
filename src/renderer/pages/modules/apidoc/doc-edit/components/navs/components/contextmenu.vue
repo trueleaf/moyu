@@ -19,17 +19,15 @@ export default {
     props: {
         left: {
             type: Number,
-            default: 0
+            default: 0,
         },
         top: {
             type: Number,
-            default: 0
+            default: 0,
         },
     },
     data() {
-        return {
-            
-        };
+        return {};
     },
     created() {
 
@@ -55,13 +53,11 @@ export default {
                     break;
                 default:
                     break;
-            } 
+            }
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
     .ctx-wrap {

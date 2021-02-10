@@ -11,33 +11,34 @@
                 <i class="el-icon-arrow-left"></i>
             </div>
             <draggable ref="tabWrap" id="tabList" v-model="tabs" animation="150" class="tab-list">
-                <div 
+                <div
                         v-for="(item, index) in tabs"
                         ref="tabItem"
                         :key="index"
-                        :title="item.docName"
+                        :title="item.name"
                         :class="{active: currentSelectDoc && currentSelectDoc._id === item._id}"
                         class="item"
                         :data-index="index"
                         @click="selectCurrentTab(item)"
                         @contextmenu="handleRightClick($event, item, index)"
-                >   
+                >
                     <!-- 接口文档 -->
                     <template v-if="item.tabType === 'doc'">
                         <template v-for="(req) in validRequestMethods">
-                            <span v-if="item.item.methods === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
-                        </template>                        
+                            <span v-if="item.tail === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                        </template>
                     </template>
                     <!-- 其他 -->
                     <template v-else>
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                        <span v-if="item.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
                     </template>
-                    <span class="item-text">{{ item.docName }}</span>
+                    <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
                         <span v-show="item.changed" class="has-change">
                             <span class="dot"></span>
                         </span>
-                        <i v-show="!item.changed" class="el-icon-close close" @click.stop="handleCloseCurrent(item, index)"></i>                        
+                        <i v-show="!item.changed" class="el-icon-close close" @click.stop="handleCloseCurrent(item, index)"></i>
                     </span>
                 </div>
             </draggable>
@@ -49,8 +50,9 @@
 </template>
 <script>
 import draggable from "vuedraggable"
-import contextmenu from "./components/contextmenu"
 import Vue from "vue"
+import contextmenu from "./components/contextmenu.vue"
+
 export default {
     components: {
         draggable,
@@ -60,6 +62,8 @@ export default {
             mouseContext: null, //tab右键弹框
             //======================================其他参数===================================//
             enableMove: true, //是否允许tab移动，动画未完成不允许下一步操作
+            enableLeftMoveHandle: false, //是否允许左侧控制
+            enableRightMoveHandle: false, //是否允许右侧控制
         };
     },
     computed: {
@@ -70,16 +74,16 @@ export default {
             set(val) { //拖拽tabs会导致数据写入
                 this.$store.commit("apidoc/updateAllTabs", {
                     projectId: this.$route.query.id,
-                    tabs: val
+                    tabs: val,
                 });
-            }
+            },
         },
         currentSelectDoc() {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
         validRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter(val => val.enabled);
-        }
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
     },
     mounted() {
         this.init();
@@ -94,7 +98,7 @@ export default {
                     this.mouseContext = null;
                 }
             });
-            this.$el.addEventListener("contextmenu", e => {
+            this.$el.addEventListener("contextmenu", (e) => {
                 e.returnValue = false;
             });
             //获取本地tabs信息
@@ -105,14 +109,17 @@ export default {
             const activeDoc = locatActiveDoc[projectId] || {};
             this.$store.commit("apidoc/updateAllTabs", {
                 projectId,
-                tabs: currentProjectTabs
+                tabs: currentProjectTabs,
             });
             this.$store.commit("apidoc/changeCurrentTab", {
                 projectId,
-                activeNode: activeDoc
+                ...activeDoc,
             });
+            this.$nextTick(() => { //tabs数据未完成渲染
+                this.checkEnableMoveHandle();//判断是否可以点击右侧控制按钮滑动到右侧
+            })
             //绑定tabs移动事件
-            const wrap = this.$refs["tabWrap"].$el;
+            const wrap = this.$refs.tabWrap.$el;
             wrap.addEventListener("transitionend", () => {
                 this.enableMove = true;
             })
@@ -122,7 +129,7 @@ export default {
         selectCurrentTab(item) {
             this.$store.commit("apidoc/changeCurrentTab", {
                 projectId: this.$route.query.id,
-                activeNode: item,
+                ...item,
             });
         },
         //关闭当前标签
@@ -131,55 +138,51 @@ export default {
                 this.$store.commit("apidoc/deleteTabByPosition", {
                     projectId: this.$route.query.id,
                     start: index,
-                    num: 1
+                    num: 1,
                 });
                 if (item._id === this.currentSelectDoc._id) { //如果删除的是当前选择的doc
                     if (!this.tabs[index]) { //删除位置不存在节点则下一个元素作为选中的tab
                         if (this.tabs[index - 1]) { //选择上一个元素作为
                             this.$store.commit("apidoc/changeCurrentTab", {
                                 projectId: this.$route.query.id,
-                                activeNode: this.tabs[index - 1],
+                                ...this.tabs[index - 1],
                             });
                         } else { //上一个元素不存在则置空
                             this.$store.commit("apidoc/changeCurrentTab", {
                                 projectId: this.$route.query.id,
-                                activeNode: {},
                             });
                         }
                     } else {
                         this.$store.commit("apidoc/changeCurrentTab", {
                             projectId: this.$route.query.id,
-                            activeNode: this.tabs[index],
+                            ...this.tabs[index],
                         });
                     }
-                } 
+                }
             }
             if (item.changed) {
-                this.$confirm(`是否保存对 "${item.docName}" 接口的修改`, "提示", {
+                this.$confirm(`是否保存对 "${item.name}" 接口的修改`, "提示", {
                     confirmButtonText: "保存",
                     cancelButtonText: "不保存",
                     distinguishCancelAndClose: true,
-                    type: "warning"
+                    type: "warning",
                 }).then(() => {
                     const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
                     matchedComponent.saveRequest().then(() => {
                         deleteTab();
-                    }).finally(() => {
-                        
                     });
-                }).catch(err => {
+                }).catch((err) => {
                     if (err === "cancel") { //不保存
                         this.$store.commit("apidoc/changeCurrentTabById", {
                             _id: this.currentSelectDoc._id,
                             projectId: this.$route.query.id,
-                            changed: false
+                            changed: false,
                         });
                         deleteTab();
-                        return;
                     } else if (err === "close") {
-                        return
+                        return 0;
                     }
-                    this.$errorThrow(err, this);
+                    return this.$errorThrow(err, this);
                 });
             } else {
                 deleteTab()
@@ -191,12 +194,12 @@ export default {
                 this.$store.commit("apidoc/deleteTabByPosition", {
                     projectId: this.$route.query.id,
                     start: index + 1,
-                    num: this.tabs.length - index - 1
+                    num: this.tabs.length - index - 1,
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[this.tabs.length - 1],
+                        ...this.tabs[this.tabs.length - 1],
                     });
                 }
             }
@@ -205,14 +208,14 @@ export default {
         handleCloseLeft(item, index) {
             if (this.tabs.length !== 1) { //只剩一个tab删除无意义不做处理
                 this.$store.commit("apidoc/deleteTabByPosition", {
-                    projectId: this.$route.query.id, 
+                    projectId: this.$route.query.id,
                     start: 0,
-                    num: index
+                    num: index,
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[0],
+                        ...this.tabs[0],
                     });
                 }
             }
@@ -223,16 +226,16 @@ export default {
                 this.$store.commit("apidoc/deleteTabByPosition", {
                     projectId: this.$route.query.id,
                     start: index + 1,
-                    num: this.tabs.length - index - 1
+                    num: this.tabs.length - index - 1,
                 });
                 this.$store.commit("apidoc/deleteTabByPosition", {
                     projectId: this.$route.query.id,
                     start: 0,
-                    num: index 
+                    num: index,
                 });
                 this.$store.commit("apidoc/changeCurrentTab", {
                     projectId: this.$route.query.id,
-                    activeNode: this.tabs[0],
+                    ...this.tabs[0],
                 });
             }
         },
@@ -250,7 +253,7 @@ export default {
             this.mouseContext = new ContextmenuConstructor({
                 propsData: {
                     left: x,
-                    top: y
+                    top: y,
                 },
             }).$mount();
             document.body.appendChild(this.mouseContext.$el);
@@ -272,41 +275,63 @@ export default {
             if (this.tabs.length === 0) {
                 return;
             }
-            const wrap = this.$refs["tabWrap"].$el;
-            const item = this.$refs["tabItem"] ? this.$refs["tabItem"][0] : null;
+            const wrap = this.$refs.tabWrap.$el;
+            const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
             const wrapStyle = window.getComputedStyle(wrap)
             const itemRect = item.getBoundingClientRect();
+            // console.log(itemRect.width, wrapStyle.left, this.enableMove)
             if (!this.enableMove) {
                 return;
             }
             if (parseFloat(wrapStyle.left) > 0) {
                 return;
             }
-            wrap.style.left = parseFloat(wrapStyle.left) + itemRect.width + "px";
+            wrap.style.left = `${parseFloat(wrapStyle.left) + itemRect.width}px`;
             this.enableMove = false;
+            this.checkEnableMoveHandle();
         },
         //往右移动
         moveRight() {
             if (this.tabs.length === 0) {
                 return;
             }
-            const wrap = this.$refs["tabWrap"].$el;
-            const item = this.$refs["tabItem"] ? this.$refs["tabItem"][0] : null;
-            const itemLen = this.$refs["tabItem"] ? this.$refs["tabItem"].length : 0;
+            const wrap = this.$refs.tabWrap.$el;
+            const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
+            const itemLen = this.$refs.tabItem ? this.$refs.tabItem.length : 0;
             const wrapRect = wrap.getBoundingClientRect();
             const wrapStyle = window.getComputedStyle(wrap)
             const itemRect = item.getBoundingClientRect();
-            
             if (!this.enableMove) {
                 return;
             }
             if (parseFloat(wrapStyle.left) < wrapRect.width - (itemLen - 1) * itemRect.width) {
                 return;
             }
-            wrap.style.left = parseFloat(wrapStyle.left) - itemRect.width + "px";
+            wrap.style.left = `${parseFloat(wrapStyle.left) - itemRect.width}px`;
             this.enableMove = false;
-        }
-    }
+            this.checkEnableMoveHandle();
+        },
+        //检查是否允许左右移动
+        checkEnableMoveHandle() {
+            const wrap = this.$refs.tabWrap.$el;
+            const wrapWidth = wrap.getBoundingClientRect().width;
+            const wrapMoveLeft = parseFloat(wrap.style.left || 0);
+            const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
+            const itemWidth = item ? item.getBoundingClientRect().width : 0;
+            const itemNum = this.tabs.length;
+            if (wrapMoveLeft < 0) {
+                this.enableLeftMoveHandle = true;
+            } else {
+                this.enableLeftMoveHandle = false;
+            }
+            const itemTotalWidth = itemWidth * itemNum - itemWidth / 2;
+            if (itemTotalWidth > wrapWidth - wrapMoveLeft) {
+                this.enableRightMoveHandle = true;
+            } else {
+                this.enableRightMoveHandle = false;
+            }
+        },
+    },
 };
 </script>
 
@@ -434,7 +459,7 @@ export default {
                 border-radius: 50%;
                 background: mix($teal, $white, 90%);
             }
-        }        
+        }
     }
 }
 </style>

@@ -46,7 +46,7 @@ class ApiTranslator {
                 docInfo.item.description = apidoc.description;
                 docInfo.item.methods = methods;
                 docInfo.item.url.path = queryPath;
-                docInfo.item.requestType = this.contentTypeRules.find(val => val.name === methods)?.enabledContenType[0];
+                docInfo.item.requestType = this.contentTypeRules.find((val) => val.name === methods)?.enabledContenType[0];
                 for(let i = 0; i < parameters.length; i++) { //请求参数处理
                     const params = parameters[i];
                     const paramsPosition = params.in;

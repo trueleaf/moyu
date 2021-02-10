@@ -1,31 +1,28 @@
-
-/** 
+/**
  * @description        自动更新
  * @author              shuxiaokai
  * @create             2020-09-30 22:28
  */
-import path from "path"
-import config from "../config"
-import { autoUpdater } from "electron-updater"
+import path from "path";
+import { autoUpdater } from "electron-updater";
 import { BrowserWindow, ipcMain } from "electron";
-
+import config from "../config";
 
 function update() {
-    const server = config.updateConfig.server;
+    const { server } = config.updateConfig;
     const url = `${server}${config.updateConfig.filePath}`;
     const winId = BrowserWindow.getFocusedWindow().id;
-    const win = BrowserWindow.fromId(winId)
+    const win = BrowserWindow.fromId(winId);
     if (process.env.NODE_ENV === "development") {
         autoUpdater.updateConfigPath = path.join(__dirname, "../../dev-app-update.yml");
     }
     //=====================================render进程事件====================================//
-    ipcMain.on("vue-check-update", () => { 
-        console.log("check")
-        autoUpdater.checkForUpdates()
-    })
-    ipcMain.on("quit-and-install", () => { 
-        autoUpdater.quitAndInstall()
-    })
+    ipcMain.on("vue-check-update", () => {
+        autoUpdater.checkForUpdates();
+    });
+    ipcMain.on("quit-and-install", () => {
+        autoUpdater.quitAndInstall();
+    });
     //=====================================参数设置====================================//
     autoUpdater.currentVersion = config.updateConfig.version;
     autoUpdater.setFeedURL(url);
@@ -43,7 +40,7 @@ function update() {
         win.webContents.send("vue-update-downloaded", {
             event,
             releaseNotes,
-            releaseName
+            releaseName,
         });
     });
     //下载过程
@@ -51,9 +48,9 @@ function update() {
         win.webContents.send("vue-download-progress", progressObj);
     });
     //更新错误
-    autoUpdater.on("error", error => {
-        console.error(error)
+    autoUpdater.on("error", (error) => {
+        console.error(error);
         win.webContents.send("vue-download-error", error);
-    })
+    });
 }
 export default update;

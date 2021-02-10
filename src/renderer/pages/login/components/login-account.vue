@@ -20,12 +20,12 @@
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" type="primary" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading"  size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
             </div>
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading"  size="small" class="w-100" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
+                <el-button :loading="loading" native-type="submit" size="small" class="w-100">登录</el-button>
             </div>
         </el-form-item>
         <el-form-item>
@@ -37,14 +37,14 @@
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
                     <use xlink:href="#icongithub"></use>
-                </svg> 
+                </svg>
                 <div>GitHub</div>
             </a>
 
             <a href="https://gitee.com/shuzhikai/moyu" target="_blank"  class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转码云">
                     <use xlink:href="#icongitee"></use>
-                </svg> 
+                </svg>
                 <div>码云</div>
             </a>
         </div>
@@ -56,7 +56,7 @@ export default {
     data() {
         return {
             //账号密码登录
-            userInfo: { 
+            userInfo: {
                 loginName: process.env.NODE_ENV === "development" ? "shu" : "", //-----------登录名称
                 password: process.env.NODE_ENV === "development" ? "111111" : "", //---------密码
                 captcha: "", //----------------验证码
@@ -73,22 +73,22 @@ export default {
     },
     computed: {
         captchaUrl() {
-            const isProcess = this.$root.VUE_BASE_CONFIG.isProcess
+            const { isProcess } = this.$root.VUE_BASE_CONFIG;
             const requestUrl = isProcess ? this.$root.VUE_BASE_CONFIG.devUrl : this.$root.VUE_BASE_CONFIG.proUrl;
-            return requestUrl + `/api/security/captcha?width=120&height=40&random=${this.random}`;
+            return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
         },
         version() {
-            return this.$store.state.config.version
-        }
+            return this.$store.state.config.version;
+        },
     },
     created() {},
     methods: {
         //用户名密码登录
         handleLogin() {
-            this.$refs["form"].validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post("/api/security/login_password", this.userInfo).then(res => {
+                    this.axios.post("/api/security/login_password", this.userInfo).then((res) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;
@@ -96,18 +96,21 @@ export default {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
                     });
                 } else {
                     this.$nextTick(() => {
-                        document.querySelector(".el-form-item.is-error input") ? document.querySelector(".el-form-item.is-error input").focus() : null;
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            input.focus();
+                        }
                     });
                 }
             });
-        },    
+        },
         //刷新验证码
         freshCapchaUrl() {
             this.random = Math.random();
@@ -119,10 +122,10 @@ export default {
         //体验账号登录
         handleGuesttLogin() {
             this.loading = true;
-            this.axios.post("/api/security/login_guest", this.userInfo).then(res => {
+            this.axios.post("/api/security/login_guest", this.userInfo).then((res) => {
                 this.$router.push("/v1/apidoc/doc-list");
                 sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -132,15 +135,12 @@ export default {
 };
 </script>
 
-
-
 <style lang="scss">
 .login-account {
     .svg-icon {
         width: size(35);
         height: size(35);
         cursor: pointer;
-        // font-size: size(35);
     }
 }
 </style>

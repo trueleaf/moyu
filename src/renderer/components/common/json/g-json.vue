@@ -23,7 +23,7 @@ export default {
             type: [Object, Array],
             default() {
                 return {};
-            }
+            },
         },
         checkData: {
             type: [Object, Array, String, Number, Boolean],
@@ -34,7 +34,7 @@ export default {
     },
     data() {
         return {
-            activeFullArray: false
+            activeFullArray: false,
         };
     },
     computed: {
@@ -49,31 +49,28 @@ export default {
         //导出数据
         handleExport() {
             const copyData = JSON.parse(JSON.stringify(this.data));
-            console.log(copyData)
-            const hasOwn = Object.hasOwnProperty;
             const result = [];
-            const foo = (obj, result) => {
+            const foo = (obj, innerResult) => {
                 if (this.getType(obj) === "object") {
-                    for(let i in obj) {
-                        if (!hasOwn.call(obj, i)) continue;
+                    Object.keys(obj).forEach((i) => {
                         const valueType = this.getType(obj[i]);
-                        const matchedVal = this.mindResponseParams.find(val => val.key === i);
-                        const description = matchedVal ? matchedVal.description : ""
+                        const matchedVal = this.mindResponseParams.find((val) => val.key === i);
+                        const description = matchedVal ? matchedVal.description : "";
                         if (valueType === "string" || valueType === "number" || valueType === "boolean") {
-                            result.push({
+                            innerResult.push({
                                 key: i,
                                 type: valueType,
                                 value: obj[i] == null ? "null" : obj[i].toString(),
-                                description
-                            })
+                                description,
+                            });
                         } else if (valueType === "object") {
                             const current = {
                                 key: i,
                                 type: valueType,
                                 value: "",
-                                children: []
-                            }
-                            result.push(current)
+                                children: [],
+                            };
+                            innerResult.push(current);
                             foo(obj[i], current.children);
                         } else if (valueType === "array") {
                             const current = {
@@ -81,68 +78,67 @@ export default {
                                 type: valueType,
                                 value: "",
                                 children: [],
-                                description
-                            }
-                            result.push(current);
+                                description,
+                            };
+                            innerResult.push(current);
                             if (this.getType(obj[i][0]) === "object") {
                                 current.children.push({
                                     key: "",
                                     type: "object",
                                     value: "",
                                     children: [],
-                                    description
-                                })
+                                    description,
+                                });
                                 foo(obj[i][0], current.children[0].children);
                             } else {
                                 foo(obj[i][0], current.children);
                             }
                         }
-                    }
+                    });
                 } else {
                     const valueType = this.getType(obj);
                     result.push({
                         key: "",
                         type: valueType,
                         value: obj,
-                    })
+                    });
                 }
-            }
+            };
             foo(copyData, result);
-            console.log(result)
             this.$emit("export", result);
         },
         //生成请求数据
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: 1,
                 value: "",
                 required: true,
-            }
+            };
         },
         //获取参数类型
         getType(value) {
+            let result = "";
             if (typeof value === "string") {
-                return "string"
+                result = "string";
             } else if (typeof value === "number") { //NaN
-                return "number"
+                result = "number";
             } else if (typeof value === "boolean") {
-                return "boolean"
+                result = "boolean";
             } else if (Array.isArray(value)) {
-                return "array"
+                result = "array";
             } else if (typeof value === "object" && value !== null) {
-                return "object"
+                result = "object";
             } else { // null undefined ...
-                return "string"
+                result = "string";
             }
-        }
-    }
+            return result;
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .json-wrap {

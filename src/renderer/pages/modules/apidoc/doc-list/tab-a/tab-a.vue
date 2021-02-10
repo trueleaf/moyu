@@ -10,10 +10,10 @@
         <div class="search-item d-flex a-center mb-3">
             <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
-        </div> 
+        </div>
         <h2 v-show="recentVisitProjects.length > 0">最近访问</h2>
         <div v-show="recentVisitProjects.length > 0" class="project-wrap">
-            <!-- {{ recentVisitProjects.map(val => val.id) }} -->
+            <!-- {{ recentVisitProjects.map((val) => val.id) }} -->
             <div v-for="(item, index) in recentVisitProjects" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -155,8 +155,9 @@
 </template>
 
 <script>
-import addProjectDialog from "../dialog/add-project"
-import editProjectDialog from "../dialog/edit-project"
+import addProjectDialog from "../dialog/add-project.vue";
+import editProjectDialog from "../dialog/edit-project.vue";
+
 export default {
     components: {
         "s-add-project-dialog": addProjectDialog,
@@ -180,34 +181,30 @@ export default {
     },
     computed: {
         userInfo() {
-            return this.$store.state.permission.userInfo
+            return this.$store.state.permission.userInfo;
         },
         recentVisitProjects() {
             const recentResult = [];
-            this.recentVisitProjectIds.forEach(id => {
-                const matchedProject = this.projectList.find(val => val._id === id)
+            this.recentVisitProjectIds.forEach((id) => {
+                const matchedProject = this.projectList.find((val) => val._id === id);
                 if (matchedProject) {
                     recentResult.push(matchedProject);
                 }
-            })
-            return recentResult;       
+            });
+            return recentResult;
         },
         starProjects() {
-            return this.projectList.filter(project => {
-                return this.starProjectIds.find(id => id === project._id)
-            })
+            return this.projectList.filter((project) => this.starProjectIds.find((id) => id === project._id));
         },
         projectList() {
-            return this.projectListCopy.filter(val => {
-                return val.projectName.match(new RegExp(this.projectName, "gi"));
-            }).map(val => {
-                const isStared = this.starProjectIds.find(id => id === val._id)
+            return this.projectListCopy.filter((val) => val.projectName.match(new RegExp(this.projectName, "gi"))).map((val) => {
+                const isStared = this.starProjectIds.find((id) => id === val._id);
                 return {
                     ...val,
-                    isStared: !!isStared
-                }
+                    isStared: !!isStared,
+                };
             });
-        }
+        },
     },
     created() {
         this.getProjectList(); //获取项目列表
@@ -218,12 +215,11 @@ export default {
         getProjectList() {
             const params = this.formInfo;
             this.loading = true;
-            this.axios.get("/api/project/project_list", { params }).then(res => {
-                // this.projectList = res.data.list;
+            this.axios.get("/api/project/project_list", { params }).then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
                 this.projectListCopy = res.data.list;
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
                 this.loading = false;
@@ -235,17 +231,17 @@ export default {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = {
-                    ids: [id]
+                    ids: [id],
                 };
                 this.axios.delete("/api/project/delete_project", { data: params }).then(() => {
                     this.getProjectList();
-                }).catch(err => {
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                })
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -258,14 +254,14 @@ export default {
                 return;
             }
             this.starLoading = true;
-            this.axios.put("/api/project/star", { projectId: item._id}).then(() => {
+            this.axios.put("/api/project/star", { projectId: item._id }).then(() => {
                 this.$set(item, "isStared", true);
                 this.starProjectIds.push(item._id);
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.starLoading = false;
-            })
+            });
         },
         //取消项目收藏
         handleUnStar(item) {
@@ -273,17 +269,17 @@ export default {
                 return;
             }
             this.unStarLoading = true;
-            this.axios.put("/api/project/unstar", { projectId: item._id}).then(() => {
+            this.axios.put("/api/project/unstar", { projectId: item._id }).then(() => {
                 this.$set(item, "isStared", false);
-                const delIndex = this.starProjectIds.findIndex(val => val === item._id)
+                const delIndex = this.starProjectIds.findIndex((val) => val === item._id);
                 this.starProjectIds.splice(delIndex, 1);
-            }).catch(err => {
+            }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.unStarLoading = false;
-            })
+            });
         },
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         //打开修改弹窗
         handleOpenEditDialog(item) {
             this.dialogVisible2 = true;
@@ -291,50 +287,48 @@ export default {
         },
         //跳转至界面详情
         jumpToProject(id, name) {
-            this.axios.put("/api/project/visited", { projectId: id }).catch(err => {
+            this.axios.put("/api/project/visited", { projectId: id }).catch((err) => {
                 console.error(err);
             });
             this.$router.push({
                 path: "/v1/apidoc/doc-edit",
                 query: {
                     id,
-                    name
+                    name,
                 },
             });
         },
         //查看页面
         handleView(item) {
-            this.axios.put("/api/project/visited", { projectId: item._id }).catch(err => {
+            this.axios.put("/api/project/visited", { projectId: item._id }).catch((err) => {
                 console.error(err);
             });
             this.$router.push({
                 path: "/v1/apidoc/doc-view",
                 query: {
                     id: item._id,
-                    name: item.projectName
-                }
+                    name: item.projectName,
+                },
             });
             // console.log(item);
         },
         //新增项目成功
         handleAddSuccess(projectInfo) {
-            this.axios.put("/api/project/visited", { projectId: projectInfo.id }).catch(err => {
+            this.axios.put("/api/project/visited", { projectId: projectInfo.id }).catch((err) => {
                 console.error(err);
             });
             this.$router.push({
                 path: "/v1/apidoc/doc-edit",
                 query: {
                     id: projectInfo.id,
-                    name: projectInfo.name
+                    name: projectInfo.name,
                 },
             });
         },
         //=====================================其他操作=====================================//
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss" scoped>
 .tab-a {

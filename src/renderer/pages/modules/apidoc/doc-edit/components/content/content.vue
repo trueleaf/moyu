@@ -7,29 +7,34 @@
 <template>
     <div v-if="tabs && tabs.length > 0" class="workbench" tabindex="0">
         <keep-alive>
+            <!-- 文档页面 -->
             <s-apidoc v-if="currentSelectDoc.tabType === 'doc'"></s-apidoc>
+            <!-- 配置页面 -->
             <s-config v-if="currentSelectDoc.tabType === 'config'"></s-config>
+            <!-- 统计页面 -->
             <s-statistics v-if="currentSelectDoc.tabType === 'statistics'"></s-statistics>
+            <!-- 参数模板 -->
+            <s-params-template v-if="currentSelectDoc.tabType === 'paramsTemplate'"></s-params-template>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
 </template>
 
 <script>
-import apidoc from "./apidoc/apidoc"
-import config from "./config/config"
-import statistics from "./statistics/statistics"
+import apidoc from "./apidoc/apidoc.vue";
+import config from "./config/config.vue";
+import statistics from "./statistics/statistics.vue";
+import paramsTemplate from "./params-template/params-template.vue";
 
 export default {
     components: {
         "s-apidoc": apidoc,
         "s-config": config,
         "s-statistics": statistics,
+        "s-params-template": paramsTemplate,
     },
     data() {
-        return {
-           
-        };
+        return {};
     },
     computed: {
         currentSelectDoc() { //当前选中的doc
@@ -39,29 +44,10 @@ export default {
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
     },
-    mounted() {
-        this.getMindParamsEnum(); //获取联想参数枚举
-        this.getPresetParams(); //获取预设参数
-    },
-    methods: {
-        //=====================================获取数据====================================//
-        //获取联想参数
-        getMindParamsEnum() {
-            this.$store.dispatch("apidoc/getMindParamsEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取预设参数
-        getPresetParams() {
-            this.$store.dispatch("apidoc/getPresetParams", {
-                projectId: this.$route.query.id,
-            });
-        },
-    }
+    mounted() {},
+    methods: {},
 };
 </script>
-
-
 
 <style lang="scss">
 .workbench {

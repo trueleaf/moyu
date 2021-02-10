@@ -57,7 +57,7 @@ export default {
                     for(let i in obj) {
                         if (!hasOwn.call(obj, i)) continue;
                         const valueType = this.getType(obj[i]);
-                        const matchedVal = this.mindResponseParams.find(val => val.key === i);
+                        const matchedVal = this.mindResponseParams.find((val) => val.key === i);
                         const description = matchedVal ? matchedVal.description : ""
                         if (valueType === "string" || valueType === "number" || valueType === "boolean") {
                             result.push({
@@ -114,7 +114,7 @@ export default {
         //生成请求数据
         generateParams() {
             return {
-                id: this.uuid(),
+                id: this.$helper.uuid(),
                 key: "",
                 description: "",
                 type: 1,

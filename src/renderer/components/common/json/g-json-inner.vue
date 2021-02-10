@@ -33,7 +33,7 @@
                     </template>
                     <span class="symbol">,</span>
                     <s-ellipsis-content class="error" :value="checkResponse(key, value)"></s-ellipsis-content>
-                </span>                
+                </span>
             </div>
         </template>
         <!-- 对象 -->
@@ -64,7 +64,7 @@
                     </template>
                     <span class="symbol">,</span>
                     <s-ellipsis-content class="error" :value="checkResponse(key, value)"></s-ellipsis-content>
-                </span>                
+                </span>
             </div>
             <div v-if="checkLackKey()" class="indent red line active">...{{ checkLackKey() }}</div>
         </template>
@@ -88,7 +88,7 @@ export default {
             type: [Object, Array, String, Number, Boolean],
             default() {
                 return {};
-            }
+            },
         },
         checkData: {
             type: [Object, Array, String, Number, Boolean],
@@ -98,11 +98,11 @@ export default {
         },
         level: {
             type: Number,
-            default: 0
+            default: 0,
         },
         indent: {
             type: Number,
-            default: 20
+            default: 20,
         },
         options: {
             type: Object,
@@ -111,18 +111,17 @@ export default {
                     key: "key",
                     value: "value",
                     type: "type",
-                    description: "description"
-                }
-            }
+                    description: "description",
+                };
+            },
         },
         fullArray: {
             type: Boolean,
-            default: false
+            default: false,
         },
     },
     data() {
-        return { 
-        };
+        return {};
     },
     mounted() {
     },
@@ -132,54 +131,55 @@ export default {
             const localValue = this.checkData[key];
             const localType = this.getType(localValue);
             const remoteValue = value;
-            const remoteType = this.getType(remoteValue)
+            const remoteType = this.getType(remoteValue);
             if (!localKeys.includes(key)) {
                 this.$emit("error", "tooMuchField");
-                return `字段冗余`
+                return `字段冗余`;
             }
             if (localType !== remoteType) {
                 this.$emit("error", "typeError");
-                return `类型错误(${remoteType}|${localType})`
+                return `类型错误(${remoteType}|${localType})`;
             }
+            return null;
         },
         //检验缺少的字段
         checkLackKey() {
             const localKeys = Object.keys(this.checkData);
             const remoteKeys = Object.keys(this.data);
             const lackKeys = [];
-            for(let i = 0; i < localKeys.length; i++) {
-                if (remoteKeys.every(val => val !== localKeys[i])) {
-                    lackKeys.push(localKeys[i])
+            for (let i = 0; i < localKeys.length; i += 1) {
+                if (remoteKeys.every((val) => val !== localKeys[i])) {
+                    lackKeys.push(localKeys[i]);
                 }
             }
             if (lackKeys.length > 0) {
                 this.$emit("error", "lackField");
-                return `缺少字段${lackKeys.join()}`
+                return `缺少字段${lackKeys.join()}`;
             }
-            
+            return null;
         },
         //获取参数类型
         getType(value) {
+            let result = "string";
             if (typeof value === "string") {
-                return "string"
+                result = "string";
             } else if (typeof value === "number") { //NaN
-                return "number"
+                result = "number";
             } else if (typeof value === "boolean") {
-                return "boolean"
+                result = "boolean";
             } else if (Array.isArray(value)) {
-                return "array"
+                result = "array";
             } else if (typeof value === "object" && value !== null) {
-                return "object"
+                result = "object";
             } else { // null undefined ...
-                return "string"
+                result = "string";
             }
+            return result;
         },
         //=====================================其他操作=====================================//
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .s-json {

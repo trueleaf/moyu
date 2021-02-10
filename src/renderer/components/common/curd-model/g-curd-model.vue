@@ -25,15 +25,15 @@ export default {
     props: {
         isShow: {
             type: Boolean,
-            default: true
+            default: true,
         },
         title: {
             type: String,
-            default: ""
+            default: "",
         },
         leftWidth: {
             type: [Number, String],
-            default: 300
+            default: 300,
         },
         minLeftWidth: {
             type: Number,
@@ -41,8 +41,8 @@ export default {
         },
         width: {
             type: String,
-            default: "70%"
-        }
+            default: "70%",
+        },
     },
     data() {
         return {
@@ -59,26 +59,25 @@ export default {
     },
     mounted() {
         this.$nextTick(() => {
-            this.wrapWidth = this.$refs["curdWrap"].getBoundingClientRect()["width"];
-            this.leftDom = this.$refs["leftDom"];
-            this.rightDom = this.$refs["rightDom"];
+            this.wrapWidth = this.$refs.curdWrap.getBoundingClientRect().width;
+            this.leftDom = this.$refs.leftDom;
+            this.rightDom = this.$refs.rightDom;
             if (typeof this.leftDomWidth === "string") {
                 this.leftDom.style.width = this.leftDomWidth;
-                this.rightDom.style.width = (100 - parseInt(this.leftDomWidth)) + "%";
+                this.rightDom.style.width = `${100 - parseInt(this.leftDomWidth, 10)}%`;
             } else {
-                this.leftDom.style.width = this.leftDomWidth / this.wrapWidth * 100 + "%";
-                this.rightDom.style.width = (1 - this.leftDomWidth / this.wrapWidth) * 100 + "%";
+                this.leftDom.style.width = `${(this.leftDomWidth / this.wrapWidth) * 100}%`;
+                this.rightDom.style.width = `${(1 - this.leftDomWidth / this.wrapWidth) * 100}%`;
             }
-            this.resizeBarDom = this.$refs["resizeBar"];
+            this.resizeBarDom = this.$refs.resizeBar;
             document.documentElement.addEventListener("mouseup", () => {
-                // e.stopPropagation();
-                this.leftDomWidth = this.leftDom.getBoundingClientRect()["width"]
+                this.leftDomWidth = this.leftDom.getBoundingClientRect().width;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-            })
-        })
+            });
+        });
     },
     methods: {
-        /** 
+        /**
          * @description        关闭弹窗
          * @author             shuxiaokai
          * @updateAuthor       shuxiaokai
@@ -88,7 +87,7 @@ export default {
         closeModel() {
             this.$emit("close");
         },
-        /** 
+        /**
          * @description        处理鼠标按下事件
          * @author             shuxiaokai
          * @updateAuthor       shuxiaokai
@@ -100,7 +99,7 @@ export default {
             this.mousedownTop = e.clientY;
             document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
         },
-        /** 
+        /**
          * @description        处理鼠标移动事件
          * @author             shuxiaokai
          * @updateAuthor       shuxiaokai
@@ -110,19 +109,17 @@ export default {
         handleResizeMousemove(e) {
             e.stopPropagation();
             e.preventDefault();
-            const leftDomWidth = (typeof this.leftDomWidth === "string") ? (parseInt(this.leftDomWidth) / 100 * this.wrapWidth)  : this.leftDomWidth
+            const leftDomWidth = (typeof this.leftDomWidth === "string") ? ((parseInt(this.leftDomWidth, 10) / 100) * this.wrapWidth) : this.leftDomWidth;
             const moveLeft = e.clientX - this.mousedownLeft + leftDomWidth;
             if (moveLeft < this.minLeftWidth) {
                 return;
             }
-            this.leftDom.style.width = moveLeft / this.wrapWidth * 100 + "%";
-            this.rightDom.style.width = (1 - moveLeft / this.wrapWidth) * 100 + "%";
+            this.leftDom.style.width = `${(moveLeft / this.wrapWidth) * 100}%`;
+            this.rightDom.style.width = `${(1 - moveLeft / this.wrapWidth) * 100}%`;
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .curd-model {

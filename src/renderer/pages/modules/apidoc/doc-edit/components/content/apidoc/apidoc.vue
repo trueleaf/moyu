@@ -6,80 +6,73 @@
 */
 <template>
     <div class="edit-content">
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="workplace">
+        <s-loading :loading="loading" class="edit-area">
             <!-- 基本配置 -->
-            <div class="base-params">
-                <!-- 请求备注 -->
-                <s-remark-manage v-if="0" v-model="request.description"></s-remark-manage>
-                <!-- 服务端地址管理 -->
-                <s-server-manage v-model="request.url.host"></s-server-manage>
-                <!-- 请求操作区域 -->
-                <s-request-operation-manage ref="requestOperation" :request="request" :data-ready="docDataReady" @fresh="handleFresh"></s-request-operation-manage>
+            <div class="info-wrap">
+                <s-host-manage></s-host-manage>
+                <s-request-operation-manage></s-request-operation-manage>
             </div>
-            <!-- 请求参数 -->
+            <!-- 参数录入 -->
             <div class="params-wrap">
-                <s-request-params-manage ref="requestParams" :request="request" :data-ready="docDataReady"></s-request-params-manage>
-                <s-response-params-manage ref="responseParams" :request="request" :data-ready="docDataReady"></s-response-params-manage>
-                <s-header-params-manage ref="headerParams" :request="request" :data-ready="docDataReady"></s-header-params-manage>
-                <s-remark-params-manage :request="request"></s-remark-params-manage>
-            </div>            
+                <s-request-query-params ref="query"></s-request-query-params>
+                <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                <s-response-params ref="response"></s-response-params>
+                <s-header-params ref="header"></s-header-params>
+                <s-remark></s-remark>
+                <!-- <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.headers }}</pre> -->
+            </div>
+        </s-loading>
+        <div class="view-area">
+            <s-overview></s-overview>
         </div>
-        <s-response class="response-wrap" ref="response" :request-data="request"></s-response>            
     </div>
 </template>
 
 <script>
-import { debounce, dfsForest } from "@/lib"
-import axios from "axios" 
-import response from "./components/response"
-import FileType from "file-type/browser"
+import axios from "axios"
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
+import hostManage from "./components/host/host.vue" //---------------------------------请求地址列表
+import requestOperationManage from "./components/request-operation/request-operation.vue" //--------请求操作和url管理
+import requestQueryParams from "./components/request-params/query.vue" //查询字符串
+import requestBodyParams from "./components/request-params/body.vue" //body请求参数
+import resParams from "./components/response-params/response-params.vue" //返回参数
+import headerParams from "./components/header-params/header-params.vue" //请求头
+import remark from "./components/remark/remark.vue" //备注信息
+import overview from "./components/overview/overview.vue" //展示区域
+
+const { CancelToken } = axios;
 //=========================================================================//
-import remarkManage from "./components/remark" //-----------------------------------接口备注
-import serverManage from "./components/server" //-----------------------------------请求地址列表
-import requestOperationManage from "./components/request-operation" //--------------请求操作和url管理
-import requestParamsManage from "./components/request-params" //--------------------请求参数管理
-import responseParamsManage from "./components/response-params" //------------------返回参数管理
-import headerParamsManage from "./components/header-params" //----------------------请求头管理
-import remarkParamsManage from "./components/remark-params" //----------------------备注管理
-//=========================================================================//
-const CancelToken = axios.CancelToken;
 export default {
     name: "APIDOC_CONTENT",
+    mixins: [mixin],
     components: {
-        "s-request-params-manage": requestParamsManage,
-        "s-response-params-manage": responseParamsManage,
-        "s-header-params-manage": headerParamsManage,
-        "s-remark-params-manage": remarkParamsManage,
-        "s-server-manage": serverManage,
-        "s-remark-manage": remarkManage,
+        "s-host-manage": hostManage,
         "s-request-operation-manage": requestOperationManage,
-        "s-response": response,
+        "s-request-query-params": requestQueryParams,
+        "s-request-body-params": requestBodyParams,
+        "s-response-params": resParams,
+        "s-header-params": headerParams,
+        "s-remark": remark,
+        "s-overview": overview,
     },
-    data() {
-        return {
-            //=====================================请求基本信息====================================//
-            request: {
-                methods: "get", //---------------请求方式
-                requestType: "query", //
-                url: {
-                    host: "", //-----------------主机(服务器)地址
-                    path: "", //-----------------接口路径
-                }, //----------------------------请求地址信息
-                requestParams: [],
-                responseParams: [],
-                header: [], //----------------------------请求头信息
-                description: "", //--------------请求描述
-                _variableChange: true, //----------hack强制触发request数据发生改变
+    watch: {
+        currentSelectDoc: {
+            handler(currentDoc, oldDoc) {
+                if (currentDoc.tabType !== "doc") { //只处理类型为doc数据
+                    if (this.cancel.length > 0) { //切换时都清除上一次请求
+                        this.cancel.forEach((c) => {
+                            c("取消请求");
+                        })
+                    }
+                    return;
+                }
+                if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
+                    this.checkCache(currentDoc);
+                }
             },
-            remoteResponse: {},
-            //=====================================快捷参数====================================//
-            watchFlag: null,
-            debounceFn: null, //防抖函数
-            cancel: [], //请求取消
-            validError: false, //是否校验出错
-            loading: false, //加载效果
-            docDataReady: false, //文档数据是否加载完成
-        };
+            deep: true,
+            immediate: true,
+        },
     },
     computed: {
         currentSelectDoc() { //当前选中的doc
@@ -88,108 +81,85 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
-        variables() { //全局变量
-            return this.$store.state.apidoc.variables || [];
+        originApidocInfo() { //原始接口文档信息
+            return this.$store.state.apidoc.originApidocInfo;
         },
-        originDocInfo() { //返回原始文档数据
-            return this.$store.state.apidoc.originDocInfo;
-        }
-    },
-    watch: {
-        currentSelectDoc: {
-            handler(val, oldVal) {
-                if (val && this.currentSelectDoc.tabType === "doc") {
-                    if (!oldVal || val._id !== oldVal._id) {
-                        if (!this.currentSelectDoc.changed) { //没有发生改变重新拉取数据
-                            this.$store.commit("apidoc/clearRespons");
-                            this.getDocDetail();
-                        } else {
-                            //取消请求
-                            if (this.cancel.length > 0) {
-                                this.cancel.forEach(c => {
-                                    c("取消请求");
-                                })
-                            }
-                            this.db.findById("apidoc_doc", this.currentSelectDoc._id).then(data => {
-                                this.$store.commit("apidoc/changeDocResponseInfo", data.docs); //改变接口完整返回值
-                                // console.log(JSON.parse(JSON.stringify(data.docs)))
-                                this.formatRequestData(data.docs);
-                                Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
-                                    console.error(err);
-                                }).finally(() => {
-                                    this.$refs["requestOperation"].fixContentType();
-                                    if (this.watchFlag) { //去除watch数据对比
-                                        this.watchFlag();
-                                    }
-                                    this.watchFlag = this.$watch("request", debounce(() => {
-                                        this.syncRequestParams();
-                                        this.diffEditParams();
-                                    }, 100), {
-                                        deep: true
-                                    });                                                    
-                                })
-                            });
-                        }
-                    }
-                }
-            },
-            deep: true,
-            immediate: true
+        apidocInfo() { //接口文档信息
+            return this.$store.state.apidoc.apidocInfo;
+        },
+        loading() {
+            return this.$store.state.apidoc.apidocLoading;
         },
     },
-    mounted() {
+    data() {
+        return {
+            //=====================================记录录入时长===============================//
+            startTime: null, //开始时间
+            endTime: null, //结束时间
+            writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
+            //=====================================其他参数====================================//
+            watchFlag: null, //用于清空录入参数变化的watch
+            cancel: [], //----请求列表
+        };
     },
+    mounted() {},
     methods: {
         //=====================================获取数据====================================//
-        //手动刷新页面
-        handleFresh() {
-            if (!this.currentSelectDoc.changed) {
-                this.$store.commit("apidoc/clearRespons");
-                this.getDocDetail();
-            } else {
-                this.$confirm("刷新后未保存数据据将丢失", "提示", {
-                    confirmButtonText: "刷新",
-                    cancelButtonText: "取消",
-                    type: "warning"
-                }).then(() => {
-                    this.$store.commit("apidoc/clearRespons");
-                    this.getDocDetail();
-                    this.$store.commit("apidoc/changeCurrentTabById", {
-                        _id: this.currentSelectDoc._id,
-                        projectId: this.$route.query.id,
-                        changed: false
-                    });
-                }).catch(err => {
-                    if (err === "cancel" || err === "close") {
-                        return;
-                    }
-                    this.$errorThrow(err, this);
+        //查看是否存在缓存
+        checkCache(currentDoc) {
+            //不管有没有缓存，都取消上一次的请求
+            if (this.cancel.length > 0) {
+                this.cancel.forEach((c) => {
+                    c("取消请求");
+                })
+            }
+            if (currentDoc.changed) { //存在缓存直接应用缓存
+                this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
+                    this.$store.commit("apidoc/changeApidocInfo", data.docs);
+                    this.broadcast("REQUEST_BODY", "dataReady");
+                    Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                        console.error(err);
+                    }).finally(() => {
+                        if (this.watchFlag) { //去除watch数据对比
+                            this.watchFlag();
+                        }
+                        this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
+                            this.syncRequestParams();
+                            this.diffEditParams();
+                            this.calcSpendTime(); //计算编写接口花费的时间
+                        }), {
+                            deep: true,
+                        })
+                    })
                 });
+            } else {
+                this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
+                this.getDocDetail();
             }
         },
-        //获取文档详情
+        //获取接口数据
         getDocDetail() {
             if (!this.currentSelectDoc || !this.currentSelectDoc._id) { //没有id不请求数据
                 return
             }
             const params = {
-                _id: this.currentSelectDoc._id
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
             };
             if (this.cancel.length > 0) {
-                this.cancel.forEach(c => {
+                this.cancel.forEach((c) => {
                     c("取消请求");
                 })
             }
             setTimeout(() => { //hack让请求加载不受取消影响
-                this.loading = true;
-                this.docDataReady = false;
+                this.$store.commit("apidoc/changeApidocLoading", true);
             })
             this.axios.get("/api/project/doc_detail", {
                 params,
                 cancelToken: new CancelToken((c) => {
                     this.cancel.push(c);
-                })
-            }).then(res => {
+                }),
+            }).then((res) => {
                 if (res === undefined) { //取消接口
                     return
                 }
@@ -197,300 +167,237 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
-                if (this.watchFlag) { //去除watch数据对比
-                    this.watchFlag();
-                }
-                this.$store.commit("apidoc/changeDocResponseFullInfo", res.data); //改变接口完整返回值
-                this.$store.commit("apidoc/changeDocResponseInfo", res.data.item); //改变接口内容
-                this.formatRequestData(res.data.item);
-                //触发子组件全选
-                Promise.all([this.$refs["requestParams"].selectChecked(), this.$refs["headerParams"].selectAll()]).catch((err) => {
+                const resData = res.data;
+                console.log(resData)
+                this.addOperateDateForApidoc(resData);
+                const apidocInfo = JSON.parse(JSON.stringify(resData));
+                const originApidocInfo = JSON.parse(JSON.stringify(resData));
+                this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
+                this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
+                this.broadcast("REQUEST_BODY", "dataReady");
+                Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
-                    this.$refs["requestOperation"].fixContentType();
-                    this.$store.commit("apidoc/changeDocEditInfo", {
-                        description: this.request.description,
-                        header: this.request.header,
-                        methods: this.request.methods,
-                        requestParams: this.request.requestParams,
-                        responseParams: this.request.responseParams,
-                        url: this.request.url
-                    }); //改变文档编辑内容，用于判断文档值是否发生了改变
-                    this.watchFlag = this.$watch("request", debounce(() => {
+                    if (this.watchFlag) { //去除watch数据对比
+                        this.watchFlag();
+                    }
+                    this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                         this.syncRequestParams();
                         this.diffEditParams();
-                    }, 100), {
-                        deep: true
-                    })   
-                    // console.log(22222, this.request)                 
+                        this.calcSpendTime(); //计算编写接口花费的时间
+                    }), {
+                        deep: true,
+                    })
                 })
-
-            }).catch(err => {
+            }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
-                this.loading = false;
+                this.$store.commit("apidoc/changeApidocLoading", false);
             });
         },
-        //将返回值
-        formatRequestData(requestData) {
-            Object.assign(this.request,requestData);
-            dfsForest(this.request.requestParams, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: async (val, ) => {
-                    //文件类型需要处理value值
-                    if (val && val._value && val.type === "file") { 
-                        //获取文件类型
-                        const type = await FileType.fromBuffer(val._value);
-                        const blobData = new Blob([val._value], { type: type.mime });
-                        const blobUrl = URL.createObjectURL(blobData)
-                        this.$set(val, "_fileInfo", {
-                            mime: type.mime,
-                            url: blobUrl,
-                        });
-                    }
-                }
-            });
-            //如果自定义字段不包含_id可能会导致选中错误
-            this.request.requestParams.forEach(val => {
-                if (val._id) {
-                    this.$set(val, "id", val._id)
-                } else {
-                    this.$set(val, "id", this.uuid())
-                }
-            })
-            this.request.responseParams.forEach(val => {
-                if (val._id) {
-                    this.$set(val, "id", val._id)
-                } else {
-                    this.$set(val, "id", this.uuid())
-                }
-            })
-            this.request.header.forEach(val => {
-                // this.$set(val, "id", val._id)
-                if (val._id) {
-                    this.$set(val, "id", val._id)
-                } else {
-                    this.$set(val, "id", this.uuid())
-                }
-                // if (val.key.toLowerCase() === "host") {
-                //     this.$set(val, "_readOnly", true)
-                //     this.$set(val, "value", "")
-                // }
-                if (val.key.toLowerCase() === "content-type") {
-                    this.$set(val, "_readOnly", true)
-                    if (this.request.requestType === "query") {
-                        this.$set(val, "value", "application/json; charset=utf-8")
-                    } else if (this.request.requestType === "json") {
-                        this.$set(val, "value", "application/json; charset=utf-8")
-                    } else if (this.request.requestType === "formData") {
-                        this.$set(val, "value", "multipart/form-data")
-                    } else if (this.request.requestType === "x-www-form-urlencoded") {
-                        this.$set(val, "value", "x-www-form-urlencoded")
-                    }
-                }
-            })
-            // const matchedHost = this.request.header.find(val => val.key.toLowerCase() === "host");
-            // if (!matchedHost) {
-            //     this.request.header.unshift({
-            //         id: this.uuid(),
-            //         key: "host", //--------------请求头键
-            //         value: location.host, //------------请求头值
-            //         type: "string", //-------请求头值类型
-            //         description: "host", //------描述
-            //         required: true, //-------是否必填
-            //         children: [], //---------子参数
-            //         _readOnly: true,
-            //     });                    
-            // } else {
-            //     matchedHost.id = this.uuid();
-            //     matchedHost.key = "host";
-            //     matchedHost.value = location.host;
-            //     matchedHost.type = "string";
-            //     matchedHost.description = "host";
-            //     matchedHost.required = true;
-            //     matchedHost._readOnly = true;
-            //     matchedHost.children = [];
-            // }
-            const matchedContentType = this.request.header.find(val => val.key.toLowerCase() === "content-type");
-            if (!matchedContentType) {
-                this.request.header.unshift({
-                    id: this.uuid(),
-                    key: "content-type", //--------------请求头键
-                    value: "application/json; charset=utf-8", //------------请求头值
-                    type: "string", //-------请求头值类型
-                    description: "请求体的MIME类型", //------描述
-                    required: true, //-------是否必填
-                    children: [], //---------子参数
-                    _readOnly: true,
-                });
-            } else {
-                matchedContentType.id = this.uuid();
-                matchedContentType.key = "content-type";
-                matchedContentType.value = "application/json; charset=utf-8";
-                matchedContentType.type = "string";
-                matchedContentType.description = "请求体的MIME类型";
-                matchedContentType.required = true;
-                matchedContentType._readOnly = true;
-                matchedContentType.children = [];
-            }
-            // this.currentReqeustLimit = this.docRules.requestMethod.config.find(val => val.name === res.data.item.methods);
-            const reqParams = this.request.requestParams;
-            const resParams = this.request.responseParams;
-            const headerParams = this.request.header;
-            const reqParamsLen = this.request.requestParams.length;
-            const resParamsLen = this.request.responseParams.length;
-            const headerParamsLen = this.request.header.length;
-            const reqLastItemIsEmpty = (reqParams[reqParamsLen - 1] && reqParams[reqParamsLen - 1].key === "" && reqParams[reqParamsLen - 1].value === "");
-            const resLastItemIsEmpty = (resParams[resParamsLen - 1] && resParams[resParamsLen - 1].key === "" && resParams[resParamsLen - 1].value === "");
-            const headerLastItemIsEmpty = (headerParams[headerParamsLen - 1] && headerParams[headerParamsLen - 1].key === "" && headerParams[headerParamsLen - 1].value === "");
-            if (reqParamsLen === 0 || !reqLastItemIsEmpty) this.request.requestParams.push(this.generateParams());
-            if (resParamsLen === 0 || !resLastItemIsEmpty) this.request.responseParams.push(this.generateParams());
-            if (headerParamsLen === 0 || !headerLastItemIsEmpty) this.request.header.push(this.generateParams());
-            // if (this.request.url.host === "") this.request.url.host = location.origin;
-            this.request.description = requestData.description;
-            //根据实际请求类型修正tabs显示的请求类型(刷新和切换时候防止请求类型不一致)
-            this.$store.commit("apidoc/changeTabInfoById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                method: requestData.methods
-            });
-            //改变banner请求方式
-            this.$store.commit("apidoc/changeDocBannerInfoById", {
-                id: this.currentSelectDoc._id,
-                method: requestData.methods
-            });
-        },
-        generateParams() {
-            return {
-                id: this.uuid(),
-                key: "", //--------------请求头键
-                value: "", //------------请求头值
-                type: "string", //-------请求头值类型
-                description: "", //------描述
-                required: true, //-------是否必填
-                children: [], //---------子参数
-            };
-        },
+        //=====================================组件间操作====================================//
         //接口不存在提醒用户，可能是同时操作的用户删掉了这个接口导致接口不存在
         confirmInvalidDoc() {
             this.$confirm("当前接口不存在，可能已经被删除!", "提示", {
                 confirmButtonText: "关闭接口",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 this.$store.commit("apidoc/deleteTabById", {
                     projectId: this.$route.query.id,
-                    deleteIds: [this.currentSelectDoc._id]
+                    deleteIds: [this.currentSelectDoc._id],
                 });
-                if (!this.tabs.find(val => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
+                        _id: this.tabs[this.tabs.length - 1]._id,
                         projectId: this.$route.query.id,
-                        activeNode: this.tabs[this.tabs.length - 1],
+                        name: this.tabs[this.tabs.length - 1].name,
+                        changed: this.tabs[this.tabs.length - 1].changed,
+                        tail: this.tabs[this.tabs.length - 1].tail,
+                        tabType: "doc",
                     });
                 }
-            }).catch(err => {
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
                 this.$errorThrow(err, this);
             });
         },
-        //=====================================其他操作=====================================//
+        //对于请求参数和返回参数为空情况，默认添加一个操作数据
+        addOperateDateForApidoc(resData) {
+            const lastItemIsEmpty = (arrData) => {
+                const len = arrData.length;
+                const lastItem = arrData[len - 1];
+                const lastIsEmpty = (!lastItem || lastItem.key !== "" || lastItem.value !== "");
+                return lastIsEmpty;
+            }
+            const request = resData.item;
+            const { queryParams, requestBody, responseParams, headers } = request;
+            if (lastItemIsEmpty(queryParams)) {
+                queryParams.push(this.generateProperty());
+            }
+            if (lastItemIsEmpty(requestBody)) {
+                requestBody.push(this.generateProperty());
+            }
+            //添加默认headers
+            const defaultHeaders = this.generateDefaultHeaders(resData);
+            request.headers = this.$helper.unique(defaultHeaders.concat(headers), "key"); //默认header会覆盖远程返回header
+            if (lastItemIsEmpty(request.headers)) {
+                request.headers.push(this.generateProperty());
+            }
+            responseParams.forEach((response) => {
+                if (lastItemIsEmpty(response.values)) {
+                    response.values.push(this.generateProperty());
+                }
+            })
+            //如果无请求server则添加本地上次选择的server
+            let localServer = localStorage.getItem("apidoc/server") || "{}";
+            localServer = JSON.parse(localServer);
+            localServer = localServer[this.$route.query.id];
+            if (localServer && !resData.item.url.host) {
+                resData.item.url.host = localServer;
+            }
+        },
+        //生成默认请求头
+        generateDefaultHeaders(resData) {
+            const userAgent = this.generateProperty();
+            const contentType = this.generateProperty();
+            const host = this.generateProperty();
+            host._readOnly = true;
+            host.key = "Host";
+            host.description = "主机信息";
+            host.value = "自动生成";
+            userAgent._readOnly = true;
+            userAgent.key = "user-agent";
+            userAgent.value = "moyu(https://github.com/trueleaf/moyu)";
+            userAgent.description = "用户代理";
+            contentType._readOnly = true;
+            contentType.key = "content-type";
+            contentType.value = resData.item.contentType;
+            contentType.description = "内容类型";
+            return [userAgent, contentType, host];
+        },
         //同步请求数据
         syncRequestParams() {
-            console.log("同步");
             this.db.findByIdAndUpdate("apidoc_doc", this.currentSelectDoc._id, {
-                docs: this.request
+                docs: this.apidocInfo,
             });
-            let savedRequest = JSON.parse(localStorage.getItem("apidoc/request") || "{}");
-            if (!savedRequest[this.currentSelectDoc._id]) {
-                savedRequest[this.currentSelectDoc._id] = {};
+            const savedDocInfo = JSON.parse(localStorage.getItem("apidoc/docInfo") || "{}");
+            if (!savedDocInfo[this.currentSelectDoc._id]) {
+                savedDocInfo[this.currentSelectDoc._id] = {};
             }
-            savedRequest[this.currentSelectDoc._id] = this.request;
-            localStorage.setItem("apidoc/request", JSON.stringify(savedRequest))
+            savedDocInfo[this.currentSelectDoc._id] = this.apidocInfo;
+            localStorage.setItem("apidoc/docInfo", JSON.stringify(savedDocInfo))
         },
         //对比填写参数是否发送变化
         diffEditParams() {
-            const orginBaseText = JSON.stringify(this.originDocInfo.url) + this.originDocInfo.description + this.originDocInfo.methods;
-            const newBaseText = JSON.stringify(this.request.url) + this.request.description + this.request.methods;
-            const orginHeaderText = JSON.stringify(this.originDocInfo.header) + JSON.stringify(this.originDocInfo.requestParams) + JSON.stringify(this.originDocInfo.responseParams);
-            const newHeaderText = JSON.stringify(this.request.header) + JSON.stringify(this.request.requestParams) + JSON.stringify(this.request.responseParams);
-            if (orginBaseText === newBaseText && orginHeaderText === newHeaderText) {
-                this.$store.commit("apidoc/changeCurrentTabById", {
-                    projectId: this.$route.query.id,
-                    changed: false
-                });
-            } else {
-                this.$store.commit("apidoc/changeCurrentTabById", {
-                    projectId: this.$route.query.id,
-                    changed: true
-                });
-            }
-            // console.log(999, orginBaseText === newBaseText, orginHeaderText === newHeaderText)
-        },
-        //将变量转换为实际数据
-        convertVariable(val) {
-            if (val == null) {
-                return;
-            }
-            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
-            if (val && matchedData) {
-                const varInfo = this.variables.find(v => {
-                    return v.name === matchedData[1];
-                });
-                if (varInfo) {
-                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                } else {
-                    return val;
+            //挑选参数字段需要对比的参数
+            const pickerProperty = (property) => ({
+                key: property.key,
+                type: property.type,
+                description: property.description,
+                value: property.value,
+                required: property.required,
+                _select: property._select,
+            });
+            //挑选整个接口文档需要对比的参数
+            const pickerValidDiffParams = (docInfo) => {
+                const responseParams = [];
+                docInfo.item?.responseParams.forEach((response) => {
+                    response.values.forEach((val) => {
+                        responseParams.push(val);
+                    });
+                })
+                const result = {
+                    info: docInfo.info,
+                    item: {
+                        method: docInfo.item?.method,
+                        url: docInfo.item?.url,
+                        paths: docInfo.item?.paths.map((val) => pickerProperty(val)),
+                        queryParams: docInfo.item?.queryParams.map((val) => pickerProperty(val)),
+                        requestBody: docInfo.item?.requestBody.map((val) => pickerProperty(val)),
+                        responseParams: responseParams?.map((val) => pickerProperty(val)),
+                        headers: docInfo.item?.headers.map((val) => pickerProperty(val)),
+                        contentType: docInfo.item?.contentType,
+                    },
                 }
+                return result;
+            }
+            const diffOriginApidocInfo = pickerValidDiffParams(this.originApidocInfo);
+            const diffApidocInfo = pickerValidDiffParams(this.apidocInfo);
+            const isEqual = this.$helper.isEqual(diffOriginApidocInfo, diffApidocInfo);
+            if (isEqual) {
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: false,
+                });
             } else {
-                return val;
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    projectId: this.$route.query.id,
+                    changed: true,
+                });
             }
         },
-    }
+        //计算接口录入花费的时间
+        calcSpendTime() {
+            let spendTime = 0;
+            if (!this.startTime) { //开始时间
+                this.startTime = Date.now() - 300;
+            }
+            if (Date.now() - this.startTime > this.writeSensitivity) { //超过限制时间没有录入接口则默认花费时间为0
+                this.startTime = null;
+                this.endTime = null;
+                spendTime = 0;
+            } else { //在限制时间内则说明用户一直在录入
+                spendTime = Date.now() - this.startTime;
+                this.startTime = Date.now();
+            }
+            const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
+            if (!currentDocUsedTime[this.currentSelectDoc._id]) {
+                currentDocUsedTime[this.currentSelectDoc._id] = 0;
+            }
+            currentDocUsedTime[this.currentSelectDoc._id] += spendTime;
+            localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
+        },
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .edit-content {
     display: flex;
-    height: calc(100vh - 100px);
-    @media only screen and (max-width: 1500px) {
-        flex-direction: column;
-        .response-wrap {
-            padding: size(10);
-            margin-top: size(10);
-            border-top: 1px solid $gray-300;
-            box-shadow: $box-shadow;
-        }
-        .response {
-            height: auto;
-        }
-    }
-    .workplace {
+    height: calc(100vh - #{size(100)});
+    // 编辑区域
+    .edit-area {
         border-right: 1px solid $gray-400;
-        // padding: size(20);
-        flex: 0 0 65%;
+        flex: 1;
+        .info-wrap {
+            padding: size(10) size(20);
+            box-shadow: 0 3px 2px $gray-400;
+            position: relative;
+            z-index: 1;
+        }
+        .params-wrap {
+            padding: size(20);
+            max-height: calc(100vh - #{size(230)});
+            overflow-y: auto;
+        }
     }
-    .response-wrap {
-        flex: 1 0 35%;
+    // 展示区域
+    .view-area {
+        flex-grow: 0;
+        flex-shrink: 0;
+        width: size(550);
     }
-    .base-params {
-        padding: size(20);
-        height: size(170);
-        box-shadow: 0 3px 2px $gray-400;
-        position: relative;
-        z-index: 1;
-    }
-    .params-wrap {
-        padding: size(20);
-        max-height: calc(100vh - #{size(300)});
-        overflow-y: auto;
+    @media only screen and (max-width: 1440px) {
+        flex-direction: column;
+        .edit-area {
+            flex: 0 0 auto;
+        }
+        .view-area {
+            width: 100%;
+        }
     }
 }
 </style>

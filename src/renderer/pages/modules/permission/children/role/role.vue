@@ -29,12 +29,13 @@
 </template>
 
 <script>
-import addRole from "./add/add"
-import editRole from "./edit/edit"
+import addRole from "./add/add.vue";
+import editRole from "./edit/edit.vue";
+
 export default {
     components: {
-        "s-add-role": addRole, 
-        "s-edit-role": editRole, 
+        "s-add-role": addRole,
+        "s-edit-role": editRole,
     },
     data() {
         return {
@@ -49,26 +50,26 @@ export default {
     methods: {
         //=====================================获取远程数据==================================//
         getData() {
-            this.$refs["table"].getData();
+            this.$refs.table.getData();
         },
         //=====================================前后端交互====================================//
 
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleDeleteRole(_id) {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
-                type: "warning"
+                type: "warning",
             }).then(() => {
                 const params = {
-                    ids: [_id] 
+                    ids: [_id],
                 };
                 this.axios.delete("/api/security/role", { data: params }).then(() => {
-                    this.$refs["table"].getData();
-                }).catch(err => {
+                    this.$refs.table.getData();
+                }).catch((err) => {
                     this.$errorThrow(err, this);
-                });            
-            }).catch(err => {
+                });
+            }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
@@ -80,12 +81,9 @@ export default {
             this.isShow2 = true;
         },
         //=====================================其他操作=====================================//
-
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

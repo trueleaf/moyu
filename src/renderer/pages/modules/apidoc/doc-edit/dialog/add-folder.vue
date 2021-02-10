@@ -23,20 +23,20 @@ export default {
     props: {
         visible: { //是否现实弹窗
             type: Boolean,
-            default: false
+            default: false,
         },
         pid: { //文档父id
             type: String,
-            default: ""
+            default: "",
         },
     },
     data() {
         return {
             formInfo: {
                 name: "", //------文件夹名称
-            }, 
+            },
             rules: {
-                name: [{ required: true, message: "请输入文件夹名称", trigger: "blur" }]
+                name: [{ required: true, message: "请输入文件夹名称", trigger: "blur" }],
             },
             //=====================================其他参数====================================//
             loading: false, //----确认按钮状态
@@ -49,28 +49,28 @@ export default {
         //=====================================初始化页面====================================//
         init() {
             setTimeout(() => {
-                console.log(this.$refs["nameInput"].focus())
-            })
+                this.$refs.nameInput.focus();
+            });
         },
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
 
-        //=====================================组件间交互====================================//  
+        //=====================================组件间交互====================================//
         handleAddFolder() {
-            this.$refs["form"].validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
                     const params = {
-                        docName: this.formInfo.name,
-                        isFolder: true,
+                        name: this.formInfo.name,
+                        type: "folder",
                         projectId: this.$route.query.id,
                         pid: this.pid,
                     };
                     this.axios.post("/api/project/new_doc", params).then((res) => {
                         this.$emit("success", res.data);
                         this.handleClose();
-                    }).catch(err => {
+                    }).catch((err) => {
                         this.$errorThrow(err, this);
                     }).finally(() => {
                         this.loading = false;
@@ -87,11 +87,9 @@ export default {
             this.$emit("update:visible", false);
             this.$emit("close");
         },
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 

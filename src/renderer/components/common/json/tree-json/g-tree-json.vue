@@ -21,15 +21,15 @@ export default {
             type: [Object, Array],
             default() {
                 return {};
-            }
+            },
         },
         height: {
             type: String,
-            default: null
+            default: null,
         },
         maxHeight: {
             type: String,
-            default: null
+            default: null,
         },
     },
     computed: {
@@ -38,7 +38,7 @@ export default {
                 raw: this.data,
                 json: this.convertPlainParamsToTreeData(this.data),
             }
-        }
+        },
     },
     data() {
         return {
@@ -50,34 +50,31 @@ export default {
     },
     methods: {
         handleCopy() {
-            console.log(this.data)
-            console.log(this.convertPlainParamsToTreeData(this.data));
-
         },
         //将扁平数据转换为树形结构数据
         convertPlainParamsToTreeData(plainData, jumpChecked) {
             const result = {};
+            // eslint-disable-next-line no-shadow
             const foo = (plainData, result) => {
-                for(let i = 0,len = plainData.length; i < len; i++) {
+                for (let i = 0, len = plainData.length; i < len; i += 1) {
                     if (jumpChecked && !plainData[i]._select) { //若请求参数未选中则不发送请求
                         continue;
                     }
-                    const key = plainData[i].key.trim();
-                    const value = plainData[i].value;
-                    const type = plainData[i].type;
+                    const key = plainData[i].key?.toString().trim();
+                    const { type, value } = plainData[i];
                     const resultIsArray = Array.isArray(result);
                     const isComplex = (type === "object" || type === "array");
                     let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
                     if (!isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才可以显示
                         continue
                     }
-                    /*eslint-disable indent*/ 
+                    /*eslint-disable indent*/
                     switch (type) {
                         case "number": //数字类型需要转换为数字，转换前所有值都为字符串
                             resultIsArray ? result.push(Number(value)) : result[key] = Number(value);
                             break;
                         case "boolean": //字符串类型不做处理
-                            resultIsArray ? result.push(result[key] = (value === "true" ? true : false)) : (result[key] = (value === "true" ? true : false));
+                            resultIsArray ? result.push(result[key] = (value === "true")) : (result[key] = (value === "true"));
                             break;
                         case "object":
                             resultIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
@@ -101,18 +98,13 @@ export default {
             return result;
         },
         //=====================================获取远程数据==================================//
-
         //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//  
-        
+        //=====================================组件间交互====================================//
         //=====================================其他操作=====================================//
 
-    }
+    },
 };
 </script>
-
-
 
 <style lang="scss">
 .tree-json {
