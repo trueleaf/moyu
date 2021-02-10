@@ -175,6 +175,8 @@ export default {
             handler(val) {
                 if (val && val._id) {
                     this.defaultExpandedKeys.splice(0, 1, val._id);
+                } else {
+                    this.defaultExpandedKeys = [];
                 }
             },
             deep: true,
