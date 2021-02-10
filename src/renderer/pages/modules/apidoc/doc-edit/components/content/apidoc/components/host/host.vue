@@ -6,7 +6,7 @@
 */
 <template>
     <div class="mb-2">
-        <el-radio-group v-model="host" size="mini">
+        <el-radio-group v-model="host" size="mini" @change="handleChangeServer">
             <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>mock服务器</el-radio>
             </el-popover>
@@ -74,9 +74,19 @@ export default {
                 console.error(err);
             })
         },
-        //=====================================前后端交互====================================//
-        handleInput() {
+        //改变server
+        handleChangeServer(val) {
+            let localServer = localStorage.getItem("apidoc/server") || "{}";
+            localServer = JSON.parse(localServer);
+            if (!localServer[this.$route.query.id]) {
+                localServer[this.$route.query.id] = "";
+            }
+            if (val !== "") {
+                localServer[this.$route.query.id] = val;
+                localStorage.setItem("apidoc/server", JSON.stringify(localServer));
+            }
         },
+        //=====================================前后端交互====================================//
         //=====================================其他操作=====================================//
     },
 };
