@@ -66,7 +66,7 @@
                     <span>因浏览器限制，请在Electron环境进行请求发送</span>
                 </div>
                 <div>
-                    <a href="https://gitee.com/shuzhikai/moyu/attach_files/573739/download/Setup.0.1.3.exe">下载Electron</a>
+                    <!-- <a href="https://gitee.com/shuzhikai/moyu/attach_files/573739/download/Setup.0.1.3.exe">下载Electron</a> -->
                 </div>
             </div>
         </s-empty>

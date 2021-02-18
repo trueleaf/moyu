@@ -33,7 +33,7 @@
                 <el-button size="small" class="w-100" @click="handleJumpToRegister">注册账号</el-button>
             </div>
         </el-form-item>
-        <div class="d-flex j-around">
+        <!-- <div class="d-flex j-around">
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
                     <use xlink:href="#icongithub"></use>
@@ -47,7 +47,7 @@
                 </svg>
                 <div>码云</div>
             </a>
-        </div>
+        </div> -->
     </el-form>
 </template>
 

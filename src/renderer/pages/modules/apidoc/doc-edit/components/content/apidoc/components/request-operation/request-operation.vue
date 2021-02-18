@@ -162,10 +162,10 @@ export default {
         //发送请求
         sendRequest() {
             this.$event.emit("apidoc/sendRequest");
-            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
-            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
-            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
-            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths, true);
+            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams, true);
+            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody, true);
+            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers, true);
             const realHeaders = { //自定义cookie会覆盖默认cookie
                 cookie: this.cookie,
                 ...headers,

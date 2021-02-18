@@ -37,12 +37,12 @@ module.exports = {
     renderConfig: {
         //布局相关
         layout: {
-            title: packageJSON.name, //项目标题
+            title: "内部管理工具", //项目标题
             size: "mini", //项目中组件库大小
         },
         //http请求相关
         httpRequest: {
-            url: isDev ? "http://127.0.0.1:7004" : "http://47.107.70.26:7005",
+            url: isDev ? "http://127.0.0.1:7004" : "https://jobtool.cn",
             imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
@@ -73,10 +73,10 @@ module.exports = {
         width: 1440,
         height: 768,
         useLocalFile: true, //使用本地文件作为主进程加载内容
-        onlineUrl: "http://47.107.70.26/jobtool", //线上地址
+        onlineUrl: "https://jobtool.cn", //线上地址
     },
     //打包相关配置
     build: {
-        publicPath: "/jobtool",
+        publicPath: "/",
     },
 };

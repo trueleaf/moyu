@@ -27,15 +27,23 @@
             <el-table-column prop="loginName" label="登录名称" align="center"></el-table-column>
             <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
             <el-table-column prop="phone" label="手机号" align="center"></el-table-column>
-            <el-table-column prop="department" label="部门" align="center"></el-table-column>
-            <el-table-column prop="title" label="职位" align="center"></el-table-column>
-            <el-table-column prop="qq" label="qq号码" align="center"></el-table-column>
+            <el-table-column label="创建日期" align="center" width="200px">
+                <template slot-scope="scope">
+                    {{ $helper.formatDate(scope.row.createdAt) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="上次登录" align="center" width="200px">
+                <template slot-scope="scope">
+                    {{ $helper.formatDate(scope.row.lastLogin) }}
+                </template>
+            </el-table-column>
+            <el-table-column label="登录次数" align="center" prop="loginTimes"></el-table-column>
             <el-table-column label="角色信息" align="center" width="200px">
                 <template slot-scope="scope">
                     <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-block mb-1">{{ item }}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" align="center">
+            <el-table-column label="状态" align="center" width="80px">
                 <template slot-scope="scope">
                     <el-tag v-if="scope.row.enable" type="success" size="mini">启用</el-tag>
                     <el-tag v-else type="warning" size="mini">禁用</el-tag>

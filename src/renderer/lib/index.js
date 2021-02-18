@@ -8,6 +8,7 @@
 import { v4 as uuidV4 } from "uuid";
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
+import dayjs from "dayjs";
 
 //对象对比
 export const isEqual = lodashIsEqual;
@@ -510,4 +511,18 @@ export function findNextSiblingById(treeData, id, options) {
     };
     findNextNode(id, treeData);
     return sibling;
+}
+
+/**
+     * @description        格式化日期
+     * @author             shuxiaokai
+     * @create             2021-02-08 09:51
+     * @param {Date}       date - 日期对象
+     * @param {string}     rule - 规则
+     * @return {String}    返回自定义日期格式
+     */
+export function formatDate(date, rule) {
+    const realRule = rule || "YYYY-MM-DD HH:mm"
+    const result = dayjs(date).format(realRule);
+    return result;
 }
