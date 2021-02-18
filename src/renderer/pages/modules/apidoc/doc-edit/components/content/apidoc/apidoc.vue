@@ -299,7 +299,7 @@ export default {
                 description: property.description,
                 value: property.value,
                 required: property.required,
-                _select: property._select,
+                // _select: property._select,
             });
             //挑选整个接口文档需要对比的参数
             const pickerValidDiffParams = (docInfo) => {
