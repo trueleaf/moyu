@@ -139,14 +139,12 @@ export default {
         },
         //恢复上次远端返回
         resumeRemoteResponse() {
+            this.$store.commit("apidoc/clearRespons")
             let remoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
             remoteResponse = JSON.parse(remoteResponse);
-            if (!remoteResponse[this.$route.query.id]) {
-                remoteResponse[this.$route.query.id] = {};
-                return;
+            if (remoteResponse[this.currentSelectDoc._id]) {
+                this.$store.commit("apidoc/changeRemoteResponse", remoteResponse[this.currentSelectDoc._id]);
             }
-            console.log(remoteResponse)
-            this.$store.commit("apidoc/changeRemoteResponse", remoteResponse);
         },
         //获取接口数据
         getDocDetail() {
