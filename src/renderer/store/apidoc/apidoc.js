@@ -424,6 +424,16 @@ export default {
          * @param {Array<Property>}     headers - 请求头
          */
         sendRequest(context, payload) {
+            //在promise外部捕获错误，promise内部无法收到error事件，不太清楚是为什么
+            httpClient.once("error", (err) => {
+                console.error(err);
+                context.commit("changeSendRequestLoading", false);
+                context.commit("changeResponseIndex", {
+                    mime: "error",
+                    value: err.message,
+                    rt: err?.timings?.phases?.total,
+                });
+            });
             return new Promise((resolve, reject) => {
                 const { url, method, contentType, paths, queryParams, requestBody, headers } = payload;
                 context.commit("changeSendRequestLoading", true);

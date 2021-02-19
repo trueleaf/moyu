@@ -109,6 +109,13 @@ const HttpClient = (() => {
             })
             this.headers["content-type"] = this.contentType; //赋值contentType
             console.log("发送请求", options);
+            if (!options.url.host) {
+                this.emit("error", {
+                    message: "服务器地址不能为空，请在Tab导航下方选择",
+                    rt: 0,
+                });
+                return;
+            }
             try {
                 let body = "";
                 const searchParams = new URLSearchParams(this.queryParams).toString();
