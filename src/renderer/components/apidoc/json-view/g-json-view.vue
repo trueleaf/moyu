@@ -414,6 +414,9 @@ export default {
                 display: flex;
                 align-items: center;
                 width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 &:hover {
                     background: $gray-700;
                 }

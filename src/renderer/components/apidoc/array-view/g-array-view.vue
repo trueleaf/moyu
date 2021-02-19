@@ -409,6 +409,9 @@ $theme-color: #282c34;
                 align-items: center;
                 width: 100%;
                 position: relative;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 &:hover {
                     background: lighten($theme-color, 10%);
                 }
