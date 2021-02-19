@@ -61,7 +61,7 @@ export default {
                     }
                     const key = properties[i].key.trim();
                     const value = this.convertVariable(properties[i].value);
-                    if (isSimpleType && !key && !value) {
+                    if (isSimpleType && key === "") {
                         continue;
                     }
                     const { type } = properties[i]; // object,array,file
@@ -69,7 +69,7 @@ export default {
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
                     const isComplex = (type === "object" || type === "array" || type === "file");
                     let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-                    if (!isParentArray && !isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才被视作合法
+                    if (!isParentArray && !isComplex && (key === "")) { //非复杂数据需要填写参数名称才被视作合法
                         continue
                     }
                     switch (type) {
