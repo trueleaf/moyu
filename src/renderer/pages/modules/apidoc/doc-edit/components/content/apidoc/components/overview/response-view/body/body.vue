@@ -18,7 +18,10 @@
                             <i class="el-icon-arrow-down el-icon--right"></i>
                         </span>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item v-for="(item, index) in responseParams" :key="index" @click.native="handleApplyResponse(item)">{{ item.title }}</el-dropdown-item>
+                            <el-dropdown-item v-for="(item, index) in responseParams" :key="index" @click.native="handleApplyResponse(item)">
+                                <span class="mr-1">应用为</span>
+                                <span>{{ item.title }}</span>
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
                     <div v-copy="jsonResponse" class="hover-gray-100 cursor-pointer">复制为json</div>

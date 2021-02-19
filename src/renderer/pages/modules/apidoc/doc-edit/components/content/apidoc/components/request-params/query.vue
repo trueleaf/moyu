@@ -47,6 +47,15 @@
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
                 <span>保存为模板</span>
             </div>
+             <!-- json预览 -->
+            <el-popover ref="jsonView" placement="right">
+                <s-array-view :data="queryParams" class="mt-2">
+                    <div v-copy="jsonQueryParams" slot="header" class="ml-auto cursor-pointer">复制为json</div>
+                </s-array-view>
+                <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
+                    <span>JSON预览</span>
+                </div>
+            </el-popover>
         </div>
         <!-- 参数录入 -->
         <s-params-tree
@@ -64,11 +73,13 @@
 </template>
 
 <script>
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
 
 export default {
     name: "QUERY_PARAMS",
+    mixins: [mixin],
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
@@ -87,6 +98,11 @@ export default {
         },
         templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "queryParams");
+        },
+        jsonQueryParams() {
+            const queryParams = this.$store.state.apidoc.apidocInfo?.item?.queryParams;
+            const convertQueryParams = this.convertPlainParamsToTreeData(queryParams || []);
+            return JSON.stringify(convertQueryParams, null, 4);
         },
     },
     data() {

@@ -195,10 +195,10 @@ export default {
                 //本地化返回值
                 let localRemoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
                 localRemoteResponse = JSON.parse(localRemoteResponse);
-                if (!localRemoteResponse[this.$route.query.id]) {
-                    localRemoteResponse[this.$route.query.id] = {};
+                if (!localRemoteResponse[this.currentSelectDoc._id]) {
+                    localRemoteResponse[this.currentSelectDoc._id] = {};
                 }
-                localRemoteResponse[this.$route.query.id] = this.remoteResponse;
+                localRemoteResponse[this.currentSelectDoc._id] = this.remoteResponse;
                 localStorage.setItem("apidoc/remoteResponse", JSON.stringify(localRemoteResponse));
             }).catch((err) => {
                 console.error(err);

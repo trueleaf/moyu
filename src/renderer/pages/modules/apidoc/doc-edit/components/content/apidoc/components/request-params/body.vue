@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card v-bind="$attrs">
+    <s-collapse-card v-bind="$attrs" class="body-params">
         <div slot="head">
             <span>请求参数</span>
             <span>(Body)</span>
@@ -46,6 +46,15 @@
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
                 <span>保存为模板</span>
             </div>
+            <!-- json预览 -->
+            <el-popover v-if="contentType === 'application/json'" placement="right">
+                <s-array-view :data="jsonBody" class="mt-2">
+                    <div v-copy="jsonBodyParams" slot="header" class="ml-auto cursor-pointer">复制为json</div>
+                </s-array-view>
+                <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
+                    <span>JSON预览</span>
+                </div>
+            </el-popover>
         </div>
         <div class="d-flex a-center j-center py-2">
             <el-radio-group v-model="contentType">
@@ -123,6 +132,10 @@ export default {
         },
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
+        },
+        jsonBodyParams() {
+            const convertBodyParams = this.convertPlainParamsToTreeData(this.jsonBody);
+            return JSON.stringify(convertBodyParams, null, 4);
         },
     },
     data() {
@@ -319,5 +332,15 @@ export default {
 </script>
 
 <style lang="scss">
-
+// .body-params {
+//     .operation {
+//         height: size(30);
+//         padding: 0 size(20);
+//         width: 100%;
+//         display: flex;
+//         align-items: center;
+//         justify-content: flex-end;
+//         color: $gray-300;
+//     }
+// }
 </style>
