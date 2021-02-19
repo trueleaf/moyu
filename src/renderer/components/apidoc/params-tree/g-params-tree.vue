@@ -217,11 +217,11 @@ export default {
             this.$set(data, "_descriptionError", {
                 error: false,
             })
-            console.log(data, val)
             data.key = val.key;
             data.type = val.type;
             data.value = val.value;
             data.required = val.required;
+            data.description = val.description;
             if (val.children && val.children.length > 0) {
                 data.children = val.children;
                 this.defaultExpandedKeys.push(data._id);
