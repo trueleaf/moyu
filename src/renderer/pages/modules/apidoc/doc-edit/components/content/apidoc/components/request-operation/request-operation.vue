@@ -179,6 +179,7 @@ export default {
                 requestBody,
                 headers: realHeaders,
             }).then((res) => {
+                //本地化cookie
                 const rawCookies = res.headers["set-cookie"] || [];
                 const cookies = this.getCookies(rawCookies);
                 let localCookies = localStorage.getItem("apidoc/cookies") || "{}";
@@ -191,6 +192,14 @@ export default {
                     localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
                     this.$store.commit("apidoc/changeCookies", cookies);
                 }
+                //本地化返回值
+                let localRemoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+                localRemoteResponse = JSON.parse(localRemoteResponse);
+                if (!localRemoteResponse[this.$route.query.id]) {
+                    localRemoteResponse[this.$route.query.id] = {};
+                }
+                localRemoteResponse[this.$route.query.id] = this.remoteResponse;
+                localStorage.setItem("apidoc/remoteResponse", JSON.stringify(localRemoteResponse));
             }).catch((err) => {
                 console.error(err);
             });

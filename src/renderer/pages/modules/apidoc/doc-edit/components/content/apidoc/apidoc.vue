@@ -68,6 +68,7 @@ export default {
                 }
                 if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
                     this.checkCache(currentDoc);
+                    this.resumeRemoteResponse(); //恢复远端请求
                 }
             },
             deep: true,
@@ -133,9 +134,19 @@ export default {
                     })
                 });
             } else {
-                this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
                 this.getDocDetail();
             }
+        },
+        //恢复上次远端返回
+        resumeRemoteResponse() {
+            let remoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+            remoteResponse = JSON.parse(remoteResponse);
+            if (!remoteResponse[this.$route.query.id]) {
+                remoteResponse[this.$route.query.id] = {};
+                return;
+            }
+            console.log(remoteResponse)
+            this.$store.commit("apidoc/changeRemoteResponse", remoteResponse);
         },
         //获取接口数据
         getDocDetail() {
@@ -168,7 +179,7 @@ export default {
                     return;
                 }
                 const resData = res.data;
-                console.log(resData)
+                // console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));

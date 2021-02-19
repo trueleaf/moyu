@@ -308,6 +308,10 @@ export default {
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid;
         },
+        //改变上次返回信息
+        changeRemoteResponse(state, payload) {
+            Object.assign(state.remoteResponse, payload);
+        },
         //重置返回值信息
         clearRespons(state) {
             state.remoteResponse = {
