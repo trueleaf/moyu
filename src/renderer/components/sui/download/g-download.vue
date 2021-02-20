@@ -37,7 +37,7 @@ export default {
         //导出任务明细
         downloadFile() {
             this.loading = true;
-            if (this.type === "static") {
+            if (this.static) {
                 window.open(this.url);
                 return;
             }
