@@ -26,8 +26,8 @@
                     @click.stop="() => {}"
                     @keydown.enter="handleConfirmHead(item)"
                     @blur="handleBlur(item)">
-                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleConfirmHead(item)">确定</span>
-                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleCancelEditHead(item)">取消</span>
+                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmHead(item)">确定</span>
+                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEditHead(item)">取消</span>
                 <span v-if="!item._isEdit" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleEditHead(item, index)"></span>
             </div>
             <div slot="tail" class="d-flex">
