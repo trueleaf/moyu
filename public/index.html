@@ -7,10 +7,10 @@
         <link rel="icon" href="<%= BASE_URL %>favicon.ico" />
         <title>
             <% if (process.env.NODE_ENV === "development") { %>
-                快乐摸鱼(本地)
+                <%= process.env.VUE_APP_TITLE %>(本地)
             <% } %>
             <% if (process.env.NODE_ENV === "production") { %>
-                快乐摸鱼
+                <%= process.env.VUE_APP_TITLE %>
             <% } %>
         </title>
         <link rel="stylesheet" href="https://at.alicdn.com/t/font_1072300_dkv7k4hoib.js"/>

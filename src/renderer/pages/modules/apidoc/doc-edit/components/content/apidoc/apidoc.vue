@@ -68,6 +68,7 @@ export default {
                 }
                 if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
                     this.checkCache(currentDoc);
+                    this.resumeRemoteResponse(); //恢复远端请求
                 }
             },
             deep: true,
@@ -133,8 +134,16 @@ export default {
                     })
                 });
             } else {
-                this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
                 this.getDocDetail();
+            }
+        },
+        //恢复上次远端返回
+        resumeRemoteResponse() {
+            this.$store.commit("apidoc/clearRespons")
+            let remoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+            remoteResponse = JSON.parse(remoteResponse);
+            if (remoteResponse[this.currentSelectDoc._id]) {
+                this.$store.commit("apidoc/changeRemoteResponse", remoteResponse[this.currentSelectDoc._id]);
             }
         },
         //获取接口数据
@@ -168,7 +177,7 @@ export default {
                     return;
                 }
                 const resData = res.data;
-                console.log(resData)
+                // console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
@@ -293,14 +302,18 @@ export default {
         //对比填写参数是否发送变化
         diffEditParams() {
             //挑选参数字段需要对比的参数
-            const pickerProperty = (property) => ({
-                key: property.key,
-                type: property.type,
-                description: property.description,
-                value: property.value,
-                required: property.required,
-                _select: property._select,
-            });
+            const pickerProperty = (arrData) => {
+                if (!arrData) {
+                    return [];
+                }
+                const result = this.$helper.recursivePicker(arrData, {
+                    condition(item) {
+                        return item.key !== "" || item.value !== "";
+                    },
+                    fields: ["key", "type", "description", "value", "required"],
+                });
+                return result;
+            };
             //挑选整个接口文档需要对比的参数
             const pickerValidDiffParams = (docInfo) => {
                 const responseParams = [];
@@ -314,11 +327,11 @@ export default {
                     item: {
                         method: docInfo.item?.method,
                         url: docInfo.item?.url,
-                        paths: docInfo.item?.paths.map((val) => pickerProperty(val)),
-                        queryParams: docInfo.item?.queryParams.map((val) => pickerProperty(val)),
-                        requestBody: docInfo.item?.requestBody.map((val) => pickerProperty(val)),
-                        responseParams: responseParams?.map((val) => pickerProperty(val)),
-                        headers: docInfo.item?.headers.map((val) => pickerProperty(val)),
+                        paths: pickerProperty(docInfo.item?.paths),
+                        queryParams: pickerProperty(docInfo.item?.queryParams),
+                        requestBody: pickerProperty(docInfo.item?.requestBody),
+                        responseParams: pickerProperty(responseParams),
+                        headers: pickerProperty(docInfo.item?.headers),
                         contentType: docInfo.item?.contentType,
                     },
                 }

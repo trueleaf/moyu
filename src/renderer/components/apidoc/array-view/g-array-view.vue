@@ -39,8 +39,8 @@
                             <span v-if="item.valueType === 'string'" class="string-value">{{ item.value }}</span>
                             <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
                             <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'null'" class="null-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'undefined'" class="undefined-value">{{ item.value }}</span>
+                            <span v-if="item.valueType === 'null'" class="null-value">null</span>
+                            <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
                             <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
                             <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                             <span class="comma">{{ item.comma }}</span>
@@ -409,6 +409,9 @@ $theme-color: #282c34;
                 align-items: center;
                 width: 100%;
                 position: relative;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 &:hover {
                     background: lighten($theme-color, 10%);
                 }

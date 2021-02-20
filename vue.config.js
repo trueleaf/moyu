@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const config = require("./src/config");
 
+process.env.VUE_APP_TITLE = config.renderConfig.layout.title;
 const isShareDoc = process.argv.find((val) => val === "--single");
 
 let vueConfig = {};
@@ -113,7 +114,7 @@ if (isShareDoc) {
                 rendererProcessFile: "src/renderer/main.js",
                 mainProcessWatch: ["src/main/index.js"],
                 builderOptions: {
-                    productName: "快乐摸鱼",
+                    productName: config.renderConfig.layout.title,
                     appId: "com.example.yourapp",
                     publish: [
                         {

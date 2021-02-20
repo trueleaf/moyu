@@ -55,21 +55,21 @@ export default {
             /* eslint-disable no-param-reassign */
             const foo = (properties, result, parent) => {
                 for (let i = 0; i < properties.length; i += 1) {
-                    const isSimpleType = ((properties[i].type === "string") || (properties[i].type === "boolean") || (properties[i].type === "number"));
+                    // const isSimpleType = ((properties[i].type === "string") || (properties[i].type === "boolean") || (properties[i].type === "number"));
+                    const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+                    const key = properties[i].key.trim();
+                    const value = this.convertVariable(properties[i].value);
+                    const { type } = properties[i]; // object,array,file
+                    const valueTypeIsArray = Array.isArray(result);
+                    const isComplex = (type === "object" || type === "array" || type === "file");
+                    let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
                     if (jumpChecked && !properties[i]._select) { //过滤掉_select属性为false的值
                         continue;
                     }
-                    const key = properties[i].key.trim();
-                    const value = this.convertVariable(properties[i].value);
-                    if (isSimpleType && !key && !value) {
-                        continue;
+                    if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
+                        continue
                     }
-                    const { type } = properties[i]; // object,array,file
-                    const valueTypeIsArray = Array.isArray(result);
-                    const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                    const isComplex = (type === "object" || type === "array" || type === "file");
-                    let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-                    if (!isParentArray && !isComplex && (key === "" || value === "")) { //非复杂数据需要填写参数名称才被视作合法
+                    if (isParentArray && !isComplex && key === "" && value === "") { //父元素为数组子元素为简单类型
                         continue
                     }
                     switch (type) {

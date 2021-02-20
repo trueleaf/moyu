@@ -162,10 +162,10 @@ export default {
         //发送请求
         sendRequest() {
             this.$event.emit("apidoc/sendRequest");
-            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
-            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
-            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
-            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths, true);
+            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams, true);
+            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody, true);
+            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers, true);
             const realHeaders = { //自定义cookie会覆盖默认cookie
                 cookie: this.cookie,
                 ...headers,
@@ -179,6 +179,7 @@ export default {
                 requestBody,
                 headers: realHeaders,
             }).then((res) => {
+                //本地化cookie
                 const rawCookies = res.headers["set-cookie"] || [];
                 const cookies = this.getCookies(rawCookies);
                 let localCookies = localStorage.getItem("apidoc/cookies") || "{}";
@@ -191,6 +192,14 @@ export default {
                     localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
                     this.$store.commit("apidoc/changeCookies", cookies);
                 }
+                //本地化返回值
+                let localRemoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+                localRemoteResponse = JSON.parse(localRemoteResponse);
+                if (!localRemoteResponse[this.currentSelectDoc._id]) {
+                    localRemoteResponse[this.currentSelectDoc._id] = {};
+                }
+                localRemoteResponse[this.currentSelectDoc._id] = this.remoteResponse;
+                localStorage.setItem("apidoc/remoteResponse", JSON.stringify(localRemoteResponse));
             }).catch((err) => {
                 console.error(err);
             });

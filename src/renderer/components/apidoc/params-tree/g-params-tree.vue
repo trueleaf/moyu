@@ -217,7 +217,16 @@ export default {
             this.$set(data, "_descriptionError", {
                 error: false,
             })
-            Object.assign(data, val);
+            data.key = val.key;
+            data.type = val.type;
+            data.value = val.value;
+            data.required = val.required;
+            data.description = val.description;
+            if (val.children && val.children.length > 0) {
+                data.children = val.children;
+                this.defaultExpandedKeys.push(data._id);
+            }
+            // Object.assign(data, val);
         },
         //新增一行
         addNewLine({ node, data }) {
@@ -425,17 +434,8 @@ export default {
             this.$refs.tree?.setChecked(data._id, true);
         },
         //是否勾选请求参数
-        handleCheckChange() {
-            //首先清空所有选中数据
-            // dfsForest(this.treeData, {
-            //     rCondition(value) {
-            //         return value.children;
-            //     },
-            //     rKey: "children",
-            //     hooks: (data) => {
-            //         this.$set(data, "_select", false);
-            //     }
-            // });
+        handleCheckChange(data, select) {
+            this.$set(data, "_select", select);
             const checkedNodes = this.$refs.tree?.getCheckedNodes();
             const halfCheckedNodes = this.$refs.tree?.getHalfCheckedNodes();
             checkedNodes.forEach((val) => {

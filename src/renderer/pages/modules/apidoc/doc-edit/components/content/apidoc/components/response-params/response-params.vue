@@ -26,8 +26,8 @@
                     @click.stop="() => {}"
                     @keydown.enter="handleConfirmHead(item)"
                     @blur="handleBlur(item)">
-                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleConfirmHead(item)">确定</span>
-                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click="handleCancelEditHead(item)">取消</span>
+                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmHead(item)">确定</span>
+                <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEditHead(item)">取消</span>
                 <span v-if="!item._isEdit" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleEditHead(item, index)"></span>
             </div>
             <div slot="tail" class="d-flex">
@@ -70,6 +70,15 @@
                 <div class="cursor-pointer hover-theme-color mr-3" @click.stop="handleOpenSaveTemplate(item)">
                     <span>保存为模板</span>
                 </div>
+                <!-- json预览 -->
+                <el-popover placement="right">
+                    <s-array-view :data="item.values" class="mt-2">
+                        <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="ml-auto cursor-pointer">复制为json</div>
+                    </s-array-view>
+                    <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
+                        <span>JSON预览</span>
+                    </div>
+                </el-popover>
             </div>
             <!-- 弹窗 -->
             <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.responseParams" @success="handleConvertJsonToParams"></s-json-schema>
