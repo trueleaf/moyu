@@ -60,6 +60,47 @@ export function recursion(config) {
     };
     foo(cpData);
 }
+/**
+ * @description        递归挑选对象部分属性
+ * @author             shuxiaokai
+ * @updateAuthor       shuxiaokai
+ * @create             2020-01-08 21:32
+ * @update             2020-01-08 21:32
+ * @param {Array}      data - 递归数组
+ * @param {Function}   condition - 递归条件
+ * @param {Strubf}     rKey - 执行方法
+ * @param {Array}      fields - 需要挑选的字段
+ */
+export function recursivePicker(data, options = {}) {
+    const { condition, fields = [], rKey = "children" } = options;
+    const result = [];
+    if (!Array.isArray(data)) {
+        throw new Error("第一个参数必须为数组");
+    }
+    const foo = (loopData, result) => {
+        if (!loopData || loopData.length < 0) {
+            return;
+        }
+        for (let i = 0; i < loopData.length; i += 1) {
+            const loopItem = loopData[i]
+            const pickedItem = {};
+            fields.forEach((field) => {
+                if (field !== rKey) { //循环参数不错处理
+                    pickedItem[field] = loopItem[field];
+                }
+            })
+            pickedItem[rKey] = [];
+            result.push(pickedItem)
+            if (condition && condition(loopData[i])) {
+                foo(loopItem[rKey], pickedItem[rKey]);
+            } else if (!condition) {
+                foo(loopItem[rKey], pickedItem[rKey]);
+            }
+        }
+    };
+    foo(data, result);
+    return result;
+}
 //=====================================工具方法====================================//
 /**
     @description  查找父节点
