@@ -41,18 +41,33 @@
             <!-- 强制下载类型 -->
             <div v-else-if="remoteResponse.mime.includes('application/octet-stream')">
                 <i class="iconicon_weizhiwenjian"></i>
+                <s-download :url="remoteResponse.value" static>
+                    <span class="cursor-pointer theme-color">下载</span>
+                </s-download>
+            </div>
+            <div v-else-if="remoteResponse.mime.includes('application/force-download')">
+                <i class="iconicon_weizhiwenjian"></i>
+                <s-download :url="remoteResponse.value" static>
+                    <span class="cursor-pointer theme-color">下载</span>
+                </s-download>
             </div>
             <!-- excel -->
             <div v-else-if="remoteResponse.mime.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.mime.includes('application/vnd.ms-excel')">
                 <svg class="res-icon" aria-hidden="true" title="Excel">
                     <use xlink:href="#iconexcel"></use>
                 </svg>
+                <s-download :url="remoteResponse.value" static>
+                    <span class="cursor-pointer theme-color">下载</span>
+                </s-download>
             </div>
             <!-- word -->
             <div v-else-if="remoteResponse.mime.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.mime.includes('application/msword')">
                 <svg class="res-icon" aria-hidden="true" title="Excel">
                     <use xlink:href="#iconWORD"></use>
                 </svg>
+                <s-download :url="remoteResponse.value" static>
+                    <span class="cursor-pointer theme-color">下载</span>
+                </s-download>
             </div>
             <!-- pdf -->
             <iframe v-else-if="remoteResponse.mime.includes('application/pdf')" :src="remoteResponse.value" class="pdf-view"></iframe>
