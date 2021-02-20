@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="v-input" :class="{'valid-error': error.error}">
+    <div class="v-input">
         <el-input v-if="!remote" :value="value" v-bind="$attrs" v-on="$listeners">
             <template slot="prepend">
                 <slot name="prepend"/>
@@ -32,10 +32,10 @@
                 <span class="f-sm gray-500">{{ item.type }}</span>
             </template>
         </el-autocomplete>
-        <span v-show="error.error" class="error-tip">
+        <!-- <span v-show="error.error" class="error-tip">
             <span>{{ error.message || "校验错误" }}</span>
             <slot name="tip" />
-        </span>
+        </span> -->
     </div>
 </template>
 
