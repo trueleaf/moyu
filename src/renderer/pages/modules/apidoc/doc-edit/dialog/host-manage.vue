@@ -104,7 +104,7 @@ export default {
     },
     data() {
         const validateHost = (rule, value, callback) => {
-            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,5}(\/.+)?$/; //ip+端口
+            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})(:\d{2,5})?(\/.+)?$/; //ip+端口(端口不必填)
             const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
             if (value === "") {
                 callback(new Error("不能为空"));
@@ -180,8 +180,9 @@ export default {
         },
         //检查host值是否有效
         handleCheckHost(url) {
+            console.log(url)
             // 0-9  10-99 100-199 200-255
-            const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2}):\d{2,5}(\/.+)?$/; //ip+端口
+            const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})(:\d{2,5})?(\/.+)?$/; //ip+端口(端口不必填)
             const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
             // console.log(url, !url.match(ipReg) && !url.match(dominReg))
             if (!url.match(ipReg) && !url.match(dominReg)) {
