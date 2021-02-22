@@ -6,7 +6,9 @@
 */
 <template>
     <div class="s-json-view">
-        <slot name="header"/>
+        <div class="header">
+            <slot name="header"/>
+        </div>
         <div class="content">
             <div class="code-banner">
                 <template v-for="(item, index) in astValue">
@@ -166,7 +168,7 @@ export default {
                         const isObject = type === "object";
                         const isArray = type === "array";
                         const objectHasValue = (isObject && Object.keys(value).length > 0);
-                        const arrayHasValue = (isArray && value.length > 0);
+                        const arrayHasValue = (isArray && value.length > 0 && value.some((val) => val.key !== "" || val.value !== ""));
                         if (isSimpleType) { //简单类型数据 x: 1
                             const realValue = type === "string" ? `"${value}"` : value;
                             astInfo.indent = indent * objLevel;
@@ -361,6 +363,9 @@ export default {
     font-size: size(14);
     background: #282c34;
     font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+    .header {
+        position: relative;
+    }
     .content {
         display: inline-flex;
         .code-banner {

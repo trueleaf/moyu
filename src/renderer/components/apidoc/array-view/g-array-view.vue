@@ -7,11 +7,14 @@
 <template>
     <div class="s-array-view">
         <div class="header">
+            <div class="search">
+                <input v-model="queryString" type="text" placeholder="关键词过滤...">
+            </div>
             <slot name="header"/>
         </div>
         <div class="content">
             <div class="code-banner">
-                <template v-for="(item, index) in astValue">
+                <template v-for="(item, index) in filterAstValue">
                     <div v-if="!item._hidden" :key="index" class="banner-wrap">
                         <span class="number-line">{{ item.line }}</span>
                         <span
@@ -24,7 +27,7 @@
                 </template>
             </div>
             <div class="code-wrap">
-                <template v-for="(item, index) in astValue">
+                <template v-for="(item, index) in filterAstValue">
                     <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @mousedown.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
                         <span>
@@ -32,11 +35,15 @@
                                 <input type="checkbox">
                                 <i class="el-icon-check"></i>
                             </label> -->
-                            <span class="path">{{ item.path.value }}</span>
+                            <span class="path">
+                                <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
+                            </span>
                             <span v-if="item.colon" class="colon">{{ item.colon }}&nbsp;</span>
                             <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                             <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                            <span v-if="item.valueType === 'string'" class="string-value">{{ item.value }}</span>
+                            <span v-if="item.valueType === 'string'" class="string-value">
+                                <s-emphasize :value="item.value" :keyword="queryString"></s-emphasize>
+                            </span>
                             <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
                             <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
                             <span v-if="item.valueType === 'null'" class="null-value">null</span>
@@ -45,7 +52,9 @@
                             <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                             <span class="comma">{{ item.comma }}</span>
                             <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
-                            <span v-if="item.description" class="description ml-1">//{{ item.description }}</span>
+                            <span v-if="item.description" class="description ml-1">
+                                //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
+                            </span>
                         </span>
                         <span v-show="item._close" class="number-value"></span>
                     </span>
@@ -66,8 +75,28 @@ export default {
             },
         },
     },
+    computed: {
+        filterAstValue() {
+            const result = this.astValue.map((val) => {
+                const matchedPath = this.queryString && val.path.value.toString().match(this.queryString);
+                const matchedValue = this.queryString && val.value.toString().match(this.queryString);
+                const matchedDescription = this.queryString && val.description.toString().match(this.queryString);
+                if (matchedPath || matchedValue || matchedDescription) {
+                    return {
+                        ...val,
+                        _matched: true,
+                    };
+                }
+                return {
+                    ...val,
+                };
+            })
+            return result;
+        },
+    },
     data() {
         return {
+            queryString: "", //查询字符串
             wordNum: 0, //字段数量
             astValue: [], //当前渲染树数据
             activeCurlyBraceId: "", //当前匹配的大括号id
@@ -160,7 +189,7 @@ export default {
                     const isObject = itemType === "object";
                     const isArray = itemType === "array";
                     const objectHasValue = (isObject && item.children.length > 0);
-                    const arrayHasValue = (isArray && item.children.length > 0);
+                    const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== ""));
                     const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "null") || (itemType === "undefined"));
                     const astInfo = this.generateAstInfo();
                     if (isSimpleType && !itemValue && !itemPath) {
@@ -209,6 +238,7 @@ export default {
                         const uuid = Math.random();
                         astInfo.path.value = itemPath;
                         astInfo.leftBracket.pairId = uuid;
+                        astInfo.colon = ":";
                         astInfo.leftBracket.value = "[";
                         astInfo.rightBracket.value = "]";
                         astInfo.rightBracket.pairId = uuid;
@@ -341,6 +371,23 @@ $theme-color: #282c34;
         color: $gray-300;
         display: flex;
         align-items: center;
+        position: relative;
+        justify-content: flex-end;
+        .search {
+            &>input {
+                height: size(20);
+                line-height: size(20);
+                margin-right: size(20);
+                border: lighten($theme-color, 10%);
+                background: lighten($theme-color, 20%);
+                color: $gray-300;
+                text-indent: size(5);
+                &::placeholder {
+                    color: $gray-300;
+                    font-size: fz(12);
+                }
+            }
+        }
     }
     .content {
         display: inline-flex;

@@ -7,7 +7,12 @@
 <template>
     <span>
         <span>{{ leftStr }}</span>
-        <span :style="{color: activeColor}">{{ emphasizeStr }}</span>
+       <span
+            :style="{
+                color: background ? '' : activeColor,
+                background: isMatched && background ? activeColor : '',
+            }"
+            >{{ emphasizeStr }}</span>
         <span>{{ rightStr }}</span>
     </span>
 </template>
@@ -26,6 +31,15 @@ export default {
         activeColor: {
             type: String,
             default: "#f60",
+        },
+        background: {
+            type: Boolean,
+            default: false,
+        },
+    },
+    computed: {
+        isMatched() {
+            return this.keyword && this.value.match(this.keyword)
         },
     },
     data() {
