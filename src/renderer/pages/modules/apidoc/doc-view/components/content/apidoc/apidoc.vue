@@ -211,7 +211,6 @@ export default {
             padding: size(10) size(20);
             .copy-json {
                 cursor: pointer;
-                margin-left: auto;
                 &:hover {
                     color: lighten($gray-300, 20%);
                 }

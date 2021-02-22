@@ -148,7 +148,6 @@ export default {
     overflow-y: auto;
     .copy-json {
         cursor: pointer;
-        margin-left: auto;
         &:hover {
             color: lighten($gray-300, 20%);
         }

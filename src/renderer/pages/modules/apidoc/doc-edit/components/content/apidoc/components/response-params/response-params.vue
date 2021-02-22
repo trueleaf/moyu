@@ -73,7 +73,7 @@
                 <!-- json预览 -->
                 <el-popover placement="right">
                     <s-array-view :data="item.values" class="mt-2">
-                        <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="ml-auto cursor-pointer">复制为json</div>
+                        <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="cursor-pointer">复制为json</div>
                     </s-array-view>
                     <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
                         <span>JSON预览</span>
