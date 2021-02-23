@@ -13,13 +13,31 @@
                 <s-request-operation-manage></s-request-operation-manage>
             </div>
             <!-- 参数录入 -->
-            <div class="params-wrap">
+            <div class="params-wrap hidden-md">
                 <s-request-query-params ref="query"></s-request-query-params>
                 <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
-                <!-- <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.headers }}</pre> -->
+            </div>
+            <div class="params-sm-wrap show-md">
+                <el-tabs v-model="activeName">
+                    <el-tab-pane label="Params" name="s-a">
+                        <s-request-query-params ref="query"></s-request-query-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Body" name="s-b">
+                        <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Headers" name="s-d">
+                        <s-header-params ref="header"></s-header-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="返回值" name="s-c">
+                        <s-response-params ref="response"></s-response-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="备注" name="s-e">
+                        <s-remark></s-remark>
+                    </el-tab-pane>
+                </el-tabs>
             </div>
         </s-loading>
         <div class="view-area">
@@ -101,6 +119,7 @@ export default {
             //=====================================其他参数====================================//
             watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
+            activeName: "s-a",
         };
     },
     mounted() {},
@@ -386,10 +405,12 @@ export default {
         border-right: 1px solid $gray-400;
         flex: 1;
         .info-wrap {
+            position: sticky;
+            top: 0;
             padding: size(10) size(20);
             box-shadow: 0 3px 2px $gray-400;
-            position: relative;
-            z-index: 1;
+            background: $white;
+            z-index: $zIndex-request-info-wrap;
         }
         .params-wrap {
             padding: size(20);
@@ -403,13 +424,43 @@ export default {
         flex-shrink: 0;
         width: size(550);
     }
+    .show-md {
+        display: none;
+    }
     @media only screen and (max-width: 1440px) {
-        flex-direction: column;
+        display: block;
+        .hidden-md {
+            display: none;
+        }
+        .show-md {
+            display: block;
+        }
+        .params-sm-wrap {
+            display: block;
+            padding: 0 size(10);
+            height: size(300);
+            overflow-y: auto;
+            box-shadow: 0 3px 2px $gray-400;
+            .el-tabs__header {
+                margin: 0;
+            }
+        }
         .edit-area {
             flex: 0 0 auto;
         }
         .view-area {
             width: 100%;
+            .request-view {
+                display: none;
+            }
+            .response-view {
+                flex: 0 0 calc(100vh - #{size(530)});
+                min-height: size(300);
+            }
+            .body-view {
+                height: calc(100vh - #{size(625)});
+                min-height: size(200);
+            }
         }
     }
 }
