@@ -6,7 +6,7 @@
 */
 <template>
     <div>
-        <div class="d-flex a-center mb-2">
+        <div class="d-flex a-center">
             <div class="flex0">
                 <span>状态码：</span>
                 <template v-if="remoteResponse.statusCode">
