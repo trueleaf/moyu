@@ -415,7 +415,7 @@ export default {
         .code-wrap {
             flex: 1;
             .line {
-                height: size(20);
+                min-height: size(20);
                 display: flex;
                 align-items: center;
                 width: 100%;
@@ -450,7 +450,11 @@ export default {
                 justify-content: center;
             }
             .path {
-                color: #f8c555,
+                color: #f8c555;
+                vertical-align: top;
+            }
+            .colon {
+                vertical-align: top;
             }
             .colon, .bracket, .comma, .curly-brace {
                 color: #ccc;
@@ -473,6 +477,7 @@ export default {
             .string-value {
                 color: #7ec699;
                 font-size: .9em;
+                white-space: pre;
             }
             .boolean-value {
                 color: #cc99cd;
