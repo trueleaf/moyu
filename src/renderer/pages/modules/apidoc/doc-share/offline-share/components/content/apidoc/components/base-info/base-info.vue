@@ -32,7 +32,6 @@
                 发送请求
             </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
-            <el-button :loading="loading2" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
         </div>
         <!-- 请求参数展示 -->
         <pre class="w-100">{{ host }}{{ path }}</pre>
@@ -119,33 +118,6 @@ export default {
         //取消发送
         stopRequest() {
             this.$store.dispatch("apidoc/stopRequest");
-        },
-        //=====================================url操作====================================//
-        //刷新请求页面
-        handleFreshApidoc() {
-            if (!this.currentSelectDoc.changed) {
-                this.$store.commit("apidoc/clearRespons");
-                this.getComponentByName("APIDOC_CONTENT").getDocDetail();
-            } else {
-                this.$confirm("刷新后未保存数据据将丢失", "提示", {
-                    confirmButtonText: "刷新",
-                    cancelButtonText: "取消",
-                    type: "warning",
-                }).then(() => {
-                    this.$store.commit("apidoc/clearRespons");
-                    this.getComponentByName("APIDOC_CONTENT").getDocDetail();
-                    this.$store.commit("apidoc/changeCurrentTabById", {
-                        _id: this.currentSelectDoc._id,
-                        projectId: this.$route.query.id,
-                        changed: false,
-                    });
-                }).catch((err) => {
-                    if (err === "cancel" || err === "close") {
-                        return;
-                    }
-                    this.$errorThrow(err, this);
-                });
-            }
         },
         //=====================================其他操作====================================//
     },

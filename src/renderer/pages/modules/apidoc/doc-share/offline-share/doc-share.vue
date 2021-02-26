@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
     创建时间：2020-8-24 20:24
-    模块名称：离线文档
+    模块名称：文档查看页面
     备注：xxxx
 */
 <template>
-    <div class="doc-share">
+    <div class="doc-view">
         <s-banner></s-banner>
         <div class="doc-wrap">
             <s-navs></s-navs>
@@ -30,28 +30,20 @@ export default {
     },
     created() {
         this.getHostEnum(); //获取host值
-        this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
     },
     methods: {
         //=====================================获取远程数据==================================//
         //获取host值
         getHostEnum() {
-            this.$store.dispatch("apidoc/getHostEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取全局变量
-        getVariables() {
-            this.$store.dispatch("apidoc/getDocVariable", {
-                projectId: this.$route.query.id,
-            });
+            const { hosts } = window.SHARE_DATA;
+            this.$store.commit("apidoc/initAndChangeHostEnum", hosts);
         },
         //获取项目规则
         getProjectRules() {
-            this.$store.dispatch("apidocRules/getRuels", {
-                projectId: this.$route.query.id,
-            });
+            //获取规则
+            const { rules } = window.SHARE_DATA;
+            this.$store.commit("apidocRules/changeRules", rules);
         },
         //=====================================其他操作=====================================//
     },
@@ -59,7 +51,7 @@ export default {
 </script>
 
 <style lang="scss">
-.doc-share {
+.doc-view {
     height: 100%;
     display: flex;
     .banner {

@@ -8,22 +8,17 @@
     <div class="banner">
         <!-- 工具栏 -->
         <div class="tool">
-            <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
+            <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.projectName">{{ docBaseInfo.projectName }}</h2>
             <el-input v-model="queryData" class="doc-search" placeholder="支持文档名称，文档url搜索" clearable @input="handleSearchTree"></el-input>
             <div class="tool-icon d-flex j-between mt-1 px-1">
-                <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible6 = true">
-                        <use xlink:href="#icondaochu1"></use>
-                    </svg>
-                </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
                     <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
                         <use xlink:href="#icondaoru"></use>
                     </svg>
                 </el-tooltip>
-                <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
+                <!-- <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
-                </svg>
+                </svg> -->
             </div>
         </div>
         <!-- 树形文档导航 -->
@@ -32,7 +27,7 @@
                     ref="docTree"
                     :data="navTreeData"
                     node-key="_id"
-                    empty-text="点击按钮新增文档"
+                    empty-text="暂无数据"
                     :default-expanded-keys="defaultExpandedKeys"
                     :expand-on-click-node="true"
                     :draggable="false"
@@ -65,32 +60,20 @@
                 </template>
             </el-tree>
         </div>
-        <!-- 弹窗 -->
-        <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
     </div>
 </template>
 
 <script>
 import { debounce } from "@/lib/index";
-import exportDialog from "./dialog/export.vue";
 
 export default {
     name: "SDocEditBanner",
-    components: {
-        "s-export-dialog": exportDialog,
-    },
     computed: {
-        navTreeData() { //-------树形导航数据
-            return this.$store.state.apidoc.banner;
-        },
         tabs() { //--------------全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
         currentSelectDoc() { //--当前选中的文档
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-        docRules() { //---------文档规则
-            return this.$store.state.apidocRules;
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
@@ -108,6 +91,8 @@ export default {
     },
     data() {
         return {
+            docBaseInfo: {},
+            navTreeData: [],
             //=====================================文档增删改查====================================//
             queryData: "", //------------文档过滤条件
             docParentId: "", //----------文档父id
@@ -135,9 +120,7 @@ export default {
         //=====================================初始化相关====================================//
         init() {
             this.getDocBanner();
-            document.documentElement.addEventListener("click", () => {
-                this.multiSelectNode = [];
-            });
+            this.getDocInfo();
         },
         //=====================================操作栏操作====================================//
         //刷新banner
@@ -146,13 +129,41 @@ export default {
                 this.getDocBanner();
             }
         },
+        //获取文档导航
         getDocBanner() {
-            this.loading = true;
-            this.$store.dispatch("apidoc/getDocBanner", { projectId: this.$route.query.id }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
+            const { docs } = window.SHARE_DATA;
+            const result = [];
+            const mapedData = docs.map((val) => ({
+                ...val.item,
+                ...val.info,
+                _id: val._id,
+                pid: val.pid,
+                sort: val.sort,
+                isFolder: val.isFolder,
+                children: val.children,
+            }))
+            for (let i = 0; i < mapedData.length; i += 1) {
+                const docInfo = mapedData[i];
+                if (!docInfo.pid) { //根元素
+                    docInfo.children = [];
+                    result.push(docInfo);
+                }
+                const id = docInfo._id.toString();
+                for (let j = 0; j < mapedData.length; j += 1) {
+                    if (id === mapedData[j].pid) { //项目中新增的数据使用标准id
+                        if (docInfo.children == null) {
+                            docInfo.children = [];
+                        }
+                        docInfo.children.push(mapedData[j]);
+                    }
+                }
+            }
+            this.navTreeData = result;
+        },
+        //获取文档基本信息
+        getDocInfo() {
+            const { info } = window.SHARE_DATA;
+            this.docBaseInfo = info;
         },
         //=====================================导航操作==================================//
         //点击节点
@@ -165,65 +176,6 @@ export default {
                 } else {
                     this.multiSelectNode.push(node);
                 }
-            }
-        },
-        //添加文件夹或文档成功回调函数
-        handleAddFileAndFolderCb(data) {
-            const pNode = this.$helper.findNodeById(this.navTreeData, this.docParentId, { id: "_id" });
-            if (!pNode) { //插入到根元素
-                if (data.type === "folder") { //如果是文件夹则放在第一位
-                    let folderIndex = -1;
-                    for (let i = 0, len = this.navTreeData.length; i < len; i += 1) {
-                        if (!this.navTreeData[i].isFolder) {
-                            this.navTreeData.splice(i, 0, data);
-                            folderIndex = i;
-                            break;
-                        }
-                    }
-                    if (folderIndex === -1) { //不存在文件则直接添加到末尾
-                        this.navTreeData.push(data);
-                    }
-                } else { //如果是文本
-                    this.navTreeData.push(data);
-                }
-            } else { //插入到文件夹里面
-                if (!pNode.children) {
-                    this.$set(pNode, "children", []);
-                }
-                if (data.type === "folder") { //如果是文件夹则放在第一位
-                    this.defaultExpandedKeys.push(data._id)
-                    let folderIndex = -1;
-                    for (let i = 0, len = pNode.children.length; i < len; i += 1) {
-                        if (!pNode.children[i].isFolder) {
-                            pNode.children.splice(i, 0, data);
-                            folderIndex = i;
-                            break;
-                        }
-                    }
-                    if (folderIndex === -1) { //不存在文件则直接添加到末尾
-                        pNode.children.push(data);
-                    }
-                } else {
-                    pNode.children.push(data);
-                }
-            }
-            if (data.type !== "folder") { //文件夹不做处理
-                this.$store.commit("apidoc/addTab", {
-                    _id: data._id,
-                    name: data.name,
-                    changed: data.changed,
-                    tail: data.method,
-                    tabType: "doc",
-                    projectId: this.$route.query.id,
-                });
-                this.$store.commit("apidoc/changeCurrentTab", {
-                    _id: data._id,
-                    name: data.name,
-                    changed: data.changed,
-                    tail: data.method,
-                    tabType: "doc",
-                    projectId: this.$route.query.id,
-                });
             }
         },
         //点击节点
@@ -254,24 +206,14 @@ export default {
         },
         search: debounce(function foo() {
             this.searchResult = [];
-            const params = {
-                projectId: this.$route.query.id,
-                url: this.queryData.trim(),
-            };
-            this.axios.get("/api/project/filter_doc", { params }).then((res) => {
-                if (res.data.length === 0) {
-                    this.defaultExpandedKeys = [];
-                    this.searchResult = [];
-                } else {
-                    this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(res.data.map((val) => val._id))));
-                    this.searchResult = Array.from(new Set(this.searchResult.concat(res.data.map((val) => val))));
-                }
-                this.$refs.docTree.filter();
-            }).catch((err) => {
-                this.$errorThrow(err, this);
-            }).finally(() => {
-                this.loading = false;
-            });
+            // this.queryData.trim()
+            // if (res.data.length === 0) {
+            //     this.defaultExpandedKeys = [];
+            //     this.searchResult = [];
+            // } else {
+            //     this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(res.data.map((val) => val._id))));
+            //     this.searchResult = Array.from(new Set(this.searchResult.concat(res.data.map((val) => val))));
+            // }
         }),
         filterNode(value, data) {
             const matchName = !!this.searchResult.find((val) => val.name === data.label);
@@ -281,23 +223,6 @@ export default {
         },
         //=====================================弹窗相关====================================//
         //打开文件新增弹窗
-        handleOpenAddFolderDialog() {
-            this.dialogVisible = true;
-        },
-        //打开文件新增弹窗
-        handleOpenAddFileDialog() {
-            this.dialogVisible2 = true;
-        },
-        //预览文档
-        handleViewDoc() {
-            this.$router.push({
-                path: "/v1/apidoc/doc-view",
-                query: {
-                    id: this.$route.query.id,
-                    name: this.$route.query.name,
-                },
-            });
-        },
         //=====================================其他操作=====================================//
     },
 };

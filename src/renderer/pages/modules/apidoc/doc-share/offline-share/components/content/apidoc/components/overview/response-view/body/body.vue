@@ -10,8 +10,10 @@
             <!-- svg图片 -->
             <div v-if="remoteResponse.mime.includes('image/svg+xml')" v-html="remoteResponse.value"></div>
             <!-- json格式 -->
-            <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)" @export="handleExport">
-                <div v-copy="jsonResponse" slot="header" class="copy-json">复制为json</div>
+            <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)">
+                <div slot="header" class="operation">
+                    <div v-copy="jsonResponse" class="hover-gray-100 cursor-pointer">复制为json</div>
+                </div>
             </s-json-view>
             <!-- 其他图片类型 -->
             <el-image
@@ -75,8 +77,10 @@
 
 <script>
 import beautify from "js-beautify"
+import mixin from "@/pages/modules/apidoc/mixin/index"
 
 export default {
+    mixins: [mixin],
     computed: {
         remoteResponse() { //远端返回数据结果
             return this.$store.state.apidoc.remoteResponse;
@@ -88,6 +92,17 @@ export default {
         jsonResponse() { //远程json类型返回参数
             const remoteResponse = this.$store.state.apidoc.remoteResponse || {};
             return JSON.stringify(JSON.parse(remoteResponse.value), null, 4);
+        },
+        responseParams: { //返回参数
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.item?.responseParams;
+            },
+            set(val) {
+                this.$store.commit("apidoc/changeResponse", val);
+            },
+        },
+        mindParams() { //联想参数
+            return this.$store.state.apidoc.mindParams;
         },
     },
     data() {
@@ -110,27 +125,6 @@ export default {
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//
-        //导出数据
-        handleExport(data) {
-            const copyData = JSON.parse(JSON.stringify(data))
-            this.$helper.dfsForest(copyData, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks: (val) => {
-                    if (!val.description) {
-                        this.$set(val, "description", "");
-                    }
-                    Object.assign(val, {
-                        id: this.$helper.uuid(),
-                        required: true, //-------是否必填
-                    })
-                },
-            });
-            copyData.push(this.generateParams());
-            this.requestData.responseParams = copyData
-        },
         //美化html文件
         beautifyHtml(str) {
             return beautify.html(str, { indent_size: 4 })
@@ -146,11 +140,14 @@ export default {
     width: 100%;
     height: calc(100vh - #{size(400)});
     overflow-y: auto;
-    .copy-json {
-        cursor: pointer;
-        &:hover {
-            color: lighten($gray-300, 20%);
-        }
+    .operation {
+        height: size(30);
+        padding: 0 size(20);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: $gray-300;
     }
     .img-view {
         width: size(200);
