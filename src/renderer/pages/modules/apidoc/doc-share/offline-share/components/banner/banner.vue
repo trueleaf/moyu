@@ -235,6 +235,7 @@ export default {
     border-right: 1px solid $gray-400;
     display: flex;
     flex-direction: column;
+    position: relative;
     &>.bar {
         position: absolute;
         height: 100%;

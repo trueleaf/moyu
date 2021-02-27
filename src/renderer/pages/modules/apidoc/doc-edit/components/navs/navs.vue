@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div class="tabs">
-        <div class="my-tabs d-flex hidden-sm-and-down">
+    <div class="tabs hidden-sm-and-down">
+        <div class="my-tabs d-flex">
             <div class="btn left" @click="moveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
