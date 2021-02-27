@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="banner">
+    <div ref="banner" class="banner" :style="{'user-select': isDragging ? 'none' : 'auto'}">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
@@ -77,11 +77,11 @@
                             <template v-for="(req) in validRequestMethods">
                                 <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                             </template>
-                            <s-emphasize v-if="renameNodeId !== scope.data._id" :title="scope.data.name" :value="scope.data.name" :keyword="queryData" class="node-name text-ellipsis ml-1"></s-emphasize>
+                            <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div>
                             <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
                             <el-dropdown
                                     v-show="hoverNodeId === scope.data._id"
-                                    class="node-more ml-auto mr-2"
+                                    class="node-more"
                                     trigger="click"
                                     @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
                                     @click.native.stop="() =>{}"
@@ -103,7 +103,7 @@
                             <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
                             <el-dropdown
                                     v-show="hoverNodeId === scope.data._id"
-                                    class="node-more ml-auto mr-2"
+                                    class="node-more"
                                     trigger="click"
                                     @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
                                     @click.native.stop="() =>{}"
@@ -122,6 +122,7 @@
                 </template>
             </el-tree>
         </div>
+        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
@@ -193,6 +194,12 @@ export default {
             multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
             enableDrag: true, //---------是否允许文档被拖拽
             defaultExpandedKeys: [], //--默认展开的文档key值
+            //=====================================拖拽参数====================================//
+            minWidth: 280, //------------最小宽度
+            maxWidth: 400, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            bannerWidth: 0, //-----------banner宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------控制导航节点更多选项显示
             dialogVisible: false, //-----新增文件夹弹窗
@@ -213,6 +220,18 @@ export default {
             this.getDocBanner();
             document.documentElement.addEventListener("click", () => {
                 this.clearContextmenu();
+                this.multiSelectNode = [];
+            });
+            document.documentElement.addEventListener("mouseup", (e) => {
+                e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const bannerWidth = localStorage.getItem("apidoc/bannerWidth") || 300;
+            const { banner, bar } = this.$refs;
+            bar.style.left = `${bannerWidth}px`;
+            banner.style.width = `${bannerWidth}px`;
+            document.documentElement.addEventListener("click", () => {
                 this.multiSelectNode = [];
             });
         },
@@ -695,6 +714,28 @@ export default {
         },
 
         //=====================================其他操作=====================================//
+        //=====================================其他操作=====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.bannerWidth = this.$refs.banner.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { banner, bar } = this.$refs;
+            moveLeft = e.clientX - this.mousedownLeft;
+            const bannerWidth = moveLeft + this.bannerWidth;
+            if (bannerWidth < this.minWidth || bannerWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/bannerWidth", moveLeft + this.bannerWidth)
+            bar.style.left = `${moveLeft + this.bannerWidth}px`;
+            banner.style.width = `${moveLeft + this.bannerWidth}px`;
+        },
         //清除contextmenu
         clearContextmenu() {
             if (this.contextmenu) {
@@ -713,6 +754,17 @@ export default {
     border-right: 1px solid $gray-400;
     display: flex;
     flex-direction: column;
+    &>.bar {
+        position: absolute;
+        height: 100%;
+        width: size(10);
+        background: transparent;
+        left: size(300);
+        z-index: $zIndex-banner-bar;
+        box-sizing: content-box;
+        margin-left: size(-5);
+        cursor: ew-resize;
+    }
     .el-tree-node__content {
         height: size(30);
     }
@@ -763,6 +815,8 @@ export default {
             align-items: center;
             height: 30px;
             width: 100%;
+            position: relative;
+            overflow: hidden;
             &:hover {
                 background: mix($theme-color, $white, 25%);
             }
@@ -779,8 +833,17 @@ export default {
             }
             .node-name {
                 display: inline-block;
-                max-width: 180px;
+                max-width: calc(100% - #{size(50)});
                 border: 2px solid transparent;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .node-more {
+                position: absolute;
+                right: size(10);
+                top: 50%;
+                transform: translate(0, -50%);
             }
         }
     }

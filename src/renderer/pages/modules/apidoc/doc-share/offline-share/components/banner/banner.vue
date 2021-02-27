@@ -48,12 +48,12 @@
                             <template v-for="(req) in validRequestMethods">
                                 <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                             </template>
-                            <s-emphasize v-if="renameNodeId !== scope.data._id" :title="scope.data.name" :value="scope.data.name" :keyword="queryData" class="node-name text-ellipsis ml-1"></s-emphasize>
+                            <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div>
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
                             <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
-                            <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                            <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</span>
                             <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
                         </template>
                     </div>
@@ -235,6 +235,17 @@ export default {
     border-right: 1px solid $gray-400;
     display: flex;
     flex-direction: column;
+    &>.bar {
+        position: absolute;
+        height: 100%;
+        width: size(10);
+        background: transparent;
+        left: size(300);
+        z-index: $zIndex-banner-bar;
+        box-sizing: content-box;
+        margin-left: size(-5);
+        cursor: ew-resize;
+    }
     .el-tree-node__content {
         height: size(30);
     }
@@ -285,6 +296,8 @@ export default {
             align-items: center;
             height: 30px;
             width: 100%;
+            position: relative;
+            overflow: hidden;
             &:hover {
                 background: mix($theme-color, $white, 25%);
             }
@@ -301,8 +314,17 @@ export default {
             }
             .node-name {
                 display: inline-block;
-                max-width: 180px;
+                max-width: calc(100% - #{size(50)});
                 border: 2px solid transparent;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .node-more {
+                position: absolute;
+                right: size(10);
+                top: 50%;
+                transform: translate(0, -50%);
             }
         }
     }
