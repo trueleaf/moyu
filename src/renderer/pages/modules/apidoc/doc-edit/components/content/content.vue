@@ -51,6 +51,7 @@ export default {
 
 <style lang="scss">
 .workbench {
+    overflow-y: auto;
     min-height: calc(100vh - #{size(100)});
 }
 </style>

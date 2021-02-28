@@ -13,16 +13,35 @@
                 <s-request-operation-manage></s-request-operation-manage>
             </div>
             <!-- 参数录入 -->
-            <div class="params-wrap">
+            <div class="params-wrap hidden-md">
                 <s-request-query-params ref="query"></s-request-query-params>
                 <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
-                <!-- <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.headers }}</pre> -->
+            </div>
+            <div class="params-sm-wrap show-md">
+                <el-tabs v-model="activeName">
+                    <el-tab-pane label="Params" name="s-a">
+                        <s-request-query-params ref="query"></s-request-query-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Body" name="s-b">
+                        <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Headers" name="s-d">
+                        <s-header-params ref="header"></s-header-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="返回值" name="s-c">
+                        <s-response-params ref="response"></s-response-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="备注" name="s-e">
+                        <s-remark></s-remark>
+                    </el-tab-pane>
+                </el-tabs>
             </div>
         </s-loading>
-        <div class="view-area">
+        <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
+            <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
             <s-overview></s-overview>
         </div>
     </div>
@@ -98,13 +117,37 @@ export default {
             startTime: null, //开始时间
             endTime: null, //结束时间
             writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
+            //=====================================拖拽参数====================================//
+            minWidth: 300, //------------最小宽度
+            maxWidth: 600, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            responseWidth: 0, //-----------response宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
+            activeName: "s-a",
         };
     },
-    mounted() {},
+    mounted() {
+        this.initDrag()
+    },
     methods: {
+        //=====================================初始化====================================//
+        initDrag() {
+            document.documentElement.addEventListener("mouseup", (e) => {
+                e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const responseWidth = localStorage.getItem("apidoc/responseWidth") || 500;
+            const { response, bar } = this.$refs;
+            bar.style.left = 0;
+            response.style.width = `${responseWidth}px`;
+            document.documentElement.addEventListener("click", () => {
+                this.multiSelectNode = [];
+            });
+        },
         //=====================================获取数据====================================//
         //查看是否存在缓存
         checkCache(currentDoc) {
@@ -373,6 +416,28 @@ export default {
             currentDocUsedTime[this.currentSelectDoc._id] += spendTime;
             localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
         },
+        //=====================================其他操作====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.responseWidth = this.$refs.response.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { response } = this.$refs;
+            moveLeft = this.mousedownLeft - e.clientX;
+            const responseWidth = moveLeft + this.responseWidth;
+            if (responseWidth < this.minWidth || responseWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/responseWidth", moveLeft + this.responseWidth)
+            // bar.style.left = `${moveLeft}px`;
+            response.style.width = `${moveLeft + this.responseWidth}px`;
+        },
     },
 };
 </script>
@@ -386,10 +451,12 @@ export default {
         border-right: 1px solid $gray-400;
         flex: 1;
         .info-wrap {
+            position: sticky;
+            top: 0;
             padding: size(10) size(20);
             box-shadow: 0 3px 2px $gray-400;
-            position: relative;
-            z-index: 1;
+            background: $white;
+            z-index: $zIndex-request-info-wrap;
         }
         .params-wrap {
             padding: size(20);
@@ -401,15 +468,57 @@ export default {
     .view-area {
         flex-grow: 0;
         flex-shrink: 0;
-        width: size(550);
+        width: size(500);
+        position: relative;
+        &>.bar {
+            position: absolute;
+            height: 100%;
+            width: size(10);
+            background: transparent;
+            left: 0;
+            z-index: $zIndex-banner-bar;
+            box-sizing: content-box;
+            margin-left: size(-5);
+            cursor: ew-resize;
+        }
+    }
+    .show-md {
+        display: none;
     }
     @media only screen and (max-width: 1440px) {
-        flex-direction: column;
+        display: block;
+        .hidden-md {
+            display: none;
+        }
+        .show-md {
+            display: block;
+        }
+        .params-sm-wrap {
+            display: block;
+            padding: 0 size(10);
+            height: size(300);
+            overflow-y: auto;
+            box-shadow: 0 3px 2px $gray-400;
+            .el-tabs__header {
+                margin: 0;
+            }
+        }
         .edit-area {
             flex: 0 0 auto;
         }
         .view-area {
             width: 100%;
+            .request-view {
+                display: none;
+            }
+            .response-view {
+                flex: 0 0 calc(100vh - #{size(530)});
+                min-height: size(300);
+            }
+            .body-view {
+                height: calc(100vh - #{size(625)});
+                min-height: size(200);
+            }
         }
     }
 }

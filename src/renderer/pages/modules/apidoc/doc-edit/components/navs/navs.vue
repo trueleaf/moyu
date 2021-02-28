@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div class="tabs">
-        <div class="my-tabs d-flex hidden-sm-and-down">
+    <div class="tabs hidden-sm-and-down">
+        <div class="my-tabs d-flex">
             <div class="btn left" @click="moveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
@@ -390,7 +390,7 @@ export default {
                 border-right: 1px solid $gray-400;
                 .item-text {
                     display: inline-block;
-                    max-width: size(100);
+                    max-width: size(130);
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;

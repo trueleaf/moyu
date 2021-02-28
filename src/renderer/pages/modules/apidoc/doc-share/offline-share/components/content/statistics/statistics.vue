@@ -6,7 +6,7 @@
 */
 <template>
     <div class="statistics">
-        <img :src="require('@/assets/imgs/logo.png')" width="150px" height="150px" alt="logo图片" class="logo">
+        <!-- <img :src="require('@/assets/imgs/logo.png')" width="150px" height="150px" alt="logo图片" class="logo"> -->
         <div class="f-base">
         </div>
     </div>
@@ -17,25 +17,11 @@
 export default {
     data() {
         return {
-            openApiTranslatorInstance: null,
-            loading: false,
-            jsonYaml: "",
         };
     },
     created() {
     },
     methods: {
-        importOpenApiDoc() {
-            const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);
-            this.loading = false;
-            this.axios.post("/api/project/doc_multi", { docs: moyuDocs, projectId: this.$route.query.id }).then(() => {
-                this.getComponentByName("SDocEditBanner").getDocBanner();
-            }).catch((err) => {
-                this.$errorThrow(err, this);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//

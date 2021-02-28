@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <div class="tabs">
-        <div class="my-tabs d-flex hidden-sm-and-down">
+    <div class="tabs hidden-sm-and-down">
+        <div class="my-tabs d-flex">
             <div class="btn left" @click="moveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
@@ -62,6 +62,8 @@ export default {
             mouseContext: null, //tab右键弹框
             //======================================其他参数===================================//
             enableMove: true, //是否允许tab移动，动画未完成不允许下一步操作
+            enableLeftMoveHandle: false, //是否允许左侧控制
+            enableRightMoveHandle: false, //是否允许右侧控制
         };
     },
     computed: {
@@ -113,6 +115,9 @@ export default {
                 projectId,
                 ...activeDoc,
             });
+            this.$nextTick(() => { //tabs数据未完成渲染
+                this.checkEnableMoveHandle();//判断是否可以点击右侧控制按钮滑动到右侧
+            })
             //绑定tabs移动事件
             const wrap = this.$refs.tabWrap.$el;
             wrap.addEventListener("transitionend", () => {
@@ -274,6 +279,7 @@ export default {
             const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
             const wrapStyle = window.getComputedStyle(wrap)
             const itemRect = item.getBoundingClientRect();
+            // console.log(itemRect.width, wrapStyle.left, this.enableMove)
             if (!this.enableMove) {
                 return;
             }
@@ -282,6 +288,7 @@ export default {
             }
             wrap.style.left = `${parseFloat(wrapStyle.left) + itemRect.width}px`;
             this.enableMove = false;
+            this.checkEnableMoveHandle();
         },
         //往右移动
         moveRight() {
@@ -300,8 +307,29 @@ export default {
             if (parseFloat(wrapStyle.left) < wrapRect.width - (itemLen - 1) * itemRect.width) {
                 return;
             }
-            wrap.style.left = `${parseFloat(wrapStyle.left) + itemRect.width}px`;
+            wrap.style.left = `${parseFloat(wrapStyle.left) - itemRect.width}px`;
             this.enableMove = false;
+            this.checkEnableMoveHandle();
+        },
+        //检查是否允许左右移动
+        checkEnableMoveHandle() {
+            const wrap = this.$refs.tabWrap.$el;
+            const wrapWidth = wrap.getBoundingClientRect().width;
+            const wrapMoveLeft = parseFloat(wrap.style.left || 0);
+            const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
+            const itemWidth = item ? item.getBoundingClientRect().width : 0;
+            const itemNum = this.tabs.length;
+            if (wrapMoveLeft < 0) {
+                this.enableLeftMoveHandle = true;
+            } else {
+                this.enableLeftMoveHandle = false;
+            }
+            const itemTotalWidth = itemWidth * itemNum - itemWidth / 2;
+            if (itemTotalWidth > wrapWidth - wrapMoveLeft) {
+                this.enableRightMoveHandle = true;
+            } else {
+                this.enableRightMoveHandle = false;
+            }
         },
     },
 };
@@ -362,7 +390,7 @@ export default {
                 border-right: 1px solid $gray-400;
                 .item-text {
                     display: inline-block;
-                    max-width: size(100);
+                    max-width: size(130);
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;

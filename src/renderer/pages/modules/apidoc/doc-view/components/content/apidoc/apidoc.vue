@@ -15,7 +15,7 @@
                             <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
                         </s-array-view>
                     </s-collapse>
-                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1" title="">
+                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1">
                         <div slot="title">
                             <span class="mr-2">请求参数(Body)</span>
                             <span class="theme-color">{{ apidocItem.contentType  }}</span>
@@ -24,22 +24,28 @@
                             <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
                         </s-array-view>
                     </s-collapse>
+                    <div v-if="!hasRquestParams">无</div>
                 </s-fieldset>
                 <s-fieldset title="返回参数">
-                    <s-collapse v-for="(item, index) in apidocItem.responseParams" :active="index === 0" :key="index" :title="item.title">
-                        <s-array-view v-if="item.values.length > 1" :data="item.values" class="mt-2">
-                            <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
-                        </s-array-view>
-                    </s-collapse>
+                    <div v-for="(item, index) in apidocItem.responseParams" :key="index">
+                        <s-collapse v-if="item.values.length > 1" :active="index === 0" :key="index" :title="item.title">
+                            <s-array-view :data="item.values" class="mt-2">
+                                <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                            </s-array-view>
+                        </s-collapse>
+                        <div v-else>无</div>
+                    </div>
                 </s-fieldset>
                 <s-fieldset title="请求头">
-                    <s-array-view :data="apidocItem.headers">
+                    <s-array-view v-if="apidocItem.headers && apidocItem.headers.length > 1" :data="apidocItem.headers">
                         <div v-copy="jsonHeaders" slot="header" class="copy-json">复制为json</div>
                     </s-array-view>
+                    <div v-else>无</div>
                 </s-fieldset>
             </div>
         </s-loading>
-        <div class="remote-view">
+        <div ref="response" class="remote-view" :style="{'user-select': isDragging ? 'none' : 'auto'}">
+            <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
             <s-overview></s-overview>
         </div>
     </div>
@@ -111,15 +117,44 @@ export default {
             const convertHeaders = this.convertPlainParamsToTreeData(headers || []);
             return JSON.stringify(convertHeaders, null, 4);
         },
+        hasRquestParams() {
+            const apidocItem = this.$store.state.apidoc.apidocInfo?.item;
+            const hasQueryParams = apidocItem && apidocItem.queryParams && apidocItem.queryParams.length > 1;
+            const hasRequestBody = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length > 1;
+            return hasQueryParams || hasRequestBody;
+        },
     },
     data() {
         return {
+            //=====================================拖拽参数====================================//
+            minWidth: 300, //------------最小宽度
+            maxWidth: 600, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            responseWidth: 0, //-----------response宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             cancel: [], //----请求列表
         };
     },
-    mounted() {},
+    mounted() {
+        this.initDrag()
+    },
     methods: {
+        //=====================================初始化====================================//
+        initDrag() {
+            document.documentElement.addEventListener("mouseup", (e) => {
+                e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const responseWidth = localStorage.getItem("apidoc/responseWidth") || 500;
+            const { response, bar } = this.$refs;
+            bar.style.left = 0;
+            response.style.width = `${responseWidth}px`;
+            document.documentElement.addEventListener("click", () => {
+                this.multiSelectNode = [];
+            });
+        },
         //=====================================获取数据====================================//
         //获取接口数据
         getDocDetail() {
@@ -190,6 +225,27 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
+        //=====================================其他操作====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.responseWidth = this.$refs.response.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { response } = this.$refs;
+            moveLeft = this.mousedownLeft - e.clientX;
+            const responseWidth = moveLeft + this.responseWidth;
+            if (responseWidth < this.minWidth || responseWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/responseWidth", moveLeft + this.responseWidth)
+            response.style.width = `${moveLeft + this.responseWidth}px`;
+        },
     },
 };
 </script>
@@ -202,16 +258,12 @@ export default {
     .view-area {
         border-right: 1px solid $gray-400;
         flex: 1;
-        .base-info {
-            height: #{size(120)};
-        }
         .params-view {
             height: calc(100vh - #{size(220)});
             overflow-y: auto;
             padding: size(10) size(20);
             .copy-json {
                 cursor: pointer;
-                margin-left: auto;
                 &:hover {
                     color: lighten($gray-300, 20%);
                 }
@@ -222,7 +274,19 @@ export default {
     .remote-view {
         flex-grow: 0;
         flex-shrink: 0;
-        width: size(550);
+        width: size(500);
+        position: relative;
+        &>.bar {
+            position: absolute;
+            height: 100%;
+            width: size(10);
+            background: transparent;
+            left: 0;
+            z-index: $zIndex-banner-bar;
+            box-sizing: content-box;
+            margin-left: size(-5);
+            cursor: ew-resize;
+        }
     }
 }
 </style>

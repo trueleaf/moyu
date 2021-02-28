@@ -72,7 +72,7 @@ module.exports = {
     mainConfig: {
         width: 1440,
         height: 768,
-        useLocalFile: true, //使用本地文件作为主进程加载内容
+        useLocalFile: false, //使用本地文件作为主进程加载内容
         onlineUrl: "http://47.107.70.26/jobtool", //线上地址
     },
     //打包相关配置

@@ -92,7 +92,7 @@ export default {
         flex: 0 0 auto;
     }
     .doc-wrap {
-        width: calc(100vw - #{size(300)});
+        flex: 1;
     }
 }
 </style>

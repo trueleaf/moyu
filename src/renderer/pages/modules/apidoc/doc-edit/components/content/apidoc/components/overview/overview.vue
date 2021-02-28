@@ -16,25 +16,23 @@
                         <span v-if="apidocInfo.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                     </template>
                 </s-label-value>
-                <div>
-                    <s-label-value label="维护人员：" label-width="auto" class="d-inline-flex">
-                        <span class="mr-2">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                <div class="base-info">
+                    <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                     </s-label-value>
-                    <el-divider direction="vertical"></el-divider>
-                    <s-label-value label="创建人员：" label-width="auto" class="d-inline-flex ml-2">
-                        <span class="mr-2">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                    <s-label-value label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                     </s-label-value>
-                    <el-divider direction="vertical"></el-divider>
-                    <s-label-value label="累计用时：" label-width="auto" class="d-inline-flex ml-2">
-                        <span class="mr-2">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
+                    <s-label-value label="累计用时：" :title="$helper.formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
+                    </s-label-value>
+                    <s-label-value label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+                        <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
+                    </s-label-value>
+                    <s-label-value label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+                        <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
                     </s-label-value>
                 </div>
-                <s-label-value label="更新日期：" label-width="auto" class="d-inline-flex w-45">
-                    <span class="mr-2">{{ formatDate(apidocInfo.updatedAt) }}</span>
-                </s-label-value>
-                <s-label-value label="创建日期：" label-width="auto" class="d-inline-flex ml-2">
-                    <span class="mr-2">{{ formatDate(apidocInfo.createdAt) }}</span>
-                </s-label-value>
             </s-collapse>
         </div>
         <s-response-view class="response-view"></s-response-view>
@@ -82,6 +80,7 @@ export default {
         margin-bottom: size(10);
         padding: size(10);
         height: size(170);
+        overflow: hidden;
         .svg-icon {
             width: size(15);
             height: size(15);
@@ -94,6 +93,13 @@ export default {
         flex: 0 0 calc(100vh - #{size(290)});
         overflow-x: hidden;
         overflow-y: auto;
+    }
+    .el-divider {
+        margin: 0 size(15);
+    }
+    .base-info {
+        display: flex;
+        flex-wrap: wrap;
     }
 }
 </style>

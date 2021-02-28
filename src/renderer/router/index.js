@@ -9,6 +9,10 @@ import login from "@/pages/login/login.vue";
 //=====================================业务模块====================================//
 import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue";
 import docView from "@/pages/modules/apidoc/doc-view/doc-view.vue";
+import docList from "@/pages/modules/apidoc/doc-list/doc-list.vue";
+import userInfo from "@/pages/modules/settings/user/user.vue";
+import permission from "@/pages/modules/permission/permission.vue";
+import devOps from "@/pages/modules/devops/devops.vue";
 
 Vue.use(Router);
 
@@ -19,7 +23,7 @@ const allRoutes = [
         meta: {
             title: "项目列表",
         },
-        component: () => import("@/pages/modules/apidoc/doc-list/doc-list"),
+        component: docList,
     },
     {
         path: "/v1/apidoc/doc-edit",
@@ -43,7 +47,7 @@ const allRoutes = [
         meta: {
             title: "用户信息",
         },
-        component: () => import("@/pages/modules/settings/user/user"),
+        component: userInfo,
     },
     {
         path: "/v1/permission/permission",
@@ -51,7 +55,15 @@ const allRoutes = [
         meta: {
             title: "权限管理",
         },
-        component: () => import("@/pages/modules/permission/permission"),
+        component: permission,
+    },
+    {
+        path: "/v1/devops/devops",
+        name: "运维平台",
+        meta: {
+            title: "运维平台",
+        },
+        component: devOps,
     },
 ];
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面

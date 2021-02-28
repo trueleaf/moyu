@@ -61,6 +61,7 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/eslint-config-airbnb": "^5.3.0",
     "babel-eslint": "^10.1.0",
+    "babel-plugin-component": "^1.1.1",
     "base64-inline-loader": "^1.1.1",
     "electron": "^9.0.0",
     "electron-devtools-installer": "^3.1.0",

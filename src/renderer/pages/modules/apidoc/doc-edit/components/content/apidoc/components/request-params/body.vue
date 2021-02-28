@@ -49,7 +49,7 @@
             <!-- json预览 -->
             <el-popover v-if="contentType === 'application/json'" placement="right">
                 <s-array-view :data="jsonBody" class="mt-2">
-                    <div v-copy="jsonBodyParams" slot="header" class="ml-auto cursor-pointer">复制为json</div>
+                    <div v-copy="jsonBodyParams" slot="header" class="cursor-pointer">复制为json</div>
                 </s-array-view>
                 <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
                     <span>JSON预览</span>

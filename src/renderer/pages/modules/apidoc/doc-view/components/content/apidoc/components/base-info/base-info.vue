@@ -35,7 +35,7 @@
             <el-button :loading="loading2" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100">{{ host }}{{ path }}</pre>
+        <pre class="full-url">{{ host }}{{ path }}</pre>
     </div>
 </template>
 
@@ -152,12 +152,17 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .base-info {
     padding: size(10) size(20);
     box-shadow: 0 3px 2px $gray-400;
     position: relative;
     z-index: 1;
+    height: size(120);
+    .full-url {
+        min-height: size(30);
+        width: 100%;
+    }
     .request-input {
         display: flex;
         align-items: center;
