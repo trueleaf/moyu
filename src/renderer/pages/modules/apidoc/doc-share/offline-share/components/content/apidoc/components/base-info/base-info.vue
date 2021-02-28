@@ -124,7 +124,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .base-info {
     padding: size(10) size(20);
     box-shadow: 0 3px 2px $gray-400;

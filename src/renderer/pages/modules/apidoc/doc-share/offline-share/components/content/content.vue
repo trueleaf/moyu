@@ -43,6 +43,6 @@ export default {
 
 <style lang="scss">
 .workbench {
-    min-height: calc(100vh - #{size(100)});
+    min-height: calc(100vh - #{size(40)});
 }
 </style>

@@ -57,9 +57,7 @@ export default {
     align-items: center;
     flex: 0 0 auto;
     max-width: 100%;
-    &:not(:last-child) {
-        margin-bottom: size(10);
-    }
+    margin-bottom: size(10);
     .label {
         color: $gray-800;
         display: inline-flex;

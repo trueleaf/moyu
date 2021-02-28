@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="banner">
+    <div ref="banner" class="banner" :style="{'user-select': isDragging ? 'none' : 'auto'}">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.projectName">{{ docBaseInfo.projectName }}</h2>
@@ -21,6 +21,7 @@
                 </svg> -->
             </div>
         </div>
+        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
@@ -102,6 +103,12 @@ export default {
             multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
             enableDrag: true, //---------是否允许文档被拖拽
             defaultExpandedKeys: [], //--默认展开的文档key值
+            //=====================================拖拽参数====================================//
+            minWidth: 280, //------------最小宽度
+            maxWidth: 400, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            bannerWidth: 0, //-----------banner宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------控制导航节点更多选项显示
             dialogVisible: false, //-----新增文件夹弹窗
@@ -121,6 +128,18 @@ export default {
         init() {
             this.getDocBanner();
             this.getDocInfo();
+            const bannerWidth = localStorage.getItem("apidoc/bannerWidth") || 300;
+            const { banner, bar } = this.$refs;
+            bar.style.left = `${bannerWidth}px`;
+            banner.style.width = `${bannerWidth}px`;
+            document.documentElement.addEventListener("click", () => {
+                this.multiSelectNode = [];
+            });
+            document.documentElement.addEventListener("mouseup", (e) => {
+                e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
         },
         //=====================================操作栏操作====================================//
         //刷新banner
@@ -221,9 +240,28 @@ export default {
             const matchAll = this.queryData.trim() === "";
             return matchName || matchUrl || matchAll;
         },
-        //=====================================弹窗相关====================================//
-        //打开文件新增弹窗
         //=====================================其他操作=====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.bannerWidth = this.$refs.banner.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { banner, bar } = this.$refs;
+            moveLeft = e.clientX - this.mousedownLeft;
+            const bannerWidth = moveLeft + this.bannerWidth;
+            if (bannerWidth < this.minWidth || bannerWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/bannerWidth", moveLeft + this.bannerWidth)
+            bar.style.left = `${moveLeft + this.bannerWidth}px`;
+            banner.style.width = `${moveLeft + this.bannerWidth}px`;
+        },
     },
 };
 </script>

@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="w-100">
+    <div class="request-operation w-100">
         <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input
@@ -48,7 +48,7 @@
             </el-dropdown>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100">{{ fullUrl }}</pre>
+        <pre class="full-url">{{ fullUrl }}</pre>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
     </div>
 </template>
@@ -440,11 +440,17 @@ export default {
 </script>
 
 <style lang="scss">
-.request-input {
-    display: flex;
-    align-items: center;
-    .el-select {
-        width: 100px;
+.request-operation {
+    .request-input {
+        display: flex;
+        align-items: center;
+        .el-select {
+            width: 100px;
+        }
+    }
+    .full-url {
+        min-height: size(30);
+        width: 100%;
     }
 }
 </style>

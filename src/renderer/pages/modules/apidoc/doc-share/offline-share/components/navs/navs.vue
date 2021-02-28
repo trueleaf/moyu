@@ -390,7 +390,7 @@ export default {
                 border-right: 1px solid $gray-400;
                 .item-text {
                     display: inline-block;
-                    max-width: size(100);
+                    max-width: size(130);
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;

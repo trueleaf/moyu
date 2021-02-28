@@ -44,7 +44,8 @@
                 </s-fieldset>
             </div>
         </s-loading>
-        <div class="remote-view">
+        <div ref="response" class="remote-view" :style="{'user-select': isDragging ? 'none' : 'auto'}">
+            <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
             <s-overview></s-overview>
         </div>
     </div>
@@ -125,12 +126,35 @@ export default {
     },
     data() {
         return {
+            //=====================================拖拽参数====================================//
+            minWidth: 300, //------------最小宽度
+            maxWidth: 600, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            responseWidth: 0, //-----------response宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             cancel: [], //----请求列表
         };
     },
-    mounted() {},
+    mounted() {
+        this.initDrag()
+    },
     methods: {
+        //=====================================初始化====================================//
+        initDrag() {
+            document.documentElement.addEventListener("mouseup", (e) => {
+                e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const responseWidth = localStorage.getItem("apidoc/responseWidth") || 500;
+            const { response, bar } = this.$refs;
+            bar.style.left = 0;
+            response.style.width = `${responseWidth}px`;
+            document.documentElement.addEventListener("click", () => {
+                this.multiSelectNode = [];
+            });
+        },
         //=====================================获取数据====================================//
         //获取接口数据
         getDocDetail() {
@@ -201,6 +225,27 @@ export default {
                 this.$errorThrow(err, this);
             });
         },
+        //=====================================其他操作====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.responseWidth = this.$refs.response.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { response } = this.$refs;
+            moveLeft = this.mousedownLeft - e.clientX;
+            const responseWidth = moveLeft + this.responseWidth;
+            if (responseWidth < this.minWidth || responseWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/responseWidth", moveLeft + this.responseWidth)
+            response.style.width = `${moveLeft + this.responseWidth}px`;
+        },
     },
 };
 </script>
@@ -213,9 +258,6 @@ export default {
     .view-area {
         border-right: 1px solid $gray-400;
         flex: 1;
-        .base-info {
-            height: #{size(120)};
-        }
         .params-view {
             height: calc(100vh - #{size(220)});
             overflow-y: auto;
@@ -232,7 +274,19 @@ export default {
     .remote-view {
         flex-grow: 0;
         flex-shrink: 0;
-        width: size(550);
+        width: size(500);
+        position: relative;
+        &>.bar {
+            position: absolute;
+            height: 100%;
+            width: size(10);
+            background: transparent;
+            left: 0;
+            z-index: $zIndex-banner-bar;
+            box-sizing: content-box;
+            margin-left: size(-5);
+            cursor: ew-resize;
+        }
     }
 }
 </style>
