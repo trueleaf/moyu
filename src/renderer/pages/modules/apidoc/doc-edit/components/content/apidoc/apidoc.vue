@@ -23,16 +23,16 @@
             <div class="params-sm-wrap show-md">
                 <el-tabs v-model="activeName">
                     <el-tab-pane label="Params" name="s-a">
-                        <s-request-query-params ref="query"></s-request-query-params>
+                        <s-request-query-params ref="query2"></s-request-query-params>
                     </el-tab-pane>
                     <el-tab-pane label="Body" name="s-b">
-                        <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                        <s-request-body-params ref="body2" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                     </el-tab-pane>
                     <el-tab-pane label="Headers" name="s-d">
-                        <s-header-params ref="header"></s-header-params>
+                        <s-header-params ref="header2"></s-header-params>
                     </el-tab-pane>
                     <el-tab-pane label="返回值" name="s-c">
-                        <s-response-params ref="response"></s-response-params>
+                        <s-response-params ref="response2"></s-response-params>
                     </el-tab-pane>
                     <el-tab-pane label="备注" name="s-e">
                         <s-remark></s-remark>
@@ -161,7 +161,8 @@ export default {
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                    const { query, query2, body, body2, header, header2 } = this.$refs;
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2.selectChecked(), body2.selectChecked(), header2.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -227,7 +228,8 @@ export default {
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
-                Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                const { query, query2, body, body2, header, header2 } = this.$refs;
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2.selectChecked(), body2.selectChecked(), header2.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
