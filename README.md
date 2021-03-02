@@ -34,6 +34,11 @@
 </div>
 
 ## 常用
+
+[完整文档](https://www.yuque.com/happymoyu) 
+
+[在线体验](http://47.107.70.26/jobtool)(由于浏览器限制，完整版功能需要下载客户端)
+
 [客户端GitHub地址](https://github.com/trueleaf/moyu)
 
 [服务端GitHub地址](https://github.com/trueleaf/moyu-server)
@@ -44,9 +49,6 @@
 
 [客户端下载](https://github.com/trueleaf/moyu/releases)
 
-[完整文档](https://www.yuque.com/shuxiaokai/moyu) 
-
-[在线体验](http://47.107.70.26/jobtool)(由于浏览器限制，完整版功能需要下载客户端)
 
 ## QQ交流群
 
@@ -184,10 +186,7 @@ cluster = {
 
 > 更详细的[部署细节](https://www.yuque.com/shuxiaokai/moyu)
 
-## 详细文档
 
-[服务端Git地址](https://github.com/shuxiaokai3/moyu-server)
-[完整的开发和使用文档(语雀)](https://www.yuque.com/shuxiaokai/moyu)
 
 ## License
 MIT
