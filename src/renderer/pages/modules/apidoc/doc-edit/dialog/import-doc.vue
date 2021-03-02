@@ -49,7 +49,7 @@ export default {
         return {
             formInfo: {
                 type: "moyu",
-                cover: true,
+                cover: false,
             }, //-------项目信息
             docs: [], //-----------导入的文档列表
             loading: false, //-----导入第三方加载效果
@@ -77,31 +77,26 @@ export default {
             });
         },
         //=====================================原始数据转换====================================//
-        convertRawData(data) {
-            data.forEach((val) => {
-                val.uuid = val._id;
-                val.enabled = true;
-                if (val.item.requestType === "query") {
-                    val.item.requestType = "params";
-                }
-            });
-            this.docs = data;
-        },
         //=====================================组件间交互====================================//
         handleSubmit() {
             this.loading = true;
+            let moyuData = null;
             try {
                 if (this.formInfo.type === "postman") {
                     this.convertPostmanData(JSON.parse(this.jsonText));
                 } else if (this.formInfo.type === "moyu") {
-                    const jsonText = JSON.parse(this.jsonText);
-                    this.convertRawData(jsonText.docs);
+                    moyuData = JSON.parse(this.jsonText);
                 }
             } catch (error) {
                 console.error(error);
                 this.loading = false;
             }
-            this.axios.post("/api/project/doc_multi", { docs: this.docs, projectId: this.$route.query.id }).then(() => {
+            const params = {
+                projectId: this.$route.query.id,
+                cover: this.formInfo.cover,
+                moyuData,
+            };
+            this.axios.post("/api/project/import/moyu", params).then(() => {
                 this.$emit("success");
                 this.handleClose();
             }).catch((err) => {

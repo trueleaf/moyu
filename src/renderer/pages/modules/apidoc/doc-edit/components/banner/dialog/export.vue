@@ -48,19 +48,12 @@ export default {
                 name: "", //------文件名称
             },
             //=====================================其他参数====================================//
-            loading: false, //----确认按钮状态
+            loading: false, //----导出加载按钮
+            loading2: false, //----导出加载按钮
         };
     },
     mounted() {},
     methods: {
-        handleExport() {
-            this.loading = true;
-            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(() => {}).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
         //=====================================其他操作=====================================//
         //关闭弹窗
         handleClose() {
