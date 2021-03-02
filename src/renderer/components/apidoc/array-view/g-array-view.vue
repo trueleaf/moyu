@@ -189,7 +189,7 @@ export default {
                     const isObject = itemType === "object";
                     const isArray = itemType === "array";
                     const objectHasValue = (isObject && item.children.length > 0);
-                    const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== ""));
+                    const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== "" || val.type === "object"));
                     const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "null") || (itemType === "undefined"));
                     const astInfo = this.generateAstInfo();
                     if (isSimpleType && !itemValue && !itemPath) {
