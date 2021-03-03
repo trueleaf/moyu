@@ -30,31 +30,29 @@
                 <template v-for="(item, index) in filterAstValue">
                     <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @mousedown.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
-                        <span>
-                            <!-- <label v-if="item.path.value" class="checkbox">
-                                <input type="checkbox">
-                                <i class="el-icon-check"></i>
-                            </label> -->
-                            <span class="path">
-                                <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
-                            </span>
-                            <span v-if="item.colon" class="colon">{{ item.colon }}&nbsp;</span>
-                            <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
-                            <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                            <span v-if="item.valueType === 'string'" class="string-value">
-                                <s-emphasize :value="item.value" :keyword="queryString"></s-emphasize>
-                            </span>
-                            <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'null'" class="null-value">null</span>
-                            <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
-                            <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
-                            <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
-                            <span class="comma">{{ item.comma }}</span>
-                            <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
-                            <span v-if="item.description" class="description ml-1">
-                                //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
-                            </span>
+                        <!-- <label v-if="item.path.value" class="checkbox">
+                            <input type="checkbox">
+                            <i class="el-icon-check"></i>
+                        </label> -->
+                        <span class="path">
+                            <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
+                        </span>
+                        <span v-if="item.colon" class="colon">{{ item.colon }}&nbsp;</span>
+                        <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
+                        <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
+                        <el-tooltip effect="light" :open-delay="500" :content="item.value" placement="bottom-start">
+                            <s-emphasize v-if="item.valueType === 'string'" class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
+                        </el-tooltip>
+                        <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
+                        <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
+                        <span v-if="item.valueType === 'null'" class="null-value">null</span>
+                        <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
+                        <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
+                        <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
+                        <span class="comma">{{ item.comma }}</span>
+                        <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
+                        <span v-if="item.description" class="description ml-1">
+                            //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
                         </span>
                         <span v-show="item._close" class="number-value"></span>
                     </span>
@@ -450,6 +448,7 @@ $theme-color: #282c34;
         }
         .code-wrap {
             flex: 1;
+            width: 0;
             .line {
                 height: size(20);
                 display: flex;
@@ -457,8 +456,6 @@ $theme-color: #282c34;
                 width: 100%;
                 position: relative;
                 overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
                 &:hover {
                     background: lighten($theme-color, 10%);
                 }
@@ -492,7 +489,7 @@ $theme-color: #282c34;
             .indent {
                 user-select: text;
                 height: size(20);
-                width: size(8);
+                flex: 0 0 size(8);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -524,6 +521,9 @@ $theme-color: #282c34;
             .string-value {
                 color: #7ec699;
                 font-size: .9em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
             .boolean-value {
                 color: #cc99cd;
