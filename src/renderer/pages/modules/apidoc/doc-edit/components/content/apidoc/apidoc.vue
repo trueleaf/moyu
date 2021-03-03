@@ -20,7 +20,7 @@
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
             </div>
-            <div class="params-sm-wrap show-md">
+            <!-- <div class="params-sm-wrap show-md">
                 <el-tabs v-model="activeName">
                     <el-tab-pane label="Params" name="s-a">
                         <s-request-query-params ref="query2"></s-request-query-params>
@@ -38,7 +38,7 @@
                         <s-remark></s-remark>
                     </el-tab-pane>
                 </el-tabs>
-            </div>
+            </div> -->
         </s-loading>
         <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
             <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
@@ -162,7 +162,7 @@ export default {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.broadcast("REQUEST_BODY", "dataReady");
                     const { query, query2, body, body2, header, header2 } = this.$refs;
-                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2.selectChecked(), body2.selectChecked(), header2.selectChecked()]).catch((err) => {
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -229,7 +229,7 @@ export default {
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
                 const { query, query2, body, body2, header, header2 } = this.$refs;
-                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2.selectChecked(), body2.selectChecked(), header2.selectChecked()]).catch((err) => {
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -487,41 +487,41 @@ export default {
     .show-md {
         display: none;
     }
-    @media only screen and (max-width: 1440px) {
-        display: block;
-        .hidden-md {
-            display: none;
-        }
-        .show-md {
-            display: block;
-        }
-        .params-sm-wrap {
-            display: block;
-            padding: 0 size(10);
-            height: size(300);
-            overflow-y: auto;
-            box-shadow: 0 3px 2px $gray-400;
-            .el-tabs__header {
-                margin: 0;
-            }
-        }
-        .edit-area {
-            flex: 0 0 auto;
-        }
-        .view-area {
-            width: 100%;
-            .request-view {
-                display: none;
-            }
-            .response-view {
-                flex: 0 0 calc(100vh - #{size(530)});
-                min-height: size(300);
-            }
-            .body-view {
-                height: calc(100vh - #{size(625)});
-                min-height: size(200);
-            }
-        }
-    }
+    // @media only screen and (max-width: 1440px) {
+    //     display: block;
+    //     .hidden-md {
+    //         display: none;
+    //     }
+    //     .show-md {
+    //         display: block;
+    //     }
+    //     .params-sm-wrap {
+    //         display: block;
+    //         padding: 0 size(10);
+    //         height: size(300);
+    //         overflow-y: auto;
+    //         box-shadow: 0 3px 2px $gray-400;
+    //         .el-tabs__header {
+    //             margin: 0;
+    //         }
+    //     }
+    //     .edit-area {
+    //         flex: 0 0 auto;
+    //     }
+    //     .view-area {
+    //         width: 100%;
+    //         .request-view {
+    //             display: none;
+    //         }
+    //         .response-view {
+    //             flex: 0 0 calc(100vh - #{size(530)});
+    //             min-height: size(300);
+    //         }
+    //         .body-view {
+    //             height: calc(100vh - #{size(625)});
+    //             min-height: size(200);
+    //         }
+    //     }
+    // }
 }
 </style>
