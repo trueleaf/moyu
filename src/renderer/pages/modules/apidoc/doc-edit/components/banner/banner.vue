@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div ref="banner" class="banner" :style="{'user-select': isDragging ? 'none' : 'auto'}">
+    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click.stop="handleClickBanner">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
@@ -126,7 +126,7 @@
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-        <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="init"></s-import-doc-dialog>
+        <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
         <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
@@ -186,33 +186,35 @@ export default {
     data() {
         return {
             //=====================================文档增删改查====================================//
-            queryData: "", //------------文档过滤条件
-            docParentId: "", //----------文档父id
-            contextmenu: null, //--------右键弹窗
-            renameNodeId: "", //---------正在重命名的节点
-            pressCtrl: false, //---------是否按住ctrl键
-            multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
-            enableDrag: true, //---------是否允许文档被拖拽
-            defaultExpandedKeys: [], //--默认展开的文档key值
+            queryData: "", //------------------文档过滤条件
+            docParentId: "", //----------------文档父id
+            contextmenu: null, //--------------右键弹窗
+            renameNodeId: "", //---------------正在重命名的节点
+            pressCtrl: false, //---------------是否按住ctrl键
+            multiSelectNode: [], //------------按住ctrl+鼠标左键多选节点
+            enableDrag: true, //---------------是否允许文档被拖拽
+            defaultExpandedKeys: [], //--------默认展开的文档key值
+            currentSelectBannerNode: null, //--当前选中banner节点
             //=====================================拖拽参数====================================//
-            minWidth: 280, //------------最小宽度
-            maxWidth: 400, //------------最大宽度
-            mousedownLeft: 0, //---------鼠标点击距离
-            bannerWidth: 0, //-----------banner宽度
-            isDragging: false, //--------是否正在拖拽
+            minWidth: 280, //------------------最小宽度
+            maxWidth: 400, //------------------最大宽度
+            mousedownLeft: 0, //---------------鼠标点击距离
+            bannerWidth: 0, //-----------------banner宽度
+            isDragging: false, //--------------是否正在拖拽
             //=====================================其他参数====================================//
-            hoverNodeId: "", //----------控制导航节点更多选项显示
-            dialogVisible: false, //-----新增文件夹弹窗
-            dialogVisible2: false, //----新增文件弹窗
-            dialogVisible3: false, //----导入第三方文档弹窗
-            dialogVisible4: false, //----查看历史记录
-            dialogVisible5: false, //----以模板新建
-            dialogVisible6: false, //----导出文档
-            loading: false, //-----------左侧树形导航加载
+            hoverNodeId: "", //----------------控制导航节点更多选项显示
+            dialogVisible: false, //-----------新增文件夹弹窗
+            dialogVisible2: false, //----------新增文件弹窗
+            dialogVisible3: false, //----------导入第三方文档弹窗
+            dialogVisible4: false, //----------查看历史记录
+            dialogVisible5: false, //----------以模板新建
+            dialogVisible6: false, //----------导出文档
+            loading: false, //-----------------左侧树形导航加载
         };
     },
     mounted() {
         this.init();
+        this.initCtrlSelect();
     },
     methods: {
         //=====================================初始化相关====================================//
@@ -221,6 +223,7 @@ export default {
             document.documentElement.addEventListener("click", () => {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
+                this.currentSelectBannerNode = null;
             });
             document.documentElement.addEventListener("mouseup", (e) => {
                 e.stopPropagation();
@@ -235,7 +238,27 @@ export default {
                 this.multiSelectNode = [];
             });
         },
+        initCtrlSelect() {
+            this.$refs.banner.addEventListener("keydown", (e) => {
+                if (e.ctrlKey && (e.key === "a" || e.key === "A")) {
+                    e.preventDefault();
+                    // if (this.currentSelectBannerNode === "root") {
+
+                    // } else if () {
+
+                    // }
+                    console.log(this.currentSelectBannerNode)
+                }
+            })
+        },
         //=====================================操作栏操作====================================//
+        //导入成功
+        handleImportSuccess() {
+            this.getDocBanner();
+            this.$store.dispatch("apidoc/getHostEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
         //刷新banner
         freshBanner() {
             if (!this.loading) {
@@ -476,6 +499,7 @@ export default {
         },
         //点击节点
         handleNodeClick(data, node) {
+            this.currentSelectBannerNode = data;
             if (!node.data.isFolder) { //文件夹不做处理
                 this.$store.commit("apidoc/addTab", {
                     _id: node.data._id,
@@ -714,6 +738,10 @@ export default {
         },
 
         //=====================================其他操作=====================================//
+        //点击banner区域
+        handleClickBanner() {
+            this.currentSelectBannerNode = "root";
+        },
         //处理鼠标按下事件
         handleResizeMousedown(e) {
             this.mousedownLeft = e.clientX;
@@ -829,7 +857,7 @@ export default {
             }
             .label {
                 display: inline-block;
-                width: 25px;
+                width: size(28);
             }
             .node-name {
                 display: inline-block;

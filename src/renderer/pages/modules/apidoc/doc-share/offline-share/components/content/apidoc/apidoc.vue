@@ -30,7 +30,7 @@
                     <div v-for="(item, index) in apidocItem.responseParams" :key="index">
                         <s-collapse v-if="item.values.length > 1" :active="index === 0" :key="index" :title="item.title">
                             <s-array-view :data="item.values" class="mt-2">
-                                <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                                <div v-copy="convertResponseToJson(item)" slot="header" class="copy-json">复制为json</div>
                             </s-array-view>
                         </s-collapse>
                         <div v-else>无</div>
@@ -121,7 +121,7 @@ export default {
         return {
             //=====================================拖拽参数====================================//
             minWidth: 300, //------------最小宽度
-            maxWidth: 600, //------------最大宽度
+            maxWidth: 800, //------------最大宽度
             mousedownLeft: 0, //---------鼠标点击距离
             responseWidth: 0, //-----------response宽度
             isDragging: false, //--------是否正在拖拽
@@ -160,6 +160,11 @@ export default {
             this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
         },
         //=====================================其他操作====================================//
+        //返回值转换为json
+        convertResponseToJson(response) {
+            const jsonResponse = this.convertPlainParamsToTreeData(response.values || []);
+            return JSON.stringify(jsonResponse, null, 4);
+        },
         //处理鼠标按下事件
         handleResizeMousedown(e) {
             this.mousedownLeft = e.clientX;
@@ -190,11 +195,9 @@ export default {
     height: calc(100vh - #{size(40)});
     // 编辑区域
     .view-area {
-        border-right: 1px solid $gray-400;
         flex: 1;
-        .base-info {
-            height: #{size(120)};
-        }
+        overflow: hidden;
+        border-right: 1px solid $gray-400;
         .params-view {
             height: calc(100vh - #{size(160)});
             overflow-y: auto;

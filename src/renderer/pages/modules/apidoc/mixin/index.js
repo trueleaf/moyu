@@ -111,10 +111,13 @@ export default {
          * @author             shuxiaokai
          * @create             2021-01-26 13:35
          * @param {json}       jsonData - 任意类型变量
-         * @param {any}         mindParams - 联想参数
+         * @param {any}        mindParams - 联想参数
          * @return {String}    返回字符串
          */
         convertTreeDataToPlainParams(jsonData, mindParams) {
+            if (!Array.isArray(mindParams)) {
+                mindParams = [];
+            }
             const result = [];
             const foo = (obj, result) => {
                 if (this.getType(obj) === "object") {

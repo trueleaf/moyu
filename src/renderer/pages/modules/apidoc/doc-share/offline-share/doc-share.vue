@@ -52,15 +52,14 @@ export default {
 
 <style lang="scss">
 .doc-view {
-    height: 100%;
     display: flex;
+    overflow: hidden;
     .banner {
         flex: 0 0 auto;
-        position: relative;
     }
     .doc-wrap {
         flex: 1;
-        // width: calc(100vw - #{size(300)});
+        overflow: hidden;
     }
 }
 </style>

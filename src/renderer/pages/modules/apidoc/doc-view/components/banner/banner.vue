@@ -346,7 +346,7 @@ export default {
             }
             .label {
                 display: inline-block;
-                width: 25px;
+                width: size(28);
             }
             .node-name {
                 display: inline-block;

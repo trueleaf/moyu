@@ -9,7 +9,7 @@
         <div class="login-box d-flex">
             <div class="left hidden-md-and-down"></div>
             <div class="right">
-                <!-- <h2 class="text-center">体验版本({{ config.version }})</h2> -->
+                <h2 class="text-center">体验版本({{ config.version }})</h2>
                 <el-tabs v-model="activeName" class="w-100" @tab-click="handleClickTabs">
                     <!-- 账号登录 -->
                     <el-tab-pane label="账号登录" name="first">

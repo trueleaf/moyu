@@ -58,16 +58,16 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .doc-view {
-    height: 100%;
     display: flex;
+    overflow: hidden;
     .banner {
         flex: 0 0 auto;
     }
     .doc-wrap {
         flex: 1;
-        // width: calc(100vw - #{size(300)});
+        overflow: hidden;
     }
 }
 </style>

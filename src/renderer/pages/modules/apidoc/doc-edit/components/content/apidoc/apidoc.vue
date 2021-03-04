@@ -20,25 +20,25 @@
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
             </div>
-            <div class="params-sm-wrap show-md">
+            <!-- <div class="params-sm-wrap show-md">
                 <el-tabs v-model="activeName">
                     <el-tab-pane label="Params" name="s-a">
-                        <s-request-query-params ref="query"></s-request-query-params>
+                        <s-request-query-params ref="query2"></s-request-query-params>
                     </el-tab-pane>
                     <el-tab-pane label="Body" name="s-b">
-                        <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                        <s-request-body-params ref="body2" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                     </el-tab-pane>
                     <el-tab-pane label="Headers" name="s-d">
-                        <s-header-params ref="header"></s-header-params>
+                        <s-header-params ref="header2"></s-header-params>
                     </el-tab-pane>
                     <el-tab-pane label="返回值" name="s-c">
-                        <s-response-params ref="response"></s-response-params>
+                        <s-response-params ref="response2"></s-response-params>
                     </el-tab-pane>
                     <el-tab-pane label="备注" name="s-e">
                         <s-remark></s-remark>
                     </el-tab-pane>
                 </el-tabs>
-            </div>
+            </div> -->
         </s-loading>
         <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
             <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
@@ -119,7 +119,7 @@ export default {
             writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
             //=====================================拖拽参数====================================//
             minWidth: 300, //------------最小宽度
-            maxWidth: 600, //------------最大宽度
+            maxWidth: 800, //------------最大宽度
             mousedownLeft: 0, //---------鼠标点击距离
             responseWidth: 0, //-----------response宽度
             isDragging: false, //--------是否正在拖拽
@@ -161,7 +161,8 @@ export default {
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                    const { query, query2, body, body2, header, header2 } = this.$refs;
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -227,7 +228,8 @@ export default {
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
-                Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                const { query, query2, body, body2, header, header2 } = this.$refs;
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -485,41 +487,41 @@ export default {
     .show-md {
         display: none;
     }
-    @media only screen and (max-width: 1440px) {
-        display: block;
-        .hidden-md {
-            display: none;
-        }
-        .show-md {
-            display: block;
-        }
-        .params-sm-wrap {
-            display: block;
-            padding: 0 size(10);
-            height: size(300);
-            overflow-y: auto;
-            box-shadow: 0 3px 2px $gray-400;
-            .el-tabs__header {
-                margin: 0;
-            }
-        }
-        .edit-area {
-            flex: 0 0 auto;
-        }
-        .view-area {
-            width: 100%;
-            .request-view {
-                display: none;
-            }
-            .response-view {
-                flex: 0 0 calc(100vh - #{size(530)});
-                min-height: size(300);
-            }
-            .body-view {
-                height: calc(100vh - #{size(625)});
-                min-height: size(200);
-            }
-        }
-    }
+    // @media only screen and (max-width: 1440px) {
+    //     display: block;
+    //     .hidden-md {
+    //         display: none;
+    //     }
+    //     .show-md {
+    //         display: block;
+    //     }
+    //     .params-sm-wrap {
+    //         display: block;
+    //         padding: 0 size(10);
+    //         height: size(300);
+    //         overflow-y: auto;
+    //         box-shadow: 0 3px 2px $gray-400;
+    //         .el-tabs__header {
+    //             margin: 0;
+    //         }
+    //     }
+    //     .edit-area {
+    //         flex: 0 0 auto;
+    //     }
+    //     .view-area {
+    //         width: 100%;
+    //         .request-view {
+    //             display: none;
+    //         }
+    //         .response-view {
+    //             flex: 0 0 calc(100vh - #{size(530)});
+    //             min-height: size(300);
+    //         }
+    //         .body-view {
+    //             height: calc(100vh - #{size(625)});
+    //             min-height: size(200);
+    //         }
+    //     }
+    // }
 }
 </style>
