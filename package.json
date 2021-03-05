@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev:web": "vue-cli-service serve src/renderer/main.js",
-    "dev:doc-share": "vue-cli-service serve src/renderer/pages/modules/apidoc/doc-share/main.js",
+    "dev:doc-export": "vue-cli-service serve src/renderer/pages/modules/apidoc/doc-export/main.js",
+    "build:doc-export": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-export/main.js --single",
     "build:web": "vue-cli-service build src/renderer/main.js",
-    "build:doc-share": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-share/main.js --single",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "build": "vue-cli-service electron:build",
