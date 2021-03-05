@@ -5,7 +5,7 @@
 <h3 align="center">一款基于 Vue 和 Electron 的接口文档管理工具</h3>
 <div align="center">
 
-[下载](https://github.com/trueleaf/moyu/releases) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
+[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
 
 </div>
 <div align="center">
@@ -39,15 +39,10 @@
 
 [在线体验](https://online.jobtool.cn/)(由于浏览器限制，完整版功能需要下载客户端)
 
-[客户端GitHub地址](https://github.com/trueleaf/moyu)
+[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe)
 
-[服务端GitHub地址](https://github.com/trueleaf/moyu-server)
+[客户端GitHub地址](https://github.com/trueleaf/moyu) | [服务端GitHub地址](https://github.com/trueleaf/moyu-server) | [客户端Gitee地址](https://gitee.com/shuzhikai/moyu) | [服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
 
-[客户端Gitee地址](https://gitee.com/shuzhikai/moyu)
-
-[服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
-
-[客户端下载](https://github.com/trueleaf/moyu/releases)
 
 
 ## QQ交流群
