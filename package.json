@@ -5,7 +5,8 @@
   "scripts": {
     "dev:web": "vue-cli-service serve src/renderer/main.js",
     "dev:doc-export": "vue-cli-service serve src/renderer/pages/modules/apidoc/doc-export/main.js",
-    "build:doc-export": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-export/main.js --single",
+    "build:doc-offline": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-export/main.js --single",
+    "build:doc-export": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-export/main.js",
     "build:web": "vue-cli-service build src/renderer/main.js",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",

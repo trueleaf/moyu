@@ -121,7 +121,6 @@ export default {
         };
     },
     mounted() {
-        this.init();
     },
     methods: {
         //=====================================初始化相关====================================//
@@ -269,7 +268,7 @@ export default {
 <style lang="scss">
 .banner {
     width: size(300);
-    height: 100%;
+    min-height: 100vh;
     border-right: 1px solid $gray-400;
     display: flex;
     flex-direction: column;

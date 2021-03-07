@@ -67,6 +67,10 @@ module.exports = {
             dbName: "moyu", //indexedDB名称
             version: 1, //indexedDB版本信息
         },
+        //导出相关配置
+        share: {
+            baseUrl: "https://share.jobtool.cn",
+        },
     },
     //主进程配置
     mainConfig: {

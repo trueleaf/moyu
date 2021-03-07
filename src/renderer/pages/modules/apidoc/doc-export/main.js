@@ -5,7 +5,7 @@ import EventEmitter from "@/lib/event";
 import store from "./store/index";
 import App from "./App.vue";
 import html from "./pages/html/html.vue";
-import online from "./pages/online/online.vue";
+// import online from "./pages/online/online.vue";
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
 import "./components/index";
@@ -27,31 +27,24 @@ Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(Divider);
 Vue.use(TabPane);
-Vue.use(Message);
 Vue.use(axios);
 
 Vue.prototype.$confirm = MessageBox.confirm;
 Vue.prototype.$message = Message;
 
-if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line global-require
-    const data = require("./assets/data.js");
-    window.SHARE_DATA = data;
-    window.PROJECT_ID = "5f806b7edd6d9b06e05d7a1e";
-}
-
 const router = new Router({
+    mode: "history",
     routes: [
         {
             path: "/",
             name: "静态html文件",
             component: html,
         },
-        {
-            path: "/online",
-            name: "在线链接",
-            component: online,
-        },
+        // {
+        //     path: "/online",
+        //     name: "在线链接",
+        //     component: online,
+        // },
     ],
 });
 const emitter = new EventEmitter();

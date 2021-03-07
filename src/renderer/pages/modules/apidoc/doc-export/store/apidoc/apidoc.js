@@ -6,10 +6,8 @@
  */
 import Vue from "vue";
 import { findNodeById, throttle, uuid } from "@/lib";
-import http from "../../api/api";
 import HttpClient from "./http";
 
-const { axios } = http;
 const httpClient = new HttpClient();
 export default {
     namespaced: true,
@@ -333,83 +331,6 @@ export default {
         },
     },
     actions: {
-        //获取文档左侧banner
-        async getDocBanner(context, payload) {
-            return new Promise((resolve, reject) => {
-                const params = {
-                    projectId: payload.projectId,
-                };
-                axios.get("/api/project/doc_tree_node", { params }).then((res) => {
-                    const result = res.data;
-                    context.commit("changeDocBanner", result);
-                    resolve();
-                }).catch((err) => {
-                    reject(err);
-                });
-            });
-        },
-        //获取全局变量
-        async getDocVariable(context, payload) {
-            return new Promise((resolve, reject) => {
-                const params = {
-                    projectId: payload.projectId,
-                };
-                axios.get("/api/project/project_variable_enum", { params }).then((res) => {
-                    const result = res.data;
-                    context.commit("initVariables", result);
-                    resolve();
-                }).catch((err) => {
-                    console.error(err);
-                    reject(err);
-                });
-            });
-        },
-        //获取文档联想参数
-        async getMindParamsEnum(context, payload) {
-            return new Promise((resolve, reject) => {
-                const params = {
-                    projectId: payload.projectId,
-                };
-                axios.get("/api/project/doc_params_mind", { params }).then((res) => {
-                    const result = res.data;
-                    context.commit("initAndChangeMindParams", result);
-                    resolve();
-                }).catch((err) => {
-                    reject(err);
-                    console.error(err);
-                });
-            });
-        },
-        //获取预设参数列表
-        async getPresetParams(context, payload) {
-            return new Promise((resolve, reject) => {
-                const params = {
-                    projectId: payload.projectId,
-                };
-                axios.get("/api/project/doc_preset_params_enum", { params }).then((res) => {
-                    const result = res.data;
-                    context.commit("initAndChangePresetParams", result);
-                    resolve();
-                }).catch((err) => {
-                    reject(err);
-                    console.error(err);
-                });
-            });
-        },
-        //获取全局host
-        async getHostEnum(context, payload) {
-            return new Promise((resolve, reject) => {
-                const params = {
-                    projectId: payload.projectId,
-                };
-                axios.get("/api/project/doc_service", { params }).then((res) => {
-                    context.commit("initAndChangeHostEnum", res.data);
-                    resolve();
-                }).catch((err) => {
-                    reject(err);
-                });
-            });
-        },
         /**
          * @description                 发送请求
          * @author                      shuxiaokai
