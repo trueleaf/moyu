@@ -4,8 +4,8 @@ import { Button, Loading, Tooltip, Input, Tree, Dialog, Tabs, Popover, Radio, Ra
 import EventEmitter from "@/lib/event";
 import store from "./store/index";
 import App from "./App.vue";
-import html from "./pages/html/html.vue";
-// import online from "./pages/online/online.vue";
+import view from "./pages/view/view.vue";
+import check from "./pages/check/check.vue";
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
 import "./components/index";
@@ -37,14 +37,14 @@ const router = new Router({
     routes: [
         {
             path: "/",
-            name: "静态html文件",
-            component: html,
+            name: "验证和数据获取界面",
+            component: check,
         },
-        // {
-        //     path: "/online",
-        //     name: "在线链接",
-        //     component: online,
-        // },
+        {
+            path: "/view",
+            name: "在线数据展示",
+            component: view,
+        },
     ],
 });
 const emitter = new EventEmitter();

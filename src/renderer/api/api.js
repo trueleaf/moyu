@@ -62,10 +62,6 @@ export default {
                         case 4002: //暂无权限
                             Vue.prototype.$message.warning("暂无权限");
                             return Promise.reject(new Error("暂无权限"));
-                        case 101002: //文档已过期
-                            break;
-                        case 10101: //密码错误
-                            break;
                         default:
                             Vue.prototype.$confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
                                 confirmButtonText: "确定",

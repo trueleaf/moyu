@@ -154,13 +154,46 @@ export default {
                 return
             }
             if (!window.SHARE_DATA) {
+                console.log(this.currentSelectDoc, 222)
                 return;
             }
             const docId = this.currentSelectDoc._id;
             const { docs } = window.SHARE_DATA;
             const currentDoc = docs.find((doc) => doc._id === docId);
+            if (!currentDoc) {
+                this.confirmInvalidDoc();
+                return
+            }
             const apidocInfo = JSON.parse(JSON.stringify(currentDoc));
             this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
+        },
+        //接口不存在提醒用户，可能是同时操作的用户删掉了这个接口导致接口不存在
+        confirmInvalidDoc() {
+            this.$confirm("当前接口不存在，可能已经被删除!", "提示", {
+                confirmButtonText: "关闭接口",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                this.$store.commit("apidoc/deleteTabById", {
+                    projectId: this.$route.query.id,
+                    deleteIds: [this.currentSelectDoc._id],
+                });
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                    this.$store.commit("apidoc/changeCurrentTab", {
+                        _id: this.tabs[this.tabs.length - 1]._id,
+                        projectId: this.$route.query.id,
+                        name: this.tabs[this.tabs.length - 1].name,
+                        changed: this.tabs[this.tabs.length - 1].changed,
+                        tail: this.tabs[this.tabs.length - 1].tail,
+                        tabType: "doc",
+                    });
+                }
+            }).catch((err) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                this.$errorThrow(err, this);
+            });
         },
         //=====================================其他操作====================================//
         //返回值转换为json

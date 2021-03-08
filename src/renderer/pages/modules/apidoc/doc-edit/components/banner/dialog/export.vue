@@ -71,7 +71,7 @@ export default {
                 projectId: this.$route.query.id,
             };
             this.axios.get("/api/project/export/online", { params }).then((res) => {
-                this.shareLink = `${this.config.renderConfig.share.baseUrl}?shareId=${res.data}&projectId=${this.$route.query.id}`;
+                this.shareLink = `${this.config.renderConfig.share.baseUrl}?shareId=${res.data}`;
             }).catch((err) => {
                 console.error(err);
             }).finally(() => {

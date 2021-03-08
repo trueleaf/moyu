@@ -6,7 +6,7 @@
 */
 <template>
     <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-view">
-        <s-banner ref="banner"></s-banner>
+        <s-banner></s-banner>
         <div class="doc-wrap">
             <s-navs></s-navs>
             <s-content></s-content>
@@ -29,60 +29,37 @@ export default {
             loading: false,
         };
     },
-    created() {
-        this.initData(); //初始化文档数据
+    mounted() {
+        this.init();
     },
     methods: {
         //=====================================获取远程数据==================================//
-        //初始化文档数据
-        initData() {
-            /* if (process.env.NODE_ENV === "development") {
-                // eslint-disable-next-line global-require
-                const data = require("../../assets/data.js");
-                window.SHARE_DATA = data;
-                window.PROJECT_ID = "5f806b7edd6d9b06e05d7a1e";
-                return
-            } */
-            if (window.SHARE_DATA) { //离线html
+        //初始化
+        init() {
+            if (!window.SHARE_DATA && !window.IS_OFFLINE) { //非静态页面数据被清空返回密码填写页面
+                this.$router.push("/");
                 return;
             }
-            const { shareId, projectId, password } = this.$route.query;
+            this.getData();
+            this.getHostEnum();
+            this.getProjectRules();
+        },
+        //获取文档数据
+        getData() {
             this.loading = true;
             const params = {
-                projectId,
-                shareId,
-                password,
+                shareId: localStorage.getItem("shareId"),
+                password: localStorage.getItem("password"),
             };
             this.axios.get("/api/project/share", { params }).then((res) => {
-                if (res.code === 101001) { //密码错误
-                    this.initCacheData();
-                } else if (res.code === 101002) { //文档sharid错误
-                    this.initCacheData();
-                } else if (res.code === 0) {
-                    window.SHARE_DATA = res.data;
-                    this.shareData = res.data;
-                    localStorage.setItem("shareData", JSON.stringify(res.data));
-                } else {
-                    this.initCacheData();
-                }
+                window.SHARE_DATA = res.data;
+                localStorage.setItem("shareData", JSON.stringify(res.data));
+                this.$event.emit("dataReady");
             }).catch((err) => {
                 console.error(err);
-                this.initCacheData();
             }).finally(() => {
                 this.loading = false;
-                this.initCacheData();
-                if (window.SHARE_DATA) {
-                    this.getHostEnum(); //获取host值
-                    this.getProjectRules(); //获取项目规则
-                    this.$refs.banner.init();
-                }
             });
-        },
-        //获取缓存数据
-        initCacheData() {
-            const localData = localStorage.getItem("shareData") || "null";
-            window.SHARE_DATA = JSON.parse(localData);
-            this.shareData = JSON.parse(localData);
         },
         //获取host值
         getHostEnum() {
@@ -91,7 +68,6 @@ export default {
         },
         //获取项目规则
         getProjectRules() {
-            //获取规则
             const { rules } = window.SHARE_DATA;
             this.$store.commit("apidocRules/changeRules", rules);
         },
