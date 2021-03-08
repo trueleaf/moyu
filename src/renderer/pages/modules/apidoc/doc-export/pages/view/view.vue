@@ -6,11 +6,13 @@
 */
 <template>
     <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-view">
-        <s-banner></s-banner>
-        <div class="doc-wrap">
-            <s-navs></s-navs>
-            <s-content></s-content>
-        </div>
+        <template v-if="dataReady">
+            <s-banner></s-banner>
+            <div class="doc-wrap">
+                <s-navs></s-navs>
+                <s-content></s-content>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -27,6 +29,7 @@ export default {
         return {
             shareData: null,
             loading: false,
+            dataReady: false,
         };
     },
     mounted() {
@@ -36,13 +39,18 @@ export default {
         //=====================================获取远程数据==================================//
         //初始化
         init() {
-            if (!window.SHARE_DATA && !window.IS_OFFLINE) { //非静态页面数据被清空返回密码填写页面
-                this.$router.push("/");
-                return;
+            const localShareData = localStorage.getItem("shareData");
+            const shareId = localStorage.getItem("shareId");
+            if (window.IS_OFFLINE) { //静态页面直接返回
+                return
             }
-            this.getData();
-            this.getHostEnum();
-            this.getProjectRules();
+            if (!localShareData && !window.SHARE_DATA) { //非静态页面数据被清空返回密码填写页面
+                this.$router.push("/");
+            } else if (!shareId) { //不存在shareId直接返回
+                this.$router.push("/");
+            } else {
+                this.getData();
+            }
         },
         //获取文档数据
         getData() {
@@ -55,6 +63,9 @@ export default {
                 window.SHARE_DATA = res.data;
                 localStorage.setItem("shareData", JSON.stringify(res.data));
                 this.$event.emit("dataReady");
+                this.getHostEnum();
+                this.getProjectRules();
+                this.dataReady = true;
             }).catch((err) => {
                 console.error(err);
             }).finally(() => {

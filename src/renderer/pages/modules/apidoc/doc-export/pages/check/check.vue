@@ -12,7 +12,7 @@
             </div>
             <h2 class="text-center">测试项目</h2>
             <div class="d-flex a-center mb-3">
-                <el-input v-model="password" placeholder="请输入密码" size="small" class="w-200px" clearable></el-input>
+                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" clearable></el-input>
                 <el-button size="small" type="success" :loading="loading" @click="handleConfirmPassword">确认密码</el-button>
             </div>
             <div class="gray-600">
@@ -34,6 +34,7 @@ export default {
             //===================================业务参数====================================//
             password: "", //密码
             //===================================其他参数====================================//
+            loading: false, //是否加载中
         };
     },
     created() {
@@ -60,7 +61,7 @@ export default {
             this.axios.get("/api/project/share", { params }).then((res) => {
                 window.SHARE_DATA = res.data;
                 localStorage.setItem("shareData", JSON.stringify(res.data));
-                localStorage.setItem("password", this.password);
+                localStorage.setItem("password", this.password || "");
                 localStorage.setItem("shareId", shareId);
                 this.$router.push("/view");
             }).catch((err) => {
