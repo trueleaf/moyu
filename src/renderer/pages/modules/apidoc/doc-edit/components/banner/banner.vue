@@ -26,9 +26,14 @@
                         <use xlink:href="#icondaochu1"></use>
                     </svg>
                 </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
+                <!-- <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
                     <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
                         <use xlink:href="#icondaoru"></use>
+                    </svg>
+                </el-tooltip> -->
+                <el-tooltip class="item" effect="dark" content="在线链接" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible7 = true">
+                        <use xlink:href="#iconlink"></use>
                     </svg>
                 </el-tooltip>
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
@@ -38,6 +43,7 @@
                     <i class="more-op el-icon-more" title="更多操作"></i>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
+                        <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
                         <el-dropdown-item @click.native="dialogVisible4 = true">历史记录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -130,6 +136,7 @@
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
         <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
+        <s-generate-link-dialog :visible.sync="dialogVisible7"></s-generate-link-dialog>
     </div>
 </template>
 
@@ -142,6 +149,7 @@ import importDoc from "../../dialog/import-doc.vue";
 import historyDialog from "./dialog/history.vue";
 import templateDialog from "./dialog/template.vue";
 import exportDialog from "./dialog/export.vue";
+import generateLinkDialog from "./dialog/link.vue";
 import contextmenu from "./components/contextmenu.vue";
 
 export default {
@@ -153,6 +161,7 @@ export default {
         "s-history-dialog": historyDialog,
         "s-template-dialog": templateDialog,
         "s-export-dialog": exportDialog,
+        "s-generate-link-dialog": generateLinkDialog,
     },
     computed: {
         navTreeData() { //-------树形导航数据
@@ -209,6 +218,7 @@ export default {
             dialogVisible4: false, //----------查看历史记录
             dialogVisible5: false, //----------以模板新建
             dialogVisible6: false, //----------导出文档
+            dialogVisible7: false, //----------生产在线链接
             loading: false, //-----------------左侧树形导航加载
         };
     },

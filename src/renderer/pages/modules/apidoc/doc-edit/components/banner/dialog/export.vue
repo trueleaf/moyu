@@ -20,16 +20,6 @@
                 </s-download>
             </div>
         </s-fieldset>
-        <s-fieldset title="生成在线链接">
-            <div class="d-flex">
-                <pre class="link w-70">{{ shareLink }}</pre>
-                <el-button-group class="flex0 w-200px">
-                    <el-button :loading="loading3" size="mini" @click="handleGenerateLink">生成</el-button>
-                    <el-button v-copy="shareLink" size="mini">复制</el-button>
-                    <el-button size="mini">高级</el-button>
-                </el-button-group>
-            </div>
-        </s-fieldset>
         <div slot="footer">
             <el-button size="mini" type="warning" @click="handleClose">关闭</el-button>
         </div>
@@ -49,11 +39,9 @@ export default {
             formInfo: {
                 name: "", //------文件名称
             },
-            shareLink: "", //在线链接
             //=====================================其他参数====================================//
             loading: false, //----导出加载按钮
             loading2: false, //----导出加载按钮
-            loading3: false, //----生成在线链接加载按钮
         };
     },
     mounted() {},
@@ -63,20 +51,6 @@ export default {
         handleClose() {
             this.$emit("update:visible", false);
             this.$emit("close");
-        },
-        //生成链接
-        handleGenerateLink() {
-            this.loading3 = true;
-            const params = {
-                projectId: this.$route.query.id,
-            };
-            this.axios.get("/api/project/export/online", { params }).then((res) => {
-                this.shareLink = `${this.config.renderConfig.share.baseUrl}?shareId=${res.data}`;
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading3 = false;
-            });
         },
     },
 };
@@ -104,21 +78,6 @@ export default {
                 height: size(70);
             }
         }
-    }
-    .link {
-        height: size(28);
-        white-space: nowrap;
-        overflow-x: auto;
-        user-select: auto;
-        &::-webkit-scrollbar {
-            height: 0px;
-        }
-        // &::-webkit-scrollbar-thumb {
-        //     background: $gray-600;
-        // }
-        // &::-webkit-scrollbar-track {
-        //     background: $theme-color;
-        // }
     }
 }
 </style>
