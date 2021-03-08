@@ -153,6 +153,9 @@ export default {
             if (!this.currentSelectDoc || !this.currentSelectDoc._id) { //没有id不请求数据
                 return
             }
+            if (!window.SHARE_DATA) {
+                return;
+            }
             const docId = this.currentSelectDoc._id;
             const { docs } = window.SHARE_DATA;
             const currentDoc = docs.find((doc) => doc._id === docId);

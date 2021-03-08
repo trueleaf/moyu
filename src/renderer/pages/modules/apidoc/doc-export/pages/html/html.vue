@@ -9,7 +9,7 @@
         <s-banner ref="banner"></s-banner>
         <div class="doc-wrap">
             <s-navs></s-navs>
-            <s-content v-if="shareData"></s-content>
+            <s-content></s-content>
         </div>
     </div>
 </template>
@@ -41,6 +41,7 @@ export default {
                 const data = require("../../assets/data.js");
                 window.SHARE_DATA = data;
                 window.PROJECT_ID = "5f806b7edd6d9b06e05d7a1e";
+                return
             } */
             if (window.SHARE_DATA) { //离线html
                 return;
@@ -69,14 +70,17 @@ export default {
                 this.initCacheData();
             }).finally(() => {
                 this.loading = false;
-                this.getHostEnum(); //获取host值
-                this.getProjectRules(); //获取项目规则
-                this.$refs.banner.init();
+                this.initCacheData();
+                if (window.SHARE_DATA) {
+                    this.getHostEnum(); //获取host值
+                    this.getProjectRules(); //获取项目规则
+                    this.$refs.banner.init();
+                }
             });
         },
         //获取缓存数据
         initCacheData() {
-            const localData = localStorage.getItem("shareData") || "{}";
+            const localData = localStorage.getItem("shareData") || "null";
             window.SHARE_DATA = JSON.parse(localData);
             this.shareData = JSON.parse(localData);
         },
