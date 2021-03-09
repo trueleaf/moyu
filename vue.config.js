@@ -63,6 +63,11 @@ if (isShareDoc) {
     };
 } else {
     vueConfig = {
+        pages: {
+            index: {
+                entry: "src/renderer/main.js",
+            },
+        },
         //=====================================css相关配置====================================//
         css: {
             loaderOptions: {
