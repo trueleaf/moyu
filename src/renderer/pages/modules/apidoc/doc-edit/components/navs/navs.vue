@@ -30,8 +30,12 @@
                     </template>
                     <!-- 其他 -->
                     <template v-else>
+                        <!-- 配置 -->
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                        <!-- 参数模板 -->
                         <span v-if="item.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
+                        <!-- 链接 -->
+                        <span v-if="item.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">

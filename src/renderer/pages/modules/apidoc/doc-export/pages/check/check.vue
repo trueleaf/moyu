@@ -10,14 +10,14 @@
             <div class="text-center">
                 <img :src="require('@/assets/imgs/logo.png')" width="100px" height="100px" alt="logo图片" class="logo">
             </div>
-            <h2 class="text-center">测试项目</h2>
+            <h2 class="text-center">{{ projectName }}</h2>
             <div class="d-flex a-center mb-3">
                 <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" clearable></el-input>
                 <el-button size="small" type="success" :loading="loading" @click="handleConfirmPassword">确认密码</el-button>
             </div>
             <div class="gray-600">
                 <span>过期时间</span>
-                <span>2020-20-22</span>
+                <span v-if="expire">{{ $helper.formatDate(new Date(Number(expire))) }}</span>
             </div>
         </div>
     </div>
@@ -33,16 +33,25 @@ export default {
 
             //===================================业务参数====================================//
             password: "", //密码
+            projectName: "", //项目名称
+            expire: null, //过期时间
             //===================================其他参数====================================//
             loading: false, //是否加载中
         };
     },
-    created() {
+    mounted() {
         this.password = localStorage.getItem("password", this.password);
+        this.init();
         this.checkJump();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
+        //初始化
+        init() {
+            this.password = this.$route.query.password;
+            this.projectName = this.$route.query.projectName;
+            this.expire = this.$route.query.expire;
+        },
         //检查是否允许跳转
         checkJump() {
             if (window.IS_OFFLINE) { //离线文档直接跳转预览界面
@@ -89,7 +98,7 @@ export default {
         display: flex;
         flex-direction: column;
         left: 50%;
-        top: 50%;
+        top: 35%;
         transform: translate(-50%, -50%);
         background: $white;
         padding: size(50) size(100);

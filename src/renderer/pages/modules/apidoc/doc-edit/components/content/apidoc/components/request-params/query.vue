@@ -131,10 +131,11 @@ export default {
         },
         //将json数据转换为参数
         handleConvertJsonToParams(result, convertType) {
+            const convertData = result.map((val) => ({ ...val, type: "string", children: [] })); //仅转换第一层
             if (convertType === "append") {
-                this.$store.commit("apidoc/unshiftQueryParams", result)
+                this.$store.commit("apidoc/unshiftQueryParams", convertData)
             } else if (convertType === "override") {
-                this.$store.commit("apidoc/changeQueryParams", result)
+                this.$store.commit("apidoc/changeQueryParams", convertData)
             }
             this.$refs.paramsTree.selectChecked();
             console.log(result, convertType);

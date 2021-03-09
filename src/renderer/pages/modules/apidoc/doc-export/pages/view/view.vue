@@ -19,11 +19,13 @@
 <script>
 import banner from "./components/banner/banner.vue";
 import content from "./components/content/content.vue";
+import navs from "./components/navs/navs.vue";
 
 export default {
     components: {
         "s-banner": banner,
         "s-content": content,
+        "s-navs": navs,
     },
     data() {
         return {

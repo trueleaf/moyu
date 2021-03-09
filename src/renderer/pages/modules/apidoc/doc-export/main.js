@@ -2,13 +2,14 @@ import Vue from "vue";
 import Router from "vue-router";
 import { Button, Loading, Tooltip, Input, Tree, Dialog, Tabs, Popover, Radio, RadioGroup, Divider, TabPane, Message, MessageBox } from "element-ui";
 import EventEmitter from "@/lib/event";
+import * as helper from "@/lib";
 import store from "./store/index";
 import App from "./App.vue";
 import view from "./pages/view/view.vue";
 import check from "./pages/check/check.vue";
 import "element-ui/lib/theme-chalk/index.css";
 import "element-ui/lib/theme-chalk/display.css";
-import "./components/index";
+import "@/components/index2";
 import "@/mixin";
 import "@/directive";
 import "@/assets/css/index.css";
@@ -49,6 +50,7 @@ const router = new Router({
 });
 const emitter = new EventEmitter();
 Vue.prototype.$event = emitter;
+Vue.prototype.$helper = helper;
 
 Vue.config.productionTip = true;
 /* eslint-disable no-new */

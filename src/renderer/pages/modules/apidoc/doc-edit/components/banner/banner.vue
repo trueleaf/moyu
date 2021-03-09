@@ -32,7 +32,7 @@
                     </svg>
                 </el-tooltip> -->
                 <el-tooltip class="item" effect="dark" content="在线链接" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible7 = true">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenOnlineLink">
                         <use xlink:href="#iconlink"></use>
                     </svg>
                 </el-tooltip>
@@ -45,6 +45,7 @@
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
                         <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
                         <el-dropdown-item @click.native="dialogVisible4 = true">历史记录</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenConfigPage">全局设置</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -136,7 +137,6 @@
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
         <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
-        <s-generate-link-dialog :visible.sync="dialogVisible7"></s-generate-link-dialog>
     </div>
 </template>
 
@@ -149,7 +149,6 @@ import importDoc from "../../dialog/import-doc.vue";
 import historyDialog from "./dialog/history.vue";
 import templateDialog from "./dialog/template.vue";
 import exportDialog from "./dialog/export.vue";
-import generateLinkDialog from "./dialog/link.vue";
 import contextmenu from "./components/contextmenu.vue";
 
 export default {
@@ -161,7 +160,6 @@ export default {
         "s-history-dialog": historyDialog,
         "s-template-dialog": templateDialog,
         "s-export-dialog": exportDialog,
-        "s-generate-link-dialog": generateLinkDialog,
     },
     computed: {
         navTreeData() { //-------树形导航数据
@@ -224,7 +222,6 @@ export default {
     },
     mounted() {
         this.init();
-        this.initCtrlSelect();
     },
     methods: {
         //=====================================初始化相关====================================//
@@ -235,8 +232,7 @@ export default {
                 this.multiSelectNode = [];
                 this.currentSelectBannerNode = null;
             });
-            document.documentElement.addEventListener("mouseup", (e) => {
-                e.stopPropagation();
+            document.documentElement.addEventListener("mouseup", () => {
                 this.isDragging = false;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
             })
@@ -247,19 +243,6 @@ export default {
             document.documentElement.addEventListener("click", () => {
                 this.multiSelectNode = [];
             });
-        },
-        initCtrlSelect() {
-            this.$refs.banner.addEventListener("keydown", (e) => {
-                if (e.ctrlKey && (e.key === "a" || e.key === "A")) {
-                    e.preventDefault();
-                    // if (this.currentSelectBannerNode === "root") {
-
-                    // } else if () {
-
-                    // }
-                    console.log(this.currentSelectBannerNode)
-                }
-            })
         },
         //=====================================操作栏操作====================================//
         //导入成功
@@ -275,12 +258,52 @@ export default {
                 this.getDocBanner();
             }
         },
+        //获取banner数据
         getDocBanner() {
             this.loading = true;
             this.$store.dispatch("apidoc/getDocBanner", { projectId: this.$route.query.id }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
+            });
+        },
+        //打开在线链接生成弹窗
+        handleOpenOnlineLink() {
+            const id = this.$helper.uuid();
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "生成在线链接",
+                changed: false,
+                tail: "",
+                tabType: "onlineLink",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "生成在线链接",
+                changed: false,
+                tail: "",
+                tabType: "onlineLink",
+                projectId: this.$route.query.id,
+            });
+        },
+        //打开配置界面
+        handleOpenConfigPage() {
+            this.$store.commit("apidoc/addTab", {
+                _id: "idConfig",
+                projectId: this.$route.query.id,
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
+                tabType: "config",
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: "idConfig",
+                projectId: this.$route.query.id,
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
+                tabType: "config",
             });
         },
         //=====================================导航操作==================================//
@@ -761,7 +784,6 @@ export default {
         },
         //处理鼠标移动事件
         handleResizeMousemove(e) {
-            e.stopPropagation();
             let moveLeft = 0;
             const { banner, bar } = this.$refs;
             moveLeft = e.clientX - this.mousedownLeft;
