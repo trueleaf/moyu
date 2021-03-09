@@ -72,7 +72,7 @@
                 </div>
                 <!-- json预览 -->
                 <el-popover placement="right">
-                    <s-array-view :data="item.values" class="mt-2">
+                    <s-array-view :data="item.values" class="w-500px mt-2">
                         <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="cursor-pointer">复制为json</div>
                     </s-array-view>
                     <div slot="reference" class="cursor-pointer hover-theme-color mr-3">

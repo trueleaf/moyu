@@ -39,7 +39,7 @@
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
-                <el-dropdown trigger="click" class="mr-1">
+                <el-dropdown ref="dropdown" trigger="click" class="mr-1">
                     <i class="more-op el-icon-more" title="更多操作"></i>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
@@ -69,63 +69,80 @@
                     @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
-                    <div
-                            class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                            tabindex="1"
-                            @keydown="handleKeydown($event, scope.data)"
-                            @keyup="handleKeyUp"
-                            @click="handleClickNode($event, scope)"
-                            @mouseover="hoverNodeId = scope.data._id"
-                            @mouseout="hoverNodeId = ''"
-                    >
-                        <!-- file渲染 -->
-                        <template v-if="!scope.data.isFolder">
-                            <template v-for="(req) in validRequestMethods">
-                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                    <el-popover
+                        class="w-100"
+                        placement="right"
+                        width="200"
+                        trigger="hover"
+                        :open-delay="1000"
+                        disabled
+                        >
+                        <div
+                                class="custom-tree-node"
+                                :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                tabindex="1"
+                                slot="reference"
+                                @keydown="handleKeydown($event, scope.data)"
+                                @keyup="handleKeyUp"
+                                @click="handleClickNode($event, scope)"
+                                @mouseover="hoverNodeId = scope.data._id"
+                                @mouseout="hoverNodeId = ''"
+                        >
+                            <!-- file渲染 -->
+                            <template v-if="!scope.data.isFolder">
+                                <template v-for="(req) in validRequestMethods">
+                                    <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                                </template>
+                                <s-emphasize
+                                    v-if="renameNodeId !== scope.data._id"
+                                    class="node-name ml-1"
+                                    :title="scope.data.name"
+                                    :value="scope.data.name"
+                                    :keyword="queryData">
+                                </s-emphasize>
+                                <!-- <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div> -->
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
+                                <el-dropdown
+                                        v-show="hoverNodeId === scope.data._id"
+                                        class="node-more"
+                                        trigger="click"
+                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                        @click.native.stop="() =>{}"
+                                >
+                                    <span class="el-icon-more"></span>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
+                                        <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
+                                        <el-dropdown-item command="rename">重命名</el-dropdown-item>
+                                        <el-dropdown-item command="delete">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
                             </template>
-                            <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div>
-                            <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
-                            <el-dropdown
-                                    v-show="hoverNodeId === scope.data._id"
-                                    class="node-more"
-                                    trigger="click"
-                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                    @click.native.stop="() =>{}"
-                            >
-                                <span class="el-icon-more"></span>
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
-                                    <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
-                                    <el-dropdown-item command="rename">重命名</el-dropdown-item>
-                                    <el-dropdown-item command="delete">删除</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                        </template>
-                        <!-- 文件夹渲染 -->
-                        <template v-if="scope.data.isFolder">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
-                            <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                            <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
-                            <el-dropdown
-                                    v-show="hoverNodeId === scope.data._id"
-                                    class="node-more"
-                                    trigger="click"
-                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                    @click.native.stop="() =>{}"
-                            >
-                                <span class="el-icon-more"></span>
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFolder">新建文件夹</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
-                                    <el-dropdown-item command="rename">重命名</el-dropdown-item>
-                                    <el-dropdown-item command="delete">删除</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                        </template>
-                    </div>
+                            <!-- 文件夹渲染 -->
+                            <template v-if="scope.data.isFolder">
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
+                                <el-dropdown
+                                        v-show="hoverNodeId === scope.data._id"
+                                        class="node-more"
+                                        trigger="click"
+                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                        @click.native.stop="() =>{}"
+                                >
+                                    <span class="el-icon-more"></span>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFolder">新建文件夹</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
+                                        <el-dropdown-item command="rename">重命名</el-dropdown-item>
+                                        <el-dropdown-item command="delete">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                            </template>
+                        </div>
+                    </el-popover>
                 </template>
             </el-tree>
         </div>
@@ -231,6 +248,8 @@ export default {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
                 this.currentSelectBannerNode = null;
+                this.$refs.dropdown?.hide();
+                this.multiSelectNode = [];
             });
             document.documentElement.addEventListener("mouseup", () => {
                 this.isDragging = false;
@@ -240,9 +259,6 @@ export default {
             const { banner, bar } = this.$refs;
             bar.style.left = `${bannerWidth}px`;
             banner.style.width = `${bannerWidth}px`;
-            document.documentElement.addEventListener("click", () => {
-                this.multiSelectNode = [];
-            });
         },
         //=====================================操作栏操作====================================//
         //导入成功
@@ -270,6 +286,9 @@ export default {
         //打开在线链接生成弹窗
         handleOpenOnlineLink() {
             const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "onlineLink")) { //存在链接则返回不处理
+                return;
+            }
             this.$store.commit("apidoc/addTab", {
                 _id: id,
                 name: "生成在线链接",

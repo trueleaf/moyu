@@ -121,7 +121,7 @@ export default {
         .link {
             height: size(28);
             white-space: nowrap;
-            overflow-x: auto;
+            overflow-y: auto;
             user-select: auto;
             &::-webkit-scrollbar {
                 height: 0px;

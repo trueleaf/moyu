@@ -450,12 +450,13 @@ $theme-color: #282c34;
             flex: 1;
             width: 0;
             .line {
-                height: size(20);
+                min-height: size(20);
                 display: flex;
                 align-items: center;
                 width: 100%;
-                position: relative;
                 overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 &:hover {
                     background: lighten($theme-color, 10%);
                 }
