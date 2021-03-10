@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click.stop="handleClickBanner">
+    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click="handleClickBanner">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
@@ -70,22 +70,25 @@
             >
                 <template slot-scope="scope">
                     <el-popover
+                        v-model="scope.data._ctrlPress"
                         class="w-100"
                         placement="right"
                         width="200"
-                        trigger="hover"
-                        :open-delay="1000"
-                        disabled
+                        trigger="manual"
                         >
+                        <div>
+                            <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
+                            <s-label-value v-if="scope.data.url" label="url：" label-width="auto" :value="scope.data.url" class="mb-0"></s-label-value>
+                        </div>
                         <div
                                 class="custom-tree-node"
                                 :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                tabindex="1"
+                                tabindex="0"
                                 slot="reference"
                                 @keydown="handleKeydown($event, scope.data)"
-                                @keyup="handleKeyUp"
+                                @keyup="handleKeyUp($event, scope.data)"
                                 @click="handleClickNode($event, scope)"
-                                @mouseover="hoverNodeId = scope.data._id"
+                                @mouseenter="handleEnterNode($event, scope)"
                                 @mouseout="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
@@ -234,6 +237,7 @@ export default {
             dialogVisible5: false, //----------以模板新建
             dialogVisible6: false, //----------导出文档
             dialogVisible7: false, //----------生产在线链接
+            popoverVisible: false, //----------banner详情弹出框
             loading: false, //-----------------左侧树形导航加载
         };
     },
@@ -248,8 +252,10 @@ export default {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
                 this.currentSelectBannerNode = null;
-                this.$refs.dropdown?.hide();
-                this.multiSelectNode = [];
+                // console.log(this.$refs.dropdown);
+                // this.$refs.dropdown?.hide();
+                this.clearPopover();
+                this.pressCtrl = false;
             });
             document.documentElement.addEventListener("mouseup", () => {
                 this.isDragging = false;
@@ -425,6 +431,11 @@ export default {
                 }
             });
         },
+        //鼠标移动到当前node上面
+        handleEnterNode(e, scope) {
+            e.currentTarget.focus(); //实其能够触发keydown事件
+            this.hoverNodeId = scope.data._id
+        },
         //处理节点上面keydown快捷方式(例如f2重命名)
         handleKeydown(e, data) {
             if (e.code === "F2") {
@@ -435,11 +446,20 @@ export default {
                     this.enableDrag = false;
                 })
             } else if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                this.clearPopover();
+                this.$set(data, "_ctrlPress", true);
                 this.pressCtrl = true;
             }
         },
+        //清除popover效果
+        clearPopover() {
+            this.$helper.forEachForest(this.navTreeData, (data) => {
+                this.$set(data, "_ctrlPress", false);
+            });
+        },
         //按键放开
         handleKeyUp() {
+            this.clearPopover();
             this.pressCtrl = false;
         },
         //点击节点
