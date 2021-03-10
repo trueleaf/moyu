@@ -147,7 +147,7 @@ $border-direction: (
 .no-margin {
     margin: 0 !important;
 }
-@for $i from 1 through 5 {
+@for $i from 0 through 5 {
     @each $key, $val in $space-direction {
         .m#{$val}-#{$i} {
             margin-#{$key}: size($i * 5);
@@ -157,7 +157,7 @@ $border-direction: (
         }
     }
 }
-@for $i from 1 through 5 {
+@for $i from 0 through 5 {
     .mx-#{$i} {
         margin-left: size($i * 5);
         margin-right: size($i * 5);
@@ -181,7 +181,7 @@ $border-direction: (
         font-size: $val;
     }
 }
-@for $i from 1 through 10 {
+@for $i from 0 through 10 {
     .f-#{$i * 10} {
         font-size: size($i * 10)
     }
@@ -302,7 +302,7 @@ $i: 5;
     user-select: none;
 }
 //=====================================溢出隐藏====================================//
-@for $i from 1 through 20 {
+@for $i from 0 through 20 {
     .scroll-y-#{$i * 50} {
         max-height: size($i * 50);
         overflow-y: auto;
