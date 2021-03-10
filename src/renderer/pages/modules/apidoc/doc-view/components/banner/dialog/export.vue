@@ -5,12 +5,21 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="导出文档" :isShow="visible" width="40%" @close="handleClose">
-        <div>
-            <s-download-button url="/api/project/doc_word" :params="{ projectId: $route.query.id }">导出为Word</s-download-button>
-            <s-download-button url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }">导出为HTML</s-download-button>
-            <s-download-button url="/api/project/export/moyu" :params="{ projectId: $route.query.id }">导出为摸鱼文档</s-download-button>
-        </div>
+    <s-dialog :isShow="visible" width="40%" class="doc-export" @close="handleClose">
+        <s-fieldset title="导出文档">
+            <div class="download-wrap">
+                <s-download url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }" class="item">
+                    <svg class="svg-icon" aria-hidden="true">
+                        <use xlink:href="#iconhtml"></use>
+                    </svg>
+                    <div class="mt-1">HTML</div>
+                </s-download>
+                <s-download url="/api/project/export/moyu" :params="{ projectId: $route.query.id }" class="item">
+                    <img src="@/assets/imgs/logo.png" alt="moyu" class="svg-icon">
+                    <div class="mt-1">JSON文档</div>
+                </s-download>
+            </div>
+        </s-fieldset>
         <div slot="footer">
             <el-button size="mini" type="warning" @click="handleClose">关闭</el-button>
         </div>
@@ -31,19 +40,12 @@ export default {
                 name: "", //------文件名称
             },
             //=====================================其他参数====================================//
-            loading: false, //----确认按钮状态
+            loading: false, //----导出加载按钮
+            loading2: false, //----导出加载按钮
         };
     },
     mounted() {},
     methods: {
-        handleExport() {
-            this.loading = true;
-            this.axios.get("/api/project/doc_word", { params: { projectId: this.$route.query.id } }).then(() => {}).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
         //=====================================其他操作=====================================//
         //关闭弹窗
         handleClose() {
@@ -55,5 +57,27 @@ export default {
 </script>
 
 <style lang="scss">
-
+.doc-export {
+    .download-wrap {
+        padding: 0 size(30);
+        display: flex;
+        .item {
+            width: size(100);
+            height: size(100);
+            margin-right: size(20);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            &:hover {
+                border: 1px solid $gray-400;
+            }
+            .svg-icon {
+                width: size(70);
+                height: size(70);
+            }
+        }
+    }
+}
 </style>
