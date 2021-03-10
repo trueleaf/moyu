@@ -229,7 +229,7 @@ export function findNextSibling(id, treeData, fn, options) {
  * @author             shuxiaokai
  * @create             2020-03-02 10:17
  * @param {array}     arrData 需要去重数组
- * @param {function}  arrData 需要去重数组
+ * @param {function}  fn 每次遍历执行得函数
  * @param {string}    childrenKey children对应字段
  */
 export function forEachForest(forest, fn, options = {}) {
