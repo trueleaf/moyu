@@ -53,7 +53,13 @@
                             <template v-for="(req) in validRequestMethods">
                                 <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                             </template>
-                            <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name">{{ scope.data.name }}</div>
+                            <s-emphasize
+                                v-if="renameNodeId !== scope.data._id"
+                                class="node-name ml-1"
+                                :title="scope.data.name"
+                                :value="scope.data.name"
+                                :keyword="queryData">
+                            </s-emphasize>
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
