@@ -14,7 +14,7 @@
         </div>
         <div class="content">
             <div class="code-banner">
-                <template v-for="(item, index) in filterAstValue">
+                <template v-for="(item, index) in astValue">
                     <div v-if="!item._hidden" :key="index" class="banner-wrap">
                         <span class="number-line">{{ item.line }}</span>
                         <span
@@ -27,7 +27,7 @@
                 </template>
             </div>
             <div class="code-wrap">
-                <template v-for="(item, index) in filterAstValue">
+                <template v-for="(item, index) in astValue">
                     <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @mousedown.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
                         <!-- <label v-if="item.path.value" class="checkbox">
@@ -37,10 +37,10 @@
                         <span class="path">
                             <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
                         </span>
-                        <span v-if="item.colon" class="colon">{{ item.colon }}&nbsp;</span>
+                        <span v-if="item.colon" class="colon">{{ item.colon }}</span>
                         <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                         <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                        <el-tooltip effect="light" :open-delay="500" :content="item.value" placement="bottom-start">
+                        <el-tooltip effect="light" :open-delay="1500" :content="item.value" placement="bottom-start">
                             <s-emphasize v-if="item.valueType === 'string'" class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
                         </el-tooltip>
                         <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
@@ -51,9 +51,11 @@
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                         <span class="comma">{{ item.comma }}</span>
                         <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
-                        <span v-if="item.description" class="description ml-1">
-                            //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
-                        </span>
+                        <el-tooltip effect="light" :open-delay="1500" :content="item.description" placement="bottom-start">
+                            <span v-if="item.description" class="description ml-1">
+                                //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
+                            </span>
+                        </el-tooltip>
                         <span v-show="item._close" class="number-value"></span>
                     </span>
                 </template>
@@ -71,25 +73,6 @@ export default {
             default() {
                 return {};
             },
-        },
-    },
-    computed: {
-        filterAstValue() {
-            const result = this.astValue.map((val) => {
-                const matchedPath = this.queryString && val.path.value.toString().match(this.queryString);
-                const matchedValue = this.queryString && val.value.toString().match(this.queryString);
-                const matchedDescription = this.queryString && val.description.toString().match(this.queryString);
-                if (matchedPath || matchedValue || matchedDescription) {
-                    return {
-                        ...val,
-                        _matched: true,
-                    };
-                }
-                return {
-                    ...val,
-                };
-            })
-            return result;
         },
     },
     data() {
@@ -499,7 +482,14 @@ $theme-color: #282c34;
                 color: #f8c555,
             }
             .description {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
                 color: #6A9955;
+                cursor: text;
+            }
+            .colon {
+                margin-right: size(5);
             }
             .colon, .bracket, .comma, .curly-brace {
                 color: #ccc;
@@ -525,6 +515,8 @@ $theme-color: #282c34;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                max-width: 50%;
+                flex: 0 0 auto;
             }
             .boolean-value {
                 color: #cc99cd;
