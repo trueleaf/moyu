@@ -65,7 +65,8 @@ if (isShareDoc) {
     vueConfig = {
         pages: {
             index: {
-                entry: "src/renderer/main.js",
+                entry: "src/renderer/main.js", //添加了entry则不需要rendererProcessFile
+                template: "public/index.html",
             },
         },
         //=====================================css相关配置====================================//
@@ -116,7 +117,6 @@ if (isShareDoc) {
                     "proxy-agent",
                 ],
                 mainProcessFile: "src/main/index.js",
-                rendererProcessFile: "src/renderer/main.js",
                 mainProcessWatch: ["src/main/index.js"],
                 builderOptions: {
                     productName: config.renderConfig.layout.title,
@@ -143,7 +143,6 @@ if (isShareDoc) {
                 },
             },
         },
-
         //=====================================eslint配置====================================//
         lintOnSave: "error", //未通过eslint 禁止代码提交
         //=====================================打包上线配置====================================//
