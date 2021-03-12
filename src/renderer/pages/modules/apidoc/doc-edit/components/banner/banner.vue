@@ -355,6 +355,7 @@ export default {
                     this.$nextTick(() => {
                         document.querySelector(".rename-ipt").focus();
                         this.enableDrag = false;
+                        this.isRename = true;
                     });
                     break;
                 case "delete":
@@ -413,6 +414,7 @@ export default {
                 this.$nextTick(() => {
                     document.querySelector(".rename-ipt").focus();
                     this.enableDrag = false;
+                    this.isRename = true;
                 })
             })
             this.contextmenu.$on("delete", () => {
