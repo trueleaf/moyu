@@ -143,7 +143,7 @@ export function findParentNode(id, treeData, fn, options = {}) {
     @param {Function?}    可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准
     @return       节点(如果未找到返回null)
 */
-export function findoNode(id, treeData, fn, options) {
+export function findoNode(id, treeData, fn, options = {}) {
     const pathId = options.id || "id";
     let result = null;
     if (id == null) {
