@@ -28,11 +28,11 @@
             </div>
             <div class="code-wrap">
                 <template v-for="(item, index) in astValue">
-                    <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @mousedown.stop="handleCheckBraceMatch(item)">
+                    <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @click.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
-                        <!-- <label v-if="item.path.value" class="checkbox">
-                            <input type="checkbox">
-                            <i class="el-icon-check"></i>
+                        <!-- <label v-if="item.path.value" class="checkbox" @click.stop="() => {}">
+                            <input v-model="item._select" type="checkbox" @change="toggleCheckbox(item)">
+                            <i v-show="item._select" class="icon el-icon-check"></i>
                         </label> -->
                         <span class="path">
                             <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
@@ -101,7 +101,7 @@ export default {
         //==================================初始化&获取远端数据===============================//
         //初始化
         init() {
-            document.body.addEventListener("mousedown", () => {
+            document.body.addEventListener("click", () => {
                 this.activeCurlyBraceId = "";
                 this.activeBracketId = "";
             });
@@ -132,6 +132,19 @@ export default {
                     this.$set(astItem, "_hidden", false);
                 }
             }
+        },
+        //参数过滤
+        toggleCheckbox(item) {
+            const { id } = item;
+            const currentNode = this.$helper.findoNode(id, this.data, null, { id: "_id" });
+            const parentNode = this.$helper.findParentNode(id, this.data, null, { id: "_id" });
+            if (item._select && parentNode) {
+                this.$set(parentNode, "_select", true);
+            }
+            this.$helper.forEachForest(currentNode.children, (node) => {
+                this.$set(node, "_select", item._select);
+            });
+            console.log(id, item._select, parentNode, currentNode)
         },
         /*
          * singleLeftCurlyBrace         {    仅左侧有大括号(不允许存在逗号)
@@ -173,6 +186,7 @@ export default {
                     const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== "" || val.type === "object"));
                     const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "null") || (itemType === "undefined"));
                     const astInfo = this.generateAstInfo();
+                    astInfo.id = item._id;
                     if (isSimpleType && !itemValue && !itemPath) {
                         continue;
                     }
@@ -461,13 +475,21 @@ $theme-color: #282c34;
             }
             .checkbox {
                 display: inline-flex;
-                width: size(10);
-                height: size(10);
+                width: size(12);
+                height: size(12);
                 margin-right: size(5);
-                background: $gray-500;
+                background: $gray-800;
                 border: 1px solid $gray-500;
+                cursor: pointer;
+                &:hover {
+                    border: 1px solid $gray-300;
+                }
                 input[type=checkbox] {
                     display: none;
+                }
+                .icon {
+                    font-size: fz(10);
+                    color: $white;
                 }
             }
             .indent {
