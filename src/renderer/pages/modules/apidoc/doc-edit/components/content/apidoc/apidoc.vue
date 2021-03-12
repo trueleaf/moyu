@@ -135,8 +135,8 @@ export default {
     methods: {
         //=====================================初始化====================================//
         initDrag() {
-            document.documentElement.addEventListener("mouseup", (e) => {
-                e.stopPropagation();
+            document.documentElement.addEventListener("mouseup", () => {
+                // e.stopPropagation();
                 this.isDragging = false;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
             })

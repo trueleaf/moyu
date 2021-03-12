@@ -73,23 +73,24 @@
                         v-model="scope.data._ctrlPress"
                         class="w-100"
                         placement="right"
-                        width="200"
+                        width="300"
                         trigger="manual"
                         >
-                        <div>
+                        <div class="d-flex flex-column">
+                            <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
                             <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
-                            <s-label-value v-if="scope.data.url" label="url：" label-width="auto" :value="scope.data.url" class="mb-0"></s-label-value>
+                            <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
                         </div>
                         <div
                                 class="custom-tree-node"
                                 :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
                                 tabindex="0"
                                 slot="reference"
-                                @keydown="handleKeydown($event, scope.data)"
-                                @keyup="handleKeyUp($event, scope.data)"
+                                @keydown.stop="handleKeydown($event, scope.data)"
+                                @keyup.stop="handleKeyUp($event, scope.data)"
                                 @click="handleClickNode($event, scope)"
-                                @mouseenter="handleEnterNode($event, scope)"
-                                @mouseout="hoverNodeId = ''"
+                                @mouseenter="handleHoverNode($event, scope)"
+                                @mouseleave="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
                             <template v-if="!scope.data.isFolder">
@@ -104,7 +105,7 @@
                                     :keyword="queryData">
                                 </s-emphasize>
                                 <!-- <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div> -->
-                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
                                 <el-dropdown
                                         v-show="hoverNodeId === scope.data._id"
                                         class="node-more"
@@ -126,7 +127,7 @@
                             <template v-if="scope.data.isFolder">
                                 <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
                                 <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
                                 <el-dropdown
                                         v-show="hoverNodeId === scope.data._id"
                                         class="node-more"
@@ -228,6 +229,7 @@ export default {
             mousedownLeft: 0, //---------------鼠标点击距离
             bannerWidth: 0, //-----------------banner宽度
             isDragging: false, //--------------是否正在拖拽
+            isRename: false, //----------------正在重命名
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------------控制导航节点更多选项显示
             dialogVisible: false, //-----------新增文件夹弹窗
@@ -252,8 +254,6 @@ export default {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
                 this.currentSelectBannerNode = null;
-                // console.log(this.$refs.dropdown);
-                // this.$refs.dropdown?.hide();
                 this.clearPopover();
                 this.pressCtrl = false;
             });
@@ -349,6 +349,7 @@ export default {
                     this.handleOpenAddFolderDialog();
                     break;
                 case "rename":
+                    console.log("rename");
                     this.$set(data, "_name", data.name); //文档名称备份,防止修改名称用户名称填空导致异常
                     this.renameNodeId = data._id;
                     this.$nextTick(() => {
@@ -432,8 +433,10 @@ export default {
             });
         },
         //鼠标移动到当前node上面
-        handleEnterNode(e, scope) {
-            e.currentTarget.focus(); //实其能够触发keydown事件
+        handleHoverNode(e, scope) {
+            if (!this.isRename) { //防止focus导致输入框失焦
+                e.currentTarget.focus(); //实其能够触发keydown事件
+            }
             this.hoverNodeId = scope.data._id
         },
         //处理节点上面keydown快捷方式(例如f2重命名)
@@ -444,6 +447,7 @@ export default {
                 this.$nextTick(() => {
                     document.querySelector(".rename-ipt").focus();
                     this.enableDrag = false;
+                    this.isRename = true; //重命名
                 })
             } else if (e.code === "ControlLeft" || e.code === "ControlRight") {
                 this.clearPopover();
@@ -754,6 +758,7 @@ export default {
         //重命名某个节点
         handleChangeNodeName(data) {
             this.renameNodeId = "";
+            this.isRename = false;
             this.enableDrag = true; //改名以后允许节点拖拽
             if (data.name.trim() === "") {
                 data.name = data._name;

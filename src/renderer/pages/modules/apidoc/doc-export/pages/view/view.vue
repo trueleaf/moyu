@@ -43,7 +43,7 @@ export default {
         init() {
             const localShareData = localStorage.getItem("shareData");
             const shareId = localStorage.getItem("shareId");
-            if (!window.IS_OFFLINE) { //静态页面直接返回
+            if (window.IS_OFFLINE) { //静态页面直接返回
                 this.getHostEnum();
                 this.getProjectRules();
                 this.dataReady = true;
