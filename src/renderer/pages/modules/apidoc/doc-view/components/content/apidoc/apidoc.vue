@@ -11,7 +11,7 @@
             <div class="params-view">
                 <s-fieldset title="请求参数" class="mb-5">
                     <s-collapse v-if="apidocItem.queryParams && apidocItem.queryParams.length > 1" title="请求参数(Params)">
-                        <s-array-view :data="apidocItem.queryParams" class="mt-2">
+                        <s-array-view :data="apidocItem.queryParams" show-checkbox class="mt-2">
                             <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
                         </s-array-view>
                     </s-collapse>
@@ -20,7 +20,7 @@
                             <span class="mr-2">请求参数(Body)</span>
                             <span class="theme-color">{{ apidocItem.contentType  }}</span>
                         </div>
-                        <s-array-view :data="apidocItem.requestBody" class="mt-2">
+                        <s-array-view :data="apidocItem.requestBody" show-checkbox class="mt-2">
                             <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
                         </s-array-view>
                     </s-collapse>

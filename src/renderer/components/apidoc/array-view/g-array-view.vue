@@ -30,10 +30,10 @@
                 <template v-for="(item, index) in astValue">
                     <span v-show="!item._hidden" :key="index" class="line" :class="{active: item._close}" @click.stop="handleCheckBraceMatch(item)">
                         <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
-                        <!-- <label v-if="item.path.value" class="checkbox" @click.stop="() => {}">
+                        <label v-if="item.path.value && showCheckbox" class="checkbox" @click.stop="() => {}">
                             <input v-model="item._select" type="checkbox" @change="toggleCheckbox(item)">
                             <i v-show="item._select" class="icon el-icon-check"></i>
-                        </label> -->
+                        </label>
                         <span class="path">
                             <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
                         </span>
@@ -73,6 +73,10 @@ export default {
             default() {
                 return {};
             },
+        },
+        showCheckbox: { //是否展示checkbox
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -138,13 +142,18 @@ export default {
             const { id } = item;
             const currentNode = this.$helper.findoNode(id, this.data, null, { id: "_id" });
             const parentNode = this.$helper.findParentNode(id, this.data, null, { id: "_id" });
-            if (item._select && parentNode) {
-                this.$set(parentNode, "_select", true);
-            }
-            this.$helper.forEachForest(currentNode.children, (node) => {
+            this.$helper.forEachForest(currentNode.children, (node) => { //如果又子元素则选择所有子元素
                 this.$set(node, "_select", item._select);
             });
-            console.log(id, item._select, parentNode, currentNode)
+            this.$set(currentNode, "_select", item._select); //选择当前元素
+            if (parentNode) {
+                if (parentNode.children.every((val) => val._select === false)) {
+                    this.$set(parentNode, "_select", false);
+                } else {
+                    this.$set(parentNode, "_select", true);
+                }
+            }
+            // console.log(id, item._select, parentNode, currentNode)
         },
         /*
          * singleLeftCurlyBrace         {    仅左侧有大括号(不允许存在逗号)
@@ -187,6 +196,8 @@ export default {
                     const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "null") || (itemType === "undefined"));
                     const astInfo = this.generateAstInfo();
                     astInfo.id = item._id;
+                    this.$set(astInfo, "_select", item._select);
+                    astInfo._select = item._select;
                     if (isSimpleType && !itemValue && !itemPath) {
                         continue;
                     }
@@ -318,6 +329,7 @@ export default {
          */
         generateAstInfo() {
             return {
+                _select: false, //是否选中
                 indent: 4, //缩进
                 line: 0, //行号
                 path: { //键
