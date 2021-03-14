@@ -567,3 +567,25 @@ export function formatDate(date, rule) {
     const result = dayjs(date).format(realRule);
     return result;
 }
+
+/**
+ * @description        创建下载
+ * @author             shuxiaokai
+ * @create             2021-03-14 21:47
+ * @param {any}        data - 下载数据
+ * @param {String=}    [fileName=未命名] - 文件名称
+ * @param {String}     [contentType=text/plain] - 文件类型
+ * @return {null}      下载
+ */
+export function download(data, fileName = "未命名", contentType = "text/plain") {
+    let blobUrl = "";
+    const blobData = new Blob([data], { type: contentType })
+    blobUrl = URL.createObjectURL(blobData);
+    const downloadElement = document.createElement("a");
+    downloadElement.href = blobUrl;
+    downloadElement.download = decodeURIComponent(fileName); //下载后文件名
+    document.body.appendChild(downloadElement);
+    downloadElement.click(); //点击下载
+    document.body.removeChild(downloadElement); //下载完成移除元素
+    window.URL.revokeObjectURL(blobUrl); //释放掉blob对象
+}
