@@ -72,8 +72,10 @@ export default {
                     }
                     return result;
                 }
+                //其余格式直接下载
                 return {
                     fileName,
+                    contentType,
                     data: result,
                 };
             },
