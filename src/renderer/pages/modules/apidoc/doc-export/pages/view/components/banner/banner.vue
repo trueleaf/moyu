@@ -36,28 +36,49 @@
                     @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
-                    <div
-                            class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                            tabindex="1"
-                            @click="handleClickNode($event, scope)"
-                            @mouseover="hoverNodeId = scope.data._id"
-                            @mouseout="hoverNodeId = ''"
-                    >
-                        <!-- file渲染 -->
-                        <template v-if="!scope.data.isFolder">
-                            <template v-for="(req) in validRequestMethods">
-                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                    <el-popover
+                        v-model="scope.data._ctrlPress"
+                        class="w-100"
+                        placement="right"
+                        width="300"
+                        trigger="manual"
+                        >
+                        <div class="d-flex flex-column">
+                            <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
+                            <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
+                            <s-label-value v-if="scope.data.url.path" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
+                        </div>
+                        <div
+                                class="custom-tree-node"
+                                :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                tabindex="0"
+                                slot="reference"
+                                @keydown.stop="handleKeydown($event, scope.data)"
+                                @keyup.stop="handleKeyUp($event, scope.data)"
+                                @click="handleClickNode($event, scope)"
+                                @mouseenter="handleHoverNode($event, scope)"
+                                @mouseleave="hoverNodeId = ''"
+                        >
+                            <!-- file渲染 -->
+                            <template v-if="!scope.data.isFolder">
+                                <template v-for="(req) in validRequestMethods">
+                                    <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                                </template>
+                                <s-emphasize
+                                    v-if="renameNodeId !== scope.data._id"
+                                    class="node-name ml-1"
+                                    :title="scope.data.name"
+                                    :value="scope.data.name"
+                                    :keyword="queryData">
+                                </s-emphasize>
                             </template>
-                            <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div>
-                        </template>
-                        <!-- 文件夹渲染 -->
-                        <template v-if="scope.data.isFolder">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
-                            <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</span>
-                            <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
-                        </template>
-                    </div>
+                            <!-- 文件夹渲染 -->
+                            <template v-if="scope.data.isFolder">
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                            </template>
+                        </div>
+                    </el-popover>
                 </template>
             </el-tree>
         </div>
@@ -65,8 +86,6 @@
 </template>
 
 <script>
-import { debounce } from "@/lib/index";
-
 export default {
     name: "SDocEditBanner",
     computed: {
@@ -184,7 +203,33 @@ export default {
             const { info } = window.SHARE_DATA;
             this.docBaseInfo = info;
         },
-        //=====================================导航操作==================================//
+        //=====================================组件操作==================================//
+        //鼠标移动到当前node上面
+        handleHoverNode(e, scope) {
+            if (!this.isRename) { //防止focus导致输入框失焦
+                e.currentTarget.focus(); //实其能够触发keydown事件
+            }
+            this.hoverNodeId = scope.data._id
+        },
+        //处理节点上面keydown快捷方式(例如f2重命名)
+        handleKeydown(e, data) {
+            if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                this.clearPopover();
+                this.$set(data, "_ctrlPress", true);
+                this.pressCtrl = true;
+            }
+        },
+        //清除popover效果
+        clearPopover() {
+            this.$helper.forEachForest(this.navTreeData, (data) => {
+                this.$set(data, "_ctrlPress", false);
+            });
+        },
+        //按键放开
+        handleKeyUp() {
+            this.clearPopover();
+            this.pressCtrl = false;
+        },
         //点击节点
         handleClickNode(e, { node }) {
             if (this.pressCtrl) {
@@ -221,24 +266,29 @@ export default {
         },
         //=====================================前后端交互====================================//
         handleSearchTree() {
-            this.search();
-        },
-        search: debounce(function foo() {
             this.searchResult = [];
-            // this.queryData.trim()
-            // if (res.data.length === 0) {
-            //     this.defaultExpandedKeys = [];
-            //     this.searchResult = [];
-            // } else {
-            //     this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(res.data.map((val) => val._id))));
-            //     this.searchResult = Array.from(new Set(this.searchResult.concat(res.data.map((val) => val))));
-            // }
-        }),
+            const originDocs = window.SHARE_DATA.docs;
+            const filteredDocs = originDocs.filter((val) => {
+                const isDoc = !val.isFolder;
+                return isDoc && (val.info.name.match(this.queryData) || val.item.url.path.match(this.queryData))
+            })
+            if (filteredDocs.length === 0) {
+                this.defaultExpandedKeys = [];
+                this.searchResult = [];
+            } else if (this.queryData.trim() === "") {
+                this.defaultExpandedKeys = [];
+                this.searchResult = [];
+                this.defaultExpandedKeys.push(this.currentSelectDoc._id);
+            } else {
+                this.defaultExpandedKeys = Array.from(new Set(this.defaultExpandedKeys.concat(filteredDocs.map((val) => val._id))));
+                this.searchResult = Array.from(new Set(this.searchResult.concat(filteredDocs.map((val) => val))));
+            }
+            this.$refs.docTree.filter();
+        },
         filterNode(value, data) {
-            const matchName = !!this.searchResult.find((val) => val.name === data.label);
             const matchUrl = !!this.searchResult.find((val) => val._id === data._id);
             const matchAll = this.queryData.trim() === "";
-            return matchName || matchUrl || matchAll;
+            return matchUrl || matchAll;
         },
         //=====================================其他操作=====================================//
         //处理鼠标按下事件
