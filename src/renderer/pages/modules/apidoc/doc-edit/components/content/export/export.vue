@@ -22,8 +22,6 @@
                     <div class="mt-1">JSON文档</div>
                 </div>
             </div>
-            <!-- <s-download url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }" class="item"></s-download> -->
-            <!-- <s-download url="/api/project/export/moyu" :params="{ projectId: $route.query.id }" class="item"></s-download> -->
         </s-fieldset>
         <s-fieldset title="额外配置">
             <s-config ref="config" label="选择导出" description="开启后可以自由选择需要导出的文档">
@@ -128,7 +126,8 @@ export default {
     },
     mounted() {},
     methods: {
-        //处理节点上面keydown快捷方式(例如f2重命名)
+        //=====================================ctrl+鼠标移入弹出详情====================================//
+        //处理节点上面keydown快捷方式
         handleKeydown(e, data) {
             if (e.code === "ControlLeft" || e.code === "ControlRight") {
                 this.clearPopover();
@@ -153,28 +152,60 @@ export default {
             const halfCheckedNodes = this.$refs.docTree.getHalfCheckedNodes();
             this.allCheckedNodes = checkedNodes.concat(halfCheckedNodes);
         },
-        //=====================================其他操作=====================================//
+        //=====================================前后端交互=====================================//
         //确认导出
         handleExport() {
             const enableCustomExport = this.$refs.config.enabled;
             const customExportIsEmpty = this.allCheckedNodes.length === 0;
-            if (enableCustomExport && !customExportIsEmpty) { //允许自定义导出并且数据不为空
-
-            } else if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
+            if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
                 this.$message.warning("请至少选择一个文档导出");
-            } else { //完整导出
-                this.loading = true;
-                const params = {
-                    projectId: this.$route.query.id,
-                };
-                this.axios.get("/api/project/doc_offline_data", { params }).then((res) => {
-                    this.$helper.download(res.data, res.fileName);
-                }).catch((err) => {
-                    this.$errorThrow(err, this);
-                }).finally(() => {
-                    this.loading = false;
-                });
+                return;
             }
+            if (this.selectedType === "html") {
+                this.handleExportAsHTML();
+            } else if (this.selectedType === "moyu") {
+                this.handleExportAsMoyu();
+            } else { //默认兜底导出html
+                this.handleExportAsHTML();
+            }
+        },
+        //导出为html
+        handleExportAsHTML() {
+            const selectedIds = this.allCheckedNodes.map((val) => val._id);
+            this.loading = true;
+            const params = {
+                projectId: this.$route.query.id,
+                selectedNodes: selectedIds,
+            };
+            this.axios.request({
+                method: "post",
+                url: "/api/project/export/html",
+                responseType: "blob",
+                data: params,
+            }).catch((err) => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
+        //导出为摸鱼文档
+        handleExportAsMoyu() {
+            const selectedIds = this.allCheckedNodes.map((val) => val._id);
+            this.loading = true;
+            const params = {
+                projectId: this.$route.query.id,
+                selectedNodes: selectedIds,
+            };
+            this.axios.request({
+                method: "post",
+                url: "/api/project/export/moyu",
+                responseType: "blob",
+                data: params,
+            }).catch((err) => {
+                this.$errorThrow(err, this);
+            }).finally(() => {
+                this.loading = false;
+            });
         },
     },
 };

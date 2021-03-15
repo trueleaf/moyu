@@ -22,7 +22,7 @@
                 </div>
             </s-fieldset>
             <s-fieldset title="额外配置">
-                <s-config label="密码设置" :has-check="false">
+                <s-config label="密码设置" :has-check="false" description="密码可不填写">
                     <el-input
                         v-model="formInfo.password"
                         :size="config.renderConfig.layout.size"
@@ -44,6 +44,68 @@
                     <el-checkbox v-model="customMaxAge" class="ml-5" :label="true">自定义</el-checkbox>
                     <el-slider v-if="customMaxAge" v-model="formInfo.maxAge" :min="86400000" :step="86400000" :max="86400000 * 365" :format-tooltip="formatTooltip"></el-slider>
                 </s-config>
+                <s-config ref="configShare" label="选择分享" description="开启后可以自由选择需要分享的文档">
+                    <template slot-scope="scope">
+                        <div v-if="scope.enabled" class="doc-nav">
+                            <div>
+                                <span>总数：</span>
+                                <span>{{ allCheckedNodes.length }}</span>
+                                <el-divider direction="vertical"></el-divider>
+                                <span>文件夹数量：</span>
+                                <span>{{ allCheckedNodes.filter(node => node.isFolder).length }}</span>
+                                <el-divider direction="vertical"></el-divider>
+                                <span>文档数量：</span>
+                                <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
+                            </div>
+                            <hr>
+                            <el-tree
+                                    ref="docTree"
+                                    :data="navTreeData"
+                                    node-key="_id"
+                                    show-checkbox
+                                    @check-change="handleCheckChange"
+                                    :expand-on-click-node="true"
+                            >
+                                <template slot-scope="scope">
+                                    <el-popover
+                                        v-model="scope.data._ctrlPress"
+                                        class="w-100"
+                                        placement="right"
+                                        width="300"
+                                        trigger="manual"
+                                        >
+                                        <div class="d-flex flex-column">
+                                            <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
+                                            <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
+                                            <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
+                                        </div>
+                                        <div
+                                                class="custom-tree-node"
+                                                :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                                tabindex="0"
+                                                slot="reference"
+                                                @keydown.stop="handleKeydown($event, scope.data)"
+                                                @keyup.stop="handleKeyUp($event, scope.data)"
+                                        >
+                                            <!-- file渲染 -->
+                                            <template v-if="!scope.data.isFolder">
+                                                <template v-for="(req) in validRequestMethods">
+                                                    <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                                                </template>
+                                                <span class="node-name ml-1">{{ scope.data.name }}</span>
+                                            </template>
+                                            <!-- 文件夹渲染 -->
+                                            <template v-if="scope.data.isFolder">
+                                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                                <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                                            </template>
+                                        </div>
+                                    </el-popover>
+                                </template>
+                            </el-tree>
+                        </div>
+                    </template>
+                </s-config>
                 <div class="d-flex j-center mt-2">
                     <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary" @click="handleGenerateLink">生成链接</el-button>
                 </div>
@@ -61,15 +123,24 @@ export default {
                 password: "",
                 maxAge: 86400000 * 30,
             },
-            shareLink: "", //在线链接
-            customMaxAge: false,
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
+            shareLink: "", //-----------在线链接
+            customMaxAge: false, //-----自定义过期时间
+            pressCtrl: false, //--------是否按住ctrl
+            allCheckedNodes: [], //-----所有被选中的节点id数组
             //=====================================其他参数====================================//
-            loading: false, //----生成在线链接加载按钮
+            loading: false, //----------生成在线链接加载按钮
         };
+    },
+    computed: {
+        navTreeData() { //-------树形导航数据
+            return this.$store.state.apidoc.banner;
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        currentSelectDoc() { //--当前选中的文档
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
     },
     created() {
 
@@ -80,15 +151,27 @@ export default {
         //=====================================前后端交互====================================//
         //生成链接
         handleGenerateLink() {
+            const enableCustomExport = this.$refs.configShare.enabled;
+            const customExportIsEmpty = this.allCheckedNodes.length === 0;
+            if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空
+                this.$message.warning("请至少选择一个文档分享");
+                return;
+            }
+            this.generateLink();
+        },
+        //生成链接
+        generateLink() {
             this.loading = true;
             const { maxAge, password } = this.formInfo; //默认一个月过期
+            const selectedIds = this.allCheckedNodes.map((val) => val._id);
             const expire = Date.now() + maxAge;
             const params = {
                 projectId: this.$route.query.id,
                 maxAge,
                 password,
+                selectedDocs: selectedIds,
             };
-            this.axios.get("/api/project/export/online", { params }).then((res) => {
+            this.axios.post("/api/project/export/online", params).then((res) => {
                 const shareId = res.data;
                 const projectName = this.$route.query.name;
                 this.shareLink = `${this.config.renderConfig.share.baseUrl}/#/?shareId=${shareId}&projectName=${projectName}&expire=${expire}`;
@@ -97,6 +180,32 @@ export default {
             }).finally(() => {
                 this.loading = false;
             });
+        },
+        //=====================================ctrl+鼠标移入弹出详情====================================//
+        //处理节点上面keydown快捷方式
+        handleKeydown(e, data) {
+            if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                this.clearPopover();
+                this.$set(data, "_ctrlPress", true);
+                this.pressCtrl = true;
+            }
+        },
+        //清除popover效果
+        clearPopover() {
+            this.$helper.forEachForest(this.navTreeData, (data) => {
+                this.$set(data, "_ctrlPress", false);
+            });
+        },
+        //按键放开
+        handleKeyUp() {
+            this.clearPopover();
+            this.pressCtrl = false;
+        },
+        //节点选中状态改变时候
+        handleCheckChange() {
+            const checkedNodes = this.$refs.docTree.getCheckedNodes();
+            const halfCheckedNodes = this.$refs.docTree.getHalfCheckedNodes();
+            this.allCheckedNodes = checkedNodes.concat(halfCheckedNodes);
         },
         //=====================================组件间交互====================================//
         //格式化展示
@@ -130,6 +239,11 @@ export default {
         .link-icon {
             width: size(120);
             height: size(120);
+        }
+    }
+    .doc-nav {
+        .custom-tree-node {
+            @include custom-tree-node;
         }
     }
 
