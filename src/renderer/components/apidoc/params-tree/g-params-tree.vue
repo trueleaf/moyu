@@ -74,11 +74,6 @@
                     >
                     </s-v-input>
                     <input v-if="scope.data.type === 'file'" class="w-25" type="file" @change="handleSelectFile($event, scope.data)">
-                    <!-- <s-file-select v-if="scope.data.type === 'file'" class="w-25">
-                        <div class="text-center">
-                            <button>选择文件</button>
-                        </div>
-                    </s-file-select> -->
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>
@@ -378,6 +373,7 @@ export default {
             } else {
                 data.value = ""
             }
+            console.log(data, file)
         },
         //=====================================其他操作====================================//
         //选中所有数据
