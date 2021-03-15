@@ -940,42 +940,8 @@ export default {
         height: calc(100vh - #{size(60)} - #{size(150)});
         overflow: auto;
         .custom-tree-node {
-            display: flex;
-            align-items: center;
-            height: 30px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            &:hover {
-                background: mix($theme-color, $white, 25%);
-            }
-            &.active {
-                background: mix($theme-color, $white, 25%);
-            }
-            //selected放在后面覆盖掉active样式
-            &.selected {
-                background: mix($theme-color, $white, 50%);
-            }
-            .label {
-                display: inline-block;
-                width: size(28);
-            }
-            .node-name {
-                display: inline-block;
-                max-width: calc(100% - #{size(50)});
-                border: 2px solid transparent;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .node-more {
-                position: absolute;
-                right: size(10);
-                top: 50%;
-                transform: translate(0, -50%);
-            }
+            @include custom-tree-node;
         }
     }
-
 }
 </style>
