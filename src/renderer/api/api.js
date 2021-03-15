@@ -72,6 +72,17 @@ export default {
                     }
                     return result;
                 }
+                if (contentType.includes("application/force-download")) {
+                    let blobUrl = "";
+                    blobUrl = URL.createObjectURL(res.data);
+                    const downloadElement = document.createElement("a");
+                    downloadElement.href = blobUrl;
+                    downloadElement.download = fileName ? decodeURIComponent(fileName) : "未命名"; //下载后文件名
+                    document.body.appendChild(downloadElement);
+                    downloadElement.click(); //点击下载
+                    document.body.removeChild(downloadElement); //下载完成移除元素
+                    window.URL.revokeObjectURL(blobUrl); //释放掉blob对象
+                }
                 //其余格式直接下载
                 return {
                     fileName,
