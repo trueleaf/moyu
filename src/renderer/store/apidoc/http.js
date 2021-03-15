@@ -131,9 +131,11 @@ const HttpClient = (() => {
                         break;
                     case "multipart/form-data":
                         Object.keys(this.requestBody).forEach((key) => {
-                            formData.append(key, this.requestBody[key]);
+                            console.log(this.requestBody[key], 99)
+                            const arrayBuffer = this.requestBody[key] || new ArrayBuffer();
+                            formData.append(key, Buffer.from(arrayBuffer));
                         })
-                        console.log(formData)
+                        Object.assign(this.headers, formData.getHeaders())
                         body = formData;
                         break;
                     case "application/x-www-form-urlencode":

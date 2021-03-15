@@ -94,7 +94,7 @@ export default {
                         }
                         break;
                     case "file":
-                        result[key] = value;
+                        result[key] = properties[i]._value;
                         break;
                     default: //字符串或其他类型类型不做处理
                         valueTypeIsArray ? result.push(value) : (result[key] = value);
