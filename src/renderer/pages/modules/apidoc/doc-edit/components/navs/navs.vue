@@ -38,6 +38,8 @@
                         <span v-if="item.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
                         <!-- 导出文档 -->
                         <span v-if="item.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
+                        <!-- 历史记录 -->
+                        <span v-if="item.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">

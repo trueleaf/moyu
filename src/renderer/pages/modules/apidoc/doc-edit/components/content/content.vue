@@ -19,6 +19,8 @@
             <s-online-link v-if="currentSelectDoc.tabType === 'onlineLink'"></s-online-link>
             <!-- 导出文档 -->
             <s-export-doc v-if="currentSelectDoc.tabType === 'exportDoc'"></s-export-doc>
+            <!-- 历史记录 -->
+            <s-doc-hisotry v-if="currentSelectDoc.tabType === 'history'"></s-doc-hisotry>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
@@ -31,6 +33,7 @@ import statistics from "./statistics/statistics.vue";
 import paramsTemplate from "./params-template/params-template.vue";
 import onlineLink from "./link/link.vue";
 import exportDoc from "./export/export.vue";
+import docHistory from "./history/history.vue";
 
 export default {
     components: {
@@ -40,6 +43,7 @@ export default {
         "s-params-template": paramsTemplate,
         "s-online-link": onlineLink,
         "s-export-doc": exportDoc,
+        "s-doc-hisotry": docHistory,
     },
     data() {
         return {};
