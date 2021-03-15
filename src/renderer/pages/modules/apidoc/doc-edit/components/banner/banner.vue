@@ -9,7 +9,7 @@
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
-            <el-input v-model="queryData" class="doc-search" placeholder="支持文档名称，文档url搜索" clearable @input="handleSearchTree"></el-input>
+            <el-input v-model="queryData" class="doc-search" placeholder="文档名称,文档url,创建者" clearable @input="handleSearchTree"></el-input>
             <div class="tool-icon d-flex j-between mt-1 px-1">
                 <el-tooltip class="item" effect="dark" content="新增文件夹" :open-delay="300">
                     <svg class="svg-icon" aria-hidden="true" @click="handleOpenAddFolderDialog();docParentId = '';">
@@ -44,12 +44,13 @@
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
                         <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible4 = true">历史记录</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenHistoryPage">历史记录</el-dropdown-item>
                         <el-dropdown-item @click.native="handleOpenConfigPage">全局设置</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
         </div>
+        <div class="filter"></div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
@@ -352,6 +353,29 @@ export default {
                 changed: false,
                 tail: "conf",
                 tabType: "config",
+            });
+        },
+        //打开历史记录界面
+        handleOpenHistoryPage() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "history")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "历史记录",
+                changed: false,
+                tail: "",
+                tabType: "history",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "历史记录",
+                changed: false,
+                tail: "",
+                tabType: "history",
+                projectId: this.$route.query.id,
             });
         },
         //=====================================导航操作==================================//
