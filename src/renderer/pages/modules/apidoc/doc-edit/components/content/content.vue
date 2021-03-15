@@ -17,6 +17,8 @@
             <s-params-template v-if="currentSelectDoc.tabType === 'paramsTemplate'"></s-params-template>
             <!-- 在线链接 -->
             <s-online-link v-if="currentSelectDoc.tabType === 'onlineLink'"></s-online-link>
+            <!-- 导出文档 -->
+            <s-export-doc v-if="currentSelectDoc.tabType === 'exportDoc'"></s-export-doc>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
@@ -28,6 +30,7 @@ import config from "./config/config.vue";
 import statistics from "./statistics/statistics.vue";
 import paramsTemplate from "./params-template/params-template.vue";
 import onlineLink from "./link/link.vue";
+import exportDoc from "./export/export.vue";
 
 export default {
     components: {
@@ -36,6 +39,7 @@ export default {
         "s-statistics": statistics,
         "s-params-template": paramsTemplate,
         "s-online-link": onlineLink,
+        "s-export-doc": exportDoc,
     },
     data() {
         return {};

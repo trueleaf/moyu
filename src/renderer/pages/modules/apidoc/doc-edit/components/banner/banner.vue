@@ -22,7 +22,7 @@
                     </svg>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible6 = true">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExport">
                         <use xlink:href="#icondaochu1"></use>
                     </svg>
                 </el-tooltip>
@@ -289,7 +289,7 @@ export default {
                 this.loading = false;
             });
         },
-        //打开在线链接生成弹窗
+        //打开在线链接tab
         handleOpenOnlineLink() {
             const id = this.$helper.uuid();
             if (this.tabs && this.tabs.find((tab) => tab.tabType === "onlineLink")) { //存在链接则返回不处理
@@ -309,6 +309,29 @@ export default {
                 changed: false,
                 tail: "",
                 tabType: "onlineLink",
+                projectId: this.$route.query.id,
+            });
+        },
+        //打开导出tab
+        handleOpenExport() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "exportDoc")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
                 projectId: this.$route.query.id,
             });
         },
