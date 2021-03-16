@@ -40,6 +40,8 @@
                         <span v-if="item.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
                         <!-- 历史记录 -->
                         <span v-if="item.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
+                        <!-- 全局变量配置 -->
+                        <span v-if="item.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
