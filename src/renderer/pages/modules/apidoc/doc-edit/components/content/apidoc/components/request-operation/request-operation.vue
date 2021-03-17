@@ -41,7 +41,7 @@
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item @click.native="publishRequest">发布接口</el-dropdown-item>
-                    <el-dropdown-item @click.native="dialogVisible = true">全局变量</el-dropdown-item>
+                    <el-dropdown-item @click.native="handleOpenVariablePage">全局变量</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
                     <el-dropdown-item @click.native="handleOpenConfigPage">全局配置</el-dropdown-item>
                 </el-dropdown-menu>
@@ -433,6 +433,29 @@ export default {
                 changed: false,
                 tail: "conf",
                 tabType: "config",
+            });
+        },
+        //打开全局变量配置页面
+        handleOpenVariablePage() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "variable")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "全局变量管理",
+                changed: false,
+                tail: "",
+                tabType: "variable",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "全局变量管理",
+                changed: false,
+                tail: "",
+                tabType: "variable",
+                projectId: this.$route.query.id,
             });
         },
     },

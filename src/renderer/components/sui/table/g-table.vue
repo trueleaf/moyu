@@ -81,6 +81,12 @@ export default {
             type: String,
             default: "_id"
         },
+        deleteParams: { //批量删除额外参数
+            type: Object,
+            default() {
+                return {};
+            },
+        },
         reserveSelection: { //是否记住选中项目
             type: Boolean,
             default: false
@@ -206,6 +212,7 @@ export default {
             }).then(() => {
                 const params = {};
                 params[this.deleteKey] = this.selectData.map((val) => val[this.deleteDataKey]);
+                Object.assign(params, this.deleteParams);
                 this.loading2 = true;
                 this.axios.delete(this.deleteUrl, { data: params }).then(() => {
                     this.getData();

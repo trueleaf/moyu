@@ -191,9 +191,6 @@ export default {
             if (val == null) {
                 return null;
             }
-            if (Object.prototype.toString.call(val).slice(8, -1) === "ArrayBuffer") { //ArrayBuffer文件类型
-                return val;
-            }
             const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
             if (val && matchedData) {
                 const varInfo = this.variables.find((v) => v.name === matchedData[1]);
