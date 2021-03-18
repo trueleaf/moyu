@@ -10,7 +10,7 @@
         <div class="item-list" @click="handleClickItem('closeLeft')">关闭左侧</div>
         <div class="item-list" @click="handleClickItem('closeCurrent')">关闭标签</div>
         <div class="item-list" @click="handleClickItem('closeOther')">关闭其他</div>
-        <!-- <div class="item-list" @click="handleClickItem('fresh')">刷新页面</div> -->
+        <div v-if="id === currentSelectDoc._id" class="item-list" @click="handleClickItem('fresh')">刷新页面</div>
     </div>
 </template>
 
@@ -24,6 +24,15 @@ export default {
         top: {
             type: Number,
             default: 0,
+        },
+        id: {
+            type: String,
+            default: "",
+        },
+    },
+    computed: {
+        currentSelectDoc() {
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
     },
     data() {
@@ -49,7 +58,7 @@ export default {
                     this.$emit("closeOther")
                     break;
                 case "fresh":
-                    this.$emit("fresh")
+                    this.$event.emit("apidoc/fresh");
                     break;
                 default:
                     break;

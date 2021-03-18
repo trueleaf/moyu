@@ -261,9 +261,12 @@ export default {
                 this.mouseContext = null;
             }
             this.mouseContext = new ContextmenuConstructor({
+                store: this.$store,
+                router: this.$router,
                 propsData: {
                     left: x,
                     top: y,
+                    id: item._id,
                 },
             }).$mount();
             document.body.appendChild(this.mouseContext.$el);
