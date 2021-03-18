@@ -210,6 +210,13 @@ export default {
         },
         //保存接口
         saveRequest() {
+            if (!this.currentSelectDoc.changed) { //接口未发生改变不请求后台
+                this.loading2 = true;
+                setTimeout(() => {
+                    this.loading2 = false;
+                }, 200);
+                return;
+            }
             //保存接口使用时长
             const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
             const spendTime = currentDocUsedTime[this.currentSelectDoc._id];
