@@ -605,6 +605,14 @@ export default {
                 _id: node.data._id, //当前节点id
                 pid: "", //父元素
                 sort: 0, //当前节点排序效果
+                projectId: this.$route.query.id,
+                dropInfo: {
+                    nodeName: node.data.name,
+                    nodeId: node.data._id,
+                    dropNodeName: dropNode.data.name,
+                    dropNodeId: dropNode.data._id,
+                    dropType: type,
+                },
             };
             const pData = this.$helper.findParentNodeById(this.navTreeData, node.data._id, { id: "_id" });
             params.pid = pData ? pData._id : "";
@@ -716,11 +724,11 @@ export default {
         },
         //删除某一项
         handleDeleteItem(data, node) {
-            const deleteId = [];
-            deleteId.push(data._id); //删除自己
+            const deleteIds = [];
+            deleteIds.push(data._id); //删除自己
             if (data.isFolder) { //删除所有子元素
                 forEachForest(data.children, (item) => {
-                    deleteId.push(item._id);
+                    deleteIds.push(item._id);
                 });
             }
             this.$confirm(`此操作将永久删除 ${data.name} 节点, 是否继续?`, "提示", {
@@ -728,7 +736,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteId } }).then(() => {
+                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteIds } }).then(() => {
                     const pNode = node.parent;
                     if (pNode && pNode.level !== 0) {
                         const nodeIndex = pNode.data.children.findIndex((val) => val._id === data._id);
@@ -737,7 +745,7 @@ export default {
                         const nodeIndex = this.navTreeData.findIndex((val) => val._id === data._id);
                         this.navTreeData.splice(nodeIndex, 1);
                     }
-                    this.handleDeleteTabsById(deleteId);
+                    this.handleDeleteTabsById(deleteIds);
                 }).catch((err) => {
                     this.$errorThrow(err, this);
                 });
@@ -750,22 +758,22 @@ export default {
         },
         //批量删除
         handleDeleteManyItem() {
-            const deleteId = [];
+            const deleteIds = [];
             const selectNodeCopy = this.multiSelectNode; //点击节点会清空选中数据
             this.multiSelectNode.forEach((val) => {
-                deleteId.push(val.data._id);
+                deleteIds.push(val.data._id);
                 if (val.data.isFolder) { //删除所有子元素
                     forEachForest(val.data.children || [], (item) => {
-                        deleteId.push(item._id);
+                        deleteIds.push(item._id);
                     });
                 }
             });
-            this.$confirm(`确认删除选中的${deleteId.length}个节点, 是否继续?`, "提示", {
+            this.$confirm(`确认删除选中的${deleteIds.length}个节点, 是否继续?`, "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteId } }).then(() => {
+                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteIds } }).then(() => {
                     selectNodeCopy.forEach((delNode) => {
                         const pNode = delNode.parent;
                         if (pNode && pNode.level !== 0) { //非根元素
@@ -775,7 +783,7 @@ export default {
                             const nodeIndex = this.navTreeData.findIndex((val) => val._id === delNode.data._id);
                             this.navTreeData.splice(nodeIndex, 1);
                         }
-                        this.handleDeleteTabsById(deleteId);
+                        this.handleDeleteTabsById(deleteIds);
                     })
                 }).catch((err) => {
                     this.$errorThrow(err, this);
@@ -793,16 +801,16 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds,
             });
-            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
-                this.$store.commit("apidoc/changeCurrentTab", {
-                    _id: this.tabs[this.tabs.length - 1]._id,
-                    projectId: this.$route.query.id,
-                    name: this.tabs[this.tabs.length - 1].name,
-                    changed: this.tabs[this.tabs.length - 1].changed,
-                    tail: this.tabs[this.tabs.length - 1].tail,
-                    tabType: "doc",
-                });
-            }
+            // if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+            //     this.$store.commit("apidoc/changeCurrentTab", {
+            //         _id: this.tabs[this.tabs.length - 1]._id,
+            //         projectId: this.$route.query.id,
+            //         name: this.tabs[this.tabs.length - 1].name,
+            //         changed: this.tabs[this.tabs.length - 1].changed,
+            //         tail: this.tabs[this.tabs.length - 1].tail,
+            //         tabType: "doc",
+            //     });
+            // }
         },
         //重命名某个节点
         handleChangeNodeName(data) {
