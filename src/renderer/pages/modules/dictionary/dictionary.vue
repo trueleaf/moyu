@@ -6,10 +6,10 @@
 */
 <template>
     <div class="dictionary">
-        <div class="search-wrap">
+        <div class="search">
             <img src="@/assets/imgs/logo.png" alt="logo" class="logo">
             <div class="ipt-wrap" :class="{active: isActive}">
-                <input type="text" class="ipt" placeholder="输入你感兴趣的名词..." @focus="handleFocus" @blur="handleBlur">
+                <input type="text" class="ipt" placeholder="在这里进行名词查询" @click.stop="() => {}" @focus="handleFocus" @blur="handleBlur">
                 <div v-show="isActive" class="list-wrap">
                     <div v-for="item in 10" :key="item" class="item">
                         <div class="head"></div>
@@ -18,12 +18,28 @@
                     </div>
                 </div>
             </div>
+            <div class="common">
+                <div class="tag">老虎</div>
+                <div class="tag">花牌坊</div>
+            </div>
         </div>
+        <s-view v-if="activeTanb === 's-view'"></s-view>
+        <s-edit v-if="activeTanb === 's-edit'"></s-edit>
+        <s-add v-if="activeTanb === 's-add'"></s-add>
     </div>
 </template>
 
 <script>
+import edit from "./components/edit.vue"
+import view from "./components/view.vue"
+import add from "./components/add.vue"
+
 export default {
+    components: {
+        "s-edit": edit,
+        "s-view": view,
+        "s-add": add,
+    },
     data() {
         return {
             //=================================表单与表格参数================================//
@@ -33,15 +49,30 @@ export default {
             //===================================业务参数====================================//
 
             //===================================其他参数====================================//
-            isActive: true, //是否出现备选项
+            activeTanb: "s-edit",
+            isActive: false, //是否出现备选项
         };
     },
     created() {
-
+        this.init();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
-
+        //初始化
+        init() {
+            document.documentElement.addEventListener("click", () => {
+                this.isActive = false;
+            })
+            this.$event.on("dictionary/edit", () => {
+                this.activeTanb = "s-edit";
+            })
+            this.$event.on("dictionary/add", () => {
+                this.activeTanb = "s-add";
+            })
+            this.$event.on("dictionary/close", () => {
+                this.activeTanb = "s-view";
+            })
+        },
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//
@@ -62,26 +93,28 @@ export default {
     height: calc(100vh - #{size(60)});
     min-height: size(600);
     position: relative;
-    .search-wrap {
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform: translate(-50%, 0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .search {
         display: flex;
-        flex-direction: column;
         align-items: center;
+        flex-direction: column;
+        min-width: size(550);
+        width: 50%;
         .logo {
             width: size(100);
             height: size(100);
         }
+        // 搜索框与下拉框
         .ipt-wrap {
             border-top-left-radius: size(20);
             border-top-right-radius: size(20);
             border-bottom-left-radius: size(20);
             border-bottom-right-radius: size(20);
             border: 1px solid $gray-500;
-            width: size(550);
             height: size(45);
+            width: 100%;
             padding: 0 size(25);
             position: relative;
             &.active {
@@ -94,7 +127,7 @@ export default {
                 position: absolute;
                 left: 0;
                 top: size(44);
-                width: size(550);
+                width: 100%;
                 height: size(300);
                 border: 1px solid $gray-500;
                 margin-left: size(-1);
@@ -102,6 +135,8 @@ export default {
                 font-size: fz(16);
                 padding: size(10) 0;
                 overflow-y: auto;
+                z-index: $zIndex-panel;
+                background: $white;
                 .item {
                     height: size(35);
                     display: flex;
@@ -126,10 +161,23 @@ export default {
             }
         }
         .ipt {
-            width: size(500);
+            width: 100%;
             height: 100%;
             font-size: fz(16);
             border: none;
+        }
+        // 热门搜索参数
+        .common {
+            width: 100%;
+            margin-top: size(15);
+            .tag {
+                display: inline-flex;
+                padding: size(2) size(10);
+                border: 1px solid $gray-300;
+                border-radius: 99999999999px;
+                margin-right: size(10);
+                cursor: pointer;
+            }
         }
     }
 }

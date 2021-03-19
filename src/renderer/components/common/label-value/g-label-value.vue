@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="label-value" :style="{width: halfLine ? '50%' : ''}">
+    <div class="label-value" :style="{width: realWidth}">
         <span class="label" :style="{width: labelWidth}">
             <span>{{ label }}</span>
         </span>
@@ -36,6 +36,17 @@ export default {
         oneLine: {
             type: Boolean,
             default: false,
+        },
+    },
+    computed: {
+        realWidth() {
+            if (this.halfLine) {
+                return "50%";
+            }
+            if (this.oneLine) {
+                return "100%";
+            }
+            return "";
         },
     },
     data() {
