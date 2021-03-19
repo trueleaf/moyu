@@ -6,7 +6,7 @@
 */
 <template>
     <div class="s-content">
-        <div class="s-header hidden-md-and-down">
+        <div class="s-header">
             <div class="ml-5 header-left fl d-flex a-center">
                 <span class="f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.renderConfig.layout.title }}</span>
                 <el-menu :default-active="activeMenu" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
@@ -54,6 +54,7 @@
 <script>
 let ipcRenderer = null;
 if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
     ipcRenderer = window.require("electron").ipcRenderer;
 }
 

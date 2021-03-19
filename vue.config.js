@@ -1,10 +1,10 @@
 const path = require("path");
-const config = require("./src/config");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const config = require("./src/config");
 
+process.env.VUE_APP_TITLE = config.renderConfig.layout.title;
 const isShareDoc = process.argv.find((val) => val === "--single");
-
 
 let vueConfig = {};
 if (isShareDoc) {
@@ -42,13 +42,13 @@ if (isShareDoc) {
                 new HtmlWebpackInlineSourcePlugin(),
             ],
         },
-        chainWebpack: (config) => {
-            const fontsRule = config.module.rule("fonts");
+        chainWebpack: (webpackConfig) => {
+            const fontsRule = webpackConfig.module.rule("fonts");
             // clear all existing loaders.
             // if you don't do this, the loader below will be appended to
             // existing loaders of the rule.
             fontsRule.uses.clear();
-            config.module
+            webpackConfig.module
                 .rule("fonts")
                 .test(/\.(ttf|otf|eot|woff|woff2)$/)
                 .use("base64-inline-loader")
@@ -63,6 +63,12 @@ if (isShareDoc) {
     };
 } else {
     vueConfig = {
+        pages: {
+            index: {
+                entry: "src/renderer/main.js", //添加了entry则不需要rendererProcessFile
+                template: "public/index.html",
+            },
+        },
         //=====================================css相关配置====================================//
         css: {
             loaderOptions: {
@@ -108,37 +114,35 @@ if (isShareDoc) {
                     "cookie-parser",
                     "got",
                     "form-data",
-                    "proxy-agent"
+                    "proxy-agent",
                 ],
                 mainProcessFile: "src/main/index.js",
-                rendererProcessFile: "src/renderer/main.js",
                 mainProcessWatch: ["src/main/index.js"],
                 builderOptions: {
-                    productName: "快乐摸鱼",
+                    productName: config.renderConfig.layout.title,
                     appId: "com.example.yourapp",
                     publish: [
                         {
                             provider: "generic",
-                            url: ""
-                        }
+                            url: "",
+                        },
                     ],
                     nsis: {
                         oneClick: false, // 是否一键安装
                         allowToChangeInstallationDirectory: true, // 允许修改安装目录
                     },
                     mac: {
-                        "icon": "build/icons/icon.icns"
+                        icon: "build/icons/icon.icns",
                     },
                     win: {
-                        "icon": "build/icons/icon.ico"
+                        icon: "build/icons/icon.ico",
                     },
                     linux: {
-                        "icon": "build/icons"
-                    }
+                        icon: "build/icons",
+                    },
                 },
             },
         },
-
         //=====================================eslint配置====================================//
         lintOnSave: "error", //未通过eslint 禁止代码提交
         //=====================================打包上线配置====================================//

@@ -10,10 +10,8 @@
         <div class="f-base">
             <div>
                 <span>接口数量：</span>
-                <span>22</span>
+                <span>{{ docNum }}</span>
             </div>
-            <input type="file" name="xxx" @change="handleChangeFile">
-            <el-button :disabled="!jsonYaml" :loading="loading" @click="importOpenApiDoc">确认导入</el-button>
         </div>
     </div>
 </template>
@@ -23,6 +21,24 @@ import yaml from "js-yaml"
 import OpenApiTranslator from "./open-api-translator"
 
 export default {
+    computed: {
+        docNum() {
+            let i = 0;
+            const { banner } = this.$store.state.apidoc;
+            this.$helper.dfsForest(banner, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks(data) {
+                    if (!data.isFolder) {
+                        i += 1;
+                    }
+                },
+            });
+            return i;
+        },
+    },
     data() {
         return {
             openApiTranslatorInstance: null,

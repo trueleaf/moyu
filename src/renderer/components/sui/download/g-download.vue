@@ -36,8 +36,9 @@ export default {
     methods: {
         //导出任务明细
         downloadFile() {
+            this.$emit("start");
             this.loading = true;
-            if (this.type === "static") {
+            if (this.static) {
                 window.open(this.url);
                 return;
             }

@@ -3,6 +3,7 @@ import ElementUI from "element-ui";
 import MyDB from "@/indexedDB";
 import * as helper from "@/lib";
 import Logs from "@/logs/index";
+import EventEmitter from "@/lib/event";
 import { router } from "./router";
 import store from "./store";
 import App from "./App.vue";
@@ -17,6 +18,9 @@ import axios from "./api/api";
 const myDB = new MyDB();
 myDB.initDB();
 Vue.prototype.db = myDB;
+
+const emitter = new EventEmitter();
+Vue.prototype.$event = emitter;
 
 const logs = new Logs();
 

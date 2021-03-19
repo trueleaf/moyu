@@ -16,7 +16,9 @@ module.exports = {
                 "merge", //冲突合并
                 "doc", //文档更新(README更新)
                 "clear", //注释内容处理，console之内无用代码删除
+                "eslint", //eslint相关
                 "cli", //构建工具改变
+                "e2e", //端到端测试
             ],
         ],
     },

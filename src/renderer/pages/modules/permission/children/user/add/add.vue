@@ -5,15 +5,12 @@
     备注：xxxx
 */
 <template>
-    <s-dialog class="g-user" title="新增用户" :isShow="isShow" @close="handleClose">
+    <s-dialog class="g-user" title="新增用户(默认密码111111)" :isShow="isShow" @close="handleClose">
         <el-divider content-position="left">基础信息</el-divider>
         <s-form ref="form" :formInfo="formInfo">
             <s-form-item label="登录名称" vModel="loginName" required halfLine></s-form-item>
             <s-form-item label="真实姓名" vModel="realName" required halfLine></s-form-item>
             <s-form-item label="手机号" vModel="phone" required halfLine phone></s-form-item>
-            <s-form-item label="部门" vModel="department" required halfLine></s-form-item>
-            <s-form-item label="职位" vModel="title" required halfLine></s-form-item>
-            <s-form-item label="qq号" vModel="qq" required halfLine></s-form-item>
         </s-form>
         <el-divider content-position="left">角色选择</el-divider>
         <el-checkbox-group v-model="formInfo.roleIds">

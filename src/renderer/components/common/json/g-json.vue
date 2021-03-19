@@ -105,7 +105,6 @@ export default {
                 }
             };
             foo(copyData, result);
-            console.log(result);
             this.$emit("export", result);
         },
         //生成请求数据

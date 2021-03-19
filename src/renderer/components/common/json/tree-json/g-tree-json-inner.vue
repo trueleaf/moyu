@@ -185,7 +185,6 @@ export default {
     watch: {
         data: {
             handler(val) {
-                // console.log(222, val)
                 if (val && this.$refs.comment && this.$refs.comment.length > 0) {
                     this.$refs.comment.forEach((commentDom) => {
                         commentDom.$el.style.marginLeft = "5px";

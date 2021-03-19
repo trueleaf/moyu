@@ -34,6 +34,7 @@ export default {
         this.getHostEnum(); //获取host值
         this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
+        this.getLocalCookies(); //获取本地cookies
     },
     methods: {
         //=====================================获取远程数据==================================//
@@ -67,6 +68,13 @@ export default {
                 projectId: this.$route.query.id,
             });
         },
+        //获取本地cookies
+        getLocalCookies() {
+            let localCookies = localStorage.getItem("apidoc/cookies") || "[]";
+            localCookies = JSON.parse(localCookies);
+            localCookies = localCookies[this.$route.query.id] || [];
+            this.$store.commit("apidoc/changeCookies", localCookies);
+        },
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//
@@ -84,7 +92,7 @@ export default {
         flex: 0 0 auto;
     }
     .doc-wrap {
-        width: calc(100vw - #{size(300)});
+        flex: 1;
     }
 }
 </style>

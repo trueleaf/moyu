@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="w-100">
+    <div class="request-operation w-100">
         <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input
@@ -22,7 +22,16 @@
                     </el-select>
                 </div>
             </s-v-input>
-            <el-button v-if="!loading" :loading="loading" type="success" size="small" @click="sendRequest">发送请求</el-button>
+            <el-button
+                v-if="!loading"
+                :loading="loading"
+                :disabled="!config.isElectron"
+                :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
+                type="success"
+                size="small"
+                @click="sendRequest">
+                发送请求
+            </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="saveRequest">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
@@ -32,14 +41,14 @@
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
                     <el-dropdown-item @click.native="publishRequest">发布接口</el-dropdown-item>
-                    <el-dropdown-item @click.native="dialogVisible = true">全局变量</el-dropdown-item>
+                    <el-dropdown-item @click.native="handleOpenVariablePage">全局变量</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
                     <el-dropdown-item @click.native="handleOpenConfigPage">全局配置</el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
         <!-- 请求参数展示 -->
-        <pre class="w-100">{{ fullUrl }}</pre>
+        <pre class="full-url">{{ fullUrl }}</pre>
         <s-variable-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @change="handleVariableChange"></s-variable-dialog>
     </div>
 </template>
@@ -48,11 +57,7 @@
 import qs from "qs"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import variableDialog from "@/pages/modules/apidoc/doc-edit/dialog/variable-manage.vue"
-// import deepmerge from "deepmerge"
-// import FormData from "form-data/lib/form_data"
-// import FileType from "file-type/browser"
-// import buffer from "buffer"
-// const Buffer = buffer.Buffer;
+
 export default {
     name: "REQUEST_OPERATION",
     mixins: [mixin],
@@ -118,6 +123,19 @@ export default {
         loading() { //发送请求loading效果
             return this.$store.state.apidoc.sendRequestLoading;
         },
+        mindParams() { //联想参数
+            return this.$store.state.apidoc.mindParams;
+        },
+        cookie() {
+            const { cookies } = this.$store.state.apidoc;
+            return cookies.reduce((accumulator, current) => {
+                const currentCookie = `${current.name}=${current.value}`;
+                if (accumulator === "") {
+                    return currentCookie;
+                }
+                return `${accumulator};${currentCookie}`;
+            }, "");
+        },
     },
     data() {
         return {
@@ -143,10 +161,15 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
-            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
-            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
-            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            this.$event.emit("apidoc/sendRequest");
+            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths, true);
+            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams, true);
+            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody, true);
+            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers, true);
+            const realHeaders = { //自定义cookie会覆盖默认cookie
+                cookie: this.cookie,
+                ...headers,
+            };
             this.$store.dispatch("apidoc/sendRequest", {
                 url: this.apidocInfo.item.url,
                 method: this.apidocInfo.item.method,
@@ -154,9 +177,29 @@ export default {
                 paths,
                 queryParams,
                 requestBody,
-                headers,
+                headers: realHeaders,
             }).then((res) => {
-                console.log(res)
+                //本地化cookie
+                const rawCookies = res.headers["set-cookie"] || [];
+                const cookies = this.getCookies(rawCookies);
+                let localCookies = localStorage.getItem("apidoc/cookies") || "{}";
+                localCookies = JSON.parse(localCookies);
+                if (!localCookies[this.$route.query.id]) {
+                    localCookies[this.$route.query.id] = [];
+                }
+                if (cookies.length > 0) { //有setCookie值
+                    localCookies[this.$route.query.id] = cookies;
+                    localStorage.setItem("apidoc/cookies", JSON.stringify(localCookies));
+                    this.$store.commit("apidoc/changeCookies", cookies);
+                }
+                //本地化返回值
+                let localRemoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+                localRemoteResponse = JSON.parse(localRemoteResponse);
+                if (!localRemoteResponse[this.currentSelectDoc._id]) {
+                    localRemoteResponse[this.currentSelectDoc._id] = {};
+                }
+                localRemoteResponse[this.currentSelectDoc._id] = this.remoteResponse;
+                localStorage.setItem("apidoc/remoteResponse", JSON.stringify(localRemoteResponse));
             }).catch((err) => {
                 console.error(err);
             });
@@ -167,19 +210,33 @@ export default {
         },
         //保存接口
         saveRequest() {
+            if (!this.currentSelectDoc.changed) { //接口未发生改变不请求后台
+                this.loading2 = true;
+                setTimeout(() => {
+                    this.loading2 = false;
+                }, 200);
+                return;
+            }
+            //保存接口使用时长
+            const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
+            const spendTime = currentDocUsedTime[this.currentSelectDoc._id];
             if (this.host) { //保存默认环境，下次自动应用本次保存的host值
                 let storeEnvironment = localStorage.getItem("apidoc/environment") || "{}";
                 storeEnvironment = JSON.parse(storeEnvironment);
                 storeEnvironment[this.$route.query.id] = this.host;
                 localStorage.setItem("apidoc/environment", JSON.stringify(storeEnvironment))
             }
+            this.$store.commit("apidoc/changeDocUpdateTime");
             const params = {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
                 info: this.apidocInfo.info,
                 item: this.apidocInfo.item,
+                spendTime: spendTime || 0,
             };
             this.saveMindParams(); //保存联想参数
+            const originApidocInfo = this.$helper.cloneDeep(this.$store.state.apidoc.apidocInfo)
+            this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
             //取消未保存小圆点
             this.$store.commit("apidoc/changeCurrentTabById", {
                 _id: this.currentSelectDoc._id,
@@ -187,7 +244,12 @@ export default {
                 changed: false,
             });
             this.loading2 = true;
-            this.axios.post("/api/project/fill_doc", params).then(() => {}).catch((err) => {
+            this.axios.post("/api/project/fill_doc", params).then(() => {
+                if (currentDocUsedTime[this.currentSelectDoc._id]) { //存在文档录入时间，清空时长
+                    currentDocUsedTime[this.currentSelectDoc._id] = 0;
+                    localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
+                }
+            }).catch((err) => {
                 this.$errorThrow(err, this);
                 this.$store.commit("apidoc/changeCurrentTabById", {
                     _id: this.currentSelectDoc._id,
@@ -283,11 +345,11 @@ export default {
         //=====================================url操作====================================//
         //删除无效请求字符并且提取查询字符串
         formatUrl() {
-            // this.convertQueryToParams();
+            this.convertQueryToParams();
             const protocolReg = /(\/?https?:\/\/)?/;
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = `/${this.requestPath}`) : "";
-            const pathReg = /\/(?!\/)[^#\\?:.]+/; //查询路径正则
+            const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
             const matchedPath = this.requestPath.match(pathReg);
             if (matchedPath) {
                 this.requestPath = matchedPath[0];
@@ -304,43 +366,24 @@ export default {
             let queryString = this.requestPath.split("?") || "";
             queryString = queryString ? queryString[1] : "";
             const queryParams = qs.parse(queryString);
-            Object.keys(queryParams).forEach((i) => {
-                const reqParams = this.request.requestParams;
-                if (!reqParams.find((val) => val.key === i)) {
-                    this.request.requestParams.unshift({
-                        id: this.$helper.uuid(),
-                        key: i, //--------------请求参数键
-                        value: queryParams[i], //------------请求参数值
-                        type: "string", //-------------请求参数值类型
-                        description: "", //------描述
-                        required: true, //-------是否必填
-                        children: [], //---------子参数
-                        _select: true, //默认选中
-                    })
-                }
-            })
-            const matchedComponent = this.getComponentByName("REQUEST_PARAMS");
+            const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
+            this.$store.commit("apidoc/unshiftQueryParams", params)
+            const matchedComponent = this.getComponentByName("QUERY_PARAMS");
             matchedComponent.selectChecked();
         },
         //改变请求方法
         handleChangeRequestMethods(val) {
-            // this.currentReqeustLimit = val;
-            // if (val.value === "get") { //get请求需要清空嵌套数据
-            //     this.request.requestParams.forEach(params => {
-            //         params.children = [];
-            //         params.type = "string";
-            //     })
-            //     this.request.requestType = "params";
-            // } else {
-            //     if (!val.enabledContenType.includes(this.request.requestType)) {
-            //         this.request.requestType = val.enabledContenType[0];
-            //     }
-            // }
             //改变tabs导航请求方式
             this.$store.commit("apidoc/changeTabInfoById", {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
-                method: val.value,
+                tail: val.value,
+            });
+            //改变当前tab导航信息
+            this.$store.commit("apidoc/changeCurrentTabById", {
+                _id: this.currentSelectDoc._id,
+                projectId: this.$route.query.id,
+                tail: val.value,
             });
             //改变banner请求方式
             this.$store.commit("apidoc/changeDocBannerInfoById", {
@@ -348,35 +391,6 @@ export default {
                 projectId: this.$route.query.id,
                 method: val.value,
             });
-            //this.handleChangeRequestMIMEType(this.request.requestType);
-        },
-        //改变MimeType
-        handleChangeRequestMIMEType(val) {
-            if (val === "formData") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "multipart/form-data"
-                    }
-                })
-            } else if (val === "json") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/json; charset=utf-8"
-                    }
-                })
-            } else if (val === "params") { //查询类型application无意义
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/json; charset=utf-8"
-                    }
-                })
-            } else if (val === "x-www-form-urlencoded") {
-                this.request.header.forEach((header) => {
-                    if (header.key.toLowerCase() === "content-type") {
-                        header.value = "application/x-www-form-urlencoded"
-                    }
-                })
-            }
         },
         //hack通过改变_variableChange触发watch事件刷新变量值
         handleVariableChange() {
@@ -409,62 +423,6 @@ export default {
             }
         },
         //=====================================其他操作====================================//
-        //修正contentType
-        async fixContentType() {
-            if (this.docRules.cacheProjectId !== this.$route.query.id) {
-                await this.$store.dispatch("apidocRules/getRuels", {
-                    projectId: this.$route.query.id,
-                });
-            }
-            this.currentReqeustLimit = this.docRules.requestMethods.find((val) => val.value === this.request.methods);
-            if (!this.currentReqeustLimit.enabledContenType.includes(this.request.requestType)) { //修正不合法的请求类型，默认取合法请求类型的第一个
-                this.request.requestType = this.currentReqeustLimit.enabledContenType[0];
-            }
-        },
-        //cookie注入
-        injectCookie(res) {
-            const cookies = res.headers["set-cookie"] || [];
-            const cookie = cookies.join(",");
-            if (cookie) {
-                let storeCookie = localStorage.getItem("pages/cookies") || "{}";
-                storeCookie = JSON.parse(storeCookie);
-                storeCookie[this.$route.query.id] = cookie;
-                localStorage.setItem("pages/cookies", JSON.stringify(storeCookie))
-            }
-        },
-        //改变变量信息
-        convertVariable(val) {
-            if (val == null) {
-                return null;
-            }
-            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
-            if (val && matchedData) {
-                const varInfo = this.variables.find((v) => v.name === matchedData[1]);
-                if (varInfo) {
-                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                }
-                return val;
-            }
-            return val;
-        },
-        //获取参数类型
-        getType(value) {
-            let result = "string"
-            if (typeof value === "string") {
-                result = "string"
-            } else if (typeof value === "number") { //NaN
-                result = "number"
-            } else if (typeof value === "boolean") {
-                result = "boolean"
-            } else if (Array.isArray(value)) {
-                result = "array"
-            } else if (typeof value === "object" && value !== null) {
-                result = "object"
-            } else { // null undefined ...
-                result = "string"
-            }
-            return result;
-        },
         //打开配置界面
         handleOpenConfigPage() {
             this.$store.commit("apidoc/addTab", {
@@ -484,16 +442,45 @@ export default {
                 tabType: "config",
             });
         },
+        //打开全局变量配置页面
+        handleOpenVariablePage() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "variable")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "全局变量管理",
+                changed: false,
+                tail: "",
+                tabType: "variable",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "全局变量管理",
+                changed: false,
+                tail: "",
+                tabType: "variable",
+                projectId: this.$route.query.id,
+            });
+        },
     },
 };
 </script>
 
 <style lang="scss">
-.request-input {
-    display: flex;
-    align-items: center;
-    .el-select {
-        width: 100px;
+.request-operation {
+    .request-input {
+        display: flex;
+        align-items: center;
+        .el-select {
+            width: 100px;
+        }
+    }
+    .full-url {
+        min-height: size(30);
+        width: 100%;
     }
 }
 </style>

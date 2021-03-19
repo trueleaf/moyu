@@ -8,6 +8,7 @@
 import { v4 as uuidV4 } from "uuid";
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
+import dayjs from "dayjs";
 
 //对象对比
 export const isEqual = lodashIsEqual;
@@ -59,6 +60,47 @@ export function recursion(config) {
     };
     foo(cpData);
 }
+/**
+ * @description        递归挑选对象部分属性
+ * @author             shuxiaokai
+ * @updateAuthor       shuxiaokai
+ * @create             2020-01-08 21:32
+ * @update             2020-01-08 21:32
+ * @param {Array}      data - 递归数组
+ * @param {Function}   condition - 递归条件
+ * @param {Strubf}     rKey - 执行方法
+ * @param {Array}      fields - 需要挑选的字段
+ */
+export function recursivePicker(data, options = {}) {
+    const { condition, fields = [], rKey = "children" } = options;
+    const result = [];
+    if (!Array.isArray(data)) {
+        throw new Error("第一个参数必须为数组");
+    }
+    const foo = (loopData, result) => {
+        if (!loopData || loopData.length < 0) {
+            return;
+        }
+        for (let i = 0; i < loopData.length; i += 1) {
+            const loopItem = loopData[i]
+            const pickedItem = {};
+            fields.forEach((field) => {
+                if (field !== rKey) { //循环参数不错处理
+                    pickedItem[field] = loopItem[field];
+                }
+            })
+            pickedItem[rKey] = [];
+            result.push(pickedItem)
+            if (condition && condition(loopData[i])) {
+                foo(loopItem[rKey], pickedItem[rKey]);
+            } else if (!condition) {
+                foo(loopItem[rKey], pickedItem[rKey]);
+            }
+        }
+    };
+    foo(data, result);
+    return result;
+}
 //=====================================工具方法====================================//
 /**
     @description  查找父节点
@@ -101,7 +143,7 @@ export function findParentNode(id, treeData, fn, options = {}) {
     @param {Function?}    可以传入一个函数就行条件判断，函数第一个参数为当前节点信息，存在fn那么判断结果以fn返回值为准
     @return       节点(如果未找到返回null)
 */
-export function findoNode(id, treeData, fn, options) {
+export function findoNode(id, treeData, fn, options = {}) {
     const pathId = options.id || "id";
     let result = null;
     if (id == null) {
@@ -187,7 +229,7 @@ export function findNextSibling(id, treeData, fn, options) {
  * @author             shuxiaokai
  * @create             2020-03-02 10:17
  * @param {array}     arrData 需要去重数组
- * @param {function}  arrData 需要去重数组
+ * @param {function}  fn 每次遍历执行得函数
  * @param {string}    childrenKey children对应字段
  */
 export function forEachForest(forest, fn, options = {}) {
@@ -219,7 +261,6 @@ export function forEachForest(forest, fn, options = {}) {
 export function dfsForest(forestData, config) {
     const { rCondition, rKey, hooks } = config;
     if (!Array.isArray(forestData)) {
-        console.log(forestData);
         throw new Error("第一个参数必须为数组结构森林");
     }
     if (!rKey) {
@@ -319,7 +360,7 @@ export function unique(array = [], key) {
     } else {
         for (let i = 0, len = array.length; i < len; i += 1) {
             const isInResult = result.find((val) => val[key] === array[i][key]);
-            if (array[i][key] && !isInResult) {
+            if (array[i][key] != null && !isInResult) {
                 result.push(array[i]);
             }
         }
@@ -366,12 +407,12 @@ export const formatMs = (ms) => {
     if (!ms) {
         return "";
     }
-    if (ms > 0 && ms < 1000) {
-        //毫秒
+    if (ms > 0 && ms < 1000) { //毫秒
         result = `${ms}ms`;
-    } else if (ms >= 1000 && ms < 1000 * 60) {
-        //秒
+    } else if (ms >= 1000 && ms < 1000 * 60) { //秒
         result = `${(ms / 1000).toFixed(2)}s`;
+    } else if (ms >= 1000 * 60) { //分钟
+        result = `${(ms / 1000 / 60).toFixed(2)}m`;
     }
     return result;
 };
@@ -511,4 +552,40 @@ export function findNextSiblingById(treeData, id, options) {
     };
     findNextNode(id, treeData);
     return sibling;
+}
+
+/**
+     * @description        格式化日期
+     * @author             shuxiaokai
+     * @create             2021-02-08 09:51
+     * @param {Date}       date - 日期对象
+     * @param {string}     rule - 规则
+     * @return {String}    返回自定义日期格式
+     */
+export function formatDate(date, rule) {
+    const realRule = rule || "YYYY-MM-DD HH:mm"
+    const result = dayjs(date).format(realRule);
+    return result;
+}
+
+/**
+ * @description        创建下载
+ * @author             shuxiaokai
+ * @create             2021-03-14 21:47
+ * @param {any}        data - 下载数据
+ * @param {String=}    [fileName=未命名] - 文件名称
+ * @param {String}     [contentType=text/plain] - 文件类型
+ * @return {null}      下载
+ */
+export function download(data, fileName = "未命名", contentType = "text/plain") {
+    let blobUrl = "";
+    const blobData = new Blob([data], { type: contentType })
+    blobUrl = URL.createObjectURL(blobData);
+    const downloadElement = document.createElement("a");
+    downloadElement.href = blobUrl;
+    downloadElement.download = decodeURIComponent(fileName); //下载后文件名
+    document.body.appendChild(downloadElement);
+    downloadElement.click(); //点击下载
+    document.body.removeChild(downloadElement); //下载完成移除元素
+    window.URL.revokeObjectURL(blobUrl); //释放掉blob对象
 }

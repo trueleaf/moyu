@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="label-value">
+    <div class="label-value" :style="{width: halfLine ? '50%' : ''}">
         <span class="label" :style="{width: labelWidth}">
             <span>{{ label }}</span>
         </span>
@@ -29,6 +29,14 @@ export default {
             type: String,
             default: "",
         },
+        halfLine: {
+            type: Boolean,
+            default: false,
+        },
+        oneLine: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {};
@@ -49,9 +57,7 @@ export default {
     align-items: center;
     flex: 0 0 auto;
     max-width: 100%;
-    &:not(:last-child) {
-        margin-bottom: size(10);
-    }
+    margin-bottom: size(10);
     .label {
         color: $gray-800;
         display: inline-flex;

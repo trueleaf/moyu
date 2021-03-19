@@ -7,59 +7,35 @@
 <template>
     <div class="overview">
         <div class="request-view">
-            <s-collapse v-if="formatRequestData.item" title="基本信息">
-                <s-label-value label="请求地址：" title="鼠标左键拷贝路径，鼠标右键拷贝全部" class="d-flex mt-2">
-                    <span
-                        v-copy="formatRequestData.item.url.path"
-                        v-copy2="formatRequestData.item.url.host + formatRequestData.item.url.path"
-                        class="text-ellipsis">
-                        {{ formatRequestData.item.url.host + formatRequestData.item.url.path }}
-                    </span>
+            <s-collapse v-if="apidocInfo.item" title="基本信息">
+                <s-label-value label="请求地址：" class="d-flex mt-2">
+                    <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
                 </s-label-value>
                 <s-label-value label="请求方式：" class="d-flex">
                     <template v-for="(req) in validRequestMethods">
-                        <span v-if="formatRequestData.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
+                        <span v-if="apidocInfo.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                     </template>
                 </s-label-value>
-                <!-- <s-label-value label="发布状态：" class="d-flex">
-                    <el-tag v-if="publishInfo.publish" size="mini" type="success" class="mr-1">已发布</el-tag>
-                    <el-tag v-else size="mini" type="info" class="mr-1">未发布</el-tag>
-                    <el-popover v-if="publishInfo.publish" placement="bottom-start" width="400" trigger="hover">
-                        <el-table :data="publishInfo.publishRecords" size="mini" max-height="300px">
-                            <el-table-column prop="publisher" label="发布者" align="center"></el-table-column>
-                            <el-table-column prop="time" label="发布时间" align="center">
-                                <template slot-scope="scope">
-                                    {{ new Date(scope.row.time).toLocaleString() }}
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                        <svg slot="reference" class="svg-icon" aria-hidden="true">
-                            <use xlink:href="#iconlishi"></use>
-                        </svg>
-                    </el-popover>
-                </s-label-value> -->
-                <s-label-value label="请求参数：" class="d-flex">
-                    <el-popover placement="left-end" width="600" trigger="hover" :close-delay="0">
-                        <s-tree-json :data="formatRequestData.item.queryParams" max-height="400px"></s-tree-json>
-                        <span slot="reference" class="mr-3 gray-600">请求参数(params)</span>
-                    </el-popover>
-                    <el-popover placement="left-end" width="600" trigger="hover" :close-delay="0">
-                        <s-tree-json :data="formatRequestData.item.requestBody" max-height="400px"></s-tree-json>
-                        <span slot="reference" class="mr-3 gray-600">请求参数(body)</span>
-                    </el-popover>
-                </s-label-value>
-                <s-label-value label="返回参数：" class="d-flex">
-                    <el-popover v-for="(item, index) in formatRequestData.item.responseParams" :key="index" placement="left-end" width="600" trigger="hover" :close-delay="0">
-                        <s-tree-json :data="item.values" max-height="400px"></s-tree-json>
-                        <span slot="reference" class="mr-3 gray-600">{{ item.title }}</span>
-                    </el-popover>
-                </s-label-value>
+                <div class="base-info">
+                    <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                    </s-label-value>
+                    <s-label-value label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                    </s-label-value>
+                    <s-label-value label="累计用时：" :title="$helper.formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
+                        <span class="text-ellipsis">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
+                    </s-label-value>
+                    <s-label-value label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+                        <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
+                    </s-label-value>
+                    <s-label-value label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+                        <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
+                    </s-label-value>
+                </div>
             </s-collapse>
         </div>
-        <div class="response-view">
-            <!-- <pre class="scroll-y-300">{{ remoteResponse }}</pre> -->
-            <s-response-view :response="remoteResponse"></s-response-view>
-        </div>
+        <s-response-view class="response-view"></s-response-view>
     </div>
 </template>
 
@@ -76,52 +52,8 @@ export default {
         };
     },
     computed: {
-        remoteResponse() { //远端返回数据结果
-            return this.$store.state.apidoc.remoteResponse;
-        },
-        formatRequestData() { //变量替换后的请求参数
-            const apiInfo = this.$store.state.apidoc.apidocInfo;
-            const queryParams = apiInfo.queryParams || [];
-            const requestBody = apiInfo.requestBody || [];
-            const responseParams = apiInfo.responseParams?.reduce((previous, current) => (previous.values.concat(current.values)))
-            this.$helper.dfsForest(queryParams, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                },
-            });
-            this.$helper.dfsForest(requestBody, {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                },
-            });
-            this.$helper.dfsForest(responseParams || [], {
-                rCondition(value) {
-                    return value ? value.children : null;
-                },
-                rKey: "children",
-                hooks: (item) => {
-                    item.value = this.convertVariable(item.value);
-                },
-            });
-            return apiInfo;
-        },
-        variables() { //全局变量
-            return this.$store.state.apidoc.variables || [];
-        },
-        publishInfo() { //发布信息
-            const { docFullInfo } = this.$store.state.apidoc;
-            return {
-                publish: docFullInfo.publish,
-                publishRecords: docFullInfo.publishRecords ? docFullInfo.publishRecords.reverse() : [],
-            };
+        apidocInfo() { //接口文档信息
+            return this.$store.state.apidoc.apidocInfo;
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
@@ -131,30 +63,13 @@ export default {
 
     },
     methods: {
-        //将变量转换为实际数据
-        convertVariable(val) {
-            if (val == null) {
-                return null;
-            }
-            if (Object.prototype.toString.call(val).slice(8, -1) === "ArrayBuffer") { //ArrayBuffer文件类型
-                return val;
-            }
-            const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
-            if (val && matchedData) {
-                const varInfo = this.variables.find((v) => v.name === matchedData[1]);
-                if (varInfo) {
-                    return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
-                }
-                return val;
-            }
-            return val;
-        },
     },
 };
 </script>
 
 <style lang="scss">
 .overview {
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -165,6 +80,7 @@ export default {
         margin-bottom: size(10);
         padding: size(10);
         height: size(170);
+        overflow: hidden;
         .svg-icon {
             width: size(15);
             height: size(15);
@@ -172,8 +88,18 @@ export default {
         }
     }
     .response-view {
-        flex: 1;
+        width: 100%;
+        padding: size(10) size(10);
+        flex: 0 0 calc(100vh - #{size(290)});
+        overflow-x: hidden;
         overflow-y: auto;
+    }
+    .el-divider {
+        margin: 0 size(15);
+    }
+    .base-info {
+        display: flex;
+        flex-wrap: wrap;
     }
 }
 </style>

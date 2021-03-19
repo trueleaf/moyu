@@ -7,11 +7,12 @@ import FileType from "file-type/browser";
 import FormData from "form-data/lib/form_data"
 
 let got = null;
-// let ProxyAgent = null;
+let ProxyAgent = null;
 if (window.require) {
     got = window.require("got");
-    // ProxyAgent = window.require("proxy-agent")
+    ProxyAgent = window.require("proxy-agent")
 }
+const INVALID_HEADER_KEYS = ["content-type", "Content-type", "content-Type", "ContentType", "contentType", "host", "HOST", "Host", "user-agent", "userAgent", "UserAgent"];
 
 const HttpClient = (() => {
     let singleton = null; //单例
@@ -27,8 +28,17 @@ const HttpClient = (() => {
             this.params = null; //请求参数
             this.responseData = null; //返回值
             this.events = [];
+            this.initInstance(config);
+            return singleton;
+        }
+
+        initInstance(config) {
+            const { timeout, proxy } = config;
+            const agent = {
+                http: ProxyAgent ? new ProxyAgent(proxy) : "",
+            };
             this.gotInstance = got?.extend({
-                timeout: config.timeout || 60000, //超时时间
+                timeout: timeout || 60000, //超时时间
                 retry: 0,
                 throwHttpErrors: false,
                 followRedirect: true,
@@ -36,11 +46,8 @@ const HttpClient = (() => {
                 headers: {
                     "user-agent": "moyu(https://github.com/trueleaf/moyu)",
                 },
-                // agent: {
-                //     http: new ProxyAgent("http://127.0.0.1:8888")
-                // }
+                agent: process.env.NODE_ENV === "development" ? agent : null,
             });
-            return singleton;
         }
 
         on(name, handler) {
@@ -95,8 +102,20 @@ const HttpClient = (() => {
             this.paths = options.paths;
             this.queryParams = options.queryParams;
             this.requestBody = options.requestBody;
-            // this.headers = options.headers;
+            this.headers = options.headers;
+            //删除默认请求头
+            INVALID_HEADER_KEYS.forEach((key) => {
+                delete this.headers[key];
+            })
+            this.headers["content-type"] = this.contentType; //赋值contentType
             console.log("发送请求", options);
+            if (!options.url.host) {
+                this.emit("error", {
+                    message: "服务器地址不能为空，请在Tab导航下方选择",
+                    rt: 0,
+                });
+                return;
+            }
             try {
                 let body = "";
                 const searchParams = new URLSearchParams(this.queryParams).toString();
@@ -112,9 +131,11 @@ const HttpClient = (() => {
                         break;
                     case "multipart/form-data":
                         Object.keys(this.requestBody).forEach((key) => {
-                            formData.append(key, this.requestBody[key]);
+                            console.log(this.requestBody[key], 99)
+                            const arrayBuffer = this.requestBody[key] || new ArrayBuffer();
+                            formData.append(key, Buffer.from(arrayBuffer));
                         })
-                        console.log(formData)
+                        Object.assign(this.headers, formData.getHeaders())
                         body = formData;
                         break;
                     case "application/x-www-form-urlencode":
@@ -125,7 +146,7 @@ const HttpClient = (() => {
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,
-                    // headers: this.headers,
+                    headers: this.headers,
                     body,
                 });
                 const streamData = [];
@@ -157,7 +178,6 @@ const HttpClient = (() => {
                 });
                 //错误处理
                 this.instance.on("error", (error) => {
-                    console.error(error);
                     this.emit("error", error);
                 });
                 //重定向

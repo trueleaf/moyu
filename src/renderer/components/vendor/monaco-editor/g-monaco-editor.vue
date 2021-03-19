@@ -36,10 +36,10 @@ export default {
                     theme: "vs-dark",
                 },
             );
-            this.editorInstance.onDidChangeModelContent(() => {
-                const newValue = this.editorInstance.getValue();
-                console.log(newValue);
-            });
+            // this.editorInstance.onDidChangeModelContent(() => {
+            //     const newValue = this.editorInstance.getValue();
+            //     console.log(newValue);
+            // });
         },
         //=====================================前后端交互====================================//
         //=====================================组件间交互====================================//

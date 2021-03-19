@@ -29,28 +29,45 @@ export default {
         return {};
     },
     created() {
-        this.$store.dispatch("apidoc/getDocVariable", {
-            projectId: this.$route.query.id,
-        });
+        this.getHostEnum(); //获取host值
+        this.getVariables(); //获取全局变量
+        this.getProjectRules(); //获取项目规则
     },
     methods: {
         //=====================================获取远程数据==================================//
-        //=====================================前后端交互====================================//
-        //=====================================组件间交互====================================//
+        //获取host值
+        getHostEnum() {
+            this.$store.dispatch("apidoc/getHostEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取全局变量
+        getVariables() {
+            this.$store.dispatch("apidoc/getDocVariable", {
+                projectId: this.$route.query.id,
+            });
+        },
+        //获取项目规则
+        getProjectRules() {
+            this.$store.dispatch("apidocRules/getRuels", {
+                projectId: this.$route.query.id,
+            });
+        },
         //=====================================其他操作=====================================//
     },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .doc-view {
-    height: 100%;
     display: flex;
+    overflow: hidden;
     .banner {
         flex: 0 0 auto;
     }
     .doc-wrap {
-        width: calc(100vw - #{size(300)});
+        flex: 1;
+        overflow: hidden;
     }
 }
 </style>

@@ -35,7 +35,6 @@ class Copy2 {
             dom.style.transform = `translate3D(0, -2.5em, 0)`;
         });
         dom.addEventListener("transitionend", () => {
-            console.log("end");
         });
         setTimeout(() => {
             document.documentElement.removeChild(dom);

@@ -61,7 +61,6 @@ export default {
         //处理倒计时
         changeState() {
             const speed = process.env.NODE_ENV === "development" ? 100 : 1000;
-            console.log(this.ENVIROMENT)
             clearInterval(this.timer); //清除上次的定时器
             this.disableBtn = true;
             this.$emit("click");  

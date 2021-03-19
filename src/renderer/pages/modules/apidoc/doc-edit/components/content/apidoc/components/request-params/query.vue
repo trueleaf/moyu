@@ -47,6 +47,15 @@
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
                 <span>保存为模板</span>
             </div>
+             <!-- json预览 -->
+            <el-popover ref="jsonView" placement="right">
+                <s-array-view :data="queryParams" class="w-500px mt-2">
+                    <div v-copy="jsonQueryParams" slot="header" class="cursor-pointer">复制为json</div>
+                </s-array-view>
+                <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
+                    <span>JSON预览</span>
+                </div>
+            </el-popover>
         </div>
         <!-- 参数录入 -->
         <s-params-tree
@@ -59,21 +68,21 @@
         </s-params-tree>
         <!-- 弹窗 -->
         <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.queryParams" @success="handleConvertJsonToParams"></s-json-schema>
-        <s-curd-params-template :visible.sync="dialogVisible2"></s-curd-params-template>
         <s-params-template :items="queryParams" type="queryParams" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
     </s-collapse-card>
 </template>
 
 <script>
+import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
-import paramsTemplateCurd from "@/pages/modules/apidoc/doc-edit/dialog/params-template-curd.vue"
 
 export default {
+    name: "QUERY_PARAMS",
+    mixins: [mixin],
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
-        "s-curd-params-template": paramsTemplateCurd,
     },
     computed: {
         queryParams: { //请求参数
@@ -90,13 +99,17 @@ export default {
         templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "queryParams");
         },
+        jsonQueryParams() {
+            const queryParams = this.$store.state.apidoc.apidocInfo?.item?.queryParams;
+            const convertQueryParams = this.convertPlainParamsToTreeData(queryParams || []);
+            return JSON.stringify(convertQueryParams, null, 4);
+        },
     },
     data() {
         return {
             usefulPresetRequestParamsList: [], //常用参数模板
             //=====================================其他参数====================================//
             dialogVisible: false, //将json转换为请求参数弹窗
-            dialogVisible2: false, //模板维护增删改查
             dialogVisible3: false, //保存当前参数为模板
         };
     },
@@ -118,10 +131,11 @@ export default {
         },
         //将json数据转换为参数
         handleConvertJsonToParams(result, convertType) {
+            const convertData = result.map((val) => ({ ...val, type: "string", children: [] })); //仅转换第一层
             if (convertType === "append") {
-                this.$store.commit("apidoc/unshiftQueryParams", result)
+                this.$store.commit("apidoc/unshiftQueryParams", convertData)
             } else if (convertType === "override") {
-                this.$store.commit("apidoc/changeQueryParams", result)
+                this.$store.commit("apidoc/changeQueryParams", convertData)
             }
             this.$refs.paramsTree.selectChecked();
             console.log(result, convertType);

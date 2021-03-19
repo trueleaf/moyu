@@ -6,7 +6,7 @@
 */
 <template>
     <div class="g-container">
-        <el-tabs v-model="activeName">
+        <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
             <el-tab-pane label="用户" name="s-user"></el-tab-pane>
             <el-tab-pane label="角色维护" name="s-role"> </el-tab-pane>
             <el-tab-pane label="路由维护" name="s-routes"> </el-tab-pane>
@@ -34,12 +34,20 @@ export default {
             activeName: "s-user",
         };
     },
-    created() {},
+    created() {
+        this.init();
+    },
     methods: {
-        //=====================================获取远程数据==================================//
-        //=====================================前后端交互====================================//
-        //=====================================组件间交互====================================//
-        //=====================================其他操作=====================================//
+        init() {
+            const localTab = localStorage.getItem("permission/activeTab");
+            if (localTab) {
+                this.activeName = localTab;
+            }
+        },
+        //改变tabs将上次选择的tab存为本地
+        handleChangeTabs() {
+            localStorage.setItem("permission/activeTab", this.activeName)
+        },
     },
 };
 </script>

@@ -25,6 +25,7 @@ export default {
             responseParams: [],
         },
         presetParamsList: [], //-------预设参数列表
+        cookies: [], //全局cookie信息
         //===============================接口录入相关=========================//
         apidocInfo: {}, //------------接口文档详情
         originApidocInfo: {}, //------原始接口信息，用于对比接口是否发生变化
@@ -33,7 +34,6 @@ export default {
         activeDoc: {}, //-------------当前被选中的tab页
         //============================发送请求===============================//
         sendRequestLoading: false, //是否正在请求数据
-
         remoteResponse: { //返回参数
             headers: {},
             contentType: null,
@@ -108,13 +108,13 @@ export default {
         },
         //改变某个tab信息
         changeTabInfoById(state, payload) {
-            const { _id, projectId, name, method, changed } = payload;
+            const { _id, projectId, name, tail, changed } = payload;
             const matchedData = state.tabs[projectId].find((val) => val._id === _id);
             if (matchedData && name) {
                 matchedData.name = name;
             }
-            if (matchedData && method) {
-                matchedData.method = method;
+            if (matchedData && tail) {
+                matchedData.tail = tail;
             }
             if (matchedData && changed != null) {
                 Vue.set(matchedData, "changed", changed);
@@ -158,7 +158,7 @@ export default {
         },
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
-            const { projectId, name, changed } = payload;
+            const { projectId, name, changed, tail } = payload;
             this.commit("apidoc/changeTabInfoById", {
                 _id: state.activeDoc[projectId]._id,
                 projectId,
@@ -171,6 +171,9 @@ export default {
             }
             if (matchedData) {
                 matchedData.changed = changed;
+            }
+            if (matchedData && tail) {
+                matchedData.tail = tail;
             }
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
@@ -265,6 +268,16 @@ export default {
         addPresetParams(state, payload) {
             state.presetParamsList.push(payload);
         },
+        //改变最近更新日期
+        changeDocUpdateTime(state) {
+            const nowTime = new Date()
+            state.apidocInfo.updatedAt = nowTime;
+            state.originApidocInfo.updatedAt = nowTime; //若不改变原始文档信息将导致同步错误
+        },
+        //改变项目全局cookie值
+        changeCookies(state, payload) {
+            state.cookies = payload;
+        },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
         changeSendRequestLoading(state, loading) {
@@ -294,6 +307,10 @@ export default {
         //是否校验通过
         changeParamsValid(state, isValid) {
             state.paramsValid = isValid;
+        },
+        //改变上次返回信息
+        changeRemoteResponse(state, payload) {
+            Object.assign(state.remoteResponse, payload);
         },
         //重置返回值信息
         clearRespons(state) {
@@ -407,6 +424,16 @@ export default {
          * @param {Array<Property>}     headers - 请求头
          */
         sendRequest(context, payload) {
+            //在promise外部捕获错误，promise内部无法收到error事件，不太清楚是为什么
+            httpClient.once("error", (err) => {
+                console.error(err);
+                context.commit("changeSendRequestLoading", false);
+                context.commit("changeResponseIndex", {
+                    mime: "error",
+                    value: err.message,
+                    rt: err?.timings?.phases?.total,
+                });
+            });
             return new Promise((resolve, reject) => {
                 const { url, method, contentType, paths, queryParams, requestBody, headers } = payload;
                 context.commit("changeSendRequestLoading", true);
@@ -423,7 +450,20 @@ export default {
                     context.commit("changeResponseInfo", response);
                 });
                 httpClient.once("error", (err) => {
+                    console.error(err);
+                    context.commit("changeSendRequestLoading", false);
+                    context.commit("changeResponseIndex", {
+                        mime: "error",
+                        value: err.message,
+                        rt: err?.timings?.phases?.total,
+                    });
                     reject(err);
+                });
+                httpClient.once("cancel", () => {
+                    context.commit("changeResponseIndex", {
+                        mime: "error",
+                        value: "请求已被取消",
+                    });
                 });
                 httpClient.once("end", (result) => {
                     context.commit("changeResponseIndex", result);

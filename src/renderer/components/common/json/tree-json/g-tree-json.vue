@@ -50,8 +50,6 @@ export default {
     },
     methods: {
         handleCopy() {
-            console.log(this.data)
-            console.log(this.convertPlainParamsToTreeData(this.data));
         },
         //将扁平数据转换为树形结构数据
         convertPlainParamsToTreeData(plainData, jumpChecked) {

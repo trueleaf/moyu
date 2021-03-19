@@ -74,11 +74,6 @@
                     >
                     </s-v-input>
                     <input v-if="scope.data.type === 'file'" class="w-25" type="file" @change="handleSelectFile($event, scope.data)">
-                    <!-- <s-file-select v-if="scope.data.type === 'file'" class="w-25">
-                        <div class="text-center">
-                            <button>选择文件</button>
-                        </div>
-                    </s-file-select> -->
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>
@@ -110,7 +105,6 @@
 </template>
 
 <script>
-import { dfsForest } from "@/lib/index"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
@@ -218,7 +212,16 @@ export default {
             this.$set(data, "_descriptionError", {
                 error: false,
             })
-            Object.assign(data, val);
+            data.key = val.key;
+            data.type = val.type;
+            data.value = val.value;
+            data.required = val.required;
+            data.description = val.description;
+            if (val.children && val.children.length > 0) {
+                data.children = val.children;
+                this.defaultExpandedKeys.push(data._id);
+            }
+            // Object.assign(data, val);
         },
         //新增一行
         addNewLine({ node, data }) {
@@ -273,7 +276,7 @@ export default {
             }
             if (data.type === "object" || data.type === "array") {
                 if (data.type === "array" && data.children && data.children.length > 0) { //清空子元素所有参数名称
-                    dfsForest(data.children, {
+                    this.$helper.dfsForest(data.children, {
                         rCondition(value) {
                             return value.children;
                         },
@@ -370,7 +373,7 @@ export default {
             } else {
                 data.value = ""
             }
-            console.log(file)
+            console.log(data, file)
         },
         //=====================================其他操作====================================//
         //选中所有数据
@@ -392,7 +395,7 @@ export default {
                 try {
                     setTimeout(() => {
                         const keys = [];
-                        dfsForest(this.treeData, {
+                        this.$helper.dfsForest(this.treeData, {
                             rCondition(value) {
                                 return value.children;
                             },
@@ -427,17 +430,8 @@ export default {
             this.$refs.tree?.setChecked(data._id, true);
         },
         //是否勾选请求参数
-        handleCheckChange() {
-            //首先清空所有选中数据
-            // dfsForest(this.treeData, {
-            //     rCondition(value) {
-            //         return value.children;
-            //     },
-            //     rKey: "children",
-            //     hooks: (data) => {
-            //         this.$set(data, "_select", false);
-            //     }
-            // });
+        handleCheckChange(data, select) {
+            this.$set(data, "_select", select);
             const checkedNodes = this.$refs.tree?.getCheckedNodes();
             const halfCheckedNodes = this.$refs.tree?.getHalfCheckedNodes();
             checkedNodes.forEach((val) => {

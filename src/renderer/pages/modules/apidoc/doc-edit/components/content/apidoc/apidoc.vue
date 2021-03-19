@@ -13,16 +13,35 @@
                 <s-request-operation-manage></s-request-operation-manage>
             </div>
             <!-- 参数录入 -->
-            <div class="params-wrap">
+            <div class="params-wrap hidden-md">
                 <s-request-query-params ref="query"></s-request-query-params>
                 <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
-                <pre v-if="apidocInfo.item" class="h-300px scroll-y">{{ apidocInfo.item.queryParams }}</pre>
             </div>
+            <!-- <div class="params-sm-wrap show-md">
+                <el-tabs v-model="activeName">
+                    <el-tab-pane label="Params" name="s-a">
+                        <s-request-query-params ref="query2"></s-request-query-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Body" name="s-b">
+                        <s-request-body-params ref="body2" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="Headers" name="s-d">
+                        <s-header-params ref="header2"></s-header-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="返回值" name="s-c">
+                        <s-response-params ref="response2"></s-response-params>
+                    </el-tab-pane>
+                    <el-tab-pane label="备注" name="s-e">
+                        <s-remark></s-remark>
+                    </el-tab-pane>
+                </el-tabs>
+            </div> -->
         </s-loading>
-        <div class="view-area">
+        <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
+            <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
             <s-overview></s-overview>
         </div>
     </div>
@@ -58,9 +77,17 @@ export default {
     watch: {
         currentSelectDoc: {
             handler(currentDoc, oldDoc) {
-                if (currentDoc.tabType !== "doc") return; //只处理类型为doc数据
+                if (currentDoc.tabType !== "doc") { //只处理类型为doc数据
+                    if (this.cancel.length > 0) { //切换时都清除上一次请求
+                        this.cancel.forEach((c) => {
+                            c("取消请求");
+                        })
+                    }
+                    return;
+                }
                 if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
                     this.checkCache(currentDoc);
+                    this.resumeRemoteResponse(); //恢复远端请求
                 }
             },
             deep: true,
@@ -86,13 +113,41 @@ export default {
     },
     data() {
         return {
+            //=====================================记录录入时长===============================//
+            startTime: null, //开始时间
+            endTime: null, //结束时间
+            writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
+            //=====================================拖拽参数====================================//
+            minWidth: 300, //------------最小宽度
+            maxWidth: 800, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            responseWidth: 0, //-----------response宽度
+            isDragging: false, //--------是否正在拖拽
             //=====================================其他参数====================================//
             watchFlag: null, //用于清空录入参数变化的watch
             cancel: [], //----请求列表
+            activeName: "s-a",
         };
     },
-    mounted() {},
+    mounted() {
+        this.initDrag()
+    },
     methods: {
+        //=====================================初始化====================================//
+        initDrag() {
+            document.documentElement.addEventListener("mouseup", () => {
+                // e.stopPropagation();
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const responseWidth = localStorage.getItem("apidoc/responseWidth") || 500;
+            const { response, bar } = this.$refs;
+            bar.style.left = 0;
+            response.style.width = `${responseWidth}px`;
+            document.documentElement.addEventListener("click", () => {
+                this.multiSelectNode = [];
+            });
+        },
         //=====================================获取数据====================================//
         //查看是否存在缓存
         checkCache(currentDoc) {
@@ -106,7 +161,8 @@ export default {
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                    const { query, query2, body, body2, header, header2 } = this.$refs;
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -115,14 +171,23 @@ export default {
                         this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                             this.syncRequestParams();
                             this.diffEditParams();
+                            this.calcSpendTime(); //计算编写接口花费的时间
                         }), {
                             deep: true,
                         })
                     })
                 });
             } else {
-                this.$store.commit("apidoc/clearRespons"); //清空上一次返回数据
                 this.getDocDetail();
+            }
+        },
+        //恢复上次远端返回
+        resumeRemoteResponse() {
+            this.$store.commit("apidoc/clearRespons")
+            let remoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+            remoteResponse = JSON.parse(remoteResponse);
+            if (remoteResponse[this.currentSelectDoc._id]) {
+                this.$store.commit("apidoc/changeRemoteResponse", remoteResponse[this.currentSelectDoc._id]);
             }
         },
         //获取接口数据
@@ -156,13 +221,15 @@ export default {
                     return;
                 }
                 const resData = res.data;
+                // console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
-                Promise.all([this.$refs.query.selectChecked(), this.$refs.body.selectChecked(), this.$refs.header.selectChecked()]).catch((err) => {
+                const { query, query2, body, body2, header, header2 } = this.$refs;
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -171,6 +238,7 @@ export default {
                     this.watchFlag = this.$watch("apidocInfo", this.$helper.debounce(() => {
                         this.syncRequestParams();
                         this.diffEditParams();
+                        this.calcSpendTime(); //计算编写接口花费的时间
                     }), {
                         deep: true,
                     })
@@ -226,14 +294,43 @@ export default {
             if (lastItemIsEmpty(requestBody)) {
                 requestBody.push(this.generateProperty());
             }
-            if (lastItemIsEmpty(headers)) {
-                headers.push(this.generateProperty());
+            //添加默认headers
+            const defaultHeaders = this.generateDefaultHeaders(resData);
+            request.headers = this.$helper.unique(defaultHeaders.concat(headers), "key"); //默认header会覆盖远程返回header
+            if (lastItemIsEmpty(request.headers)) {
+                request.headers.push(this.generateProperty());
             }
             responseParams.forEach((response) => {
                 if (lastItemIsEmpty(response.values)) {
                     response.values.push(this.generateProperty());
                 }
             })
+            //如果无请求server则添加本地上次选择的server
+            let localServer = localStorage.getItem("apidoc/server") || "{}";
+            localServer = JSON.parse(localServer);
+            localServer = localServer[this.$route.query.id];
+            if (localServer && !resData.item.url.host) {
+                resData.item.url.host = localServer;
+            }
+        },
+        //生成默认请求头
+        generateDefaultHeaders(resData) {
+            const userAgent = this.generateProperty();
+            const contentType = this.generateProperty();
+            const host = this.generateProperty();
+            host._readOnly = true;
+            host.key = "Host";
+            host.description = "主机信息";
+            host.value = "自动生成";
+            userAgent._readOnly = true;
+            userAgent.key = "user-agent";
+            userAgent.value = "moyu(https://github.com/trueleaf/moyu)";
+            userAgent.description = "用户代理";
+            contentType._readOnly = true;
+            contentType.key = "content-type";
+            contentType.value = resData.item.contentType;
+            contentType.description = "内容类型";
+            return [userAgent, contentType, host];
         },
         //同步请求数据
         syncRequestParams() {
@@ -250,27 +347,37 @@ export default {
         //对比填写参数是否发送变化
         diffEditParams() {
             //挑选参数字段需要对比的参数
-            const pickerProperty = (property) => ({
-                key: property.key,
-                type: property.type,
-                description: property.description,
-                value: property.value,
-                required: property.required,
-                _select: property._select,
-            });
+            const pickerProperty = (arrData) => {
+                if (!arrData) {
+                    return [];
+                }
+                const result = this.$helper.recursivePicker(arrData, {
+                    condition(item) {
+                        return item.key !== "" || item.value !== "";
+                    },
+                    fields: ["key", "type", "description", "value", "required"],
+                });
+                return result;
+            };
             //挑选整个接口文档需要对比的参数
             const pickerValidDiffParams = (docInfo) => {
+                const responseParams = [];
+                docInfo.item?.responseParams.forEach((response) => {
+                    response.values.forEach((val) => {
+                        responseParams.push(val);
+                    });
+                })
                 const result = {
                     info: docInfo.info,
                     item: {
-                        method: docInfo.item.method,
-                        url: docInfo.item.url,
-                        paths: docInfo.item.paths.map((val) => pickerProperty(val)),
-                        queryParams: docInfo.item.queryParams.map((val) => pickerProperty(val)),
-                        requestBody: docInfo.item.requestBody.map((val) => pickerProperty(val)),
-                        responseParams: docInfo.item.responseParams.map((val) => pickerProperty(val)),
-                        headers: docInfo.item.headers.map((val) => pickerProperty(val)),
-                        contentType: docInfo.item.contentType,
+                        method: docInfo.item?.method,
+                        url: docInfo.item?.url,
+                        paths: pickerProperty(docInfo.item?.paths),
+                        queryParams: pickerProperty(docInfo.item?.queryParams),
+                        requestBody: pickerProperty(docInfo.item?.requestBody),
+                        responseParams: pickerProperty(responseParams),
+                        headers: pickerProperty(docInfo.item?.headers),
+                        contentType: docInfo.item?.contentType,
                     },
                 }
                 return result;
@@ -290,6 +397,49 @@ export default {
                 });
             }
         },
+        //计算接口录入花费的时间
+        calcSpendTime() {
+            let spendTime = 0;
+            if (!this.startTime) { //开始时间
+                this.startTime = Date.now() - 300;
+            }
+            if (Date.now() - this.startTime > this.writeSensitivity) { //超过限制时间没有录入接口则默认花费时间为0
+                this.startTime = null;
+                this.endTime = null;
+                spendTime = 0;
+            } else { //在限制时间内则说明用户一直在录入
+                spendTime = Date.now() - this.startTime;
+                this.startTime = Date.now();
+            }
+            const currentDocUsedTime = JSON.parse(localStorage.getItem("apidoc/spendTime") || "{}");
+            if (!currentDocUsedTime[this.currentSelectDoc._id]) {
+                currentDocUsedTime[this.currentSelectDoc._id] = 0;
+            }
+            currentDocUsedTime[this.currentSelectDoc._id] += spendTime;
+            localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
+        },
+        //=====================================其他操作====================================//
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.responseWidth = this.$refs.response.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            e.stopPropagation();
+            let moveLeft = 0;
+            const { response } = this.$refs;
+            moveLeft = this.mousedownLeft - e.clientX;
+            const responseWidth = moveLeft + this.responseWidth;
+            if (responseWidth < this.minWidth || responseWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/responseWidth", moveLeft + this.responseWidth)
+            // bar.style.left = `${moveLeft}px`;
+            response.style.width = `${moveLeft + this.responseWidth}px`;
+        },
     },
 };
 </script>
@@ -301,12 +451,14 @@ export default {
     // 编辑区域
     .edit-area {
         border-right: 1px solid $gray-400;
-        flex: 0 0 65%;
+        flex: 1;
         .info-wrap {
+            position: sticky;
+            top: 0;
             padding: size(10) size(20);
             box-shadow: 0 3px 2px $gray-400;
-            position: relative;
-            z-index: 1;
+            background: $white;
+            z-index: $zIndex-request-info-wrap;
         }
         .params-wrap {
             padding: size(20);
@@ -316,16 +468,60 @@ export default {
     }
     // 展示区域
     .view-area {
-        flex: 1 0 35%;
-    }
-    @media only screen and (max-width: 1440px) {
-        flex-direction: column;
-        .edit-area {
-            flex: 0 0 auto;
+        flex-grow: 0;
+        flex-shrink: 0;
+        width: size(500);
+        position: relative;
+        &>.bar {
+            position: absolute;
+            height: 100%;
+            width: size(10);
+            background: transparent;
+            left: 0;
+            z-index: $zIndex-banner-bar;
+            box-sizing: content-box;
+            margin-left: size(-5);
+            cursor: ew-resize;
         }
-        .view-area {
-            flex: 0 0 auto;
-        }
     }
+    .show-md {
+        display: none;
+    }
+    // @media only screen and (max-width: 1440px) {
+    //     display: block;
+    //     .hidden-md {
+    //         display: none;
+    //     }
+    //     .show-md {
+    //         display: block;
+    //     }
+    //     .params-sm-wrap {
+    //         display: block;
+    //         padding: 0 size(10);
+    //         height: size(300);
+    //         overflow-y: auto;
+    //         box-shadow: 0 3px 2px $gray-400;
+    //         .el-tabs__header {
+    //             margin: 0;
+    //         }
+    //     }
+    //     .edit-area {
+    //         flex: 0 0 auto;
+    //     }
+    //     .view-area {
+    //         width: 100%;
+    //         .request-view {
+    //             display: none;
+    //         }
+    //         .response-view {
+    //             flex: 0 0 calc(100vh - #{size(530)});
+    //             min-height: size(300);
+    //         }
+    //         .body-view {
+    //             height: calc(100vh - #{size(625)});
+    //             min-height: size(200);
+    //         }
+    //     }
+    // }
 }
 </style>

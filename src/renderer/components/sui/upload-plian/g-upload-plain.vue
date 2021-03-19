@@ -114,7 +114,6 @@ export default {
             }).finally(() => {
                 this.$emit("finish", this.resData);
             });
-            console.log(222, file)
         },
         //=====================================文件相关判断====================================//
         /* 
@@ -141,7 +140,6 @@ export default {
                 isValidType = true;
             } 
             //=========================================================================//
-            console.log("文件类型", file.name, isValidType)
             if (isLtnM) {
                 this.$message({
                     type: "warning",

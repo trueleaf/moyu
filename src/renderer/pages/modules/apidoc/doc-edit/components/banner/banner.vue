@@ -5,11 +5,11 @@
     备注：xxxx
 */
 <template>
-    <div class="banner">
+    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click="handleClickBanner">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
-            <el-input v-model="queryData" class="doc-search" placeholder="支持文档名称，文档url搜索" clearable @input="handleSearchTree"></el-input>
+            <el-input v-model="queryData" class="doc-search" placeholder="文档名称,文档url,创建者" clearable @input="handleSearchTree"></el-input>
             <div class="tool-icon d-flex j-between mt-1 px-1">
                 <el-tooltip class="item" effect="dark" content="新增文件夹" :open-delay="300">
                     <svg class="svg-icon" aria-hidden="true" @click="handleOpenAddFolderDialog();docParentId = '';">
@@ -21,24 +21,36 @@
                         <use xlink:href="#iconwenjian"></use>
                     </svg>
                 </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="历史记录" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible4 = true">
-                        <use xlink:href="#iconlishi"></use>
+                <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExport">
+                        <use xlink:href="#icondaochu1"></use>
+                    </svg>
+                </el-tooltip>
+                <!-- <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
+                        <use xlink:href="#icondaoru"></use>
+                    </svg>
+                </el-tooltip> -->
+                <el-tooltip class="item" effect="dark" content="在线链接" :open-delay="300">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenOnlineLink">
+                        <use xlink:href="#iconlink"></use>
                     </svg>
                 </el-tooltip>
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
-                <el-dropdown trigger="click" class="mr-1">
+                <el-dropdown ref="dropdown" trigger="click" class="mr-1">
                     <i class="more-op el-icon-more" title="更多操作"></i>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible6 = true">导出文档</el-dropdown-item>
                         <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenHistoryPage">历史记录</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenConfigPage">全局设置</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
         </div>
+        <div class="filter"></div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
@@ -58,70 +70,92 @@
                     @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
-                    <div
-                            class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                            tabindex="1"
-                            @keydown="handleKeydown($event, scope.data)"
-                            @keyup="handleKeyUp"
-                            @click="handleClickNode($event, scope)"
-                            @mouseover="hoverNodeId = scope.data._id"
-                            @mouseout="hoverNodeId = ''"
-                    >
-                        <!-- file渲染 -->
-                        <template v-if="!scope.data.isFolder">
-                            <template v-for="(req) in validRequestMethods">
-                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                    <el-popover
+                        v-model="scope.data._ctrlPress"
+                        class="w-100"
+                        placement="right"
+                        width="300"
+                        trigger="manual"
+                        >
+                        <div class="d-flex flex-column">
+                            <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
+                            <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
+                            <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
+                        </div>
+                        <div
+                                class="custom-tree-node"
+                                :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                tabindex="0"
+                                slot="reference"
+                                @keydown.stop="handleKeydown($event, scope.data)"
+                                @keyup.stop="handleKeyUp($event, scope.data)"
+                                @click="handleClickNode($event, scope)"
+                                @mouseenter="handleHoverNode($event, scope)"
+                                @mouseleave="hoverNodeId = ''"
+                        >
+                            <!-- file渲染 -->
+                            <template v-if="!scope.data.isFolder">
+                                <template v-for="(req) in validRequestMethods">
+                                    <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                                </template>
+                                <s-emphasize
+                                    v-if="renameNodeId !== scope.data._id"
+                                    class="node-name ml-1"
+                                    :title="scope.data.name"
+                                    :value="scope.data.name"
+                                    :keyword="queryData">
+                                </s-emphasize>
+                                <!-- <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div> -->
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
+                                <el-dropdown
+                                        v-show="hoverNodeId === scope.data._id"
+                                        class="node-more"
+                                        trigger="click"
+                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                        @click.native.stop="() =>{}"
+                                >
+                                    <span class="el-icon-more"></span>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
+                                        <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
+                                        <el-dropdown-item command="rename">重命名</el-dropdown-item>
+                                        <el-dropdown-item command="delete">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
                             </template>
-                            <s-emphasize v-if="renameNodeId !== scope.data._id" :title="scope.data.name" :value="scope.data.name" :keyword="queryData" class="node-name text-ellipsis ml-1"></s-emphasize>
-                            <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
-                            <el-dropdown
-                                    v-show="hoverNodeId === scope.data._id"
-                                    class="node-more ml-auto mr-2"
-                                    trigger="click"
-                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                    @click.native.stop="() =>{}"
-                            >
-                                <span class="el-icon-more"></span>
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
-                                    <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
-                                    <el-dropdown-item command="rename">重命名</el-dropdown-item>
-                                    <el-dropdown-item command="delete">删除</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                        </template>
-                        <!-- 文件夹渲染 -->
-                        <template v-if="scope.data.isFolder">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
-                            <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                            <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
-                            <el-dropdown
-                                    v-show="hoverNodeId === scope.data._id"
-                                    class="node-more ml-auto mr-2"
-                                    trigger="click"
-                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                    @click.native.stop="() =>{}"
-                            >
-                                <span class="el-icon-more"></span>
-                                <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addFolder">新建文件夹</el-dropdown-item>
-                                    <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
-                                    <el-dropdown-item command="rename">重命名</el-dropdown-item>
-                                    <el-dropdown-item command="delete">删除</el-dropdown-item>
-                                </el-dropdown-menu>
-                            </el-dropdown>
-                        </template>
-                    </div>
+                            <!-- 文件夹渲染 -->
+                            <template v-if="scope.data.isFolder">
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                                <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
+                                <el-dropdown
+                                        v-show="hoverNodeId === scope.data._id"
+                                        class="node-more"
+                                        trigger="click"
+                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                        @click.native.stop="() =>{}"
+                                >
+                                    <span class="el-icon-more"></span>
+                                    <el-dropdown-menu slot="dropdown">
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addFolder">新建文件夹</el-dropdown-item>
+                                        <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
+                                        <el-dropdown-item command="rename">重命名</el-dropdown-item>
+                                        <el-dropdown-item command="delete">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </el-dropdown>
+                            </template>
+                        </div>
+                    </el-popover>
                 </template>
             </el-tree>
         </div>
+        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-        <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="init"></s-import-doc-dialog>
+        <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
         <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
@@ -171,6 +205,8 @@ export default {
             handler(val) {
                 if (val && val._id) {
                     this.defaultExpandedKeys.splice(0, 1, val._id);
+                } else {
+                    this.defaultExpandedKeys = [];
                 }
             },
             deep: true,
@@ -179,23 +215,33 @@ export default {
     data() {
         return {
             //=====================================文档增删改查====================================//
-            queryData: "", //------------文档过滤条件
-            docParentId: "", //----------文档父id
-            contextmenu: null, //--------右键弹窗
-            renameNodeId: "", //---------正在重命名的节点
-            pressCtrl: false, //---------是否按住ctrl键
-            multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
-            enableDrag: true, //---------是否允许文档被拖拽
-            defaultExpandedKeys: [], //--默认展开的文档key值
+            queryData: "", //------------------文档过滤条件
+            docParentId: "", //----------------文档父id
+            contextmenu: null, //--------------右键弹窗
+            renameNodeId: "", //---------------正在重命名的节点
+            pressCtrl: false, //---------------是否按住ctrl键
+            multiSelectNode: [], //------------按住ctrl+鼠标左键多选节点
+            enableDrag: true, //---------------是否允许文档被拖拽
+            defaultExpandedKeys: [], //--------默认展开的文档key值
+            currentSelectBannerNode: null, //--当前选中banner节点
+            //=====================================拖拽参数====================================//
+            minWidth: 280, //------------------最小宽度
+            maxWidth: 400, //------------------最大宽度
+            mousedownLeft: 0, //---------------鼠标点击距离
+            bannerWidth: 0, //-----------------banner宽度
+            isDragging: false, //--------------是否正在拖拽
+            isRename: false, //----------------正在重命名
             //=====================================其他参数====================================//
-            hoverNodeId: "", //----------控制导航节点更多选项显示
-            dialogVisible: false, //-----新增文件夹弹窗
-            dialogVisible2: false, //----新增文件弹窗
-            dialogVisible3: false, //----导入第三方文档弹窗
-            dialogVisible4: false, //----查看历史记录
-            dialogVisible5: false, //----以模板新建
-            dialogVisible6: false, //----导出文档
-            loading: false, //-----------左侧树形导航加载
+            hoverNodeId: "", //----------------控制导航节点更多选项显示
+            dialogVisible: false, //-----------新增文件夹弹窗
+            dialogVisible2: false, //----------新增文件弹窗
+            dialogVisible3: false, //----------导入第三方文档弹窗
+            dialogVisible4: false, //----------查看历史记录
+            dialogVisible5: false, //----------以模板新建
+            dialogVisible6: false, //----------导出文档
+            dialogVisible7: false, //----------生产在线链接
+            popoverVisible: false, //----------banner详情弹出框
+            loading: false, //-----------------左侧树形导航加载
         };
     },
     mounted() {
@@ -208,21 +254,128 @@ export default {
             document.documentElement.addEventListener("click", () => {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
+                this.currentSelectBannerNode = null;
+                this.clearPopover();
+                this.pressCtrl = false;
             });
+            document.documentElement.addEventListener("mouseup", () => {
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const bannerWidth = localStorage.getItem("apidoc/bannerWidth") || 300;
+            const { banner, bar } = this.$refs;
+            bar.style.left = `${bannerWidth}px`;
+            banner.style.width = `${bannerWidth}px`;
         },
         //=====================================操作栏操作====================================//
+        //导入成功
+        handleImportSuccess() {
+            this.getDocBanner();
+            this.$store.dispatch("apidoc/getHostEnum", {
+                projectId: this.$route.query.id,
+            });
+        },
         //刷新banner
         freshBanner() {
             if (!this.loading) {
                 this.getDocBanner();
             }
         },
+        //获取banner数据
         getDocBanner() {
             this.loading = true;
             this.$store.dispatch("apidoc/getDocBanner", { projectId: this.$route.query.id }).catch((err) => {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
+            });
+        },
+        //打开在线链接tab
+        handleOpenOnlineLink() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "onlineLink")) { //存在链接则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "生成在线链接",
+                changed: false,
+                tail: "",
+                tabType: "onlineLink",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "生成在线链接",
+                changed: false,
+                tail: "",
+                tabType: "onlineLink",
+                projectId: this.$route.query.id,
+            });
+        },
+        //打开导出tab
+        handleOpenExport() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "exportDoc")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
+                projectId: this.$route.query.id,
+            });
+        },
+        //打开配置界面
+        handleOpenConfigPage() {
+            this.$store.commit("apidoc/addTab", {
+                _id: "idConfig",
+                projectId: this.$route.query.id,
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
+                tabType: "config",
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: "idConfig",
+                projectId: this.$route.query.id,
+                name: "文档全局配置",
+                changed: false,
+                tail: "conf",
+                tabType: "config",
+            });
+        },
+        //打开历史记录界面
+        handleOpenHistoryPage() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "history")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "历史记录",
+                changed: false,
+                tail: "",
+                tabType: "history",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "历史记录",
+                changed: false,
+                tail: "",
+                tabType: "history",
+                projectId: this.$route.query.id,
             });
         },
         //=====================================导航操作==================================//
@@ -243,11 +396,13 @@ export default {
                     this.handleOpenAddFolderDialog();
                     break;
                 case "rename":
+                    console.log("rename");
                     this.$set(data, "_name", data.name); //文档名称备份,防止修改名称用户名称填空导致异常
                     this.renameNodeId = data._id;
                     this.$nextTick(() => {
                         document.querySelector(".rename-ipt").focus();
                         this.enableDrag = false;
+                        this.isRename = true;
                     });
                     break;
                 case "delete":
@@ -306,6 +461,7 @@ export default {
                 this.$nextTick(() => {
                     document.querySelector(".rename-ipt").focus();
                     this.enableDrag = false;
+                    this.isRename = true;
                 })
             })
             this.contextmenu.$on("delete", () => {
@@ -325,6 +481,13 @@ export default {
                 }
             });
         },
+        //鼠标移动到当前node上面
+        handleHoverNode(e, scope) {
+            if (!this.isRename) { //防止focus导致输入框失焦
+                e.currentTarget.focus(); //实其能够触发keydown事件
+            }
+            this.hoverNodeId = scope.data._id
+        },
         //处理节点上面keydown快捷方式(例如f2重命名)
         handleKeydown(e, data) {
             if (e.code === "F2") {
@@ -333,13 +496,23 @@ export default {
                 this.$nextTick(() => {
                     document.querySelector(".rename-ipt").focus();
                     this.enableDrag = false;
+                    this.isRename = true; //重命名
                 })
             } else if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                this.clearPopover();
+                this.$set(data, "_ctrlPress", true);
                 this.pressCtrl = true;
             }
         },
+        //清除popover效果
+        clearPopover() {
+            this.$helper.forEachForest(this.navTreeData, (data) => {
+                this.$set(data, "_ctrlPress", false);
+            });
+        },
         //按键放开
         handleKeyUp() {
+            this.clearPopover();
             this.pressCtrl = false;
         },
         //点击节点
@@ -432,6 +605,14 @@ export default {
                 _id: node.data._id, //当前节点id
                 pid: "", //父元素
                 sort: 0, //当前节点排序效果
+                projectId: this.$route.query.id,
+                dropInfo: {
+                    nodeName: node.data.name,
+                    nodeId: node.data._id,
+                    dropNodeName: dropNode.data.name,
+                    dropNodeId: dropNode.data._id,
+                    dropType: type,
+                },
             };
             const pData = this.$helper.findParentNodeById(this.navTreeData, node.data._id, { id: "_id" });
             params.pid = pData ? pData._id : "";
@@ -444,7 +625,6 @@ export default {
                 const nextSiblingSort = nextSibling.sort || Date.now();
                 params.sort = (nextSiblingSort + previousSiblingSort) / 2;
                 node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-                console.log(nextSibling, previousSibling)
             }
             this.axios.put("/api/project/change_doc_pos", params).then(() => {}).catch((err) => {
                 this.$errorThrow(err, this);
@@ -452,6 +632,7 @@ export default {
         },
         //点击节点
         handleNodeClick(data, node) {
+            this.currentSelectBannerNode = data;
             if (!node.data.isFolder) { //文件夹不做处理
                 this.$store.commit("apidoc/addTab", {
                     _id: node.data._id,
@@ -543,11 +724,11 @@ export default {
         },
         //删除某一项
         handleDeleteItem(data, node) {
-            const deleteId = [];
-            deleteId.push(data._id); //删除自己
+            const deleteIds = [];
+            deleteIds.push(data._id); //删除自己
             if (data.isFolder) { //删除所有子元素
                 forEachForest(data.children, (item) => {
-                    deleteId.push(item._id);
+                    deleteIds.push(item._id);
                 });
             }
             this.$confirm(`此操作将永久删除 ${data.name} 节点, 是否继续?`, "提示", {
@@ -555,7 +736,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteId } }).then(() => {
+                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteIds } }).then(() => {
                     const pNode = node.parent;
                     if (pNode && pNode.level !== 0) {
                         const nodeIndex = pNode.data.children.findIndex((val) => val._id === data._id);
@@ -564,7 +745,7 @@ export default {
                         const nodeIndex = this.navTreeData.findIndex((val) => val._id === data._id);
                         this.navTreeData.splice(nodeIndex, 1);
                     }
-                    this.handleDeleteTabsById(deleteId);
+                    this.handleDeleteTabsById(deleteIds);
                 }).catch((err) => {
                     this.$errorThrow(err, this);
                 });
@@ -577,22 +758,22 @@ export default {
         },
         //批量删除
         handleDeleteManyItem() {
-            const deleteId = [];
+            const deleteIds = [];
             const selectNodeCopy = this.multiSelectNode; //点击节点会清空选中数据
             this.multiSelectNode.forEach((val) => {
-                deleteId.push(val.data._id);
+                deleteIds.push(val.data._id);
                 if (val.data.isFolder) { //删除所有子元素
                     forEachForest(val.data.children || [], (item) => {
-                        deleteId.push(item._id);
+                        deleteIds.push(item._id);
                     });
                 }
             });
-            this.$confirm(`确认删除选中的${deleteId.length}个节点, 是否继续?`, "提示", {
+            this.$confirm(`确认删除选中的${deleteIds.length}个节点, 是否继续?`, "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
-                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteId } }).then(() => {
+                this.axios.delete("/api/project/doc", { data: { projectId: this.$route.query.id, ids: deleteIds } }).then(() => {
                     selectNodeCopy.forEach((delNode) => {
                         const pNode = delNode.parent;
                         if (pNode && pNode.level !== 0) { //非根元素
@@ -602,7 +783,7 @@ export default {
                             const nodeIndex = this.navTreeData.findIndex((val) => val._id === delNode.data._id);
                             this.navTreeData.splice(nodeIndex, 1);
                         }
-                        this.handleDeleteTabsById(deleteId);
+                        this.handleDeleteTabsById(deleteIds);
                     })
                 }).catch((err) => {
                     this.$errorThrow(err, this);
@@ -620,20 +801,21 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds,
             });
-            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
-                this.$store.commit("apidoc/changeCurrentTab", {
-                    _id: this.tabs[this.tabs.length - 1]._id,
-                    projectId: this.$route.query.id,
-                    name: this.tabs[this.tabs.length - 1].name,
-                    changed: this.tabs[this.tabs.length - 1].changed,
-                    tail: this.tabs[this.tabs.length - 1].tail,
-                    tabType: "doc",
-                });
-            }
+            // if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+            //     this.$store.commit("apidoc/changeCurrentTab", {
+            //         _id: this.tabs[this.tabs.length - 1]._id,
+            //         projectId: this.$route.query.id,
+            //         name: this.tabs[this.tabs.length - 1].name,
+            //         changed: this.tabs[this.tabs.length - 1].changed,
+            //         tail: this.tabs[this.tabs.length - 1].tail,
+            //         tabType: "doc",
+            //     });
+            // }
         },
         //重命名某个节点
         handleChangeNodeName(data) {
             this.renameNodeId = "";
+            this.isRename = false;
             this.enableDrag = true; //改名以后允许节点拖拽
             if (data.name.trim() === "") {
                 data.name = data._name;
@@ -690,6 +872,30 @@ export default {
         },
 
         //=====================================其他操作=====================================//
+        //点击banner区域
+        handleClickBanner() {
+            this.currentSelectBannerNode = "root";
+        },
+        //处理鼠标按下事件
+        handleResizeMousedown(e) {
+            this.mousedownLeft = e.clientX;
+            this.bannerWidth = this.$refs.banner.getBoundingClientRect().width;
+            this.isDragging = true;
+            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+        },
+        //处理鼠标移动事件
+        handleResizeMousemove(e) {
+            let moveLeft = 0;
+            const { banner, bar } = this.$refs;
+            moveLeft = e.clientX - this.mousedownLeft;
+            const bannerWidth = moveLeft + this.bannerWidth;
+            if (bannerWidth < this.minWidth || bannerWidth > this.maxWidth) {
+                return;
+            }
+            localStorage.setItem("apidoc/bannerWidth", moveLeft + this.bannerWidth)
+            bar.style.left = `${moveLeft + this.bannerWidth}px`;
+            banner.style.width = `${moveLeft + this.bannerWidth}px`;
+        },
         //清除contextmenu
         clearContextmenu() {
             if (this.contextmenu) {
@@ -708,6 +914,18 @@ export default {
     border-right: 1px solid $gray-400;
     display: flex;
     flex-direction: column;
+    position: relative;
+    &>.bar {
+        position: absolute;
+        height: 100%;
+        width: size(10);
+        background: transparent;
+        left: size(300);
+        z-index: $zIndex-banner-bar;
+        box-sizing: content-box;
+        margin-left: size(-5);
+        cursor: ew-resize;
+    }
     .el-tree-node__content {
         height: size(30);
     }
@@ -754,31 +972,8 @@ export default {
         height: calc(100vh - #{size(60)} - #{size(150)});
         overflow: auto;
         .custom-tree-node {
-            display: flex;
-            align-items: center;
-            height: 30px;
-            width: 100%;
-            &:hover {
-                background: mix($theme-color, $white, 25%);
-            }
-            &.active {
-                background: mix($theme-color, $white, 25%);
-            }
-            //selected放在后面覆盖掉active样式
-            &.selected {
-                background: mix($theme-color, $white, 50%);
-            }
-            .label {
-                display: inline-block;
-                width: 25px;
-            }
-            .node-name {
-                display: inline-block;
-                max-width: 180px;
-                border: 2px solid transparent;
-            }
+            @include custom-tree-node;
         }
     }
-
 }
 </style>

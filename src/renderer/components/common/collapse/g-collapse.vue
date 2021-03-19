@@ -7,7 +7,7 @@
 <template>
     <div class="s-collaps mb-1">
         <div class="header" @click="isActive = !isActive">
-            <span :class="{'el-icon-caret-bottom': isActive, 'el-icon-caret-right': !isActive}"></span>
+            <span class="f-bg" :class="{'el-icon-caret-bottom': isActive, 'el-icon-caret-right': !isActive}"></span>
             <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
             <slot v-else name="title"/>
         </div>
@@ -51,7 +51,7 @@ export default {
 
 <style lang="scss">
 .s-collaps {
-    .header {
+    &>.header {
         cursor: pointer;
         height: size(25);
         display: flex;
