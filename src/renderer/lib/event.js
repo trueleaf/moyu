@@ -15,8 +15,19 @@ export default class EventEmitter {
         this.events[eventName].push(handle);
     }
 
+    once(eventName, handle) {
+        if (!this.events[eventName]) {
+            this.events[eventName] = [];
+        }
+        this.events[eventName] = [handle];
+    }
+
     off(eventName) {
         delete this.events[eventName];
+    }
+
+    getAll() {
+        return this.events;
     }
 
     emit(eventName, ...args) {
