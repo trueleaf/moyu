@@ -801,16 +801,16 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds,
             });
-            // if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
-            //     this.$store.commit("apidoc/changeCurrentTab", {
-            //         _id: this.tabs[this.tabs.length - 1]._id,
-            //         projectId: this.$route.query.id,
-            //         name: this.tabs[this.tabs.length - 1].name,
-            //         changed: this.tabs[this.tabs.length - 1].changed,
-            //         tail: this.tabs[this.tabs.length - 1].tail,
-            //         tabType: "doc",
-            //     });
-            // }
+            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: this.tabs[this.tabs.length - 1]._id,
+                    projectId: this.$route.query.id,
+                    name: this.tabs[this.tabs.length - 1].name,
+                    changed: this.tabs[this.tabs.length - 1].changed,
+                    tail: this.tabs[this.tabs.length - 1].tail,
+                    tabType: this.tabs[this.tabs.length - 1].tabType,
+                });
+            }
         },
         //重命名某个节点
         handleChangeNodeName(data) {
