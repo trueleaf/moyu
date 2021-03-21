@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import config from "@/../config"
+
 export default {
     data() {
         return {
@@ -73,8 +75,7 @@ export default {
     },
     computed: {
         captchaUrl() {
-            const { isProcess } = this.$root.VUE_BASE_CONFIG;
-            const requestUrl = isProcess ? this.$root.VUE_BASE_CONFIG.devUrl : this.$root.VUE_BASE_CONFIG.proUrl;
+            const requestUrl = config.renderConfig.httpRequest.url;
             return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
         },
         version() {

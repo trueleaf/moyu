@@ -62,7 +62,7 @@ export default {
     height: 100vh;
     background: $gray-200;
     .login-box {
-        height: size(500);
+        height: size(550);
         width: size(850);
         background: $white;
         box-shadow: $box-shadow-base;
