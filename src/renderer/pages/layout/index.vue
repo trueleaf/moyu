@@ -33,7 +33,7 @@
                 </div>
                 <el-dropdown>
                     <span class="cursor-pointer">
-                        <span>{{ userInfo.realName || userInfo.phone }}</span>
+                        <span>{{ userInfo.realName || userInfo.loginName }}</span>
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <el-dropdown-menu slot="dropdown">
