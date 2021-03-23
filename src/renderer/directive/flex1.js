@@ -9,5 +9,6 @@ export default {
         const offsetY = el.getBoundingClientRect().y;
         const { value } = binding;
         el.style.height = `calc(100vh - ${offsetY + value}px)`;
+        el.style.overflowY = `auto`;
     },
 };
