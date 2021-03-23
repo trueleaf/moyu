@@ -158,7 +158,6 @@
         <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
-        <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
     </div>
 </template>
 
@@ -170,7 +169,6 @@ import addFileDialog from "../../dialog/add-file.vue";
 import importDoc from "../../dialog/import-doc.vue";
 import historyDialog from "./dialog/history.vue";
 import templateDialog from "./dialog/template.vue";
-import exportDialog from "./dialog/export.vue";
 import contextmenu from "./components/contextmenu.vue";
 
 export default {
@@ -181,7 +179,6 @@ export default {
         "s-import-doc-dialog": importDoc,
         "s-history-dialog": historyDialog,
         "s-template-dialog": templateDialog,
-        "s-export-dialog": exportDialog,
     },
     computed: {
         navTreeData() { //-------树形导航数据
@@ -238,7 +235,6 @@ export default {
             dialogVisible3: false, //----------导入第三方文档弹窗
             dialogVisible4: false, //----------查看历史记录
             dialogVisible5: false, //----------以模板新建
-            dialogVisible6: false, //----------导出文档
             dialogVisible7: false, //----------生产在线链接
             popoverVisible: false, //----------banner详情弹出框
             loading: false, //-----------------左侧树形导航加载
