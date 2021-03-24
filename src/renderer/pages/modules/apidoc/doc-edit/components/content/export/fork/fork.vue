@@ -23,7 +23,7 @@
                 <div class="mb-2 f-base">第一步：选择需要导出的文档</div>
                 <el-tree
                         ref="docTree"
-                        :data="navTreeData"
+                        :data="sourceTreeData"
                         node-key="_id"
                         draggable
                         :allow-drop="() => false"
@@ -66,6 +66,7 @@
                             node-key="_id"
                             draggable
                             :allow-drop="checkTargetCouldDrop"
+                            @node-drag-start="handleTargetDragStart"
                             @node-drop="handleTargetDrop"
                             :expand-on-click-node="true"
                             empty-text="请在上方选择项目挂载"
@@ -102,20 +103,23 @@
 export default {
     data() {
         return {
-            //=================================表单与表格参数================================//
-            pressCtrl: false, //--------是否按住ctrl
             //===================================枚举参数====================================//
             projectEnum: [], //---------项目枚举信息
             //===================================业务参数====================================//
             targetTreeData: [], //-----其他项目导航菜单信息
+            isDragSource: false, //------是拖拽源树
             //===================================其他参数====================================//
             projectId: "", //------------项目id
             loading: false, //-----------项目导航加载
         };
     },
     computed: {
-        navTreeData() { //-------树形导航数据
-            return JSON.parse(JSON.stringify(this.$store.state.apidoc.banner));
+        sourceTreeData() { //-------树形导航数据
+            const copyData = JSON.parse(JSON.stringify(this.$store.state.apidoc.banner));
+            this.$helper.forEachForest(copyData, (data) => {
+                this.$set(data, "_isSource", true);
+            });
+            return copyData;
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
@@ -142,7 +146,7 @@ export default {
             });
         },
         //=====================================互相拖拽====================================//
-        //当前节点拖拽开始
+        //当前节点拖拽开始,开启target树的拖拽开始
         handleSourceDragstart(node, event) {
             this.$refs.mountedTree.$emit("tree-node-drag-start", event, { node });
         },
@@ -162,30 +166,101 @@ export default {
                     const data = JSON.parse(JSON.stringify(draggingNode.data));
                     data._id2 = data._id2 || data._id;
                     data._id = this.$helper.uuid();
+                    data._isSource = true; //当前节点还原为source
                     this.$refs.docTree.insertAfter(data, this.$refs.docTree.getNode(emptyData));
                     this.$refs.docTree.remove(emptyData);
                 }
             })
         },
         //挂载点判断是否允许drop
-        checkTargetCouldDrop() {
+        checkTargetCouldDrop(draggingNode, dropNode, type) {
+            if (!draggingNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
+                return type !== "prev";
+            }
+            if (draggingNode.data.isFolder && !dropNode.data.isFolder) {
+                return false;
+            }
+            if (!dropNode.data.isFolder) {
+                return type !== "inner";
+            }
             return true;
+        },
+        //挂载点开始拖拽,非手动触发事件
+        handleTargetDragStart() {
         },
         //挂载点拖拽成功
         handleTargetDrop(dragNode, dropNode, type) {
-            console.log(dragNode.data, dropNode, type);
+            console.log(JSON.parse(JSON.stringify(dragNode.data)))
+            // console.log(dragNode.data._id2 || dragNode.data._id, dropNode.data, type);
+            const { _isSource } = dragNode.data;
+            if (_isSource) { //从源树拖拽到目标树
+                if (type === "inner") { //拖放至内部则选择dropNode
+                    const targetMountedId = dropNode.data._id;
+                    const sourceDocIds = [];
+                    this.$helper.forEachForest([dragNode.data], (data) => {
+                        sourceDocIds.push(data._id);
+                    });
+                    const params = {
+                        sourceRootId: dragNode.data._id, //源节点根id
+                        sourceDocIds, //需要挂载的节点ids
+                        sourceProjectId: this.$route.query.id, //源项目id
+                        targetProjectId: this.projectId, //目标项目id
+                        targetMountedId, //目标挂载节点id
+                    };
+                    console.log(targetMountedId, params, dragNode.data)
+                }
+            } else { //目标树内自己拖拽，调用排序而不是新增
+                console.log("目标树内自己拖拽")
+                //this.sortTargetTree(dragNode, dropNode, type);
+            }
+
+            dragNode.data._isSource = false;
+            // if (type === "inner") { //拖放至内部则选择dropNode
+            //     const pid = dropNode.data._id;
+            // }
             // const pData = this.$helper.findParentNodeById(this.targetTreeData, node.data._id, { id: "_id" });
             // params.pid = pData ? pData._id : "";
             // if (type === "inner") {
             //     params.sort = Date.now();
             // } else {
-            //     const nextSibling = this.$helper.findNextSiblingById(this.navTreeData, node.data._id, { id: "_id" }) || {};
-            //     const previousSibling = this.$helper.findPreviousSiblingById(this.navTreeData, node.data._id, { id: "_id" }) || {};
+            //     const nextSibling = this.$helper.findNextSiblingById(this.sourceTreeData, node.data._id, { id: "_id" }) || {};
+            //     const previousSibling = this.$helper.findPreviousSiblingById(this.sourceTreeData, node.data._id, { id: "_id" }) || {};
             //     const previousSiblingSort = previousSibling.sort || 0;
             //     const nextSiblingSort = nextSibling.sort || Date.now();
             //     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
             //     node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
             // }
+        },
+        //排序目标树
+        sortTargetTree(node, dropNode, type) {
+            const params = {
+                _id: node.data._id, //当前节点id
+                pid: "", //父元素
+                sort: 0, //当前节点排序效果
+                projectId: this.projectId,
+                dropInfo: {
+                    nodeName: node.data.name,
+                    nodeId: node.data._id,
+                    dropNodeName: dropNode.data.name,
+                    dropNodeId: dropNode.data._id,
+                    dropType: type,
+                },
+            };
+            const pData = this.$helper.findParentNodeById(this.targetTreeData, node.data._id, { id: "_id" });
+            params.pid = pData ? pData._id : "";
+            if (type === "inner") {
+                params.sort = Date.now();
+            } else {
+                const nextSibling = this.$helper.findNextSiblingById(this.targetTreeData, node.data._id, { id: "_id" }) || {};
+                const previousSibling = this.$helper.findPreviousSiblingById(this.targetTreeData, node.data._id, { id: "_id" }) || {};
+                const previousSiblingSort = previousSibling.sort || 0;
+                const nextSiblingSort = nextSibling.sort || Date.now();
+                params.sort = (nextSiblingSort + previousSiblingSort) / 2;
+                node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
+            }
+            this.axios.put("/api/project/change_doc_pos", params).then(() => {}).catch((err) => {
+                this.$errorThrow(err, this);
+            });
         },
         //=====================================组件间交互====================================//
         //改变项目信息重新获取项目导航数据
