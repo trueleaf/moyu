@@ -228,7 +228,7 @@ export function findNextSibling(id, treeData, fn, options) {
  * @description        遍历森林
  * @author             shuxiaokai
  * @create             2020-03-02 10:17
- * @param {array}     arrData 需要去重数组
+ * @param {array}     arrData 数组数据
  * @param {function}  fn 每次遍历执行得函数
  * @param {string}    childrenKey children对应字段
  */
