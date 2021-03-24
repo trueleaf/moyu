@@ -17,16 +17,21 @@
             <span v-else>{{ mountedNode.name }}</span>
         </div>
         <el-divider></el-divider> -->
+        <div>
+            <span class="el-icon-info mr-1"></span>
+            <span>从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽</span>
+        </div>
+        <el-divider></el-divider>
         <!-- 选择区域 -->
         <div v-flex1="80" class="fork-wrap">
             <div class="left">
-                <div class="mb-2 f-base">第一步：选择需要导出的文档</div>
                 <el-tree
                         ref="docTree"
                         :data="sourceTreeData"
                         node-key="_id"
                         draggable
                         :allow-drop="() => false"
+                        @node-drag-over="handleSourceNodeDragOver"
                         @node-drag-start="handleSourceDragstart"
                         @node-drag-end="handleSourceDragend"
                         :expand-on-click-node="true"
@@ -55,7 +60,6 @@
             </div>
             <div class="right">
                 <div>
-                    <div class="mb-2 f-base">第二步：选择需要挂载的文件夹</div>
                     <el-radio-group v-model="projectId" size="mini" @change="handleChangeProject">
                         <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
                     </el-radio-group>
@@ -66,10 +70,11 @@
                             node-key="_id"
                             draggable
                             :allow-drop="checkTargetCouldDrop"
+                            @node-drag-over="handleTargetNodeDragOver"
                             @node-drag-start="handleTargetDragStart"
                             @node-drop="handleTargetDrop"
                             :expand-on-click-node="true"
-                            empty-text="请在上方选择项目挂载"
+                            empty-text="暂无文档，请在项目中添加至少一个文档"
                         >
                             <template slot-scope="scope">
                                 <div
@@ -104,10 +109,11 @@ export default {
     data() {
         return {
             //===================================枚举参数====================================//
-            projectEnum: [], //---------项目枚举信息
+            projectEnum: [], //----------项目枚举信息
             //===================================业务参数====================================//
-            targetTreeData: [], //-----其他项目导航菜单信息
+            targetTreeData: [], //-------其他项目导航菜单信息
             isDragSource: false, //------是拖拽源树
+            isInSource: false, //--------是否在源树中，如果在则取消拖拽到目标树事件
             //===================================其他参数====================================//
             projectId: "", //------------项目id
             loading: false, //-----------项目导航加载
@@ -150,6 +156,14 @@ export default {
         handleSourceDragstart(node, event) {
             this.$refs.mountedTree.$emit("tree-node-drag-start", event, { node });
         },
+        //在源树上面拖拽代表取消拖拽
+        handleSourceNodeDragOver() {
+            this.isInSource = true;
+        },
+        //在目标树上拖拽
+        handleTargetNodeDragOver() {
+            this.isInSource = false;
+        },
         // 参考：https://blog.csdn.net/qq_41694291/article/details/108631887
         //当前节点拖拽结束
         handleSourceDragend(draggingNode, dropNode, position, event) {
@@ -190,46 +204,52 @@ export default {
         },
         //挂载点拖拽成功
         handleTargetDrop(dragNode, dropNode, type) {
-            console.log(JSON.parse(JSON.stringify(dragNode.data)))
-            // console.log(dragNode.data._id2 || dragNode.data._id, dropNode.data, type);
+            if (this.isInSource) { //拖拽到目标节点又拖拽回源节点代表取消
+                this.$refs.mountedTree.remove(dragNode.data);
+                return;
+            }
+            let targetNodeSort = Date.now();
             const { _isSource } = dragNode.data;
             if (_isSource) { //从源树拖拽到目标树
+                let targetMountedId = null;
+                const dropNodeId = dropNode.data._id2 || dropNode.data._id;
+                const dragNodeId = dragNode.data._id2 || dragNode.data._id;
                 if (type === "inner") { //拖放至内部则选择dropNode
-                    const targetMountedId = dropNode.data._id;
-                    const sourceDocIds = [];
-                    this.$helper.forEachForest([dragNode.data], (data) => {
-                        sourceDocIds.push(data._id);
-                    });
-                    const params = {
-                        sourceRootId: dragNode.data._id, //源节点根id
-                        sourceDocIds, //需要挂载的节点ids
-                        sourceProjectId: this.$route.query.id, //源项目id
-                        targetProjectId: this.projectId, //目标项目id
-                        targetMountedId, //目标挂载节点id
-                    };
-                    console.log(targetMountedId, params, dragNode.data)
+                    targetMountedId = dropNodeId;
+                } else {
+                    const dropNodeParentNode = this.$helper.findParentNodeById(this.targetTreeData, dropNodeId, { id: "_id" });
+                    const nextSibling = this.$helper.findNextSiblingById(this.targetTreeData, dragNodeId, { id: "_id" }) || {};
+                    const previousSibling = this.$helper.findPreviousSiblingById(this.targetTreeData, dragNodeId, { id: "_id" }) || {};
+                    const previousSiblingSort = previousSibling.sort || 0;
+                    const nextSiblingSort = nextSibling.sort || Date.now();
+                    targetNodeSort = (nextSiblingSort + previousSiblingSort) / 2;
+                    dropNode.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
+                    if (dropNodeParentNode) { //非根节点
+                        targetMountedId = dropNodeParentNode._id;
+                    }
                 }
+                const selectedDocIds = [];
+                this.$helper.forEachForest([dragNode.data], (data) => {
+                    selectedDocIds.push(data._id2 || data._id);
+                });
+                const params = {
+                    sourceRootId: dragNode.data._id2 || dragNode.data._id, //源节点根id
+                    selectedDocIds, //需要挂载的节点ids
+                    sourceProjectId: this.$route.query.id, //源项目id
+                    targetProjectId: this.projectId, //目标项目id
+                    targetMountedId, //目标挂载节点id
+                    targetNodeSort,
+                };
+                this.axios.post("/api/project/export/fork", params).then(() => {
+                    this.$message.success("导入成功");
+                }).catch((err) => {
+                    console.error(err);
+                });
             } else { //目标树内自己拖拽，调用排序而不是新增
-                console.log("目标树内自己拖拽")
-                //this.sortTargetTree(dragNode, dropNode, type);
+                // console.log("目标树内自己拖拽")
+                this.sortTargetTree(dragNode, dropNode, type);
             }
-
             dragNode.data._isSource = false;
-            // if (type === "inner") { //拖放至内部则选择dropNode
-            //     const pid = dropNode.data._id;
-            // }
-            // const pData = this.$helper.findParentNodeById(this.targetTreeData, node.data._id, { id: "_id" });
-            // params.pid = pData ? pData._id : "";
-            // if (type === "inner") {
-            //     params.sort = Date.now();
-            // } else {
-            //     const nextSibling = this.$helper.findNextSiblingById(this.sourceTreeData, node.data._id, { id: "_id" }) || {};
-            //     const previousSibling = this.$helper.findPreviousSiblingById(this.sourceTreeData, node.data._id, { id: "_id" }) || {};
-            //     const previousSiblingSort = previousSibling.sort || 0;
-            //     const nextSiblingSort = nextSibling.sort || Date.now();
-            //     params.sort = (nextSiblingSort + previousSiblingSort) / 2;
-            //     node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-            // }
         },
         //排序目标树
         sortTargetTree(node, dropNode, type) {
