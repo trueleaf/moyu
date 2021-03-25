@@ -6,17 +6,6 @@
 */
 <template>
     <s-fieldset title="将当前项目指定文档导出到其他项目" class="fork">
-        <!-- 描述信息 -->
-        <!-- <div>
-            <span>当前选择文档数：</span>
-            <span v-if="allCheckedNodes.length > 0">{{ allCheckedNodes.length }}</span>
-            <span v-else class="orange">未选择</span>
-            <el-divider direction="vertical"></el-divider>
-            <span>当前选择挂载点：</span>
-            <span v-if="!mountedNode" class="orange">未选择</span>
-            <span v-else>{{ mountedNode.name }}</span>
-        </div>
-        <el-divider></el-divider> -->
         <div>
             <span class="el-icon-info mr-1"></span>
             <span>从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽</span>
@@ -58,7 +47,7 @@
                     </template>
                 </el-tree>
             </div>
-            <div class="right">
+            <div ref="target" class="right">
                 <div>
                     <el-radio-group v-model="projectId" size="mini" @change="handleChangeProject">
                         <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
@@ -70,9 +59,12 @@
                             node-key="_id"
                             draggable
                             :allow-drop="checkTargetCouldDrop"
+                            @node-contextmenu="handleContextmenu"
                             @node-drag-over="handleTargetNodeDragOver"
                             @node-drag-start="handleTargetDragStart"
                             @node-drop="handleTargetDrop"
+                            @node-expand="clearContextmenu"
+                            @node-collapse="clearContextmenu"
                             :expand-on-click-node="true"
                             empty-text="暂无文档，请在项目中添加至少一个文档"
                         >
@@ -101,11 +93,19 @@
                 </div>
             </div>
         </div>
+        <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :projectId="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
     </s-fieldset>
 </template>
 
 <script>
+import Vue from "vue";
+import addFolderDialog from "@/pages/modules/apidoc/doc-edit/dialog/add-folder.vue";
+import contextmenu from "./contextmenu.vue";
+
 export default {
+    components: {
+        "s-add-folder-dialog": addFolderDialog,
+    },
     data() {
         return {
             //===================================枚举参数====================================//
@@ -114,7 +114,11 @@ export default {
             targetTreeData: [], //-------其他项目导航菜单信息
             isDragSource: false, //------是拖拽源树
             isInSource: false, //--------是否在源树中，如果在则取消拖拽到目标树事件
+            targetAddFolderMountedId: null, //目标节点新建文件夹挂载点
+            defaultExpandedKeys: [], //--默认展开数据
             //===================================其他参数====================================//
+            dialogVisible: false, //-----新建文件夹弹窗
+            contextmenu: null, //--------右键弹窗
             projectId: "", //------------项目id
             loading: false, //-----------项目导航加载
         };
@@ -134,11 +138,38 @@ export default {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
     },
-    created() {
+    mounted() {
         this.getProjectEnum();
+        this.init();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
+        //初始化
+        init() {
+            document.documentElement.addEventListener("click", () => {
+                this.clearContextmenu();
+            });
+            this.$refs.target.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                this.targetAddFolderMountedId = null;
+                this.clearContextmenu(); //清除contextmenu
+                const ContextmenuConstructor = Vue.extend(contextmenu);
+                const x = e.clientX; //当前点击位置
+                const y = e.clientY; //当前点击位置
+                const operations = ["folder"];
+                this.contextmenu = new ContextmenuConstructor({
+                    propsData: {
+                        operations,
+                        left: x,
+                        top: y,
+                    },
+                }).$mount();
+                document.body.appendChild(this.contextmenu.$el);
+                this.contextmenu.$on("folder", () => {
+                    this.dialogVisible = true;
+                })
+            })
+        },
         //获取项目枚举
         getProjectEnum() {
             this.axios.get("/api/project/project_enum").then((res) => {
@@ -298,7 +329,114 @@ export default {
                 this.loading = false;
             });
         },
+        //=====================================右键删除文档====================================//
+        //创建鼠标右键dom元素
+        handleContextmenu(e, data, node) {
+            e.stopPropagation();
+            this.clearContextmenu(); //清除contextmenu
+            // console.log(contextmenu)
+            const ContextmenuConstructor = Vue.extend(contextmenu);
+            const x = e.clientX; //当前点击位置
+            const y = e.clientY; //当前点击位置
+            const operations = ["delete", "folder"];
+            this.contextmenu = new ContextmenuConstructor({
+                propsData: {
+                    operations,
+                    left: x,
+                    top: y,
+                },
+            }).$mount();
+            document.body.appendChild(this.contextmenu.$el);
+            this.contextmenu.$on("folder", () => {
+                this.targetAddFolderMountedId = data._id;
+                this.dialogVisible = true;
+            })
+            this.contextmenu.$on("delete", () => {
+                this.handleDeleteItem(data, node);
+            })
+        },
+        //删除某一项
+        handleDeleteItem(data, node) {
+            const deleteIds = [];
+            deleteIds.push(data._id); //删除自己
+            if (data.isFolder) { //删除所有子元素
+                this.$helper.forEachForest(data.children, (item) => {
+                    deleteIds.push(item._id);
+                });
+            }
+            this.$confirm(`此操作将永久删除 ${data.name} 节点, 是否继续?`, "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                this.axios.delete("/api/project/doc", { data: { projectId: this.projectId, ids: deleteIds } }).then(() => {
+                    const pNode = node.parent;
+                    if (pNode && pNode.level !== 0) {
+                        const nodeIndex = pNode.data.children.findIndex((val) => val._id === data._id);
+                        pNode.data.children.splice(nodeIndex, 1)
+                    } else {
+                        const nodeIndex = this.targetTreeData.findIndex((val) => val._id === data._id);
+                        this.targetTreeData.splice(nodeIndex, 1);
+                    }
+                }).catch((err) => {
+                    this.$errorThrow(err, this);
+                });
+            }).catch((err) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                this.$errorThrow(err, this);
+            });
+        },
+        //添加文件夹或文档成功回调函数
+        handleAddFileAndFolderCb(data) {
+            const pNode = this.$helper.findNodeById(this.targetTreeData, this.targetAddFolderMountedId, { id: "_id" });
+            if (!pNode) { //插入到根元素
+                if (data.type === "folder") { //如果是文件夹则放在第一位
+                    let folderIndex = -1;
+                    for (let i = 0, len = this.targetTreeData.length; i < len; i += 1) {
+                        if (!this.targetTreeData[i].isFolder) {
+                            this.targetTreeData.splice(i, 0, data);
+                            folderIndex = i;
+                            break;
+                        }
+                    }
+                    if (folderIndex === -1) { //不存在文件则直接添加到末尾
+                        this.targetTreeData.push(data);
+                    }
+                } else { //如果是文本
+                    this.targetTreeData.push(data);
+                }
+            } else { //插入到文件夹里面
+                if (!pNode.children) {
+                    this.$set(pNode, "children", []);
+                }
+                if (data.type === "folder") { //如果是文件夹则放在第一位
+                    this.defaultExpandedKeys.push(data._id);
+                    let folderIndex = -1;
+                    for (let i = 0, len = pNode.children.length; i < len; i += 1) {
+                        if (!pNode.children[i].isFolder) {
+                            pNode.children.splice(i, 0, data);
+                            folderIndex = i;
+                            break;
+                        }
+                    }
+                    if (folderIndex === -1) { //不存在文件则直接添加到末尾
+                        pNode.children.push(data);
+                    }
+                } else {
+                    pNode.children.push(data);
+                }
+            }
+        },
         //=====================================其他操作=====================================//
+        //清除contextmenu
+        clearContextmenu() {
+            if (this.contextmenu) {
+                document.body.removeChild(this.contextmenu.$el);
+                this.contextmenu = null;
+            }
+        },
 
     },
 };

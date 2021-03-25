@@ -55,6 +55,7 @@
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
                     ref="docTree"
+                    class="flex0"
                     :data="navTreeData"
                     node-key="_id"
                     empty-text="点击按钮新增文档"
@@ -150,6 +151,7 @@
                     </el-popover>
                 </template>
             </el-tree>
+            <div ref="bannerContext" class="context flex1"></div>
         </div>
         <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
@@ -254,6 +256,30 @@ export default {
                 this.clearPopover();
                 this.pressCtrl = false;
             });
+            //右键菜单
+            this.$refs.bannerContext.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                this.clearContextmenu(); //清除contextmenu
+                const ContextmenuConstructor = Vue.extend(contextmenu);
+                const x = e.clientX; //当前点击位置
+                const y = e.clientY; //当前点击位置
+                const operations = ["file", "folder"]
+                this.contextmenu = new ContextmenuConstructor({
+                    propsData: {
+                        operations,
+                        left: x,
+                        top: y,
+                    },
+                }).$mount();
+                document.body.appendChild(this.contextmenu.$el);
+                this.contextmenu.$on("file", () => {
+                    this.handleOpenAddFileDialog();
+                })
+                this.contextmenu.$on("folder", () => {
+                    this.handleOpenAddFolderDialog();
+                })
+            })
+            //拖拽相关
             document.documentElement.addEventListener("mouseup", () => {
                 this.isDragging = false;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
@@ -967,6 +993,8 @@ export default {
     .doc-nav {
         height: calc(100vh - #{size(60)} - #{size(150)});
         overflow: auto;
+        display: flex;
+        flex-direction: column;
         .custom-tree-node {
             @include custom-tree-node;
         }
