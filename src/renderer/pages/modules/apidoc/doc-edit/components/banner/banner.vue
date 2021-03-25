@@ -42,10 +42,30 @@
                 <el-dropdown ref="dropdown" trigger="click" class="mr-1">
                     <i class="more-op el-icon-more" title="更多操作"></i>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="handleViewDoc">预览文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible3 = true">导入文档</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOpenHistoryPage">历史记录</el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOpenConfigPage">全局设置</el-dropdown-item>
+                        <el-dropdown-item @click.native="handleViewDoc">
+                            <div class="dropdown-item">
+                                <span>预览文档</span>
+                                <span class="gray-500">Ctrl+P</span>
+                            </div>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click.native="dialogVisible3 = true">
+                            <div class="dropdown-item">
+                                <span>导入文档</span>
+                                <span class="gray-500">Ctrl+I</span>
+                            </div>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenHistoryPage">
+                            <div class="dropdown-item">
+                                <span>历史记录</span>
+                                <span class="gray-500">Ctrl+H</span>
+                            </div>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click.native="handleOpenConfigPage">
+                            <div class="dropdown-item">
+                                <span>全局设置</span>
+                                <span class="gray-500">Ctrl+,</span>
+                            </div>
+                        </el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -937,6 +957,9 @@ export default {
     display: flex;
     flex-direction: column;
     position: relative;
+    .collapse-transition {
+        transition: none;
+    }
     &>.bar {
         position: absolute;
         height: 100%;
@@ -999,5 +1022,12 @@ export default {
             @include custom-tree-node;
         }
     }
+}
+//下拉菜单
+.dropdown-item {
+    width: size(150);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 </style>

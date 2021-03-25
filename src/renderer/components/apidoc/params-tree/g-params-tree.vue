@@ -481,6 +481,9 @@ export default {
 <style lang="scss">
 .params-tree {
     overflow-y: auto;
+    .collapse-transition {
+        transition: none;
+    }
     .el-tree-node__content {
         height: size(60);
     }
