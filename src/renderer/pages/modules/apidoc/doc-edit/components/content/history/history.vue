@@ -39,7 +39,7 @@
                         value-format="timestamp"
                         start-placeholder="开始日期"
                         size="mini"
-                        class="mr-2"
+                        class="mr-1"
                         end-placeholder="结束日期">
                     </el-date-picker>
                     <el-button type="text" @click="handleClearDate">清空</el-button>
@@ -82,9 +82,9 @@
             <div v-for="(item, index) in historyInfo" :key="index" class="list-wrap">
                 <h2 class="title">{{ item.title }}</h2>
                 <div v-for="(item2, index2) in item.history" :key="index2" class="item">
-                    <div class="head">{{ $helper.formatDate(item2.createdAt, "HH:mm") }}</div>
+                    <div class="head">{{ $helper.formatDate(item2.createdAt, "a HH:mm") }}</div>
                     <div class="operator mr-2">{{ item2.operator }}</div>
-                    <div class="operation mr-2">
+                    <div class="operation mr-1">
                         <div v-if="item2.operation === 'addFolder'">新建文件夹</div>
                         <div v-if="item2.operation === 'addDoc'">新建文档</div>
                         <div v-if="item2.operation === 'copyDoc'">复制文档</div>
@@ -106,19 +106,19 @@
                         <!-- 新增文档 -->
                         <div v-if="item2.operation === 'addDoc'" class="doc-info">
                             <template v-for="(req) in validRequestMethods">
-                                <span v-if="'get' === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                <span v-if="'get' === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <span>{{ item2.recordInfo.nodeName }}</span>
                         </div>
                         <!-- 新建文件夹 -->
                         <div v-if="item2.operation === 'addFolder'" class="doc-info">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-2"/>
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
                             <span>{{ item2.recordInfo.nodeName }}</span>
                         </div>
                         <!-- 拷贝文档 -->
                         <div v-if="item2.operation === 'copyDoc'" class="doc-info">
                             <template v-for="(req) in validRequestMethods">
-                                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <span>{{ item2.recordInfo.nodeName }}</span>
                             <el-divider direction="vertical"></el-divider>
@@ -127,24 +127,24 @@
                         <!-- 删除文档 -->
                         <div v-if="item2.operation === 'deleteDoc'" class="doc-info">
                             <template v-for="(req) in validRequestMethods">
-                                <span v-if="item2.recordInfo.deleteNodes[0].method === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                <span v-if="item2.recordInfo.deleteNodes[0].method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <span>{{ item2.recordInfo.deleteNodes[0].nodeName }}</span>
-                            <el-divider direction="vertical"></el-divider>
-                            <span>{{ item2.recordInfo.deleteNodes[0].url }}</span>
+                            <el-divider v-if="item2.recordInfo.deleteNodes[0].url" direction="vertical"></el-divider>
+                            <span v-if="item2.recordInfo.deleteNodes[0].url">{{ item2.recordInfo.deleteNodes[0].url }}</span>
                         </div>
                         <!-- 删除文件夹 -->
                         <div v-if="item2.operation === 'deleteFolder'" class="doc-info">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-2"/>
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
                             <span>{{ item2.recordInfo.deleteNodes[0].nodeName }}</span>
                         </div>
                         <!-- 批量删除文档 -->
                         <template v-if="item2.operation === 'deleteMany'">
                             <div v-for="(node, index3) in item2.recordInfo.deleteNodes" :key="index3"  class="doc-info">
-                                <img v-if="node.isFolder" :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-2"/>
+                                <img v-if="node.isFolder" :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
                                 <template v-else>
                                     <template v-for="(req) in validRequestMethods">
-                                        <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                        <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                                     </template>
                                 </template>
                                 <span>{{ node.nodeName }}</span>
@@ -152,6 +152,42 @@
                                 <span v-if="!node.isFolder" >{{ node.url }}</span>
                             </div>
                         </template>
+                        <!-- 编辑文档 -->
+                        <div v-if="item2.operation === 'editDoc'" class="doc-info">
+                             <template v-for="(req) in validRequestMethods">
+                                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                            </template>
+                            <span>{{ item2.recordInfo.nodeName }}</span>
+                        </div>
+                        <!-- 改变文档位置 -->
+                        <div v-if="item2.operation === 'position'">
+                            <div class="doc-info">
+                                <span>{{ item2.recordInfo.nodeName }}</span>
+                            </div>
+                            <span>拖拽到</span>
+                            <div class="ml-2 doc-info">
+                                <span>{{ item2.recordInfo.dropNodeName }}</span>
+                            </div>
+                            <span v-if="item2.recordInfo.dropType === 'before'">之前</span>
+                            <span v-else-if="item2.recordInfo.dropType === 'after'">之后</span>
+                            <span v-else-if="item2.recordInfo.dropType === 'inner'">里面</span>
+                        </div>
+                        <!-- 重命名文档 -->
+                        <div v-if="item2.operation === 'rename'" class="doc-info">
+                            <div class="doc-info">
+                                <span>{{ item2.recordInfo.orginNodeName }}</span>
+                            </div>
+                            <span>重命名为</span>
+                            <div class="ml-2 doc-info">
+                                <span>{{ item2.recordInfo.nodeName }}</span>
+                            </div>
+                        </div>
+                        <!-- 导入文档 -->
+                        <div v-if="item2.operation === 'import'" class="doc-info">
+                        </div>
+                        <!-- 导出文档 -->
+                        <div v-if="item2.operation === 'export'" class="doc-info">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -161,7 +197,14 @@
 
 <script>
 import dayjs from "dayjs"
+import isToday from "dayjs/plugin/isToday"
+import isYesterday from "dayjs/plugin/isYesterday"
+import "dayjs/locale/zh-cn"
 import { debounce } from "@/lib";
+
+dayjs.extend(isYesterday)
+dayjs.extend(isToday)
+dayjs.locale("zh-cn")
 
 export default {
     data() {
@@ -279,8 +322,16 @@ export default {
                     const { createdAt } = item;
                     const ymdString = dayjs(createdAt).format("YYYY-MM-DD");
                     if (!this.historyInfo[ymdString]) {
+                        let title = "";
+                        if (dayjs(createdAt).isToday()) {
+                            title = "今天"
+                        } else if (dayjs(createdAt).isYesterday()) {
+                            title = "昨天"
+                        } else {
+                            title = dayjs(createdAt).format("YYYY年M月DD号");
+                        }
                         this.historyInfo[ymdString] = {
-                            title: dayjs(createdAt).format("YYYY年M月DD号"),
+                            title,
                             history: [item],
                         };
                     } else {
