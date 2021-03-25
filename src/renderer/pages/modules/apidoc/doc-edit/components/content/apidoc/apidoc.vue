@@ -20,25 +20,6 @@
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
             </div>
-            <!-- <div class="params-sm-wrap show-md">
-                <el-tabs v-model="activeName">
-                    <el-tab-pane label="Params" name="s-a">
-                        <s-request-query-params ref="query2"></s-request-query-params>
-                    </el-tab-pane>
-                    <el-tab-pane label="Body" name="s-b">
-                        <s-request-body-params ref="body2" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
-                    </el-tab-pane>
-                    <el-tab-pane label="Headers" name="s-d">
-                        <s-header-params ref="header2"></s-header-params>
-                    </el-tab-pane>
-                    <el-tab-pane label="返回值" name="s-c">
-                        <s-response-params ref="response2"></s-response-params>
-                    </el-tab-pane>
-                    <el-tab-pane label="备注" name="s-e">
-                        <s-remark></s-remark>
-                    </el-tab-pane>
-                </el-tabs>
-            </div> -->
         </s-loading>
         <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
             <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
