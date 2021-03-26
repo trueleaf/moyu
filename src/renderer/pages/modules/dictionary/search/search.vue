@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="dictionary">
+    <div class="dictionary-search">
         <div class="search">
             <img src="@/assets/imgs/logo.png" alt="logo" class="logo">
             <div class="ipt-wrap" :class="{active: isActive}">
@@ -21,11 +21,13 @@
             <div class="common">
                 <div class="tag">老虎</div>
                 <div class="tag">花牌坊</div>
+                <el-button v-if="!showAdd && !showEdit && !showView" class="py-0" type="text" @click="handleJumpToMaintain">词条维护</el-button>
             </div>
         </div>
-        <s-view v-if="activeTanb === 's-view'"></s-view>
-        <s-edit v-if="activeTanb === 's-edit'"></s-edit>
-        <s-add v-if="activeTanb === 's-add'"></s-add>
+        <!-- <el-button v-if="!showAdd && !showEdit && !showView" type="text" @click="showAdd = true">新增词条</el-button> -->
+        <s-view v-if="showView"></s-view>
+        <s-edit v-if="showEdit"></s-edit>
+        <s-add v-if="showAdd"></s-add>
     </div>
 </template>
 
@@ -45,16 +47,18 @@ export default {
             //=================================表单与表格参数================================//
 
             //===================================枚举参数====================================//
-
             //===================================业务参数====================================//
 
             //===================================其他参数====================================//
-            activeTanb: "s-edit",
-            isActive: false, //是否出现备选项
+            showAdd: false, //-----------是否展示新增
+            showEdit: false, //----------是否展示编辑页面
+            showView: false, //----------是否展示view页面
+            isActive: false, //----------是否出现备选项
         };
     },
     created() {
         this.init();
+        // this.getWordList();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
@@ -64,23 +68,34 @@ export default {
                 this.isActive = false;
             })
             this.$event.on("dictionary/edit", () => {
-                this.activeTanb = "s-edit";
+                this.showEdit = true;
             })
             this.$event.on("dictionary/add", () => {
-                this.activeTanb = "s-add";
+                this.showAdd = true;
             })
-            this.$event.on("dictionary/close", () => {
-                this.activeTanb = "s-view";
+            this.$event.on("dictionary/view", () => {
+                this.showView = true;
+            })
+            this.$event.on("dictionary/closeView", () => {
+                this.showView = false;
+            })
+            this.$event.on("dictionary/closeAdd", () => {
+                this.showAdd = false;
+            })
+            this.$event.on("dictionary/closeEdit", () => {
+                this.showEdit = false;
             })
         },
         //=====================================前后端交互====================================//
-
         //=====================================组件间交互====================================//
         handleFocus() {
             this.isActive = true;
         },
         handleBlur() {
             this.isActive = false;
+        },
+        handleJumpToMaintain() {
+            this.$router.push("/v1/dictionary/maintain");
         },
         //=====================================其他操作=====================================//
 
@@ -89,7 +104,7 @@ export default {
 </script>
 
 <style lang="scss">
-.dictionary {
+.dictionary-search {
     height: calc(100vh - #{size(60)});
     min-height: size(600);
     position: relative;
@@ -179,6 +194,11 @@ export default {
                 cursor: pointer;
             }
         }
+    }
+    .table {
+        margin-top: size(20);
+        min-width: size(550);
+        width: 50%;
     }
 }
 </style>

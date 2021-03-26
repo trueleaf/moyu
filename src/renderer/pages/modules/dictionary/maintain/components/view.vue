@@ -25,6 +25,7 @@
         <div class="operation-area">
             <el-button type="text" @click="handleEdit">编辑词条</el-button>
             <el-button type="text" @click="handleAdd">新增</el-button>
+            <el-button type="text" @click="handleClose">关闭</el-button>
         </div>
     </div>
 </template>
@@ -58,6 +59,10 @@ export default {
         //新增词条
         handleAdd() {
             this.$event.emit("dictionary/add");
+        },
+        //关闭展示页面
+        handleClose() {
+            this.$event.emit("dictionary/closeView");
         },
         //=====================================其他操作=====================================//
 

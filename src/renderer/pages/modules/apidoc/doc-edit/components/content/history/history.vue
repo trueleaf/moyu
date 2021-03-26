@@ -78,7 +78,7 @@
                 </div>
             </div>
         </s-fieldset>
-        <s-loading :loading="loading" class="list">
+        <s-loading v-if="historyInfo.length > 0" :loading="loading" class="list">
             <div v-for="(item, index) in historyInfo" :key="index" class="list-wrap">
                 <h2 class="title">{{ item.title }}</h2>
                 <div v-for="(item2, index2) in item.history" :key="index2" class="item">
@@ -192,6 +192,7 @@
                 </div>
             </div>
         </s-loading>
+        <s-empty v-else></s-empty>
     </div>
 </template>
 

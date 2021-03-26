@@ -158,7 +158,6 @@
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
         <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
-        <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
     </div>
 </template>
@@ -169,7 +168,6 @@ import { forEachForest, debounce } from "@/lib/index";
 import addFolderDialog from "../../dialog/add-folder.vue";
 import addFileDialog from "../../dialog/add-file.vue";
 import importDoc from "../../dialog/import-doc.vue";
-import historyDialog from "./dialog/history.vue";
 import templateDialog from "./dialog/template.vue";
 import contextmenu from "./components/contextmenu.vue";
 
@@ -179,7 +177,6 @@ export default {
         "s-add-folder-dialog": addFolderDialog,
         "s-add-file-dialog": addFileDialog,
         "s-import-doc-dialog": importDoc,
-        "s-history-dialog": historyDialog,
         "s-template-dialog": templateDialog,
     },
     computed: {

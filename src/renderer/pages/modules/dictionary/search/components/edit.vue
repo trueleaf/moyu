@@ -1,12 +1,12 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-03-19 14:01
-    模块名称：新增词条
+    模块名称：编辑词条
     备注：
 */
 <template>
-    <div class="s-add">
-        <s-fieldset title="新增名词">
+    <div class="s-edit">
+        <s-fieldset title="修改名词">
             <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px">
                 <el-form-item label="中文名称：">
                     <el-input v-model="formInfo.name" placeholder="eg：笨鸟先飞" size="mini" class="w-80"></el-input>
@@ -17,13 +17,10 @@
                 <el-form-item label="词汇举例：">
                     <el-input v-model="formInfo.name" placeholder="eg：老师经常对我说：笨鸟先飞" size="mini" class="w-80"></el-input>
                 </el-form-item>
-                <el-form-item label="权威出处：">
-                    <el-input v-model="formInfo.name" placeholder="在这里填写可访问的链接地址" size="mini" class="w-80"></el-input>
-                </el-form-item>
             </el-form>
             <s-rich-text></s-rich-text>
             <div class="submit">
-                <el-button size="mini" type="success">确定新增</el-button>
+                <el-button size="mini" type="success">确定修改</el-button>
             </div>
         </s-fieldset>
         <i class="el-icon-close close" @click="handleClose"></i>
@@ -55,7 +52,7 @@ export default {
         //=====================================组件间交互====================================//
         //关闭
         handleClose() {
-            this.$event.emit("dictionary/close");
+            this.$event.emit("dictionary/closeEdit");
         },
         //=====================================其他操作=====================================//
 
@@ -64,7 +61,7 @@ export default {
 </script>
 
 <style lang="scss">
-.s-add {
+.s-edit {
     min-width: size(550);
     width: 50%;
     position: relative;
@@ -99,7 +96,6 @@ export default {
         display: flex;
         align-items: center;
         justify-content: center;
-        // border: 1px solid $gray-300;
         border-top: none;
     }
     .s-fieldset {
