@@ -29,9 +29,19 @@
                         </template>
                     </template>
                     <!-- 其他 -->
-                    <template v-else>
+                   <template v-else>
+                        <!-- 配置 -->
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                        <!-- 参数模板 -->
                         <span v-if="item.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
+                        <!-- 链接 -->
+                        <span v-if="item.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
+                        <!-- 导出文档 -->
+                        <span v-if="item.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
+                        <!-- 历史记录 -->
+                        <span v-if="item.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
+                        <!-- 全局变量配置 -->
+                        <span v-if="item.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
