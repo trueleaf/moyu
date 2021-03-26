@@ -9,7 +9,7 @@
         <!-- <div class="d-flex j-center mt-5">
             <img src="@/assets/imgs/logo.png" alt="logo" width="120px" height="120px">
         </div> -->
-        <s-fieldset title="文档详情">
+        <s-fieldset title="导出类型">
             <div class="download-wrap">
                 <div class="item" :class="{active: selectedType === 'html'}" @click="selectedType = 'html'">
                     <svg class="svg-icon" aria-hidden="true">
@@ -18,12 +18,18 @@
                     <div class="mt-1">HTML</div>
                 </div>
                 <div class="item" :class="{active: selectedType === 'moyu'}" @click="selectedType = 'moyu'">
-                    <img src="@/assets/imgs/logo.png" alt="moyu" class="svg-icon">
+                    <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
                     <div class="mt-1">JSON文档</div>
+                </div>
+                <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
+                    <svg class="svg-icon" aria-hidden="true">
+                        <use xlink:href="#icondaochu1"></use>
+                    </svg>
+                    <div class="mt-1">导出到其他项目</div>
                 </div>
             </div>
         </s-fieldset>
-        <s-fieldset title="额外配置">
+        <s-fieldset v-if="selectedType !== 'otherProject'" title="额外配置">
             <s-config ref="config" label="选择导出" description="开启后可以自由选择需要导出的文档">
                 <template slot-scope="scope">
                     <div v-if="scope.enabled" class="doc-nav">
@@ -37,7 +43,7 @@
                             <span>文档数量：</span>
                             <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
                         </div>
-                        <hr>
+                        <el-divider></el-divider>
                         <el-tree
                                 ref="docTree"
                                 :data="navTreeData"
@@ -47,40 +53,27 @@
                                 :expand-on-click-node="true"
                         >
                             <template slot-scope="scope">
-                                <el-popover
-                                    v-model="scope.data._ctrlPress"
-                                    class="w-100"
-                                    placement="right"
-                                    width="300"
-                                    trigger="manual"
-                                    >
-                                    <div class="d-flex flex-column">
-                                        <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
-                                        <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
-                                        <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
-                                    </div>
-                                    <div
-                                            class="custom-tree-node"
-                                            :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                            tabindex="0"
-                                            slot="reference"
-                                            @keydown.stop="handleKeydown($event, scope.data)"
-                                            @keyup.stop="handleKeyUp($event, scope.data)"
-                                    >
-                                        <!-- file渲染 -->
-                                        <template v-if="!scope.data.isFolder">
-                                            <template v-for="(req) in validRequestMethods">
-                                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
-                                            </template>
-                                            <span class="node-name ml-1">{{ scope.data.name }}</span>
+                                <div
+                                        class="custom-tree-node"
+                                        :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                        tabindex="0"
+                                        slot="reference"
+                                        @keydown.stop="handleKeydown($event, scope.data)"
+                                        @keyup.stop="handleKeyUp($event, scope.data)"
+                                >
+                                    <!-- file渲染 -->
+                                    <template v-if="!scope.data.isFolder">
+                                        <template v-for="(req) in validRequestMethods">
+                                            <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                                         </template>
-                                        <!-- 文件夹渲染 -->
-                                        <template v-if="scope.data.isFolder">
-                                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
-                                            <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                                        </template>
-                                    </div>
-                                </el-popover>
+                                        <span class="node-name ml-1">{{ scope.data.name }}</span>
+                                    </template>
+                                    <!-- 文件夹渲染 -->
+                                    <template v-if="scope.data.isFolder">
+                                        <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                        <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                                    </template>
+                                </div>
                             </template>
                         </el-tree>
                     </div>
@@ -90,11 +83,17 @@
                 <el-button :loading="loading" size="mini" type="primary" @click="handleExport">确定导出</el-button>
             </div>
         </s-fieldset>
+        <s-fork v-else></s-fork>
     </div>
 </template>
 
 <script>
+import fork from "./fork/fork.vue"
+
 export default {
+    components: {
+        "s-fork": fork,
+    },
     props: {
         visible: { //是否现实弹窗
             type: Boolean,
@@ -120,13 +119,16 @@ export default {
             selectedType: "html", //----导出文档类型
             pressCtrl: false, //--------是否按住ctrl
             allCheckedNodes: [], //-----所有被选中的节点id数组
+            //=====================================枚举参数====================================//
             //=====================================其他参数====================================//
             loading: false, //----------导出加载按钮
         };
     },
-    mounted() {},
+    mounted() {
+    },
     methods: {
-        //=====================================ctrl+鼠标移入弹出详情====================================//
+        //=====================================数据获取====================================//
+        //=====================================ctrl+鼠标移入弹出详情========================//
         //处理节点上面keydown快捷方式
         handleKeydown(e, data) {
             if (e.code === "ControlLeft" || e.code === "ControlRight") {
@@ -221,7 +223,7 @@ export default {
     .download-wrap {
         display: flex;
         .item {
-            width: size(100);
+            width: size(130);
             height: size(100);
             padding: size(10);
             margin-right: size(20);
@@ -241,6 +243,10 @@ export default {
             .svg-icon {
                 width: size(70);
                 height: size(70);
+            }
+            .img {
+                width: size(60);
+                height: size(60);
             }
         }
     }

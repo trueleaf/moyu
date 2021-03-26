@@ -29,6 +29,10 @@ export default {
             type: String,
             default: "",
         },
+        projectId: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
@@ -64,7 +68,7 @@ export default {
                     const params = {
                         name: this.formInfo.name,
                         type: "folder",
-                        projectId: this.$route.query.id,
+                        projectId: this.projectId || this.$route.query.id,
                         pid: this.pid,
                     };
                     this.axios.post("/api/project/new_doc", params).then((res) => {

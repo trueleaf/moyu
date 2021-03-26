@@ -55,6 +55,7 @@
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
                     ref="docTree"
+                    class="flex0"
                     :data="navTreeData"
                     node-key="_id"
                     empty-text="点击按钮新增文档"
@@ -150,6 +151,7 @@
                     </el-popover>
                 </template>
             </el-tree>
+            <div ref="bannerContext" class="context flex1"></div>
         </div>
         <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
@@ -158,7 +160,6 @@
         <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
         <s-history-dialog :visible.sync="dialogVisible4"></s-history-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
-        <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
     </div>
 </template>
 
@@ -170,7 +171,6 @@ import addFileDialog from "../../dialog/add-file.vue";
 import importDoc from "../../dialog/import-doc.vue";
 import historyDialog from "./dialog/history.vue";
 import templateDialog from "./dialog/template.vue";
-import exportDialog from "./dialog/export.vue";
 import contextmenu from "./components/contextmenu.vue";
 
 export default {
@@ -181,7 +181,6 @@ export default {
         "s-import-doc-dialog": importDoc,
         "s-history-dialog": historyDialog,
         "s-template-dialog": templateDialog,
-        "s-export-dialog": exportDialog,
     },
     computed: {
         navTreeData() { //-------树形导航数据
@@ -238,7 +237,6 @@ export default {
             dialogVisible3: false, //----------导入第三方文档弹窗
             dialogVisible4: false, //----------查看历史记录
             dialogVisible5: false, //----------以模板新建
-            dialogVisible6: false, //----------导出文档
             dialogVisible7: false, //----------生产在线链接
             popoverVisible: false, //----------banner详情弹出框
             loading: false, //-----------------左侧树形导航加载
@@ -258,6 +256,30 @@ export default {
                 this.clearPopover();
                 this.pressCtrl = false;
             });
+            //右键菜单
+            this.$refs.bannerContext.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                this.clearContextmenu(); //清除contextmenu
+                const ContextmenuConstructor = Vue.extend(contextmenu);
+                const x = e.clientX; //当前点击位置
+                const y = e.clientY; //当前点击位置
+                const operations = ["file", "folder"]
+                this.contextmenu = new ContextmenuConstructor({
+                    propsData: {
+                        operations,
+                        left: x,
+                        top: y,
+                    },
+                }).$mount();
+                document.body.appendChild(this.contextmenu.$el);
+                this.contextmenu.$on("file", () => {
+                    this.handleOpenAddFileDialog();
+                })
+                this.contextmenu.$on("folder", () => {
+                    this.handleOpenAddFolderDialog();
+                })
+            })
+            //拖拽相关
             document.documentElement.addEventListener("mouseup", () => {
                 this.isDragging = false;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
@@ -801,16 +823,16 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds,
             });
-            // if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
-            //     this.$store.commit("apidoc/changeCurrentTab", {
-            //         _id: this.tabs[this.tabs.length - 1]._id,
-            //         projectId: this.$route.query.id,
-            //         name: this.tabs[this.tabs.length - 1].name,
-            //         changed: this.tabs[this.tabs.length - 1].changed,
-            //         tail: this.tabs[this.tabs.length - 1].tail,
-            //         tabType: "doc",
-            //     });
-            // }
+            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                this.$store.commit("apidoc/changeCurrentTab", {
+                    _id: this.tabs[this.tabs.length - 1]._id,
+                    projectId: this.$route.query.id,
+                    name: this.tabs[this.tabs.length - 1].name,
+                    changed: this.tabs[this.tabs.length - 1].changed,
+                    tail: this.tabs[this.tabs.length - 1].tail,
+                    tabType: this.tabs[this.tabs.length - 1].tabType,
+                });
+            }
         },
         //重命名某个节点
         handleChangeNodeName(data) {
@@ -971,6 +993,8 @@ export default {
     .doc-nav {
         height: calc(100vh - #{size(60)} - #{size(150)});
         overflow: auto;
+        display: flex;
+        flex-direction: column;
         .custom-tree-node {
             @include custom-tree-node;
         }

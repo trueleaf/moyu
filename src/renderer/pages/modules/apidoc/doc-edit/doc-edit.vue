@@ -28,6 +28,11 @@ export default {
     data() {
         return {};
     },
+    computed: {
+        tabs() { //--------------全部tabs
+            return this.$store.state.apidoc.tabs[this.$route.query.id];
+        },
+    },
     created() {
         this.getMindParamsEnum(); //获取联想参数枚举
         this.getPresetParams(); //获取预设参数
@@ -36,8 +41,38 @@ export default {
         this.getProjectRules(); //获取项目规则
         this.getLocalCookies(); //获取本地cookies
     },
+    mounted() {
+        this.initShortcut();
+    },
     methods: {
         //=====================================获取远程数据==================================//
+        initShortcut() {
+            window.addEventListener("keyup", (e) => {
+                if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
+                    e.preventDefault();
+                    const id = this.$helper.uuid();
+                    if (this.tabs && this.tabs.find((tab) => tab.tabType === "history")) { //存在则返回不处理
+                        return;
+                    }
+                    this.$store.commit("apidoc/addTab", {
+                        _id: id,
+                        name: "历史记录",
+                        changed: false,
+                        tail: "",
+                        tabType: "history",
+                        projectId: this.$route.query.id,
+                    });
+                    this.$store.commit("apidoc/changeCurrentTab", {
+                        _id: id,
+                        name: "历史记录",
+                        changed: false,
+                        tail: "",
+                        tabType: "history",
+                        projectId: this.$route.query.id,
+                    });
+                }
+            })
+        },
         //获取联想参数
         getMindParamsEnum() {
             this.$store.dispatch("apidoc/getMindParamsEnum", {
@@ -93,6 +128,7 @@ export default {
     }
     .doc-wrap {
         flex: 1;
+        overflow: hidden;
     }
 }
 </style>

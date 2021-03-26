@@ -159,12 +159,14 @@ export default {
         //改变当前选中tab的基本信息
         changeCurrentTabById(state, payload) {
             const { projectId, name, changed, tail } = payload;
-            this.commit("apidoc/changeTabInfoById", {
-                _id: state.activeDoc[projectId]._id,
-                projectId,
-                name,
-                changed,
-            });
+            if (state.activeDoc[projectId] && state.activeDoc[projectId].tabType === "doc") { //只有doc类型才会出现小圆点
+                this.commit("apidoc/changeTabInfoById", {
+                    _id: state.activeDoc[projectId]._id,
+                    projectId,
+                    name,
+                    changed,
+                });
+            }
             const matchedData = state.activeDoc[projectId];
             if (matchedData && name) {
                 matchedData.name = name;
