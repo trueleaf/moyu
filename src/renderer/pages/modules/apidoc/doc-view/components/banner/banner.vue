@@ -12,22 +12,62 @@
             <el-input v-model="queryData" class="doc-search" placeholder="支持文档名称，文档url搜索" clearable @input="handleSearchTree"></el-input>
             <div class="tool-icon d-flex j-between mt-1 px-1">
                 <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible6 = true">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExport">
                         <use xlink:href="#icondaochu1"></use>
-                    </svg>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
-                        <use xlink:href="#icondaoru"></use>
                     </svg>
                 </el-tooltip>
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
+                <el-popover placement="right-end"  width="800" trigger="click">
+                    <el-tooltip slot="reference" class="item" effect="dark" content="添加过滤条件" :open-delay="300">
+                        <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
+                            <use xlink:href="#iconguolv"></use>
+                        </svg>
+                    </el-tooltip>
+                    <s-fieldset title="过滤条件" class="banner-search">
+                        <!-- 操作人员 -->
+                        <div class="op-item">
+                            <div>操作人员：</div>
+                            <el-checkbox-group v-model="formInfo.operators">
+                                <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item"></el-checkbox>
+                                <el-button type="text" @click="handleClearOperator">清空</el-button>
+                            </el-checkbox-group>
+                        </div>
+                        <!-- 日期范围 -->
+                        <div class="op-item">
+                            <div class="flex0">
+                                <span>日期范围&nbsp;</span>
+                                <span>：</span>
+                            </div>
+                            <el-radio-group v-model="dateRange">
+                                <el-radio label="1d">今天</el-radio>
+                                <el-radio label="2d">近两天</el-radio>
+                                <el-radio label="3d">近三天</el-radio>
+                                <el-radio label="自定义">自定义</el-radio>
+                                <el-date-picker
+                                    v-if="dateRange === '自定义'"
+                                    v-model="customDateRange"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    value-format="timestamp"
+                                    start-placeholder="开始日期"
+                                    size="mini"
+                                    class="mr-1"
+                                    end-placeholder="结束日期">
+                                </el-date-picker>
+                                <el-button type="text" @click="handleClearDate">清空</el-button>
+                            </el-radio-group>
+                        </div>
+                    </s-fieldset>
+                </el-popover>
             </div>
         </div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
+            <!-- <div class="filter px-1">
+                <span>过滤条件</span>
+            </div> -->
             <el-tree
                     ref="docTree"
                     :data="navTreeData"
@@ -72,23 +112,56 @@
             </el-tree>
         </div>
         <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
-        <!-- 弹窗 -->
-        <s-export-dialog :visible.sync="dialogVisible6"></s-export-dialog>
     </div>
 </template>
 
 <script>
 import { debounce } from "@/lib/index";
-import exportDialog from "./dialog/export.vue";
 
 export default {
     name: "SDocEditBanner",
-    components: {
-        "s-export-dialog": exportDialog,
-    },
     computed: {
         navTreeData() { //-------树形导航数据
-            return this.$store.state.apidoc.banner;
+            const { banner } = this.$store.state.apidoc;
+            let plainData = [];
+            this.$helper.forEachForest(banner, (node) => {
+                const cpNode = JSON.parse(JSON.stringify(node))
+                delete cpNode.children;
+                plainData.push(cpNode);
+            });
+            plainData = plainData.filter((node) => {
+                const { creator, updatedAt } = node;
+                const { startTime, endTime } = this.formInfo;
+                const updatedTimestamp = new Date(updatedAt).valueOf();
+                // if (isFolder) {
+                //     return true;
+                // }
+                if (this.formInfo.operators.length > 0) {
+                    return this.formInfo.operators.indexOf(creator) !== -1;
+                }
+                if (startTime && endTime) {
+                    return updatedTimestamp >= startTime && updatedTimestamp <= endTime;
+                }
+                return true;
+            });
+            const result = [];
+            for (let i = 0; i < plainData.length; i += 1) {
+                const docInfo = plainData[i];
+                if (!docInfo.pid) { //根元素
+                    docInfo.children = [];
+                    result.push(docInfo);
+                }
+                const id = docInfo._id;
+                for (let j = 0; j < plainData.length; j += 1) {
+                    if (id === plainData[j].pid) { //项目中新增的数据使用标准id
+                        if (docInfo.children == null) {
+                            docInfo.children = [];
+                        }
+                        docInfo.children.push(plainData[j]);
+                    }
+                }
+            }
+            return result;
         },
         tabs() { //--------------全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
@@ -104,6 +177,47 @@ export default {
         },
     },
     watch: {
+        dateRange(val) {
+            let startTime = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+            let endTime = null;
+            switch (val) {
+            case "1d":
+                endTime = Date.now();
+                break;
+            case "2d":
+                endTime = Date.now();
+                startTime = endTime - 86400000;
+                break;
+            case "3d":
+                endTime = Date.now();
+                startTime = endTime - 3 * 86400000;
+                break;
+            case "7d":
+                endTime = Date.now();
+                startTime = endTime - 7 * 86400000;
+                break;
+            case "yesterday":
+                endTime = startTime;
+                startTime -= 86400000;
+                break;
+            default: //自定义
+                startTime = null;
+                endTime = null;
+                this.customDateRange = [];
+                break;
+            }
+            this.formInfo.startTime = startTime;
+            this.formInfo.endTime = endTime;
+        },
+        customDateRange(val) {
+            if (!val || val.length === 0) {
+                this.formInfo.startTime = null;
+                this.formInfo.endTime = null;
+            } else {
+                this.formInfo.startTime = val[0];
+                this.formInfo.endTime = val[1];
+            }
+        },
         currentSelectDoc: {
             handler(val) {
                 if (val && val._id) {
@@ -124,6 +238,15 @@ export default {
             multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
             enableDrag: true, //---------是否允许文档被拖拽
             defaultExpandedKeys: [], //--默认展开的文档key值
+            //=====================================文档过滤====================================//
+            formInfo: {
+                startTime: null, //--起始日期
+                endTime: null, //----结束日期
+                operators: [], //----操作者信息
+            },
+            memberEnum: [],
+            dateRange: "", //--------日期范围
+            customDateRange: [], //--自定义日期范围
             //=====================================拖拽参数====================================//
             minWidth: 280, //------------最小宽度
             maxWidth: 400, //------------最大宽度
@@ -143,6 +266,7 @@ export default {
     },
     mounted() {
         this.init();
+        this.getOperatorEnum();
     },
     methods: {
         //=====================================初始化相关====================================//
@@ -161,11 +285,23 @@ export default {
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
             })
         },
+        //获取操作人员枚举信息
+        getOperatorEnum() {
+            const params = {
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/docs/docs_history_operator_enum", { params }).then((res) => {
+                this.memberEnum = res.data;
+            }).catch((err) => {
+                console.error(err);
+            });
+        },
         //=====================================操作栏操作====================================//
         //刷新banner
         freshBanner() {
             if (!this.loading) {
                 this.getDocBanner();
+                this.getOperatorEnum();
             }
         },
         getDocBanner() {
@@ -211,6 +347,29 @@ export default {
             }
             this.multiSelectNode = [];
         },
+        //打开导出tab
+        handleOpenExport() {
+            const id = this.$helper.uuid();
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === "exportDoc")) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: id,
+                name: "文档导出",
+                changed: false,
+                tail: "",
+                tabType: "exportDoc",
+                projectId: this.$route.query.id,
+            });
+        },
         //=====================================前后端交互====================================//
         handleSearchTree() {
             this.search();
@@ -242,7 +401,20 @@ export default {
             const matchAll = this.queryData.trim() === "";
             return matchName || matchUrl || matchAll;
         },
-        //=====================================弹窗相关====================================//
+        //=====================================过滤操作====================================//
+        //清空操作人员信息
+        handleClearOperator() {
+            this.formInfo.operators = [];
+        },
+        //清空日期范围
+        handleClearDate() {
+            this.dateRange = null; //startTime和endTime会在watch中发送改变
+        },
+        //全部清空
+        clearAll() {
+            this.handleClearOperator();
+            this.handleClearDate();
+        },
         //=====================================其他操作=====================================//
         //处理鼠标按下事件
         handleResizeMousedown(e) {
@@ -337,6 +509,24 @@ export default {
             @include custom-tree-node;
         }
     }
-
+}
+// 搜索
+.banner-search {
+    flex: 0 0 auto;
+    .el-checkbox, .el-radio {
+        margin-right: size(15);
+    }
+    .op-item {
+        min-height: size(50);
+        display: flex;
+        align-items: center;
+        &:not(:last-of-type) {
+            border-bottom: 1px dashed $gray-300;
+        }
+        .el-button--text {
+            padding-top: size(5);
+            padding-bottom: size(5);
+        }
+    }
 }
 </style>

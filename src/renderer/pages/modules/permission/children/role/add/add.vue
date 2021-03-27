@@ -159,7 +159,7 @@ export default {
         getServerRoutes() {
             this.loading3 = true;
             this.axios.get("/api/security/server_routes").then((res) => {
-                const { data } = res.data;
+                const { data } = res;
                 data.forEach((val) => {
                     if (!this.serverRoutes[val.groupName || "__default"]) {
                         this.$set(this.serverRoutes, val.groupName || "__default", []);

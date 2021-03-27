@@ -65,6 +65,22 @@ const allRoutes = [
         },
         component: devOps,
     },
+    {
+        path: "/v1/dictionary/search",
+        name: "名词库搜索",
+        meta: {
+            title: "名词库搜索",
+        },
+        component: () => import("@/pages/modules/dictionary/search/search.vue"),
+    },
+    {
+        path: "/v1/dictionary/maintain",
+        name: "名词库维护",
+        meta: {
+            title: "名词库维护",
+        },
+        component: () => import("@/pages/modules/dictionary/maintain/maintain.vue"),
+    },
 ];
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 const router = new Router({
