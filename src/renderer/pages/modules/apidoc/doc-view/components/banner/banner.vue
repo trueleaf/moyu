@@ -59,6 +59,20 @@
                                 <el-button type="text" @click="handleClearDate">清空</el-button>
                             </el-radio-group>
                         </div>
+                        <!-- 最近多少条数据 -->
+                        <div class="op-item">
+                            <div class="flex0">
+                                <span>最近多少条&nbsp;</span>
+                                <span>：</span>
+                            </div>
+                            <el-radio-group v-model="recentNum">
+                                <el-radio :label="2">2条</el-radio>
+                                <el-radio :label="5">5条</el-radio>
+                                <el-radio :label="10">10条</el-radio>
+                                <el-radio :label="15">15条</el-radio>
+                                <el-button type="text" @click="handleClearRecentNum">清空</el-button>
+                            </el-radio-group>
+                        </div>
                     </s-fieldset>
                 </el-popover>
             </div>
@@ -72,7 +86,7 @@
                     ref="docTree"
                     :data="navTreeData"
                     node-key="_id"
-                    empty-text="点击按钮新增文档"
+                    empty-text="暂无数据"
                     :default-expanded-keys="defaultExpandedKeys"
                     :expand-on-click-node="true"
                     :draggable="false"
@@ -124,18 +138,17 @@ export default {
         navTreeData() { //-------树形导航数据
             const { banner } = this.$store.state.apidoc;
             let plainData = [];
+            const rawData = [];
             this.$helper.forEachForest(banner, (node) => {
                 const cpNode = JSON.parse(JSON.stringify(node))
                 delete cpNode.children;
                 plainData.push(cpNode);
+                rawData.push(cpNode);
             });
             plainData = plainData.filter((node) => {
                 const { creator, updatedAt } = node;
                 const { startTime, endTime } = this.formInfo;
                 const updatedTimestamp = new Date(updatedAt).valueOf();
-                // if (isFolder) {
-                //     return true;
-                // }
                 if (this.formInfo.operators.length > 0) {
                     return this.formInfo.operators.indexOf(creator) !== -1;
                 }
@@ -143,6 +156,36 @@ export default {
                     return updatedTimestamp >= startTime && updatedTimestamp <= endTime;
                 }
                 return true;
+            });
+            if (this.recentNum) {
+                plainData.sort((a, b) => {
+                    const aTime = new Date(a.updatedAt).valueOf();
+                    const bTime = new Date(b.updatedAt).valueOf();
+                    return bTime - aTime;
+                });
+                plainData = plainData.slice(0, this.recentNum)
+            }
+            for (let i = 0; i < plainData.length; i += 1) {
+                const node = plainData[i];
+                if (node.pid) { //存在pid但是无法找到父节点
+                    const parentNode = plainData.find((val) => val._id === node.pid);
+                    if (!parentNode) {
+                        const matchedParentNode = rawData.find((val) => val._id === node.pid);
+                        plainData.push(matchedParentNode);
+                    }
+                }
+            }
+            plainData.sort((a, b) => {
+                if (a.isFolder && !b.isFolder) {
+                    return -1;
+                }
+                if (!a.isFolder && b.isFolder) {
+                    return 1;
+                }
+                if (a.isFolder && b.isFolder) {
+                    return a.sort - b.sort;
+                }
+                return a.sort - b.sort;
             });
             const result = [];
             for (let i = 0; i < plainData.length; i += 1) {
@@ -247,6 +290,7 @@ export default {
             memberEnum: [],
             dateRange: "", //--------日期范围
             customDateRange: [], //--自定义日期范围
+            recentNum: null, //------显示最近多少条
             //=====================================拖拽参数====================================//
             minWidth: 280, //------------最小宽度
             maxWidth: 400, //------------最大宽度
@@ -410,10 +454,15 @@ export default {
         handleClearDate() {
             this.dateRange = null; //startTime和endTime会在watch中发送改变
         },
+        //清空最近条数
+        handleClearRecentNum() {
+            this.recentNum = null;
+        },
         //全部清空
         clearAll() {
             this.handleClearOperator();
             this.handleClearDate();
+            this.handleClearRecentNum();
         },
         //=====================================其他操作=====================================//
         //处理鼠标按下事件
