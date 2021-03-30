@@ -19,62 +19,64 @@
                 <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
-                <el-popover placement="right-end"  width="800" trigger="click">
-                    <el-tooltip slot="reference" class="item" effect="dark" content="添加过滤条件" :open-delay="300">
-                        <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
-                            <use xlink:href="#iconguolv"></use>
-                        </svg>
-                    </el-tooltip>
-                    <s-fieldset title="过滤条件" class="banner-search">
-                        <!-- 操作人员 -->
-                        <div class="op-item">
-                            <div>操作人员：</div>
-                            <el-checkbox-group v-model="formInfo.operators">
-                                <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item"></el-checkbox>
-                                <el-button type="text" @click="handleClearOperator">清空</el-button>
-                            </el-checkbox-group>
-                        </div>
-                        <!-- 日期范围 -->
-                        <div class="op-item">
-                            <div class="flex0">
-                                <span>日期范围&nbsp;</span>
-                                <span>：</span>
+                <el-badge :is-dot="hasFilterCondition">
+                    <el-popover placement="right-end"  width="800" trigger="click">
+                        <el-tooltip slot="reference" class="item" effect="dark" content="添加过滤条件" :open-delay="300">
+                            <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
+                                <use xlink:href="#iconguolv"></use>
+                            </svg>
+                        </el-tooltip>
+                        <s-fieldset title="过滤条件" class="banner-search">
+                            <!-- 操作人员 -->
+                            <div class="op-item">
+                                <div>操作人员：</div>
+                                <el-checkbox-group v-model="formInfo.operators">
+                                    <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item"></el-checkbox>
+                                    <el-button type="text" @click="handleClearOperator">清空</el-button>
+                                </el-checkbox-group>
                             </div>
-                            <el-radio-group v-model="dateRange">
-                                <el-radio label="1d">今天</el-radio>
-                                <el-radio label="2d">近两天</el-radio>
-                                <el-radio label="3d">近三天</el-radio>
-                                <el-radio label="自定义">自定义</el-radio>
-                                <el-date-picker
-                                    v-if="dateRange === '自定义'"
-                                    v-model="customDateRange"
-                                    type="datetimerange"
-                                    range-separator="至"
-                                    value-format="timestamp"
-                                    start-placeholder="开始日期"
-                                    size="mini"
-                                    class="mr-1"
-                                    end-placeholder="结束日期">
-                                </el-date-picker>
-                                <el-button type="text" @click="handleClearDate">清空</el-button>
-                            </el-radio-group>
-                        </div>
-                        <!-- 最近多少条数据 -->
-                        <div class="op-item">
-                            <div class="flex0">
-                                <span>最近多少条&nbsp;</span>
-                                <span>：</span>
+                            <!-- 日期范围 -->
+                            <div class="op-item">
+                                <div class="flex0">
+                                    <span>日期范围&nbsp;</span>
+                                    <span>：</span>
+                                </div>
+                                <el-radio-group v-model="dateRange">
+                                    <el-radio label="1d">今天</el-radio>
+                                    <el-radio label="2d">近两天</el-radio>
+                                    <el-radio label="3d">近三天</el-radio>
+                                    <el-radio label="自定义">自定义</el-radio>
+                                    <el-date-picker
+                                        v-if="dateRange === '自定义'"
+                                        v-model="customDateRange"
+                                        type="datetimerange"
+                                        range-separator="至"
+                                        value-format="timestamp"
+                                        start-placeholder="开始日期"
+                                        size="mini"
+                                        class="mr-1"
+                                        end-placeholder="结束日期">
+                                    </el-date-picker>
+                                    <el-button type="text" @click="handleClearDate">清空</el-button>
+                                </el-radio-group>
                             </div>
-                            <el-radio-group v-model="recentNum">
-                                <el-radio :label="2">2条</el-radio>
-                                <el-radio :label="5">5条</el-radio>
-                                <el-radio :label="10">10条</el-radio>
-                                <el-radio :label="15">15条</el-radio>
-                                <el-button type="text" @click="handleClearRecentNum">清空</el-button>
-                            </el-radio-group>
-                        </div>
-                    </s-fieldset>
-                </el-popover>
+                            <!-- 最近多少条数据 -->
+                            <div class="op-item">
+                                <div class="flex0">
+                                    <span>最近多少条&nbsp;</span>
+                                    <span>：</span>
+                                </div>
+                                <el-radio-group v-model="formInfo.recentNum">
+                                    <el-radio :label="2">2条</el-radio>
+                                    <el-radio :label="5">5条</el-radio>
+                                    <el-radio :label="10">10条</el-radio>
+                                    <el-radio :label="15">15条</el-radio>
+                                    <el-button type="text" @click="handleClearRecentNum">清空</el-button>
+                                </el-radio-group>
+                            </div>
+                        </s-fieldset>
+                    </el-popover>
+                </el-badge>
             </div>
         </div>
         <!-- 树形文档导航 -->
@@ -157,13 +159,13 @@ export default {
                 }
                 return true;
             });
-            if (this.recentNum) {
+            if (this.formInfo.recentNum) {
                 plainData.sort((a, b) => {
                     const aTime = new Date(a.updatedAt).valueOf();
                     const bTime = new Date(b.updatedAt).valueOf();
                     return bTime - aTime;
                 });
-                plainData = plainData.slice(0, this.recentNum)
+                plainData = plainData.slice(0, this.formInfo.recentNum)
             }
             for (let i = 0; i < plainData.length; i += 1) {
                 const node = plainData[i];
@@ -217,6 +219,12 @@ export default {
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        hasFilterCondition() {
+            const hasTimeCondition = this.formInfo.startTime && this.formInfo.endTime;
+            const hasOperatorCondition = this.formInfo.operators.length > 0;
+            const hasRecentNumCondition = this.formInfo.recentNum;
+            return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
         },
     },
     watch: {
@@ -286,11 +294,11 @@ export default {
                 startTime: null, //--起始日期
                 endTime: null, //----结束日期
                 operators: [], //----操作者信息
+                recentNum: null, //-显示最近多少条
             },
             memberEnum: [],
             dateRange: "", //--------日期范围
             customDateRange: [], //--自定义日期范围
-            recentNum: null, //------显示最近多少条
             //=====================================拖拽参数====================================//
             minWidth: 280, //------------最小宽度
             maxWidth: 400, //------------最大宽度
@@ -456,7 +464,7 @@ export default {
         },
         //清空最近条数
         handleClearRecentNum() {
-            this.recentNum = null;
+            this.formInfo.recentNum = null;
         },
         //全部清空
         clearAll() {
