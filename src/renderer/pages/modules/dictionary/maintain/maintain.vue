@@ -6,36 +6,49 @@
 */
 <template>
     <div class="maintain">
-        <!-- 搜索条件 -->
-        <s-search showTip autoRequest @change="handleChange">
-            <s-search-item label="词汇名词" prop="name"></s-search-item>
-            <el-button slot="operation" type="success" size="mini">新建</el-button>
-        </s-search>
-        <!-- 表格展示 -->
-        <s-table v-show="!showAdd && !showEdit && !showView" ref="table" url="/api/dictionary/dictionary_list" class="table">
-            <el-table-column prop="cnName" label="中文名称" align="center"></el-table-column>
-            <el-table-column prop="enName" label="英文名称" align="center"></el-table-column>
-            <el-table-column prop="example" label="例子" align="center"></el-table-column>
-            <el-table-column prop="creator" label="创建者" align="center"></el-table-column>
-            <el-table-column prop="maintainer" label="维护者" align="center"></el-table-column>
-            <el-table-column prop="updatedAt" label="更新时间" align="center">
-                <template slot-scope="scope">
-                    {{ $helper.formatDate(scope.row.updatedAt) }}
-                </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center">
-                <template>
-                    <el-button type="text">修改</el-button>
-                    <el-button type="text">删除</el-button>
-                </template>
-            </el-table-column>
-            <el-button v-if="!showAdd && !showEdit && !showView" slot="operation" type="success" size="mini" @click="showAdd = true">新增词条</el-button>
-        </s-table>
+        <div v-show="!showAdd && !showEdit && !showView">
+            <!-- 搜索条件 -->
+            <s-search showTip autoRequest @change="handleChange">
+                <s-search-item label="词汇名词" prop="name"></s-search-item>
+                <el-button v-if="!showAdd && !showEdit && !showView" slot="operation" type="success" size="mini" @click="showAdd = true">新增词条</el-button>
+            </s-search>
+            <!-- 表格展示 -->
+            <s-table ref="table" url="/api/dictionary/dictionary_list" class="table">
+                <el-table-column prop="cnName" label="中文名称" align="center"></el-table-column>
+                <el-table-column prop="enName" label="英文名称" align="center"></el-table-column>
+                <el-table-column prop="example" label="例子" align="center"></el-table-column>
+                <el-table-column prop="creator" label="创建者" align="center"></el-table-column>
+                <el-table-column prop="maintainer" label="维护者" align="center"></el-table-column>
+                <el-table-column prop="updatedAt" label="更新时间" align="center">
+                    <template slot-scope="scope">
+                        {{ $helper.formatDate(scope.row.updatedAt) }}
+                    </template>
+                </el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template>
+                        <el-button type="text">修改</el-button>
+                        <el-button type="text">删除</el-button>
+                    </template>
+                </el-table-column>
+            </s-table>
+        </div>
+        <s-view v-if="showView"></s-view>
+        <s-edit v-if="showEdit"></s-edit>
+        <s-add v-if="showAdd" @close="showAdd = false"></s-add>
     </div>
 </template>
 
 <script>
+import edit from "./components/edit.vue"
+import view from "./components/view.vue"
+import add from "./components/add.vue"
+
 export default {
+    components: {
+        "s-edit": edit,
+        "s-view": view,
+        "s-add": add,
+    },
     data() {
         return {
             //=================================表单与表格参数================================//
@@ -55,7 +68,6 @@ export default {
             showAdd: false, //-----------是否展示新增
             showEdit: false, //----------是否展示编辑页面
             showView: false, //----------是否展示view页面
-            isActive: false, //----------是否出现备选项
         };
     },
     created() {

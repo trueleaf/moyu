@@ -26,8 +26,11 @@
                 <el-button :loading="loading" size="mini" type="success" @click="handleAddVocabulary">确定新增</el-button>
                 <el-button v-if="hasCache" size="mini" type="success" @click="handleApplyCache">应用上次</el-button>
             </div>
+            <i class="el-icon-close close" @click="handleClose"></i>
         </s-fieldset>
-        <i class="el-icon-close close" @click="handleClose"></i>
+        <s-fieldset title="预览" class="ml-2 w-50 flex0">
+            <div v-html="formInfo.remark" class="px-3"></div>
+        </s-fieldset>
     </div>
 </template>
 
@@ -73,7 +76,8 @@ export default {
         //=====================================组件间交互====================================//
         //关闭
         handleClose() {
-            this.$event.emit("dictionary/closeAdd");
+            this.$emit("close");
+            // this.$event.emit("dictionary/closeAdd");
         },
         //新增词汇
         handleAddVocabulary() {
@@ -111,8 +115,9 @@ export default {
 <style lang="scss">
 .s-add {
     min-width: size(550);
-    width: 50%;
+    // width: 50%;
     position: relative;
+    display: flex;
     .form {
         border: 1px solid $gray-300;
         border-bottom: none;
@@ -132,9 +137,10 @@ export default {
         justify-content: center;
         position: absolute;
         right: size(10);
-        top: size(20);
+        top: size(10);
         font-size: fz(18);
         cursor: pointer;
+        color: $red;
         &:hover {
             color: $red;
         }
