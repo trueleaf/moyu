@@ -323,8 +323,8 @@ export default {
             document.documentElement.addEventListener("click", () => {
                 this.multiSelectNode = [];
             });
-            document.documentElement.addEventListener("mouseup", (e) => {
-                e.stopPropagation();
+            document.documentElement.addEventListener("mouseup", () => {
+                // e.stopPropagation();
                 this.isDragging = false;
                 document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
             })
@@ -360,7 +360,7 @@ export default {
         //点击节点
         handleClickNode(e, { node }) {
             if (this.pressCtrl) {
-                e.stopPropagation();
+                // e.stopPropagation();
                 const delIndex = this.multiSelectNode.findIndex((val) => val._id === node.data._id);
                 if (delIndex !== -1) {
                     this.multiSelectNode.splice(delIndex, 1);
@@ -474,7 +474,7 @@ export default {
         },
         //处理鼠标移动事件
         handleResizeMousemove(e) {
-            e.stopPropagation();
+            // e.stopPropagation();
             let moveLeft = 0;
             const { banner, bar } = this.$refs;
             moveLeft = e.clientX - this.mousedownLeft;
