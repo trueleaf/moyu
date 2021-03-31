@@ -12,7 +12,19 @@
 [客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
 
 
-[![](https://img.shields.io/github/v/release/trueleaf/moyu?style=flat-square#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=94&status=done&style=none&width=94)](https://github.com/trueleaf/moyu/releases/latest)[![](https://img.shields.io/github/license/trueleaf/moyu#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=78&status=done&style=none&width=78)](https://github.com/trueleaf/moyu/blob/master/LICENSE)[![](https://img.shields.io/github/downloads/trueleaf/moyu/total#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=86&status=done&style=none&width=86)](https://github.com/trueleaf/moyu/releases/latest)
+<div align="center">
+  <a href="https://github.com/trueleaf/moyu/releases/latest">
+    <img src="https://img.shields.io/github/v/release/trueleaf/moyu?style=flat-square" alt="">
+  </a>
+
+  <a href="https://github.com/trueleaf/moyu/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/trueleaf/moyu" alt="LICENSE">
+  </a>
+
+  <a href="https://github.com/trueleaf/moyu/releases/latest">
+    <img alt="GitHub All Releases" src="https://img.shields.io/github/downloads/trueleaf/moyu/total">
+  </a>
+</div>
 
 </div>
 
@@ -25,6 +37,9 @@
 
 ## 常用
 
+[产品介绍](https://www.yuque.com/happymoyu/as0gig/fayyy6)
+
+[使用教程](https://www.yuque.com/happymoyu/as0gig/npr3di)
 
 [完整文档](https://www.yuque.com/happymoyu)
 
@@ -37,7 +52,14 @@
 
 [客户端GitHub地址](https://github.com/trueleaf/moyu) | [服务端GitHub地址](https://github.com/trueleaf/moyu-server) | [客户端Gitee地址](https://gitee.com/shuzhikai/moyu) | [服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
 
+## 主要技术栈
 
+
+- Vue
+- Electron
+- Egg.js
+- ElementUI
+- MongoDB
 ## QQ交流群
 
 
@@ -53,31 +75,6 @@
 1. 细粒度的权限管理
 1. 尽可能的提高录入接口效率
 1. 开源免费，内网部署安全有保障
-
-
-
-## 部署&二次开发
-
-
-### 环境要求
-
-
-- nodejs(10+)
-- mongodb(2.6+)
-- nginx(任意web服务器，可选)
-
-
-
-### 主要技术栈
-
-
-- Vue
-- Electron
-- Egg.js
-- ElementUI
-- MongoDB
-
-
 
 ## License
 
