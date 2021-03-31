@@ -1,6 +1,6 @@
 <div align="center">
 
-![logo.png](https://cdn.nlark.com/yuque/0/2021/png/612481/1617098363284-c113a5cd-6ea9-4f99-89bd-d98de7660192.png#align=left&display=inline&height=147&margin=%5Bobject%20Object%5D&name=image.png&originHeight=147&originWidth=199&size=12679&status=done&style=none&width=199)
+![logo](https://images.gitee.com/uploads/images/2021/0331/214909_4f34bc9b_1230427.png "屏幕截图.png")
 
 
 # 摸鱼(客户端)
@@ -12,7 +12,11 @@
 [客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
 
 
-[![](https://img.shields.io/github/v/release/trueleaf/moyu?style=flat-square#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=94&status=done&style=none&width=94)](https://github.com/trueleaf/moyu/releases/latest)[![](https://img.shields.io/github/license/trueleaf/moyu#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=78&status=done&style=none&width=78)](https://github.com/trueleaf/moyu/blob/master/LICENSE)[![](https://img.shields.io/github/downloads/trueleaf/moyu/total#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=86&status=done&style=none&width=86)](https://github.com/trueleaf/moyu/releases/latest)
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215000_bc4b9025_1230427.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215030_fcc9272e_1230427.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215051_83e16797_1230427.png "屏幕截图.png")
 
 </div>
 
