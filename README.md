@@ -12,19 +12,17 @@
 [客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
 
 
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215000_bc4b9025_1230427.png "屏幕截图.png")
-
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215030_fcc9272e_1230427.png "屏幕截图.png")
-
-![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215051_83e16797_1230427.png "屏幕截图.png")
 
 </div>
 
 
 
 ## 预览
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/612481/1617098438926-11669d66-609c-4514-b895-af06dd281633.png#align=left&display=inline&height=909&margin=%5Bobject%20Object%5D&name=image.png&originHeight=909&originWidth=1920&size=84829&status=done&style=shadow&width=1920)
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/612481/1617098455784-7ea1422b-2e51-4d22-a876-09a39bacd0c5.png#align=left&display=inline&height=909&margin=%5Bobject%20Object%5D&name=image.png&originHeight=909&originWidth=1920&size=143163&status=done&style=shadow&width=1920)
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215000_bc4b9025_1230427.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215030_fcc9272e_1230427.png "屏幕截图.png")
+
+![输入图片说明](https://images.gitee.com/uploads/images/2021/0331/215051_83e16797_1230427.png "屏幕截图.png")
 
 
 ## 常用
