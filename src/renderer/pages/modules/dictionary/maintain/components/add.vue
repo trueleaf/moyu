@@ -11,6 +11,20 @@
                 <el-form-item label="中文名称：" prop="cnName">
                     <el-input v-model="formInfo.cnName" placeholder="eg：笨鸟先飞" size="mini" class="w-80"></el-input>
                 </el-form-item>
+                <el-form-item label="同义词：">
+                    <el-tag v-for="(item, index) in formInfo.synonym" :key="index" closable size="small" class="mr-1" @close="handleDeleteSynonym(item, index)">{{ item }}</el-tag>
+                    <el-input
+                        v-if="showInput"
+                        ref="tagInput"
+                        v-model="synonymValue"
+                        class="w-100px"
+                        size="mini"
+                        @keyup.enter.native="handleConfirmSynonym"
+                        @blur="handleConfirmSynonym"
+                    >
+                    </el-input>
+                    <el-button v-else type="text" size="small" @click="handleShowSynonymInput">新增同义词</el-button>
+                </el-form-item>
                 <el-form-item label="英文名称：" prop="enName">
                     <el-input v-model="formInfo.enName" placeholder="eg：stupid" size="mini" class="w-80"></el-input>
                 </el-form-item>
@@ -39,20 +53,23 @@ export default {
     data() {
         return {
             //=================================表单与表格参数================================//
-            formInfo: {},
+            formInfo: {
+                synonym: [],
+            },
             rules: {
                 cnName: [
                     { required: true, message: "请输入中文名称", trigger: "blur" },
                 ],
-                enName: [
-                    { required: true, message: "请输入英文名称", trigger: "blur" },
-                ],
+                // enName: [
+                //     { required: true, message: "请输入英文名称", trigger: "blur" },
+                // ],
             },
             //===================================枚举参数====================================//
 
             //===================================业务参数====================================//
-
+            synonymValue: "", //同义词绑定的值
             //===================================其他参数====================================//
+            showInput: false, //是否展示同义词输入框
             loading: false, //新增词汇加载
             hasCache: false, //是否存在上次提交数据的缓存
         };
@@ -87,6 +104,7 @@ export default {
                     const params = this.formInfo;
                     this.axios.post("/api/dictionary/dictionary", params).then((res) => {
                         console.log(res);
+                        this.$message.success("操作成功");
                     }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
@@ -106,6 +124,29 @@ export default {
             console.log(cache)
             Object.assign(this.formInfo, cache);
         },
+        //删除同义词
+        handleDeleteSynonym(item, index) {
+            this.formInfo.synonym.splice(index, 1);
+        },
+        //显示同义词输入框
+        handleShowSynonymInput() {
+            this.synonymValue = "";
+            this.showInput = true;
+            this.$nextTick(() => {
+                this.$refs.tagInput.focus();
+            })
+        },
+        //确认添加同义词
+        handleConfirmSynonym() {
+            if (this.synonymValue.trim() === "") {
+                this.showInput = false;
+            } else if (this.formInfo.synonym.includes((val) => val === this.synonymValue)) { //重复词汇
+                this.showInput = false;
+            } else {
+                this.formInfo.synonym.push(this.synonymValue);
+                this.showInput = false;
+            }
+        },
         //=====================================其他操作=====================================//
 
     },
@@ -115,7 +156,7 @@ export default {
 <style lang="scss">
 .s-add {
     min-width: size(550);
-    // width: 50%;
+    width: 100%;
     position: relative;
     display: flex;
     .form {
