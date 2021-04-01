@@ -29,14 +29,14 @@
 </template>
 
 <script>
+import docHistory from "@/pages/modules/apidoc/mixin/content/history/history.vue";
+import onlineLink from "@/pages/modules/apidoc/mixin/content/link/link.vue";
+import config from "@/pages/modules/apidoc/mixin/content/config/config.vue";
+import statistics from "@/pages/modules/apidoc/mixin/content/statistics/statistics.vue";
+import exportDoc from "@/pages/modules/apidoc/mixin/content/export/export.vue";
+import variable from "@/pages/modules/apidoc/mixin/content/variable/variable.vue";
 import apidoc from "./apidoc/apidoc.vue";
-import config from "./config/config.vue";
-import statistics from "./statistics/statistics.vue";
 import paramsTemplate from "./params-template/params-template.vue";
-import onlineLink from "./link/link.vue";
-import exportDoc from "./export/export.vue";
-import docHistory from "./history/history.vue";
-import variable from "./variable/variable.vue";
 
 export default {
     components: {

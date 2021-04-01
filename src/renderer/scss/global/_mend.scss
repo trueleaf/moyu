@@ -3,9 +3,14 @@ body {
     .el-dropdown-menu {
         max-height: size(300);
         overflow-y: auto;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
         .popper__arrow {
             display: none;
         }
+    }
+    .el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+        background: $gray-200;
+        color: $theme-color;
     }
     .el-divider__text {
         color: $cyan;
@@ -21,3 +26,4 @@ body {
         padding: 0;
     }
 }
+

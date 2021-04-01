@@ -60,6 +60,7 @@ pre {
 
 body .el-dropdown-menu {
   max-height: 300px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px;
   overflow-y: auto; }
   body .el-dropdown-menu .popper__arrow {
     display: none; }

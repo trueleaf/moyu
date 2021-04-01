@@ -45,34 +45,45 @@ export default {
         this.initShortcut();
     },
     methods: {
-        //=====================================获取远程数据==================================//
+        //=====================================快捷键====================================//
         initShortcut() {
             window.addEventListener("keyup", (e) => {
                 if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
                     e.preventDefault();
-                    const id = this.$helper.uuid();
-                    if (this.tabs && this.tabs.find((tab) => tab.tabType === "history")) { //存在则返回不处理
-                        return;
-                    }
-                    this.$store.commit("apidoc/addTab", {
-                        _id: id,
-                        name: "历史记录",
-                        changed: false,
-                        tail: "",
-                        tabType: "history",
-                        projectId: this.$route.query.id,
-                    });
-                    this.$store.commit("apidoc/changeCurrentTab", {
-                        _id: id,
-                        name: "历史记录",
-                        changed: false,
-                        tail: "",
-                        tabType: "history",
-                        projectId: this.$route.query.id,
+                    this.addAndChangeTab("历史记录", "history");
+                } else if (e.ctrlKey && e.key === ",") {
+                    this.addAndChangeTab("文档全局配置", "config");
+                } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
+                    this.$router.push({
+                        path: "/v1/apidoc/doc-view",
+                        query: {
+                            id: this.$route.query.id,
+                            name: this.$route.query.name,
+                        },
                     });
                 }
             })
         },
+        //新增并且改变当前选中tab
+        addAndChangeTab(name, type) {
+            this.$store.commit("apidoc/addTab", {
+                _id: type,
+                name,
+                changed: false,
+                tail: "",
+                tabType: type,
+                projectId: this.$route.query.id,
+            });
+            this.$store.commit("apidoc/changeCurrentTab", {
+                _id: type,
+                name,
+                changed: false,
+                tail: "",
+                tabType: type,
+                projectId: this.$route.query.id,
+            });
+        },
+        //=====================================获取远程数据==================================//
         //获取联想参数
         getMindParamsEnum() {
             this.$store.dispatch("apidoc/getMindParamsEnum", {
