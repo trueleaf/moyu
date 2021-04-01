@@ -127,7 +127,7 @@
                 </template>
             </el-tree>
         </div>
-        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
+        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
     </div>
 </template>
 
@@ -507,15 +507,7 @@ export default {
     flex-direction: column;
     position: relative;
     &>.bar {
-        position: absolute;
-        height: 100%;
-        width: size(10);
-        background: transparent;
-        left: size(300);
-        z-index: $zIndex-banner-bar;
-        box-sizing: content-box;
-        margin-left: size(-5);
-        cursor: ew-resize;
+        @include bar;
     }
     .el-tree-node__content {
         height: size(30);

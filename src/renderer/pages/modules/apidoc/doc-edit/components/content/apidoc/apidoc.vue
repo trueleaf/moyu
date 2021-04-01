@@ -22,7 +22,7 @@
             </div>
         </s-loading>
         <div ref="response" class="view-area" :style="{'user-select': isDragging ? 'none' : 'auto'}">
-            <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
+            <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
             <s-overview></s-overview>
         </div>
     </div>
@@ -454,15 +454,7 @@ export default {
         width: size(500);
         position: relative;
         &>.bar {
-            position: absolute;
-            height: 100%;
-            width: size(10);
-            background: transparent;
-            left: 0;
-            z-index: $zIndex-banner-bar;
-            box-sizing: content-box;
-            margin-left: size(-5);
-            cursor: ew-resize;
+            @include bar;
         }
     }
     .show-md {

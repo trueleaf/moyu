@@ -21,7 +21,7 @@
                 </svg> -->
             </div>
         </div>
-        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
+        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
@@ -325,15 +325,7 @@ export default {
     flex-direction: column;
     position: relative;
     &>.bar {
-        position: absolute;
-        height: 100%;
-        width: size(10);
-        background: transparent;
-        left: size(300);
-        z-index: $zIndex-banner-bar;
-        box-sizing: content-box;
-        margin-left: size(-5);
-        cursor: ew-resize;
+        @include bar;
     }
     .el-tree-node__content {
         height: size(30);

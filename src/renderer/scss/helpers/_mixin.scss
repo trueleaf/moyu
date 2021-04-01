@@ -113,7 +113,21 @@
 }
 
 
-
+//拖拽bar样式
+@mixin bar {
+    position: absolute;
+    height: 100%;
+    width: size(6);
+    background: transparent;
+    left: size(300);
+    z-index: $zIndex-banner-bar;
+    box-sizing: content-box;
+    margin-left: size(-3);
+    cursor: ew-resize;
+    &.active {
+        background: $theme-color;
+    }
+}
 
 
 

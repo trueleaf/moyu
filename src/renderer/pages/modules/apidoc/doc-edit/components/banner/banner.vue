@@ -173,7 +173,7 @@
             </el-tree>
             <div ref="bannerContext" class="context flex1"></div>
         </div>
-        <div ref="bar" class="bar" @mousedown="handleResizeMousedown"></div>
+        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
@@ -958,15 +958,7 @@ export default {
         transition: none;
     }
     &>.bar {
-        position: absolute;
-        height: 100%;
-        width: size(10);
-        background: transparent;
-        left: size(300);
-        z-index: $zIndex-banner-bar;
-        box-sizing: content-box;
-        margin-left: size(-5);
-        cursor: ew-resize;
+        @include bar;
     }
     .el-tree-node__content {
         height: size(30);
