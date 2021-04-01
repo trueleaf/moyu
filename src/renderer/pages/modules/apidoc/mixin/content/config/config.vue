@@ -7,10 +7,11 @@
 <template>
     <div class="config">
         <el-tabs v-model="activeName" tab-position="left">
-            <el-tab-pane label="接口限制" name="s-a">
+            <el-tab-pane label="录入配置" name="s-a">
                 <s-api-rule></s-api-rule>
             </el-tab-pane>
-            <el-tab-pane label="权限管理" name="s-b"></el-tab-pane>
+            <el-tab-pane label="权限管理" name="s-b">
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
@@ -43,15 +44,15 @@ export default {
     .el-tabs {
         height: 100%;
     }
-    .el-form-item {
-        width: size(768);
-        margin-bottom: 0;
-    }
-    .el-form-item__content {
-        line-height: size(28);
-    }
-    .el-form-item__label {
-        color: $gray-600;
-    }
+    // .el-form-item {
+    //     width: size(768);
+    //     margin-bottom: 0;
+    // }
+    // .el-form-item__content {
+    //     line-height: size(28);
+    // }
+    // .el-form-item__label {
+    //     color: $gray-600;
+    // }
 }
 </style>
