@@ -50,7 +50,7 @@
                         <span v-else class="ml-auto gray-500">(已禁用)</span>
                     </span>
                     <el-form-item label="允许传参方式：" label-width="120px" prop="fileInFolderLimit">
-                        <el-checkbox-group v-model="item.enabledContenType">
+                        <el-checkbox-group v-model="item.enabledContenType" :min="1">
                             <el-checkbox v-for="(ct) in copyApiRules.contentType" :key="ct.value" :label="ct.value" :disabled="item.name === 'get'">{{ ct.name }}</el-checkbox>
                         </el-checkbox-group>
                     </el-form-item>
@@ -106,8 +106,9 @@ export default {
             this.loading = true;
             this.$store.dispatch("apidocRules/getRuels", {
                 projectId: this.$route.query.id,
-            }).then((res) => {
-                this.copyApiRules = JSON.parse(JSON.stringify(res.data))
+            }).then(() => {
+                const rules = this.$store.state.apidocRules;
+                this.copyApiRules = JSON.parse(JSON.stringify(rules))
             }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -122,9 +123,7 @@ export default {
                 ...this.copyApiRules,
             };
             this.axios.put("/api/apidoc/project/project_rules", params).then(() => {
-                this.$store.commit("apidocRules/changeRules", {
-                    ...JSON.parse(JSON.stringify(this.copyApiRules)),
-                })
+                this.$store.commit("apidocRules/changeRules", JSON.parse(JSON.stringify(this.copyApiRules)))
             }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {

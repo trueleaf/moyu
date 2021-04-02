@@ -17,8 +17,15 @@
                     @keyup.enter.native.stop="formatUrl"
             >
                 <div slot="prepend" class="request-input">
-                    <el-select v-model="requestMethod" value-key="name" @change="handleChangeRequestMethods">
-                        <el-option v-for="(item, index) in enabledRequestMethods" :key="index" :value="item" :label="item.name"></el-option>
+                    <el-select v-model="requestMethod" value-key="name">
+                        <el-option
+                            v-for="(item, index) in requestMethodEnum"
+                            :key="index"
+                            :value="item"
+                            :label="item.name"
+                            :title="disabledTip(item)"
+                            :disabled="!item.enabled">
+                        </el-option>
                     </el-select>
                 </div>
             </s-v-input>
@@ -83,8 +90,8 @@ export default {
         tabs() { //全部tabs
             return this.$store.state.apidoc.tabs[this.$route.query.id];
         },
-        enabledRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        requestMethodEnum() {
+            return this.$store.state.apidocRules.requestMethods;
         },
         fullUrl() {
             const apidoc = this.$store.state.apidoc.apidocInfo;
@@ -135,6 +142,11 @@ export default {
                 }
                 return `${accumulator};${currentCookie}`;
             }, "");
+        },
+    },
+    watch: {
+        requestMethod(val) {
+            this.$event.emit("apidoc/changeMethod", val);
         },
     },
     data() {
@@ -249,6 +261,24 @@ export default {
                     currentDocUsedTime[this.currentSelectDoc._id] = 0;
                     localStorage.setItem("apidoc/spendTime", JSON.stringify(currentDocUsedTime));
                 }
+                //改变tabs导航请求方式
+                this.$store.commit("apidoc/changeTabInfoById", {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    tail: this.requestMethod.toLowerCase(),
+                });
+                //改变当前tab导航信息
+                this.$store.commit("apidoc/changeCurrentTabById", {
+                    _id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    tail: this.requestMethod.toLowerCase(),
+                });
+                //改变banner请求方式
+                this.$store.commit("apidoc/changeDocBannerInfoById", {
+                    id: this.currentSelectDoc._id,
+                    projectId: this.$route.query.id,
+                    method: this.requestMethod.toLowerCase(),
+                });
             }).catch((err) => {
                 this.$errorThrow(err, this);
                 this.$store.commit("apidoc/changeCurrentTabById", {
@@ -371,27 +401,6 @@ export default {
             const matchedComponent = this.getComponentByName("QUERY_PARAMS");
             matchedComponent.selectChecked();
         },
-        //改变请求方法
-        handleChangeRequestMethods(val) {
-            //改变tabs导航请求方式
-            this.$store.commit("apidoc/changeTabInfoById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                tail: val.value,
-            });
-            //改变当前tab导航信息
-            this.$store.commit("apidoc/changeCurrentTabById", {
-                _id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                tail: val.value,
-            });
-            //改变banner请求方式
-            this.$store.commit("apidoc/changeDocBannerInfoById", {
-                id: this.currentSelectDoc._id,
-                projectId: this.$route.query.id,
-                method: val.value,
-            });
-        },
         //hack通过改变_variableChange触发watch事件刷新变量值
         handleVariableChange() {
             this.request._variableChange = !this.request._variableChange;
@@ -464,6 +473,13 @@ export default {
                 tabType: "variable",
                 projectId: this.$route.query.id,
             });
+        },
+        //请求方法禁用提示
+        disabledTip(item) {
+            if (!item.enabled) {
+                return "当前请求方法被禁止，可以在全局配置中进行相关配置";
+            }
+            return "";
         },
     },
 };

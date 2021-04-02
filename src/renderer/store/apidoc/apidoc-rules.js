@@ -14,6 +14,9 @@ export default {
         contentType: [], //contentType
         requestMethods: [], //请求方法
         cacheProjectId: null, //缓存项目id，如果有项目id则不重新请求数据
+        requireDescription: false, //描述是否必填
+        requireValue: false, //参数值是否必填
+        enableCollapseAnimation: false, //是否开启折叠动画
     },
     mutations: {
         changeRules(state, payload) {
@@ -22,20 +25,28 @@ export default {
             state.contentType = payload.contentType;
             state.requestMethods = payload.requestMethods;
             state.cacheProjectId = payload.cacheProjectId;
+            state.requireDescription = payload.requireDescription;
+            state.requireValue = payload.requireValue;
+            state.enableCollapseAnimation = payload.enableCollapseAnimation;
         },
     },
     actions: {
-        getRuels(state, payload) {
+        getRuels(context, payload) {
             return new Promise((resolve, reject) => {
-                const { projectId } = payload;
-                const params = { projectId };
+                const params = {
+                    projectId: payload.projectId,
+                };
                 axios.get("/api/apidoc/project/project_rules", { params }).then((res) => {
-                    this.commit("apidocRules/changeRules", {
+                    console.log("rule", res.data)
+                    context.commit("changeRules", {
                         dominLimit: res.data.dominLimit,
                         fileInFolderLimit: res.data.fileInFolderLimit,
                         contentType: res.data.contentType,
                         requestMethods: res.data.requestMethods,
-                        cacheProjectId: projectId,
+                        requireDescription: res.data.requireDescription,
+                        requireValue: res.data.requireValue,
+                        enableCollapseAnimation: res.data.enableCollapseAnimation,
+                        cacheProjectId: payload.projectId,
                     });
                     resolve(res);
                 }).catch((err) => {

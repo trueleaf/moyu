@@ -14,8 +14,12 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap hidden-md">
-                <s-request-query-params ref="query"></s-request-query-params>
-                <s-request-body-params ref="body" :disabled="apidocInfo.item && apidocInfo.item.method === 'get'" disabled-tip="GET请求只允许Query传参"></s-request-body-params>
+                <s-request-query-params ref="query" :disabled="!enableQueryParams" disabled-tip="当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项"></s-request-query-params>
+                <s-request-body-params
+                    ref="body"
+                    :disabled="!enableBodyParams || (apidocInfo.item && apidocInfo.item.method === 'get')"
+                    :disabled-tip="`${(apidocInfo.item && apidocInfo.item.method === 'get') ? 'GET请求只允许Query传参' : '当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项'} `">
+                </s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
                 <s-remark></s-remark>
@@ -90,6 +94,29 @@ export default {
         },
         loading() {
             return this.$store.state.apidoc.apidocLoading;
+        },
+        docRules() { //---------文档规则
+            return this.$store.state.apidocRules;
+        },
+        enableQueryParams() {
+            const rules = this.$store.state.apidocRules;
+            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
+            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            if (!matchedContentType) {
+                return false;
+            }
+            const { enabledContenType } = matchedContentType;
+            return enabledContenType.find((val) => val === "params");
+        },
+        enableBodyParams() {
+            const rules = this.$store.state.apidocRules;
+            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
+            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            if (!matchedContentType) {
+                return false;
+            }
+            const { enabledContenType } = matchedContentType;
+            return enabledContenType.find((val) => (val === "json" || val === "form-data" || val === "x-www-form-urlencoded"));
         },
     },
     data() {

@@ -178,9 +178,8 @@ export default {
                     type: "warning",
                 }).then(() => {
                     const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
-                    matchedComponent.saveRequest().then(() => {
-                        deleteTab();
-                    });
+                    matchedComponent.saveRequest()
+                    deleteTab();
                 }).catch((err) => {
                     if (err === "cancel") { //不保存
                         this.$store.commit("apidoc/changeCurrentTabById", {
