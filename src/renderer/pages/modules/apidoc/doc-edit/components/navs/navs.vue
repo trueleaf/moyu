@@ -200,17 +200,19 @@ export default {
         //关闭右侧
         handleCloseRight(item, index) {
             if (this.tabs.length !== 1) { //只剩一个tab删除无意义不做处理
-                console.log(this.tabs.length - index - 1)
                 const deleteIds = [];
+                const changedTabs = [];
                 for (let i = index + 1; i < this.tabs.length; i += 1) {
                     const tabInfo = this.tabs[i];
-                    deleteIds.push(tabInfo.name);
+                    if (tabInfo.changed) {
+                        changedTabs.push(tabInfo);
+                    } else {
+                        deleteIds.push(tabInfo._id);
+                    }
                 }
-                console.log(deleteIds)
-                this.$store.commit("apidoc/deleteTabByPosition", {
+                this.$store.commit("apidoc/deleteTabById", {
                     projectId: this.$route.query.id,
-                    start: index + 1,
-                    num: this.tabs.length - index - 1,
+                    deleteIds,
                 });
                 if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
@@ -218,6 +220,9 @@ export default {
                         ...this.tabs[this.tabs.length - 1],
                     });
                 }
+                console.log(changedTabs)
+                //提醒用户还有未保存的tab
+                this.confirmCloseTab(changedTabs);
             }
         },
         //关闭左侧
@@ -254,6 +259,52 @@ export default {
                     ...this.tabs[0],
                 });
             }
+        },
+        //未保存时候提示用户保存
+        confirmCloseTab(changedTabs) {
+            const cpChangeTabs = JSON.parse(JSON.stringify(changedTabs));
+            const currentTab = cpChangeTabs.shift();
+
+            const foo = (tab) => {
+                this.$confirm(`是否保存对 "${tab.name}" 接口的修改`, "提示", {
+                    confirmButtonText: "保存",
+                    cancelButtonText: "不保存",
+                    distinguishCancelAndClose: true,
+                    type: "warning",
+                }).then(() => {
+                    this.$store.commit("apidoc/changeCurrentTab", {
+                        projectId: this.$route.query.id,
+                        ...tab,
+                    });
+                    const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
+                    matchedComponent.saveRequest()
+                    this.$store.commit("apidoc/deleteTabById", {
+                        projectId: this.$route.query.id,
+                        deleteIds: [tab._id],
+                    });
+                }).catch((err) => {
+                    if (err === "cancel") { //不保存
+                        this.$store.commit("apidoc/deleteTabById", {
+                            projectId: this.$route.query.id,
+                            deleteIds: [tab._id],
+                        });
+                    } else if (err === "close") {
+                        return 0;
+                    }
+                    return this.$errorThrow(err, this);
+                }).finally(() => {
+                    if (cpChangeTabs.length > 0) {
+                        foo(cpChangeTabs.shift());
+                    }
+                    if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
+                        this.$store.commit("apidoc/changeCurrentTab", {
+                            projectId: this.$route.query.id,
+                            ...tab,
+                        });
+                    }
+                });
+            }
+            foo(currentTab);
         },
         //右键菜单
         handleRightClick(e, item, index) {
