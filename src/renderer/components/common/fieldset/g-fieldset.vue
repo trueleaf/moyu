@@ -66,8 +66,5 @@ export default {
         padding-top: size(25);
         overflow-y: auto;
     }
-    .operation {
-        text-align: right;
-    }
 }
 </style>

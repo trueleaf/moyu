@@ -35,10 +35,16 @@
                 </s-config>
             </s-fieldset>
             <!-- 请求方式 -->
+            <s-fieldset v-for="(item, index) in copyApiRules.requestMethods" :key="index" :title="item.name"></s-fieldset>
+
             <s-fieldset title="请求方式配置">
-                <s-collapse v-for="(item, index) in copyApiRules.requestMethods" :key="index" :active="false" class="w-100">
-                    <span slot="title" class="d-flex w-100 a-center" :style="{color: item.iconColor}">
-                        <span class="w-100px mr-2">{{ item.name }}</span>
+                <s-collapse-card v-for="(item, index) in copyApiRules.requestMethods" :key="index" :active="false" class="w-100">
+                    <span slot="head" :style="{color: item.iconColor}" class="w-130px">
+                        <span class="mr-2">{{ item.name }}</span>
+                        <span v-if="item.enabled" class="ml-auto green">(已启用)</span>
+                        <span v-else class="ml-auto gray-500">(已禁用)</span>
+                    </span>
+                    <div slot="operation">
                         <span>
                             <span class="gray-800">支持Content-Type：</span>
                             <span v-for="(ct, index) in item.enabledContenType" :key="ct" class="gray-600">
@@ -46,10 +52,28 @@
                                 <el-divider v-if="index !== item.enabledContenType.length - 1" direction="vertical"></el-divider>
                             </span>
                         </span>
-                        <span v-if="item.enabled" class="ml-auto green">(已启用)</span>
-                        <span v-else class="ml-auto gray-500">(已禁用)</span>
-                    </span>
-                    <el-form-item label="允许传参方式：" label-width="120px" prop="fileInFolderLimit">
+                    </div>
+                    <s-config :has-check="false" label="是否启用" :description="`禁用后则无法录入${item.name}请求`">
+                        <el-radio-group v-model="item.enabled">
+                            <el-radio :label="true">启用</el-radio>
+                            <el-radio :label="false">禁用</el-radio>
+                        </el-radio-group>
+                    </s-config>
+                    <s-config :has-check="false" label="允许传参方式" description="">
+                        <el-checkbox-group v-model="item.enabledContenType">
+                            <el-checkbox v-for="(ct) in copyApiRules.contentType" :key="ct.value" :label="ct.value" :disabled="item.name === 'get'">{{ ct.name }}</el-checkbox>
+                        </el-checkbox-group>
+                    </s-config>
+                    <s-config :has-check="false" label="图标颜色" description="">
+                        <div class="d-flex a-center">
+                            <el-color-picker v-model="item.iconColor" size="mini"></el-color-picker>
+                            <div class="tabs ml-2">
+                                <span :style="{color: item.iconColor}">{{ item.name }}</span>
+                                <span class="item-text">示例{{ item.name }}接口</span>
+                            </div>
+                        </div>
+                    </s-config>
+                    <!-- <el-form-item label="允许传参方式：" label-width="120px" prop="fileInFolderLimit">
                         <el-checkbox-group v-model="item.enabledContenType">
                             <el-checkbox v-for="(ct) in copyApiRules.contentType" :key="ct.value" :label="ct.value" :disabled="item.name === 'get'">{{ ct.name }}</el-checkbox>
                         </el-checkbox-group>
@@ -68,8 +92,8 @@
                             <el-radio :label="true">启用</el-radio>
                             <el-radio :label="false">禁用</el-radio>
                         </el-radio-group>
-                    </el-form-item>
-                </s-collapse>
+                    </el-form-item> -->
+                </s-collapse-card>
             </s-fieldset>
             <div class="w-100 d-flex j-center mt-2">
                 <el-button size="small" type="success" :loading="loading" @click="saveConfig">保存配置</el-button>
