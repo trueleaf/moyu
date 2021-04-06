@@ -200,6 +200,13 @@ export default {
         //关闭右侧
         handleCloseRight(item, index) {
             if (this.tabs.length !== 1) { //只剩一个tab删除无意义不做处理
+                console.log(this.tabs.length - index - 1)
+                const deleteIds = [];
+                for (let i = index + 1; i < this.tabs.length; i += 1) {
+                    const tabInfo = this.tabs[i];
+                    deleteIds.push(tabInfo.name);
+                }
+                console.log(deleteIds)
                 this.$store.commit("apidoc/deleteTabByPosition", {
                     projectId: this.$route.query.id,
                     start: index + 1,
