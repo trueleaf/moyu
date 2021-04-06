@@ -37,7 +37,6 @@ export default {
                     projectId: payload.projectId,
                 };
                 axios.get("/api/apidoc/project/project_rules", { params }).then((res) => {
-                    console.log("rule", res.data)
                     context.commit("changeRules", {
                         dominLimit: res.data.dominLimit,
                         fileInFolderLimit: res.data.fileInFolderLimit,

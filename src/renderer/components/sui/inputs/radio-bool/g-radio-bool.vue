@@ -96,7 +96,6 @@ export default {
             setTimeout(() => {
                 this.$emit("_change", val);
             }, 1);
-            console.log(val)
         }
         //=====================================其他操作=====================================//
 
