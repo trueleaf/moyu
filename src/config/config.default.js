@@ -27,6 +27,7 @@ const isDev = process.env.NODE_ENV === "development";
 module.exports = {
     isElectron: isElectron(), //是否为electron环境
     version: packageJSON.version, //当前项目版本
+    isDev,
     //更新相关配置
     updateConfig: {
         version: packageJSON.version, //当前项目版本

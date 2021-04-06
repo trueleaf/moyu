@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-collapse-card>
+    <s-collapse-card v-bind="$attrs">
         <!-- 头部 -->
         <div slot="head">
             <span>请求参数</span>

@@ -153,7 +153,6 @@ export default {
                     this.$set(parentNode, "_select", true);
                 }
             }
-            // console.log(id, item._select, parentNode, currentNode)
         },
         /*
          * singleLeftCurlyBrace         {    仅左侧有大括号(不允许存在逗号)
@@ -281,7 +280,6 @@ export default {
                 astItem.line = index + 1;
             });
             this.astValue = result.slice(0, 500);
-            // console.log(JSON.parse(JSON.stringify(this.astValue)))
         },
         //=====================================其他操作=====================================//
         //获取参数类型

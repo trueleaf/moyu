@@ -58,9 +58,9 @@
         </div>
         <div class="d-flex a-center j-center py-2">
             <el-radio-group v-model="contentType">
-                <el-radio label="application/json">json</el-radio>
-                <el-radio label="multipart/form-data">form-data</el-radio>
-                <el-radio label="application/x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
+                <el-radio label="application/json" :disabled="!enabledContenType.find((ct) => ct === 'json')">json</el-radio>
+                <el-radio label="multipart/form-data" :disabled="!enabledContenType.find((ct) => ct === 'formData')">form-data</el-radio>
+                <el-radio label="application/x-www-form-urlencoded" :disabled="!enabledContenType.find((ct) => ct === 'x-www-form-urlencoded')">x-www-form-urlencoded</el-radio>
             </el-radio-group>
         </div>
         <!-- json -->
@@ -137,6 +137,13 @@ export default {
             const convertBodyParams = this.convertPlainParamsToTreeData(this.jsonBody);
             return JSON.stringify(convertBodyParams, null, 4);
         },
+        enabledContenType() {
+            const rules = this.$store.state.apidocRules;
+            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
+            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            const enabledContenType = matchedContentType ? matchedContentType.enabledContenType : [];
+            return enabledContenType;
+        },
     },
     data() {
         return {
@@ -155,10 +162,13 @@ export default {
             dialogVisible3: false, //保存当前参数为模板
         };
     },
-    created() {
+    mounted() {
         this.$on("dataReady", () => {
             this.initRequestBody();
         });
+        // this.$event.on("apidoc/changeMethod", (method) => {
+        //     console.log(1111, method)
+        // });
     },
     methods: {
         //=====================================初始化&获取远程数据===========================//

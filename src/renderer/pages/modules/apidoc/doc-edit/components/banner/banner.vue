@@ -435,7 +435,6 @@ export default {
                     this.handleOpenAddFolderDialog();
                     break;
                 case "rename":
-                    console.log("rename");
                     this.$set(data, "_name", data.name); //文档名称备份,防止修改名称用户名称填空导致异常
                     this.renameNodeId = data._id;
                     this.$nextTick(() => {

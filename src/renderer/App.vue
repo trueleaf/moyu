@@ -12,6 +12,23 @@ if (window.require) {
 export default {
     mounted() {
         this.initShortcut();
+        if (!this.config.isDev) {
+            console.log(`
+                     _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
+                    / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
+                   / / \\ \\        / / \\ \\       / /           \\ \\    \\   \\ /   /    |  |       |  |
+                  / /   \\ \\      / /   \\ \\     | |             | |    \\   /   /     |  |       |  |
+                 / /     \\ \\    / /     \\ \\    | |             | |     \\ /   /      |  |       |  |
+                / /       \\ \\  / /       \\ \\    \\ \\_ _ _ _ _ _/ /       /   /       \\ _|_ _ _ _| _/
+               /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
+
+               基于Vue和Electron的接口文档工具
+
+               GitHub地址：https://github.com/trueleaf/moyu
+
+               Gitee地址：https://gitee.com/shuzhikai/moyu
+            `)
+        }
     },
     methods: {
         //初始化快捷键

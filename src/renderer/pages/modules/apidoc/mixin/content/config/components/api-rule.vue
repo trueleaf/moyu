@@ -35,8 +35,6 @@
                 </s-config>
             </s-fieldset>
             <!-- 请求方式 -->
-            <s-fieldset v-for="(item, index) in copyApiRules.requestMethods" :key="index" :title="item.name"></s-fieldset>
-
             <s-fieldset title="请求方式配置">
                 <s-collapse-card v-for="(item, index) in copyApiRules.requestMethods" :key="index" :active="false" class="w-100">
                     <span slot="head" :style="{color: item.iconColor}" class="w-130px">
@@ -130,8 +128,9 @@ export default {
             this.loading = true;
             this.$store.dispatch("apidocRules/getRuels", {
                 projectId: this.$route.query.id,
-            }).then((res) => {
-                this.copyApiRules = JSON.parse(JSON.stringify(res.data))
+            }).then(() => {
+                const rules = this.$store.state.apidocRules;
+                this.copyApiRules = JSON.parse(JSON.stringify(rules))
             }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {
@@ -146,9 +145,7 @@ export default {
                 ...this.copyApiRules,
             };
             this.axios.put("/api/apidoc/project/project_rules", params).then(() => {
-                this.$store.commit("apidocRules/changeRules", {
-                    ...JSON.parse(JSON.stringify(this.copyApiRules)),
-                })
+                this.$store.commit("apidocRules/changeRules", JSON.parse(JSON.stringify(this.copyApiRules)))
             }).catch((err) => {
                 this.$errorThrow(err, this);
             }).finally(() => {

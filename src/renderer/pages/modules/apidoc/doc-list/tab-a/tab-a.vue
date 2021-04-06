@@ -10,10 +10,10 @@
         <div class="search-item d-flex a-center mb-3">
             <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
+            <el-button size="small" type="success" icon="el-icon-download" @click="dialogVisible3 = true">导入项目</el-button>
         </div>
         <h2 v-show="recentVisitProjects.length > 0">最近访问</h2>
         <div v-show="recentVisitProjects.length > 0" class="project-wrap">
-            <!-- {{ recentVisitProjects.map((val) => val.id) }} -->
             <div v-for="(item, index) in recentVisitProjects" :key="index" class="project-list">
                 <div class="project-header">
                     <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -154,17 +154,20 @@
         <!-- 新增项目弹窗 -->
         <s-add-project-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
         <s-edit-project-dialog v-if="dialogVisible2" :id="projectId" :visible.sync="dialogVisible2" @success="getProjectList"></s-edit-project-dialog>
+        <s-import-project-dialog :visible.sync="dialogVisible3" @success="handleAddSuccess"></s-import-project-dialog>
     </div>
 </template>
 
 <script>
 import addProjectDialog from "../dialog/add-project.vue";
 import editProjectDialog from "../dialog/edit-project.vue";
+import importProjectDialog from "../dialog/import-project.vue";
 
 export default {
     components: {
         "s-add-project-dialog": addProjectDialog,
         "s-edit-project-dialog": editProjectDialog,
+        "s-import-project-dialog": importProjectDialog,
     },
     data() {
         return {
@@ -177,6 +180,7 @@ export default {
             //=====================================其他====================================//
             dialogVisible: false, //-新增项目弹窗
             dialogVisible2: false, //修改项目弹窗
+            dialogVisible3: false, //导入项目弹窗
             loading: false, //-------数据加载状态
             starLoading: false, //---是否正在收藏
             unStarLoading: false, //是否取消收藏
