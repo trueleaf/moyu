@@ -8,7 +8,7 @@
     <div v-if="tabs && tabs.length > 0" class="workbench" tabindex="0">
         <keep-alive>
             <!-- 文档页面 -->
-            <s-apidoc v-if="currentSelectDoc.tabType === 'doc'"></s-apidoc>
+            <s-apidoc v-show="currentSelectDoc.tabType === 'doc'"></s-apidoc>
             <!-- 配置页面 -->
             <s-config v-if="currentSelectDoc.tabType === 'config'"></s-config>
             <!-- 统计页面 -->
