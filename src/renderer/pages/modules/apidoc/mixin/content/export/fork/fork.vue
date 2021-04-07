@@ -6,15 +6,17 @@
 */
 <template>
     <s-fieldset title="将当前项目指定文档导出到其他项目" class="fork">
-        <div>
-            <span class="el-icon-info mr-1"></span>
-            <span>从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽</span>
-        </div>
-        <el-divider></el-divider>
+        <!-- <el-divider></el-divider> -->
         <!-- 选择区域 -->
-        <div v-flex1="80" class="fork-wrap">
-            <div class="left">
+        <div class="fork-wrap">
+            <div v-flex1="30" class="left">
+                <span class="orange">
+                    <span class="el-icon-info mr-1"></span>
+                    <span>从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽</span>
+                </span>
+                <el-divider></el-divider>
                 <el-tree
+                        class="mt-2"
                         ref="docTree"
                         :data="sourceTreeData"
                         node-key="_id"
@@ -47,11 +49,19 @@
                     </template>
                 </el-tree>
             </div>
-            <div ref="target" class="right">
+            <div v-flex1="30" ref="target" class="right">
                 <div>
-                    <el-radio-group v-model="projectId" size="mini" @change="handleChangeProject">
+                    <div class="orange">
+                        <span class="el-icon-info mr-1"></span>
+                        <span>鼠标右键可以新增文件夹或者删除文件夹</span>
+                    </div>
+                    <el-radio-group v-if="projectEnum.length < 4" v-model="projectId" size="mini" class="mt-2" @change="handleChangeProject">
                         <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
                     </el-radio-group>
+                    <el-select v-else v-model="projectId" size="mini" class="mt-2" filterable @change="handleChangeProject">
+                        <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
+                    </el-select>
+                    <el-divider></el-divider>
                     <s-loading :loading="loading" class="project-nav mt-2">
                         <el-tree
                             ref="mountedTree"
