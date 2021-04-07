@@ -153,8 +153,19 @@ export default {
             state.activeDoc[projectId] = payload;
             localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
         },
-        //改变当前选中tab的基本信息
+        //根据id切换当前选中tab
         changeCurrentTabById(state, payload) {
+            const { projectId, id } = payload;
+            const isInProject = state.activeDoc[projectId]; //当前项目是否存在tabs
+            const matchedTab = state.tabs[projectId].find((tab) => tab._id === id);
+            if (!isInProject) {
+                Vue.set(state.activeDoc, projectId, {});
+            }
+            state.activeDoc[projectId] = matchedTab;
+            localStorage.setItem("apidoc/activeTab", JSON.stringify(state.activeDoc));
+        },
+        //改变当前选中tab的基本信息
+        changeCurrentTabInfo(state, payload) {
             const { projectId, name, changed, tail } = payload;
             this.commit("apidoc/changeTabInfoById", {
                 _id: state.activeDoc[projectId]._id,
