@@ -15,11 +15,20 @@ export default class EventEmitter {
         this.events[eventName].push(handle);
     }
 
-    once(eventName, handle) {
+    one(eventName, handle) {
         if (!this.events[eventName]) {
             this.events[eventName] = [];
         }
         this.events[eventName] = [handle];
+    }
+
+    once(eventName, handle) {
+        if (!this.events[eventName]) {
+            this.events[eventName] = [];
+        }
+        this.events[eventName].push(handle);
+        const eventPrototype = Object.getPrototypeOf(this.events[eventName]);
+        eventPrototype._once = true;
     }
 
     off(eventName) {
@@ -31,10 +40,14 @@ export default class EventEmitter {
     }
 
     emit(eventName, ...args) {
-        if (this.events[eventName]) {
-            this.events[eventName].forEach((event) => {
+        const matchedEvents = this.events[eventName]
+        if (matchedEvents) {
+            matchedEvents.forEach((event) => {
                 event.apply(event, args)
             });
+            if (matchedEvents._once) {
+                this.off(eventName);
+            }
         }
     }
 }
