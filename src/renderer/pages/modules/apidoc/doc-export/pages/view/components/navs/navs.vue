@@ -173,7 +173,7 @@ export default {
                     });
                 }).catch((err) => {
                     if (err === "cancel") { //不保存
-                        this.$store.commit("apidoc/changeCurrentTabById", {
+                        this.$store.commit("apidoc/changeCurrentTabInfo", {
                             _id: this.currentSelectDoc._id,
                             projectId: this.$route.query.id,
                             changed: false,

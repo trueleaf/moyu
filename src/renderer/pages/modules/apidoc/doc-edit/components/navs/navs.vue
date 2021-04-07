@@ -176,13 +176,14 @@ export default {
                     cancelButtonText: "不保存",
                     distinguishCancelAndClose: true,
                     type: "warning",
+                    closeOnClickModal: false,
                 }).then(() => {
                     const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
                     matchedComponent.saveRequest()
                     deleteTab();
                 }).catch((err) => {
                     if (err === "cancel") { //不保存
-                        this.$store.commit("apidoc/changeCurrentTabById", {
+                        this.$store.commit("apidoc/changeCurrentTabInfo", {
                             _id: this.currentSelectDoc._id,
                             projectId: this.$route.query.id,
                             changed: false,
@@ -220,67 +221,106 @@ export default {
                         ...this.tabs[this.tabs.length - 1],
                     });
                 }
-                console.log(changedTabs)
                 //提醒用户还有未保存的tab
-                this.confirmCloseTab(changedTabs);
+                if (changedTabs.length > 0) {
+                    this.confirmCloseTab(changedTabs);
+                }
             }
         },
         //关闭左侧
         handleCloseLeft(item, index) {
             if (this.tabs.length !== 1) { //只剩一个tab删除无意义不做处理
-                this.$store.commit("apidoc/deleteTabByPosition", {
+                const deleteIds = [];
+                const changedTabs = [];
+                for (let i = 0; i < index; i += 1) {
+                    const tabInfo = this.tabs[i];
+                    if (tabInfo.changed) {
+                        changedTabs.push(tabInfo);
+                    } else {
+                        deleteIds.push(tabInfo._id);
+                    }
+                }
+                this.$store.commit("apidoc/deleteTabById", {
                     projectId: this.$route.query.id,
-                    start: 0,
-                    num: index,
+                    deleteIds,
                 });
-                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
                     this.$store.commit("apidoc/changeCurrentTab", {
                         projectId: this.$route.query.id,
                         ...this.tabs[0],
                     });
                 }
+                //提醒用户还有未保存的tab
+                if (changedTabs.length > 0) {
+                    this.confirmCloseTab(changedTabs);
+                }
             }
         },
         //关闭其他标签
-        handleCloseOther(item, index) {
+        handleCloseOther(item) {
             if (this.tabs.length !== 1) {
-                this.$store.commit("apidoc/deleteTabByPosition", {
+                const deleteIds = [];
+                const changedTabs = [];
+                for (let i = 0; i < this.tabs.length; i += 1) {
+                    const tabInfo = this.tabs[i];
+                    if (tabInfo._id === item._id) {
+                        continue;
+                    }
+                    if (tabInfo.changed) {
+                        changedTabs.push(tabInfo);
+                    } else {
+                        deleteIds.push(tabInfo._id);
+                    }
+                }
+                this.$store.commit("apidoc/deleteTabById", {
                     projectId: this.$route.query.id,
-                    start: index + 1,
-                    num: this.tabs.length - index - 1,
+                    deleteIds,
                 });
-                this.$store.commit("apidoc/deleteTabByPosition", {
-                    projectId: this.$route.query.id,
-                    start: 0,
-                    num: index,
-                });
-                this.$store.commit("apidoc/changeCurrentTab", {
-                    projectId: this.$route.query.id,
-                    ...this.tabs[0],
-                });
+                if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
+                    this.$store.commit("apidoc/changeCurrentTab", {
+                        projectId: this.$route.query.id,
+                        ...this.tabs[0],
+                    });
+                }
+                //提醒用户还有未保存的tab
+                if (changedTabs.length > 0) {
+                    this.confirmCloseTab(changedTabs);
+                }
             }
         },
         //未保存时候提示用户保存
         confirmCloseTab(changedTabs) {
             const cpChangeTabs = JSON.parse(JSON.stringify(changedTabs));
+            if (cpChangeTabs.length === 0) {
+                return;
+            }
             const currentTab = cpChangeTabs.shift();
-
-            const foo = (tab) => {
+            const foo = (tab, length) => {
                 this.$confirm(`是否保存对 "${tab.name}" 接口的修改`, "提示", {
                     confirmButtonText: "保存",
                     cancelButtonText: "不保存",
                     distinguishCancelAndClose: true,
                     type: "warning",
+                    closeOnClickModal: false,
                 }).then(() => {
-                    this.$store.commit("apidoc/changeCurrentTab", {
+                    this.$store.commit("apidoc/changeCurrentTabById", {
                         projectId: this.$route.query.id,
-                        ...tab,
+                        id: tab._id,
                     });
-                    const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
-                    matchedComponent.saveRequest()
-                    this.$store.commit("apidoc/deleteTabById", {
-                        projectId: this.$route.query.id,
-                        deleteIds: [tab._id],
+                    this.$event.once("apidoc/getCacheSuccess", () => {
+                        const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
+                        matchedComponent.saveRequest()
+                        this.$store.commit("apidoc/deleteTabById", {
+                            projectId: this.$route.query.id,
+                            deleteIds: [tab._id],
+                        });
+                        //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点，cpChangeTabs长度为0代表关闭完毕
+                        if (length === 0 && !this.tabs.find((val) => val._id === this.currentSelectDoc._id)) {
+                            this.$store.commit("apidoc/changeCurrentTabById", {
+                                projectId: this.$route.query.id,
+                                id: this.tabs[this.tabs.length - 1]._id,
+                            });
+                        }
                     });
                 }).catch((err) => {
                     if (err === "cancel") { //不保存
@@ -294,17 +334,11 @@ export default {
                     return this.$errorThrow(err, this);
                 }).finally(() => {
                     if (cpChangeTabs.length > 0) {
-                        foo(cpChangeTabs.shift());
-                    }
-                    if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭右侧后若在tabs里面无法找到选中节点，则取最后一个节点为选中节点
-                        this.$store.commit("apidoc/changeCurrentTab", {
-                            projectId: this.$route.query.id,
-                            ...tab,
-                        });
+                        foo(cpChangeTabs.shift(), cpChangeTabs.length);
                     }
                 });
             }
-            foo(currentTab);
+            foo(currentTab, cpChangeTabs.length);
         },
         //右键菜单
         handleRightClick(e, item, index) {
@@ -349,7 +383,6 @@ export default {
             const item = this.$refs.tabItem ? this.$refs.tabItem[0] : null;
             const wrapStyle = window.getComputedStyle(wrap)
             const itemRect = item.getBoundingClientRect();
-            // console.log(itemRect.width, wrapStyle.left, this.enableMove)
             if (!this.enableMove) {
                 return;
             }
