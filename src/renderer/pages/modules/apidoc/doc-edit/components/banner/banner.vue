@@ -874,7 +874,7 @@ export default {
                     name: data.name,
                 });
                 if (this.currentSelectDoc._id === data._id) {
-                    this.$store.commit("apidoc/changeCurrentTabById", {
+                    this.$store.commit("apidoc/changeCurrentTabInfo", {
                         projectId: this.$route.query.id,
                         name: data.name,
                     });

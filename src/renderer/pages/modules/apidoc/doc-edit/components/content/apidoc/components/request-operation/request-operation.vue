@@ -250,7 +250,7 @@ export default {
             const originApidocInfo = this.$helper.cloneDeep(this.$store.state.apidoc.apidocInfo)
             this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
             //取消未保存小圆点
-            this.$store.commit("apidoc/changeCurrentTabById", {
+            this.$store.commit("apidoc/changeCurrentTabInfo", {
                 _id: this.currentSelectDoc._id,
                 projectId: this.$route.query.id,
                 changed: false,
@@ -268,7 +268,7 @@ export default {
                     tail: this.requestMethod.toLowerCase(),
                 });
                 //改变当前tab导航信息
-                this.$store.commit("apidoc/changeCurrentTabById", {
+                this.$store.commit("apidoc/changeCurrentTabInfo", {
                     _id: this.currentSelectDoc._id,
                     projectId: this.$route.query.id,
                     tail: this.requestMethod.toLowerCase(),
@@ -281,7 +281,7 @@ export default {
                 });
             }).catch((err) => {
                 this.$errorThrow(err, this);
-                this.$store.commit("apidoc/changeCurrentTabById", {
+                this.$store.commit("apidoc/changeCurrentTabInfo", {
                     _id: this.currentSelectDoc._id,
                     projectId: this.$route.query.id,
                     changed: true,
@@ -418,7 +418,7 @@ export default {
                 }).then(() => {
                     this.$store.commit("apidoc/clearRespons");
                     this.getComponentByName("APIDOC_CONTENT").getDocDetail();
-                    this.$store.commit("apidoc/changeCurrentTabById", {
+                    this.$store.commit("apidoc/changeCurrentTabInfo", {
                         _id: this.currentSelectDoc._id,
                         projectId: this.$route.query.id,
                         changed: false,

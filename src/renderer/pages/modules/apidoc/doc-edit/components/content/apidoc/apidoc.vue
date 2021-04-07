@@ -168,6 +168,7 @@ export default {
             if (currentDoc.changed) { //存在缓存直接应用缓存
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
+                    this.$event.emit("apidoc/getCacheSuccess");
                     this.broadcast("REQUEST_BODY", "dataReady");
                     const { query, query2, body, body2, header, header2 } = this.$refs;
                     Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
@@ -180,10 +181,12 @@ export default {
                             this.syncRequestParams();
                             this.diffEditParams();
                             this.calcSpendTime(); //计算编写接口花费的时间
-                        }), {
+                        }, 50), {
                             deep: true,
                         })
                     })
+                }).catch((err) => {
+                    console.error(err);
                 });
             } else {
                 this.getDocDetail();
@@ -247,7 +250,7 @@ export default {
                         this.syncRequestParams();
                         this.diffEditParams();
                         this.calcSpendTime(); //计算编写接口花费的时间
-                    }), {
+                    }, 50), {
                         deep: true,
                     })
                 })
@@ -394,12 +397,12 @@ export default {
             const diffApidocInfo = pickerValidDiffParams(this.apidocInfo);
             const isEqual = this.$helper.isEqual(diffOriginApidocInfo, diffApidocInfo);
             if (isEqual) {
-                this.$store.commit("apidoc/changeCurrentTabById", {
+                this.$store.commit("apidoc/changeCurrentTabInfo", {
                     projectId: this.$route.query.id,
                     changed: false,
                 });
             } else {
-                this.$store.commit("apidoc/changeCurrentTabById", {
+                this.$store.commit("apidoc/changeCurrentTabInfo", {
                     projectId: this.$route.query.id,
                     changed: true,
                 });
