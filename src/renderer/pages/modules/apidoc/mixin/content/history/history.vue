@@ -295,7 +295,7 @@ export default {
     created() {
         this.getData();
         this.getOperatorEnum();
-        this.$event.once("apidoc/fresh", () => {
+        this.$event.one("apidoc/fresh", () => {
             this.getData()
             this.getOperatorEnum();
         });
