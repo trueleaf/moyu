@@ -3,6 +3,8 @@
  * @author             shuxiaokai
  * @create             2021-01-16 17:30
  */
+import { uuid } from "@/lib"
+
 export default {
     computed: {
         variables() { //全局变量
@@ -30,7 +32,7 @@ export default {
          */
         generateProperty(type = "string") {
             return {
-                _id: this.$helper.uuid(),
+                _id: uuid(),
                 key: "",
                 type,
                 description: "",
