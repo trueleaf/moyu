@@ -2,8 +2,9 @@
 |--------------------------------------------------------------------------
 | 转换swagger，openapi格式数据
 |--------------------------------------------------------------------------
-| jsonSchema  https://json-schema.org/
-| openapi     https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
+| jsonSchema     https://json-schema.org/
+| openapi        https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
+| swaggerEditor  https://editor.swagger.io/
 |
 */
 
@@ -24,7 +25,11 @@ const TYPE_ENUM = { //参数类型映射
     object: "object",
     array: "array",
 };
-
+const VALID_CONTENT_TYPE = {
+    "application/json": "application/json",
+    "application/x-www-form-urlencoded": "application/x-www-form-urlencoded",
+    "multipart/form-data": "multipart/form-data",
+}
 class OpenApiTranslate {
     constructor(projectId) {
         if (!projectId) {
@@ -187,14 +192,17 @@ class OpenApiTranslate {
                 moyuDoc.item.method = method;
                 moyuDoc.item.url.host = this.getServers() ? this.getServers()[0].url : "";
                 moyuDoc.item.url.path = reqUrl;
-                result.push(moyuDoc);
                 //解析parameters
                 // eslint-disable-next-line no-unused-vars
-                const parameters = this.convertParameters(openApiDoc.parameters);
+                const parameterInfo = this.convertParameters(openApiDoc.parameters);
+                if (parameterInfo?.path?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
+                if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
+                if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
                 //解析body数据
                 // eslint-disable-next-line no-unused-vars
-                //const requestBody = this.convertRequestBody(doc.requestBody);
+                const requestBody = this.convertRequestBody(openApiDoc.requestBody);
                 // console.log(method, parameters, requestBody)
+                result.push(moyuDoc);
             });
         })
         return result;
@@ -250,14 +258,50 @@ class OpenApiTranslate {
         const headerResult = convertParams(headerParams);
         const cookieResult = convertParams(cookieParams);
 
-        console.log(pathResult, queryResult, headerResult, cookieResult)
         const result = {
-            path: pathResult,
-            query: queryResult,
-            header: headerResult,
+            paths: pathResult,
+            queryParams: queryResult,
+            headers: headerResult,
             cookie: cookieResult,
         };
         return result;
+    }
+
+    /**
+     * @description        转换RequestBody
+     * @author             shuxiaokai
+     * @refer              https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#parameterObject
+     * @create             2021-04-08 22:45
+     * @return {String}    返回字符串
+     */
+    // eslint-disable-next-line class-methods-use-this
+    convertRequestBody(requestBody) {
+        if (!requestBody) {
+            return null;
+        }
+        const { content } = requestBody;
+        let priorContentType = null; // application/json, application/x-www-form-urlencoded, multipart/form-data
+        let mediaTypeObject = null;
+        const mediaTypeObjects = Object.keys(content);
+        if (mediaTypeObjects.length === 0) {
+            return null;
+        }
+        if (mediaTypeObjects.length > 0) {
+            console.info(`无法解析多种请求body，仅会生效一个匹配到的contentType。${JSON.stringify(mediaTypeObjects)}`);
+        }
+        const firstMediaType = VALID_CONTENT_TYPE[mediaTypeObjects[0]];
+        if (!firstMediaType) {
+            priorContentType = mediaTypeObjects.find((ct) => ct === VALID_CONTENT_TYPE[ct])
+            if (!priorContentType) {
+                console.info(`无法解析 ${mediaTypeObjects[0]} 类型请求参数。仅支持${JSON.stringify(Object.keys(VALID_CONTENT_TYPE))}`);
+                return null;
+            }
+        } else {
+            priorContentType = firstMediaType;
+        }
+        mediaTypeObject = content[priorContentType];
+        console.log(mediaTypeObject)
+        return mediaTypeObject;
     }
 
     /**
