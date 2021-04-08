@@ -19,6 +19,7 @@
 <script>
 import yaml from "js-yaml"
 import OpenApiTranslator from "./open-api-translator"
+import yamlJsonData from "./data"
 
 export default {
     computed: {
@@ -51,7 +52,8 @@ export default {
     },
     methods: {
         init() {
-            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id)
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
+            this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
         },
         importOpenApiDoc() {
             const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);

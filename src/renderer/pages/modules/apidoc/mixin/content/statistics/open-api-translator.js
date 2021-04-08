@@ -1,13 +1,35 @@
-/**
- * 参考：https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
- * 解析以下字段：
- * Version
- */
+/*
+|--------------------------------------------------------------------------
+| 转换swagger，openapi格式数据
+|--------------------------------------------------------------------------
+| jsonSchema  https://json-schema.org/
+| openapi     https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md
+|
+*/
 
 import { uuid } from "@/lib"
+import mixin from "../../index"
+
+const TYPE_ENUM = { //参数类型映射
+    integer: "number",
+    long: "number",
+    float: "number",
+    double: "number",
+    string: "string",
+    byte: "string",
+    binary: "string",
+    boolean: "boolean",
+    date: "string",
+    dateTime: "string",
+    object: "object",
+    array: "array",
+};
 
 class OpenApiTranslate {
     constructor(projectId) {
+        if (!projectId) {
+            throw new Error("缺少项目id");
+        }
         this.projectId = projectId; //项目id
         this.openApiData = null; //openapi数据
         this.moyuProjectInfo = {}; //转换后符合规范的数据
@@ -19,8 +41,8 @@ class OpenApiTranslate {
         }
         this.openApiData = data;
         const moyuDocs = [];
-        const simplifyRequests = this.getSimplifyRequests();
-        //生成目录信息
+        console.log(this.getDocInfo())
+        /* //生成目录信息
         simplifyRequests.forEach((simplifyRequest) => {
             const moyuDoc = this.generateDoc();
             const id = uuid();
@@ -43,30 +65,7 @@ class OpenApiTranslate {
             moyuDoc.item.requestParams = simplifyRequest.method === "get" ? simplifyRequest.parameters : simplifyRequest.requestBody.values
             moyuDoc.item.responseParams = simplifyRequest.responses[0] ? simplifyRequest.responses[0].values : []
             moyuDocs.push(moyuDoc)
-        })
-        // console.log(simplifyRequests)
-        // {
-        //     pid: "", //父元素id用于判断是否是目录
-        //     docName: "", //文档名称
-        //     isFolder: false, //是否是文件夹
-        //     sort: 0, //排序，js时间戳保留到毫秒
-        //     projectId: this.projectId, //项目id
-        //     enabled: true, //使能
-        //     publish: false, //是否发布
-        //     item: {
-        //         methods: "get", //---------------请求方式
-        //         requestType: "params", //
-        //         url: {
-        //             host: "", //-----------------主机(服务器)地址
-        //             path: "", //-----------------接口路径
-        //         }, //----------------------------请求地址信息
-        //         requestParams: [],
-        //         responseParams: [],
-        //         header: [], //-------------------请求头信息
-        //         description: "", //--------------请求描述
-        //     },
-        // }
-        // console.log(moyuDocs)
+        }) */
         return moyuDocs;
     }
 
@@ -85,26 +84,24 @@ class OpenApiTranslate {
     }
 
     /**
-     * @description        获取项目信息
-     * @author             shuxiaokai
-     * @create             2021-01-05 10:50
-     * @refer              https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
-     * @remark
-     * 解析  title字段  description字段   version字段
-     * @return
-     *   - title: String,
-     *   - description: String,
-     *   - version: String
-     */
+    * @description        获取项目信息
+    * @author             shuxiaokai
+    * @create             2021-04-08 21:38
+    * @refer              https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
+    * @return {String}    返回字符串
+    *
+    *   {
+    *       projectName: String, //项目名称
+    *       docNum: Number, //文档数量
+    *   }
+    */
     getProjectInfo() {
         const openApiInfo = this.openApiData.info;
         if (!openApiInfo) {
             console.warn("缺少Info字段")
         }
         return {
-            title: openApiInfo?.title || null,
-            description: openApiInfo?.description || null,
-            version: openApiInfo?.version || null,
+            projectName: openApiInfo?.title || null,
         };
     }
 
@@ -114,12 +111,13 @@ class OpenApiTranslate {
      * @create             2021-01-05 10:50
      * @refer              https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
      * @remark
-     * 解析  url字段  description字段   variables字段
-     * @return
-     *   [{
-     *     url: String,
-     *     description: String,
-     *   }]
+     *
+     *  [{
+     *     name: String, //服务器(host)名称
+     *     url: String, //服务器地址
+     *     remark: String, //备注信息
+     *  }]
+     *
      */
     getServers() {
         const openApiServers = this.openApiData.servers;
@@ -132,7 +130,7 @@ class OpenApiTranslate {
             console.warn("servers字段必须为数组");
             return result;
         }
-        openApiServers.forEach((server) => {
+        openApiServers.forEach((server, index) => {
             const variables = server.variables || {};
             const keys = Object.keys(variables);
             const varValue = keys.map((key) => ({
@@ -144,8 +142,9 @@ class OpenApiTranslate {
                 return matched.value || $1
             })
             result.push({
+                name: `服务器${index + 1}`,
                 url,
-                description: server.description,
+                remark: server.description,
             });
         })
         return result;
@@ -169,26 +168,95 @@ class OpenApiTranslate {
         Object.keys(openApiDocInfo).forEach((reqUrl) => {
             const element = openApiDocInfo[reqUrl];
             const pid = uuid();
-            const folder = this.generateDoc();
-            folder.id = pid; //目录id
-            folder.isFolder = true; //是目录
-            folder.sort = Date.now(); //排序
-            folder.item = {}; //目录item数据为空
+            const folderDoc = this.generateDoc();
+            folderDoc.id = pid; //目录id
+            folderDoc.isFolder = true; //是目录
+            folderDoc.sort = Date.now(); //排序
+            folderDoc.item = {}; //目录item数据为空
+            folderDoc.info.type = "folder";
+            folderDoc.info.name = reqUrl;
+            // result.push(folderDoc);
             Object.keys(element).forEach((method) => {
                 const moyuDoc = this.generateDoc();
-                const doc = element[method];
-                moyuDoc.docName = doc.summary; //文档名称
-                moyuDoc.description = doc.description; //文档备注
+                const openApiDoc = element[method];
+                moyuDoc.pid = pid;
                 moyuDoc.sort = Date.now(); //排序
+                moyuDoc.info.name = openApiDoc.summary; //文档名称
+                moyuDoc.info.description = openApiDoc.description; //文档备注
+                moyuDoc.info.type = "api";
+                moyuDoc.item.method = method;
+                moyuDoc.item.url.host = this.getServers() ? this.getServers()[0].url : "";
+                moyuDoc.item.url.path = reqUrl;
+                result.push(moyuDoc);
                 //解析parameters
                 // eslint-disable-next-line no-unused-vars
-                const parameters = this.convertParameters(doc.parameters);
+                const parameters = this.convertParameters(openApiDoc.parameters);
                 //解析body数据
                 // eslint-disable-next-line no-unused-vars
-                const requestBody = this.convertRequestBody(doc.requestBody);
+                //const requestBody = this.convertRequestBody(doc.requestBody);
                 // console.log(method, parameters, requestBody)
             });
         })
+        return result;
+    }
+
+    /**
+     * @description        转换parameters
+     * @author             shuxiaokai
+     * @refer              https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#parameterObject
+     * @create             2021-04-08 22:45
+     * @return {String}    返回字符串
+     */
+    // eslint-disable-next-line class-methods-use-this
+    convertParameters(parameters) {
+        if (!parameters) {
+            return null;
+        }
+        if (!Array.isArray(parameters)) {
+            console.error("parameters不为数组格式");
+            return null;
+        }
+        const convertParams = (params) => {
+            const result = [];
+            if (params.length > 0) {
+                params.forEach((p) => {
+                    const property = mixin.methods.generateProperty();
+                    const { schema } = p;
+                    if (!schema) { //复杂情况不予考虑
+                        const content = JSON.stringify(p.content || "")
+                        console.error(`复杂的序列化参数会被忽略${content}`);
+                    } else {
+                        const convertType = TYPE_ENUM[schema.type];
+                        if (convertType !== "string" && convertType !== "number") {
+                            console.log(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
+                        }
+                        property.key = p.name;
+                        property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
+                        property.description = p.description;
+                        property.required = !!p.required;
+                    }
+                    result.push(property)
+                });
+            }
+            return result;
+        }
+
+        const pathParams = parameters.filter((p) => p.in === "path");
+        const queryParams = parameters.filter((p) => p.in === "query");
+        const headerParams = parameters.filter((p) => p.in === "header");
+        const cookieParams = parameters.filter((p) => p.in === "cookie");
+        const pathResult = convertParams(pathParams);
+        const queryResult = convertParams(queryParams);
+        const headerResult = convertParams(headerParams);
+        const cookieResult = convertParams(cookieParams);
+
+        console.log(pathResult, queryResult, headerResult, cookieResult)
+        const result = {
+            path: pathResult,
+            query: queryResult,
+            header: headerResult,
+            cookie: cookieResult,
+        };
         return result;
     }
 
@@ -441,26 +509,32 @@ class OpenApiTranslate {
     }
 
     //生成文档骨架
-    static generateDoc() {
+    generateDoc() {
         return {
             pid: "", //父元素id用于判断是否是目录
-            docName: "", //文档名称
+            projectId: this.projectId, //项目id
             isFolder: false, //是否是文件夹
             sort: 0, //排序，js时间戳保留到毫秒
-            projectId: this.projectId, //项目id
             enabled: true, //使能
-            publish: false, //是否发布
+            info: { //文档基本信息
+                name: "", //文档名称
+                description: "", //文档描述
+                version: "", //文档版本信息
+                type: "", //文档类型
+                tag: "", //标签信息
+            },
             item: {
-                methods: "get", //---------------请求方式
-                requestType: "params", //
+                method: "get", //---------------请求方式
+                contentType: "application/json", //
                 url: {
                     host: "", //-----------------主机(服务器)地址
                     path: "", //-----------------接口路径
                 }, //----------------------------请求地址信息
-                requestParams: [],
+                paths: [],
+                queryParams: [],
+                requestBody: [],
                 responseParams: [],
-                header: [], //-------------------请求头信息
-                description: "", //--------------请求描述
+                headers: [], //-------------------请求头信息
             },
         }
     }

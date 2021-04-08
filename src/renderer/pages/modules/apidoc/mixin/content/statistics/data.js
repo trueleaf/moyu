@@ -1,3 +1,4 @@
+/*eslint-disable*/ 
 export default {
     openapi: "3.0.1",
     info: {
@@ -25,6 +26,26 @@ export default {
         {
             url: "http://petstore.swagger.io/v2",
         },
+        {
+            "url": "https://{username}.gigantic-server.com:{port}/{basePath}",
+            "description": "The production API server",
+            "variables": {
+              "username": {
+                "default": "demo",
+                "description": "this value is assigned by the service provider, in this example `gigantic-server.com`"
+              },
+              "port": {
+                "enum": [
+                  "8443",
+                  "443"
+                ],
+                "default": "8443"
+              },
+              "basePath": {
+                "default": "v2"
+              }
+            }
+          }
     ],
     tags: [
         {
