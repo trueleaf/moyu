@@ -100,8 +100,8 @@ export default {
         },
         enableQueryParams() {
             const rules = this.$store.state.apidocRules;
-            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
-            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            const requestMethod = this.$store.state.apidoc.apidocInfo?.item?.method
+            const matchedContentType = rules.requestMethods.find((val) => val.value === requestMethod);
             if (!matchedContentType) {
                 return false;
             }
@@ -110,8 +110,9 @@ export default {
         },
         enableBodyParams() {
             const rules = this.$store.state.apidocRules;
-            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
-            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            const requestMethod = this.$store.state.apidoc.apidocInfo?.item?.method
+            const matchedContentType = rules.requestMethods.find((val) => val.value === requestMethod);
+
             if (!matchedContentType) {
                 return false;
             }
