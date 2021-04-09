@@ -53,7 +53,8 @@ export default {
     methods: {
         init() {
             this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
-            this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
+            const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
+            console.log(docs)
         },
         importOpenApiDoc() {
             const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);

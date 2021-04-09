@@ -45,32 +45,7 @@ class OpenApiTranslate {
             throw new Error("缺少转换数据");
         }
         this.openApiData = data;
-        const moyuDocs = [];
-        console.log(this.getDocInfo())
-        /* //生成目录信息
-        simplifyRequests.forEach((simplifyRequest) => {
-            const moyuDoc = this.generateDoc();
-            const id = uuid();
-            moyuDoc.uuid = id;
-            simplifyRequest.uuid = id;
-            moyuDoc.docName = simplifyRequest.description || "未命名文档";
-            moyuDoc.isFolder = true;
-            moyuDoc.sort = Date.now();
-            moyuDocs.push(moyuDoc)
-        })
-        //生成文档
-        simplifyRequests.forEach((simplifyRequest) => {
-            const moyuDoc = this.generateDoc();
-            moyuDoc.pid = simplifyRequest.uuid;
-            moyuDoc.docName = simplifyRequest.description || "未命名文档";
-            moyuDoc.sort = Date.now();
-            moyuDoc.id = simplifyRequest.folderName;
-            moyuDoc.item.methods = simplifyRequest.method;
-            moyuDoc.item.requestType = simplifyRequest.method === "get" ? "params" : "json"
-            moyuDoc.item.requestParams = simplifyRequest.method === "get" ? simplifyRequest.parameters : simplifyRequest.requestBody.values
-            moyuDoc.item.responseParams = simplifyRequest.responses[0] ? simplifyRequest.responses[0].values : []
-            moyuDocs.push(moyuDoc)
-        }) */
+        const moyuDocs = this.getDocInfo();
         return moyuDocs;
     }
 
@@ -195,13 +170,16 @@ class OpenApiTranslate {
                 //解析parameters
                 // eslint-disable-next-line no-unused-vars
                 const parameterInfo = this.convertParameters(openApiDoc.parameters);
-                if (parameterInfo?.path?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
+                if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
                 if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
                 if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
                 //解析body数据
                 // eslint-disable-next-line no-unused-vars
                 const requestBody = this.convertRequestBody(openApiDoc.requestBody);
-                // console.log(method, parameters, requestBody)
+                if (requestBody && requestBody.values) {
+                    moyuDoc.item.requestBody = requestBody.values;
+                    moyuDoc.item.contentType = requestBody.contentType;
+                }
                 result.push(moyuDoc);
             });
         })
@@ -236,7 +214,7 @@ class OpenApiTranslate {
                     } else {
                         const convertType = TYPE_ENUM[schema.type];
                         if (convertType !== "string" && convertType !== "number") {
-                            console.log(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
+                            console.warn(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
                         }
                         property.key = p.name;
                         property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
@@ -257,7 +235,6 @@ class OpenApiTranslate {
         const queryResult = convertParams(queryParams);
         const headerResult = convertParams(headerParams);
         const cookieResult = convertParams(cookieParams);
-
         const result = {
             paths: pathResult,
             queryParams: queryResult,
@@ -276,6 +253,7 @@ class OpenApiTranslate {
      */
     // eslint-disable-next-line class-methods-use-this
     convertRequestBody(requestBody) {
+        let result = null;
         if (!requestBody) {
             return null;
         }
@@ -287,269 +265,135 @@ class OpenApiTranslate {
             return null;
         }
         if (mediaTypeObjects.length > 0) {
-            console.info(`无法解析多种请求body，仅会生效一个匹配到的contentType。${JSON.stringify(mediaTypeObjects)}`);
+            console.warn(`无法解析多种请求body，仅会生效一个匹配到的contentType ${JSON.stringify(mediaTypeObjects)}`);
         }
+
         const firstMediaType = VALID_CONTENT_TYPE[mediaTypeObjects[0]];
         if (!firstMediaType) {
             priorContentType = mediaTypeObjects.find((ct) => ct === VALID_CONTENT_TYPE[ct])
             if (!priorContentType) {
-                console.info(`无法解析 ${mediaTypeObjects[0]} 类型请求参数。仅支持${JSON.stringify(Object.keys(VALID_CONTENT_TYPE))}`);
+                console.warn(`无法解析 ${mediaTypeObjects[0]} 类型请求参数 仅支持${JSON.stringify(Object.keys(VALID_CONTENT_TYPE))}`);
                 return null;
             }
         } else {
             priorContentType = firstMediaType;
         }
         mediaTypeObject = content[priorContentType];
-        console.log(mediaTypeObject)
-        return mediaTypeObject;
+
+        const { schema } = mediaTypeObject;
+        const refPath = schema.$ref;
+        if (refPath) { //使用引用
+            const refObj = this.getRefsData(refPath);
+            if (refObj) {
+                result = this.convertSchema(refObj);
+            }
+        } else {
+            result = this.convertSchema(schema);
+        }
+        return {
+            contentType: priorContentType,
+            values: result,
+        }
     }
 
     /**
-     * @description        简化请求格式(处理paths字段，将起转换为易操作数据)
+     * @description        获取引用参数
      * @author             shuxiaokai
-     * @create             2021-01-08 17:30
-     * @return
-     * 返回数据格式
-        [{
-            folderName: "",
-            url: "/pet",
-            method: "get",
-            description: "描述",
-            requestBody: {}, //请求body参数
-            parameters: {}, //查询字符串
-            responses: {}, //返回参数
-        }]
+     * @create             2021-04-09 19:32
+     * @return {String}    返回字符串
      */
-    getSimplifyRequests() {
-        const requestResult = [];
-        const { paths } = this.openApiData;
-        if (!paths) {
-            console.warn("缺少paths字段");
-            return requestResult;
-        }
-        //=========================================================================//
-        //生成简化版请求参数骨架
-        const generateRequestItem = () => ({
-            folderName: "", //文件夹名称
-            url: "", //请求url
-            method: "get", //请求方法
-            description: "", //请求描述
-            requestBody: {}, //请求body参数
-            parameters: {}, //查询字符串
-            responses: {}, //返回参数
-        });
-        //简化requestBody
-        const simplifyRequestBody = (requestBody) => {
-            let contentValue = null;
-            if (!requestBody) {
-                return contentValue;
-            }
-            const contents = requestBody.content;
-            Object.keys(contents).forEach((contentType) => {
-                if (contentType === "application/json") {
-                    contentValue = {
-                        contentType: "application/json",
-                        values: OpenApiTranslate.generateParams(contents[contentType]),
-                    };
-                } else if (contentType === "application/x-www-form-urlencoded") {
-                    contentValue = {
-                        contentType: "application/x-www-form-urlencoded",
-                        values: OpenApiTranslate.generateParams(contents[contentType]),
-                    };
-                } else if (contentType === "multipart/form-data") {
-                    contentValue = {
-                        contentType: "multipart/form-data",
-                        values: OpenApiTranslate.generateParams(contents[contentType]),
-                    };
-                } else if (contentType === "*/*") {
-                    contentValue = {
-                        contentType: "*/*",
-                        values: OpenApiTranslate.generateParams(contents[contentType]),
-                    };
-                } else {
-                    console.warn(`requestBody 未知contentType类型${contentType}`)
-                }
-            });
-            return contentValue
-        }
-        //简化parameters
-        const simplifyParameters = (parameters) => {
-            const result = [];
-            if (!parameters) {
-                return {};
-            }
-            if (!Array.isArray(parameters)) {
-                console.warn("parameters 字段必须为数组");
-                return {};
-            }
-            //解析规则参考：https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#parameterObject
-            parameters.forEach((parameter) => {
-                const params = this.generateParams();
-                const inValue = parameter.in; //共四种可能， header，query，path，cookie
-                const { name, schema } = parameter;
-                params.description = parameter.description; //描述是所有参数都具有的属性
-                parameter.required ? (params.required = true) : (params.required = false) //必填是所有参数都具有的属性
-                if (inValue === "path") { //如果为path则替换url中的{参数}
-                    //仅解析integer和string, 不考虑其他条件
-                    if (schema.type === "integer") {
-                        params.key = name;
-                        params.value = 1;
-                        params.type = "number";
-                    } else if (schema.type === "string") {
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                    } else { //其他情况按照字符串处理
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                        console.warn(`存在其他type类型：${schema.type}`);
-                    }
-                    params._in = "path";
-                    result.push(params)
-                } else if (inValue === "query") { //查询字符串
-                    //所有数据均按照字符串处理
-                    if (schema.type === "string") {
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                    } else if (schema.type === "array") {
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                    } else {
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                        console.warn(`存在其他type类型：${schema.type}`);
-                    }
-                    params._in = "query";
-                    result.push(params)
-                } else if (inValue === "header") { //headers参数
-                    //仅解析integer和string, 不考虑其他条件
-                    if (schema.type === "integer") {
-                        params.key = name;
-                        params.value = 1;
-                        params.type = "number";
-                    } else if (schema.type === "string") {
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                    } else { //其他情况按照字符串处理
-                        params.key = name;
-                        params.value = "string";
-                        params.type = "string";
-                        console.warn(`存在其他type类型：${schema.type}`);
-                    }
-                    params._in = "header";
-                    result.push(params)
-                } else {
-                    console.warn(`暂时无法支持的in类型${inValue}`);
-                }
+    getRefsData(path) {
+        let refPath = path;
+        let referSchema = JSON.parse(JSON.stringify(this.openApiData));
+        if (!refPath.startsWith("#")) {
+            console.warn("只能解析当前文件的引用");
+            referSchema = null;
+        } else {
+            refPath = refPath.replace("#/", "").split("/");
+            refPath.forEach((val) => {
+                referSchema = referSchema[val];
             })
-            return result;
         }
-        //简化返回值
-        const simplifyResponse = (responses) => {
-            const responseValue = [];
-            if (!responses) {
-                return responseValue;
-            }
-            Object.keys(responses).forEach((status) => {
-                const res = responses[status];
-                responseValue.push({
-                    status,
-                    values: simplifyRequestBody(res),
-                })
-            });
-            return responseValue
-        }
-        //=========================================================================//
-        Object.keys(paths).forEach((reqUrl) => {
-            const requestCollections = paths[reqUrl];
-            Object.keys(requestCollections).forEach((method) => {
-                const requestItem = generateRequestItem();
-                requestItem.url = reqUrl;
-                requestItem.folderName = reqUrl;
-                const requestCollection = requestCollections[method];
-                const cpRequestBody = JSON.parse(JSON.stringify(requestCollection.requestBody || ""))
-                requestItem.method = method;
-                requestItem.description = requestCollection.summary;
-                requestItem.requestBody = simplifyRequestBody(cpRequestBody) || [];
-                requestItem.parameters = simplifyParameters(requestCollection.parameters) || [];
-                requestItem.responses = simplifyResponse(requestCollection.responses) || [];
-                requestResult.push(requestItem);
-            })
-        });
-        return requestResult;
+        return referSchema;
     }
 
-    //处理schema
-    schemaHandle(contentValue) {
-        const schemaValue = contentValue.schema;
+    /**
+     * @description        转换schema
+     * @author             shuxiaokai
+     * @create             2021-04-09 10:20
+     * @return {String}    返回字符串
+     */
+    // eslint-disable-next-line class-methods-use-this
+    convertSchema(globalSchema) {
         const result = [];
-        // eslint-disable-next-line no-shadow
-        const foo = (schemaValue, result, field) => {
-            const { $ref, type, properties } = schemaValue;
-            const moyuDoc = this.generateParams();
-            moyuDoc.key = field || ""
-            if (type === "string") {
-                if (schemaValue.format === "binary") { //文件类型
-                    schemaValue.type = "file"
-                } else { //其余情况全部处理为字符串
-                    moyuDoc.type = "string";
-                    moyuDoc.value = schemaValue.example || ""
+        const foo = (schema, currentResult, schemaKey) => {
+            const { $ref, type, properties, format } = schema;
+            if ($ref) { //使用引用
+                const refPath = $ref;
+                const refObj = this.getRefsData(refPath);
+                if (refObj) {
+                    foo(refObj, currentResult, schemaKey);
                 }
-                result.push(moyuDoc);
-            } else if (type === "integer" || type === "number") {
-                moyuDoc.type = "number";
-                result.push(moyuDoc);
-            } else if (type === "boolean") {
-                moyuDoc.type = "boolean";
-                result.push(moyuDoc);
-            } else if (type === "object") {
-                moyuDoc.type = "object"
-                Object.keys(properties).forEach((key) => {
-                    const property = properties[key];
-                    foo(property, moyuDoc.children, key);
-                })
-                result.push(moyuDoc);
-            } else if (type === "array") { //array必须在ref前面进行解析
-                moyuDoc.type = "array";
-                foo(schemaValue.items, moyuDoc.children);
-                result.push(moyuDoc);
-            } else if ($ref) {
-                let ref = $ref;
-                if (!ref.startsWith("#")) {
-                    console.warn("只能解析当前文件的引用");
-                } else {
-                    ref = ref.replace("#/", "").split("/");
-                    let referSchema = JSON.parse(JSON.stringify(this.openApiData));
-                    ref.forEach((val) => {
-                        referSchema = referSchema[val];
+            } else if (!type) { //没有type值直接取property
+                const allPropertyKeys = Object.keys(properties);
+                for (let i = 0; i < allPropertyKeys.length; i += 1) {
+                    const property = allPropertyKeys[i];
+                    const propertyValue = properties[property];
+                    foo(propertyValue, currentResult, property);
+                }
+            } else if (type) { //存在type进行解析
+                let convertType = TYPE_ENUM[type];
+                const params = mixin.methods.generateProperty();
+                if (convertType === "string") {
+                    if (format === "binary") { //文件类型
+                        convertType = "file"
+                    }
+                    params.key = schemaKey;
+                    params.type = convertType;
+                    params.value = schema.example || schema.default;
+                    params.description = schema.description;
+                    params.required = schema.required;
+                    currentResult.push(params);
+                } else if (convertType === "number") {
+                    params.key = schemaKey;
+                    params.type = convertType;
+                    params.value = schema.example || schema.default;
+                    params.description = schema.description;
+                    params.required = schema.required;
+                    currentResult.push(params);
+                } else if (convertType === "boolean") {
+                    params.key = schemaKey;
+                    params.type = convertType;
+                    params.value = schema.example || schema.default;
+                    params.description = schema.description;
+                    params.required = schema.required;
+                    currentResult.push(params);
+                } else if (convertType === "object") {
+                    params.type = convertType;
+                    params.description = schema.description;
+                    currentResult.push(params);
+                    Object.keys(schema.properties).forEach((property) => {
+                        foo(schema.properties[property], params.children, property);
                     })
-                    foo(referSchema, result);
+                } else if (convertType === "array") {
+                    params.type = convertType;
+                    params.description = schema.description;
+                    params.key = schemaKey;
+                    currentResult.push(params);
+                    const { items } = schema;
+                    const itemsType = TYPE_ENUM[items.type]
+                    if (itemsType === "string" || itemsType === "number" || itemsType === "boolean") {
+                        params.children = [mixin.methods.generateProperty(itemsType)]
+                    } else {
+                        foo(items, params.children);
+                    }
                 }
             } else {
-                console.warn(`未知数据类型${JSON.stringify(schemaValue)}`)
+                console.warn(`schema解析错误 ${JSON.stringify(schema)}`);
             }
         }
-        foo(schemaValue, result, "");
-        return result
-    }
-
-    //生成参数骨架
-    static generateParams() {
-        return {
-            key: "",
-            description: "",
-            type: "",
-            value: "",
-            required: true,
-            children: [],
-            _select: true,
-            _in: "", //1.path  2.query  3.header  4.body
-        }
+        foo(globalSchema, result);
+        return result;
     }
 
     //生成文档骨架

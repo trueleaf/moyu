@@ -495,7 +495,7 @@ export default {
                 requestBody: {
                     description: "order placed for purchasing the pet",
                     content: {
-                        "*/*": {
+                        "application/json": {
                             schema: {
                                 $ref: "#/components/schemas/Order",
                             },
@@ -827,7 +827,7 @@ export default {
                 requestBody: {
                     description: "Updated user object",
                     content: {
-                        "*/*": {
+                        "application/json": {
                             schema: {
                                 $ref: "#/components/schemas/User",
                             },
@@ -999,6 +999,7 @@ export default {
                         },
                         items: {
                             type: "string",
+                            example: "aaaa"
                         },
                     },
                     tags: {
