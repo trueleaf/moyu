@@ -22,7 +22,7 @@
                     </svg>
                 </el-tooltip>
                 <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExport">
+                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExportPage">
                         <use xlink:href="#icondaochu1"></use>
                     </svg>
                 </el-tooltip>
@@ -48,7 +48,7 @@
                                 <span class="gray-500">Ctrl+P</span>
                             </div>
                         </el-dropdown-item>
-                        <el-dropdown-item @click.native="dialogVisible3 = true">
+                        <el-dropdown-item @click.native="handleOpenImportPage">
                             <div class="dropdown-item">
                                 <span>导入文档</span>
                                 <span class="gray-500">Ctrl+I</span>
@@ -331,90 +331,42 @@ export default {
         },
         //打开在线链接tab
         handleOpenOnlineLink() {
-            const id = this.$helper.uuid();
-            if (this.tabs && this.tabs.find((tab) => tab.tabType === "onlineLink")) { //存在链接则返回不处理
-                return;
-            }
-            this.$store.commit("apidoc/addTab", {
-                _id: id,
-                name: "生成在线链接",
-                changed: false,
-                tail: "",
-                tabType: "onlineLink",
-                projectId: this.$route.query.id,
-            });
-            this.$store.commit("apidoc/changeCurrentTab", {
-                _id: id,
-                name: "生成在线链接",
-                changed: false,
-                tail: "",
-                tabType: "onlineLink",
-                projectId: this.$route.query.id,
-            });
+            this.handleAddTab("生成在线链接", "onlineLink");
         },
         //打开导出tab
-        handleOpenExport() {
-            const id = this.$helper.uuid();
-            if (this.tabs && this.tabs.find((tab) => tab.tabType === "exportDoc")) { //存在则返回不处理
-                return;
-            }
-            this.$store.commit("apidoc/addTab", {
-                _id: id,
-                name: "文档导出",
-                changed: false,
-                tail: "",
-                tabType: "exportDoc",
-                projectId: this.$route.query.id,
-            });
-            this.$store.commit("apidoc/changeCurrentTab", {
-                _id: id,
-                name: "文档导出",
-                changed: false,
-                tail: "",
-                tabType: "exportDoc",
-                projectId: this.$route.query.id,
-            });
+        handleOpenExportPage() {
+            this.handleAddTab("文档导出", "exportDoc");
+        },
+        //打开导入tab
+        handleOpenImportPage() {
+            this.handleAddTab("文档导入", "importDoc");
         },
         //打开配置界面
         handleOpenConfigPage() {
-            this.$store.commit("apidoc/addTab", {
-                _id: "idConfig",
-                projectId: this.$route.query.id,
-                name: "文档全局配置",
-                changed: false,
-                tail: "conf",
-                tabType: "config",
-            });
-            this.$store.commit("apidoc/changeCurrentTab", {
-                _id: "idConfig",
-                projectId: this.$route.query.id,
-                name: "文档全局配置",
-                changed: false,
-                tail: "conf",
-                tabType: "config",
-            });
+            this.handleAddTab("文档全局配置", "config");
         },
         //打开历史记录界面
         handleOpenHistoryPage() {
-            const id = this.$helper.uuid();
-            if (this.tabs && this.tabs.find((tab) => tab.tabType === "history")) { //存在则返回不处理
+            this.handleAddTab("历史记录", "history");
+        },
+        //打开新的tab
+        handleAddTab(name, tabType) {
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === tabType)) { //存在则返回不处理
                 return;
             }
             this.$store.commit("apidoc/addTab", {
-                _id: id,
-                name: "历史记录",
-                changed: false,
-                tail: "",
-                tabType: "history",
+                _id: tabType,
                 projectId: this.$route.query.id,
+                name,
+                changed: false,
+                tabType,
             });
             this.$store.commit("apidoc/changeCurrentTab", {
-                _id: id,
-                name: "历史记录",
-                changed: false,
-                tail: "",
-                tabType: "history",
+                _id: tabType,
                 projectId: this.$route.query.id,
+                name,
+                changed: false,
+                tabType,
             });
         },
         //=====================================导航操作==================================//

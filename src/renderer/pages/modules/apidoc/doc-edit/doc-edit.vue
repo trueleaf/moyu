@@ -61,6 +61,8 @@ export default {
                             name: this.$route.query.name,
                         },
                     });
+                } else if (e.ctrlKey && e.key === "i") {
+                    this.addAndChangeTab("文档导入", "importDoc");
                 }
             })
         },
