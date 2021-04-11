@@ -9,22 +9,25 @@
         <s-fieldset title="支持：Postman、摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
                     class="w-100"
-                    :limit="1"
                     drag
                     action=""
+                    :show-file-list="false"
                     :before-upload="handleBeforeUpload"
                     :http-request="requestHook">
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div slot="tip" class="mt-2">
-                    <!-- <div>目前支持：Postman 2.1、摸鱼文档、Swagger(Openapi 3.0)</div> -->
-                    <div class="orange">{{ importType }}</div>
+                    <div v-if="importTypeInfo.name" class="orange">
+                        <span>文档类型：</span>
+                        <span>{{ importTypeInfo.name }}</span>
+                        <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
+                    </div>
                 </div>
             </el-upload>
         </s-fieldset>
         <s-fieldset title="额外配置">
             <div>
-                <s-config :has-check="false" label="导入方式" description="请谨慎选择覆盖方式导入">
+                <s-config :has-check="false" label="导入方式" description="请谨慎选择导入方式">
                     <el-radio-group v-model="formInfo.cover" size="mini" @change="handleChangeImportType">
                         <el-radio :label="false">追加方式</el-radio>
                         <el-radio :label="true">覆盖方式</el-radio>
@@ -74,18 +77,27 @@
 
 <script>
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
+import jsyaml from "js-yaml"
+import OpenApiTranslator from "./open-api-translator"
+import yamlJsonData from "./data"
 
 export default {
     mixins: [mixin],
     data() {
         return {
+            //=====================================业务参数====================================//
             formInfo: {
                 type: "",
                 cover: false,
             }, //-------项目信息
-            importType: "",
-            loading: false, //-----导入第三方加载效果
+            importTypeInfo: {
+                name: "",
+                version: "",
+            },
             jsonText: "",
+            fileType: "", //-------文件类型
+            //=====================================其他参数====================================//
+            loading: false, //-----确认按钮
         };
     },
     computed: {
@@ -98,23 +110,62 @@ export default {
     },
     created() {},
     methods: {
-        //=====================================图片上传====================================//
+        //=====================================文件上传====================================//
+        //检查文件格式
         handleBeforeUpload(file) {
-            const isJson = file.type === "application/json";
-            const isLt10M = file.size / 1024 < 1024 * 10;
-            if (!isJson) {
-                this.$message.error("只能上传json文件");
+            const standerFileType = file.type;
+            const suffixFileType = file.name.match(/(?<=\.)[^.]+$/) ? file.name.match(/(?<=\.)[^.]+$/)[0] : "";
+            this.fileType = standerFileType || suffixFileType;
+            if (!standerFileType && !suffixFileType) {
+                this.$message.error("未知的文件格式，无法解析");
+                return false;
             }
-            if (!isLt10M) {
-                this.$message.error("文件大小不超过1M");
+            if (this.fileType !== "application/json" && this.fileType !== "yaml") {
+                this.$message.error("仅支持JSON格式或者YAML格式文件");
+                return false;
             }
-            return isJson && isLt10M;
+            if (file.size > this.config.renderConfig.import.size) {
+                this.$message.error(`文件大小不超过${this.config.renderConfig.import.size / 1024 / 1024}M`);
+                return false;
+            }
+            return true;
         },
+        //自定义上传成功操作
         requestHook(e) {
-            e.file.text().then((jsonText) => {
-                this.jsonText = jsonText;
-                this.checkImportType(JSON.parse(this.jsonText));
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
+            e.file.text().then((fileStr) => {
+                if (this.fileType === "yaml") {
+                    this.jsonText = jsyaml.load(fileStr);
+                    const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
+                    console.log(docs)
+                } else {
+                    this.jsonText = JSON.parse(fileStr)
+                }
+                this.getImportFileTypeInfo();
+            }).catch((err) => {
+                console.error(err);
             });
+        },
+        //检查导入数据类型
+        getImportFileTypeInfo() {
+            if (this.jsonText.type === "moyu") {
+                this.importTypeInfo.name = "moyu";
+                this.formInfo.type = "moyu";
+            } else if (this.jsonText.info._postman_id) {
+                this.importTypeInfo.name = "postman";
+                this.importTypeInfo.version = "postman";
+                this.formInfo.type = "postman";
+            } else if (this.jsonText.openapi) {
+                this.importTypeInfo.name = "openapi";
+                this.importTypeInfo.version = this.jsonText.openapi;
+                this.formInfo.type = "openapi";
+            } else if (this.jsonText.swagger) {
+                this.importTypeInfo.name = "swagger";
+                this.importTypeInfo.version = this.jsonText.swagger;
+                this.formInfo.type = "swagger";
+            } else {
+                this.importTypeInfo.name = "未知类型";
+            }
         },
         //=====================================组件间交互====================================//
         handleSubmit() {
@@ -147,18 +198,7 @@ export default {
                 this.loading = false;
             }
         },
-        //检查导入数据类型
-        checkImportType(data) {
-            if (data.type === "moyu") {
-                this.importType = "moyu";
-                this.formInfo.type = "moyu";
-            } else if (data.info._postman_id) {
-                this.importType = "postman";
-                this.formInfo.type = "postman";
-            } else {
-                this.importType = "未知类型";
-            }
-        },
+
         //转换moyu文档
         convertMoyuData(moyuData) {
             if (moyuData.type !== "moyu") {
@@ -309,6 +349,11 @@ export default {
             const checkedNodes = this.$refs.docTree.getCheckedNodes();
             const halfCheckedNodes = this.$refs.docTree.getHalfCheckedNodes();
             this.allCheckedNodes = checkedNodes.concat(halfCheckedNodes);
+        },
+        test() {
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
+            const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
+            console.log(docs)
         },
     },
 };

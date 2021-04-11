@@ -17,9 +17,6 @@
 </template>
 
 <script>
-import yaml from "js-yaml"
-import OpenApiTranslator from "./open-api-translator"
-import yamlJsonData from "./data"
 
 export default {
     computed: {
@@ -42,36 +39,11 @@ export default {
     },
     data() {
         return {
-            openApiTranslatorInstance: null,
-            loading: false,
-            jsonYaml: "",
         };
     },
     created() {
-        this.init();
     },
     methods: {
-        init() {
-            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
-            const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
-            console.log(docs)
-        },
-        importOpenApiDoc() {
-            const moyuDocs = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonYaml);
-            this.loading = false;
-            this.axios.post("/api/project/doc_multi", { docs: moyuDocs, projectId: this.$route.query.id }).then(() => {
-                this.getComponentByName("SDocEditBanner").getDocBanner();
-            }).catch((err) => {
-                this.$errorThrow(err, this);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
-        async handleChangeFile(e) {
-            const file = e.target.files[0];
-            const text = await file.text();
-            this.jsonYaml = yaml.load(text);
-        },
         //=====================================获取远程数据==================================//
 
         //=====================================前后端交互====================================//
