@@ -28,7 +28,7 @@
         <s-fieldset title="额外配置">
             <div>
                 <s-config :has-check="false" label="导入方式" description="请谨慎选择导入方式">
-                    <el-radio-group v-model="formInfo.cover" size="mini" @change="handleChangeImportType">
+                    <el-radio-group v-model="formInfo.cover" size="mini" @change="handleChangeIsCover">
                         <el-radio :label="false">追加方式</el-radio>
                         <el-radio :label="true">覆盖方式</el-radio>
                     </el-radio-group>
@@ -71,6 +71,9 @@
                     </template>
                 </s-config>
             </div>
+            <div class="d-flex j-center mt-2">
+                <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">确定导入</el-button>
+            </div>
         </s-fieldset>
     </div>
 </template>
@@ -78,8 +81,8 @@
 <script>
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsyaml from "js-yaml"
-import OpenApiTranslator from "./open-api-translator"
-import yamlJsonData from "./data"
+import OpenApiTranslator from "./openapi"
+import PostmanTranslator from "./postman"
 
 export default {
     mixins: [mixin],
@@ -87,6 +90,7 @@ export default {
         return {
             //=====================================业务参数====================================//
             formInfo: {
+                moyuData: [],
                 type: "",
                 cover: false,
             }, //-------项目信息
@@ -94,7 +98,7 @@ export default {
                 name: "",
                 version: "",
             },
-            jsonText: "",
+            jsonText: "", //-------读取文件的json数据
             fileType: "", //-------文件类型
             //=====================================其他参数====================================//
             loading: false, //-----确认按钮
@@ -132,62 +136,55 @@ export default {
         },
         //自定义上传成功操作
         requestHook(e) {
-            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
             e.file.text().then((fileStr) => {
                 if (this.fileType === "yaml") {
                     this.jsonText = jsyaml.load(fileStr);
-                    const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
-                    console.log(docs)
                 } else {
                     this.jsonText = JSON.parse(fileStr)
                 }
-                this.getImportFileTypeInfo();
+                this.getImportFileInfo();
             }).catch((err) => {
                 console.error(err);
             });
         },
         //检查导入数据类型
-        getImportFileTypeInfo() {
+        getImportFileInfo() {
+            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
+            this.postmanTranslatorInstance = new PostmanTranslator(this.$route.query.id);
             if (this.jsonText.type === "moyu") {
                 this.importTypeInfo.name = "moyu";
                 this.formInfo.type = "moyu";
+                this.formInfo.moyuData = this.jsonText;
             } else if (this.jsonText.info._postman_id) {
                 this.importTypeInfo.name = "postman";
                 this.importTypeInfo.version = "postman";
                 this.formInfo.type = "postman";
+                this.formInfo.moyuData = this.postmanTranslatorInstance.convertPostmanData(this.jsonText);
             } else if (this.jsonText.openapi) {
                 this.importTypeInfo.name = "openapi";
                 this.importTypeInfo.version = this.jsonText.openapi;
                 this.formInfo.type = "openapi";
+                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
             } else if (this.jsonText.swagger) {
                 this.importTypeInfo.name = "swagger";
                 this.importTypeInfo.version = this.jsonText.swagger;
                 this.formInfo.type = "swagger";
+                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
             } else {
                 this.importTypeInfo.name = "未知类型";
             }
         },
         //=====================================组件间交互====================================//
         handleSubmit() {
-            this.loading = true;
-            let moyuData = null;
             try {
-                if (!this.jsonText) {
-                    throw new Error("导入数据不能为空");
-                }
-                if (this.formInfo.type === "postman") {
-                    moyuData = this.convertPostmanData(JSON.parse(this.jsonText));
-                } else if (this.formInfo.type === "moyu") {
-                    moyuData = this.convertMoyuData(JSON.parse(this.jsonText));
-                }
+                this.loading = true;
                 const params = {
                     projectId: this.$route.query.id,
                     cover: this.formInfo.cover,
-                    moyuData,
+                    moyuData: this.formInfo.moyuData,
                 };
                 this.axios.post("/api/project/import/moyu", params).then(() => {
-                    this.$emit("success");
-                    this.handleClose();
+                    this.$event.emit("apidoc/importDocSuccess");
                 }).catch((err) => {
                     this.$errorThrow(err, this);
                 }).finally(() => {
@@ -198,137 +195,9 @@ export default {
                 this.loading = false;
             }
         },
-
-        //转换moyu文档
-        convertMoyuData(moyuData) {
-            if (moyuData.type !== "moyu") {
-                throw new Error("导入文档格式不正确，请选择正确的文档类型进行导入");
-            }
-            return moyuData;
-        },
-        //转换postman
-        convertPostmanData(postmanData) {
-            const moyuDoc = {
-                info: {
-                    projectName: postmanData.info.name,
-                },
-                rules: {},
-                docs: [],
-                hosts: [],
-            };
-            const foo = (data, pid = "") => {
-                for (let i = 0; i < data.length; i += 1) {
-                    const element = data[i];
-                    const { request } = element;
-                    if (element.item && element.item.length > 0) { //文件夹
-                        const doc = this.generateDoc();
-                        const id = this.$helper.uuid();
-                        doc._id = id;
-                        delete doc.item;
-                        doc.isFolder = true;
-                        doc.info.name = element.name;
-                        doc.info.type = "folder";
-                        doc.pid = pid;
-                        moyuDoc.docs.push(doc);
-                        foo(element.item, id);
-                    } else { //文档
-                        const doc = this.generateDoc();
-                        const id = this.$helper.uuid();
-                        const query = request.url.query || [];
-                        const header = request.header || [];
-                        doc._id = id;
-                        doc.isFolder = false;
-                        doc.info.name = element.name;
-                        doc.info.type = "api";
-                        doc.pid = pid;
-                        doc.item.method = request.method.toLowerCase();
-                        doc.item.url.host = request.url.host ? request.url.host[0] : "";
-                        doc.item.url.path = request?.url?.path?.join("/");
-                        if (request.method.toLowerCase() !== "get") { //get请求不存在body
-                            if (request.body && request.body.mode === "raw") {
-                                const language = request.body?.options?.raw?.language;
-                                if (language === "json") {
-                                    doc.item.requestBody = this.convertTreeDataToPlainParams(JSON.parse(request.body.raw));
-                                } else {
-                                    console.warn(`暂时无法解析${language}`);
-                                    continue;
-                                }
-                                doc.item.contentType = "application/json";
-                            } else if (request.body && request.body.mode === "formdata") {
-                                doc.item.requestBody = request.body.formdata.map((val) => {
-                                    const singleProperty = this.generateProperty();
-                                    delete singleProperty._id;
-                                    singleProperty.key = val.key;
-                                    singleProperty.type = val.type === "text" ? "string" : "file";
-                                    singleProperty.value = val.value;
-                                    return singleProperty;
-                                });
-                                doc.item.contentType = "multipart/form-data";
-                            }
-                        }
-                        if (query && query.length > 0) { //query参数
-                            doc.item.queryParams = query.map((val) => {
-                                const singleProperty = this.generateProperty();
-                                delete singleProperty._id;
-                                singleProperty.key = val.key;
-                                singleProperty.value = val.value;
-                                singleProperty.description = val.description;
-                                return singleProperty;
-                            });
-                        }
-                        if (header && header.length > 0) { //header参数
-                            doc.item.headers = query.map((val) => {
-                                const singleProperty = this.generateProperty();
-                                delete singleProperty._id;
-                                singleProperty.key = val.key;
-                                singleProperty.value = val.value;
-                                singleProperty.description = val.description;
-                                return singleProperty;
-                            });
-                        }
-                        moyuDoc.docs.push(doc);
-                    }
-                }
-            }
-            foo(postmanData.item);
-            console.log(moyuDoc)
-            return moyuDoc;
-        },
-        //生成一个文档
-        generateDoc() {
-            return {
-                info: {
-                    description: "",
-                    name: "",
-                    type: "folder",
-                },
-                item: {
-                    url: { host: "", path: "" },
-                    method: "get",
-                    contentType: "application/json",
-                    paths: [],
-                    queryParams: [],
-                    requestBody: [],
-                    responseParams: [
-                        {
-                            title: "返回参数",
-                            statusCode: 200,
-                            values: [],
-                        },
-                    ],
-                    headers: [],
-                },
-                pid: "",
-                sort: Date.now(),
-                enabled: true,
-                projectId: this.$route.query.id,
-                isFolder: false,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            };
-        },
-        //=========================================================================//
-        handleChangeImportType(val) {
+        //=======================================其他操作==================================//
+        //改变导入方式，如果为覆盖类型提醒用户
+        handleChangeIsCover(val) {
             if (val) {
                 this.$confirm("覆盖后的数据很难还原", "提示", {
                     confirmButtonText: "确定",
@@ -349,11 +218,6 @@ export default {
             const checkedNodes = this.$refs.docTree.getCheckedNodes();
             const halfCheckedNodes = this.$refs.docTree.getHalfCheckedNodes();
             this.allCheckedNodes = checkedNodes.concat(halfCheckedNodes);
-        },
-        test() {
-            this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
-            const docs = this.openApiTranslatorInstance.convertToMoyuDocs(yamlJsonData);
-            console.log(docs)
         },
     },
 };

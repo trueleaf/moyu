@@ -45,8 +45,13 @@ class OpenApiTranslate {
             throw new Error("缺少转换数据");
         }
         this.openApiData = data;
-        const moyuDocs = this.getDocInfo();
-        return moyuDocs;
+        const moyuDoc = {
+            info: this.getProjectInfo(),
+            rules: {},
+            docs: this.getDocInfo(),
+            hosts: this.getServers(),
+        };
+        return moyuDoc;
     }
 
     /**
@@ -104,11 +109,11 @@ class OpenApiTranslate {
         const result = [];
         if (!openApiServers) {
             console.warn("缺少servers字段");
-            return result;
+            return null;
         }
         if (!Array.isArray(openApiServers)) {
             console.warn("servers字段必须为数组");
-            return result;
+            return null;
         }
         openApiServers.forEach((server, index) => {
             const variables = server.variables || {};
@@ -149,23 +154,23 @@ class OpenApiTranslate {
             const element = openApiDocInfo[reqUrl];
             const pid = uuid();
             const folderDoc = this.generateDoc();
-            folderDoc.id = pid; //目录id
+            folderDoc._id = pid; //目录id
             folderDoc.isFolder = true; //是目录
             folderDoc.sort = Date.now(); //排序
             folderDoc.item = {}; //目录item数据为空
             folderDoc.info.type = "folder";
             folderDoc.info.name = reqUrl;
-            // result.push(folderDoc);
+            result.push(folderDoc);
             Object.keys(element).forEach((method) => {
                 const moyuDoc = this.generateDoc();
                 const openApiDoc = element[method];
                 moyuDoc.pid = pid;
                 moyuDoc.sort = Date.now(); //排序
-                moyuDoc.info.name = openApiDoc.summary; //文档名称
+                moyuDoc.info.name = openApiDoc.summary || "未命名"; //文档名称
                 moyuDoc.info.description = openApiDoc.description; //文档备注
                 moyuDoc.info.type = "api";
                 moyuDoc.item.method = method;
-                moyuDoc.item.url.host = this.getServers() ? this.getServers()[0].url : "";
+                moyuDoc.item.url.host = this.getServers() ? this.getServers()[0]?.url : "";
                 moyuDoc.item.url.path = reqUrl;
                 //解析parameters
                 // eslint-disable-next-line no-unused-vars
@@ -399,6 +404,7 @@ class OpenApiTranslate {
     //生成文档骨架
     generateDoc() {
         return {
+            _id: uuid(),
             pid: "", //父元素id用于判断是否是目录
             projectId: this.projectId, //项目id
             isFolder: false, //是否是文件夹

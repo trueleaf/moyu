@@ -177,7 +177,6 @@
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
         <s-add-file-dialog v-if="dialogVisible2" :visible.sync="dialogVisible2" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-        <s-import-doc-dialog v-if="dialogVisible3" :visible.sync="dialogVisible3" @success="handleImportSuccess"></s-import-doc-dialog>
         <s-template-dialog :visible.sync="dialogVisible5"></s-template-dialog>
     </div>
 </template>
@@ -187,7 +186,6 @@ import Vue from "vue";
 import { forEachForest, debounce } from "@/lib/index";
 import addFolderDialog from "../../dialog/add-folder.vue";
 import addFileDialog from "../../dialog/add-file.vue";
-import importDoc from "../../dialog/import-doc.vue";
 import templateDialog from "./dialog/template.vue";
 import contextmenu from "./components/contextmenu.vue";
 
@@ -196,7 +194,6 @@ export default {
     components: {
         "s-add-folder-dialog": addFolderDialog,
         "s-add-file-dialog": addFileDialog,
-        "s-import-doc-dialog": importDoc,
         "s-template-dialog": templateDialog,
     },
     computed: {
@@ -261,6 +258,12 @@ export default {
     },
     mounted() {
         this.init();
+        this.$event.one("apidoc/importDocSuccess", () => {
+            this.getDocBanner();
+            this.$store.dispatch("apidoc/getHostEnum", {
+                projectId: this.$route.query.id,
+            });
+        })
     },
     methods: {
         //=====================================初始化相关====================================//
@@ -307,13 +310,6 @@ export default {
             banner.style.width = `${bannerWidth}px`;
         },
         //=====================================操作栏操作====================================//
-        //导入成功
-        handleImportSuccess() {
-            this.getDocBanner();
-            this.$store.dispatch("apidoc/getHostEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
         //刷新banner
         freshBanner() {
             if (!this.loading) {
