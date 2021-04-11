@@ -19,6 +19,8 @@
             <s-online-link v-if="currentSelectDoc.tabType === 'onlineLink'"></s-online-link>
             <!-- 导出文档 -->
             <s-export-doc v-if="currentSelectDoc.tabType === 'exportDoc'"></s-export-doc>
+            <!-- 导入文档 -->
+            <s-import-doc v-if="currentSelectDoc.tabType === 'importDoc'"></s-import-doc>
             <!-- 历史记录 -->
             <s-doc-hisotry v-if="currentSelectDoc.tabType === 'history'"></s-doc-hisotry>
             <!-- 全局变量 -->
@@ -34,6 +36,7 @@ import onlineLink from "@/pages/modules/apidoc/mixin/content/link/link.vue";
 import config from "@/pages/modules/apidoc/mixin/content/config/config.vue";
 import statistics from "@/pages/modules/apidoc/mixin/content/statistics/statistics.vue";
 import exportDoc from "@/pages/modules/apidoc/mixin/content/export/export.vue";
+import importDoc from "@/pages/modules/apidoc/mixin/content/import/import.vue";
 import variable from "@/pages/modules/apidoc/mixin/content/variable/variable.vue";
 import apidoc from "./apidoc/apidoc.vue";
 import paramsTemplate from "./params-template/params-template.vue";
@@ -46,6 +49,7 @@ export default {
         "s-params-template": paramsTemplate,
         "s-online-link": onlineLink,
         "s-export-doc": exportDoc,
+        "s-import-doc": importDoc,
         "s-doc-hisotry": docHistory,
         "s-variable": variable,
     },

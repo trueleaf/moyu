@@ -144,11 +144,11 @@ export default {
             }, "");
         },
     },
-    watch: {
-        requestMethod(val) {
-            this.$event.emit("apidoc/changeMethod", val);
-        },
-    },
+    // watch: {
+    //     requestMethod(val) {
+    //         this.$event.emit("apidoc/changeMethod", val);
+    //     },
+    // },
     data() {
         return {
             urlError: { //-----------------请求url错误
