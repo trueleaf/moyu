@@ -89,6 +89,10 @@ const router = new Router({
             path: "/",
             redirect: lastVisitPage || "/v1/apidoc/doc-list",
         },
+        { //测试界面
+            path: "/test",
+            component: () => import("@/pages/test/test.vue"),
+        },
         {
             path: "/login",
             name: "登录页面",

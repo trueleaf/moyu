@@ -47,7 +47,7 @@ module.exports = {
             imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
-            whiteList: ["/", "/login"],
+            whiteList: ["/", "/login", "/test"],
         },
         //mock相关配置
         mock: {
