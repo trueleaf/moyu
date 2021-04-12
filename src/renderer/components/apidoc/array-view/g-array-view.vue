@@ -176,11 +176,11 @@ export default {
             }
             const result = [];
             const indent = 4;
-            const rootLeftCurlInfo = this.generateAstInfo();
-            rootLeftCurlInfo.leftCurlBrace.pairId = "root";
-            rootLeftCurlInfo.indent = 0;
-            rootLeftCurlInfo.leftCurlBrace.value = "{";
-            result.push(rootLeftCurlInfo);
+            // const rootLeftCurlInfo = this.generateAstInfo();
+            // rootLeftCurlInfo.leftCurlBrace.pairId = "root";
+            // rootLeftCurlInfo.indent = 0;
+            // rootLeftCurlInfo.leftCurlBrace.value = "{";
+            // result.push(rootLeftCurlInfo);
             const foo = (arrayData, level, deepth, parent) => {
                 const parentIsArray = (parent && parent.type === "array");
                 for (let i = 0; i < arrayData.length; i += 1) {
@@ -212,25 +212,29 @@ export default {
                         result.push(astInfo);
                         this.wordNum += 1;
                     } else if (isObject && !objectHasValue) { //对象类型并且子元素无值 x: {}
+                        if (level !== 0) {
+                            astInfo.path.value = itemPath;
+                            astInfo.colon = ":";
+                            astInfo.comma = ",";
+                        }
                         const uuid = Math.random();
-                        astInfo.path.value = itemPath;
                         astInfo.leftCurlBrace.pairId = uuid;
                         astInfo.leftCurlBrace.value = "{";
                         astInfo.rightCurlBrace.value = "}";
-                        astInfo.colon = ":";
                         astInfo.rightCurlBrace.pairId = uuid;
-                        astInfo.comma = ",";
                         astInfo.indent = indent * level;
                         result.push(astInfo);
                         this.wordNum += 1;
                     } else if (isObject && objectHasValue) { //对象类型并且子元素有值 x: {
+                        if (level !== 0) {
+                            astInfo.path.value = itemPath;
+                            astInfo.colon = itemPath ? ":" : ""; //无key值代表父元素为数组类型
+                        }
                         const uuid = Math.random();
                         const rightCurlyBraceInfo = this.generateAstInfo();
-                        astInfo.path.value = itemPath;
                         astInfo.leftCurlBrace.pairId = uuid;
                         astInfo.leftCurlBrace.value = "{";
                         astInfo.indent = indent * level;
-                        astInfo.colon = itemPath ? ":" : ""; //无key值代表父元素为数组类型
                         result.push(astInfo);
                         foo(item.children, level + 1, deepth + 1, item);
                         rightCurlyBraceInfo.indent = indent * level;
@@ -240,10 +244,14 @@ export default {
                         result.push(rightCurlyBraceInfo);
                         this.wordNum += 1;
                     } else if (isArray && !arrayHasValue) { //数组类型并且子元素无值  x: [],
+                        if (level !== 0) {
+                            astInfo.path.value = itemPath;
+                            astInfo.colon = ":";
+                        }
                         const uuid = Math.random();
-                        astInfo.path.value = itemPath;
+                        // astInfo.path.value = itemPath;
                         astInfo.leftBracket.pairId = uuid;
-                        astInfo.colon = ":";
+                        // astInfo.colon = ":";
                         astInfo.leftBracket.value = "[";
                         astInfo.rightBracket.value = "]";
                         astInfo.rightBracket.pairId = uuid;
@@ -251,14 +259,18 @@ export default {
                         result.push(astInfo);
                         this.wordNum += 1;
                     } else if (isArray && arrayHasValue) { //数组类型并且子元素有值 x: [
+                        if (level !== 0) {
+                            astInfo.path.value = itemPath;
+                            astInfo.colon = ":";
+                        }
                         const uuid = Math.random();
                         const currentLevel = indent * level;
                         const rightBracketInfo = this.generateAstInfo();
-                        astInfo.path.value = itemPath;
+                        // astInfo.path.value = itemPath;
                         astInfo.leftBracket.value = "[";
                         astInfo.leftBracket.pairId = uuid;
                         astInfo.indent = currentLevel;
-                        astInfo.colon = ":";
+                        // astInfo.colon = ":";
                         result.push(astInfo);
                         foo(item.children, level + 1, deepth + 1, item);
                         rightBracketInfo.indent = currentLevel;
@@ -270,12 +282,12 @@ export default {
                     }
                 }
             };
-            foo(rawData, 1, 1, null);
-            const rootRightCurlInfo = this.generateAstInfo();
-            rootRightCurlInfo.rightCurlBrace.pairId = "root";
-            rootRightCurlInfo.indent = 0;
-            rootRightCurlInfo.rightCurlBrace.value = "}";
-            result.push(rootRightCurlInfo);
+            foo(rawData, 0, 1, null);
+            // const rootRightCurlInfo = this.generateAstInfo();
+            // rootRightCurlInfo.rightCurlBrace.pairId = "root";
+            // rootRightCurlInfo.indent = 0;
+            // rootRightCurlInfo.rightCurlBrace.value = "}";
+            // result.push(rootRightCurlInfo);
             result.forEach((astItem, index) => {
                 astItem.line = index + 1;
             });

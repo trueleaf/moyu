@@ -38,9 +38,9 @@
                                 v-model="scope.data.key"
                                 size="mini"
                                 :error="scope.data._keyError"
-                                :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
-                                :title="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : ''}`"
-                                :placeholder="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : '参数名称，例如：age name'}`"
+                                :disabled="checkInputDisable(scope)"
+                                :title="convertPlaceholder(scope)"
+                                :placeholder="convertPlaceholder(scope)"
                                 :mind-params="mindParams"
                                 remote
                                 @mindParamsSelect="(val) => { covertMindParamsToRealParasm(scope.data, val) }"
@@ -51,7 +51,7 @@
                         </s-v-input>
                     </div>
                     <!-- 请求参数类型 -->
-                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
+                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope)">
                         <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
@@ -68,7 +68,7 @@
                             size="mini"
                             :error="scope.data._valueError"
                             class="w-25 mr-2"
-                            :placeholder="`${scope.data._valuePlaceholder || '参数值,例如：20 张三'}`"
+                            :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
                             @focus="enableDrag = false"
                             @blur="handleCheckValue(scope);enableDrag=true"
                     >
@@ -225,6 +225,9 @@ export default {
         },
         //新增一行
         addNewLine({ node, data }) {
+            if (node.level === 1 && this.nest) {
+                return;
+            }
             if (data.key && data.key.trim() !== "") {
                 const parentNode = node.parent;
                 const parentData = node.parent.data;
@@ -259,9 +262,28 @@ export default {
                 }
             }
         },
+        //检查输入框是否disable
+        checkInputDisable(scope) {
+            const isComplex = scope.node.data.type === "object" || scope.node.data.type === "array"
+            const isReadOnly = scope.data._readOnly;
+            const parentIsArray = scope.node.parent.data.type === "array";
+            const isRootObject = this.nest && scope.node.level === 1 && isComplex;
+            return isReadOnly || parentIsArray || isRootObject
+        },
+        //转换placeholder
+        convertPlaceholder({ node }) {
+            const isComplex = node.data.type === "array" || node.data.type === "object";
+            if (node.level === 1 && isComplex) {
+                return "根元素";
+            }
+            if (node.parent.data.type === "array") {
+                return "父元素为数组不必填写参数名称";
+            }
+            return "参数名称"
+        },
         //=====================================type操作====================================//
         //改变请求参数类型
-        handleChangeParamsType(data) {
+        handleChangeParamsType({ data }) {
             if (data.type === "boolean") {
                 data.value = "true";
             }
@@ -290,6 +312,8 @@ export default {
                     });
                 }
                 data.value = "";
+                data.children[0] = (this.generateProperty());
+                this.defaultExpandedKeys.push(data._id);
                 this.$set(data, "_valueError", {
                     error: false,
                 });

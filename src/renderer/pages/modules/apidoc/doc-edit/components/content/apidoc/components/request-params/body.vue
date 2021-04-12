@@ -139,8 +139,8 @@ export default {
         },
         enabledContenType() {
             const rules = this.$store.state.apidocRules;
-            const currentTab = this.$store.state.apidoc.activeDoc[this.$route.query.id];
-            const matchedContentType = rules.requestMethods.find((val) => val.value === currentTab.tail);
+            const requestMethod = this.$store.state.apidoc.apidocInfo?.item?.method
+            const matchedContentType = rules.requestMethods.find((val) => val.value === requestMethod);
             const enabledContenType = matchedContentType ? matchedContentType.enabledContenType : [];
             return enabledContenType;
         },
@@ -245,29 +245,13 @@ export default {
         },
         //=====================================其他操作=====================================//
         //将json数据转换为参数
-        handleConvertJsonToParams(result, convertType) {
-            if (convertType === "append") {
-                if (this.contentType === "application/json") {
-                    result.forEach((val) => {
-                        this.jsonBody.unshift(val);
-                    })
-                } else if (this.contentType === "application/x-www-form-urlencoded") {
-                    result.forEach((val) => {
-                        this.formUrlBody.unshift(val);
-                    })
-                } else if (this.contentType === "multipart/form-data") {
-                    result.forEach((val) => {
-                        this.formDataBody.unshift(val);
-                    })
-                }
-            } else if (convertType === "override") {
-                if (this.contentType === "application/json") {
-                    this.jsonBody = result;
-                } else if (this.contentType === "application/x-www-form-urlencoded") {
-                    this.formUrlBody = result;
-                } else if (this.contentType === "multipart/form-data") {
-                    this.formDataBody = result;
-                }
+        handleConvertJsonToParams(result) {
+            if (this.contentType === "application/json") {
+                this.jsonBody = result;
+            } else if (this.contentType === "application/x-www-form-urlencoded") {
+                this.formUrlBody = result[0] && result[0].children;
+            } else if (this.contentType === "multipart/form-data") {
+                this.formDataBody = result[0] && result[0].children;
             }
             this.selectChecked();
         },

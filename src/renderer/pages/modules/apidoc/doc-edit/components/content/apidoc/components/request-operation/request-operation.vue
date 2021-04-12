@@ -395,9 +395,12 @@ export default {
         convertQueryToParams() {
             let queryString = this.requestPath.split("?") || "";
             queryString = queryString ? queryString[1] : "";
+            if (!queryString) {
+                return;
+            }
             const queryParams = qs.parse(queryString);
             const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
-            this.$store.commit("apidoc/unshiftQueryParams", params)
+            this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
             const matchedComponent = this.getComponentByName("QUERY_PARAMS");
             matchedComponent.selectChecked();
         },

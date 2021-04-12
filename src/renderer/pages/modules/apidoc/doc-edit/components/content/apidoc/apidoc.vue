@@ -294,8 +294,16 @@ export default {
         addOperateDateForApidoc(resData) {
             const lastItemIsEmpty = (arrData) => {
                 const len = arrData.length;
+                let lastIsEmpty = false;
                 const lastItem = arrData[len - 1];
-                const lastIsEmpty = (!lastItem || lastItem.key !== "" || lastItem.value !== "");
+                const isComplex = lastItem && (lastItem.type === "array" || lastItem.type === "object");
+                if (!lastItem) {
+                    lastIsEmpty = true;
+                } else if (isComplex) {
+                    lastIsEmpty = false;
+                } else if (lastItem.key !== "" || lastItem.value !== "") {
+                    lastIsEmpty = true;
+                }
                 return lastIsEmpty;
             }
             const request = resData.item;
@@ -304,7 +312,10 @@ export default {
                 queryParams.push(this.generateProperty());
             }
             if (lastItemIsEmpty(requestBody)) {
-                requestBody.push(this.generateProperty());
+                const property = this.generateProperty("object");
+                property.key = "根元素";
+                property.children.push(this.generateProperty());
+                requestBody.push(property);
             }
             //添加默认headers
             const defaultHeaders = this.generateDefaultHeaders(resData);
@@ -314,7 +325,10 @@ export default {
             }
             responseParams.forEach((response) => {
                 if (lastItemIsEmpty(response.values)) {
-                    response.values.push(this.generateProperty());
+                    const property = this.generateProperty("object");
+                    property.key = "根元素";
+                    property.children.push(this.generateProperty());
+                    response.values.push(property);
                 }
             })
             //如果无请求server则添加本地上次选择的server
