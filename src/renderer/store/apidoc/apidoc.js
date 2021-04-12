@@ -460,6 +460,7 @@ export default {
                     requestBody,
                 });
                 httpClient.once("response", (response) => {
+                    console.log("返回基本信息", response)
                     context.commit("changeResponseInfo", response);
                 });
                 httpClient.once("error", (err) => {
@@ -479,6 +480,7 @@ export default {
                     });
                 });
                 httpClient.once("end", (result) => {
+                    console.log("返回体", result)
                     context.commit("changeResponseIndex", result);
                     context.commit("changeSendRequestLoading", false);
                     context.commit("changeResponseProcess", {
