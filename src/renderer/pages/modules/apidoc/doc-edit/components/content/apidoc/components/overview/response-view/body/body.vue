@@ -25,6 +25,7 @@
                         </el-dropdown-menu>
                     </el-dropdown>
                     <div v-copy="jsonResponse" class="hover-gray-100 cursor-pointer">复制为json</div>
+                    <div class="ml-3 hover-gray-100 cursor-pointer" @click="handleClearRemoteResponse">清空</div>
                 </div>
             </s-json-view>
             <!-- 其他图片类型 -->
@@ -131,6 +132,9 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
+        currentSelectDoc() { //当前选中的doc
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
     },
     data() {
         return {
@@ -161,6 +165,16 @@ export default {
         //美化html文件
         beautifyHtml(str) {
             return beautify.html(str, { indent_size: 4 })
+        },
+        //清空远端返回
+        handleClearRemoteResponse() {
+            this.$store.commit("apidoc/clearRespons")
+            let remoteResponse = localStorage.getItem("apidoc/remoteResponse") || "{}";
+            remoteResponse = JSON.parse(remoteResponse);
+            if (remoteResponse[this.currentSelectDoc._id]) {
+                delete remoteResponse[this.currentSelectDoc._id];
+            }
+            localStorage.setItem("apidoc/remoteResponse", JSON.stringify(remoteResponse))
         },
         //=====================================其他操作=====================================//
 
