@@ -312,7 +312,7 @@ export default {
                     });
                 }
                 data.value = "";
-                data.children[0] = (this.generateProperty());
+                // data.children.splice(0, 1, this.generateProperty())
                 this.defaultExpandedKeys.push(data._id);
                 this.$set(data, "_valueError", {
                     error: false,
@@ -392,6 +392,7 @@ export default {
             if (file) {
                 file.arrayBuffer().then((res) => {
                     this.$set(data, "_value", res)
+                    this.$set(data, "_name", file.name)
                     data.value = file.type;
                 })
             } else {
@@ -441,6 +442,9 @@ export default {
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
             if (!this.nest) {
                 return type !== "inner";
+            }
+            if (this.nest && dropNode.parent.level === 0) { //只允许有一个根元素
+                return false;
             }
             return true;
         },

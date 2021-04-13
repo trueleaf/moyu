@@ -379,7 +379,8 @@ export default {
                 }
                 const result = this.$helper.recursivePicker(arrData, {
                     condition(item) {
-                        return item.key !== "" || item.value !== "";
+                        const isComplex = item.type === "array" || item.type === "object"
+                        return isComplex || item.key !== "" || item.value !== "";
                     },
                     fields: ["key", "type", "description", "value", "required"],
                 });
