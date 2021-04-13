@@ -15,7 +15,7 @@
                             <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
                         </s-array-view>
                     </s-collapse>
-                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1">
+                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length >= 1">
                         <div slot="title">
                             <span class="mr-2">请求参数(Body)</span>
                             <span class="theme-color">{{ apidocItem.contentType  }}</span>
@@ -28,7 +28,7 @@
                 </s-fieldset>
                 <s-fieldset title="返回参数">
                     <div v-for="(item, index) in apidocItem.responseParams" :key="index">
-                        <s-collapse v-if="item.values.length > 1" :active="index === 0" :key="index" :title="item.title">
+                        <s-collapse v-if="item.values.length >= 1" :active="index === 0" :key="index" :title="item.title">
                             <s-array-view :data="item.values" class="mt-2">
                                 <div v-copy="convertResponseToJson(item)" slot="header" class="copy-json">复制为json</div>
                             </s-array-view>
@@ -120,7 +120,7 @@ export default {
         hasRquestParams() {
             const apidocItem = this.$store.state.apidoc.apidocInfo?.item;
             const hasQueryParams = apidocItem && apidocItem.queryParams && apidocItem.queryParams.length > 1;
-            const hasRequestBody = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length > 1;
+            const hasRequestBody = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length >= 1;
             return hasQueryParams || hasRequestBody;
         },
     },

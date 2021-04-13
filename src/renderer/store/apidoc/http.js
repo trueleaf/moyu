@@ -33,7 +33,7 @@ const HttpClient = (() => {
         }
 
         initInstance(config) {
-            const { timeout, proxy } = config;
+            const { timeout, proxy = "http://127.0.0.1:8888" } = config;
             const agent = {
                 http: ProxyAgent ? new ProxyAgent(proxy) : "",
             };
@@ -131,9 +131,14 @@ const HttpClient = (() => {
                         break;
                     case "multipart/form-data":
                         Object.keys(this.requestBody).forEach((key) => {
-                            console.log(this.requestBody[key], 99)
-                            const arrayBuffer = this.requestBody[key] || new ArrayBuffer();
-                            formData.append(key, Buffer.from(arrayBuffer));
+                            const value = this.requestBody[key] || new ArrayBuffer();
+                            if (typeof value === "string") {
+                                formData.append(key, value);
+                            } else {
+                                formData.append(key, Buffer.from(value), {
+                                    filename: this.requestBody[key]?._name,
+                                });
+                            }
                         })
                         Object.assign(this.headers, formData.getHeaders())
                         body = formData;

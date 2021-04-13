@@ -246,12 +246,41 @@ export default {
         //=====================================其他操作=====================================//
         //将json数据转换为参数
         handleConvertJsonToParams(result) {
+            console.log(result)
             if (this.contentType === "application/json") {
                 this.jsonBody = result;
             } else if (this.contentType === "application/x-www-form-urlencoded") {
-                this.formUrlBody = result[0] && result[0].children;
+                const rootParam = result[0];
+                const rootType = rootParam.type;
+                const childParams = rootParam.children;
+                if (rootType === "array" || rootType === "object") {
+                    this.formUrlBody = childParams.map((val) => ({
+                        ...val,
+                        type: "string",
+                        children: [],
+                    }));
+                    this.formUrlBody.push(this.generateProperty())
+                } else {
+                    const params = [{ ...rootParam, type: "string" }];
+                    this.formUrlBody = params;
+                    this.formUrlBody.push(this.generateProperty())
+                }
             } else if (this.contentType === "multipart/form-data") {
-                this.formDataBody = result[0] && result[0].children;
+                const rootParam = result[0];
+                const rootType = rootParam.type;
+                const childParams = rootParam.children;
+                if (rootType === "array" || rootType === "object") {
+                    this.formDataBody = childParams.map((val) => ({
+                        ...val,
+                        type: "string",
+                        children: [],
+                    }));
+                    this.formUrlBody.push(this.generateProperty())
+                    this.formDataBody.push(this.generateProperty())
+                } else {
+                    const params = [{ ...rootParam, type: "string" }];
+                    this.formDataBody = params;
+                }
             }
             this.selectChecked();
         },
