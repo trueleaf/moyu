@@ -73,7 +73,16 @@
                             @blur="handleCheckValue(scope);enableDrag=true"
                     >
                     </s-v-input>
-                    <input v-if="scope.data.type === 'file'" class="w-25" type="file" @change="handleSelectFile($event, scope.data)">
+                    <div v-if="scope.data.type === 'file'" class="flex0 w-20">
+                        <div class="fake-input" :class="{active: scope.data._name}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
+                            <label v-show="!scope.data._name" for="fileInput" class="label">选择文件</label>
+                            <el-popover v-show="scope.data._name" placement="top-start" trigger="hover" :content="scope.data._path" :open-delay="200">
+                                <s-ellipsis-content slot="reference" :value="scope.data._name" max-width="100%"></s-ellipsis-content>
+                            </el-popover>
+                            <span v-if="scope.data._name" class="close el-icon-close" @click="handleClearSelectType(scope)"></span>
+                        </div>
+                        <input class="d-none" id="fileInput" type="file" @change="handleSelectFile($event, scope.data)">
+                    </div>
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>
@@ -387,17 +396,27 @@ export default {
             }
         },
         //=====================================file操作====================================//
+        //选中文件
         handleSelectFile(e, data) {
             const file = e.target.files[0];
             if (file) {
                 file.arrayBuffer().then((res) => {
                     this.$set(data, "_value", res)
-                    this.$set(data, "_name", file.name)
-                    data.value = file.type;
                 })
+                this.$set(data, "_name", file.name)
+                this.$set(data, "_path", file.path)
+                data.value = file.type;
             } else {
                 data.value = ""
             }
+        },
+        //清空选中的文件
+        handleClearSelectType(scope) {
+            console.log("clear")
+            this.$set(scope.data, "_name", "");
+            this.$set(scope.data, "_path", "");
+            this.$set(scope.data, "_value", "");
+            this.$set(scope.data, "value", "");
         },
         //=====================================其他操作====================================//
         //选中所有数据
@@ -508,6 +527,36 @@ export default {
 <style lang="scss">
 .params-tree {
     overflow-y: auto;
+    .fake-input {
+        cursor: pointer;
+        background: $gray-300;
+        height: size(25);
+        line-height: size(25);
+        text-indent: 1em;
+        width: 80%;
+        position: relative;
+        &.active {
+            background: none;
+            border: 1px solid $gray-300;
+            cursor: auto;
+        }
+        .label {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .close {
+            position: absolute;
+            right: size(3);
+            top: size(4);
+            font-size: fz(16);
+            cursor: pointer;
+            &:hover {
+                color: $red;
+            }
+        }
+    }
     .collapse-transition {
         transition: none;
     }
