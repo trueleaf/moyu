@@ -170,6 +170,7 @@ export default {
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.$event.emit("apidoc/getCacheSuccess");
+                    this.$event.emit("apidoc/changeApiDocInfo");
                     this.broadcast("REQUEST_BODY", "dataReady");
                     const { query, query2, body, body2, header, header2 } = this.$refs;
                     Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
@@ -238,6 +239,7 @@ export default {
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
+                this.$event.emit("apidoc/changeApiDocInfo");
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.broadcast("REQUEST_BODY", "dataReady");
                 const { query, query2, body, body2, header, header2 } = this.$refs;

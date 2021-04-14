@@ -124,7 +124,6 @@ const HttpClient = (() => {
                     body = "";
                 } else {
                     const formData = new FormData();
-                    // eslint-disable-next-line default-case
                     switch (this.contentType) {
                     case "application/json":
                         body = JSON.stringify(this.requestBody);
@@ -143,8 +142,14 @@ const HttpClient = (() => {
                         Object.assign(this.headers, formData.getHeaders())
                         body = formData;
                         break;
-                    case "application/x-www-form-urlencode":
+                    case "application/x-www-form-urlencoded":
                         body = new URLSearchParams(this.requestBody).toString();
+                        break;
+                    case "none":
+                        delete this.headers["content-type"];
+                        break;
+                    default:
+                        delete this.headers["content-type"];
                         break;
                     }
                 }

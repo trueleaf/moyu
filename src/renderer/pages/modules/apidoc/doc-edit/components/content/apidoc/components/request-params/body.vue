@@ -47,7 +47,7 @@
                 <span>保存为模板</span>
             </div>
             <!-- json预览 -->
-            <el-popover v-if="contentType === 'application/json'" placement="right">
+            <el-popover v-if="bodyType === 'application/json'" placement="right">
                 <s-array-view :data="jsonBody" class="w-500px mt-2">
                     <div v-copy="jsonBodyParams" slot="header" class="cursor-pointer">复制为json</div>
                 </s-array-view>
@@ -57,15 +57,17 @@
             </el-popover>
         </div>
         <div class="d-flex a-center j-center py-2">
-            <el-radio-group v-model="contentType">
+            <el-radio-group v-model="bodyType">
                 <el-radio label="application/json" :disabled="!enabledContenType.find((ct) => ct === 'json')">json</el-radio>
                 <el-radio label="multipart/form-data" :disabled="!enabledContenType.find((ct) => ct === 'formData')">form-data</el-radio>
                 <el-radio label="application/x-www-form-urlencoded" :disabled="!enabledContenType.find((ct) => ct === 'x-www-form-urlencoded')">x-www-form-urlencoded</el-radio>
+                <el-radio label="raw">raw</el-radio>
+                <el-radio label="none">none</el-radio>
             </el-radio-group>
         </div>
         <!-- json -->
         <s-params-tree
-            v-show="contentType === 'application/json'"
+            v-show="bodyType === 'application/json'"
             ref="jsonTree"
             :tree-data="jsonBody"
             nest
@@ -75,7 +77,7 @@
         </s-params-tree>
         <!-- form-data -->
         <s-params-tree
-            v-show="contentType === 'multipart/form-data'"
+            v-show="bodyType === 'multipart/form-data'"
             ref="formDataTree"
             :tree-data="formDataBody"
             :nest="false"
@@ -86,7 +88,7 @@
         </s-params-tree>
         <!-- x-www-form-urlencoded -->
         <s-params-tree
-            v-show="contentType === 'application/x-www-form-urlencoded'"
+            v-show="bodyType === 'application/x-www-form-urlencoded'"
             ref="formUrlTree"
             :tree-data="formUrlBody"
             :nest="false"
@@ -94,6 +96,16 @@
             showCheckbox
         >
         </s-params-tree>
+        <div v-if="bodyType === 'raw'" class="raw">
+            <s-code-editor></s-code-editor>
+            <div class="raw-type">
+                <el-select v-model="rawType" size="mini">
+                    <el-option label="text" value="text"></el-option>
+                    <el-option label="html" value="html"></el-option>
+                    <el-option label="xml" value="xml"></el-option>
+                </el-select>
+            </div>
+        </div>
         <!-- 弹窗 -->
         <s-json-schema :visible.sync="dialogVisible" :mind-params="mindParams.requestBody" @success="handleConvertJsonToParams"></s-json-schema>
         <s-params-template :items="requestBody" type="requestBody" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
@@ -116,17 +128,6 @@ export default {
         requestBody() { //请求body
             return this.$store.state.apidoc.apidocInfo?.item?.requestBody;
         },
-        contentType: { //请求contentType类型
-            get() {
-                return this.$store.state.apidoc.apidocInfo?.item?.contentType;
-            },
-            set(val) {
-                this.$refs.jsonTree?.selectChecked();
-                this.$refs.formDataTree?.selectChecked();
-                this.$refs.formUrlTree?.selectChecked();
-                this.$store.commit("apidoc/changeContentType", val);
-            },
-        },
         templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "requestBody");
         },
@@ -145,6 +146,25 @@ export default {
             return enabledContenType;
         },
     },
+    watch: {
+        bodyType: {
+            handler(val) {
+                this.$refs.jsonTree?.selectChecked();
+                this.$refs.formDataTree?.selectChecked();
+                this.$refs.formUrlTree?.selectChecked();
+                if (val === "raw" && this.rawType === "text") {
+                    this.$store.commit("apidoc/changeContentType", "text/plain");
+                } else if (val === "raw" && this.rawType === "html") {
+                    this.$store.commit("apidoc/changeContentType", "text/html");
+                } else if (val === "raw" && this.rawType === "xml") {
+                    this.$store.commit("apidoc/changeContentType", "application/xml");
+                } else if (val !== "") {
+                    this.$store.commit("apidoc/changeContentType", val);
+                }
+            },
+            immediate: true,
+        },
+    },
     data() {
         return {
             usefulPresetParamsList: [], //常用参数模板
@@ -157,18 +177,29 @@ export default {
             jsonWatchFlag: null, //watch标识用于清空数据
             formDataWatchFlag: null, //watch标识用于清空数据
             formUrlWatchFlag: null, //watch标识用于清空数据
+            rawType: "text",
+            bodyType: "",
             //=====================================其他参数====================================//
             dialogVisible: false, //将json转换为请求参数弹窗
             dialogVisible3: false, //保存当前参数为模板
         };
     },
     mounted() {
-        this.$on("dataReady", () => {
+        this.$event.one("apidoc/changeApiDocInfo", () => {
+            const contentType = this.$store.state.apidoc.apidocInfo?.item?.contentType;
+            if (contentType === "application/json") {
+                this.bodyType = "application/json"
+            } else if (contentType === "application/x-www-form-urlencoded") {
+                this.bodyType = "application/x-www-form-urlencoded"
+            } else if (contentType === "multipart/form-data") {
+                this.bodyType = "multipart/form-data"
+            } else if (contentType === "none") {
+                this.bodyType = "none"
+            } else {
+                this.bodyType = "raw"
+            }
             this.initRequestBody();
         });
-        // this.$event.on("apidoc/changeMethod", (method) => {
-        //     console.log(1111, method)
-        // });
     },
     methods: {
         //=====================================初始化&获取远程数据===========================//
@@ -177,15 +208,15 @@ export default {
             this.jsonBody = [];
             this.formDataBody = [];
             this.formUrlBody = [];
-            if (this.contentType === "application/json") {
+            if (this.bodyType === "application/json") {
                 this.jsonBody = this.$helper.cloneDeep(this.requestBody);
                 this.formDataBody = [this.generateProperty()];
                 this.formUrlBody = [this.generateProperty()];
-            } else if (this.contentType === "application/x-www-form-urlencoded") {
+            } else if (this.bodyType === "application/x-www-form-urlencoded") {
                 this.formUrlBody = this.$helper.cloneDeep(this.requestBody);
                 this.jsonBody = [this.generateProperty()];
                 this.formDataBody = [this.generateProperty()];
-            } else if (this.contentType === "multipart/form-data") {
+            } else if (this.bodyType === "multipart/form-data") {
                 this.formDataBody = this.$helper.cloneDeep(this.requestBody);
                 this.jsonBody = [this.generateProperty()];
                 this.formUrlBody = [this.generateProperty()];
@@ -246,10 +277,10 @@ export default {
         //=====================================其他操作=====================================//
         //将json数据转换为参数
         handleConvertJsonToParams(result) {
-            console.log(result)
-            if (this.contentType === "application/json") {
+            // console.log(result)
+            if (this.bodyType === "application/json") {
                 this.jsonBody = result;
-            } else if (this.contentType === "application/x-www-form-urlencoded") {
+            } else if (this.bodyType === "application/x-www-form-urlencoded") {
                 const rootParam = result[0];
                 const rootType = rootParam.type;
                 const childParams = rootParam.children;
@@ -265,7 +296,7 @@ export default {
                     this.formUrlBody = params;
                     this.formUrlBody.push(this.generateProperty())
                 }
-            } else if (this.contentType === "multipart/form-data") {
+            } else if (this.bodyType === "multipart/form-data") {
                 const rootParam = result[0];
                 const rootType = rootParam.type;
                 const childParams = rootParam.children;
@@ -311,11 +342,11 @@ export default {
                     continue;
                 }
                 if (!this.requestBody.find((val) => val.key === element.key)) {
-                    if (this.contentType === "application/json") {
+                    if (this.bodyType === "application/json") {
                         this.jsonBody.unshift(element);
-                    } else if (this.contentType === "application/x-www-form-urlencoded") {
+                    } else if (this.bodyType === "application/x-www-form-urlencoded") {
                         this.formUrlBody.unshift(element);
-                    } else if (this.contentType === "multipart/form-data") {
+                    } else if (this.bodyType === "multipart/form-data") {
                         this.formDataBody.unshift(element);
                     }
                     this.selectChecked()
@@ -355,15 +386,15 @@ export default {
 </script>
 
 <style lang="scss">
-// .body-params {
-//     .operation {
-//         height: size(30);
-//         padding: 0 size(20);
-//         width: 100%;
-//         display: flex;
-//         align-items: center;
-//         justify-content: flex-end;
-//         color: $gray-300;
-//     }
-// }
+.body-params {
+    .raw {
+        height: size(300);
+        position: relative;
+        .raw-type {
+            position: absolute;
+            right: size(5);
+            bottom: size(35);
+        }
+    }
+}
 </style>

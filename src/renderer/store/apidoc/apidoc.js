@@ -9,6 +9,7 @@ import http from "@/api/api";
 import { findNodeById, throttle, uuid } from "@/lib";
 import HttpClient from "./http";
 
+const CONTENT_TYPE = ["content-type", "Content-type", "content-Type", "ContentType", "contentType"];
 const httpClient = new HttpClient();
 const { axios } = http;
 
@@ -253,6 +254,15 @@ export default {
         },
         //改变请求contentType值
         changeContentType(state, payload) {
+            console.log(payload)
+            const matchedHeaderContentType = state.apidocInfo.item.headers.find((val) => CONTENT_TYPE.indexOf(val.key) !== -1)
+            if (matchedHeaderContentType) {
+                if (payload === "none") {
+                    matchedHeaderContentType.value = "";
+                } else {
+                    matchedHeaderContentType.value = payload;
+                }
+            }
             state.apidocInfo.item.contentType = payload;
         },
         //改变response参数
