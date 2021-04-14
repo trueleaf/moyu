@@ -12,6 +12,9 @@
 import ace from "brace";
 import "brace/mode/json";
 import "brace/mode/javascript";
+import "brace/mode/html";
+import "brace/mode/xml";
+import "brace/mode/text";
 import "brace/theme/github";
 
 export default {
