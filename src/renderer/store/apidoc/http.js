@@ -108,7 +108,6 @@ const HttpClient = (() => {
                 delete this.headers[key];
             })
             this.headers["content-type"] = this.contentType; //赋值contentType
-            console.log("发送请求", options);
             if (!options.url.host) {
                 this.emit("error", {
                     message: "服务器地址不能为空，请在Tab导航下方选择",
@@ -145,14 +144,29 @@ const HttpClient = (() => {
                     case "application/x-www-form-urlencoded":
                         body = new URLSearchParams(this.requestBody).toString();
                         break;
+                    case "text/plain":
+                        body = this.requestBody;
+                        break;
+                    case "text/html":
+                        body = this.requestBody;
+                        break;
+                    case "application/xml":
+                        body = this.requestBody;
+                        break;
                     case "none":
                         delete this.headers["content-type"];
                         break;
                     default:
-                        delete this.headers["content-type"];
+                        console.error("未知请求类型", this.contentType);
                         break;
                     }
                 }
+
+                if (!this.requestBody || Object.keys(this.requestBody) === 0) {
+                    delete this.headers["content-type"];
+                }
+
+                console.log("发送请求", options, this.headers, body, this.method);
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,

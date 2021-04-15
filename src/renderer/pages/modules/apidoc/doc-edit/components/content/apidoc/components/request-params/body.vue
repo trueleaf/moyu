@@ -61,7 +61,12 @@
                 <el-radio label="application/json" :disabled="!enabledContenType.find((ct) => ct === 'json')">json</el-radio>
                 <el-radio label="multipart/form-data" :disabled="!enabledContenType.find((ct) => ct === 'formData')">form-data</el-radio>
                 <el-radio label="application/x-www-form-urlencoded" :disabled="!enabledContenType.find((ct) => ct === 'x-www-form-urlencoded')">x-www-form-urlencoded</el-radio>
-                <el-radio label="raw">raw</el-radio>
+                <el-radio
+                    label="raw"
+                    :disabled="!enabledContenType.find((ct) => ct === 'text/plain' || ct === 'text/html' || ct === 'application/xml')"
+                >
+                    raw
+                </el-radio>
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
         </div>
@@ -97,12 +102,12 @@
         >
         </s-params-tree>
         <div v-if="bodyType === 'raw'" class="raw">
-            <s-code-editor></s-code-editor>
+            <s-code-editor ref="editor" @input="handleRawInput" :type="rawType"></s-code-editor>
             <div class="raw-type">
-                <el-select v-model="rawType" size="mini">
-                    <el-option label="text" value="text"></el-option>
-                    <el-option label="html" value="html"></el-option>
-                    <el-option label="xml" value="xml"></el-option>
+                <el-select v-model="rawType" size="mini" @change="handleChangeRawType">
+                    <el-option :disabled="!enabledContenType.find((ct) => ct === 'text/plain')" label="text" value="text"></el-option>
+                    <el-option :disabled="!enabledContenType.find((ct) => ct === 'text/html')" label="html" value="html"></el-option>
+                    <el-option :disabled="!enabledContenType.find((ct) => ct === 'application/xml')" label="xml" value="xml"></el-option>
                 </el-select>
             </div>
         </div>
@@ -145,6 +150,9 @@ export default {
             const enabledContenType = matchedContentType ? matchedContentType.enabledContenType : [];
             return enabledContenType;
         },
+        contentType() {
+            return this.$store.state.apidoc.apidocInfo?.item?.contentType;
+        },
     },
     watch: {
         bodyType: {
@@ -172,14 +180,16 @@ export default {
             jsonBody: [], //application/json
             formDataBody: [], //multipart/form-data
             formUrlBody: [], //application/x-www-form-urlencoded
+            rawBody: "", //raw
             //=====================================其他参数====================================//
             contentTypeWatchFlag: null, //内容区域watch
             jsonWatchFlag: null, //watch标识用于清空数据
             formDataWatchFlag: null, //watch标识用于清空数据
             formUrlWatchFlag: null, //watch标识用于清空数据
-            rawType: "text",
+            rawType: "",
             bodyType: "",
             //=====================================其他参数====================================//
+            debounceFn: null, //节流函数实例
             dialogVisible: false, //将json转换为请求参数弹窗
             dialogVisible3: false, //保存当前参数为模板
         };
@@ -220,10 +230,31 @@ export default {
                 this.formDataBody = this.$helper.cloneDeep(this.requestBody);
                 this.jsonBody = [this.generateProperty()];
                 this.formUrlBody = [this.generateProperty()];
-            } else { //默认按照json进行处理
-                this.jsonBody = this.$helper.cloneDeep(this.requestBody);
+            } else if (this.bodyType === "raw") {
+                const jsonProperty = this.generateProperty("object");
+                jsonProperty.children = [this.generateProperty()];
                 this.formDataBody = [this.generateProperty()];
                 this.formUrlBody = [this.generateProperty()];
+                this.jsonBody = [jsonProperty];
+                this.rawBody = this.requestBody[0].value;
+                this.$nextTick(() => {
+                    this.$refs.editor?.setValue(this.rawBody);
+                })
+                if (this.enabledContenType.find((ct) => ct === "text/plain")) {
+                    this.rawType = "text"
+                } else if (this.enabledContenType.find((ct) => ct === "text/html")) {
+                    this.rawType = "html"
+                } else if (this.enabledContenType.find((ct) => ct === "application/xml")) {
+                    this.rawType = "xml"
+                } else {
+                    this.rawType = "text"
+                }
+            } else {
+                const jsonProperty = this.generateProperty("object");
+                jsonProperty.children = [this.generateProperty()];
+                this.formDataBody = [this.generateProperty()];
+                this.formUrlBody = [this.generateProperty()];
+                this.jsonBody = [jsonProperty];
             }
             this.initWatch();
         },
@@ -257,10 +288,10 @@ export default {
                     this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.formUrlBody));
                 } else if (contentType === "multipart/form-data") {
                     this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.formDataBody));
-                } else { //默认按照json进行处理
-                    this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(this.jsonBody));
+                } else if (this.bodyType === "raw") {
+                    this.$refs.editor.setValue(this.rawBody);
                 }
-            }), {
+            }, 300, true), {
                 deep: true,
             });
         },
@@ -275,9 +306,32 @@ export default {
             })
         },
         //=====================================其他操作=====================================//
+        //改变rawType类型
+        handleChangeRawType() {
+            if (this.rawType === "text") {
+                this.$store.commit("apidoc/changeContentType", "text/plain");
+            } else if (this.rawType === "html") {
+                this.$store.commit("apidoc/changeContentType", "text/html");
+            } else if (this.rawType === "xml") {
+                this.$store.commit("apidoc/changeContentType", "application/xml");
+            }
+        },
+        //raw类型数据输入处理
+        handleRawInput(val) {
+            const property = this.generateProperty();
+            if (!this.debounceFn) {
+                this.debounceFn = this.$helper.debounce((value) => {
+                    property.value = value;
+                    property.key = this.$store.state.apidoc.apidocInfo?.item?.contentType;
+                    property._isRaw = true;
+                    this.$store.commit("apidoc/changeRequestBody", [property]);
+                    this.rawBody = value;
+                })
+            }
+            this.debounceFn(val);
+        },
         //将json数据转换为参数
         handleConvertJsonToParams(result) {
-            // console.log(result)
             if (this.bodyType === "application/json") {
                 this.jsonBody = result;
             } else if (this.bodyType === "application/x-www-form-urlencoded") {

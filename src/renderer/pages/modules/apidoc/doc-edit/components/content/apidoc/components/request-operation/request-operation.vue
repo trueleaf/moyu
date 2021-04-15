@@ -143,6 +143,13 @@ export default {
                 return `${accumulator};${currentCookie}`;
             }, "");
         },
+        enabledContenType() {
+            const rules = this.$store.state.apidocRules;
+            const requestMethod = this.$store.state.apidoc.apidocInfo?.item?.method
+            const matchedContentType = rules.requestMethods.find((val) => val.value === requestMethod);
+            const enabledContenType = matchedContentType ? matchedContentType.enabledContenType : [];
+            return enabledContenType;
+        },
     },
     // watch: {
     //     requestMethod(val) {
@@ -375,7 +382,9 @@ export default {
         //=====================================url操作====================================//
         //删除无效请求字符并且提取查询字符串
         formatUrl() {
-            this.convertQueryToParams();
+            if (this.enabledContenType.indexOf("params") !== -1) {
+                this.convertQueryToParams();
+            }
             const protocolReg = /(\/?https?:\/\/)?/;
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = `/${this.requestPath}`) : "";

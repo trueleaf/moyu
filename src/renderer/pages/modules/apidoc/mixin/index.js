@@ -51,12 +51,18 @@ export default {
          * @return {JSON}            返回JSON字符串
          */
         convertPlainParamsToTreeData(properties, jumpChecked) {
+            // console.log(properties)
             let globalResult = {};
             if (properties && properties[0] && properties[0].type === "array") {
                 globalResult = [];
             }
             const foo = (items, result, parent, level) => {
                 for (let i = 0; i < items.length; i += 1) {
+                    const item = items[i];
+                    if (item._isRaw) {
+                        globalResult = item.value;
+                        return;
+                    }
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
                     const key = items[i].key.trim();
                     const value = this.convertVariable(items[i].value);

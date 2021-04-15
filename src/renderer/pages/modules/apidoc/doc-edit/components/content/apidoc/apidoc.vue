@@ -14,6 +14,7 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap hidden-md">
+                <s-request-path-params ref="path" disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项"></s-request-path-params>
                 <s-request-query-params ref="query" :disabled="!enableQueryParams" disabled-tip="当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项"></s-request-query-params>
                 <s-request-body-params
                     ref="body"
@@ -38,6 +39,7 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import hostManage from "./components/host/host.vue" //---------------------------------请求地址列表
 import requestOperationManage from "./components/request-operation/request-operation.vue" //--------请求操作和url管理
 import requestQueryParams from "./components/request-params/query.vue" //查询字符串
+import requestPathParams from "./components/request-params/path.vue" //path参数
 import requestBodyParams from "./components/request-params/body.vue" //body请求参数
 import resParams from "./components/response-params/response-params.vue" //返回参数
 import headerParams from "./components/header-params/header-params.vue" //请求头
@@ -52,6 +54,7 @@ export default {
     components: {
         "s-host-manage": hostManage,
         "s-request-operation-manage": requestOperationManage,
+        "s-request-path-params": requestPathParams,
         "s-request-query-params": requestQueryParams,
         "s-request-body-params": requestBodyParams,
         "s-response-params": resParams,
@@ -118,6 +121,9 @@ export default {
             }
             const { enabledContenType } = matchedContentType;
             return enabledContenType.find((val) => (val === "json" || val === "form-data" || val === "x-www-form-urlencoded"));
+        },
+        contentType() {
+            return this.$store.state.apidoc.apidocInfo?.item?.contentType;
         },
     },
     data() {
@@ -234,13 +240,12 @@ export default {
                     return;
                 }
                 const resData = res.data;
-                // console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
-                this.$event.emit("apidoc/changeApiDocInfo");
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
+                this.$event.emit("apidoc/changeApiDocInfo");
                 this.broadcast("REQUEST_BODY", "dataReady");
                 const { query, query2, body, body2, header, header2 } = this.$refs;
                 Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
@@ -313,7 +318,7 @@ export default {
             if (lastItemIsEmpty(queryParams)) {
                 queryParams.push(this.generateProperty());
             }
-            if (lastItemIsEmpty(requestBody)) {
+            if (lastItemIsEmpty(requestBody) && this.contentType === "application/json") {
                 const property = this.generateProperty("object");
                 property.key = "根元素";
                 property.children.push(this.generateProperty());
