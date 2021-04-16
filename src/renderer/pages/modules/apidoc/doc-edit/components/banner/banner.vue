@@ -72,7 +72,7 @@
         </div>
         <div class="filter"></div>
         <!-- 树形文档导航 -->
-        <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
+        <s-loading :loading="loading" class="doc-nav">
             <el-tree
                     ref="docTree"
                     class="flex0"
@@ -172,7 +172,7 @@
                 </template>
             </el-tree>
             <div ref="bannerContext" class="context flex1"></div>
-        </div>
+        </s-loading>
         <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
         <!-- 弹窗 -->
         <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :pid="docParentId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>

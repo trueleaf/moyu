@@ -36,7 +36,7 @@
             </s-fieldset>
             <!-- 请求方式 -->
             <s-fieldset title="请求方式配置">
-                <s-collapse-card v-for="(item, index) in copyApiRules.requestMethods" :key="index" :active="false" class="w-100">
+                <s-collapse-card v-for="(item, index) in copyApiRules.requestMethods" :key="index" :fold="true" class="w-100">
                     <span slot="head" :style="{color: item.iconColor}" class="w-130px">
                         <span class="mr-2">{{ item.name }}</span>
                         <span v-if="item.enabled" class="ml-auto green">(已启用)</span>
@@ -59,7 +59,7 @@
                     </s-config>
                     <s-config :has-check="false" label="允许传参方式" description="">
                         <el-checkbox-group v-model="item.enabledContenType">
-                            <el-checkbox v-for="(ct) in copyApiRules.contentType" :key="ct.value" :label="ct.value" :disabled="item.name === 'get'">{{ ct.name }}</el-checkbox>
+                            <el-checkbox v-for="(ct) in copyApiRules.contentType" :key="ct.value" :label="ct.value" :disabled="item.name.toLowerCase() === 'get'">{{ ct.name }}</el-checkbox>
                         </el-checkbox-group>
                     </s-config>
                     <s-config :has-check="false" label="图标颜色" description="">

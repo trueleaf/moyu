@@ -48,14 +48,14 @@
                 <span>保存为模板</span>
             </div>
              <!-- json预览 -->
-            <el-popover ref="jsonView" placement="right">
+            <!-- <el-popover ref="jsonView" placement="right">
                 <s-array-view :data="queryParams" class="w-500px mt-2">
                     <div v-copy="jsonQueryParams" slot="header" class="cursor-pointer">复制为json</div>
                 </s-array-view>
                 <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
-                    <span>JSON预览</span>
+                    <span>预览参数</span>
                 </div>
-            </el-popover>
+            </el-popover> -->
         </div>
         <!-- 参数录入 -->
         <s-params-tree

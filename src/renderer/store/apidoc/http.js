@@ -108,7 +108,6 @@ const HttpClient = (() => {
                 delete this.headers[key];
             })
             this.headers["content-type"] = this.contentType; //赋值contentType
-            console.log("发送请求", options);
             if (!options.url.host) {
                 this.emit("error", {
                     message: "服务器地址不能为空，请在Tab导航下方选择",
@@ -119,30 +118,62 @@ const HttpClient = (() => {
             try {
                 let body = "";
                 const searchParams = new URLSearchParams(this.queryParams).toString();
-                const requestUrl = searchParams ? `${this.url}?${searchParams}` : this.url;
+                const pathParams = this.paths.filter((param) => param.value !== "");
+                const realPath = this.url.replace(/\/{([^}]+)}/g, ($1, $2) => {
+                    const matchedElement = pathParams.find((val) => val.key === $2);
+                    if (matchedElement) {
+                        return `/${matchedElement.value}`;
+                    }
+                    return "";
+                })
+                const requestUrl = searchParams ? `${realPath}?${searchParams}` : realPath;
                 if (this.method === "get") { //GET请求body为空，否则请求将被一直挂起
                     body = "";
                 } else {
                     const formData = new FormData();
-                    // eslint-disable-next-line default-case
                     switch (this.contentType) {
                     case "application/json":
                         body = JSON.stringify(this.requestBody);
                         break;
                     case "multipart/form-data":
                         Object.keys(this.requestBody).forEach((key) => {
-                            console.log(this.requestBody[key], 99)
-                            const arrayBuffer = this.requestBody[key] || new ArrayBuffer();
-                            formData.append(key, Buffer.from(arrayBuffer));
+                            const value = this.requestBody[key] || new ArrayBuffer();
+                            if (typeof value === "string") {
+                                formData.append(key, value);
+                            } else {
+                                formData.append(key, Buffer.from(value), {
+                                    filename: this.requestBody[key]?._name,
+                                });
+                            }
                         })
                         Object.assign(this.headers, formData.getHeaders())
                         body = formData;
                         break;
-                    case "application/x-www-form-urlencode":
+                    case "application/x-www-form-urlencoded":
                         body = new URLSearchParams(this.requestBody).toString();
+                        break;
+                    case "text/plain":
+                        body = this.requestBody;
+                        break;
+                    case "text/html":
+                        body = this.requestBody;
+                        break;
+                    case "application/xml":
+                        body = this.requestBody;
+                        break;
+                    case "none":
+                        delete this.headers["content-type"];
+                        break;
+                    default:
+                        console.error("未知请求类型", this.contentType);
                         break;
                     }
                 }
+                if (!this.requestBody || Object.keys(this.requestBody).length === 0) {
+                    delete this.headers["content-type"];
+                }
+
+                console.log("发送请求", options, this.headers, body, this.method);
                 this.instance = this.gotInstance(requestUrl, {
                     isStream: true,
                     method: this.method,

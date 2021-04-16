@@ -12,6 +12,9 @@
 import ace from "brace";
 import "brace/mode/json";
 import "brace/mode/javascript";
+import "brace/mode/html";
+import "brace/mode/xml";
+import "brace/mode/text";
 import "brace/theme/github";
 
 export default {
@@ -20,30 +23,48 @@ export default {
             type: String,
             default: "javascript",
         },
+        value: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
-
+            editorInstance: null,
         };
+    },
+    watch: {
+        type: {
+            handler() {
+                if (this.editorInstance) {
+                    this.editorInstance.getSession().setMode(`ace/mode/${this.type}`);
+                }
+            },
+            immediate: true,
+        },
     },
     mounted() {
         this.initEditor();
     },
     methods: {
         initEditor() {
-            const editor = ace.edit(this.$el);
-            editor.getSession().setMode(`ace/mode/${this.type}`);
-            editor.setTheme("ace/theme/github");
-            editor.setOptions({
+            this.editorInstance = ace.edit(this.$el);
+            this.editorInstance.getSession().setMode(`ace/mode/${this.type}`);
+            this.editorInstance.setTheme("ace/theme/github");
+            this.editorInstance.setOptions({
                 // enableBasicAutocompletion: true,
                 // enableSnippets: true,
                 // enableLiveAutocompletion: false
             });
-            editor.on("change", () => {
-                const content = editor.getValue();
+            this.editorInstance.on("change", () => {
+                const content = this.editorInstance.getValue();
                 this.$emit("input", content);
             });
-            this.$emit("ready", editor);
+            this.$emit("ready", this.editorInstance);
+        },
+        setValue(value) {
+            this.editorInstance?.setValue(value);
+            this.editorInstance?.clearSelection();
         },
     },
 };

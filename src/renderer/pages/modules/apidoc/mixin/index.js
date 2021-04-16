@@ -51,21 +51,27 @@ export default {
          * @return {JSON}            返回JSON字符串
          */
         convertPlainParamsToTreeData(properties, jumpChecked) {
-            const result = {};
-            const parent = {};
-            /* eslint-disable no-shadow */
-            /* eslint-disable no-param-reassign */
-            const foo = (properties, result, parent) => {
-                for (let i = 0; i < properties.length; i += 1) {
-                    // const isSimpleType = ((properties[i].type === "string") || (properties[i].type === "boolean") || (properties[i].type === "number"));
+            // console.log(properties)
+            let globalResult = {};
+            if (properties && properties[0] && properties[0].type === "array") {
+                globalResult = [];
+            }
+            const foo = (items, result, parent, level) => {
+                for (let i = 0; i < items.length; i += 1) {
+                    const item = items[i];
+                    if (item._isRaw) {
+                        globalResult = item.value;
+                        return;
+                    }
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                    const key = properties[i].key.trim();
-                    const value = this.convertVariable(properties[i].value);
-                    const { type } = properties[i]; // object,array,file
+                    const key = items[i].key.trim();
+                    const value = this.convertVariable(items[i].value);
+                    const { type } = items[i]; // object,array,file
                     const valueTypeIsArray = Array.isArray(result);
                     const isComplex = (type === "object" || type === "array" || type === "file");
+                    //============================================================================//
                     let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-                    if (jumpChecked && !properties[i]._select) { //过滤掉_select属性为false的值
+                    if (jumpChecked && !items[i]._select) { //过滤掉_select属性为false的值
                         continue;
                     }
                     if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
@@ -74,38 +80,50 @@ export default {
                     if (isParentArray && !isComplex && key === "" && value === "") { //父元素为数组子元素为简单类型
                         continue
                     }
-                    switch (type) {
-                    case "number": //数字类型需要转换为数字，转换前所有值都为字符串
+                    //=========================================================================//
+                    if (type === "number") { //数字类型需要转换为数字，转换前所有值都为字符串
                         valueTypeIsArray ? result.push(Number(value)) : result[key] = Number(value);
-                        break;
-                    case "boolean": //布尔值处理
+                    } else if (type === "boolean") {
                         valueTypeIsArray ? result.push(result[key] = (value === "true")) : (result[key] = (value === "true"));
-                        break;
-                    case "object":
-                        valueTypeIsArray ? (arrTypeResultLength = result.push({})) : (result[key] = {});
-                        if (properties[i].children && properties[i].children.length > 0) {
-                            parent = properties[i];
-                            foo(properties[i].children, valueTypeIsArray ? (result[arrTypeResultLength - 1]) : result[key], parent);
+                    } else if (type === "object") {
+                        const { children } = items[i];
+                        if (valueTypeIsArray) {
+                            arrTypeResultLength = result.push({});
+                        } else if (level !== 1) {
+                            result[key] = {};
                         }
-                        break;
-                    case "array":
+                        if (children && children.length > 0) {
+                            if (valueTypeIsArray) {
+                                foo(children, result[arrTypeResultLength - 1], items[i], level + 1);
+                            } else if (level === 1) {
+                                foo(children, result, items[i], level + 1);
+                            } else {
+                                foo(children, result[key], items[i], level + 1);
+                            }
+                        }
+                    } else if (type === "array") {
+                        const { children } = items[i];
                         result[key] = [];
-                        if (properties[i].children && properties[i].children.length > 0) {
-                            parent = properties[i];
-                            foo(properties[i].children, result[key], parent);
+                        if (children && children.length > 0) {
+                            if (level === 1) {
+                                foo(children, result, items[i], level + 1);
+                            } else {
+                                foo(children, result[key], items[i], level + 1);
+                            }
                         }
-                        break;
-                    case "file":
-                        result[key] = properties[i]._value;
-                        break;
-                    default: //字符串或其他类型类型不做处理
+                    } else if (type === "file") {
+                        result[key] = items[i]._value;
+                        if (result[key]) {
+                            const proto = Object.getPrototypeOf(result[key]);
+                            proto._name = items[i]._name;
+                        }
+                    } else { //字符串或其他类型类型不做处理
                         valueTypeIsArray ? result.push(value) : (result[key] = value);
-                        break;
                     }
                 }
             }
-            foo(properties, result, parent);
-            return result;
+            foo(properties, globalResult, {}, 1);
+            return globalResult;
         },
 
         /**
@@ -118,50 +136,59 @@ export default {
          */
         convertTreeDataToPlainParams(jsonData, mindParams) {
             if (!Array.isArray(mindParams)) {
+                // eslint-disable-next-line no-param-reassign
                 mindParams = [];
             }
-            const result = [];
-            const foo = (obj, result) => {
-                if (this.getType(obj) === "object") {
-                    Object.keys(obj).forEach((i) => {
-                        const valueType = this.getType(obj[i]);
-                        const matchedVal = mindParams?.find((val) => val.key === i);
-                        const description = matchedVal ? matchedVal.description : ""
-                        if (valueType === "string" || valueType === "number" || valueType === "boolean") {
-                            const property = this.generateProperty(valueType);
-                            property.key = i;
-                            property.value = obj[i] == null ? "null" : obj[i].toString();
-                            property.description = description;
-                            result.push(property)
-                        } else if (valueType === "object") {
-                            const property = this.generateProperty(valueType);
-                            property.key = i;
-                            property.description = description;
-                            result.push(property)
-                            foo(obj[i], property.children);
-                        } else if (valueType === "array") {
-                            const property = this.generateProperty(valueType);
-                            property.key = i;
-                            property.description = description;
-                            result.push(property);
-                            if (this.getType(obj[i][0]) === "object") {
-                                const property2 = this.generateProperty("object");
-                                property2.description = description;
-                                property.children.push(property2)
-                                foo(obj[i][0], property.children[0].children);
-                            } else {
-                                foo(obj[i][0], property.children);
+            const globalResult = [];
+            const rootType = this.getType(jsonData);
+            if (rootType === "object" || rootType === "array") {
+                const rootProperty = this.generateProperty(rootType);
+                globalResult.push(rootProperty);
+                const foo = (obj, result, deep) => {
+                    if (this.getType(obj) === "object") {
+                        Object.keys(obj).forEach((i) => {
+                            const valueType = this.getType(obj[i]);
+                            const matchedVal = mindParams?.find((val) => val.key === i);
+                            const description = matchedVal ? matchedVal.description : ""
+                            if (valueType === "string" || valueType === "number" || valueType === "boolean") {
+                                const property = this.generateProperty(valueType);
+                                property.key = i;
+                                property.value = obj[i] == null ? "null" : obj[i].toString();
+                                property.description = description;
+                                result.push(property);
+                            } else if (valueType === "object") {
+                                const property = this.generateProperty(valueType);
+                                property.key = i;
+                                property.description = description;
+                                result.push(property);
+                                foo(obj[i], property.children, deep + 1);
+                            } else if (valueType === "array") {
+                                const property = this.generateProperty(valueType);
+                                property.key = i;
+                                property.description = description;
+                                result.push(property);
+                                if (this.getType(obj[i][0]) === "object") {
+                                    const property2 = this.generateProperty("object");
+                                    property2.description = description;
+                                    property.children.push(property2)
+                                    foo(obj[i][0], property.children[0].children, deep + 1);
+                                } else {
+                                    foo(obj[i][0], property.children, deep + 1);
+                                }
                             }
-                        }
-                    });
-                } else {
-                    const valueType = this.getType(obj);
-                    const property = this.generateProperty(valueType);
-                    result.push(property)
+                        });
+                    } else {
+                        const valueType = this.getType(obj);
+                        const property = this.generateProperty(valueType);
+                        result.push(property)
+                    }
                 }
+                foo(jsonData, rootProperty.children, 1);
+            } else {
+                const rootProperty = this.generateProperty(rootType);
+                globalResult.push(rootProperty);
             }
-            foo(jsonData, result);
-            return result;
+            return globalResult;
         },
 
         /**

@@ -5,8 +5,9 @@
     备注：
 */
 <template>
-    <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)">
+    <div v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" class="s-loading">
         <slot />
+        <div v-show="loading" class="loading-text">{{ loadingText }}</div>
     </div>
 </template>
 
@@ -18,15 +19,19 @@ export default {
             default: false,
         },
     },
+    watch: {
+        loading: {
+            handler(val) {
+                if (val) {
+                    this.loadingText = this.randomTip()
+                }
+            },
+            immediate: true,
+        },
+    },
     data() {
         return {
-            //=================================表单与表格参数================================//
-
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
-            //===================================其他参数====================================//
+            loadingText: "",
         };
     },
     created() {
@@ -46,5 +51,16 @@ export default {
 </script>
 
 <style lang="scss">
-
+.s-loading {
+    .loading-text {
+        position: absolute;
+        top: 60%;
+        z-index: $zIndex-loading-text;
+        font-size: fz(16);
+        color: $theme-color;
+        width: 100%;
+        padding: 0 1em;
+        text-align: center;
+    }
+}
 </style>

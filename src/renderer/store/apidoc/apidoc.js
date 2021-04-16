@@ -9,6 +9,7 @@ import http from "@/api/api";
 import { findNodeById, throttle, uuid } from "@/lib";
 import HttpClient from "./http";
 
+const CONTENT_TYPE = ["content-type", "Content-type", "content-Type", "ContentType", "contentType"];
 const httpClient = new HttpClient();
 const { axios } = http;
 
@@ -233,6 +234,10 @@ export default {
                 state.apidocInfo.item.queryParams.unshift(payload);
             }
         },
+        //改变Path参数
+        changePathParams(state, payload) {
+            state.apidocInfo.item.paths = payload;
+        },
         //改变requestBody
         changeRequestBody(state, payload) {
             state.apidocInfo.item.requestBody = payload;
@@ -253,6 +258,14 @@ export default {
         },
         //改变请求contentType值
         changeContentType(state, payload) {
+            const matchedHeaderContentType = state.apidocInfo.item.headers.find((val) => CONTENT_TYPE.indexOf(val.key) !== -1)
+            if (matchedHeaderContentType) {
+                if (payload === "none") {
+                    matchedHeaderContentType.value = "";
+                } else {
+                    matchedHeaderContentType.value = payload;
+                }
+            }
             state.apidocInfo.item.contentType = payload;
         },
         //改变response参数
@@ -460,6 +473,7 @@ export default {
                     requestBody,
                 });
                 httpClient.once("response", (response) => {
+                    console.log("返回基本信息", response)
                     context.commit("changeResponseInfo", response);
                 });
                 httpClient.once("error", (err) => {
@@ -479,6 +493,7 @@ export default {
                     });
                 });
                 httpClient.once("end", (result) => {
+                    console.log("返回体", result)
                     context.commit("changeResponseIndex", result);
                     context.commit("changeSendRequestLoading", false);
                     context.commit("changeResponseProcess", {

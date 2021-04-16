@@ -25,7 +25,7 @@ export default {
         },
         type: { //保存模板类型(请求模板，返回模板)
             validator(value) {
-                return ["queryParams", "requestBody", "responseParams"].indexOf(value) !== -1;
+                return ["pathParams", "queryParams", "requestBody", "responseParams"].indexOf(value) !== -1;
             },
         },
         items: {

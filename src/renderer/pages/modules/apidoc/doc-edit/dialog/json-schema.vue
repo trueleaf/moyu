@@ -6,10 +6,10 @@
 */
 <template>
     <s-dialog title="数据转换" :isShow="visible" @close="closeModel">
-        <el-radio-group v-model="convertType">
+        <!-- <el-radio-group v-model="convertType">
             <el-radio label="append">追加</el-radio>
             <el-radio label="override">替换</el-radio>
-        </el-radio-group>
+        </el-radio-group> -->
         <div class="d-flex j-end">
             <el-button type="text" @click="formatJSON">格式化JSON</el-button>
         </div>
@@ -74,9 +74,9 @@ export default {
         addNewParams() {
             try {
                 const convertResult = this.convertTreeDataToPlainParams(json5.parse(this.jsonParams), this.mindParams);
-                if (this.convertType === "override") {
-                    convertResult.push(this.generateProperty()); //粘贴json默认多追加一行参数
-                }
+                // if (this.convertType === "override") {
+                //     convertResult.push(this.generateProperty()); //粘贴json默认多追加一行参数
+                // }
                 this.$emit("success", convertResult, this.convertType);
                 this.closeModel();
             } catch (e) {

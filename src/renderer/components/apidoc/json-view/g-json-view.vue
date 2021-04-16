@@ -454,7 +454,7 @@ export default {
                 vertical-align: top;
             }
             .colon {
-                vertical-align: top;
+                // vertical-align: top;
             }
             .colon, .bracket, .comma, .curly-brace {
                 color: #ccc;

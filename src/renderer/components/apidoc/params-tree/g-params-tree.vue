@@ -22,9 +22,17 @@
             <template slot-scope="scope">
                 <div class="custom-tree-node">
                     <!-- 新增嵌套数据按钮 -->
-                    <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="scope.data._readOnly || !nest" @click="addNestTreeData(scope.data)"></el-button>
+                    <el-button
+                            v-if="!disableAdd"
+                            type="text"
+                            :title="addNestTip"
+                            icon="el-icon-plus"
+                            :disabled="scope.data.readOnly || !nest"
+                            @click="addNestTreeData(scope.data)">
+                     </el-button>
                     <!-- 删除一行数据按钮 -->
                     <el-button
+                            v-if="!disableDelete"
                             class="mr-2"
                             :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
                             :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
@@ -35,12 +43,13 @@
                     <!-- 参数key值输入框 -->
                     <div class="w-20 mr-2 d-flex a-center">
                         <s-v-input
+                                v-if="!readonlyKey"
                                 v-model="scope.data.key"
                                 size="mini"
                                 :error="scope.data._keyError"
-                                :disabled="scope.data._readOnly || scope.node.parent.data.type === 'array'"
-                                :title="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : ''}`"
-                                :placeholder="`${scope.node.parent.data.type === 'array' ?  '父元素为数组不必填写参数名称' : '参数名称，例如：age name'}`"
+                                :disabled="checkInputDisable(scope)"
+                                :title="convertPlaceholder(scope)"
+                                :placeholder="convertPlaceholder(scope)"
                                 :mind-params="mindParams"
                                 remote
                                 @mindParamsSelect="(val) => { covertMindParamsToRealParasm(scope.data, val) }"
@@ -49,9 +58,10 @@
                                 @blur="handleCheckKeyField(scope);enableDrag=true"
                         >
                         </s-v-input>
+                        <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
                     </div>
                     <!-- 请求参数类型 -->
-                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope.data)">
+                    <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope)">
                         <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
                         <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
@@ -68,12 +78,21 @@
                             size="mini"
                             :error="scope.data._valueError"
                             class="w-25 mr-2"
-                            :placeholder="`${scope.data._valuePlaceholder || '参数值,例如：20 张三'}`"
+                            :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
                             @focus="enableDrag = false"
                             @blur="handleCheckValue(scope);enableDrag=true"
                     >
                     </s-v-input>
-                    <input v-if="scope.data.type === 'file'" class="w-25" type="file" @change="handleSelectFile($event, scope.data)">
+                    <div v-if="scope.data.type === 'file'" class="flex0 w-20">
+                        <div class="fake-input" :class="{active: scope.data._name}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
+                            <label v-show="!scope.data._name" for="fileInput" class="label">选择文件</label>
+                            <el-popover v-show="scope.data._name" placement="top-start" trigger="hover" :content="scope.data._path" :open-delay="200">
+                                <s-ellipsis-content slot="reference" :value="scope.data._name" max-width="100%"></s-ellipsis-content>
+                            </el-popover>
+                            <span v-if="scope.data._name" class="close el-icon-close" @click="handleClearSelectType(scope)"></span>
+                        </div>
+                        <input class="d-none" id="fileInput" type="file" @change="handleSelectFile($event, scope.data)">
+                    </div>
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
                         <el-option label="false" value="false"></el-option>
@@ -131,6 +150,18 @@ export default {
             default: false,
         },
         enableFormData: { //是否允许formData
+            type: Boolean,
+            default: false,
+        },
+        readonlyKey: { //key只读
+            type: Boolean,
+            default: false,
+        },
+        disableAdd: { //禁止新增
+            type: Boolean,
+            default: false,
+        },
+        disableDelete: { //禁止删除
             type: Boolean,
             default: false,
         },
@@ -225,6 +256,9 @@ export default {
         },
         //新增一行
         addNewLine({ node, data }) {
+            if (node.level === 1 && this.nest) {
+                return;
+            }
             if (data.key && data.key.trim() !== "") {
                 const parentNode = node.parent;
                 const parentData = node.parent.data;
@@ -259,9 +293,28 @@ export default {
                 }
             }
         },
+        //检查输入框是否disable
+        checkInputDisable(scope) {
+            const isComplex = scope.node.data.type === "object" || scope.node.data.type === "array"
+            const isReadOnly = scope.data._readOnly;
+            const parentIsArray = scope.node.parent.data.type === "array";
+            const isRootObject = this.nest && scope.node.level === 1 && isComplex;
+            return isReadOnly || parentIsArray || isRootObject;
+        },
+        //转换placeholder
+        convertPlaceholder({ node }) {
+            const isComplex = node.data.type === "array" || node.data.type === "object";
+            if (node.level === 1 && isComplex) {
+                return "根元素";
+            }
+            if (node.parent.data.type === "array") {
+                return "父元素为数组不必填写参数名称";
+            }
+            return "参数名称"
+        },
         //=====================================type操作====================================//
         //改变请求参数类型
-        handleChangeParamsType(data) {
+        handleChangeParamsType({ data }) {
             if (data.type === "boolean") {
                 data.value = "true";
             }
@@ -290,6 +343,8 @@ export default {
                     });
                 }
                 data.value = "";
+                // data.children.splice(0, 1, this.generateProperty())
+                this.defaultExpandedKeys.push(data._id);
                 this.$set(data, "_valueError", {
                     error: false,
                 });
@@ -363,16 +418,27 @@ export default {
             }
         },
         //=====================================file操作====================================//
+        //选中文件
         handleSelectFile(e, data) {
             const file = e.target.files[0];
             if (file) {
                 file.arrayBuffer().then((res) => {
                     this.$set(data, "_value", res)
-                    data.value = file.type;
                 })
+                this.$set(data, "_name", file.name)
+                this.$set(data, "_path", file.path)
+                data.value = file.type;
             } else {
                 data.value = ""
             }
+        },
+        //清空选中的文件
+        handleClearSelectType(scope) {
+            console.log("clear")
+            this.$set(scope.data, "_name", "");
+            this.$set(scope.data, "_path", "");
+            this.$set(scope.data, "_value", "");
+            this.$set(scope.data, "value", "");
         },
         //=====================================其他操作====================================//
         //选中所有数据
@@ -417,6 +483,9 @@ export default {
         handleCheckNodeCouldDrop(draggingNode, dropNode, type) {
             if (!this.nest) {
                 return type !== "inner";
+            }
+            if (this.nest && dropNode.parent.level === 0) { //只允许有一个根元素
+                return false;
             }
             return true;
         },
@@ -480,6 +549,45 @@ export default {
 <style lang="scss">
 .params-tree {
     overflow-y: auto;
+    .fake-input {
+        cursor: pointer;
+        background: $gray-300;
+        height: size(25);
+        line-height: size(25);
+        text-indent: 1em;
+        width: 80%;
+        position: relative;
+        &.active {
+            background: none;
+            border: 1px solid $gray-300;
+            cursor: auto;
+        }
+        .label {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .close {
+            position: absolute;
+            right: size(3);
+            top: size(4);
+            font-size: fz(16);
+            cursor: pointer;
+            &:hover {
+                color: $red;
+            }
+        }
+    }
+    .readonly-key {
+        height: size(25);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid $gray-300;
+        cursor: text;
+        text-indent: 1em;
+    }
     .collapse-transition {
         transition: none;
     }

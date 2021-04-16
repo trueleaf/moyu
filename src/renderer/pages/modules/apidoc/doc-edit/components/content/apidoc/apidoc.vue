@@ -14,6 +14,11 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap hidden-md">
+                <s-request-path-params
+                    v-if="apidocInfo.item && apidocInfo.item.paths && apidocInfo.item.paths.length > 0"
+                    ref="path"
+                    disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项">
+                </s-request-path-params>
                 <s-request-query-params ref="query" :disabled="!enableQueryParams" disabled-tip="当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项"></s-request-query-params>
                 <s-request-body-params
                     ref="body"
@@ -38,6 +43,7 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import hostManage from "./components/host/host.vue" //---------------------------------请求地址列表
 import requestOperationManage from "./components/request-operation/request-operation.vue" //--------请求操作和url管理
 import requestQueryParams from "./components/request-params/query.vue" //查询字符串
+import requestPathParams from "./components/request-params/path.vue" //path参数
 import requestBodyParams from "./components/request-params/body.vue" //body请求参数
 import resParams from "./components/response-params/response-params.vue" //返回参数
 import headerParams from "./components/header-params/header-params.vue" //请求头
@@ -52,6 +58,7 @@ export default {
     components: {
         "s-host-manage": hostManage,
         "s-request-operation-manage": requestOperationManage,
+        "s-request-path-params": requestPathParams,
         "s-request-query-params": requestQueryParams,
         "s-request-body-params": requestBodyParams,
         "s-response-params": resParams,
@@ -119,6 +126,9 @@ export default {
             const { enabledContenType } = matchedContentType;
             return enabledContenType.find((val) => (val === "json" || val === "form-data" || val === "x-www-form-urlencoded"));
         },
+        contentType() {
+            return this.$store.state.apidoc.apidocInfo?.item?.contentType;
+        },
     },
     data() {
         return {
@@ -170,9 +180,10 @@ export default {
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.$event.emit("apidoc/getCacheSuccess");
+                    this.$event.emit("apidoc/changeApiDocInfo");
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    const { query, query2, body, body2, header, header2 } = this.$refs;
-                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
+                    const { query, body, header } = this.$refs;
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -233,15 +244,15 @@ export default {
                     return;
                 }
                 const resData = res.data;
-                // console.log(resData)
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
                 const originApidocInfo = JSON.parse(JSON.stringify(resData));
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
+                this.$event.emit("apidoc/changeApiDocInfo");
                 this.broadcast("REQUEST_BODY", "dataReady");
-                const { query, query2, body, body2, header, header2 } = this.$refs;
-                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
+                const { query, body, header } = this.$refs;
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比
@@ -294,8 +305,16 @@ export default {
         addOperateDateForApidoc(resData) {
             const lastItemIsEmpty = (arrData) => {
                 const len = arrData.length;
+                let lastIsEmpty = false;
                 const lastItem = arrData[len - 1];
-                const lastIsEmpty = (!lastItem || lastItem.key !== "" || lastItem.value !== "");
+                const isComplex = lastItem && (lastItem.type === "array" || lastItem.type === "object");
+                if (!lastItem) {
+                    lastIsEmpty = true;
+                } else if (isComplex) {
+                    lastIsEmpty = false;
+                } else if (lastItem.key !== "" || lastItem.value !== "") {
+                    lastIsEmpty = true;
+                }
                 return lastIsEmpty;
             }
             const request = resData.item;
@@ -303,8 +322,11 @@ export default {
             if (lastItemIsEmpty(queryParams)) {
                 queryParams.push(this.generateProperty());
             }
-            if (lastItemIsEmpty(requestBody)) {
-                requestBody.push(this.generateProperty());
+            if (lastItemIsEmpty(requestBody) && this.contentType === "application/json") {
+                const property = this.generateProperty("object");
+                property.key = "根元素";
+                property.children.push(this.generateProperty());
+                requestBody.push(property);
             }
             //添加默认headers
             const defaultHeaders = this.generateDefaultHeaders(resData);
@@ -314,7 +336,10 @@ export default {
             }
             responseParams.forEach((response) => {
                 if (lastItemIsEmpty(response.values)) {
-                    response.values.push(this.generateProperty());
+                    const property = this.generateProperty("object");
+                    property.key = "根元素";
+                    property.children.push(this.generateProperty());
+                    response.values.push(property);
                 }
             })
             //如果无请求server则添加本地上次选择的server
@@ -365,7 +390,8 @@ export default {
                 }
                 const result = this.$helper.recursivePicker(arrData, {
                     condition(item) {
-                        return item.key !== "" || item.value !== "";
+                        const isComplex = item.type === "array" || item.type === "object"
+                        return isComplex || item.key !== "" || item.value !== "";
                     },
                     fields: ["key", "type", "description", "value", "required"],
                 });
