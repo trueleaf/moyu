@@ -76,7 +76,7 @@
                         <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="cursor-pointer">复制为json</div>
                     </s-array-view>
                     <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
-                        <span>JSON预览</span>
+                        <span>预览参数</span>
                     </div>
                 </el-popover>
             </div>
