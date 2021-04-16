@@ -22,9 +22,17 @@
             <template slot-scope="scope">
                 <div class="custom-tree-node">
                     <!-- 新增嵌套数据按钮 -->
-                    <el-button type="text" :title="addNestTip" icon="el-icon-plus" :disabled="scope.data._readOnly || !nest" @click="addNestTreeData(scope.data)"></el-button>
+                    <el-button
+                            v-if="!disableAdd"
+                            type="text"
+                            :title="addNestTip"
+                            icon="el-icon-plus"
+                            :disabled="scope.data.readOnly || !nest"
+                            @click="addNestTreeData(scope.data)">
+                     </el-button>
                     <!-- 删除一行数据按钮 -->
                     <el-button
+                            v-if="!disableDelete"
                             class="mr-2"
                             :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
                             :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
@@ -35,6 +43,7 @@
                     <!-- 参数key值输入框 -->
                     <div class="w-20 mr-2 d-flex a-center">
                         <s-v-input
+                                v-if="!readonlyKey"
                                 v-model="scope.data.key"
                                 size="mini"
                                 :error="scope.data._keyError"
@@ -49,6 +58,7 @@
                                 @blur="handleCheckKeyField(scope);enableDrag=true"
                         >
                         </s-v-input>
+                        <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
                     </div>
                     <!-- 请求参数类型 -->
                     <el-select v-model="scope.data.type" :disabled="scope.data._readOnly || (!nest && !enableFormData)" :title="disableTypeTip" placeholder="类型" size="mini" class="mr-2" @change="handleChangeParamsType(scope)">
@@ -140,6 +150,18 @@ export default {
             default: false,
         },
         enableFormData: { //是否允许formData
+            type: Boolean,
+            default: false,
+        },
+        readonlyKey: { //key只读
+            type: Boolean,
+            default: false,
+        },
+        disableAdd: { //禁止新增
+            type: Boolean,
+            default: false,
+        },
+        disableDelete: { //禁止删除
             type: Boolean,
             default: false,
         },
@@ -277,7 +299,7 @@ export default {
             const isReadOnly = scope.data._readOnly;
             const parentIsArray = scope.node.parent.data.type === "array";
             const isRootObject = this.nest && scope.node.level === 1 && isComplex;
-            return isReadOnly || parentIsArray || isRootObject
+            return isReadOnly || parentIsArray || isRootObject;
         },
         //转换placeholder
         convertPlaceholder({ node }) {
@@ -556,6 +578,15 @@ export default {
                 color: $red;
             }
         }
+    }
+    .readonly-key {
+        height: size(25);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid $gray-300;
+        cursor: text;
+        text-indent: 1em;
     }
     .collapse-transition {
         transition: none;

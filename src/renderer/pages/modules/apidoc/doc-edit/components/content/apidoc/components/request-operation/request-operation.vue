@@ -13,6 +13,7 @@
                     placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
                     :error="urlError"
                     size="small"
+                    @input="handlePickPathParams"
                     @blur="formatUrl"
                     @keyup.enter.native.stop="formatUrl"
             >
@@ -95,8 +96,11 @@ export default {
         },
         fullUrl() {
             const apidoc = this.$store.state.apidoc.apidocInfo;
-            const url = apidoc?.item?.url || {};
+            const url = apidoc?.item?.url || {
+                path: "",
+            };
             const queryParams = apidoc?.item?.queryParams || [];
+            const paths = apidoc?.item?.paths || [];
             let queryStr = "";
             queryParams.map((val) => {
                 if (val.key && val._select) {
@@ -106,7 +110,15 @@ export default {
             })
             queryStr = queryStr.replace(/&/, "");
             queryStr = `${queryStr ? "?" : ""}${queryStr}`;
-            return url.host + url.path + queryStr;
+            const pathParams = paths.filter((param) => param.value !== "");
+            const realPath = url.path.replace(/\/{([^}]+)}/g, ($1, $2) => {
+                const matchedElement = pathParams.find((val) => val.key === $2);
+                if (matchedElement) {
+                    return `/${matchedElement.value}`;
+                }
+                return "";
+            })
+            return url.host + realPath + queryStr;
         },
         host() {
             return this.$store.state.apidoc.apidocInfo?.item?.url.host;
@@ -181,7 +193,7 @@ export default {
         //发送请求
         sendRequest() {
             this.$event.emit("apidoc/sendRequest");
-            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths, true);
+            const { paths } = this.apidocInfo.item;
             const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams, true);
             const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody, true);
             const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers, true);
@@ -389,6 +401,7 @@ export default {
             this.requestPath = this.requestPath.replace(protocolReg, ""); //去除掉协议
             this.requestPath.startsWith(",") ? (this.requestPath = `/${this.requestPath}`) : "";
             const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
+            //路径处理
             const matchedPath = this.requestPath.match(pathReg);
             if (matchedPath) {
                 this.requestPath = matchedPath[0];
@@ -399,6 +412,26 @@ export default {
             }
             const queryReg = /\?.*/;
             this.requestPath = this.requestPath.replace(queryReg, "")
+        },
+        //根据url获取path参数
+        handlePickPathParams() {
+            //path参数处理
+            if (this.enabledContenType.indexOf("path") === -1) {
+                return;
+            }
+            const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
+            let matchedPathParams = this.requestPath.match(pathParamsReg);
+            if (matchedPathParams) {
+                matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, ""))
+                const result = matchedPathParams.map((param) => {
+                    const property = this.generateProperty();
+                    property.key = param;
+                    return property;
+                });
+                this.$store.commit("apidoc/changePathParams", result)
+            } else {
+                this.$store.commit("apidoc/changePathParams", [])
+            }
         },
         //将请求url后面查询参数转换为params
         convertQueryToParams() {

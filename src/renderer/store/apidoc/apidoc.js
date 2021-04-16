@@ -236,21 +236,7 @@ export default {
         },
         //改变Path参数
         changePathParams(state, payload) {
-            state.apidocInfo.item.pathParams = payload;
-        },
-        //新增一个查询字符串参数
-        addPathParams(state, payload) {
-            state.apidocInfo.item.PathParams.push(payload);
-        },
-        //新增一个或多个查询字符串
-        unshiftPathParams(state, payload) {
-            if (Array.isArray(payload)) { //新增多个
-                payload.forEach((param) => {
-                    state.apidocInfo.item.PathParams.unshift(param);
-                })
-            } else {
-                state.apidocInfo.item.PathParams.unshift(payload);
-            }
+            state.apidocInfo.item.paths = payload;
         },
         //改变requestBody
         changeRequestBody(state, payload) {

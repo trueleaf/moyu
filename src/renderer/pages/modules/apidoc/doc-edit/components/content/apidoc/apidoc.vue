@@ -14,7 +14,11 @@
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap hidden-md">
-                <s-request-path-params ref="path" disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项"></s-request-path-params>
+                <s-request-path-params
+                    v-if="apidocInfo.item && apidocInfo.item.paths && apidocInfo.item.paths.length > 0"
+                    ref="path"
+                    disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项">
+                </s-request-path-params>
                 <s-request-query-params ref="query" :disabled="!enableQueryParams" disabled-tip="当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项"></s-request-query-params>
                 <s-request-body-params
                     ref="body"
@@ -178,8 +182,8 @@ export default {
                     this.$event.emit("apidoc/getCacheSuccess");
                     this.$event.emit("apidoc/changeApiDocInfo");
                     this.broadcast("REQUEST_BODY", "dataReady");
-                    const { query, query2, body, body2, header, header2 } = this.$refs;
-                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
+                    const { query, body, header } = this.$refs;
+                    Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                         console.error(err);
                     }).finally(() => {
                         if (this.watchFlag) { //去除watch数据对比
@@ -247,8 +251,8 @@ export default {
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.$event.emit("apidoc/changeApiDocInfo");
                 this.broadcast("REQUEST_BODY", "dataReady");
-                const { query, query2, body, body2, header, header2 } = this.$refs;
-                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked(), query2?.selectChecked(), body2?.selectChecked(), header2?.selectChecked()]).catch((err) => {
+                const { query, body, header } = this.$refs;
+                Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     if (this.watchFlag) { //去除watch数据对比

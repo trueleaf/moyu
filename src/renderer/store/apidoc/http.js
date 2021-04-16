@@ -33,7 +33,7 @@ const HttpClient = (() => {
         }
 
         initInstance(config) {
-            const { timeout, proxy = "http://127.0.0.1:8888" } = config;
+            const { timeout, proxy } = config;
             const agent = {
                 http: ProxyAgent ? new ProxyAgent(proxy) : "",
             };
@@ -118,7 +118,15 @@ const HttpClient = (() => {
             try {
                 let body = "";
                 const searchParams = new URLSearchParams(this.queryParams).toString();
-                const requestUrl = searchParams ? `${this.url}?${searchParams}` : this.url;
+                const pathParams = this.paths.filter((param) => param.value !== "");
+                const realPath = this.url.replace(/\/{([^}]+)}/g, ($1, $2) => {
+                    const matchedElement = pathParams.find((val) => val.key === $2);
+                    if (matchedElement) {
+                        return `/${matchedElement.value}`;
+                    }
+                    return "";
+                })
+                const requestUrl = searchParams ? `${realPath}?${searchParams}` : realPath;
                 if (this.method === "get") { //GET请求body为空，否则请求将被一直挂起
                     body = "";
                 } else {
@@ -161,8 +169,7 @@ const HttpClient = (() => {
                         break;
                     }
                 }
-
-                if (!this.requestBody || Object.keys(this.requestBody) === 0) {
+                if (!this.requestBody || Object.keys(this.requestBody).length === 0) {
                     delete this.headers["content-type"];
                 }
 
