@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:web": "vue-cli-service serve src/renderer/main.js",
-    "dev:cli": "vue-cli-service serve src/renderer/main.js --cli",
+    "dev:cli": "vue-cli-service serve src/cli/main.js --cli",
     "dev:doc-offline": "vue-cli-service serve src/renderer/pages/modules/apidoc/doc-export/main.js --web",
     "dev:doc-share": "vue-cli-service serve src/renderer/pages/modules/apidoc/doc-export/main.js --web",
     "build:doc-share": "vue-cli-service build src/renderer/pages/modules/apidoc/doc-export/main.js --web",
