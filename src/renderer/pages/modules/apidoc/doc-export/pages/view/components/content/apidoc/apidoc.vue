@@ -10,30 +10,34 @@
             <s-base-info class="base-view"></s-base-info>
             <div class="params-view">
                 <s-fieldset title="请求参数" class="mb-5">
-                    <s-collapse v-if="apidocItem.queryParams && apidocItem.queryParams.length > 1" title="请求参数(Params)">
-                        <s-array-view :data="apidocItem.queryParams" class="mt-2">
-                            <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
-                        </s-array-view>
-                    </s-collapse>
-                    <s-collapse v-if="apidocItem.requestBody && apidocItem.requestBody.length > 1">
-                        <div slot="title">
-                            <span class="mr-2">请求参数(Body)</span>
-                            <span class="theme-color">{{ apidocItem.contentType  }}</span>
-                        </div>
-                        <s-array-view :data="apidocItem.requestBody" class="mt-2">
-                            <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
-                        </s-array-view>
-                    </s-collapse>
-                    <div v-if="!hasRquestParams">无</div>
+                        <template v-if="hasQueryParams || hasBodyParams">
+                            <s-collapse v-if="hasQueryParams" title="请求参数(Params)">
+                                <s-array-view :data="apidocItem.queryParams" show-checkbox class="mt-2">
+                                    <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
+                                </s-array-view>
+                            </s-collapse>
+                            <s-collapse v-if="hasBodyParams">
+                                <div slot="title">
+                                    <span class="mr-2">请求参数(Body)</span>
+                                    <span class="theme-color">{{ apidocItem.contentType  }}</span>
+                                </div>
+                                <s-array-view :data="apidocItem.requestBody" show-checkbox class="mt-2">
+                                    <div v-copy="jsonRequestBody" slot="header" class="copy-json">复制为json</div>
+                                </s-array-view>
+                            </s-collapse>
+                        </template>
+                        <div v-else>无</div>
                 </s-fieldset>
                 <s-fieldset title="返回参数">
                     <div v-for="(item, index) in apidocItem.responseParams" :key="index">
-                        <s-collapse v-if="item.values.length > 1" :active="index === 0" :key="index" :title="item.title">
+                        <div v-for="(item, index) in apidocItem.responseParams" :key="index">
+                        <s-collapse v-if="item.values.length >= 1" :active="index === 0" :key="index" :title="item.title">
                             <s-array-view :data="item.values" class="mt-2">
                                 <div v-copy="convertResponseToJson(item)" slot="header" class="copy-json">复制为json</div>
                             </s-array-view>
                         </s-collapse>
                         <div v-else>无</div>
+                    </div>
                     </div>
                 </s-fieldset>
                 <s-fieldset title="请求头">
@@ -110,11 +114,28 @@ export default {
             const convertHeaders = this.convertPlainParamsToTreeData(headers || []);
             return JSON.stringify(convertHeaders, null, 4);
         },
-        hasRquestParams() {
+        hasQueryParams() {
             const apidocItem = this.$store.state.apidoc.apidocInfo?.item;
             const hasQueryParams = apidocItem && apidocItem.queryParams && apidocItem.queryParams.length > 1;
-            const hasRequestBody = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length > 1;
-            return hasQueryParams || hasRequestBody;
+            return hasQueryParams;
+        },
+        hasBodyParams() {
+            let hasRequestBody = false;
+            const apidocItem = this.$store.state.apidoc.apidocInfo?.item;
+            const bodyIsNotEmpty = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length >= 1;
+            if (bodyIsNotEmpty) {
+                const childParams = apidocItem.requestBody[0].children[0];
+                if (!childParams) {
+                    hasRequestBody = false;
+                } else if ((childParams.type !== "object" && childParams.type !== "array") && (childParams.key === "" || childParams.value === "")) {
+                    hasRequestBody = false;
+                } else {
+                    hasRequestBody = true;
+                }
+            } else {
+                hasRequestBody = false;
+            }
+            return hasRequestBody;
         },
     },
     data() {

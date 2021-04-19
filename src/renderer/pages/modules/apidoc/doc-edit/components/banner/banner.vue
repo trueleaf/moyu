@@ -347,17 +347,17 @@ export default {
         },
         //打开新的tab
         handleAddTab(name, tabType) {
-            if (this.tabs && this.tabs.find((tab) => tab.tabType === tabType)) { //存在则返回不处理
-                return;
-            }
-            this.$store.commit("apidoc/addTab", {
+            this.$store.commit("apidoc/changeCurrentTab", {
                 _id: tabType,
                 projectId: this.$route.query.id,
                 name,
                 changed: false,
                 tabType,
             });
-            this.$store.commit("apidoc/changeCurrentTab", {
+            if (this.tabs && this.tabs.find((tab) => tab.tabType === tabType)) { //存在则返回不处理
+                return;
+            }
+            this.$store.commit("apidoc/addTab", {
                 _id: tabType,
                 projectId: this.$route.query.id,
                 name,

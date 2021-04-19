@@ -10,7 +10,7 @@
             <s-base-info class="base-view"></s-base-info>
             <div class="params-view">
                 <s-fieldset title="请求参数" class="mb-5">
-                    <template v-if="hasQueryParams && hasBodyParams">
+                    <template v-if="hasQueryParams || hasBodyParams">
                         <s-collapse v-if="hasQueryParams" title="请求参数(Params)">
                             <s-array-view :data="apidocItem.queryParams" show-checkbox class="mt-2">
                                 <div v-copy="jsonQueryParams" slot="header" class="copy-json">复制为json</div>
