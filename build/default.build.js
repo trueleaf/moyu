@@ -62,6 +62,7 @@ module.exports = {
                 "got",
                 "form-data",
                 "proxy-agent",
+                "shelljs",
             ],
             mainProcessFile: "src/main/index.js",
             mainProcessWatch: ["src/main/index.js"],
