@@ -46,13 +46,15 @@
     "nprogress": "^0.2.0",
     "proxy-agent": "^4.0.0",
     "qs": "^6.9.4",
+    "shelljs": "^0.8.4",
     "ssh2": "^0.8.9",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.4.0",
-    "wangeditor": "^4.5.0"
+    "wangeditor": "^4.5.0",
+    "xterm": "^4.11.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^9.1.2",
