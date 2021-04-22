@@ -166,6 +166,19 @@ export default {
             default: false,
         },
     },
+    watch: {
+        treeData: {
+            handler(val) {
+                const set = new Set();
+                this.defaultExpandedKeys?.forEach((key) => set.add(key));
+                val[0]?.children?.forEach((params) => set.add(params._id));
+                this.defaultExpandedKeys = Array.from(set)
+                // Array.from(set).forEach((key) => this.defaultExpandedKeys.push(key))
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
     data() {
         return {
             defaultExpandedKeys: [],
