@@ -65,23 +65,19 @@ export default {
 
 <style lang="scss" scoped>
 .s-card {
-    width: 100%;
-    border: 1px solid #ecf5ff;
-    background: #fff;
-    border-radius: 3px;
-    padding-bottom: 10px;//请不要添加margin和padding，会导致高度计算出错，出现滚动条
+    background: $white;
+    border: 1px solid $gray-300;
     &.shadow {
-        box-shadow: $box-shadow;
+        box-shadow: $box-shadow-sm;
     }
 }
 .s-card header {
+   font-size: fz(16);
+    height: size(35);
     display: flex;
-    padding: 10px 0;
-    padding-right: 1em;
-    border-bottom: 1px solid #ecf5ff;
-    justify-content: space-between;
     align-items: center;
-    height: size(40);
+    border-bottom: 1px solid $gray-300;
+    color: $theme-color;
     &.active {
         cursor: pointer;
         transition: background-color 0.3s;
@@ -91,10 +87,7 @@ export default {
     }
 }
 .s-card header .title {
-    padding-left: 1.5em;
-    color: #369;
-    font-weight: bolder;
-    border-left: 4px solid #409eff;
+    padding-left: 1em;
 }
 .s-card .content {
     position: relative;
@@ -108,10 +101,5 @@ export default {
     display: inline-flex;
     margin-bottom: 1rem;
 }
-.s-card .content .label {
-    color: #666;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-}
+
 </style>
