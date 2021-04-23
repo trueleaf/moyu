@@ -42,29 +42,35 @@ export default {
         this.getLocalCookies(); //获取本地cookies
     },
     mounted() {
-        this.initShortcut();
+        window.addEventListener("keyup", this.initShortcut)
+    },
+    beforeDestroy() {
+        window.removeEventListener("keyup", this.initShortcut)
     },
     methods: {
         //=====================================快捷键====================================//
-        initShortcut() {
-            window.addEventListener("keyup", (e) => {
-                if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
-                    e.preventDefault();
-                    this.addAndChangeTab("历史记录", "history");
-                } else if (e.ctrlKey && e.key === ",") {
-                    this.addAndChangeTab("文档全局配置", "config");
-                } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
-                    this.$router.push({
-                        path: "/v1/apidoc/doc-view",
-                        query: {
-                            id: this.$route.query.id,
-                            name: this.$route.query.name,
-                        },
-                    });
-                } else if (e.ctrlKey && e.key === "i") {
-                    this.addAndChangeTab("文档导入", "importDoc");
+        initShortcut(e) {
+            if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
+                e.preventDefault();
+                this.addAndChangeTab("历史记录", "history");
+            } else if (e.ctrlKey && e.key === ",") {
+                this.addAndChangeTab("文档全局配置", "config");
+            } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
+                if (this.$route.path === "/v1/apidoc/doc-view") {
+                    return;
                 }
-            })
+                this.$router.push({
+                    path: "/v1/apidoc/doc-view",
+                    query: {
+                        id: this.$route.query.id,
+                        name: this.$route.query.name,
+                    },
+                });
+            } else if (e.ctrlKey && e.key === "i") {
+                this.addAndChangeTab("文档导入", "importDoc");
+            } else if (e.ctrlKey && e.key === "e") {
+                this.addAndChangeTab("文档导出", "exportDoc");
+            }
         },
         //新增并且改变当前选中tab
         addAndChangeTab(name, type) {
