@@ -7,55 +7,57 @@
 <template>
     <div class="params-tree">
         <el-tree
-                ref="tree"
-                :data="treeData"
-                :indent="50"
-                node-key="_id"
-                :expand-on-click-node="false"
-                :draggable="enableDrag"
-                :allow-drop="handleCheckNodeCouldDrop"
-                :show-checkbox="showCheckbox"
-                :default-expanded-keys="defaultExpandedKeys"
-                @node-drop="handleNodeDrop"
-                @check-change="handleCheckChange"
+            ref="tree"
+            :data="treeData"
+            :indent="50"
+            node-key="_id"
+            :expand-on-click-node="false"
+            :draggable="enableDrag"
+            :allow-drop="handleCheckNodeCouldDrop"
+            :show-checkbox="showCheckbox"
+            :default-expanded-keys="defaultExpandedKeys"
+            @node-drop="handleNodeDrop"
+            @check-change="handleCheckChange"
         >
             <template slot-scope="scope">
                 <div class="custom-tree-node">
                     <!-- 新增嵌套数据按钮 -->
                     <el-button
-                            v-if="!disableAdd"
-                            type="text"
-                            :title="addNestTip"
-                            icon="el-icon-plus"
-                            :disabled="scope.data.readOnly || !nest"
-                            @click="addNestTreeData(scope.data)">
-                     </el-button>
+                        v-if="!disableAdd"
+                        type="text"
+                        :title="addNestTip"
+                        icon="el-icon-plus"
+                        :disabled="scope.data.readOnly || !nest"
+                        @click="addNestTreeData(scope.data)"
+                    >
+                    </el-button>
                     <!-- 删除一行数据按钮 -->
                     <el-button
-                            v-if="!disableDelete"
-                            class="mr-2"
-                            :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
-                            :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
-                            type="text"
-                            icon="el-icon-close"
-                            @click="deleteTreeData(scope)">
+                        v-if="!disableDelete"
+                        class="mr-2"
+                        :disabled="scope.data._readOnly || (!scope.node.nextSibling && scope.node.level === 1)"
+                        :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
+                        type="text"
+                        icon="el-icon-close"
+                        @click="deleteTreeData(scope)"
+                    >
                     </el-button>
                     <!-- 参数key值输入框 -->
                     <div class="w-20 mr-2 d-flex a-center">
                         <s-v-input
-                                v-if="!readonlyKey"
-                                v-model="scope.data.key"
-                                size="mini"
-                                :error="scope.data._keyError"
-                                :disabled="checkInputDisable(scope)"
-                                :title="convertPlaceholder(scope)"
-                                :placeholder="convertPlaceholder(scope)"
-                                :mind-params="mindParams"
-                                remote
-                                @mindParamsSelect="(val) => { covertMindParamsToRealParasm(scope.data, val) }"
-                                @input="addNewLine(scope)"
-                                @focus="enableDrag = false"
-                                @blur="handleCheckKeyField(scope);enableDrag=true"
+                            v-if="!readonlyKey"
+                            v-model="scope.data.key"
+                            size="mini"
+                            :error="scope.data._keyError"
+                            :disabled="checkInputDisable(scope)"
+                            :title="convertPlaceholder(scope)"
+                            :placeholder="convertPlaceholder(scope)"
+                            :mind-params="mindParams"
+                            remote
+                            @mindParamsSelect="(val) => { covertMindParamsToRealParasm(scope.data, val) }"
+                            @input="addNewLine(scope)"
+                            @focus="enableDrag = false"
+                            @blur="handleCheckKeyField(scope);enableDrag=true"
                         >
                         </s-v-input>
                         <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
@@ -71,16 +73,16 @@
                     </el-select>
                     <!-- 参数值 -->
                     <s-v-input
-                            v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
-                            :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
-                            title="对象和数组不必填写参数值"
-                            v-model="scope.data.value"
-                            size="mini"
-                            :error="scope.data._valueError"
-                            class="w-25 mr-2"
-                            :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
-                            @focus="enableDrag = false"
-                            @blur="handleCheckValue(scope);enableDrag=true"
+                        v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
+                        v-model="scope.data.value"
+                        :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
+                        title="对象和数组不必填写参数值"
+                        size="mini"
+                        :error="scope.data._valueError"
+                        class="w-25 mr-2"
+                        :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
+                        @focus="enableDrag = false"
+                        @blur="handleCheckValue(scope);enableDrag=true"
                     >
                     </s-v-input>
                     <div v-if="scope.data.type === 'file'" class="flex0 w-20">
@@ -91,7 +93,7 @@
                             </el-popover>
                             <span v-if="scope.data._name" class="close el-icon-close" @click="handleClearSelectType(scope)"></span>
                         </div>
-                        <input class="d-none" id="fileInput" type="file" @change="handleSelectFile($event, scope.data)">
+                        <input id="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                     </div>
                     <el-select v-if="scope.data.type === 'boolean'" v-model="scope.data.value" placeholder="请选择" size="mini" class="w-25 mr-2">
                         <el-option label="true" value="true"></el-option>
@@ -101,14 +103,15 @@
                     <el-checkbox v-model="scope.data.required" :disabled="scope.data._readOnly" label="必有"></el-checkbox>
                     <!-- 参数描述 -->
                     <s-v-input
-                            v-model="scope.data.description"
-                            size="mini"
-                            :error="scope.data._descriptionError"
-                            :disabled="scope.node.parent.data.type === 'array'"
-                            class="w-40 ml-2"
-                            placeholder="参数描述与备注"
-                            @focus="enableDrag = false"
-                            @blur="handleCheckDescription(scope);enableDrag=true">
+                        v-model="scope.data.description"
+                        size="mini"
+                        :error="scope.data._descriptionError"
+                        :disabled="scope.node.parent.data.type === 'array'"
+                        class="w-40 ml-2"
+                        placeholder="参数描述与备注"
+                        @focus="enableDrag = false"
+                        @blur="handleCheckDescription(scope);enableDrag=true"
+                    >
                     </s-v-input>
                     <!--
                     <el-select v-if="isFormData && scope.data.type === 'file'" v-model="scope.data.value" placeholder="浏览器限制" size="mini">
@@ -166,19 +169,6 @@ export default {
             default: false,
         },
     },
-    watch: {
-        treeData: {
-            handler(val) {
-                const set = new Set();
-                this.defaultExpandedKeys?.forEach((key) => set.add(key));
-                val[0]?.children?.forEach((params) => set.add(params._id));
-                this.defaultExpandedKeys = Array.from(set)
-                // Array.from(set).forEach((key) => this.defaultExpandedKeys.push(key))
-            },
-            deep: true,
-            immediate: true,
-        },
-    },
     data() {
         return {
             defaultExpandedKeys: [],
@@ -200,6 +190,19 @@ export default {
         },
         variables() { //全局变量
             return this.$store.state.apidoc.variables || [];
+        },
+    },
+    watch: {
+        treeData: {
+            handler(val) {
+                const set = new Set();
+                this.defaultExpandedKeys?.forEach((key) => set.add(key));
+                val[0]?.children?.forEach((params) => set.add(params._id));
+                this.defaultExpandedKeys = Array.from(set)
+                // Array.from(set).forEach((key) => this.defaultExpandedKeys.push(key))
+            },
+            deep: true,
+            immediate: true,
         },
     },
     created() {

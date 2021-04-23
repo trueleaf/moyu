@@ -36,8 +36,8 @@
             :tree-data="headers"
             :nest="false"
             :enable-form-data="false"
-            showCheckbox
-            :mindParams="mindParams"
+            show-checkbox
+            :mind-params="mindParams"
         >
         </s-params-tree>
     </s-collapse-card>
@@ -48,19 +48,6 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
     mixins: [mixin],
-    computed: {
-        headers: { //请求参数
-            get() {
-                return this.$store.state.apidoc.apidocInfo?.item?.headers;
-            },
-            set(val) {
-                this.$store.commit("apidoc/changeHeaders", val);
-            },
-        },
-        cookies() {
-            return this.$store.state.apidoc.cookies;
-        },
-    },
     props: {
         request: { //---------------请求参数
             type: Object,
@@ -78,6 +65,19 @@ export default {
             mindParams: [],
             //=====================================其他参数====================================//
         };
+    },
+    computed: {
+        headers: { //请求参数
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.item?.headers;
+            },
+            set(val) {
+                this.$store.commit("apidoc/changeHeaders", val);
+            },
+        },
+        cookies() {
+            return this.$store.state.apidoc.cookies;
+        },
     },
     created() {
     },

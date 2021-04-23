@@ -74,21 +74,21 @@
         <!-- 树形文档导航 -->
         <s-loading :loading="loading" class="doc-nav">
             <el-tree
-                    ref="docTree"
-                    class="flex0"
-                    :data="navTreeData"
-                    node-key="_id"
-                    empty-text="点击按钮新增文档"
-                    :default-expanded-keys="defaultExpandedKeys"
-                    :expand-on-click-node="true"
-                    :draggable="enableDrag"
-                    :allow-drop="handleCheckNodeCouldDrop"
-                    :filter-node-method="filterNode"
-                    @node-contextmenu="handleContextmenu"
-                    @node-drop="handleNodeDropSuccess"
-                    @node-expand="clearContextmenu"
-                    @node-collapse="clearContextmenu"
-                    @node-click="handleNodeClick"
+                ref="docTree"
+                class="flex0"
+                :data="navTreeData"
+                node-key="_id"
+                empty-text="点击按钮新增文档"
+                :default-expanded-keys="defaultExpandedKeys"
+                :expand-on-click-node="true"
+                :draggable="enableDrag"
+                :allow-drop="handleCheckNodeCouldDrop"
+                :filter-node-method="filterNode"
+                @node-contextmenu="handleContextmenu"
+                @node-drop="handleNodeDropSuccess"
+                @node-expand="clearContextmenu"
+                @node-collapse="clearContextmenu"
+                @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
                     <el-popover
@@ -97,22 +97,22 @@
                         placement="right"
                         width="300"
                         trigger="manual"
-                        >
+                    >
                         <div class="d-flex flex-column">
                             <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
                             <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
                             <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
                         </div>
                         <div
-                                class="custom-tree-node"
-                                :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                tabindex="0"
-                                slot="reference"
-                                @keydown.stop="handleKeydown($event, scope.data)"
-                                @keyup.stop="handleKeyUp($event, scope.data)"
-                                @click="handleClickNode($event, scope)"
-                                @mouseenter="handleHoverNode($event, scope)"
-                                @mouseleave="hoverNodeId = ''"
+                            slot="reference"
+                            class="custom-tree-node"
+                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            tabindex="0"
+                            @keydown.stop="handleKeydown($event, scope.data)"
+                            @keyup.stop="handleKeyUp($event, scope.data)"
+                            @click="handleClickNode($event, scope)"
+                            @mouseenter="handleHoverNode($event, scope)"
+                            @mouseleave="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
                             <template v-if="!scope.data.isFolder">
@@ -124,16 +124,17 @@
                                     class="node-name ml-1"
                                     :title="scope.data.name"
                                     :value="scope.data.name"
-                                    :keyword="queryData">
+                                    :keyword="queryData"
+                                >
                                 </s-emphasize>
                                 <!-- <div v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name ml-1">{{ scope.data.name }}</div> -->
                                 <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
                                 <el-dropdown
-                                        v-show="hoverNodeId === scope.data._id"
-                                        class="node-more"
-                                        trigger="click"
-                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                        @click.native.stop="() =>{}"
+                                    v-show="hoverNodeId === scope.data._id"
+                                    class="node-more"
+                                    trigger="click"
+                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                    @click.native.stop="() =>{}"
                                 >
                                     <span class="el-icon-more"></span>
                                     <el-dropdown-menu slot="dropdown">
@@ -147,15 +148,15 @@
                             </template>
                             <!-- 文件夹渲染 -->
                             <template v-if="scope.data.isFolder">
-                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                 <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                 <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.stop.enter="handleChangeNodeName(scope.data)">
                                 <el-dropdown
-                                        v-show="hoverNodeId === scope.data._id"
-                                        class="node-more"
-                                        trigger="click"
-                                        @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
-                                        @click.native.stop="() =>{}"
+                                    v-show="hoverNodeId === scope.data._id"
+                                    class="node-more"
+                                    trigger="click"
+                                    @command="(command) => { handleSelectDropdown(command, scope.data, scope.node) }"
+                                    @click.native.stop="() =>{}"
                                 >
                                     <span class="el-icon-more"></span>
                                     <el-dropdown-menu slot="dropdown">
@@ -196,35 +197,6 @@ export default {
         "s-add-file-dialog": addFileDialog,
         "s-template-dialog": templateDialog,
     },
-    computed: {
-        navTreeData() { //-------树形导航数据
-            return this.$store.state.apidoc.banner;
-        },
-        tabs() { //--------------全部tabs
-            return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-        currentSelectDoc() { //--当前选中的文档
-            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-        docRules() { //---------文档规则
-            return this.$store.state.apidocRules;
-        },
-        validRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
-        },
-    },
-    watch: {
-        currentSelectDoc: {
-            handler(val) {
-                if (val && val._id) {
-                    this.defaultExpandedKeys.splice(0, 1, val._id);
-                } else {
-                    this.defaultExpandedKeys = [];
-                }
-            },
-            deep: true,
-        },
-    },
     data() {
         return {
             //=====================================文档增删改查====================================//
@@ -256,6 +228,36 @@ export default {
             loading: false, //-----------------左侧树形导航加载
         };
     },
+    computed: {
+        navTreeData() { //-------树形导航数据
+            return this.$store.state.apidoc.banner;
+        },
+        tabs() { //--------------全部tabs
+            return this.$store.state.apidoc.tabs[this.$route.query.id];
+        },
+        currentSelectDoc() { //--当前选中的文档
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
+        docRules() { //---------文档规则
+            return this.$store.state.apidocRules;
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+    },
+    watch: {
+        currentSelectDoc: {
+            handler(val) {
+                if (val && val._id) {
+                    this.defaultExpandedKeys.splice(0, 1, val._id);
+                } else {
+                    this.defaultExpandedKeys = [];
+                }
+            },
+            deep: true,
+        },
+    },
+
     mounted() {
         this.init();
         this.$event.one("apidoc/importDocSuccess", () => {

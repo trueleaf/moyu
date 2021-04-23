@@ -40,7 +40,8 @@
                         start-placeholder="开始日期"
                         size="mini"
                         class="mr-1"
-                        end-placeholder="结束日期">
+                        end-placeholder="结束日期"
+                    >
                     </el-date-picker>
                     <el-button type="text" @click="handleClearDate">清空</el-button>
                 </el-radio-group>
@@ -112,7 +113,7 @@
                         </div>
                         <!-- 新建文件夹 -->
                         <div v-if="item2.operation === 'addFolder'" class="doc-info">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
                             <span>{{ item2.recordInfo.nodeName }}</span>
                         </div>
                         <!-- 拷贝文档 -->
@@ -135,26 +136,26 @@
                         </div>
                         <!-- 删除文件夹 -->
                         <div v-if="item2.operation === 'deleteFolder'" class="doc-info">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
                             <span>{{ item2.recordInfo.deleteNodes[0].nodeName }}</span>
                         </div>
                         <!-- 批量删除文档 -->
                         <template v-if="item2.operation === 'deleteMany'">
-                            <div v-for="(node, index3) in item2.recordInfo.deleteNodes" :key="index3"  class="doc-info">
-                                <img v-if="node.isFolder" :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1"/>
+                            <div v-for="(node, index3) in item2.recordInfo.deleteNodes" :key="index3" class="doc-info">
+                                <img v-if="node.isFolder" :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
                                 <template v-else>
                                     <template v-for="(req) in validRequestMethods">
                                         <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                                     </template>
                                 </template>
                                 <span>{{ node.nodeName }}</span>
-                                <el-divider  v-if="!node.isFolder && node.url" direction="vertical"></el-divider>
-                                <span v-if="!node.isFolder" >{{ node.url }}</span>
+                                <el-divider v-if="!node.isFolder && node.url" direction="vertical"></el-divider>
+                                <span v-if="!node.isFolder">{{ node.url }}</span>
                             </div>
                         </template>
                         <!-- 编辑文档 -->
                         <div v-if="item2.operation === 'editDoc'" class="doc-info">
-                             <template v-for="(req) in validRequestMethods">
+                            <template v-for="(req) in validRequestMethods">
                                 <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <span>{{ item2.recordInfo.nodeName }}</span>

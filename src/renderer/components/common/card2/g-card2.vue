@@ -7,9 +7,9 @@
  */
 <template>
     <div
-            class="widget-card"
-            :class="{shadow: shadow}"
-            :style="{ width: width }"
+        class="widget-card"
+        :class="{shadow: shadow}"
+        :style="{ width: width }"
     >
         <header v-if="$slots.operation || title" :class="{collapse: collapse}">
             <div class="tail d-flex flex0 a-center" @click="showContent = !showContent">
@@ -57,15 +57,15 @@ export default {
             default: false,
         },
     },
-    watch: {
-        fold() {
-            this.showContent = !this.fold;
-        },
-    },
     data() {
         return {
             showContent: true,
         };
+    },
+    watch: {
+        fold() {
+            this.showContent = !this.fold;
+        },
     },
     mounted() {
         this.showContent = !this.fold;

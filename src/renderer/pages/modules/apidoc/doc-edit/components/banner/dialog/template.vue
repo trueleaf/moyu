@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="以模板新建" :isShow="visible" width="70%" @close="handleClose">
+    <s-dialog title="以模板新建" :is-show="visible" width="70%" @close="handleClose">
         <div>
             aaa
         </div>

@@ -5,8 +5,9 @@
     备注：xxxx
 */
 <template>
-    <s-dialog class="g-user" title="给用户添加角色" :isShow="isShow" @close="handleClose">
-        <s-form ref="form" showRules :formInfo="formInfo">
+    <s-dialog class="g-user" title="给用户添加角色" :is-show="isShow" @close="handleClose">
+        <s-form ref="form" :form-info="formInfo">
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="输入框" vModel="a"></s-form-item>
         </s-form>
         <el-checkbox-group v-model="formInfo.roleIds">

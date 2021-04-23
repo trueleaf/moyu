@@ -66,15 +66,15 @@
                     <template slot-scope="scope">
                         <div class="h-60px d-flex a-center j-center">
                             <s-v-input
-                                    v-if="scope.row.__active"
-                                    v-model="scope.row.url"
-                                    :error="urlError"
-                                    tip="eg:http://10.1.0.0:20 https://baidu.com"
-                                    size="mini"
-                                    class="w-100"
-                                    maxlength="100"
-                                    clearable
-                                    @blur="handleCheckHost(scope.row.url)"
+                                v-if="scope.row.__active"
+                                v-model="scope.row.url"
+                                :error="urlError"
+                                tip="eg:http://10.1.0.0:20 https://baidu.com"
+                                size="mini"
+                                class="w-100"
+                                maxlength="100"
+                                clearable
+                                @blur="handleCheckHost(scope.row.url)"
                             >
                             </s-v-input>
                             <span v-else>{{ scope.row.url }}</span>

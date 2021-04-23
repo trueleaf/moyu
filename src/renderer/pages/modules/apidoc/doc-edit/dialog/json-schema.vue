@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="数据转换" :isShow="visible" @close="closeModel">
+    <s-dialog title="数据转换" :is-show="visible" @close="closeModel">
         <!-- <el-radio-group v-model="convertType">
             <el-radio label="append">追加</el-radio>
             <el-radio label="override">替换</el-radio>

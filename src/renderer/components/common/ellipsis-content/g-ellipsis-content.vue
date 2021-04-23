@@ -11,7 +11,6 @@
         </el-tooltip>
         <span v-if="copy || isOverflow" v-copy="value" class="copy el-icon-document-copy cursor-pointer orange"></span>
     </span>
-
 </template>
 
 <script>
@@ -30,6 +29,11 @@ export default {
             default: false,
         },
     },
+    data() {
+        return {
+            isOverflow: false,
+        };
+    },
     watch: {
         value: {
             handler() {
@@ -43,11 +47,6 @@ export default {
             },
             immediate: true,
         },
-    },
-    data() {
-        return {
-            isOverflow: false,
-        };
     },
     mounted() {
         this.changeValueWidth();

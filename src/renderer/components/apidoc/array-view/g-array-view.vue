@@ -10,7 +10,7 @@
             <div class="search">
                 <input v-model="queryString" type="text" placeholder="关键词高亮...">
             </div>
-            <slot name="header"/>
+            <slot name="header" />
         </div>
         <div class="content">
             <div class="code-banner">
@@ -21,7 +21,8 @@
                             v-if="item.leftCurlBrace.value || item.leftBracket.value"
                             class="collapse el-icon-arrow-down"
                             :class="{close: item._close}"
-                            @click="toggleCollapse(item, index)">
+                            @click="toggleCollapse(item, index)"
+                        >
                         </span>
                     </div>
                 </template>

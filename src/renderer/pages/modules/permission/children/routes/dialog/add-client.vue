@@ -5,10 +5,13 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="新增前端路由" :isShow="isShow" @close="handleClose">
-        <s-form v-if="isShow" ref="form" showTip :formInfo="formInfo">
+    <s-dialog title="新增前端路由" :is-show="isShow" @close="handleClose">
+        <s-form v-if="isShow" ref="form" :form-info="formInfo">
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="名称" vModel="name" oneLine required></s-form-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="路径" vModel="path" oneLine required></s-form-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="分组名称" vModel="groupName" oneLine></s-form-item>
         </s-form>
         <div slot="footer">

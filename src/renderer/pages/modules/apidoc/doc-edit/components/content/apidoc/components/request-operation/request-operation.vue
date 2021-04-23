@@ -9,13 +9,13 @@
         <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input
-                    v-model="requestPath"
-                    placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
-                    :error="urlError"
-                    size="small"
-                    @input="handlePickPathParams"
-                    @blur="formatUrl"
-                    @keyup.enter.native.stop="formatUrl"
+                v-model="requestPath"
+                placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
+                :error="urlError"
+                size="small"
+                @input="handlePickPathParams"
+                @blur="formatUrl"
+                @keyup.enter.native.stop="formatUrl"
             >
                 <div slot="prepend" class="request-input">
                     <el-select v-model="requestMethod" value-key="name">
@@ -25,7 +25,8 @@
                             :value="item"
                             :label="item.name"
                             :title="disabledTip(item)"
-                            :disabled="!item.enabled">
+                            :disabled="!item.enabled"
+                        >
                         </el-option>
                     </el-select>
                 </div>
@@ -37,7 +38,8 @@
                 :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
                 type="success"
                 size="small"
-                @click="sendRequest">
+                @click="sendRequest"
+            >
                 发送请求
             </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
@@ -67,10 +69,24 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import variableDialog from "@/pages/modules/apidoc/doc-edit/dialog/variable-manage.vue"
 
 export default {
-    name: "REQUEST_OPERATION",
-    mixins: [mixin],
+    name: "RequestOperation",
     components: {
         "s-variable-dialog": variableDialog,
+    },
+    mixins: [mixin],
+    data() {
+        return {
+            urlError: { //-----------------请求url错误
+                error: false,
+                message: "请求url不能为空",
+            },
+            currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
+            //=====================================其他参数====================================//
+            loading2: false, //------------保存接口loading
+            loading3: false, //------------发布接口loading
+            dialogVisible: false, //-------全局变量
+            dialogVisible2: false, //------内置参数
+        };
     },
     computed: {
         apidocInfo() { //接口文档信息
@@ -162,25 +178,6 @@ export default {
             const enabledContenType = matchedContentType ? matchedContentType.enabledContenType : [];
             return enabledContenType;
         },
-    },
-    // watch: {
-    //     requestMethod(val) {
-    //         this.$event.emit("apidoc/changeMethod", val);
-    //     },
-    // },
-    data() {
-        return {
-            urlError: { //-----------------请求url错误
-                error: false,
-                message: "请求url不能为空",
-            },
-            currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
-            //=====================================其他参数====================================//
-            loading2: false, //------------保存接口loading
-            loading3: false, //------------发布接口loading
-            dialogVisible: false, //-------全局变量
-            dialogVisible2: false, //------内置参数
-        };
     },
     mounted() {
         window.addEventListener("keydown", this.shortcutSave)
@@ -443,7 +440,7 @@ export default {
             const queryParams = qs.parse(queryString);
             const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
             this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
-            const matchedComponent = this.getComponentByName("QUERY_PARAMS");
+            const matchedComponent = this.getComponentByName("QueryParams");
             matchedComponent.selectChecked();
         },
         //hack通过改变_variableChange触发watch事件刷新变量值
@@ -454,7 +451,7 @@ export default {
         handleFreshApidoc() {
             if (!this.currentSelectDoc.changed) {
                 this.$store.commit("apidoc/clearRespons");
-                this.getComponentByName("APIDOC_CONTENT").getDocDetail();
+                this.getComponentByName("ApidocContent").getDocDetail();
             } else {
                 this.$confirm("刷新后未保存数据据将丢失", "提示", {
                     confirmButtonText: "刷新",
@@ -462,7 +459,7 @@ export default {
                     type: "warning",
                 }).then(() => {
                     this.$store.commit("apidoc/clearRespons");
-                    this.getComponentByName("APIDOC_CONTENT").getDocDetail();
+                    this.getComponentByName("ApidocContent").getDocDetail();
                     this.$store.commit("apidoc/changeCurrentTabInfo", {
                         _id: this.currentSelectDoc._id,
                         projectId: this.$route.query.id,

@@ -8,12 +8,13 @@
     <div class="doc-import">
         <s-fieldset title="支持：Postman、摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
-                    class="w-100"
-                    drag
-                    action=""
-                    :show-file-list="false"
-                    :before-upload="handleBeforeUpload"
-                    :http-request="requestHook">
+                class="w-100"
+                drag
+                action=""
+                :show-file-list="false"
+                :before-upload="handleBeforeUpload"
+                :http-request="requestHook"
+            >
                 <i class="el-icon-upload"></i>
                 <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 <div slot="tip" class="mt-2">
@@ -34,23 +35,23 @@
                     </el-radio-group>
                 </s-config>
                 <s-config label="目标目录" description="不选择目标目录则默认为根目录">
-                    <template slot-scope="scope">
-                        <div v-show="scope.enabled" class="doc-nav">
+                    <template slot-scope="prop">
+                        <div v-show="prop.enabled" class="doc-nav">
                             <el-tree
-                                    ref="docTree"
-                                    :data="navTreeData"
-                                    node-key="_id"
-                                    show-checkbox
-                                    @check-change="handleCheckChange"
-                                    :expand-on-click-node="true"
+                                ref="docTree"
+                                :data="navTreeData"
+                                node-key="_id"
+                                show-checkbox
+                                :expand-on-click-node="true"
+                                @check-change="handleCheckChange"
                             >
                                 <template slot-scope="scope">
                                     <div
-                                            class="custom-tree-node"
-                                            tabindex="0"
-                                            slot="reference"
-                                            @keydown.stop="handleKeydown($event, scope.data)"
-                                            @keyup.stop="handleKeyUp($event, scope.data)"
+                                        slot="reference"
+                                        class="custom-tree-node"
+                                        tabindex="0"
+                                        @keydown.stop="handleKeydown($event, scope.data)"
+                                        @keyup.stop="handleKeyUp($event, scope.data)"
                                     >
                                         <!-- file渲染 -->
                                         <template v-if="!scope.data.isFolder">
@@ -61,7 +62,7 @@
                                         </template>
                                         <!-- 文件夹渲染 -->
                                         <template v-if="scope.data.isFolder">
-                                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                             <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                         </template>
                                     </div>

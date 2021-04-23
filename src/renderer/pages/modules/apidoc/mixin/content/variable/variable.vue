@@ -32,11 +32,11 @@
             <s-table
                 ref="table"
                 url="/api/project/project_variable"
-                deleteMany
-                deleteUrl="/api/project/project_variable"
+                delete-many
+                delete-url="/api/project/project_variable"
                 :delete-params="{ projectId: $route.query.id }"
                 :params="{ projectId: $route.query.id }"
-             >
+            >
                 <el-table-column label="变量名称" align="center">
                     <template slot-scope="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="100" clearable></el-input>

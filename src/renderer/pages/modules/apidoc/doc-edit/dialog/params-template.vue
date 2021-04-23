@@ -5,11 +5,12 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="保存当前参数为模板" :isShow="visible" width="40%" @close="handleClose">
-       <s-form ref="form" :formInfo="formInfo">
-           <s-form-item label="模板名称" vModel="name" oneLine required></s-form-item>
-       </s-form>
-       <div slot="footer">
+    <s-dialog title="保存当前参数为模板" :is-show="visible" width="40%" @close="handleClose">
+        <s-form ref="form" :form-info="formInfo">
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+            <s-form-item label="模板名称" vModel="name" one-line required></s-form-item>
+        </s-form>
+        <div slot="footer">
             <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">确定</el-button>
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
         </div>
@@ -27,6 +28,7 @@ export default {
             validator(value) {
                 return ["pathParams", "queryParams", "requestBody", "responseParams"].indexOf(value) !== -1;
             },
+            default: "",
         },
         items: {
             type: Array,

@@ -7,11 +7,11 @@ import data from "./data";
 
 export default (() => {
     Vue.mixin({
+        filters,
+        props,
         data() {
             return data;
         },
-        filters,
-        props,
         computed,
         methods,
     });

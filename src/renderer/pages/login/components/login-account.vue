@@ -20,7 +20,7 @@
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading"  size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
+                <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
             </div>
         </el-form-item>
         <el-form-item class="mb-1">
@@ -41,7 +41,7 @@
                 <div>GitHub</div>
             </a>
 
-            <a href="https://gitee.com/shuzhikai/moyu" target="_blank"  class="d-flex flex-column j-center a-center">
+            <a href="https://gitee.com/shuzhikai/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转码云">
                     <use xlink:href="#icongitee"></use>
                 </svg>

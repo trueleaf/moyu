@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="导入生成项目" :isShow="visible" class="import-doc" @close="handleClose">
+    <s-dialog title="导入生成项目" :is-show="visible" class="import-doc" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px">
             <el-form-item label="支持类型：">
                 <span>摸鱼文档</span>
@@ -14,12 +14,13 @@
             </el-form-item>
             <el-form-item label="文档导入：">
                 <el-upload
-                        class="w-100"
-                        :limit="1"
-                        drag
-                        action=""
-                        :before-upload="handleBeforeUpload"
-                        :http-request="requestHook">
+                    class="w-100"
+                    :limit="1"
+                    drag
+                    action=""
+                    :before-upload="handleBeforeUpload"
+                    :http-request="requestHook"
+                >
                     <i class="el-icon-upload"></i>
                     <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
                 </el-upload>

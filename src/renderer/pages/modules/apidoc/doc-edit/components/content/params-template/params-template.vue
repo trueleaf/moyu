@@ -9,13 +9,13 @@
         <div slot="right">
             <!-- 表格展示 -->
             <s-table
-                    ref="table"
-                    url="/api/project/doc_preset_params_list"
-                    :params="{projectId: $route.query.id}"
-                    deleteMany
-                    deleteUrl="/api/project/doc_preset_params"
-                    deleteKey="ids"
-                >
+                ref="table"
+                url="/api/project/doc_preset_params_list"
+                :params="{projectId: $route.query.id}"
+                delete-many
+                delete-url="/api/project/doc_preset_params"
+                delete-key="ids"
+            >
                 <el-table-column label="模板名称" align="center">
                     <template slot-scope="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
@@ -120,10 +120,10 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 
 export default {
-    mixins: [mixin],
     components: {
         "s-json-schema": jsonSchema,
     },
+    mixins: [mixin],
     data() {
         return {
             //=================================表单与表格参数================================//

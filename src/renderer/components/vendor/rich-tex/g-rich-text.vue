@@ -6,7 +6,6 @@
 */
 <template>
     <div id="editor">
-
     </div>
 </template>
 

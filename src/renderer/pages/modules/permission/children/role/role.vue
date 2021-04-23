@@ -23,8 +23,8 @@
             </el-table-column>
             <el-button slot="operation" size="mini" type="success" @click="isShow = true">新增角色</el-button>
         </s-table>
-        <s-add-role v-if="isShow" :isShow.sync="isShow" @success="getData"></s-add-role>
-        <s-edit-role v-if="isShow2" :id="roleId" :isShow.sync="isShow2" @success="getData"></s-edit-role>
+        <s-add-role v-if="isShow" :is-show.sync="isShow" @success="getData"></s-add-role>
+        <s-edit-role v-if="isShow2" :id="roleId" :is-show.sync="isShow2" @success="getData"></s-edit-role>
     </div>
 </template>
 

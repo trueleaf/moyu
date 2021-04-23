@@ -7,11 +7,16 @@
 <template>
     <div>
         <!-- 搜索条件 -->
-        <s-search autoRequest @change="handleChange">
+        <s-search auto-request @change="handleChange">
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-search-item label="登录名称" vModel="loginName"></s-search-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-search-item label="真实姓名" vModel="realName"></s-search-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-search-item label="手机号" vModel="phone"></s-search-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-search-item label="部门" vModel="department"></s-search-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-search-item label="职位" vModel="title"></s-search-item>
             <el-button slot="operation" size="mini" type="success" @click="isShow = true">新增用户</el-button>
             <s-download slot="operation" class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
@@ -58,10 +63,9 @@
                     </el-button>
                 </template>
             </el-table-column>
-
         </s-table>
-        <s-add-user :isShow.sync="isShow" @success="getData"></s-add-user>
-        <s-edit-user v-if="isShow2" :id="roleId" :isShow.sync="isShow2" @success="getData"></s-edit-user>
+        <s-add-user :is-show.sync="isShow" @success="getData"></s-add-user>
+        <s-edit-user v-if="isShow2" :id="roleId" :is-show.sync="isShow2" @success="getData"></s-edit-user>
         <!-- <s-edit-user v-if="isShow3" :id="roleId" :isShow.sync="isShow3" @success="getData"></s-edit-user> -->
     </div>
 </template>

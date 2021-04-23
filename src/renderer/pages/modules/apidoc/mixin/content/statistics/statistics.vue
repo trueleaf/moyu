@@ -48,30 +48,6 @@
 
 <script>
 export default {
-    computed: {
-        docNumInfo() {
-            let docNum = 0;
-            let folderNum = 0;
-            const { banner } = this.$store.state.apidoc;
-            this.$helper.dfsForest(banner, {
-                rCondition(value) {
-                    return value.children;
-                },
-                rKey: "children",
-                hooks(data) {
-                    if (!data.isFolder) {
-                        docNum += 1;
-                    } else {
-                        folderNum += 1;
-                    }
-                },
-            });
-            return {
-                docNum,
-                folderNum,
-            };
-        },
-    },
     data() {
         return {
             shortcutList: [{
@@ -99,6 +75,30 @@ export default {
             //=====================================其他参数====================================//
             activeName: "s-a",
         };
+    },
+    computed: {
+        docNumInfo() {
+            let docNum = 0;
+            let folderNum = 0;
+            const { banner } = this.$store.state.apidoc;
+            this.$helper.dfsForest(banner, {
+                rCondition(value) {
+                    return value.children;
+                },
+                rKey: "children",
+                hooks(data) {
+                    if (!data.isFolder) {
+                        docNum += 1;
+                    } else {
+                        folderNum += 1;
+                    }
+                },
+            });
+            return {
+                docNum,
+                folderNum,
+            };
+        },
     },
     created() {
     },

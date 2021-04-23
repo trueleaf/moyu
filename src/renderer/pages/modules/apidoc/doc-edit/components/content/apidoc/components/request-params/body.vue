@@ -27,7 +27,7 @@
                             <div class="apply-template">
                                 <div class="cyan mb-2">常用</div>
                                 <template v-for="(item, index) in usefulPresetParamsList">
-                                    <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
+                                    <span :key="index" class="params-item" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
                                 <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                 <hr>
@@ -49,7 +49,7 @@
             <!-- json预览 -->
             <el-popover v-if="bodyType === 'application/json'" placement="right">
                 <s-array-view :data="jsonBody" class="w-500px mt-2">
-                    <div v-copy="jsonBodyParams" slot="header" class="cursor-pointer">复制为json</div>
+                    <div slot="header" v-copy="jsonBodyParams" class="cursor-pointer">复制为json</div>
                 </s-array-view>
                 <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
                     <span>预览参数</span>
@@ -77,7 +77,7 @@
             :tree-data="jsonBody"
             nest
             :mind-params="mindParams.requestBody"
-            showCheckbox
+            show-checkbox
         >
         </s-params-tree>
         <!-- form-data -->
@@ -88,7 +88,7 @@
             :nest="false"
             :mind-params="mindParams.requestBody"
             enable-form-data
-            showCheckbox
+            show-checkbox
         >
         </s-params-tree>
         <!-- x-www-form-urlencoded -->
@@ -98,11 +98,11 @@
             :tree-data="formUrlBody"
             :nest="false"
             :mind-params="mindParams.requestBody"
-            showCheckbox
+            show-checkbox
         >
         </s-params-tree>
         <div v-if="bodyType === 'raw'" class="raw">
-            <s-code-editor ref="editor" @input="handleRawInput" :type="rawType"></s-code-editor>
+            <s-code-editor ref="editor" :type="rawType" @input="handleRawInput"></s-code-editor>
             <div class="raw-type">
                 <el-select v-model="rawType" size="mini" @change="handleChangeRawType">
                     <el-option :disabled="!enabledContenType.find((ct) => ct === 'text/plain')" label="text" value="text"></el-option>
@@ -123,11 +123,32 @@ import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
 
 export default {
-    name: "REQUEST_BODY",
-    mixins: [mixin],
+    name: "RequestBody",
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
+    },
+    mixins: [mixin],
+    data() {
+        return {
+            usefulPresetParamsList: [], //常用参数模板
+            //=========================================================================//
+            jsonBody: [], //application/json
+            formDataBody: [], //multipart/form-data
+            formUrlBody: [], //application/x-www-form-urlencoded
+            rawBody: "", //raw
+            //=====================================其他参数====================================//
+            contentTypeWatchFlag: null, //内容区域watch
+            jsonWatchFlag: null, //watch标识用于清空数据
+            formDataWatchFlag: null, //watch标识用于清空数据
+            formUrlWatchFlag: null, //watch标识用于清空数据
+            rawType: "",
+            bodyType: "",
+            //=====================================其他参数====================================//
+            debounceFn: null, //节流函数实例
+            dialogVisible: false, //将json转换为请求参数弹窗
+            dialogVisible3: false, //保存当前参数为模板
+        };
     },
     computed: {
         requestBody() { //请求body
@@ -172,27 +193,6 @@ export default {
             },
             immediate: true,
         },
-    },
-    data() {
-        return {
-            usefulPresetParamsList: [], //常用参数模板
-            //=========================================================================//
-            jsonBody: [], //application/json
-            formDataBody: [], //multipart/form-data
-            formUrlBody: [], //application/x-www-form-urlencoded
-            rawBody: "", //raw
-            //=====================================其他参数====================================//
-            contentTypeWatchFlag: null, //内容区域watch
-            jsonWatchFlag: null, //watch标识用于清空数据
-            formDataWatchFlag: null, //watch标识用于清空数据
-            formUrlWatchFlag: null, //watch标识用于清空数据
-            rawType: "",
-            bodyType: "",
-            //=====================================其他参数====================================//
-            debounceFn: null, //节流函数实例
-            dialogVisible: false, //将json转换为请求参数弹窗
-            dialogVisible3: false, //保存当前参数为模板
-        };
     },
     mounted() {
         this.$event.one("apidoc/changeApiDocInfo", () => {

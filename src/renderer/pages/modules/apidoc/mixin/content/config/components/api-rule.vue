@@ -6,7 +6,7 @@
 */
 <template>
     <s-loading :loading="loading">
-        <el-form v-flex1="20" ref="form" :model="copyApiRules" class="api-rule" label-width="220px">
+        <el-form ref="form" v-flex1="20" :model="copyApiRules" class="api-rule" label-width="220px">
             <!-- 基础配置 -->
             <s-fieldset title="基础配置">
                 <s-config label="单个目录最大允许文档数量" :has-check="false" description="限制单个目录下文档个数，提高可阅读性">
@@ -45,9 +45,9 @@
                     <div slot="operation">
                         <span>
                             <span class="gray-800">支持Content-Type：</span>
-                            <span v-for="(ct, index) in item.enabledContenType" :key="ct" class="gray-600">
+                            <span v-for="(ct, i) in item.enabledContenType" :key="ct" class="gray-600">
                                 <span>{{ ct }}</span>
-                                <el-divider v-if="index !== item.enabledContenType.length - 1" direction="vertical"></el-divider>
+                                <el-divider v-if="i !== item.enabledContenType.length - 1" direction="vertical"></el-divider>
                             </span>
                         </span>
                     </div>

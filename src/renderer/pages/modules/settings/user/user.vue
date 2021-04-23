@@ -33,7 +33,7 @@
                 </div>
             </div>
         </s-card>
-        <s-dialog title="修改密码" :isShow.sync="dialogVisible">
+        <s-dialog title="修改密码" :is-show.sync="dialogVisible">
             <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
                 <el-form-item label="原始密码" prop="oldPassword">
                     <el-input v-model="formInfo.oldPassword" show-password size="mini" placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>

@@ -16,22 +16,22 @@
                 </span>
                 <el-divider></el-divider>
                 <el-tree
-                        class="mt-2"
-                        ref="docTree"
-                        :data="sourceTreeData"
-                        node-key="_id"
-                        draggable
-                        :allow-drop="() => false"
-                        @node-drag-over="handleSourceNodeDragOver"
-                        @node-drag-start="handleSourceDragstart"
-                        @node-drag-end="handleSourceDragend"
-                        :expand-on-click-node="true"
+                    ref="docTree"
+                    class="mt-2"
+                    :data="sourceTreeData"
+                    node-key="_id"
+                    draggable
+                    :allow-drop="() => false"
+                    :expand-on-click-node="true"
+                    @node-drag-over="handleSourceNodeDragOver"
+                    @node-drag-start="handleSourceDragstart"
+                    @node-drag-end="handleSourceDragend"
                 >
                     <template slot-scope="scope">
                         <div
-                                class="custom-tree-node"
-                                tabindex="0"
-                                slot="reference"
+                            slot="reference"
+                            class="custom-tree-node"
+                            tabindex="0"
                         >
                             <!-- file渲染 -->
                             <template v-if="!scope.data.isFolder">
@@ -42,14 +42,14 @@
                             </template>
                             <!-- 文件夹渲染 -->
                             <template v-if="scope.data.isFolder">
-                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                 <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                             </template>
                         </div>
                     </template>
                 </el-tree>
             </div>
-            <div v-flex1="30" ref="target" class="right">
+            <div ref="target" v-flex1="30" class="right">
                 <div>
                     <div class="orange">
                         <span class="el-icon-info mr-1"></span>
@@ -69,24 +69,24 @@
                             node-key="_id"
                             draggable
                             :allow-drop="checkTargetCouldDrop"
+                            :expand-on-click-node="true"
+                            empty-text="暂无文档，请在项目中添加至少一个文档"
                             @node-contextmenu="handleContextmenu"
                             @node-drag-over="handleTargetNodeDragOver"
                             @node-drag-start="handleTargetDragStart"
                             @node-drop="handleTargetDrop"
                             @node-expand="clearContextmenu"
                             @node-collapse="clearContextmenu"
-                            :expand-on-click-node="true"
-                            empty-text="暂无文档，请在项目中添加至少一个文档"
                         >
                             <template slot-scope="scope">
                                 <div
-                                        class="custom-tree-node"
-                                        tabindex="1"
-                                        slot="reference"
+                                    slot="reference"
+                                    class="custom-tree-node"
+                                    tabindex="1"
                                 >
                                     <!-- 文件夹渲染 -->
                                     <template v-if="scope.data.isFolder">
-                                        <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                        <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                         <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                     </template>
                                     <!-- file渲染 -->
@@ -103,7 +103,7 @@
                 </div>
             </div>
         </div>
-        <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :projectId="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
+        <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :project-id="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
     </s-fieldset>
 </template>
 

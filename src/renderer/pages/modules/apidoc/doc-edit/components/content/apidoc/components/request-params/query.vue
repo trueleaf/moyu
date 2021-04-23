@@ -28,7 +28,7 @@
                             <div class="apply-template">
                                 <div class="cyan mb-2">常用</div>
                                 <template v-for="(item, index) in usefulPresetRequestParamsList">
-                                    <span class="params-item" :key="index" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
+                                    <span :key="index" class="params-item" @click="handleSelectPresetParams(item)">{{ item.name }}</span>
                                 </template>
                                 <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                 <hr>
@@ -47,7 +47,7 @@
             <div class="cursor-pointer hover-theme-color mr-3" @click.stop="dialogVisible3 = true">
                 <span>保存为模板</span>
             </div>
-             <!-- json预览 -->
+            <!-- json预览 -->
             <!-- <el-popover ref="jsonView" placement="right">
                 <s-array-view :data="queryParams" class="w-500px mt-2">
                     <div v-copy="jsonQueryParams" slot="header" class="cursor-pointer">复制为json</div>
@@ -63,7 +63,7 @@
             :tree-data="queryParams"
             :nest="false"
             :mind-params="mindParams.queryParams"
-            showCheckbox
+            show-checkbox
         >
         </s-params-tree>
         <!-- 弹窗 -->
@@ -78,11 +78,19 @@ import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
 
 export default {
-    name: "QUERY_PARAMS",
-    mixins: [mixin],
+    name: "QueryParams",
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
+    },
+    mixins: [mixin],
+    data() {
+        return {
+            usefulPresetRequestParamsList: [], //常用参数模板
+            //=====================================其他参数====================================//
+            dialogVisible: false, //将json转换为请求参数弹窗
+            dialogVisible3: false, //保存当前参数为模板
+        };
     },
     computed: {
         queryParams: { //请求参数
@@ -104,14 +112,6 @@ export default {
             const convertQueryParams = this.convertPlainParamsToTreeData(queryParams || []);
             return JSON.stringify(convertQueryParams, null, 4);
         },
-    },
-    data() {
-        return {
-            usefulPresetRequestParamsList: [], //常用参数模板
-            //=====================================其他参数====================================//
-            dialogVisible: false, //将json转换为请求参数弹窗
-            dialogVisible3: false, //保存当前参数为模板
-        };
     },
     methods: {
         //=====================================获取远程数据==================================//

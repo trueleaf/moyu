@@ -15,9 +15,9 @@
         <!-- 请求操作区域 -->
         <div class="d-flex w-100">
             <s-v-input
-                    v-model="path"
-                    placeholder="刷新可以恢复接口到最初状态"
-                    size="small"
+                v-model="path"
+                placeholder="刷新可以恢复接口到最初状态"
+                size="small"
             >
                 <div slot="prepend" class="request-input">{{ baseInfo.method.toUpperCase() }}</div>
             </s-v-input>
@@ -28,7 +28,8 @@
                 :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
                 type="success"
                 size="small"
-                @click="sendRequest">
+                @click="sendRequest"
+            >
                 发送请求
             </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="stopRequest">取消请求</el-button>
@@ -43,6 +44,14 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
     mixins: [mixin],
+    data() {
+        return {
+            path: "",
+            host: "",
+            requestPath: "",
+            loading2: false,
+        };
+    },
     computed: {
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
@@ -74,14 +83,6 @@ export default {
         loading() { //发送请求loading效果
             return this.$store.state.apidoc.sendRequestLoading;
         },
-    },
-    data() {
-        return {
-            path: "",
-            host: "",
-            requestPath: "",
-            loading2: false,
-        };
     },
     watch: {
         baseInfo: {
