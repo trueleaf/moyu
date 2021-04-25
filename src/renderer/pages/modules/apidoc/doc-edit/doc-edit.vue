@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import Server from "@/server"
 import banner from "./components/banner/banner.vue";
 import navs from "./components/navs/navs.vue";
 import content from "./components/content/content.vue";
@@ -26,7 +27,9 @@ export default {
         "s-content": content,
     },
     data() {
-        return {};
+        return {
+            mockServer: null,
+        };
     },
     computed: {
         tabs() { //--------------全部tabs
@@ -42,10 +45,15 @@ export default {
         this.getLocalCookies(); //获取本地cookies
     },
     mounted() {
-        window.addEventListener("keyup", this.initShortcut)
+        this.mockServer = new Server();
+        this.mockServer.init();
+        this.mockServer.start();
+        window.addEventListener("keyup", this.initShortcut);
     },
     beforeDestroy() {
-        window.removeEventListener("keyup", this.initShortcut)
+        window.removeEventListener("keyup", this.initShortcut);
+        this.mockServer.close();
+        this.mockServer = null;
     },
     methods: {
         //=====================================快捷键====================================//

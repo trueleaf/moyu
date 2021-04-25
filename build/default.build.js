@@ -63,6 +63,7 @@ module.exports = {
                 "form-data",
                 "proxy-agent",
                 "shelljs",
+                "koa",
             ],
             mainProcessFile: "src/main/index.js",
             mainProcessWatch: ["src/main/index.js"],

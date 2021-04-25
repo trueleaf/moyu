@@ -52,6 +52,7 @@ module.exports = {
         //mock相关配置
         mock: {
             enabled: true,
+            port: 55555,
         },
         //全局组件配置
         components: {
