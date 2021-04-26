@@ -60,6 +60,7 @@ module.exports = {
                 "urllib",
                 "cookie-parser",
                 "got",
+                "@koa/cors",
                 "form-data",
                 "proxy-agent",
                 "shelljs",
