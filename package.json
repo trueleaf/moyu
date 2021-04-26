@@ -30,6 +30,7 @@
     "core-js": "^3.6.5",
     "dayjs": "^1.10.4",
     "deepmerge": "^4.2.2",
+    "electron-log": "^4.3.4",
     "electron-updater": "^4.3.5",
     "element-ui": "^2.13.0",
     "file-type": "^14.7.1",
