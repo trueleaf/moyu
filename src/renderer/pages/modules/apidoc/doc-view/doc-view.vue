@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import Server from "@/server"
 import banner from "./components/banner/banner.vue";
 import navs from "./components/navs/navs.vue";
 import content from "./components/content/content.vue";
@@ -26,12 +27,15 @@ export default {
         "s-content": content,
     },
     data() {
-        return {};
+        return {
+            mockServer: null,
+        };
     },
     created() {
         this.getHostEnum(); //获取host值
         this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
+        this.initMockServer(); //初始化mock服务器
     },
     methods: {
         //=====================================获取远程数据==================================//
@@ -40,6 +44,11 @@ export default {
             this.$store.dispatch("apidoc/getHostEnum", {
                 projectId: this.$route.query.id,
             });
+        },
+        initMockServer() {
+            this.mockServer = new Server();
+            this.mockServer.init(this.$route.query.id);
+            this.mockServer.start();
         },
         //获取全局变量
         getVariables() {

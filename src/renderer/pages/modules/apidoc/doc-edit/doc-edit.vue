@@ -43,17 +43,13 @@ export default {
         this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
         this.getLocalCookies(); //获取本地cookies
+        this.initMockServer(); //初始化mock服务器
     },
     mounted() {
-        this.mockServer = new Server();
-        this.mockServer.init();
-        this.mockServer.start();
         window.addEventListener("keyup", this.initShortcut);
     },
     beforeDestroy() {
         window.removeEventListener("keyup", this.initShortcut);
-        this.mockServer.close();
-        this.mockServer = null;
     },
     methods: {
         //=====================================快捷键====================================//
@@ -79,6 +75,11 @@ export default {
             } else if (e.ctrlKey && e.key === "e") {
                 this.addAndChangeTab("文档导出", "exportDoc");
             }
+        },
+        initMockServer() {
+            this.mockServer = new Server();
+            this.mockServer.init(this.$route.query.id);
+            this.mockServer.start();
         },
         //新增并且改变当前选中tab
         addAndChangeTab(name, type) {

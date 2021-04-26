@@ -8,6 +8,9 @@
     <div class="base-info">
         <!-- host信息 -->
         <el-radio-group v-model="host" size="mini" class="mb-2">
+            <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
+                <el-radio slot="reference" :label="mockServer" border>mock服务器</el-radio>
+            </el-popover>
             <el-popover v-for="(item, index) in hostEnum" :key="index" :open-delay="600" :close-delay="0" placement="top-start" trigger="hover" :content="item.url" class="mr-2">
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
             </el-popover>
@@ -41,6 +44,7 @@
 </template>
 
 <script>
+import config from "@/../config/index"
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
@@ -50,6 +54,7 @@ export default {
             path: "",
             host: "",
             requestPath: "",
+            mockServer: `http://127.0.0.1:${config.renderConfig.mock.port}`, //-------------------mock服务器
             loading2: false,
         };
     },
@@ -99,10 +104,10 @@ export default {
         //===============================发送请求，保存请求，发布请求=======================//
         //发送请求
         sendRequest() {
-            const paths = this.convertPlainParamsToTreeData(this.apidocInfo.item.paths);
-            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams);
-            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody);
-            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers);
+            const { paths } = this.apidocInfo.item;
+            const queryParams = this.convertPlainParamsToTreeData(this.apidocInfo.item.queryParams, true);
+            const requestBody = this.convertPlainParamsToTreeData(this.apidocInfo.item.requestBody, true);
+            const headers = this.convertPlainParamsToTreeData(this.apidocInfo.item.headers, true);
             this.$store.dispatch("apidoc/sendRequest", {
                 url: this.apidocInfo.item.url,
                 method: this.apidocInfo.item.method,

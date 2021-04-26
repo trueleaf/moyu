@@ -99,6 +99,9 @@ export default {
                 folderNum,
             };
         },
+        test() {
+            return this.$store.state.apidoc.uniquePathEnum;
+        },
     },
     created() {
     },
