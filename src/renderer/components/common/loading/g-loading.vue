@@ -19,6 +19,11 @@ export default {
             default: false,
         },
     },
+    data() {
+        return {
+            loadingText: "",
+        };
+    },
     watch: {
         loading: {
             handler(val) {
@@ -28,11 +33,6 @@ export default {
             },
             immediate: true,
         },
-    },
-    data() {
-        return {
-            loadingText: "",
-        };
     },
     created() {
 

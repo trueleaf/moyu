@@ -25,15 +25,15 @@
         <!-- 树形文档导航 -->
         <div v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" class="doc-nav">
             <el-tree
-                    ref="docTree"
-                    :data="navTreeData"
-                    node-key="_id"
-                    empty-text="暂无数据"
-                    :default-expanded-keys="defaultExpandedKeys"
-                    :expand-on-click-node="true"
-                    :draggable="false"
-                    :filter-node-method="filterNode"
-                    @node-click="handleNodeClick"
+                ref="docTree"
+                :data="navTreeData"
+                node-key="_id"
+                empty-text="暂无数据"
+                :default-expanded-keys="defaultExpandedKeys"
+                :expand-on-click-node="true"
+                :draggable="false"
+                :filter-node-method="filterNode"
+                @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
                     <el-popover
@@ -42,22 +42,22 @@
                         placement="right"
                         width="300"
                         trigger="manual"
-                        >
+                    >
                         <div class="d-flex flex-column">
                             <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
                             <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
                             <s-label-value v-if="scope.data.url.path" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
                         </div>
                         <div
-                                class="custom-tree-node"
-                                :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                tabindex="0"
-                                slot="reference"
-                                @keydown.stop="handleKeydown($event, scope.data)"
-                                @keyup.stop="handleKeyUp($event, scope.data)"
-                                @click="handleClickNode($event, scope)"
-                                @mouseenter="handleHoverNode($event, scope)"
-                                @mouseleave="hoverNodeId = ''"
+                            slot="reference"
+                            class="custom-tree-node"
+                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            tabindex="0"
+                            @keydown.stop="handleKeydown($event, scope.data)"
+                            @keyup.stop="handleKeyUp($event, scope.data)"
+                            @click="handleClickNode($event, scope)"
+                            @mouseenter="handleHoverNode($event, scope)"
+                            @mouseleave="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
                             <template v-if="!scope.data.isFolder">
@@ -69,12 +69,13 @@
                                     class="node-name ml-1"
                                     :title="scope.data.name"
                                     :value="scope.data.name"
-                                    :keyword="queryData">
+                                    :keyword="queryData"
+                                >
                                 </s-emphasize>
                             </template>
                             <!-- 文件夹渲染 -->
                             <template v-if="scope.data.isFolder">
-                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                 <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                             </template>
                         </div>
@@ -88,27 +89,6 @@
 <script>
 export default {
     name: "SDocEditBanner",
-    computed: {
-        tabs() { //--------------全部tabs
-            return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-        currentSelectDoc() { //--当前选中的文档
-            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-        validRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
-        },
-    },
-    watch: {
-        currentSelectDoc: {
-            handler(val) {
-                if (val && val._id) {
-                    this.defaultExpandedKeys.splice(0, 1, val._id);
-                }
-            },
-            deep: true,
-        },
-    },
     data() {
         return {
             docBaseInfo: {},
@@ -138,6 +118,27 @@ export default {
             dialogVisible6: false, //----导出文档
             loading: false, //-----------左侧树形导航加载
         };
+    },
+    computed: {
+        tabs() { //--------------全部tabs
+            return this.$store.state.apidoc.tabs[this.$route.query.id];
+        },
+        currentSelectDoc() { //--当前选中的文档
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+    },
+    watch: {
+        currentSelectDoc: {
+            handler(val) {
+                if (val && val._id) {
+                    this.defaultExpandedKeys.splice(0, 1, val._id);
+                }
+            },
+            deep: true,
+        },
     },
     mounted() {
         this.init();

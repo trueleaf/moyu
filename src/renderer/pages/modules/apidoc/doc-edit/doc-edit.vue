@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import Server from "@/server"
 import banner from "./components/banner/banner.vue";
 import navs from "./components/navs/navs.vue";
 import content from "./components/content/content.vue";
@@ -26,7 +27,9 @@ export default {
         "s-content": content,
     },
     data() {
-        return {};
+        return {
+            mockServer: null,
+        };
     },
     computed: {
         tabs() { //--------------全部tabs
@@ -40,31 +43,43 @@ export default {
         this.getVariables(); //获取全局变量
         this.getProjectRules(); //获取项目规则
         this.getLocalCookies(); //获取本地cookies
+        this.initMockServer(); //初始化mock服务器
     },
     mounted() {
-        this.initShortcut();
+        window.addEventListener("keyup", this.initShortcut);
+    },
+    beforeDestroy() {
+        window.removeEventListener("keyup", this.initShortcut);
     },
     methods: {
         //=====================================快捷键====================================//
-        initShortcut() {
-            window.addEventListener("keyup", (e) => {
-                if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
-                    e.preventDefault();
-                    this.addAndChangeTab("历史记录", "history");
-                } else if (e.ctrlKey && e.key === ",") {
-                    this.addAndChangeTab("文档全局配置", "config");
-                } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
-                    this.$router.push({
-                        path: "/v1/apidoc/doc-view",
-                        query: {
-                            id: this.$route.query.id,
-                            name: this.$route.query.name,
-                        },
-                    });
-                } else if (e.ctrlKey && e.key === "i") {
-                    this.addAndChangeTab("文档导入", "importDoc");
+        initShortcut(e) {
+            if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
+                e.preventDefault();
+                this.addAndChangeTab("历史记录", "history");
+            } else if (e.ctrlKey && e.key === ",") {
+                this.addAndChangeTab("文档全局配置", "config");
+            } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
+                if (this.$route.path === "/v1/apidoc/doc-view") {
+                    return;
                 }
-            })
+                this.$router.push({
+                    path: "/v1/apidoc/doc-view",
+                    query: {
+                        id: this.$route.query.id,
+                        name: this.$route.query.name,
+                    },
+                });
+            } else if (e.ctrlKey && e.key === "i") {
+                this.addAndChangeTab("文档导入", "importDoc");
+            } else if (e.ctrlKey && e.key === "e") {
+                this.addAndChangeTab("文档导出", "exportDoc");
+            }
+        },
+        initMockServer() {
+            this.mockServer = new Server();
+            this.mockServer.init(this.$route.query.id);
+            this.mockServer.start();
         },
         //新增并且改变当前选中tab
         addAndChangeTab(name, type) {

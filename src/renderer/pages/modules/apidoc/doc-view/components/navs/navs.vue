@@ -10,17 +10,17 @@
             <div class="btn left" @click="moveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
-            <draggable ref="tabWrap" id="tabList" v-model="tabs" animation="150" class="tab-list">
+            <draggable id="tabList" ref="tabWrap" v-model="tabs" animation="150" class="tab-list">
                 <div
-                        v-for="(item, index) in tabs"
-                        ref="tabItem"
-                        :key="index"
-                        :title="item.name"
-                        :class="{active: currentSelectDoc && currentSelectDoc._id === item._id}"
-                        class="item"
-                        :data-index="index"
-                        @click="selectCurrentTab(item)"
-                        @contextmenu="handleRightClick($event, item, index)"
+                    v-for="(item, index) in tabs"
+                    ref="tabItem"
+                    :key="index"
+                    :title="item.name"
+                    :class="{active: currentSelectDoc && currentSelectDoc._id === item._id}"
+                    class="item"
+                    :data-index="index"
+                    @click="selectCurrentTab(item)"
+                    @contextmenu="handleRightClick($event, item, index)"
                 >
                     <!-- 接口文档 -->
                     <template v-if="item.tabType === 'doc'">
@@ -29,7 +29,7 @@
                         </template>
                     </template>
                     <!-- 其他 -->
-                   <template v-else>
+                    <template v-else>
                         <!-- 配置 -->
                         <span v-if="item.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
                         <!-- 参数模板 -->
@@ -177,7 +177,7 @@ export default {
                     distinguishCancelAndClose: true,
                     type: "warning",
                 }).then(() => {
-                    const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
+                    const matchedComponent = this.getComponentByName("RequestOperation");
                     matchedComponent.saveRequest().then(() => {
                         deleteTab();
                     });

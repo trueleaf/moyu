@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="新建项目" :isShow="visible" @close="handleClose">
+    <s-dialog title="新建项目" :is-show="visible" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
             <!-- 基础数据 -->
             <el-form-item label="项目名称：" prop="projectName">

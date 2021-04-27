@@ -31,8 +31,8 @@
         </s-fieldset>
         <s-fieldset v-if="selectedType !== 'otherProject'" title="额外配置">
             <s-config ref="config" label="选择导出" description="开启后可以自由选择需要导出的文档">
-                <template slot-scope="scope">
-                    <div v-if="scope.enabled" class="doc-nav">
+                <template slot-scope="prop">
+                    <div v-if="prop.enabled" class="doc-nav">
                         <div>
                             <span>总数：</span>
                             <span>{{ allCheckedNodes.length }}</span>
@@ -45,21 +45,21 @@
                         </div>
                         <el-divider></el-divider>
                         <el-tree
-                                ref="docTree"
-                                :data="navTreeData"
-                                node-key="_id"
-                                show-checkbox
-                                @check-change="handleCheckChange"
-                                :expand-on-click-node="true"
+                            ref="docTree"
+                            :data="navTreeData"
+                            node-key="_id"
+                            show-checkbox
+                            :expand-on-click-node="true"
+                            @check-change="handleCheckChange"
                         >
                             <template slot-scope="scope">
                                 <div
-                                        class="custom-tree-node"
-                                        :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                        tabindex="0"
-                                        slot="reference"
-                                        @keydown.stop="handleKeydown($event, scope.data)"
-                                        @keyup.stop="handleKeyUp($event, scope.data)"
+                                    slot="reference"
+                                    class="custom-tree-node"
+                                    :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                    tabindex="0"
+                                    @keydown.stop="handleKeydown($event, scope.data)"
+                                    @keyup.stop="handleKeyUp($event, scope.data)"
                                 >
                                     <!-- file渲染 -->
                                     <template v-if="!scope.data.isFolder">
@@ -70,7 +70,7 @@
                                     </template>
                                     <!-- 文件夹渲染 -->
                                     <template v-if="scope.data.isFolder">
-                                        <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                        <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                         <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                     </template>
                                 </div>
@@ -100,17 +100,6 @@ export default {
             default: false,
         },
     },
-    computed: {
-        navTreeData() { //-------树形导航数据
-            return this.$store.state.apidoc.banner;
-        },
-        validRequestMethods() {
-            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
-        },
-        currentSelectDoc() { //--当前选中的文档
-            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
-        },
-    },
     data() {
         return {
             formInfo: {
@@ -123,6 +112,17 @@ export default {
             //=====================================其他参数====================================//
             loading: false, //----------导出加载按钮
         };
+    },
+    computed: {
+        navTreeData() { //-------树形导航数据
+            return this.$store.state.apidoc.banner;
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        currentSelectDoc() { //--当前选中的文档
+            return this.$store.state.apidoc.activeDoc[this.$route.query.id];
+        },
     },
     mounted() {
     },

@@ -5,8 +5,8 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="修改项目" :isShow="visible" @close="handleClose">
-        <el-form v-loading="loading3" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" ref="form" :model="formInfo" :rules="rules" label-width="150px">
+    <s-dialog title="修改项目" :is-show="visible" @close="handleClose">
+        <el-form ref="form" v-loading="loading3" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" :model="formInfo" :rules="rules" label-width="150px">
             <!-- 基础数据 -->
             <el-form-item label="项目名称：" prop="projectName">
                 <el-input v-model="formInfo.projectName" size="mini" placeholder="请输入项目名称"></el-input>

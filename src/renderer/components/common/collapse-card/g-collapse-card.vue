@@ -6,9 +6,9 @@
 */
 <template>
     <div
-            class="collapse-card"
-            :class="{shadow: shadow}"
-            :style="{ width: width }"
+        class="collapse-card"
+        :class="{shadow: shadow}"
+        :style="{ width: width }"
     >
         <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
             <div class="head" @click="showContent = !showContent">
@@ -73,15 +73,15 @@ export default {
             default: "",
         },
     },
-    watch: {
-        fold() {
-            this.showContent = !this.fold;
-        },
-    },
     data() {
         return {
             showContent: true,
         };
+    },
+    watch: {
+        fold() {
+            this.showContent = !this.fold;
+        },
     },
     mounted() {
         this.showContent = !this.fold;

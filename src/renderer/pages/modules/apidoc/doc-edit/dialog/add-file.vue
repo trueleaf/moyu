@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="新建文档" :isShow="visible" width="40%" @close="handleClose">
+    <s-dialog title="新建文档" :is-show="visible" width="40%" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px" @submit.native.prevent="handleAddFile">
             <el-form-item label="文档名称" prop="name">
                 <el-input ref="nameInput" v-model="formInfo.name" size="mini" placeholder="请输入文件名称" class="w-100" maxlength="100" clearable></el-input>

@@ -35,9 +35,6 @@ export default {
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
     },
-    data() {
-        return {};
-    },
     created() {
 
     },

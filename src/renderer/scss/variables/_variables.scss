@@ -154,10 +154,10 @@ $border-radius: map-merge(
 
 
 //============================阴影==============================================//
-$box-shadow-sm:               rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, !default;
-$box-shadow-base:             rgba(0, 0, 0, 0.1) 0px 2px 8px 0px, !default;
-$box-shadow:                  rgba(0, 0, 0, 0.1) 0px 2px 12px 0px, !default;
-$box-shadow-bg:               rgba(0, 0, 0, 0.1) 0px 2px 16px 0px, !default;
+$box-shadow-sm:               rgba(0, 0, 0, 0.1) 0px 0px 4px 0px, !default;
+$box-shadow-base:             rgba(0, 0, 0, 0.1) 0px 0px 8px 0px, !default;
+$box-shadow:                  rgba(0, 0, 0, 0.1) 0px 0px 12px 0px, !default;
+$box-shadow-bg:               rgba(0, 0, 0, 0.1) 0px 0px 16px 0px, !default;
 
 $box-shadows: map-merge(
     (

@@ -167,7 +167,7 @@ export default {
                     distinguishCancelAndClose: true,
                     type: "warning",
                 }).then(() => {
-                    const matchedComponent = this.getComponentByName("REQUEST_OPERATION");
+                    const matchedComponent = this.getComponentByName("RequestOperation");
                     matchedComponent.saveRequest().then(() => {
                         deleteTab();
                     });

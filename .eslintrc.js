@@ -3,11 +3,15 @@ module.exports = {
     env: {
         node: true,
     },
-    extends: ["plugin:vue/essential", "@vue/airbnb"],
+    extends: ["plugin:vue/recommended", "@vue/airbnb"],
     parserOptions: {
         parser: "babel-eslint",
     },
     rules: {
+        "vue/html-indent": ["error", 4],
+        "vue/max-attributes-per-line": "off",
+        "vue/html-self-closing": "off",
+        "vue/singleline-html-element-content-newline": "off",
         "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
         'no-debugger': process.env.NODE_ENV === 'production' ? 'off' : 'off',
         indent: [2, 4], //强制为4格缩进

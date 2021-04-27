@@ -8,7 +8,7 @@
     <div class="maintain">
         <div v-show="!showAdd && !showEdit && !showView">
             <!-- 搜索条件 -->
-            <s-search showTip autoRequest @change="handleChange">
+            <s-search show-tip auto-request @change="handleChange">
                 <s-search-item label="词汇名词" prop="name"></s-search-item>
                 <el-button v-if="!showAdd && !showEdit && !showView" slot="operation" type="success" size="mini" @click="showAdd = true">新增词条</el-button>
             </s-search>

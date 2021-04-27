@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="导入第三方文档" :isShow="visible" class="import-doc" @close="handleClose">
+    <s-dialog title="导入第三方文档" :is-show="visible" class="import-doc" @close="handleClose">
         <div class="mb-5">
             <span>文档类型：</span>
             <el-radio-group v-model="formInfo.type">
@@ -20,17 +20,18 @@
                 <el-radio-button :label="true">覆盖方式</el-radio-button>
             </el-radio-group>
         </div>
-         <div class="mb-5">
+        <div class="mb-5">
             <span>导入文档类型：</span>
             <span class="orange">{{ importType }}</span>
         </div>
         <el-upload
-                class="w-100"
-                :limit="1"
-                drag
-                action=""
-                :before-upload="handleBeforeUpload"
-                :http-request="requestHook">
+            class="w-100"
+            :limit="1"
+            drag
+            action=""
+            :before-upload="handleBeforeUpload"
+            :http-request="requestHook"
+        >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
         </el-upload>

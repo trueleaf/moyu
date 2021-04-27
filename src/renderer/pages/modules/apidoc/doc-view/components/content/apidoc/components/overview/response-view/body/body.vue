@@ -8,6 +8,7 @@
     <s-loading :loading="loading" class="body-view">
         <template v-if="remoteResponse.mime">
             <!-- svg图片 -->
+            <!-- eslint-disable vue/no-v-html -->
             <div v-if="remoteResponse.mime.includes('image/svg+xml')" v-html="remoteResponse.value"></div>
             <!-- json格式 -->
             <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)">
@@ -104,17 +105,6 @@ export default {
         mindParams() { //联想参数
             return this.$store.state.apidoc.mindParams;
         },
-    },
-    data() {
-        return {
-            //=================================表单与表格参数================================//
-
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
-            //===================================其他参数====================================//
-        };
     },
     created() {
 

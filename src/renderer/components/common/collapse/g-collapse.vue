@@ -9,7 +9,7 @@
         <div class="header" @click="isActive = !isActive">
             <span class="gray-700" :class="{'el-icon-arrow-down': isActive, 'el-icon-arrow-right': !isActive}"></span>
             <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
-            <slot v-else name="title"/>
+            <slot v-else name="title" />
         </div>
         <div v-show="isActive" class="pr-2 pl-5 gray-700">
             <slot />

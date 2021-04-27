@@ -6,7 +6,7 @@
 */
 <template>
     <div>
-        <el-input :value="value" v-bind="$attrs" v-on="$listeners" @input="handleInput" style="color: red"></el-input>
+        <el-input :value="value" v-bind="$attrs" v-on="$listeners" @input="handleInput"></el-input>
     </div>
 </template>
 

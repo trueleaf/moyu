@@ -1,9 +1,11 @@
 import { app, protocol, BrowserWindow, ipcMain } from "electron";
+import log from "electron-log";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import config from "../config";
 import update from "./update";
 
+console.log = log.log;
 const isDevelopment = process.env.NODE_ENV !== "production";
 protocol.registerSchemesAsPrivileged([
     { scheme: "app", privileges: { secure: true, standard: true } },
@@ -26,12 +28,15 @@ async function createWindow() {
         await mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) mainWindow.webContents.openDevTools();
     } else if (!config.mainConfig.useLocalFile) {
+        log.info(`加载远端文件`, config.mainConfig.onlineUrl)
         //使用远端地址
         mainWindow
             .loadURL(config.mainConfig.onlineUrl)
-            .then()
+            .then((res) => {
+                log.log("success", res);
+            })
             .catch((err) => {
-                console.error(err);
+                log.log("error", err);
             });
     } else {
         //使用本地文件
@@ -79,6 +84,11 @@ app.on("ready", async () => {
     createWindow();
     update();
 });
+app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {
+    console.log("证书错误");
+    event.preventDefault()
+    callback(true)
+})
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

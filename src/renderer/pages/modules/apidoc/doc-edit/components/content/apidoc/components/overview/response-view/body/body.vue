@@ -8,6 +8,7 @@
     <s-loading :loading="loading" class="body-view">
         <template v-if="remoteResponse.mime">
             <!-- svg图片 -->
+            <!-- eslint-disable-next-line vue/no-v-html 感觉上还是有点危险 -->
             <div v-if="remoteResponse.mime.includes('image/svg+xml')" v-html="remoteResponse.value"></div>
             <!-- json格式 -->
             <s-json-view v-else-if="remoteResponse.mime.includes('application/json')" :data="JSON.parse(remoteResponse.value)">
@@ -135,17 +136,6 @@ export default {
         currentSelectDoc() { //当前选中的doc
             return this.$store.state.apidoc.activeDoc[this.$route.query.id];
         },
-    },
-    data() {
-        return {
-            //=================================表单与表格参数================================//
-
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
-            //===================================其他参数====================================//
-        };
     },
     created() {
 

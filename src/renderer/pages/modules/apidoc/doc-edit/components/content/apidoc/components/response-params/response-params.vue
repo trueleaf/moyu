@@ -6,7 +6,7 @@
 */
 <template>
     <div class="response-wrap">
-        <s-collapse-card v-for="(item, index) in responseParams" :fold="index !== 0" :key="index">
+        <s-collapse-card v-for="(item, index) in responseParams" :key="index" :fold="index !== 0">
             <s-params-tree
                 ref="paramsTree"
                 :tree-data="item.values"
@@ -18,14 +18,15 @@
                 <span v-if="!item._isEdit" class="edit-title">{{ item.title }}</span>
                 <input
                     v-else
-                    v-model="item._title"
                     :ref="'editInput' + index"
+                    v-model="item._title"
                     class="edit-input"
                     :class="{active: item._title.length === 0}"
                     type="text"
                     @click.stop="() => {}"
                     @keydown.enter="handleConfirmHead(item)"
-                    @blur="handleBlur(item)">
+                    @blur="handleBlur(item)"
+                >
                 <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmHead(item)">确定</span>
                 <span v-if="item._isEdit" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEditHead(item)">取消</span>
                 <span v-if="!item._isEdit" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleEditHead(item, index)"></span>
@@ -51,12 +52,12 @@
                                 <div class="apply-template">
                                     <div class="cyan mb-2">常用</div>
                                     <template v-for="(params, index2) in usefulPresetParamsList">
-                                        <span class="params-item" :key="index2" @click="handleSelectPresetParams(params, item)">{{ params.name }}</span>
+                                        <span :key="index2" class="params-item" @click="handleSelectPresetParams(params, item)">{{ params.name }}</span>
                                     </template>
                                     <span class="theme-color cursor-pointer ml-2" @click="handleOpenParamsTemplate">维护</span>
                                     <hr>
                                 </div>
-                                <el-dropdown-item v-for="(template, index) in templateList" :key="index" :command="template">
+                                <el-dropdown-item v-for="(template, i) in templateList" :key="i" :command="template">
                                     <span class="d-flex j-between">
                                         <span>{{ template.name }}</span>
                                         <span class="gray-400">{{ template.creatorName }}</span>
@@ -73,7 +74,7 @@
                 <!-- json预览 -->
                 <el-popover placement="right">
                     <s-array-view :data="item.values" class="w-500px mt-2">
-                        <div v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" slot="header" class="cursor-pointer">复制为json</div>
+                        <div slot="header" v-copy="JSON.stringify(convertPlainParamsToTreeData(item.values), null, 4)" class="cursor-pointer">复制为json</div>
                     </s-array-view>
                     <div slot="reference" class="cursor-pointer hover-theme-color mr-3">
                         <span>预览参数</span>
@@ -85,7 +86,6 @@
             <s-params-template :items="currentResponseParams.values" type="responseParams" :visible.sync="dialogVisible3" @success="handleAddParamsTemplate"></s-params-template>
         </s-collapse-card>
     </div>
-
 </template>
 
 <script>
@@ -94,10 +94,20 @@ import jsonSchema from "@/pages/modules/apidoc/doc-edit/dialog/json-schema.vue"
 import paramsTemplate from "@/pages/modules/apidoc/doc-edit/dialog/params-template.vue"
 
 export default {
-    mixins: [mixin],
     components: {
         "s-json-schema": jsonSchema,
         "s-params-template": paramsTemplate,
+    },
+    mixins: [mixin],
+    data() {
+        return {
+            usefulPresetParamsList: [], //常用参数模板
+            currentResponseParams: {}, //当前response值，因为有多个，操作时将当前值指向选中的response
+            //=====================================其他参数====================================//
+            dialogVisible: false, //将json转换为请求参数弹窗
+            dialogVisible2: false, //模板维护增删改查
+            dialogVisible3: false, //保存当前参数为模板
+        };
     },
     computed: {
         responseParams: { //请求参数
@@ -114,16 +124,6 @@ export default {
         templateList() { //参数模板列表
             return this.$store.state.apidoc.presetParamsList.filter((val) => val.presetParamsType === "responseParams");
         },
-    },
-    data() {
-        return {
-            usefulPresetParamsList: [], //常用参数模板
-            currentResponseParams: {}, //当前response值，因为有多个，操作时将当前值指向选中的response
-            //=====================================其他参数====================================//
-            dialogVisible: false, //将json转换为请求参数弹窗
-            dialogVisible2: false, //模板维护增删改查
-            dialogVisible3: false, //保存当前参数为模板
-        };
     },
     created() {},
     methods: {

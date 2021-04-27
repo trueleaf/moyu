@@ -10,7 +10,7 @@
         <div v-if="query" class="select-panel">
             <div v-if="realLoading" class="loading">加载中...</div>
             <div v-if="!realLoading && !$slots.default" class="empty">暂无数据</div>
-            <slot v-if="!realLoading && $slots.default"/>
+            <slot v-if="!realLoading && $slots.default" />
         </div>
     </div>
 </template>

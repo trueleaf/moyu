@@ -20,6 +20,7 @@
 </template>
 
 <script>
+import config from "@/../config/index"
 import hostManage from "@/pages/modules/apidoc/doc-edit/dialog/host-manage.vue"
 
 export default {
@@ -36,7 +37,7 @@ export default {
     },
     data() {
         return {
-            mockServer: "", //-------------------mock服务器
+            mockServer: `http://127.0.0.1:${config.renderConfig.mock.port}`, //-------------------mock服务器
             dialogVisible: false, //-------------域名维护弹窗
         };
     },

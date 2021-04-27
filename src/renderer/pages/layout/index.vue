@@ -10,7 +10,9 @@
             <div class="ml-5 header-left fl d-flex a-center">
                 <span class="f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.renderConfig.layout.title }}</span>
                 <el-menu :default-active="activeMenu" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
-                    <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">{{ item.name }}</el-menu-item>
+                    <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
+                        {{ item.name }}
+                    </el-menu-item>
                 </el-menu>
             </div>
             <div class="header-right mr-5 fr">
@@ -39,7 +41,7 @@
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="jumpToUserSetting">个人中心</el-dropdown-item>
                         <el-dropdown-item v-if="!isWeb" :disabled="downloading" @click.native="handleCheckUpdate">检查更新</el-dropdown-item>
-                        <el-dropdown-item >版本{{ config.updateConfig.version }}</el-dropdown-item>
+                        <el-dropdown-item>版本{{ config.updateConfig.version }}</el-dropdown-item>
                         <el-dropdown-item @click.native="logout">退出登陆</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>

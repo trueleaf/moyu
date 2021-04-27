@@ -10,38 +10,42 @@
             <s-card slot="left" v-loading="loading" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" title="菜单列表" class="tree" @contextmenu.native="handleContextmenuBlankTree">
                 <el-button slot="operation" size="mini" type="text" @click="handleOpenAddDialog">新增</el-button>
                 <el-tree
-                        ref="docTree"
-                        :data="treeData"
-                        node-key="id"
-                        :draggable="true"
-                        empty-text="暂无数据"
-                        :expand-on-click-node="false"
-                        :render-content="renderContent"
-                        :highlight-current="true"
-                        :default-expanded-keys="defaultExpandKeys"
-                        @node-drop="handleNodeDropSuccess"
-                        @node-expand="nodeExpand"
-                        @node-collapse="nodeCollapse"
-                        @current-change="handleNodeChange"
-                        @node-click="handleNodeClick"
-                        @node-contextmenu="handleContextmenu"
+                    ref="docTree"
+                    :data="treeData"
+                    node-key="id"
+                    :draggable="true"
+                    empty-text="暂无数据"
+                    :expand-on-click-node="false"
+                    :render-content="renderContent"
+                    :highlight-current="true"
+                    :default-expanded-keys="defaultExpandKeys"
+                    @node-drop="handleNodeDropSuccess"
+                    @node-expand="nodeExpand"
+                    @node-collapse="nodeCollapse"
+                    @current-change="handleNodeChange"
+                    @node-click="handleNodeClick"
+                    @node-contextmenu="handleContextmenu"
                 >
                 </el-tree>
             </s-card>
             <s-card slot="right" title="修改菜单">
-                <s-form v-if="currentActiveNode" ref="form2" showRules :editData="currentActiveNode">
-                    <s-form-item label="名称" vModel="name" required oneLine></s-form-item>
-                    <s-form-item label="路径" vModel="path" required oneLine></s-form-item>
+                <s-form v-if="currentActiveNode" ref="form2" show-rules :edit-data="currentActiveNode">
+                    <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                    <s-form-item label="名称" vModel="name" required one-line></s-form-item>
+                    <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                    <s-form-item label="路径" vModel="path" required one-line></s-form-item>
                     <s-form-item type="submit">
                         <el-button :loading="loading3" type="primary" size="mini" @click="handleEditMenu">确认修改</el-button>
                     </s-form-item>
                 </s-form>
             </s-card>
         </s-left-right>
-        <s-dialog title="新增菜单" :isShow.sync="isShow" width="40%">
-            <s-form v-if="isShow" ref="form" showTip :editData="formInfo">
-                <s-form-item label="菜单名称" vModel="name" oneLine required></s-form-item>
-                <s-form-item label="路径" vModel="path" oneLine required></s-form-item>
+        <s-dialog title="新增菜单" :is-show.sync="isShow" width="40%">
+            <s-form v-if="isShow" ref="form" :edit-data="formInfo">
+                <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                <s-form-item label="菜单名称" vModel="name" one-line required></s-form-item>
+                <!-- eslint-disable-next-line vue/attribute-hyphenation -->
+                <s-form-item label="路径" vModel="path" one-line required></s-form-item>
             </s-form>
             <div slot="footer">
                 <el-button :loading="loading2" size="mini" type="primary" @click="handleAddMenu">确定</el-button>

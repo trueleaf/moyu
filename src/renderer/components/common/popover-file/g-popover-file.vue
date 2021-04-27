@@ -44,7 +44,7 @@
             </div>
         </div>
         <span slot="reference">
-            <slot name="reference"/>
+            <slot name="reference" />
         </span>
     </el-popover>
 </template>

@@ -20,7 +20,7 @@
                     <use xlink:href="#iconshuaxin"></use>
                 </svg>
                 <el-badge :is-dot="hasFilterCondition">
-                    <el-popover placement="right-end"  width="800" trigger="click">
+                    <el-popover placement="right-end" width="800" trigger="click">
                         <el-tooltip slot="reference" class="item" effect="dark" content="添加过滤条件" :open-delay="300">
                             <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
                                 <use xlink:href="#iconguolv"></use>
@@ -55,7 +55,8 @@
                                         start-placeholder="开始日期"
                                         size="mini"
                                         class="mr-1"
-                                        end-placeholder="结束日期">
+                                        end-placeholder="结束日期"
+                                    >
                                     </el-date-picker>
                                     <el-button type="text" @click="handleClearDate">清空</el-button>
                                 </el-radio-group>
@@ -85,24 +86,24 @@
                 <span>过滤条件</span>
             </div> -->
             <el-tree
-                    ref="docTree"
-                    :data="navTreeData"
-                    node-key="_id"
-                    empty-text="暂无数据"
-                    :default-expanded-keys="defaultExpandedKeys"
-                    :expand-on-click-node="true"
-                    :draggable="false"
-                    :filter-node-method="filterNode"
-                    @node-click="handleNodeClick"
+                ref="docTree"
+                :data="navTreeData"
+                node-key="_id"
+                empty-text="暂无数据"
+                :default-expanded-keys="defaultExpandedKeys"
+                :expand-on-click-node="true"
+                :draggable="false"
+                :filter-node-method="filterNode"
+                @node-click="handleNodeClick"
             >
                 <template slot-scope="scope">
                     <div
-                            class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                            tabindex="1"
-                            @click="handleClickNode($event, scope)"
-                            @mouseover="hoverNodeId = scope.data._id"
-                            @mouseout="hoverNodeId = ''"
+                        class="custom-tree-node"
+                        :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                        tabindex="1"
+                        @click="handleClickNode($event, scope)"
+                        @mouseover="hoverNodeId = scope.data._id"
+                        @mouseout="hoverNodeId = ''"
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
@@ -114,12 +115,13 @@
                                 class="node-name ml-1"
                                 :title="scope.data.name"
                                 :value="scope.data.name"
-                                :keyword="queryData">
+                                :keyword="queryData"
+                            >
                             </s-emphasize>
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                             <span v-if="renameNodeId !== scope.data._id" :title="scope.data.name" class="node-name">{{ scope.data.name }}</span>
                             <input v-else v-model="scope.data.name" placeholder="不能为空" type="text" class="rename-ipt f-sm ml-1" @blur="handleChangeNodeName(scope.data)" @keydown.enter="handleChangeNodeName(scope.data)">
                         </template>
@@ -136,6 +138,44 @@ import { debounce } from "@/lib/index";
 
 export default {
     name: "SDocEditBanner",
+    data() {
+        return {
+            //=====================================文档增删改查====================================//
+            queryData: "", //------------文档过滤条件
+            docParentId: "", //----------文档父id
+            contextmenu: null, //--------右键弹窗
+            renameNodeId: "", //---------正在重命名的节点
+            pressCtrl: false, //---------是否按住ctrl键
+            multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
+            enableDrag: true, //---------是否允许文档被拖拽
+            defaultExpandedKeys: [], //--默认展开的文档key值
+            //=====================================文档过滤====================================//
+            formInfo: {
+                startTime: null, //--起始日期
+                endTime: null, //----结束日期
+                operators: [], //----操作者信息
+                recentNum: null, //-显示最近多少条
+            },
+            memberEnum: [],
+            dateRange: "", //--------日期范围
+            customDateRange: [], //--自定义日期范围
+            //=====================================拖拽参数====================================//
+            minWidth: 280, //------------最小宽度
+            maxWidth: 400, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            bannerWidth: 0, //-----------banner宽度
+            isDragging: false, //--------是否正在拖拽
+            //=====================================其他参数====================================//
+            hoverNodeId: "", //----------控制导航节点更多选项显示
+            dialogVisible: false, //-----新增文件夹弹窗
+            dialogVisible2: false, //----新增文件弹窗
+            dialogVisible3: false, //----导入第三方文档弹窗
+            dialogVisible4: false, //----查看历史记录
+            dialogVisible5: false, //----以模板新建
+            dialogVisible6: false, //----导出文档
+            loading: false, //-----------左侧树形导航加载
+        };
+    },
     computed: {
         navTreeData() { //-------树形导航数据
             const { banner } = this.$store.state.apidoc;
@@ -277,44 +317,6 @@ export default {
             },
             deep: true,
         },
-    },
-    data() {
-        return {
-            //=====================================文档增删改查====================================//
-            queryData: "", //------------文档过滤条件
-            docParentId: "", //----------文档父id
-            contextmenu: null, //--------右键弹窗
-            renameNodeId: "", //---------正在重命名的节点
-            pressCtrl: false, //---------是否按住ctrl键
-            multiSelectNode: [], //------按住ctrl+鼠标左键多选节点
-            enableDrag: true, //---------是否允许文档被拖拽
-            defaultExpandedKeys: [], //--默认展开的文档key值
-            //=====================================文档过滤====================================//
-            formInfo: {
-                startTime: null, //--起始日期
-                endTime: null, //----结束日期
-                operators: [], //----操作者信息
-                recentNum: null, //-显示最近多少条
-            },
-            memberEnum: [],
-            dateRange: "", //--------日期范围
-            customDateRange: [], //--自定义日期范围
-            //=====================================拖拽参数====================================//
-            minWidth: 280, //------------最小宽度
-            maxWidth: 400, //------------最大宽度
-            mousedownLeft: 0, //---------鼠标点击距离
-            bannerWidth: 0, //-----------banner宽度
-            isDragging: false, //--------是否正在拖拽
-            //=====================================其他参数====================================//
-            hoverNodeId: "", //----------控制导航节点更多选项显示
-            dialogVisible: false, //-----新增文件夹弹窗
-            dialogVisible2: false, //----新增文件弹窗
-            dialogVisible3: false, //----导入第三方文档弹窗
-            dialogVisible4: false, //----查看历史记录
-            dialogVisible5: false, //----以模板新建
-            dialogVisible6: false, //----导出文档
-            loading: false, //-----------左侧树形导航加载
-        };
     },
     mounted() {
         this.init();

@@ -17,13 +17,15 @@
                 <s-request-path-params
                     v-if="apidocInfo.item && apidocInfo.item.paths && apidocInfo.item.paths.length > 0"
                     ref="path"
-                    disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项">
+                    disabled-tip="当前项目配置该请求方法无法录入path参数，你可以在全局配置中更改该选项"
+                >
                 </s-request-path-params>
                 <s-request-query-params ref="query" :disabled="!enableQueryParams" disabled-tip="当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项"></s-request-query-params>
                 <s-request-body-params
                     ref="body"
                     :disabled="!enableBodyParams || (apidocInfo.item && apidocInfo.item.method === 'get')"
-                    :disabled-tip="`${(apidocInfo.item && apidocInfo.item.method === 'get') ? 'GET请求只允许Query传参' : '当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项'} `">
+                    :disabled-tip="`${(apidocInfo.item && apidocInfo.item.method === 'get') ? 'GET请求只允许Query传参' : '当前项目配置该请求方法无法录入query参数，你可以在全局配置中更改该选项'} `"
+                >
                 </s-request-body-params>
                 <s-response-params ref="response"></s-response-params>
                 <s-header-params ref="header"></s-header-params>
@@ -53,8 +55,7 @@ import overview from "./components/overview/overview.vue" //展示区域
 const { CancelToken } = axios;
 //=========================================================================//
 export default {
-    name: "APIDOC_CONTENT",
-    mixins: [mixin],
+    name: "ApidocContent",
     components: {
         "s-host-manage": hostManage,
         "s-request-operation-manage": requestOperationManage,
@@ -66,25 +67,24 @@ export default {
         "s-remark": remark,
         "s-overview": overview,
     },
-    watch: {
-        currentSelectDoc: {
-            handler(currentDoc, oldDoc) {
-                if (currentDoc.tabType !== "doc") { //只处理类型为doc数据
-                    if (this.cancel.length > 0) { //切换时都清除上一次请求
-                        this.cancel.forEach((c) => {
-                            c("取消请求");
-                        })
-                    }
-                    return;
-                }
-                if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
-                    this.checkCache(currentDoc);
-                    this.resumeRemoteResponse(); //恢复远端请求
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
+    mixins: [mixin],
+    data() {
+        return {
+            //=====================================记录录入时长===============================//
+            startTime: null, //开始时间
+            endTime: null, //结束时间
+            writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
+            //=====================================拖拽参数====================================//
+            minWidth: 300, //------------最小宽度
+            maxWidth: 800, //------------最大宽度
+            mousedownLeft: 0, //---------鼠标点击距离
+            responseWidth: 0, //-----------response宽度
+            isDragging: false, //--------是否正在拖拽
+            //=====================================其他参数====================================//
+            watchFlag: null, //用于清空录入参数变化的watch
+            cancel: [], //----请求列表
+            activeName: "s-a",
+        };
     },
     computed: {
         currentSelectDoc() { //当前选中的doc
@@ -130,23 +130,25 @@ export default {
             return this.$store.state.apidoc.apidocInfo?.item?.contentType;
         },
     },
-    data() {
-        return {
-            //=====================================记录录入时长===============================//
-            startTime: null, //开始时间
-            endTime: null, //结束时间
-            writeSensitivity: 25000, //毫秒，文档录入灵敏度，25s内有操作都算作持续录入
-            //=====================================拖拽参数====================================//
-            minWidth: 300, //------------最小宽度
-            maxWidth: 800, //------------最大宽度
-            mousedownLeft: 0, //---------鼠标点击距离
-            responseWidth: 0, //-----------response宽度
-            isDragging: false, //--------是否正在拖拽
-            //=====================================其他参数====================================//
-            watchFlag: null, //用于清空录入参数变化的watch
-            cancel: [], //----请求列表
-            activeName: "s-a",
-        };
+    watch: {
+        currentSelectDoc: {
+            handler(currentDoc, oldDoc) {
+                if (currentDoc.tabType !== "doc") { //只处理类型为doc数据
+                    if (this.cancel.length > 0) { //切换时都清除上一次请求
+                        this.cancel.forEach((c) => {
+                            c("取消请求");
+                        })
+                    }
+                    return;
+                }
+                if (!oldDoc || currentDoc._id !== oldDoc._id) { //这个判断代表只有是切换tab才会触发请求
+                    this.checkCache(currentDoc);
+                    this.resumeRemoteResponse(); //恢复远端请求
+                }
+            },
+            deep: true,
+            immediate: true,
+        },
     },
     mounted() {
         this.initDrag()
@@ -181,7 +183,7 @@ export default {
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.$event.emit("apidoc/getCacheSuccess");
                     this.$event.emit("apidoc/changeApiDocInfo");
-                    this.broadcast("REQUEST_BODY", "dataReady");
+                    this.broadcast("RequestBody", "dataReady");
                     const { query, body, header } = this.$refs;
                     Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                         console.error(err);
@@ -250,7 +252,7 @@ export default {
                 this.$store.commit("apidoc/changeApidocInfo", apidocInfo);
                 this.$store.commit("apidoc/changeOriginApidocInfo", originApidocInfo);
                 this.$event.emit("apidoc/changeApiDocInfo");
-                this.broadcast("REQUEST_BODY", "dataReady");
+                this.broadcast("RequestBody", "dataReady");
                 const { query, body, header } = this.$refs;
                 Promise.all([query.selectChecked(), body.selectChecked(), header.selectChecked()]).catch((err) => {
                     console.error(err);

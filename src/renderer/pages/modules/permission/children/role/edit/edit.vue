@@ -5,11 +5,13 @@
     备注：xxxx
 */
 <template>
-    <s-dialog class="g-role" title="编辑角色" :isShow="isShow" @close="handleClose">
+    <s-dialog class="g-role" title="编辑角色" :is-show="isShow" @close="handleClose">
         <div>
             <s-fieldset title="基本信息">
-                <s-form ref="form" :formInfo="formInfo">
+                <s-form ref="form" :form-info="formInfo">
+                    <!-- eslint-disable-next-line vue/attribute-hyphenation -->
                     <s-form-item label="角色名称" vModel="roleName" required oneLine></s-form-item>
+                    <!-- eslint-disable-next-line vue/attribute-hyphenation -->
                     <s-form-item label="备注" vModel="remark" required oneLine></s-form-item>
                 </s-form>
             </s-fieldset>
@@ -22,10 +24,11 @@
                                 <el-divider content-position="left">{{ title }}</el-divider>
                                 <div class="pl-5">
                                     <el-checkbox
-                                            v-model="item.__select"
-                                            :indeterminate="!!formInfo.clientRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.clientRoutes.find(i => i === val._id ))"
-                                            label="全选"
-                                            @change="handleSelectAllClientRoutes(item)">
+                                        v-model="item.__select"
+                                        :indeterminate="!!formInfo.clientRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.clientRoutes.find(i => i === val._id ))"
+                                        label="全选"
+                                        @change="handleSelectAllClientRoutes(item)"
+                                    >
                                     </el-checkbox>
                                     <el-checkbox-group v-model="formInfo.clientRoutes" @change="handleCheckSelectAllClientRoutes(item)">
                                         <el-checkbox v-for="(item2, index) in item" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
@@ -41,10 +44,11 @@
                                 <el-divider content-position="left">{{ title }}</el-divider>
                                 <div class="pl-5">
                                     <el-checkbox
-                                            v-model="item.__select"
-                                            :indeterminate="!!formInfo.serverRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.serverRoutes.find(i => i === val._id ))"
-                                            label="全选"
-                                            @change="handleSelectAllServerRoutes(item)">
+                                        v-model="item.__select"
+                                        :indeterminate="!!formInfo.serverRoutes.find((val) => item.find(i => i._id === val)) && !item.every((val) => formInfo.serverRoutes.find(i => i === val._id ))"
+                                        label="全选"
+                                        @change="handleSelectAllServerRoutes(item)"
+                                    >
                                     </el-checkbox>
                                     <el-checkbox-group v-model="formInfo.serverRoutes" @change="handleCheckSelectAllServerRoutes(item)">
                                         <el-checkbox v-for="(item2, index) in item" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
@@ -57,17 +61,17 @@
                     <el-tab-pane name="clientMenu" label="前端菜单">
                         <div class="wrap">
                             <el-tree
-                                    ref="docTree"
-                                    class="tree"
-                                    :data="clientMenu"
-                                    show-checkbox
-                                    node-key="_id"
-                                    :draggable="false"
-                                    empty-text="暂无数据"
-                                    :expand-on-click-node="false"
-                                    :render-content="renderContent"
-                                    :highlight-current="true"
-                                    @check-change="handleSelectClientMenu"
+                                ref="docTree"
+                                class="tree"
+                                :data="clientMenu"
+                                show-checkbox
+                                node-key="_id"
+                                :draggable="false"
+                                empty-text="暂无数据"
+                                :expand-on-click-node="false"
+                                :render-content="renderContent"
+                                :highlight-current="true"
+                                @check-change="handleSelectClientMenu"
                             >
                             </el-tree>
                         </div>
@@ -80,7 +84,6 @@
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
         </div>
     </s-dialog>
-
 </template>
 
 <script>

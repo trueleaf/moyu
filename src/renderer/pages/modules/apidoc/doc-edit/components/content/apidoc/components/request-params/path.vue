@@ -29,7 +29,6 @@
 import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 
 export default {
-    name: "PATH_PARAMS",
     mixins: [mixin],
     computed: {
         pathParams: { //请求参数
@@ -40,11 +39,6 @@ export default {
                 this.$store.commit("apidoc/changePathParams", val);
             },
         },
-    },
-    data() {
-        return {
-            //=====================================其他参数====================================//
-        };
     },
     methods: {
         //=====================================获取远程数据==================================//

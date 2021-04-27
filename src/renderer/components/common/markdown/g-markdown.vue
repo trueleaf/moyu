@@ -6,7 +6,6 @@
 */
 <template>
     <div>
-
     </div>
 </template>
 

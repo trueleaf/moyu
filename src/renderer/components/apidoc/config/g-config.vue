@@ -13,11 +13,11 @@
         </div>
         <div v-else-if="!hasCheck && !$slots.label" class="label">{{ label }}</div>
         <div v-else-if="$slots.label">
-            <slot name="label"/>
+            <slot name="label" />
         </div>
         <div v-show="description" class="mt-1 description">{{ description }}</div>
         <div class="mt-2">
-            <slot :enabled="enabled"/>
+            <slot :enabled="enabled" />
         </div>
     </div>
 </template>

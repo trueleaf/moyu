@@ -6,7 +6,7 @@
  */
 import Vue from "vue";
 import http from "@/api/api";
-import { findNodeById, throttle, uuid } from "@/lib";
+import { findNodeById, throttle, uuid, forEachForest } from "@/lib";
 import HttpClient from "./http";
 
 const CONTENT_TYPE = ["content-type", "Content-type", "content-Type", "ContentType", "contentType"];
@@ -48,6 +48,8 @@ export default {
             percent: null,
         },
         remoteResponseEqualToLocalResponse: false, //远程返回结果是否和本地相同
+        //=====================================Mock数据====================================//
+        uniquePathEnum: [], //路径方法枚举
         //=====================================其他参数====================================//
         apidocLoading: false, //是否正在请求api文档
         paramsValid: true, //参数是否满足校验需求
@@ -358,6 +360,21 @@ export default {
         changeCondition(state, isValid) {
             state.remoteResponseEqualToLocalResponse = isValid;
         },
+        //=====================================Mock数据====================================//
+        //改变路径方法映射枚举信息
+        changeDocPathEnum(state, payload) {
+            const result = [];
+            forEachForest(payload, (data) => {
+                if (!data.isFolder && data.url && data.url.path) {
+                    result.push({
+                        url: data.url.path,
+                        method: data.method,
+                        _id: data._id,
+                    });
+                }
+            });
+            state.uniquePathEnum = result;
+        },
     },
     actions: {
         //获取文档左侧banner
@@ -369,6 +386,7 @@ export default {
                 axios.get("/api/project/doc_tree_node", { params }).then((res) => {
                     const result = res.data;
                     context.commit("changeDocBanner", result);
+                    context.commit("changeDocPathEnum", result);
                     resolve();
                 }).catch((err) => {
                     reject(err);

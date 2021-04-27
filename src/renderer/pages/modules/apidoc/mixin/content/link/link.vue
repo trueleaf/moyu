@@ -31,7 +31,8 @@
                         maxlength="100"
                         type="password"
                         show-password
-                        clearable>
+                        clearable
+                    >
                     </el-input>
                 </s-config>
                 <s-config label="过期时间" :has-check="false" description="不填默认一个月后过期，最大日期为一年">
@@ -59,33 +60,33 @@
                             </div>
                             <hr>
                             <el-tree
-                                    ref="docTree"
-                                    :data="navTreeData"
-                                    node-key="_id"
-                                    show-checkbox
-                                    @check-change="handleCheckChange"
-                                    :expand-on-click-node="true"
+                                ref="docTree"
+                                :data="navTreeData"
+                                node-key="_id"
+                                show-checkbox
+                                :expand-on-click-node="true"
+                                @check-change="handleCheckChange"
                             >
-                                <template slot-scope="scope">
+                                <template slot-scope="prop">
                                     <el-popover
-                                        v-model="scope.data._ctrlPress"
+                                        v-model="prop.data._ctrlPress"
                                         class="w-100"
                                         placement="right"
                                         width="300"
                                         trigger="manual"
-                                        >
+                                    >
                                         <div class="d-flex flex-column">
                                             <s-label-value label="id：" label-width="auto" :value="scope.data._id"></s-label-value>
                                             <s-label-value label="创建者：" label-width="auto" :value="scope.data.creator"></s-label-value>
                                             <s-label-value v-if="!scope.data.isFolder" label="url：" label-width="auto" :value="scope.data.url.path" class="mb-0"></s-label-value>
                                         </div>
                                         <div
-                                                class="custom-tree-node"
-                                                :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
-                                                tabindex="0"
-                                                slot="reference"
-                                                @keydown.stop="handleKeydown($event, scope.data)"
-                                                @keyup.stop="handleKeyUp($event, scope.data)"
+                                            slot="reference"
+                                            class="custom-tree-node"
+                                            :class="{'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                                            tabindex="0"
+                                            @keydown.stop="handleKeydown($event, scope.data)"
+                                            @keyup.stop="handleKeyUp($event, scope.data)"
                                         >
                                             <!-- file渲染 -->
                                             <template v-if="!scope.data.isFolder">
@@ -96,7 +97,7 @@
                                             </template>
                                             <!-- 文件夹渲染 -->
                                             <template v-if="scope.data.isFolder">
-                                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px"/>
+                                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                                                 <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                             </template>
                                         </div>

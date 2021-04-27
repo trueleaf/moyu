@@ -7,12 +7,12 @@
 <template>
     <span>
         <span>{{ leftStr }}</span>
-       <span
+        <span
             :style="{
                 color: background ? '' : activeColor,
                 background: isMatched && background ? activeColor : '',
             }"
-            >{{ emphasizeStr }}</span>
+        >{{ emphasizeStr }}</span>
         <span>{{ rightStr }}</span>
     </span>
 </template>
@@ -37,17 +37,17 @@ export default {
             default: false,
         },
     },
-    computed: {
-        isMatched() {
-            return this.keyword && this.value.match(this.keyword)
-        },
-    },
     data() {
         return {
             leftStr: "",
             emphasizeStr: "",
             rightStr: "",
         };
+    },
+    computed: {
+        isMatched() {
+            return this.keyword && this.value.match(this.keyword)
+        },
     },
     watch: {
         keyword: {

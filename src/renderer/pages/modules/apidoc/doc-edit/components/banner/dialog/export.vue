@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog :isShow="visible" width="40%" class="doc-export" @close="handleClose">
+    <s-dialog :is-show="visible" width="40%" class="doc-export" @close="handleClose">
         <s-fieldset title="导出文档">
             <div class="download-wrap">
                 <s-download url="/api/project/doc_offline_data" :params="{ projectId: $route.query.id }" class="item">

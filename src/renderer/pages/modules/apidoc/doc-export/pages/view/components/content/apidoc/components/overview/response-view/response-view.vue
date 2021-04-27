@@ -77,6 +77,11 @@ export default {
         "s-headers": headers,
         "s-body": body,
     },
+    data() {
+        return {
+            activeName: "s-a",
+        };
+    },
     computed: {
         //远端返回数据结果
         remoteResponse() {
@@ -98,11 +103,6 @@ export default {
             const responseHeaders = this.$store.state.apidoc.remoteResponse?.headers || {};
             return Object.keys(responseHeaders).length;
         },
-    },
-    data() {
-        return {
-            activeName: "s-a",
-        };
     },
     created() {
         this.initEvent(); //初始化全局事件

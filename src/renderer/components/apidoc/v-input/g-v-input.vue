@@ -8,24 +8,23 @@
     <div class="v-input">
         <el-input v-if="!remote" :value="value" v-bind="$attrs" v-on="$listeners">
             <template slot="prepend">
-                <slot name="prepend"/>
+                <slot name="prepend" />
             </template>
         </el-input>
         <el-autocomplete
-                v-else :value="value"
-                v-bind="$attrs"
-                value-key="key"
-                popper-class="g-v-autocomplete"
-                class="w-100"
-                v-on="$listeners"
-                :fetch-suggestions="querySearchAsync"
-                :trigger-on-focus="false"
-                :highlight-first-item="true"
-                @keydown.native="handleKeyDown"
-                @select="handleSelect"
-                @input="handleAutocompleteInput"
+            v-else :value="value"
+            v-bind="$attrs"
+            value-key="key"
+            popper-class="g-v-autocomplete"
+            class="w-100"
+            :fetch-suggestions="querySearchAsync"
+            :trigger-on-focus="false"
+            :highlight-first-item="true"
+            v-on="$listeners"
+            @keydown.native="handleKeyDown"
+            @select="handleSelect"
+            @input="handleAutocompleteInput"
         >
-
             <template slot-scope="{ item }">
                 <!-- <div>{{ item.key }}</div> -->
                 <s-emphasize :value="item.key" :keyword="currentQuerystring" class="d-flex"></s-emphasize>

@@ -5,11 +5,14 @@
     备注：xxxx
 */
 <template>
-    <s-dialog class="g-user" title="新增用户(默认密码111111)" :isShow="isShow" @close="handleClose">
+    <s-dialog class="g-user" title="新增用户(默认密码111111)" :is-show="isShow" @close="handleClose">
         <el-divider content-position="left">基础信息</el-divider>
-        <s-form ref="form" :formInfo="formInfo">
+        <s-form ref="form" :form-info="formInfo">
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="登录名称" vModel="loginName" required halfLine></s-form-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="真实姓名" vModel="realName" required halfLine></s-form-item>
+            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="手机号" vModel="phone" required halfLine phone></s-form-item>
         </s-form>
         <el-divider content-position="left">角色选择</el-divider>
