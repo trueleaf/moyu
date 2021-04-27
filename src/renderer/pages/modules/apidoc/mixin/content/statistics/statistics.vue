@@ -14,16 +14,27 @@
                     <span>{{ docNumInfo.docNum }}</span>
                 </div>
             </div>
-            <!-- <div class="summary">
-                <div class="brand">
-                    <div class="title">接口数量</div>
-                    <div class="value">{{ docNumInfo.docNum }}</div>
+            <div class="f-base mt-2">
+                <div class="text-center">
+                    <span></span>
+                    <span>Mock服务器已启动</span>
+                    <span class="mx-2">http://127.0.0.1:{{ config.renderConfig.mock.port }}</span>
+                    <el-popover placement="top-start" width="350" trigger="hover" content="">
+                        <div class="f-sm mt-1">
+                            <span class="d-inline-block w-70px">真实接口</span>
+                            <span class="green ml-2">http://demo.com</span>
+                            <span>/user_info</span>
+                        </div>
+                        <div class="f-sm mt-1">
+                            <span class="d-inline-block w-70px">Mock接口</span>
+                            <span class="green ml-2">http://127.0.0.1:{{ config.renderConfig.mock.port }}</span>
+                            <span>/user_info</span>
+                        </div>
+                        <i slot="reference" class="el-icon-question"></i>
+                    </el-popover>
+                    <!-- <span class="ml-2 theme-color cursor-pointer">停止</span> -->
                 </div>
-                <div class="brand">
-                    <div class="title">文件夹数量</div>
-                    <div class="value">{{ docNumInfo.folderNum }}</div>
-                </div>
-            </div> -->
+            </div>
         </div>
         <div class="drawer">
             <el-tabs v-model="activeName">

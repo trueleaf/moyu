@@ -613,7 +613,13 @@ export default {
     .el-input__inner {
         border-radius: 0;
         border: none;
-        border-bottom: 1px solid $gray-300;
+        border-bottom: 1px solid $gray-400;
+        &:focus {
+            border-bottom: 1px solid $theme-color;
+        }
+    }
+    .el-input.is-disabled .el-input__inner {
+        border-bottom: 1px solid $gray-400;
     }
     .el-tree-node:focus>.el-tree-node__content {
         background: none;
