@@ -9,7 +9,7 @@
         <!-- host信息 -->
         <el-radio-group v-model="host" size="mini" class="mb-2">
             <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
-                <el-radio slot="reference" :label="mockServer" border>mock服务器</el-radio>
+                <el-radio slot="reference" :label="mockServer" border>Mock服务器</el-radio>
             </el-popover>
             <el-popover v-for="(item, index) in hostEnum" :key="index" :open-delay="600" :close-delay="0" placement="top-start" trigger="hover" :content="item.url" class="mr-2">
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
