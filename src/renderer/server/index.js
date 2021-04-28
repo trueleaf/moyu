@@ -2,6 +2,7 @@ import config from "@/../config/index"
 import apidocMixin from "@/pages/modules/apidoc/mixin"
 import store from "../store/index"
 import http from "../api/api"
+import Mock from "./mock"
 
 const { axios } = http;
 
@@ -35,8 +36,14 @@ const MockServer = (() => {
                             _id: matchedReuqest._id,
                         };
                         const result = await axios.get("/api/project/doc_detail", { params });
-                        const responseBody = result.data.item.responseParams[0]?.values;
-                        ctx.body = apidocMixin.methods.convertPlainParamsToTreeData(responseBody);
+                        const rawBody = result.data.item.responseParams[0]?.values;
+                        const convertBody = apidocMixin.methods.convertPlainParamsToTreeData(rawBody, null, (value) => {
+                            if (value.startsWith("@")) {
+                                return Mock.mock(value);
+                            }
+                            return value;
+                        })
+                        ctx.body = convertBody;
                     } else {
                         ctx.body = {
                             code: -1,

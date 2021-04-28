@@ -46,10 +46,10 @@ export default {
         this.initMockServer(); //初始化mock服务器
     },
     mounted() {
-        window.addEventListener("keyup", this.initShortcut);
+        window.addEventListener("keydown", this.initShortcut, true);
     },
     beforeDestroy() {
-        window.removeEventListener("keyup", this.initShortcut);
+        window.removeEventListener("keydown", this.initShortcut);
     },
     methods: {
         //=====================================快捷键====================================//
@@ -74,6 +74,9 @@ export default {
                 this.addAndChangeTab("文档导入", "importDoc");
             } else if (e.ctrlKey && e.key === "e") {
                 this.addAndChangeTab("文档导出", "exportDoc");
+            } else if (e.ctrlKey && e.key === "m") {
+                e.preventDefault();
+                this.addAndChangeTab("mock管理", "mock");
             }
         },
         initMockServer() {
