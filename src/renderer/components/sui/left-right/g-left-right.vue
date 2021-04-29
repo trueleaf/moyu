@@ -27,7 +27,7 @@ export default {
         },
         minLeftWidth: {
             type: [Number, String],
-            default: 350,
+            default: 150,
         },
     },
     data() {
@@ -89,6 +89,7 @@ export default {
          * @update             2019-12-30 09:02
          */
         handleResizeMousemove(e) {
+            e.preventDefault();
             e.stopPropagation();
             let moveLeft = 0;
             if (typeof this.leftDomWidth === "number") {
@@ -113,7 +114,8 @@ export default {
 
 <style lang="scss">
 .left-right {
-    min-height: 300px;
+    // min-height: 100px;
+    height: 100%;
     width: 100%;
     display: flex;
     .left-wrap {
