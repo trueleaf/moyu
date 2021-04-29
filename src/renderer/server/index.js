@@ -39,6 +39,10 @@ const MockServer = (() => {
                         const rawBody = result.data.item.responseParams[0]?.values;
                         const convertBody = apidocMixin.methods.convertPlainParamsToTreeData(rawBody, null, (value) => {
                             if (value.startsWith("@")) {
+                                if (value.startsWith("@/") && value.endsWith("/")) {
+                                    const replacedValue = value.replace(/(^@\/|\/$)/g, "")
+                                    return Mock.mock(new RegExp(replacedValue));
+                                }
                                 return Mock.mock(value);
                             }
                             return value;
