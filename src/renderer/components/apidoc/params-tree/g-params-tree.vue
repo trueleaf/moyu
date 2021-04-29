@@ -89,11 +89,16 @@
                         v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
                         v-model="scope.data._visible"
                         placement="top-start"
-                        width="200"
                         trigger="manual"
                         class="w-25 mr-2"
                     >
-                        <s-mock></s-mock>
+                        <s-mock
+                            v-if="scope.data._visible"
+                            @mouseenter.native="handleMouseenterValue(scope.data)"
+                            @mouseleave.native="handleMouseleaveValue(scope.data)"
+                            @select="(item) => handleSelectMockValue(item, scope.data)"
+                        >
+                        </s-mock>
                         <el-input
                             slot="reference"
                             v-model="scope.data.value"
@@ -103,8 +108,8 @@
                             class="w-100"
                             :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
                             @input="handleInputValue(scope.data)"
-                            @focus="enableDrag = false"
-                            @blur="enableDrag=true"
+                            @focus="handleFocusValue(scope.data)"
+                            @blur="handleBlurValue(scope.data)"
                         >
                         </el-input>
                     </el-popover>
@@ -393,12 +398,45 @@ export default {
             }
         },
         //=====================================value操作====================================//
+        //处理输入事件
         handleInputValue(row) {
             if (row.value.startsWith("@")) {
                 this.$set(row, "_visible", true);
             } else {
                 this.$set(row, "_visible", false);
             }
+        },
+        //focus事件
+        handleFocusValue(row) {
+            this.enableDrag = false;
+            if (row.value.startsWith("@")) {
+                this.$set(row, "_visible", true);
+            }
+            this.$set(row, "_mockFocus", true);
+        },
+        //处理blur事件
+        handleBlurValue(row) {
+            this.enableDrag = true;
+            if (!row._mockEnter) {
+                row._visible = false;
+            }
+            this.$set(row, "_mockFocus", false);
+        },
+        //处理mock弹窗enter效果
+        handleMouseenterValue(row) {
+            this.$set(row, "_mockEnter", true);
+        },
+        //处理mock弹窗leave效果
+        handleMouseleaveValue(row) {
+            if (!row._mockFocus) {
+                this.$set(row, "_visible", false);
+            }
+            this.$set(row, "_mockEnter", false);
+        },
+        //选择mock值
+        handleSelectMockValue(item, row) {
+            this.$set(row, "_visible", false);
+            row.value = `@${item.value}`;
         },
         //=====================================参数描述====================================//
         handleCheckDescription({ node, data }) {

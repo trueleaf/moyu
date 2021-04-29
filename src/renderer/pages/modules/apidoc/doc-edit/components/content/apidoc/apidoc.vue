@@ -180,6 +180,12 @@ export default {
             }
             if (currentDoc.changed) { //存在缓存直接应用缓存
                 this.db.findById("apidoc_doc", this.currentSelectDoc._id).then((data) => {
+                    //去除mock弹窗
+                    data.docs.item.responseParams.forEach((response) => {
+                        this.$helper.forEachForest(response.values, (value) => {
+                            this.$set(value, "_visible", false)
+                        });
+                    })
                     this.$store.commit("apidoc/changeApidocInfo", data.docs);
                     this.$event.emit("apidoc/getCacheSuccess");
                     this.$event.emit("apidoc/changeApiDocInfo");
@@ -245,6 +251,12 @@ export default {
                     this.confirmInvalidDoc();
                     return;
                 }
+                //去除mock弹窗
+                res.data.item.responseParams.forEach((response) => {
+                    this.$helper.forEachForest(response.values, (value) => {
+                        this.$set(value, "_visible", false)
+                    });
+                })
                 const resData = res.data;
                 this.addOperateDateForApidoc(resData);
                 const apidocInfo = JSON.parse(JSON.stringify(resData));
