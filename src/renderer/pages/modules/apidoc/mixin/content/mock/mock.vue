@@ -6,7 +6,16 @@
 */
 <template>
     <div class="s-mock">
-        aa
+        <s-fieldset title="新增Mock规则" class="w-50">
+            <el-form ref="form" :model="formInfo" label-width="150px">
+                <el-form-item label="占位符名称：">
+                    <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" placeholder="例如cname" maxlength="100" clearable></el-input>
+                </el-form-item>
+                <el-form-item label="占位符解释：">
+                    <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" placeholder="例如：中文名称" maxlength="100" clearable></el-input>
+                </el-form-item>
+            </el-form>
+        </s-fieldset>
     </div>
 </template>
 
@@ -15,7 +24,7 @@ export default {
     data() {
         return {
             //=================================表单与表格参数================================//
-
+            formInfo: {},
             //===================================枚举参数====================================//
 
             //===================================业务参数====================================//
