@@ -197,6 +197,7 @@ export default {
         },
         //选择模板
         handleSelectPresetParams(template, response) {
+            console.log(template, response)
             this.$refs.dropdown.forEach((dropdown) => {
                 dropdown.hide();
             })
@@ -215,18 +216,18 @@ export default {
                 findDoc.selectNum += 1;
             }
             localStorage.setItem("apidoc/responseParamsTemplate", JSON.stringify(currentLocalData));
-
-            const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
-            for (let i = 0, len = preParams.length; i < len; i += 1) {
-                const element = preParams[i];
-                const isComplex = element.type !== "object" && element.type !== "array";
-                if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
-                    continue;
-                }
-                if (!response.values.find((val) => val.key === element.key)) {
-                    response.values.unshift(element);
-                }
-            }
+            response.values = template.items
+            // const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
+            // for (let i = 0, len = preParams.length; i < len; i += 1) {
+            //     const element = preParams[i];
+            //     const isComplex = element.type !== "object" && element.type !== "array";
+            //     if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
+            //         continue;
+            //     }
+            //     if (!response.values.find((val) => val.key === element.key)) {
+            //         response.values.unshift(element);
+            //     }
+            // }
         },
         //每次选择都增加当前选中模板的权重
         freshLocalUsefulParams() {

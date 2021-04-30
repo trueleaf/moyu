@@ -158,7 +158,7 @@ export default {
                 findDoc.selectNum += 1;
             }
             localStorage.setItem("apidoc/queryParamsTemplate", JSON.stringify(currentLocalData));
-
+            console.log(template)
             const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
             for (let i = 0, len = preParams.length; i < len; i += 1) {
                 const element = preParams[i];
