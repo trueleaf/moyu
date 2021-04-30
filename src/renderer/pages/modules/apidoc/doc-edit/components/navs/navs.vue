@@ -44,6 +44,8 @@
                         <span v-if="item.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
                         <!-- 全局变量配置 -->
                         <span v-if="item.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
+                        <!-- mock管理 -->
+                        <span v-if="item.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">

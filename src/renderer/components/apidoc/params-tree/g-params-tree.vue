@@ -72,7 +72,7 @@
                         <el-option :disabled="!enableFormData" title="传输数据类型为formData才能使用file类型" label="file" value="file"></el-option>
                     </el-select>
                     <!-- 参数值 -->
-                    <s-v-input
+                    <!-- <s-v-input
                         v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
                         v-model="scope.data.value"
                         :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
@@ -82,9 +82,37 @@
                         class="w-25 mr-2"
                         :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
                         @focus="enableDrag = false"
-                        @blur="handleCheckValue(scope);enableDrag=true"
+                        @blur="enableDrag=true"
                     >
-                    </s-v-input>
+                    </s-v-input> -->
+                    <el-popover
+                        v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
+                        v-model="scope.data._visible"
+                        placement="top-start"
+                        trigger="manual"
+                        class="w-25 mr-2"
+                    >
+                        <s-mock
+                            v-if="scope.data._visible"
+                            @mouseenter.native="handleMouseenterValue(scope.data)"
+                            @mouseleave.native="handleMouseleaveValue(scope.data)"
+                            @select="(item) => handleSelectMockValue(item, scope.data)"
+                        >
+                        </s-mock>
+                        <el-input
+                            slot="reference"
+                            v-model="scope.data.value"
+                            :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
+                            title="对象和数组不必填写参数值"
+                            size="mini"
+                            class="w-100"
+                            :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
+                            @input="handleInputValue(scope.data)"
+                            @focus="handleFocusValue(scope.data)"
+                            @blur="handleBlurValue(scope.data)"
+                        >
+                        </el-input>
+                    </el-popover>
                     <div v-if="scope.data.type === 'file'" class="flex0 w-20">
                         <div class="fake-input" :class="{active: scope.data._name}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
                             <label v-show="!scope.data._name" for="fileInput" class="label">选择文件</label>
@@ -370,39 +398,45 @@ export default {
             }
         },
         //=====================================value操作====================================//
-        handleCheckValue({ node, data }) {
-            const parentNode = node.parent;
-            const parentData = node.parent.data;
-            const nodeIndex = (parentNode.level === 0) ? parentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
-            const realValue = this.convertVariable(data.value);
-            if (data.type === "object" || data.type === "array") { //数据和对象不必校验
-                return;
+        //处理输入事件
+        handleInputValue(row) {
+            if (row.value.startsWith("@")) {
+                this.$set(row, "_visible", true);
+            } else {
+                this.$set(row, "_visible", false);
             }
-            if (parentNode.level === 0 && parentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
-                return;
+        },
+        //focus事件
+        handleFocusValue(row) {
+            this.enableDrag = false;
+            if (row.value.startsWith("@")) {
+                this.$set(row, "_visible", true);
             }
-            if (nodeIndex !== parentData.length - 1) { //只要不是最后一个值都需要作数据校验
-                if (data.type === "number" && !this.isNumberLike(realValue)) {
-                    this.$set(data, "_valueError", {
-                        error: true,
-                        message: "参数值必须为数字类型",
-                    });
-                } else if (realValue == null) {
-                    this.$set(data, "_valueError", {
-                        error: true,
-                        message: "不能为null或者undefined",
-                    });
-                } else if (realValue.trim() === "" || realValue.match(/(^\s+)|(\s+$)/)) { //前后不能存在空格中间可以存在空格
-                    this.$set(data, "_valueError", {
-                        error: true,
-                        message: "不能存在空白字符串",
-                    });
-                } else {
-                    this.$set(data, "_valueError", {
-                        error: false,
-                    });
-                }
+            this.$set(row, "_mockFocus", true);
+        },
+        //处理blur事件
+        handleBlurValue(row) {
+            this.enableDrag = true;
+            if (!row._mockEnter) {
+                row._visible = false;
             }
+            this.$set(row, "_mockFocus", false);
+        },
+        //处理mock弹窗enter效果
+        handleMouseenterValue(row) {
+            this.$set(row, "_mockEnter", true);
+        },
+        //处理mock弹窗leave效果
+        handleMouseleaveValue(row) {
+            if (!row._mockFocus) {
+                this.$set(row, "_visible", false);
+            }
+            this.$set(row, "_mockEnter", false);
+        },
+        //选择mock值
+        handleSelectMockValue(item, row) {
+            this.$set(row, "_visible", false);
+            row.value = `@${item.value}`;
         },
         //=====================================参数描述====================================//
         handleCheckDescription({ node, data }) {

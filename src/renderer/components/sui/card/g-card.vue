@@ -72,10 +72,11 @@ export default {
     }
 }
 .s-card header {
-   font-size: fz(16);
+    font-size: fz(16);
     height: size(35);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     border-bottom: 1px solid $gray-300;
     color: $theme-color;
     &.active {

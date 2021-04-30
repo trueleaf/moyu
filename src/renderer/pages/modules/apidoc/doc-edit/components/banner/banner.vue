@@ -751,7 +751,7 @@ export default {
             this.multiSelectNode.forEach((val) => {
                 deleteIds.push(val.data._id);
                 if (val.data.isFolder) { //删除所有子元素
-                    forEachForest(val.data.children || [], (item) => {
+                    this.$helper.forEachForest(val.data.children || [], (item) => {
                         deleteIds.push(item._id);
                     });
                 }
@@ -774,13 +774,13 @@ export default {
                         this.handleDeleteTabsById(deleteIds);
                     })
                 }).catch((err) => {
-                    this.$errorThrow(err, this);
+                    console.error(err)
                 });
             }).catch((err) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
-                this.$errorThrow(err, this);
+                console.error(err)
             });
         },
         //根据id删除tab
@@ -789,7 +789,7 @@ export default {
                 projectId: this.$route.query.id,
                 deleteIds,
             });
-            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id)) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
+            if (!this.tabs.find((val) => val._id === this.currentSelectDoc._id) && this.tabs.length > 0) { //关闭左侧后若在tabs里面无法找到选中节点，则取第一个节点为选中节点
                 this.$store.commit("apidoc/changeCurrentTab", {
                     _id: this.tabs[this.tabs.length - 1]._id,
                     projectId: this.$route.query.id,

@@ -50,7 +50,7 @@ export default {
          * @param {boolean}          jumpChecked - 是否跳过
          * @return {JSON}            返回JSON字符串
          */
-        convertPlainParamsToTreeData(properties, jumpChecked) {
+        convertPlainParamsToTreeData(properties, jumpChecked, valueHook) {
             // console.log(properties)
             let globalResult = {};
             if (properties && properties[0] && properties[0].type === "array") {
@@ -65,7 +65,10 @@ export default {
                     }
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
                     const key = items[i].key.trim();
-                    const value = this.convertVariable(items[i].value);
+                    let value = this.convertVariable(items[i].value);
+                    if (valueHook) {
+                        value = valueHook(items[i].value, item[i]);
+                    }
                     const { type } = items[i]; // object,array,file
                     const valueTypeIsArray = Array.isArray(result);
                     const isComplex = (type === "object" || type === "array" || type === "file");

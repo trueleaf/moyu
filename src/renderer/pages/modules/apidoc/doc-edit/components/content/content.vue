@@ -25,6 +25,8 @@
             <s-doc-hisotry v-if="currentSelectDoc.tabType === 'history'"></s-doc-hisotry>
             <!-- 全局变量 -->
             <s-variable v-if="currentSelectDoc.tabType === 'variable'"></s-variable>
+            <!-- mock管理 -->
+            <s-mock v-if="currentSelectDoc.tabType === 'mock'"></s-mock>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
@@ -38,6 +40,7 @@ import statistics from "@/pages/modules/apidoc/mixin/content/statistics/statisti
 import exportDoc from "@/pages/modules/apidoc/mixin/content/export/export.vue";
 import importDoc from "@/pages/modules/apidoc/mixin/content/import/import.vue";
 import variable from "@/pages/modules/apidoc/mixin/content/variable/variable.vue";
+import mock from "@/pages/modules/apidoc/mixin/content/mock/mock.vue";
 import apidoc from "./apidoc/apidoc.vue";
 import paramsTemplate from "./params-template/params-template.vue";
 
@@ -52,6 +55,7 @@ export default {
         "s-import-doc": importDoc,
         "s-doc-hisotry": docHistory,
         "s-variable": variable,
+        "s-mock": mock,
     },
     data() {
         return {};
