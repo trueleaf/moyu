@@ -256,7 +256,9 @@ export default {
                 this.formUrlBody = [this.generateProperty()];
                 this.jsonBody = [jsonProperty];
             }
-            this.initWatch();
+            this.$nextTick(() => {
+                this.initWatch();
+            })
         },
         //初始化以后绑定对参数的监听
         initWatch() {
@@ -271,6 +273,7 @@ export default {
                 deep: true,
             });
             this.formDataWatchFlag = this.$watch("formDataBody", this.$helper.debounce((val) => {
+                console.log(222)
                 this.$store.commit("apidoc/changeRequestBody", this.$helper.cloneDeep(val));
             }), {
                 deep: true,
@@ -388,24 +391,32 @@ export default {
             }
             localStorage.setItem("apidoc/requestBodyTemplate", JSON.stringify(currentLocalData));
 
-            const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
-            for (let i = 0, len = preParams.length; i < len; i += 1) {
-                const element = preParams[i];
-                const isComplex = element.type !== "object" && element.type !== "array";
-                if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
-                    continue;
-                }
-                if (!this.requestBody.find((val) => val.key === element.key)) {
-                    if (this.bodyType === "application/json") {
-                        this.jsonBody.unshift(element);
-                    } else if (this.bodyType === "application/x-www-form-urlencoded") {
-                        this.formUrlBody.unshift(element);
-                    } else if (this.bodyType === "multipart/form-data") {
-                        this.formDataBody.unshift(element);
-                    }
-                    this.selectChecked()
-                }
+            if (this.bodyType === "application/json") {
+                this.jsonBody = template.item;
+            } else if (this.bodyType === "application/x-www-form-urlencoded") {
+                this.formUrlBody = template.item;
+            } else if (this.bodyType === "multipart/form-data") {
+                this.formDataBody = template.item;
             }
+            this.selectChecked()
+            // const preParams = template.items.filter((val) => val.key !== "" && val.value !== "");
+            // for (let i = 0, len = preParams.length; i < len; i += 1) {
+            //     const element = preParams[i];
+            //     const isComplex = element.type !== "object" && element.type !== "array";
+            //     if (isComplex && (element.key === "" || element.value === "")) { //对象，array不校验key和value
+            //         continue;
+            //     }
+            //     if (!this.requestBody.find((val) => val.key === element.key)) {
+            //         if (this.bodyType === "application/json") {
+            //             this.jsonBody.unshift(element);
+            //         } else if (this.bodyType === "application/x-www-form-urlencoded") {
+            //             this.formUrlBody.unshift(element);
+            //         } else if (this.bodyType === "multipart/form-data") {
+            //             this.formDataBody.unshift(element);
+            //         }
+            //         this.selectChecked()
+            //     }
+            // }
         },
         //每次选择都增加当前选中模板的权重
         freshLocalUsefulParams() {
