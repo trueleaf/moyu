@@ -18,7 +18,7 @@
                 <div class="text-center">
                     <span></span>
                     <span>Mock服务器已启动</span>
-                    <span class="mx-2">http://127.0.0.1:{{ config.renderConfig.mock.port }}</span>
+                    <span class="mx-2">http://{{ config.renderConfig.mock.ip }}:{{ config.renderConfig.mock.port }}</span>
                     <el-popover placement="top-start" width="350" trigger="hover" content="">
                         <div class="f-sm mt-1">
                             <span class="d-inline-block w-70px">真实接口</span>
@@ -27,7 +27,7 @@
                         </div>
                         <div class="f-sm mt-1">
                             <span class="d-inline-block w-70px">Mock接口</span>
-                            <span class="green ml-2">http://127.0.0.1:{{ config.renderConfig.mock.port }}</span>
+                            <span class="green ml-2">http://{{ config.renderConfig.mock.ip }}:{{ config.renderConfig.mock.port }}</span>
                             <span>/user_info</span>
                         </div>
                         <i slot="reference" class="el-icon-question"></i>
