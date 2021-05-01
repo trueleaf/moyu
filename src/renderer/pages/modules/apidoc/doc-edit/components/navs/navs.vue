@@ -60,6 +60,7 @@
                 <i class="el-icon-arrow-right"></i>
             </div>
         </div>
+        <div v-copy="ipAddress" class="ip-address">{{ ipAddress }}</div>
     </div>
 </template>
 <script>
@@ -97,6 +98,9 @@ export default {
         },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        ipAddress() {
+            return `http://${this.config.renderConfig.mock.ip}`
         },
     },
     mounted() {
@@ -516,6 +520,14 @@ export default {
                 }
             }
         }
+    }
+    .ip-address {
+        flex: 0 0 size(150);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        cursor: pointer;
     }
     .operaion {
         position: absolute;
