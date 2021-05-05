@@ -48,7 +48,7 @@ async function createWindow() {
     });
     mainWindow.on("ready-to-show", () => {
         mainWindow.show();
-        mainWindow.fullScreen();
+        mainWindow.maximize();
     });
     //=====================================render进程事件====================================//
     ipcMain.on("vue-fresh-content", () => {
