@@ -504,6 +504,7 @@ export default {
     .edit-area {
         border-right: 1px solid $gray-400;
         flex: 1;
+        overflow: hidden;
         .info-wrap {
             position: sticky;
             top: 0;
