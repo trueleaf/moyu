@@ -537,7 +537,7 @@ export default {
         }
     }
     .full-url {
-        min-height: size(30);
+        height: size(30);
         width: 100%;
         white-space: nowrap;
         &::-webkit-scrollbar {

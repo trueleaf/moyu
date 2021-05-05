@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="mb-2">
+    <div class="s-host mb-2">
         <el-radio-group v-model="host" size="mini" @change="handleChangeServer">
             <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>Mock服务器</el-radio>
@@ -15,6 +15,18 @@
             </el-popover>
         </el-radio-group>
         <el-button type="text" size="small" @click="dialogVisible = true;">服务器地址维护</el-button>
+        <div class="tag">
+            <el-select v-model="value" :size="config.renderConfig.layout.size" placeholder="选择标签">
+                <el-option
+                    v-for="item in 5"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                >
+                    <span>{{ item.label }}</span>
+                </el-option>
+            </el-select>
+        </div>
         <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
     </div>
 </template>
@@ -94,5 +106,12 @@ export default {
 </script>
 
 <style lang="scss">
-
+.s-host {
+    position: relative;
+    .tag {
+        position: absolute;
+        top: size(5);
+        right: size(10);
+    }
+}
 </style>
