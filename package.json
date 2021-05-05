@@ -61,6 +61,7 @@
     "xterm": "^4.11.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@commitlint/cli": "^9.1.2",
     "@commitlint/config-conventional": "^9.1.2",
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -73,7 +74,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-component": "^1.1.1",
     "base64-inline-loader": "^1.1.1",
-    "electron": "^9.0.0",
+    "electron": "^11.0.0",
     "electron-devtools-installer": "^3.1.0",
     "electron-icon-builder": "^2.0.1",
     "eslint": "^6.7.2",
