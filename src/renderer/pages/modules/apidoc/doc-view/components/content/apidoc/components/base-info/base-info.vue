@@ -54,7 +54,7 @@ export default {
             path: "",
             host: "",
             requestPath: "",
-            mockServer: `http://${this.config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`, //-------------------mock服务器
+            mockServer: `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`, //-------------------mock服务器
             loading2: false,
         };
     },
