@@ -66,6 +66,7 @@ module.exports = {
                 "shelljs",
                 "ssh2",
                 "koa",
+                "internal-ip",
             ],
             mainProcessFile: "src/main/index.js",
             mainProcessWatch: ["src/main/index.js"],

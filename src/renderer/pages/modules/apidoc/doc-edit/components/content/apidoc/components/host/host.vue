@@ -37,7 +37,7 @@ export default {
     },
     data() {
         return {
-            mockServer: `http://127.0.0.1:${config.renderConfig.mock.port}`, //-------------------mock服务器
+            mockServer: `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`, //-------------------mock服务器
             dialogVisible: false, //-------------域名维护弹窗
         };
     },

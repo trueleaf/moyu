@@ -6,6 +6,13 @@
 
 const packageJSON = require("../../package.json");
 
+let ip = "127.0.0.1";
+
+if (global && global.require) {
+    const internalIp = global.require("internal-ip");
+    ip = internalIp.v4.sync()
+    // console.log(, global.require)
+}
 //https://github.com/cheton/is-electron
 //https://github.com/electron/electron/issues/2288
 function isElectron() {
@@ -53,6 +60,7 @@ module.exports = {
         mock: {
             enabled: true,
             port: 55555,
+            ip,
         },
         //全局组件配置
         components: {
