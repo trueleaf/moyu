@@ -133,7 +133,7 @@ export default {
                 this.$store.commit("apidoc/clearRespons");
                 this.getComponentByName("ApidocContent").getDocDetail();
             } else {
-                this.$confirm("刷新后未保存数据据将丢失", "提示", {
+                this.$confirm("刷新后未保存数据将丢失", "提示", {
                     confirmButtonText: "刷新",
                     cancelButtonText: "取消",
                     type: "warning",
@@ -168,6 +168,10 @@ export default {
     .full-url {
         min-height: size(30);
         width: 100%;
+        white-space: nowrap;
+        &::-webkit-scrollbar {
+            height: 0px;
+        }
     }
     .request-input {
         display: flex;
