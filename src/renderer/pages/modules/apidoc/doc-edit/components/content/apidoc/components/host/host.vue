@@ -14,19 +14,19 @@
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
             </el-popover>
         </el-radio-group>
-        <el-button type="text" size="small" @click="dialogVisible = true;">服务器地址维护</el-button>
-        <div class="tag">
-            <el-select v-model="value" :size="config.renderConfig.layout.size" placeholder="选择标签">
+        <el-button type="text" size="small" @click="dialogVisible = true;">地址维护</el-button>
+        <!-- <div class="tag-wrap">
+            <el-select v-model="currentTag" :size="config.renderConfig.layout.size" placeholder="选择标签">
                 <el-option
-                    v-for="item in 5"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
+                    v-for="(item, index) in tagsEnum"
+                    :key="index"
+                    :label="item.name"
+                    :value="item.name"
                 >
-                    <span>{{ item.label }}</span>
+                    <span>{{ item.name }}</span>
                 </el-option>
             </el-select>
-        </div>
+        </div> -->
         <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
     </div>
 </template>
@@ -74,6 +74,8 @@ export default {
             },
         },
     },
+    created() {
+    },
     methods: {
         //=====================================获取远程数据==================================//
         //获取host枚举值
@@ -107,11 +109,7 @@ export default {
 
 <style lang="scss">
 .s-host {
-    position: relative;
-    .tag {
-        position: absolute;
-        top: size(5);
-        right: size(10);
-    }
+    width: 100%;
+    display: flex;
 }
 </style>

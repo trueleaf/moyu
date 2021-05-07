@@ -81,6 +81,8 @@ export default {
                 message: "请求url不能为空",
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
+            currentTag: "",
+            tagsEnum: [], //标签枚举
             //=====================================其他参数====================================//
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
@@ -180,6 +182,7 @@ export default {
         },
     },
     mounted() {
+        this.getTagsEnum();
         window.addEventListener("keydown", this.shortcutSave)
     },
     beforeDestroy() {
@@ -522,6 +525,17 @@ export default {
                 return "当前请求方法被禁止，可以在全局配置中进行相关配置";
             }
             return "";
+        },
+        //获取标签枚举
+        getTagsEnum() {
+            const params = {
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/docs/docs_tag_enum", { params }).then((res) => {
+                this.tagsEnum = res.data;
+            }).catch((err) => {
+                console.error(err);
+            })
         },
     },
 };
