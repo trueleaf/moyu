@@ -6,7 +6,7 @@
 */
 <template>
     <div class="tag">
-        <el-popover v-model="visible" placement="bottom" trigger="manual" @click.native.stop="() => {}">
+        <el-popover v-model="popoverVisible" placement="bottom" trigger="manual" @click.native.stop="() => {}">
             <div class="tag-wrap">
                 <div class="search">
                     <el-input v-model="tagName" :size="config.renderConfig.layout.size" placeholder="搜索标签" class="w-100" maxlength="100" clearable>
@@ -20,10 +20,23 @@
                     </div>
                 </div>
                 <div class="operation">
-                    <el-button type="text" :size="config.renderConfig.layout.size">新增标签</el-button>
+                    <el-popover v-model="popoverVisible2" placement="right" trigger="manual" @click.native.stop="() => {}">
+                        <div class="add-tag">
+                            <div class="gray-900 mb-3">新增标签</div>
+                            <div class="mb-1 f-xs gray-600">标签名称</div>
+                            <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" class="w-100 mb-3" maxlength="100" clearable></el-input>
+                            <div class="mb-1 f-xs gray-600">颜色选择</div>
+                            <div class="color-wrap">
+                                <div v-for="item in colors" :key="item" class="rect" :style="{background: item}"></div>
+                                <el-color-picker v-model="formInfo.color" :size="config.renderConfig.layout.size"></el-color-picker>
+                            </div>
+                            <el-button type="primary" :size="config.renderConfig.layout.size" class="submit">确认添加</el-button>
+                        </div>
+                        <el-button slot="reference" type="text" :size="config.renderConfig.layout.size" @click="popoverVisible2 = !popoverVisible2">新增标签</el-button>
+                    </el-popover>
                 </div>
             </div>
-            <span slot="reference" class="cursor-pointer" @click="visible = !visible">
+            <span slot="reference" class="cursor-pointer" @click="popoverVisible = !popoverVisible">
                 <span class="el-icon-collection-tag f-sm mr-1"></span>
                 <span class="gray-600">选择标签</span>
             </span>
@@ -32,17 +45,26 @@
 </template>
 
 <script>
+import scssData from "@/scss/variables/_variables.scss";
+
 export default {
     data() {
         return {
             //=================================表单与表格参数================================//
-            tagName: "",
+            formInfo: {
+                name: "",
+                color: "#2cf",
+            },
+            rules: {},
             //===================================枚举参数====================================//
             tagsEnum: [], //host枚举信息
+            colors: [scssData.colorBlue, scssData.colorRed, scssData.colorOrange, scssData.colorYellow, scssData.colorGreen, scssData.colorPink, scssData.colorIndigo],
             //===================================业务参数====================================//
+            tagName: "",
 
             //===================================其他参数====================================//
-            visible: false, //是否显示弹出框
+            popoverVisible: false, //是否显示弹出框
+            popoverVisible2: false, //是否显示弹出框
         };
     },
     computed: {
@@ -78,7 +100,8 @@ export default {
         //=====================================组件间交互====================================//
         handleHidePopover(e) {
             e.stopPropagation();
-            this.visible = false;
+            this.popoverVisible = false;
+            this.popoverVisible2 = false;
         },
         //=====================================其他操作=====================================//
 
@@ -122,6 +145,26 @@ export default {
         display: flex;
         align-items: center;
         justify-content: flex-end;
+    }
+}
+.add-tag {
+    width: size(250);
+    height: size(250);
+    position: relative;
+    .color-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        .rect {
+            width: size(20);
+            height: size(20);
+            margin-right: size(10);;
+            margin-right: size(10);
+        }
+    }
+    .submit {
+        right: size(0);
+        bottom: size(0);
+        position: absolute;
     }
 }
 </style>
