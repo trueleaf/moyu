@@ -9,7 +9,7 @@
 ### 一款基于 Vue 和 Electron 的接口文档管理工具
 
 
-[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/shuxiaokai/moyu) | [在线体验](https://online.jobtool.cn/)
+[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe) | [完整文档](https://www.yuque.com/happymoyu) | [在线体验](https://online.jobtool.cn/)
 
 
 
