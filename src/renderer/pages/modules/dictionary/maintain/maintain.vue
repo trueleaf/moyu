@@ -9,7 +9,9 @@
         <div v-show="!showAdd && !showEdit && !showView">
             <!-- 搜索条件 -->
             <s-search show-tip auto-request @change="handleChange">
-                <s-search-item label="词汇名词" prop="name"></s-search-item>
+                <!-- eslint-disable vue/attribute-hyphenation -->
+                <s-search-item label="中文名词" vModel="cnName"></s-search-item>
+                <s-search-item label="英文名词" vModel="enName"></s-search-item>
                 <el-button v-if="!showAdd && !showEdit && !showView" slot="operation" type="success" size="mini" @click="showAdd = true">新增词条</el-button>
             </s-search>
             <!-- 表格展示 -->
@@ -77,7 +79,9 @@ export default {
         //==================================初始化&获取远端数据===============================//
 
         //=====================================前后端交互====================================//
-        handleChange() {},
+        handleChange(params) {
+            this.$refs.table.getData(params);
+        },
         //=====================================组件间交互====================================//
 
         //=====================================其他操作=====================================//
