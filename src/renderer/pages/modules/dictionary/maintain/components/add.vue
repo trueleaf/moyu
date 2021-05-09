@@ -28,6 +28,9 @@
                 <el-form-item label="英文名称：" prop="enName">
                     <el-input v-model="formInfo.enName" placeholder="eg：stupid" size="mini" class="w-80"></el-input>
                 </el-form-item>
+                <el-form-item label="标签信息：">
+                    啊
+                </el-form-item>
                 <el-form-item label="词汇举例：">
                     <el-input v-model="formInfo.example" placeholder="eg：老师经常对我说：笨鸟先飞" size="mini" class="w-80"></el-input>
                 </el-form-item>

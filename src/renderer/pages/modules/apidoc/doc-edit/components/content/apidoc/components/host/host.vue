@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div class="mb-2">
+    <div class="s-host mb-2">
         <el-radio-group v-model="host" size="mini" @change="handleChangeServer">
             <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>Mock服务器</el-radio>
@@ -14,7 +14,19 @@
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
             </el-popover>
         </el-radio-group>
-        <el-button type="text" size="small" @click="dialogVisible = true;">服务器地址维护</el-button>
+        <el-button type="text" size="small" @click="dialogVisible = true;">地址维护</el-button>
+        <!-- <div class="tag-wrap">
+            <el-select v-model="currentTag" :size="config.renderConfig.layout.size" placeholder="选择标签">
+                <el-option
+                    v-for="(item, index) in tagsEnum"
+                    :key="index"
+                    :label="item.name"
+                    :value="item.name"
+                >
+                    <span>{{ item.name }}</span>
+                </el-option>
+            </el-select>
+        </div> -->
         <s-host-manage v-if="dialogVisible" :visible.sync="dialogVisible" @change="getHostEnum"></s-host-manage>
     </div>
 </template>
@@ -62,6 +74,8 @@ export default {
             },
         },
     },
+    created() {
+    },
     methods: {
         //=====================================获取远程数据==================================//
         //获取host枚举值
@@ -94,5 +108,8 @@ export default {
 </script>
 
 <style lang="scss">
-
+.s-host {
+    width: 100%;
+    display: flex;
+}
 </style>

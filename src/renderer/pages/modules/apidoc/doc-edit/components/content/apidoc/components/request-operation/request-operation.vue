@@ -81,6 +81,8 @@ export default {
                 message: "请求url不能为空",
             },
             currentReqeustLimit: { enabledContenType: [] }, //当前选中请求类型额外规则
+            currentTag: "",
+            tagsEnum: [], //标签枚举
             //=====================================其他参数====================================//
             loading2: false, //------------保存接口loading
             loading3: false, //------------发布接口loading
@@ -180,6 +182,7 @@ export default {
         },
     },
     mounted() {
+        this.getTagsEnum();
         window.addEventListener("keydown", this.shortcutSave)
     },
     beforeDestroy() {
@@ -453,7 +456,7 @@ export default {
                 this.$store.commit("apidoc/clearRespons");
                 this.getComponentByName("ApidocContent").getDocDetail();
             } else {
-                this.$confirm("刷新后未保存数据据将丢失", "提示", {
+                this.$confirm("刷新后未保存数据将丢失", "提示", {
                     confirmButtonText: "刷新",
                     cancelButtonText: "取消",
                     type: "warning",
@@ -523,6 +526,17 @@ export default {
             }
             return "";
         },
+        //获取标签枚举
+        getTagsEnum() {
+            const params = {
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/docs/docs_tag_enum", { params }).then((res) => {
+                this.tagsEnum = res.data;
+            }).catch((err) => {
+                console.error(err);
+            })
+        },
     },
 };
 </script>
@@ -537,8 +551,12 @@ export default {
         }
     }
     .full-url {
-        min-height: size(30);
+        height: size(30);
         width: 100%;
+        white-space: nowrap;
+        &::-webkit-scrollbar {
+            height: 0px;
+        }
     }
 }
 </style>

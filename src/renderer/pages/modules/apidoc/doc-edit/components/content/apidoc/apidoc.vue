@@ -11,6 +11,7 @@
             <div class="info-wrap">
                 <s-host-manage></s-host-manage>
                 <s-request-operation-manage></s-request-operation-manage>
+                <s-tag></s-tag>
             </div>
             <!-- 参数录入 -->
             <div class="params-wrap hidden-md">
@@ -51,6 +52,7 @@ import resParams from "./components/response-params/response-params.vue" //返�
 import headerParams from "./components/header-params/header-params.vue" //请求头
 import remark from "./components/remark/remark.vue" //备注信息
 import overview from "./components/overview/overview.vue" //展示区域
+import tag from "./components/tag/tag.vue" //标签信息
 
 const { CancelToken } = axios;
 //=========================================================================//
@@ -66,6 +68,7 @@ export default {
         "s-header-params": headerParams,
         "s-remark": remark,
         "s-overview": overview,
+        "s-tag": tag,
     },
     mixins: [mixin],
     data() {
@@ -504,6 +507,7 @@ export default {
     .edit-area {
         border-right: 1px solid $gray-400;
         flex: 1;
+        overflow: hidden;
         .info-wrap {
             position: sticky;
             top: 0;

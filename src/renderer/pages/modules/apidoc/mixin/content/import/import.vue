@@ -34,41 +34,35 @@
                         <el-radio :label="true">覆盖方式</el-radio>
                     </el-radio-group>
                 </s-config>
-                <s-config label="目标目录" description="不选择目标目录则默认为根目录">
+                <s-config label="目标目录" description="不选择目标目录则默认为根目录" @change="handleToggleTargetFolder">
                     <template slot-scope="prop">
-                        <div v-show="prop.enabled" class="doc-nav">
-                            <el-tree
-                                ref="docTree"
-                                :data="navTreeData"
-                                node-key="_id"
-                                show-checkbox
-                                :expand-on-click-node="true"
-                                @check-change="handleCheckChange"
-                            >
-                                <template slot-scope="scope">
-                                    <div
-                                        slot="reference"
-                                        class="custom-tree-node"
-                                        tabindex="0"
-                                        @keydown.stop="handleKeydown($event, scope.data)"
-                                        @keyup.stop="handleKeyUp($event, scope.data)"
-                                    >
-                                        <!-- file渲染 -->
-                                        <template v-if="!scope.data.isFolder">
-                                            <template v-for="(req) in validRequestMethods">
-                                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                        <s-loading :loading="loading2">
+                            <div v-show="prop.enabled" class="doc-nav">
+                                <el-tree
+                                    ref="docTree"
+                                    :data="navTreeData"
+                                    node-key="_id"
+                                    show-checkbox
+                                    :expand-on-click-node="true"
+                                    :check-strictly="true"
+                                    @check="handleCheckChange"
+                                >
+                                    <template slot-scope="scope">
+                                        <div
+                                            slot="reference"
+                                            class="custom-tree-node"
+                                            tabindex="0"
+                                        >
+                                            <!-- 文件夹渲染 -->
+                                            <template>
+                                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
+                                                <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
                                             </template>
-                                            <span class="node-name ml-1">{{ scope.data.name }}</span>
-                                        </template>
-                                        <!-- 文件夹渲染 -->
-                                        <template v-if="scope.data.isFolder">
-                                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
-                                            <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                                        </template>
-                                    </div>
-                                </template>
-                            </el-tree>
-                        </div>
+                                        </div>
+                                    </template>
+                                </el-tree>
+                            </div>
+                        </s-loading>
                     </template>
                 </s-config>
             </div>
@@ -101,14 +95,14 @@ export default {
             },
             jsonText: "", //-------读取文件的json数据
             fileType: "", //-------文件类型
+            navTreeData: [], //文档树数据
+            currentMountedNode: null, //当前选中挂载节点
             //=====================================其他参数====================================//
             loading: false, //-----确认按钮
+            loading2: false, //----目标节点菜单
         };
     },
     computed: {
-        navTreeData() { //-------树形导航数据
-            return this.$store.state.apidoc.banner;
-        },
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         },
@@ -179,10 +173,21 @@ export default {
         handleSubmit() {
             try {
                 this.loading = true;
+                if (!this.formInfo.moyuData.docs) {
+                    this.$message.warning("请选择需要导入的文件");
+                    return;
+                }
+                const docs = this.formInfo.moyuData.docs.map((val) => ({
+                    ...val,
+                    pid: this.currentMountedNode ? this.currentMountedNode._id : "",
+                }))
                 const params = {
                     projectId: this.$route.query.id,
                     cover: this.formInfo.cover,
-                    moyuData: this.formInfo.moyuData,
+                    moyuData: {
+                        ...this.formInfo.moyuData,
+                        docs,
+                    },
                 };
                 this.axios.post("/api/project/import/moyu", params).then(() => {
                     this.$event.emit("apidoc/importDocSuccess");
@@ -194,6 +199,23 @@ export default {
             } catch (error) {
                 this.$message.warning(error.message);
                 this.loading = false;
+            }
+        },
+        //是否导入到特定文件夹
+        handleToggleTargetFolder(val) {
+            this.currentMountedNode = null;
+            if (val) {
+                this.loading2 = true;
+                const params = {
+                    projectId: this.$route.query.id,
+                };
+                this.axios.get("/api/project/doc_tree_folder_node", { params }).then((res) => {
+                    this.navTreeData = res.data;
+                }).catch((err) => {
+                    console.error(err);
+                }).finally(() => {
+                    this.loading2 = false;
+                });
             }
         },
         //=======================================其他操作==================================//
@@ -215,10 +237,12 @@ export default {
             console.log(val)
         },
         //节点选中状态改变时候
-        handleCheckChange() {
-            const checkedNodes = this.$refs.docTree.getCheckedNodes();
-            const halfCheckedNodes = this.$refs.docTree.getHalfCheckedNodes();
-            this.allCheckedNodes = checkedNodes.concat(halfCheckedNodes);
+        handleCheckChange(data, checkNode) {
+            this.$refs.docTree.setCheckedKeys([]);
+            if (checkNode.checkedKeys.length > 0) {
+                this.$refs.docTree.setCheckedKeys([data._id]);
+            }
+            this.currentMountedNode = data;
         },
     },
 };

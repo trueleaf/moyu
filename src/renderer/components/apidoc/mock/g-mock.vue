@@ -37,6 +37,12 @@ import Mock from "@/server/mock"
 import mockEnum from "./mock-enum";
 
 export default {
+    props: {
+        searchValue: {
+            type: String,
+            default: "",
+        },
+    },
     data() {
         return {
             //=================================表单与表格参数================================//
@@ -51,7 +57,11 @@ export default {
     computed: {
         mockEnum() {
             if (this.activeName === "all") {
-                return mockEnum;
+                return mockEnum.filter((mock) => {
+                    const mockValue = mock.value;
+                    const searchValue = this.searchValue.replace("@", "")
+                    return mockValue.includes(searchValue)
+                });
             }
             return mockEnum.filter((val) => val.tags.find((tag) => tag === this.activeName));
         },

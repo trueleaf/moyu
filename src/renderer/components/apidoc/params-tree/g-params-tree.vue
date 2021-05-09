@@ -94,6 +94,7 @@
                     >
                         <s-mock
                             v-if="scope.data._visible"
+                            :search-value="scope.data.value"
                             @mouseenter.native="handleMouseenterValue(scope.data)"
                             @mouseleave.native="handleMouseleaveValue(scope.data)"
                             @select="(item) => handleSelectMockValue(item, scope.data)"
