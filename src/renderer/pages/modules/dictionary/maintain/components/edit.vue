@@ -42,7 +42,8 @@
             <i class="el-icon-close close" @click="handleClose"></i>
         </s-fieldset>
         <s-fieldset title="预览" class="ml-2 w-50 flex0">
-            <div v-html="formInfo.remark" class="px-3"></div>
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div class="px-3" v-html="formInfo.remark"></div>
         </s-fieldset>
     </s-loading>
 </template>

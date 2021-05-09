@@ -36,7 +36,7 @@
             </s-table>
         </div>
         <s-view v-if="showView"></s-view>
-        <s-edit v-if="showEdit" @close="showEdit = false" :id="editId"></s-edit>
+        <s-edit v-if="showEdit" :id="editId" @close="showEdit = false"></s-edit>
         <s-add v-if="showAdd" @close="showAdd = false"></s-add>
     </div>
 </template>
