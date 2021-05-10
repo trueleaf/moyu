@@ -44,10 +44,12 @@
                         <el-tooltip effect="light" :open-delay="1500" :content="item.value" placement="bottom-start">
                             <s-emphasize v-if="item.valueType === 'string'" class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
                         </el-tooltip>
-                        <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
-                        <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
-                        <span v-if="item.valueType === 'null'" class="null-value">null</span>
-                        <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
+                        <span>
+                            <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
+                            <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
+                            <span v-if="item.valueType === 'null'" class="null-value">null</span>
+                            <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
+                        </span>
                         <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                         <span class="comma">{{ item.comma }}</span>
@@ -186,8 +188,9 @@ export default {
                 const parentIsArray = (parent && parent.type === "array");
                 for (let i = 0; i < arrayData.length; i += 1) {
                     const item = arrayData[i];
-                    const itemValue = item.value;
+                    const itemValue = item.value; // == null || item.type.replace(/./, ($1) => $1.toUpperCase())
                     const itemType = item.type;
+                    const hasItemValue = (itemType === "string" && item.value != null) || item.value; //字符串可以为空""
                     const itemPath = item.key;
                     const isObject = itemType === "object";
                     const isArray = itemType === "array";
@@ -207,7 +210,14 @@ export default {
                         astInfo.indent = indent * level;
                         astInfo.path.value = itemPath;
                         astInfo.colon = parentIsArray ? "" : ":";
-                        astInfo.value = itemType === "string" ? `"${itemValue}"` : itemValue;
+                        // astInfo.value = itemType === "string" ? `"${itemValue}"` : itemValue;
+                        if (hasItemValue && itemType === "string") {
+                            astInfo.value = `"${itemValue}"`;
+                        } else if (hasItemValue && itemType !== "string") {
+                            astInfo.value = itemValue;
+                        } else {
+                            astInfo.value = item.type.replace(/./, ($1) => $1.toUpperCase())
+                        }
                         astInfo.valueType = itemType;
                         astInfo.comma = ",";
                         result.push(astInfo);
