@@ -85,6 +85,10 @@ module.exports = {
         import: {
             size: 1024 * 1024 * 5, //导入文件大小
         },
+        //下载相关
+        download: {
+            gitee: "https://gitee.com/shuzhikai/moyu/attach_files/696158/download/moyu%20Setup%200.5.0.exe",
+        },
     },
     //主进程配置
     mainConfig: {
