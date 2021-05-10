@@ -177,9 +177,10 @@ export default {
                     this.$message.warning("请选择需要导入的文件");
                     return;
                 }
+                const mountedId = this.currentMountedNode?._id;
                 const docs = this.formInfo.moyuData.docs.map((val) => ({
                     ...val,
-                    pid: this.currentMountedNode ? this.currentMountedNode._id : "",
+                    pid: val.pid || mountedId,
                 }))
                 const params = {
                     projectId: this.$route.query.id,
@@ -189,6 +190,7 @@ export default {
                         docs,
                     },
                 };
+                // console.log(params, JSON.parse(JSON.stringify(this.formInfo.moyuData)))
                 this.axios.post("/api/project/import/moyu", params).then(() => {
                     this.$event.emit("apidoc/importDocSuccess");
                 }).catch((err) => {
@@ -234,7 +236,7 @@ export default {
                     this.$errorThrow(err, this);
                 });
             }
-            console.log(val)
+            // console.log(val)
         },
         //节点选中状态改变时候
         handleCheckChange(data, checkNode) {
