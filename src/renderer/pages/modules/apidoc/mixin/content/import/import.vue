@@ -115,11 +115,12 @@ export default {
             const standerFileType = file.type;
             const suffixFileType = file.name.match(/(?<=\.)[^.]+$/) ? file.name.match(/(?<=\.)[^.]+$/)[0] : "";
             this.fileType = standerFileType || suffixFileType;
+            // console.log("文件类型", this.fileType, standerFileType, suffixFileType)
             if (!standerFileType && !suffixFileType) {
                 this.$message.error("未知的文件格式，无法解析");
                 return false;
             }
-            if (this.fileType !== "application/json" && this.fileType !== "yaml") {
+            if (this.fileType !== "application/json" && this.fileType !== "yaml" && this.fileType !== "application/x-yaml") {
                 this.$message.error("仅支持JSON格式或者YAML格式文件");
                 return false;
             }
@@ -132,7 +133,7 @@ export default {
         //自定义上传成功操作
         requestHook(e) {
             e.file.text().then((fileStr) => {
-                if (this.fileType === "yaml") {
+                if (this.fileType === "yaml" || this.fileType === "application/x-yaml") {
                     this.jsonText = jsyaml.load(fileStr);
                 } else {
                     this.jsonText = JSON.parse(fileStr)
