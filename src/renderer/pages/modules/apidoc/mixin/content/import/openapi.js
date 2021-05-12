@@ -154,6 +154,7 @@ class OpenApiTranslate {
             const element = openApiDocInfo[reqUrl];
             const pid = uuid();
             const folderDoc = this.generateDoc();
+            let scopeParameters = null;
             folderDoc._id = pid; //目录id
             folderDoc.isFolder = true; //是目录
             folderDoc.sort = Date.now(); //排序
@@ -161,33 +162,70 @@ class OpenApiTranslate {
             folderDoc.info.type = "folder";
             folderDoc.info.name = reqUrl;
             result.push(folderDoc);
+
             Object.keys(element).forEach((method) => {
-                const moyuDoc = this.generateDoc();
-                const openApiDoc = element[method];
-                moyuDoc.pid = pid;
-                moyuDoc.sort = Date.now(); //排序
-                moyuDoc.info.name = openApiDoc.summary || "未命名"; //文档名称
-                moyuDoc.info.description = openApiDoc.description; //文档备注
-                moyuDoc.info.type = "api";
-                moyuDoc.item.method = method;
-                moyuDoc.item.url.host = this.getServers() ? this.getServers()[0]?.url : "";
-                moyuDoc.item.url.path = reqUrl;
-                //解析parameters
-                // eslint-disable-next-line no-unused-vars
-                const parameterInfo = this.convertParameters(openApiDoc.parameters);
-                if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
-                if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
-                if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
-                //解析body数据
-                // eslint-disable-next-line no-unused-vars
-                const requestBody = this.convertRequestBody(openApiDoc.requestBody);
-                if (requestBody && requestBody.values) {
-                    moyuDoc.item.requestBody = requestBody.values;
-                    moyuDoc.item.contentType = requestBody.contentType;
+                if (method === "parameters") {
+                    scopeParameters = this.convertSchemaToParams(element[method]);
+                } else {
+                    const moyuDoc = this.generateDoc();
+                    const openApiDoc = element[method];
+                    moyuDoc.pid = pid;
+                    moyuDoc.sort = Date.now(); //排序
+                    moyuDoc.info.name = openApiDoc.summary || "未命名"; //文档名称
+                    moyuDoc.info.description = openApiDoc.description; //文档备注
+                    moyuDoc.info.type = "api";
+                    moyuDoc.item.method = method;
+                    moyuDoc.item.url.host = this.getServers() ? this.getServers()[0]?.url : "";
+                    moyuDoc.item.url.path = reqUrl;
+                    //解析parameters
+                    // eslint-disable-next-line no-unused-vars
+                    const parameterInfo = this.convertParameters(openApiDoc.parameters);
+                    if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
+                    if (scopeParameters) moyuDoc.item.paths = scopeParameters;
+                    if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
+                    if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
+                    //解析body数据
+                    // eslint-disable-next-line no-unused-vars
+                    const requestBody = this.convertContent(openApiDoc.requestBody?.content);
+                    if (requestBody && requestBody.values) {
+                        moyuDoc.item.requestBody = requestBody.values;
+                        moyuDoc.item.contentType = requestBody.contentType;
+                    }
+                    // 解析response
+                    const responseParams = this.convertResponse(openApiDoc.responses);
+                    if (responseParams) {
+                        moyuDoc.item.responseParams = responseParams;
+                    }
+                    result.push(moyuDoc);
                 }
-                result.push(moyuDoc);
             });
         })
+        return result;
+    }
+
+    // eslint-disable-next-line class-methods-use-this
+    convertSchemaToParams(params) {
+        const result = [];
+        if (params.length > 0) {
+            params.forEach((p) => {
+                const property = mixin.methods.generateProperty();
+                const { schema } = p;
+                if (!schema) { //复杂情况不予考虑
+                    const content = JSON.stringify(p.content || "")
+                    console.error(`复杂的序列化参数会被忽略${content}`);
+                } else {
+                    const convertType = TYPE_ENUM[schema.type];
+                    if (convertType !== "string" && convertType !== "number") {
+                        console.warn(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
+                    }
+                    property.key = p.name;
+                    property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
+                    property.description = p.description;
+                    property.required = !!p.required;
+                }
+                result.push(property)
+            });
+        }
         return result;
     }
 
@@ -207,39 +245,14 @@ class OpenApiTranslate {
             console.error("parameters不为数组格式");
             return null;
         }
-        const convertParams = (params) => {
-            const result = [];
-            if (params.length > 0) {
-                params.forEach((p) => {
-                    const property = mixin.methods.generateProperty();
-                    const { schema } = p;
-                    if (!schema) { //复杂情况不予考虑
-                        const content = JSON.stringify(p.content || "")
-                        console.error(`复杂的序列化参数会被忽略${content}`);
-                    } else {
-                        const convertType = TYPE_ENUM[schema.type];
-                        if (convertType !== "string" && convertType !== "number") {
-                            console.warn(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
-                        }
-                        property.key = p.name;
-                        property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
-                        property.description = p.description;
-                        property.required = !!p.required;
-                    }
-                    result.push(property)
-                });
-            }
-            return result;
-        }
-
         const pathParams = parameters.filter((p) => p.in === "path");
         const queryParams = parameters.filter((p) => p.in === "query");
         const headerParams = parameters.filter((p) => p.in === "header");
         const cookieParams = parameters.filter((p) => p.in === "cookie");
-        const pathResult = convertParams(pathParams);
-        const queryResult = convertParams(queryParams);
-        const headerResult = convertParams(headerParams);
-        const cookieResult = convertParams(cookieParams);
+        const pathResult = this.convertSchemaToParams(pathParams);
+        const queryResult = this.convertSchemaToParams(queryParams);
+        const headerResult = this.convertSchemaToParams(headerParams);
+        const cookieResult = this.convertSchemaToParams(cookieParams);
         const result = {
             paths: pathResult,
             queryParams: queryResult,
@@ -257,12 +270,12 @@ class OpenApiTranslate {
      * @return {String}    返回字符串
      */
     // eslint-disable-next-line class-methods-use-this
-    convertRequestBody(requestBody) {
+    convertContent(content) {
         let result = null;
-        if (!requestBody) {
+        if (!content) {
             return null;
         }
-        const { content } = requestBody;
+        // const { content } = requestBody;
         let priorContentType = null; // application/json, application/x-www-form-urlencoded, multipart/form-data
         let mediaTypeObject = null;
         const mediaTypeObjects = Object.keys(content);
@@ -302,6 +315,27 @@ class OpenApiTranslate {
     }
 
     /**
+     * @description        转换response参数
+     * @author             shuxiaokai
+     * @create             2021-05-10 22:41
+     * @return {String}    返回字符串
+     */
+    // eslint-disable-next-line class-methods-use-this
+    convertResponse(response) {
+        const result = [];
+        Object.keys(response).forEach((status) => {
+            const content = response[status]?.content;
+            const convertContent = this.convertContent(content);
+            result.push({
+                title: status,
+                statusCode: status,
+                values: convertContent ? convertContent.values : [],
+            });
+        })
+        return result;
+    }
+
+    /**
      * @description        获取引用参数
      * @author             shuxiaokai
      * @create             2021-04-09 19:32
@@ -332,12 +366,20 @@ class OpenApiTranslate {
     convertSchema(globalSchema) {
         const result = [];
         const foo = (schema, currentResult, schemaKey) => {
-            const { $ref, type, properties, format } = schema;
+            const { $ref, type, properties, format, allOf, anyOf, oneOf } = schema;
             if ($ref) { //使用引用
                 const refPath = $ref;
                 const refObj = this.getRefsData(refPath);
                 if (refObj) {
                     foo(refObj, currentResult, schemaKey);
+                }
+            } else if (allOf || anyOf || oneOf) {
+                const item = allOf || anyOf || oneOf;
+                for (let i = 0; i < item.length; i += 1) {
+                    const property = item[i];
+                    this.convertSchema(property).forEach((val) => {
+                        currentResult.push(val);
+                    })
                 }
             } else if (!type) { //没有type值直接取property
                 const allPropertyKeys = Object.keys(properties);

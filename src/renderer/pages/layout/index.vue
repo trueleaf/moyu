@@ -40,7 +40,7 @@
                     </span>
                     <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item @click.native="jumpToUserSetting">个人中心</el-dropdown-item>
-                        <el-dropdown-item v-if="!isWeb" :disabled="downloading" @click.native="handleCheckUpdate">检查更新</el-dropdown-item>
+                        <el-dropdown-item v-if="!isWeb" :disabled="downloading" @click.native="handleCheckUpdate(true)">检查更新</el-dropdown-item>
                         <el-dropdown-item>版本{{ config.updateConfig.version }}</el-dropdown-item>
                         <el-dropdown-item @click.native="logout">退出登陆</el-dropdown-item>
                     </el-dropdown-menu>
@@ -67,6 +67,7 @@ export default {
             progress: 0,
             downloading: false,
             isWeb: !window.require,
+            isManual: false, //是否手动更新
             ip: null,
         };
     },
@@ -86,6 +87,9 @@ export default {
     mounted() {
         this.initCurrentMenu();
         this.initUploadEvent();
+        if (this.config.updateConfig.autoUpdate) {
+            this.handleCheckUpdate();
+        }
     },
     methods: {
         initUploadEvent() {
@@ -98,7 +102,9 @@ export default {
                 ipcRenderer.on("vue-update-not-available", () => {
                     console.log("没有可用更新");
                     this.downloading = false;
-                    this.$message.warning("暂无可用更新");
+                    if (this.isManual) {
+                        this.$message.warning("暂无可用更新");
+                    }
                 });
                 //下载中
                 ipcRenderer.on("vue-download-progress", (e, progressObj) => {
@@ -112,7 +118,9 @@ export default {
                     console.log("下载完成", e, upload);
                 });
                 ipcRenderer.on("vue-download-error", (e, error) => {
-                    this.$message.warning("更新异常请稍后再试");
+                    if (this.isManual) {
+                        this.$message.warning("更新异常请稍后再试");
+                    }
                     this.downloading = false;
                     console.error(error);
                 });
@@ -123,8 +131,9 @@ export default {
                 ipcRenderer.send("quit-and-install");
             }
         },
-        handleCheckUpdate() {
+        handleCheckUpdate(isManual) {
             this.downloading = true;
+            this.isManual = isManual;
             if (window.require) {
                 // ipcRenderer.send("checkUpdate");
                 ipcRenderer.send("vue-check-update");

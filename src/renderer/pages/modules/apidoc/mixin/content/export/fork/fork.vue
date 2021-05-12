@@ -331,7 +331,7 @@ export default {
             const params = {
                 projectId,
             };
-            this.axios.get("/api/project/doc_tree_folder_node", { params }).then((res) => {
+            this.axios.get("/api/project/doc_tree_node", { params }).then((res) => {
                 this.targetTreeData = res.data;
             }).catch((err) => {
                 console.error(err);

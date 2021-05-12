@@ -64,7 +64,7 @@ export default {
                         return;
                     }
                     const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-                    const key = items[i].key.trim();
+                    const key = items[i].key?.trim();
                     let value = this.convertVariable(items[i].value);
                     if (valueHook) {
                         value = valueHook(items[i].value, item[i]);
