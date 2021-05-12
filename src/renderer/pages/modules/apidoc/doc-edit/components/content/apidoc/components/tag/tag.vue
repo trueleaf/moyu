@@ -26,11 +26,13 @@
                             <div class="mb-1 f-xs gray-600">标签名称</div>
                             <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" class="w-100 mb-3" maxlength="100" clearable></el-input>
                             <div class="mb-1 f-xs gray-600">颜色选择</div>
-                            <div class="color-wrap">
-                                <div v-for="item in colors" :key="item" class="rect" :style="{background: item}"></div>
-                                <el-color-picker v-model="formInfo.color" :size="config.renderConfig.layout.size"></el-color-picker>
+                            <div class="color-wrap mb-3">
+                                <div v-for="item in colors" :key="item" class="rect" :style="{background: item}" @click="handleSelectColor(item)"></div>
+                                <el-color-picker v-model="formInfo.color" :size="config.renderConfig.layout.size" @change="handleChangeCustomColor"></el-color-picker>
                             </div>
-                            <el-button type="primary" :size="config.renderConfig.layout.size" class="submit">确认添加</el-button>
+                            <div class="mb-1 f-xs gray-600">已选择颜色</div>
+                            <div class="rect" :style="{background: tagColor}"></div>
+                            <el-button :disabled="!formInfo.name" type="primary" :size="config.renderConfig.layout.size" class="submit">确认添加</el-button>
                         </div>
                         <el-button slot="reference" type="text" :size="config.renderConfig.layout.size" @click="popoverVisible2 = !popoverVisible2">新增标签</el-button>
                     </el-popover>
@@ -53,15 +55,15 @@ export default {
             //=================================表单与表格参数================================//
             formInfo: {
                 name: "",
-                color: "#2cf",
+                color: scssData.colorBlue,
             },
             rules: {},
             //===================================枚举参数====================================//
             tagsEnum: [], //host枚举信息
             colors: [scssData.colorBlue, scssData.colorRed, scssData.colorOrange, scssData.colorYellow, scssData.colorGreen, scssData.colorPink, scssData.colorIndigo],
             //===================================业务参数====================================//
-            tagName: "",
-
+            tagName: "", //标签名称
+            tagColor: scssData.colorBlue, //标签颜色
             //===================================其他参数====================================//
             popoverVisible: false, //是否显示弹出框
             popoverVisible2: false, //是否显示弹出框
@@ -98,10 +100,19 @@ export default {
         //=====================================前后端交互====================================//
 
         //=====================================组件间交互====================================//
+        //隐藏popover弹窗
         handleHidePopover(e) {
             e.stopPropagation();
             this.popoverVisible = false;
             this.popoverVisible2 = false;
+        },
+        //选择颜色
+        handleSelectColor(color) {
+            this.tagColor = color;
+        },
+        //选择自定义颜色
+        handleChangeCustomColor(color) {
+            this.tagColor = color;
         },
         //=====================================其他操作=====================================//
 
@@ -153,13 +164,15 @@ export default {
     position: relative;
     .color-wrap {
         display: flex;
+        align-items: center;
         flex-wrap: wrap;
-        .rect {
-            width: size(20);
-            height: size(20);
-            margin-right: size(10);;
-            margin-right: size(10);
-        }
+    }
+    .rect {
+        cursor: pointer;
+        width: size(20);
+        height: size(20);
+        margin-right: size(10);;
+        margin-right: size(10);
     }
     .submit {
         right: size(0);
