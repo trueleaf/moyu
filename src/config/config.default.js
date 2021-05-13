@@ -40,7 +40,7 @@ module.exports = {
         version: packageJSON.version, //当前项目版本
         server: "http://xxx.xxx.cn", //更新服务器地址
         filePath: "/electron/windows", //更新文件地址
-        autoUpdate: true, //是否开启自动更新
+        autoUpdate: false, //是否开启自动更新
     },
     //渲染进程配置
     renderConfig: {
