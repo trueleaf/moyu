@@ -16,6 +16,7 @@ const TYPE_ENUM = { //参数类型映射
     long: "number",
     float: "number",
     double: "number",
+    number: "number",
     string: "string",
     byte: "string",
     binary: "string",
@@ -200,32 +201,6 @@ class OpenApiTranslate {
                 }
             });
         })
-        return result;
-    }
-
-    // eslint-disable-next-line class-methods-use-this
-    convertSchemaToParams(params) {
-        const result = [];
-        if (params.length > 0) {
-            params.forEach((p) => {
-                const property = mixin.methods.generateProperty();
-                const { schema } = p;
-                if (!schema) { //复杂情况不予考虑
-                    const content = JSON.stringify(p.content || "")
-                    console.error(`复杂的序列化参数会被忽略${content}`);
-                } else {
-                    const convertType = TYPE_ENUM[schema.type];
-                    if (convertType !== "string" && convertType !== "number") {
-                        console.warn(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
-                    }
-                    property.key = p.name;
-                    property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
-                    property.description = p.description;
-                    property.required = !!p.required;
-                }
-                result.push(property)
-            });
-        }
         return result;
     }
 
@@ -440,6 +415,33 @@ class OpenApiTranslate {
             }
         }
         foo(globalSchema, result);
+        return result;
+    }
+
+    //schema转换为参数
+    // eslint-disable-next-line class-methods-use-this
+    convertSchemaToParams(params) {
+        const result = [];
+        if (params.length > 0) {
+            params.forEach((p) => {
+                const property = mixin.methods.generateProperty();
+                const { schema } = p;
+                if (!schema) { //复杂情况不予考虑
+                    const content = JSON.stringify(p.content || "")
+                    console.error(`复杂的序列化参数会被忽略${content}`);
+                } else {
+                    const convertType = TYPE_ENUM[schema.type];
+                    if (convertType !== "string" && convertType !== "number") {
+                        console.warn(`parameter存在无法解析的类型${schema.type}  ${p.name}  ${p.description}`);
+                    }
+                    property.key = p.name;
+                    property.type = (convertType === "string" || convertType === "number") ? convertType : "string"; //无法举例的类型都当做string处理
+                    property.description = p.description;
+                    property.required = !!p.required;
+                }
+                result.push(property)
+            });
+        }
         return result;
     }
 
