@@ -72,7 +72,6 @@ export default {
                             ...res.data,
                         };
                         docInfo.url.host = `http://${this.config.renderConfig.mock.ip}:${this.config.renderConfig.mock.port}`
-                        console.log(docInfo)
                         this.$emit("success", docInfo); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
                         this.handleClose();
                     }).catch((err) => {

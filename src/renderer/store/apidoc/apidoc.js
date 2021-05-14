@@ -208,7 +208,6 @@ export default {
         },
         //改变host的值
         changeDocHost(state, payload) {
-            console.log(state.apidocInfo)
             state.apidocInfo.item.url.host = payload;
         },
         //改变请求路径

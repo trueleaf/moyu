@@ -78,6 +78,7 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsyaml from "js-yaml"
 import OpenApiTranslator from "./openapi"
 import PostmanTranslator from "./postman"
+import YAPITranslator from "./yapi"
 
 export default {
     mixins: [mixin],
@@ -107,7 +108,8 @@ export default {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         },
     },
-    created() {},
+    created() {
+    },
     methods: {
         //=====================================文件上传====================================//
         //检查文件格式
@@ -147,11 +149,15 @@ export default {
         getImportFileInfo() {
             this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
             this.postmanTranslatorInstance = new PostmanTranslator(this.$route.query.id);
+            this.yapiTranslatorInstance = new YAPITranslator(this.$route.query.id);
+            const isArray = Array.isArray(this.jsonText);
+            const firstEl = isArray ? this.jsonText[0] : null;
+            const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
             if (this.jsonText.type === "moyu") {
                 this.importTypeInfo.name = "moyu";
                 this.formInfo.type = "moyu";
                 this.formInfo.moyuData = this.jsonText;
-            } else if (this.jsonText.info._postman_id) {
+            } else if (this.jsonText.info?._postman_id) {
                 this.importTypeInfo.name = "postman";
                 this.importTypeInfo.version = "postman";
                 this.formInfo.type = "postman";
@@ -166,6 +172,10 @@ export default {
                 this.importTypeInfo.version = this.jsonText.swagger;
                 this.formInfo.type = "swagger";
                 this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
+            } else if (isYapi) {
+                this.importTypeInfo.name = "yapi";
+                this.formInfo.type = "yapi";
+                this.formInfo.moyuData = this.yapiTranslatorInstance.convertYapiData(this.jsonText);
             } else {
                 this.importTypeInfo.name = "未知类型";
             }

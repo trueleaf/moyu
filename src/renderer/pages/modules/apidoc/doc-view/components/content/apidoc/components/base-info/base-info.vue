@@ -81,7 +81,6 @@ export default {
             },
             set(val) {
                 if (val) {
-                    console.log(val)
                     this.$store.commit("apidoc/changeDocHost", val);
                 }
             },
