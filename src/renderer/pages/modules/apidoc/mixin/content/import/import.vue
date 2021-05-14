@@ -6,7 +6,7 @@
 */
 <template>
     <div class="doc-import">
-        <s-fieldset title="支持：Postman、摸鱼文档、Swagger/OpenApi 3.0">
+        <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
                 class="w-100"
                 drag
