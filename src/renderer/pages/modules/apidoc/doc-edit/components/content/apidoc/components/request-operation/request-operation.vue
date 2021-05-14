@@ -182,7 +182,6 @@ export default {
         },
     },
     mounted() {
-        this.getTagsEnum();
         window.addEventListener("keydown", this.shortcutSave)
     },
     beforeDestroy() {
@@ -525,17 +524,6 @@ export default {
                 return "当前请求方法被禁止，可以在全局配置中进行相关配置";
             }
             return "";
-        },
-        //获取标签枚举
-        getTagsEnum() {
-            const params = {
-                projectId: this.$route.query.id,
-            };
-            this.axios.get("/api/docs/docs_tag_enum", { params }).then((res) => {
-                this.tagsEnum = res.data;
-            }).catch((err) => {
-                console.error(err);
-            })
         },
     },
 };

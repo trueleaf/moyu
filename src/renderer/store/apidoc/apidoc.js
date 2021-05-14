@@ -208,6 +208,7 @@ export default {
         },
         //改变host的值
         changeDocHost(state, payload) {
+            console.log(state.apidocInfo)
             state.apidocInfo.item.url.host = payload;
         },
         //改变请求路径
@@ -305,6 +306,10 @@ export default {
         //改变项目全局cookie值
         changeCookies(state, payload) {
             state.cookies = payload;
+        },
+        //改变tag
+        changeTagInfo(state, payload) {
+            Vue.set(state.apidocInfo.info, "tag", payload)
         },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
