@@ -44,9 +44,9 @@
                             <!-- 编辑 -->
                             <span class="edit el-icon-edit" @click.stop="handleOpenEditTagPopover(item)"></span>
                             <!-- 删除 -->
-                            <el-popconfirm ref="delete" title="确实要删除当前标签吗？" @confirm="handleDeleteTag(item)" @cancel="handleCancelConfirm">
+                            <el-popconfirm ref="delete" v-model="popoverVisible3" trigger="manual" title="确实要删除当前标签吗？" @confirm="handleDeleteTag(item)" @cancel="handleCancelConfirm">
                                 <span slot="reference">
-                                    <span v-if="!loading2" class="delete el-icon-delete" @click="handleOpenDeleteTagPopover(item)"></span>
+                                    <span v-if="!loading2" class="delete el-icon-delete" @click.stop="handleOpenDeleteTagPopover(item, index)"></span>
                                     <span v-else class="el-icon-loading"></span>
                                 </span>
                             </el-popconfirm>
@@ -88,7 +88,7 @@ export default {
             loading2: false, //删除标签加载效果
             popoverVisible: false, //是否显示标签弹出框
             popoverVisible2: false, //是否显示新增和编辑弹出框
-            popoverVisible3: false, //是否显示确定弹出框
+            popoverVisible3: false, //是否显示删除弹出框
         };
     },
     computed: {
@@ -186,8 +186,12 @@ export default {
             this.formInfo.color = item.color;
         },
         //打开删除标签弹窗
-        handleOpenDeleteTagPopover(item) {
+        handleOpenDeleteTagPopover(item, index) {
+            this.popoverVisible3 = true;
             this.currentSelectTag = item;
+            if (this.$refs.delete && this.$refs.delete[index]) {
+                this.$refs.delete[index].visible = true;
+            }
         },
         //关闭新增和修改弹窗
         handleClosePopover() {
@@ -195,8 +199,8 @@ export default {
             this.currentSelectTag = null;
         },
         //隐藏popover弹窗
-        handleHidePopover(e) {
-            e.stopPropagation();
+        handleHidePopover() {
+            // e.stopPropagation();
             this.popoverVisible = false;
             this.popoverVisible2 = false;
             this.popoverVisible3 = false;
