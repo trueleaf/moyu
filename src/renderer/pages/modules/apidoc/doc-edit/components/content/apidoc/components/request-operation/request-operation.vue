@@ -146,7 +146,12 @@ export default {
                 return this.$store.state.apidoc.apidocInfo?.item?.url.path;
             },
             set(val) {
-                this.$store.commit("apidoc/changeDocPath", val);
+                const currentDoc = this.$store.state.apidoc.activeDoc[this.$route.query.id];
+                const currentDocId = currentDoc._id;
+                this.$store.commit("apidoc/changeDocPath", {
+                    path: val,
+                    id: currentDocId,
+                });
             },
         },
         requestMethod: { //请求方法
@@ -240,6 +245,7 @@ export default {
         },
         //保存接口
         saveRequest() {
+            this.$store.commit("apidoc/changeDocPathEnum");
             if (!this.currentSelectDoc.changed) { //接口未发生改变不请求后台
                 this.loading2 = true;
                 setTimeout(() => {
