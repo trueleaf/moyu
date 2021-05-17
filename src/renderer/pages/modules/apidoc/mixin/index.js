@@ -3,7 +3,7 @@
  * @author             shuxiaokai
  * @create             2021-01-16 17:30
  */
-import { uuid } from "@/lib"
+import { uuid, cloneDeep } from "@/lib"
 
 export default {
     computed: {
@@ -106,12 +106,18 @@ export default {
                         }
                     } else if (type === "array") {
                         const { children } = items[i];
+                        const clonedChildren = cloneDeep(children);
+                        const repeatChildren = [];
+                        const repeatNum = Number(value) || 1;
+                        for (let j = 0; j < repeatNum; j += 1) {
+                            repeatChildren.push(clonedChildren[0]);
+                        }
                         result[key] = [];
                         if (children && children.length > 0) {
                             if (level === 1) {
-                                foo(children, result, items[i], level + 1);
+                                foo(repeatChildren, result, items[i], level + 1);
                             } else {
-                                foo(children, result[key], items[i], level + 1);
+                                foo(repeatChildren, result[key], items[i], level + 1);
                             }
                         }
                     } else if (type === "file") {

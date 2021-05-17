@@ -103,11 +103,11 @@
                         <el-input
                             slot="reference"
                             v-model="scope.data.value"
-                            :disabled="scope.data._readOnly || scope.data.type === 'array' || scope.data.type === 'object'"
+                            :disabled="scope.data._readOnly || scope.data.type === 'object'"
                             title="对象和数组不必填写参数值"
                             size="mini"
                             class="w-100"
-                            :placeholder="`${scope.data._valuePlaceholder || '参数值'}`"
+                            :placeholder="getValuePlaceholder(scope.data)"
                             @input="handleInputValue(scope.data)"
                             @focus="handleFocusValue(scope.data)"
                             @blur="handleBlurValue(scope.data)"
@@ -438,6 +438,16 @@ export default {
         handleSelectMockValue(item, row) {
             this.$set(row, "_visible", false);
             row.value = `@${item.value}`;
+        },
+        //value placeholder处理
+        getValuePlaceholder(data) {
+            if (data.type === "object") {
+                return "对象类型不必填写"
+            }
+            if (data.type === "array") {
+                return "填写数字代表mock数据条数"
+            }
+            return "参数值"
         },
         //=====================================参数描述====================================//
         handleCheckDescription({ node, data }) {
