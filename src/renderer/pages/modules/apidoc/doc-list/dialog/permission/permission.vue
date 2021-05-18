@@ -7,19 +7,22 @@
 <template>
     <s-dialog title="权限管理" :is-show="visible" class="permission" @close="handleClose">
         <el-tabs v-model="activeName">
-            <el-tab-pane label="成员" name="s-a"></el-tab-pane>
-            <el-tab-pane label="设置" name="s-b"></el-tab-pane>
+            <el-tab-pane label="成员" name="s-user"></el-tab-pane>
+            <el-tab-pane label="设置" name="s-setting"></el-tab-pane>
         </el-tabs>
-        <components :is="activeName"></components>
-        <div slot="footer">
-            <el-button size="mini" type="primary" @click="handleSubmit">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
-        </div>
+        <components :is="activeName" v-bind="$attrs"></components>
     </s-dialog>
 </template>
 
 <script>
+import setting from "./setting/setting.vue"
+import user from "./user/user.vue"
+
 export default {
+    components: {
+        "s-user": user,
+        "s-setting": setting,
+    },
     props: {
         visible: { //弹窗是否显示
             type: Boolean,
@@ -35,7 +38,7 @@ export default {
             //===================================业务参数====================================//
 
             //===================================其他参数====================================//
-            activeName: "s-a",
+            activeName: "s-user",
         };
     },
     created() {

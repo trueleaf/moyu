@@ -71,10 +71,12 @@ export default {
         },
         //=====================================用户基本信息====================================//
         changeUserInfo(state, payload) {
+            console.log(222, payload)
             state.userInfo = {
                 loginName: payload.loginName,
                 realName: payload.realName,
                 phone: payload.phone,
+                id: payload.id,
             };
         },
     },

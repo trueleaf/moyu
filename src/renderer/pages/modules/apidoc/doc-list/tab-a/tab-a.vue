@@ -155,7 +155,7 @@
         <s-add-project-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
         <s-edit-project-dialog v-if="dialogVisible2" :id="projectId" :visible.sync="dialogVisible2" @success="getProjectList"></s-edit-project-dialog>
         <s-import-project-dialog :visible.sync="dialogVisible3" @success="handleAddSuccess"></s-import-project-dialog>
-        <s-permission-dialog :visible.sync="dialogVisible4"></s-permission-dialog>
+        <s-permission-dialog v-if="dialogVisible4" :id="projectId" :visible.sync="dialogVisible4"></s-permission-dialog>
     </div>
 </template>
 
