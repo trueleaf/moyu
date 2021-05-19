@@ -29,6 +29,7 @@ const MockServer = (() => {
                 this.koaInstance.use(async (ctx) => {
                     const url = ctx.request.url.replace(/(?<=)\?.*/, "");
                     const method = ctx.request.method.toLowerCase();
+                    store.commit("apidoc/changeDocPathEnum");
                     const matchedReuqest = store.state.apidoc.uniquePathEnum.find((data) => (data.url === url && data.method === method));
                     if (matchedReuqest) {
                         const params = {

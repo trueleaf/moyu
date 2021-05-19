@@ -60,8 +60,8 @@ export default {
                             });
                             return Promise.reject(new Error("登陆已过期"));
                         case 4002: //暂无权限
-                            Vue.prototype.$message.warning("暂无权限");
-                            return Promise.reject(new Error("暂无权限"));
+                            Vue.prototype.$message.warning(res.data.msg || "暂无权限");
+                            return Promise.reject(new Error(res.data.msg || "暂无权限"));
                         default:
                             Vue.prototype.$confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
                                 confirmButtonText: "确定",

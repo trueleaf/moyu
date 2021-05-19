@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click="handleClickBanner">
+    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @mouseenter="handleFocusBanner" @click="handleClickBanner">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
@@ -108,10 +108,10 @@
                             class="custom-tree-node"
                             :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
                             tabindex="0"
-                            @keydown.stop="handleKeydown($event, scope.data)"
+                            @keydown.stop="handleKeydown($event, scope)"
                             @keyup.stop="handleKeyUp($event, scope.data)"
                             @click="handleClickNode($event, scope)"
-                            @mouseenter="handleHoverNode($event, scope)"
+                            @mouseenter.stop="handleHoverNode($event, scope)"
                             @mouseleave="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
@@ -199,7 +199,7 @@ export default {
     },
     data() {
         return {
-            //=====================================文档增删改查====================================//
+            //=====================================文档增删改查===============================//
             queryData: "", //------------------文档过滤条件
             docParentId: "", //----------------文档父id
             contextmenu: null, //--------------右键弹窗
@@ -216,6 +216,8 @@ export default {
             bannerWidth: 0, //-----------------banner宽度
             isDragging: false, //--------------是否正在拖拽
             isRename: false, //----------------正在重命名
+            //=====================================复制粘贴相关=================================//
+            copyData: null, //-----------------拷贝的数据
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------------控制导航节点更多选项显示
             dialogVisible: false, //-----------新增文件夹弹窗
@@ -399,11 +401,11 @@ export default {
                 case "addByTemplate":
                     this.addByTemplate(data);
                     break;
-                case "copy":
+                case "fork":
                     if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
                         this.$message.warning(`单个文件夹里面文档个数不超过${this.docRules.fileInFolderLimit}个`);
                     } else {
-                        this.copyDoc(data, node);
+                        this.fork(data, node);
                     }
                     break;
                 default:
@@ -418,19 +420,27 @@ export default {
             const x = e.clientX; //当前点击位置
             const y = e.clientY; //当前点击位置
             let operations = [];
+            let disabledOperations = [];
             if (this.multiSelectNode.length > 0) {
                 operations = ["deleteMany"];
             } else {
-                operations = data.isFolder ? ["file", "folder", "template", "rename", "delete"] : ["rename", "delete", "copy"];
+                operations = data.isFolder ? ["file", "folder", "template", "rename", "copyFolder", "delete", "paste"] : ["rename", "delete", "copy", "fork"];
+            }
+            if (!this.copyData) {
+                disabledOperations = ["paste"];
             }
             this.contextmenu = new ContextmenuConstructor({
                 propsData: {
                     operations,
+                    disabledOperations,
                     left: x,
                     top: y,
                 },
             }).$mount();
             document.body.appendChild(this.contextmenu.$el);
+            this.contextmenu.$on("close", () => {
+                this.clearContextmenu()
+            });
             this.contextmenu.$on("file", () => {
                 this.docParentId = data._id;
                 if (node && node.childNodes.length >= this.docRules.fileInFolderLimit) {
@@ -461,23 +471,32 @@ export default {
             this.contextmenu.$on("template", () => {
                 this.addByTemplate(data);
             })
-            this.contextmenu.$on("copy", () => {
+            this.contextmenu.$on("fork", () => {
                 if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
                     this.$message.warning(`单个文件夹里面文档个数不超过${this.docRules.fileInFolderLimit}个`);
                 } else {
-                    this.copyDoc(data, node);
+                    this.fork(data, node);
                 }
+            });
+            this.contextmenu.$on("copyFolder", () => { //复制文件夹
+                this.copyData = this.$helper.cloneDeep(data);
+            });
+            this.contextmenu.$on("copy", () => { //复制文件
+                this.copyData = this.$helper.cloneDeep(data);
+            });
+            this.contextmenu.$on("paste", () => { //粘贴
+                this.handlePaste(data);
             });
         },
         //鼠标移动到当前node上面
         handleHoverNode(e, scope) {
             if (!this.isRename) { //防止focus导致输入框失焦
-                e.currentTarget.focus(); //实其能够触发keydown事件
+                e.currentTarget.focus(); //使其能够触发keydown事件
             }
             this.hoverNodeId = scope.data._id
         },
         //处理节点上面keydown快捷方式(例如f2重命名)
-        handleKeydown(e, data) {
+        handleKeydown(e, { data, node }) {
             if (e.code === "F2") {
                 this.$set(data, "_name", data.name); //文档名称备份,防止修改名称用户名称填空导致异常
                 this.renameNodeId = data._id;
@@ -486,6 +505,18 @@ export default {
                     this.enableDrag = false;
                     this.isRename = true; //重命名
                 })
+            } else if (e.ctrlKey && (e.key === "D" || e.key === "d")) {
+                this.handleDeleteItem(data, node);
+            } else if (e.ctrlKey && (e.key === "C" || e.key === "c")) {
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
+            } else if (e.ctrlKey && (e.key === "V" || e.key === "v")) {
+                if (data.isFolder && this.copyData) {
+                    this.handlePaste(data);
+                }
             } else if (e.code === "ControlLeft" || e.code === "ControlRight") {
                 this.clearPopover();
                 this.$set(data, "_ctrlPress", true);
@@ -643,7 +674,7 @@ export default {
             this.multiSelectNode = [];
         },
         //拷贝节点
-        copyDoc(data, node) {
+        fork(data, node) {
             const params = {
                 _id: data._id,
                 projectId: this.$route.query.id,
@@ -678,6 +709,10 @@ export default {
             }).catch((err) => {
                 this.$errorThrow(err, this);
             });
+        },
+        //focus当前banner
+        handleFocusBanner() {
+            this.$refs.banner?.focus();
         },
         //=====================================前后端交互====================================//
         handleSearchTree() {
@@ -835,6 +870,53 @@ export default {
             });
             this.renameNodeId = "";
         },
+        //粘贴文档或者文件夹
+        handlePaste(parentData) {
+            const pid = parentData._id;
+            let copyDocs = [];
+            const params = {
+                projectId: this.$route.query.id,
+                docs: [],
+            };
+            //展开数据
+            this.$helper.forEachForest(this.copyData, (node) => {
+                copyDocs.push({
+                    _id: node._id,
+                    pid: node.pid,
+                    name: node.name,
+                });
+            });
+            copyDocs = this.$helper.unique(copyDocs, "_id");//去重数据
+            const validDocs = [];
+            for (let i = 0; i < copyDocs.length; i += 1) {
+                const docInfo = copyDocs[i];
+                const hasParent = copyDocs.find((v) => v._id === docInfo.pid)
+                if (!hasParent) { //无父级元素
+                    docInfo.children = [];
+                    validDocs.push(docInfo);
+                }
+                const id = docInfo._id.toString();
+                for (let j = 0; j < copyDocs.length; j += 1) {
+                    if (id === copyDocs[j].pid) { //项目中新增的数据使用标准id
+                        if (docInfo.children == null) {
+                            docInfo.children = [];
+                        }
+                        docInfo.children.push(copyDocs[j]);
+                    }
+                }
+            }
+            validDocs.forEach((doc) => {
+                doc.pid = pid;
+            })
+            //展开数据
+            this.$helper.forEachForest(validDocs, (node) => {
+                params.docs.push({
+                    _id: node._id,
+                    pid: node.pid,
+                });
+            });
+            console.log(params, validDocs)
+        },
         //=====================================弹窗相关====================================//
         //打开文件新增弹窗
         handleOpenAddFolderDialog() {
@@ -886,7 +968,7 @@ export default {
         },
         //清除contextmenu
         clearContextmenu() {
-            if (this.contextmenu) {
+            if (this.contextmenu && this.contextmenu.$el) {
                 document.body.removeChild(this.contextmenu.$el);
                 this.contextmenu = null;
             }

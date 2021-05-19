@@ -75,6 +75,7 @@ export default {
                 loginName: payload.loginName,
                 realName: payload.realName,
                 phone: payload.phone,
+                id: payload.id,
             };
         },
     },

@@ -21,7 +21,7 @@
                         <div title="编辑" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-edit"></i>
                         </div>
-                        <div title="成员管理" @click="handleOpenEditDialog(item)">
+                        <div title="成员管理" @click="handleOpenPermissionDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
                         <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
@@ -67,7 +67,7 @@
                         <div title="编辑" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-edit"></i>
                         </div>
-                        <div title="成员管理" @click="handleOpenEditDialog(item)">
+                        <div title="成员管理" @click="handleOpenPermissionDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
                         <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
@@ -114,7 +114,7 @@
                         <div title="编辑" @click="handleOpenEditDialog(item)">
                             <i class="el-icon-edit"></i>
                         </div>
-                        <div title="成员管理" @click="handleOpenEditDialog(item)">
+                        <div title="成员管理" @click="handleOpenPermissionDialog(item)">
                             <i class="el-icon-user"></i>
                         </div>
                         <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
@@ -155,6 +155,7 @@
         <s-add-project-dialog v-if="dialogVisible" :visible.sync="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
         <s-edit-project-dialog v-if="dialogVisible2" :id="projectId" :visible.sync="dialogVisible2" @success="getProjectList"></s-edit-project-dialog>
         <s-import-project-dialog :visible.sync="dialogVisible3" @success="handleAddSuccess"></s-import-project-dialog>
+        <s-permission-dialog v-if="dialogVisible4" :id="projectId" :visible.sync="dialogVisible4"></s-permission-dialog>
     </div>
 </template>
 
@@ -162,11 +163,13 @@
 import addProjectDialog from "../dialog/add-project.vue";
 import editProjectDialog from "../dialog/edit-project.vue";
 import importProjectDialog from "../dialog/import-project.vue";
+import permissionDialog from "../dialog/permission/permission.vue";
 
 export default {
     components: {
         "s-add-project-dialog": addProjectDialog,
         "s-edit-project-dialog": editProjectDialog,
+        "s-permission-dialog": permissionDialog,
         "s-import-project-dialog": importProjectDialog,
     },
     data() {
@@ -181,6 +184,7 @@ export default {
             dialogVisible: false, //-新增项目弹窗
             dialogVisible2: false, //修改项目弹窗
             dialogVisible3: false, //导入项目弹窗
+            dialogVisible4: false, //更改权限弹窗
             loading: false, //-------数据加载状态
             starLoading: false, //---是否正在收藏
             unStarLoading: false, //是否取消收藏
@@ -290,6 +294,11 @@ export default {
         //打开修改弹窗
         handleOpenEditDialog(item) {
             this.dialogVisible2 = true;
+            this.projectId = item._id;
+        },
+        //打开成员管理界面
+        handleOpenPermissionDialog(item) {
+            this.dialogVisible4 = true;
             this.projectId = item._id;
         },
         //跳转至界面详情

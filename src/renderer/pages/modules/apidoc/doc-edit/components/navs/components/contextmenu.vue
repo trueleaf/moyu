@@ -67,18 +67,6 @@ export default {
 
 <style lang="scss">
     .ctx-wrap {
-        position: fixed;
-        background: $white;
-        border-radius: $border-radius-sm;
-        box-shadow: $box-shadow-sm;
-        z-index: $zIndex-contextmenu;
-        .item-list {
-            line-height: 2em;
-            padding: .3em 2em;
-            cursor: pointer;
-            &:hover {
-                background: $gray-300;
-            }
-        }
+        @include contextmenu;
     }
 </style>

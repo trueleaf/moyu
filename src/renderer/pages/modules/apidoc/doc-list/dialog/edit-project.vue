@@ -5,7 +5,7 @@
     备注：xxxx
 */
 <template>
-    <s-dialog title="修改项目" :is-show="visible" @close="handleClose">
+    <s-dialog title="修改项目" :is-show="visible" width="30%" @close="handleClose">
         <el-form ref="form" v-loading="loading3" :element-loading-text="randomTip()" element-loading-background="rgba(255, 255, 255, 0.9)" :model="formInfo" :rules="rules" label-width="150px">
             <!-- 基础数据 -->
             <el-form-item label="项目名称：" prop="projectName">
@@ -14,7 +14,7 @@
             <!-- <el-form-item label="备注：">
                 <el-input v-model="formInfo.remark" size="mini" placeholder="请输入备注"></el-input>
             </el-form-item> -->
-            <el-form-item label="选择成员：">
+            <!-- <el-form-item label="成员：">
                 <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" placeholder="输入用户名或真实姓名查找用户">
                     <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
                         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
@@ -23,9 +23,9 @@
                         </div>
                     </s-remote-select-item>
                 </s-remote-select>
-            </el-form-item>
+            </el-form-item> -->
             <!-- 成员信息 -->
-            <el-table :data="selectUserData" stripe border size="mini" max-height="200px">
+            <!-- <el-table :data="selectUserData" stripe border size="mini" max-height="200px">
                 <el-table-column prop="loginName" label="用户名" align="center"></el-table-column>
                 <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
                 <el-table-column label="角色(权限)" align="center">
@@ -58,7 +58,7 @@
                         <el-button type="text" size="mini" @click="handleDeleteMember(scope.$index)">删除</el-button>
                     </template>
                 </el-table-column>
-            </el-table>
+            </el-table> -->
         </el-form>
         <div slot="footer">
             <el-button :loading="loading2" size="mini" type="primary" @click="handleEditProject">确定</el-button>
