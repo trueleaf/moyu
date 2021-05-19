@@ -75,30 +75,6 @@ export default {
 
 <style lang="scss">
     .ctx-wrap {
-        position: fixed;
-        background: $white;
-        border-radius: $border-radius-sm;
-        box-shadow: $box-shadow-sm;
-        z-index: $zIndex-contextmenu;
-        animation: ctx-fade .2s;
-        @keyframes ctx-fade {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        .item-list {
-            line-height: 2em;
-            padding: .3em 2em;
-            cursor: pointer;
-            &:hover {
-                background: $gray-200;
-                color: $theme-color;
-            }
-        }
+        @include contextmenu;
     }
 </style>
