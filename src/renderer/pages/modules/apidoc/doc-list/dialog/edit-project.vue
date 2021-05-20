@@ -49,6 +49,7 @@
                                     <span class="gray-500">(添加新成员)</span>
                                 </template>
                             </el-option>
+                            <div class="pl-4 d-flex py-1 a-center border-top-gray-300 hover-theme-color cursor-pointer" @click="handleOpenPermission">设置角色权限</div>
                         </el-select>
                     </template>
                 </el-table-column>
