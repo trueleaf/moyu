@@ -287,7 +287,7 @@ export default {
                 const ContextmenuConstructor = Vue.extend(contextmenu);
                 const x = e.clientX; //当前点击位置
                 const y = e.clientY; //当前点击位置
-                const operations = ["file", "folder"]
+                const operations = ["file", "folder", "paste"]
                 this.contextmenu = new ContextmenuConstructor({
                     propsData: {
                         operations,
@@ -302,6 +302,14 @@ export default {
                 this.contextmenu.$on("folder", () => {
                     this.handleOpenAddFolderDialog();
                 })
+                this.contextmenu.$on("close", () => {
+                    this.clearContextmenu()
+                });
+                this.contextmenu.$on("paste", () => { //粘贴
+                    if (this.copyData) {
+                        this.handlePaste(this.navTreeData);
+                    }
+                });
             })
             //拖拽相关
             document.documentElement.addEventListener("mouseup", () => {
@@ -422,7 +430,7 @@ export default {
             let operations = [];
             let disabledOperations = [];
             if (this.multiSelectNode.length > 0) {
-                operations = ["deleteMany"];
+                operations = ["deleteMany", "copy"];
             } else {
                 operations = data.isFolder ? ["file", "folder", "template", "rename", "copyFolder", "delete", "paste"] : ["rename", "delete", "copy", "fork"];
             }
@@ -479,13 +487,23 @@ export default {
                 }
             });
             this.contextmenu.$on("copyFolder", () => { //复制文件夹
-                this.copyData = this.$helper.cloneDeep(data);
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
             });
             this.contextmenu.$on("copy", () => { //复制文件
-                this.copyData = this.$helper.cloneDeep(data);
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
             });
             this.contextmenu.$on("paste", () => { //粘贴
-                this.handlePaste(data);
+                if (data.isFolder && this.copyData) {
+                    this.handlePaste(data);
+                }
             });
         },
         //鼠标移动到当前node上面
@@ -712,7 +730,9 @@ export default {
         },
         //focus当前banner
         handleFocusBanner() {
-            this.$refs.banner?.focus();
+            if (!this.isRename) {
+                this.$refs.banner?.focus();
+            }
         },
         //=====================================前后端交互====================================//
         handleSearchTree() {
@@ -871,51 +891,74 @@ export default {
             this.renameNodeId = "";
         },
         //粘贴文档或者文件夹
-        handlePaste(parentData) {
-            const pid = parentData._id;
-            let copyDocs = [];
+        handlePaste(mountedData) {
+            const mountedId = mountedData._id; //挂载点id
+            let copyedDocs = []; //拷贝的数据
             const params = {
                 projectId: this.$route.query.id,
+                mountedId,
                 docs: [],
             };
             //展开数据
             this.$helper.forEachForest(this.copyData, (node) => {
-                copyDocs.push({
+                copyedDocs.push({
+                    ...node,
                     _id: node._id,
                     pid: node.pid,
-                    name: node.name,
                 });
             });
-            copyDocs = this.$helper.unique(copyDocs, "_id");//去重数据
-            const validDocs = [];
-            for (let i = 0; i < copyDocs.length; i += 1) {
-                const docInfo = copyDocs[i];
-                const hasParent = copyDocs.find((v) => v._id === docInfo.pid)
+            //去重数据
+            copyedDocs = this.$helper.unique(copyedDocs, "_id");
+
+            const treeDocs = [];
+            for (let i = 0; i < copyedDocs.length; i += 1) {
+                const docInfo = copyedDocs[i];
+                const currentDocId = docInfo._id;
+                const hasParent = copyedDocs.find((v) => v._id === docInfo.pid);
                 if (!hasParent) { //无父级元素
                     docInfo.children = [];
-                    validDocs.push(docInfo);
+                    treeDocs.push(docInfo);
                 }
-                const id = docInfo._id.toString();
-                for (let j = 0; j < copyDocs.length; j += 1) {
-                    if (id === copyDocs[j].pid) { //项目中新增的数据使用标准id
+                for (let j = 0; j < copyedDocs.length; j += 1) {
+                    if (currentDocId === copyedDocs[j].pid) { //项目中新增的数据使用标准id
                         if (docInfo.children == null) {
                             docInfo.children = [];
                         }
-                        docInfo.children.push(copyDocs[j]);
+                        docInfo.children.push(copyedDocs[j]);
                     }
                 }
             }
-            validDocs.forEach((doc) => {
-                doc.pid = pid;
-            })
-            //展开数据
-            this.$helper.forEachForest(validDocs, (node) => {
-                params.docs.push({
-                    _id: node._id,
-                    pid: node.pid,
+            params.docs = copyedDocs.map((v) => ({
+                _id: v._id,
+                pid: v.pid,
+            }));
+            this.axios.post("/api/project/paste_docs", params).then((res) => {
+                const mapIds = res.data;
+                this.$helper.forEachForest(treeDocs, (node) => {
+                    const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+                    if (matchedIdInfo) {
+                        node._id = matchedIdInfo.newId;
+                        node.pid = matchedIdInfo.newPid;
+                        this.defaultExpandedKeys.push(matchedIdInfo.newId)
+                    }
                 });
+                treeDocs.forEach((doc) => {
+                    // const realNode = this.$helper.findNodeById(this.navTreeData, mountedData._id, { id: "_id" });
+                    console.log(222, mountedData)
+                    if (mountedData) { //挂载节点
+                        if (!mountedData.children) {
+                            this.$set(mountedData, "children", [])
+                        }
+                        mountedData.children.push(doc);
+                    } else {
+                        this.navTreeData.push(doc);
+                    }
+                })
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
             });
-            console.log(params, validDocs)
         },
         //=====================================弹窗相关====================================//
         //打开文件新增弹窗
