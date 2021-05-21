@@ -46,6 +46,8 @@
                         <span v-if="item.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
                         <!-- mock管理 -->
                         <span v-if="item.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
+                        <!-- 回收站管理 -->
+                        <span v-if="item.tabType === 'recycler'" class="el-icon-delete-solid red f-base mr-2"></span>
                     </template>
                     <span class="item-text">{{ item.name }}</span>
                     <span class="operaion">
