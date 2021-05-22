@@ -6,6 +6,13 @@
 */
 <template>
     <s-loading :loading="loading" class="doc-detail">
+        <div class="close el-icon-close" @click="handleClose"></div>
+        <div v-if="apidocItem.url" class="d-flex a-center mt-5 px-2 mb-1 border-bottom-gray-400">
+            <template v-for="(req) in validRequestMethods">
+                <span v-if="apidocItem.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+            </template>
+            <div class="flex1 f-base">{{ apidocItem.url.path }}</div>
+        </div>
         <div class="params-view">
             <s-fieldset title="请求参数" class="mb-5">
                 <template v-if="hasQueryParams || hasBodyParams || hasPathParams">
@@ -55,49 +62,121 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 //=========================================================================//
 export default {
     mixins: [mixin],
+    props: {
+        id: {
+            type: String,
+            default: "",
+        },
+    },
     data() {
         return {
             apidocItem: {},
+            loading: false,
         };
     },
+    computed: {
+        hasPathParams() {
+            const { apidocItem } = this.apidocItem;
+            const hasPathParams = apidocItem && apidocItem.paths && apidocItem.paths.length > 1;
+            return hasPathParams;
+        },
+        hasQueryParams() {
+            const { apidocItem } = this.apidocItem;
+            const hasQueryParams = apidocItem && apidocItem.queryParams && apidocItem.queryParams.length > 1;
+            return hasQueryParams;
+        },
+        hasBodyParams() {
+            let hasRequestBody = false;
+            const { apidocItem } = this.apidocItem;
+            const bodyIsNotEmpty = apidocItem && apidocItem.requestBody && apidocItem.requestBody.length >= 1;
+            if (bodyIsNotEmpty) {
+                const childParams = apidocItem.requestBody[0].children[0];
+                if (!childParams) {
+                    hasRequestBody = false;
+                } else if ((childParams.type !== "object" && childParams.type !== "array") && (childParams.key === "" || childParams.value === "")) {
+                    hasRequestBody = false;
+                } else {
+                    hasRequestBody = true;
+                }
+            } else {
+                hasRequestBody = false;
+            }
+            return hasRequestBody;
+        },
+        jsonRequestBody() {
+            const { requestBody } = this.apidocItem.requestBody;
+            const convertRequestBody = this.convertPlainParamsToTreeData(requestBody || []);
+            return JSON.stringify(convertRequestBody, null, 4);
+        },
+        jsonQueryParams() {
+            const { queryParams } = this.apidocItem.queryParams;
+            const convertQueryParams = this.convertPlainParamsToTreeData(queryParams || []);
+            return JSON.stringify(convertQueryParams, null, 4);
+        },
+        jsonHeaders() {
+            const { headers } = this.apidocItem.headers;
+            const convertHeaders = this.convertPlainParamsToTreeData(headers || []);
+            return JSON.stringify(convertHeaders, null, 4);
+        },
+        validRequestMethods() {
+            return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+    },
     mounted() {
+        this.getDocDetail();
     },
     methods: {
         //=====================================初始化====================================//
-        initDrag() {
-            document.documentElement.addEventListener("mouseup", (e) => {
-                e.stopPropagation();
-                this.isDragging = false;
-                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-            })
-            const responseWidth = localStorage.getItem("apidoc/responseWidth") || 500;
-            const { response, bar } = this.$refs;
-            bar.style.left = 0;
-            response.style.width = `${responseWidth}px`;
-            document.documentElement.addEventListener("click", () => {
-                this.multiSelectNode = [];
+
+        //=====================================获取数据====================================//
+        //获取文档详情
+        getDocDetail() {
+            this.loading = true;
+            const params = {
+                _id: this.id,
+                projectId: this.$route.query.id,
+            };
+            this.axios.get("/api/project/doc_detail", { params }).then((res) => {
+                console.log(res.data)
+                this.apidocItem = res.data.item
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
             });
         },
-        //=====================================获取数据====================================//
+        //返回值转换为json
+        convertResponseToJson(response) {
+            const jsonResponse = this.convertPlainParamsToTreeData(response.values || []);
+            return JSON.stringify(jsonResponse, null, 4);
+        },
+        //关闭弹窗
+        handleClose() {
+            this.$emit("close");
+        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
 .doc-detail {
-    max-height: size(600);
     width: size(800);
-    overflow-y: auto;
+    overflow: hidden;
+    position: relative;
     .params-view {
-        height: calc(100vh - #{size(220)});
+        height: 70vh;
         overflow-y: auto;
-        padding: size(10) size(20);
+        padding: 0 size(10);
         .copy-json {
             cursor: pointer;
             &:hover {
                 color: lighten($gray-300, 20%);
             }
         }
+    }
+    .close {
+        @include rt-close;
+        font-size: fz(22);
     }
 }
 </style>

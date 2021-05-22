@@ -69,8 +69,8 @@
                                 <div class="op-area mr-4">
                                     <span class="theme-color cursor-pointer">恢复</span>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-popover v-model="docInfo._visible" placement="right" trigger="manual">
-                                        <doc-detail v-if="docInfo._visible"></doc-detail>
+                                    <el-popover v-model="docInfo._visible" placement="right" trigger="manual" transition="none">
+                                        <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
                                         <span slot="reference" class="theme-color cursor-pointer" @click="handleShowDetail(docInfo)">详情</span>
                                     </el-popover>
                                 </div>
@@ -281,6 +281,15 @@ export default {
         },
         //显示文档详情
         handleShowDetail(docInfo) {
+            Object.keys(this.deletedInfo).forEach((key) => {
+                const el = this.deletedInfo[key];
+                Object.keys(el.deleted).forEach((key2) => {
+                    const el2 = el.deleted[key2];
+                    el2.forEach((info) => {
+                        this.$set(info, "_visible", false);
+                    })
+                })
+            })
             this.$set(docInfo, "_visible", true);
         },
         //=====================================其他操作=====================================//
