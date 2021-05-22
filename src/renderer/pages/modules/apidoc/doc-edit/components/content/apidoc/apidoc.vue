@@ -345,6 +345,12 @@ export default {
                 property.children.push(this.generateProperty());
                 requestBody.push(property);
             }
+            if (lastItemIsEmpty(responseParams)) {
+                responseParams.push({
+                    title: "成功返回",
+                    values: [this.generateProperty()],
+                });
+            }
             //添加默认headers
             const defaultHeaders = this.generateDefaultHeaders(resData);
             request.headers = this.$helper.unique(defaultHeaders.concat(headers), "key"); //默认header会覆盖远程返回header
