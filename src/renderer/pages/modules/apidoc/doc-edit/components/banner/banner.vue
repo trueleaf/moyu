@@ -288,7 +288,7 @@ export default {
                 });
                 this.contextmenu.$on("paste", () => { //粘贴
                     if (this.copyData) {
-                        this.handlePaste(this.navTreeData);
+                        this.handlePaste();
                     }
                 });
             })
@@ -818,7 +818,7 @@ export default {
         },
         //粘贴文档或者文件夹
         handlePaste(mountedData) {
-            const mountedId = mountedData._id; //挂载点id
+            const mountedId = mountedData?._id; //挂载点id
             let copyedDocs = []; //拷贝的数据
             const params = {
                 projectId: this.$route.query.id,
