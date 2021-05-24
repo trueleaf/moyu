@@ -272,29 +272,7 @@ export default {
             } else if (pid && !isFolder && hasParent) { //文档，非根元素,存在父元素
                 this.restoreDocDirectly(docInfo)
             } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
-                this.$confirm(`当前文档父级节点不存在，是否还原到根节点`, "提示", {
-                    confirmButtonText: "确定",
-                    cancelButtonText: "取消",
-                    type: "warning",
-                }).then(() => {
-                    // this.loading2 = true;
-                    // const params = {
-                    //     _id: docInfo._id,
-                    //     projectId: this.$route.query.id,
-                    // };
-                    // this.axios.put("/api/docs/docs_restore", params).then(() => {
-                    //     this.$event.emit("apidoc/freshBanner")
-                    // }).catch((err) => {
-                    //     console.error(err);
-                    // }).finally(() => {
-                    //     this.loading2 = false;
-                    // });
-                }).catch((err) => {
-                    if (err === "cancel" || err === "close") {
-                        return;
-                    }
-                    this.$errorThrow(err, this);
-                });
+                this.restoreDocDirectly(docInfo)
             }
             console.log(222, hasParent, isFolder, pid, docInfo)
         },
