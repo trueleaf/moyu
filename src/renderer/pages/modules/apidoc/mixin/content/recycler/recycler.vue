@@ -67,7 +67,7 @@
                         <div class="date-list-wrap">
                             <div v-for="(docInfo, index3) in chunkDeleteInfo" :key="index3" class="docinfo">
                                 <div class="op-area mr-4">
-                                    <span class="theme-color cursor-pointer">恢复</span>
+                                    <el-button type="text" :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
                                     <el-divider direction="vertical"></el-divider>
                                     <el-popover v-model="docInfo._visible" placement="right" trigger="manual" transition="none">
                                         <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
@@ -136,6 +136,7 @@ export default {
             //===================================其他参数====================================//
             visible: false, //是否显示详情
             loading: false, //是否正在请求数据
+            loading2: false, //恢复按钮
             debounceFn: null, //节流函数
         };
     },
@@ -257,8 +258,71 @@ export default {
         },
         //=====================================前后端交互====================================//
         //恢复接口
-        handleRestore() {
-            console.log(222)
+        handleRestore(docInfo) {
+            const { banner } = this.$store.state.apidoc;
+            const { pid, isFolder } = docInfo;
+            let hasParent = false;
+            this.$helper.forEachForest(banner, (node) => {
+                if (node._id === pid) {
+                    hasParent = true;
+                }
+            });
+            if (!pid && !isFolder) { //文档，根元素
+                this.restoreDocDirectly(docInfo)
+            } else if (pid && !isFolder && hasParent) { //文档，非根元素,存在父元素
+                this.restoreDocDirectly(docInfo)
+            } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
+                this.$confirm(`当前文档父级节点不存在，是否还原到根节点`, "提示", {
+                    confirmButtonText: "确定",
+                    cancelButtonText: "取消",
+                    type: "warning",
+                }).then(() => {
+                    // this.loading2 = true;
+                    // const params = {
+                    //     _id: docInfo._id,
+                    //     projectId: this.$route.query.id,
+                    // };
+                    // this.axios.put("/api/docs/docs_restore", params).then(() => {
+                    //     this.$event.emit("apidoc/freshBanner")
+                    // }).catch((err) => {
+                    //     console.error(err);
+                    // }).finally(() => {
+                    //     this.loading2 = false;
+                    // });
+                }).catch((err) => {
+                    if (err === "cancel" || err === "close") {
+                        return;
+                    }
+                    this.$errorThrow(err, this);
+                });
+            }
+            console.log(222, hasParent, isFolder, pid, docInfo)
+        },
+        //直接恢复
+        restoreDocDirectly(docInfo) {
+            this.$confirm(`确实要恢复 ${docInfo.name} 吗?`, "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                this.loading2 = true;
+                const params = {
+                    _id: docInfo._id,
+                    projectId: this.$route.query.id,
+                };
+                this.axios.put("/api/docs/docs_restore", params).then(() => {
+                    this.$event.emit("apidoc/freshBanner")
+                }).catch((err) => {
+                    console.error(err);
+                }).finally(() => {
+                    this.loading2 = false;
+                });
+            }).catch((err) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                this.$errorThrow(err, this);
+            });
         },
         //=====================================组件间交互====================================//
         //清空操作人员信息

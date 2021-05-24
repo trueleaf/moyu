@@ -47,7 +47,10 @@
                         <div
                             slot="reference"
                             class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            :class="{
+                                'selected': multiSelectNode.find((val) => val.data._id === scope.data._id),
+                                'active': currentSelectDoc && currentSelectDoc._id === scope.data._id,
+                            }"
                             tabindex="0"
                             @keydown.stop="handleKeydown($event, scope)"
                             @keyup.stop="handleKeyUp($event, scope.data)"
@@ -163,6 +166,7 @@ export default {
             copyData: null, //-----------------拷贝的数据
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------------控制导航节点更多选项显示
+            dropNodeId: "", //-----------------拖拽过程中dropNode节点id
             dialogVisible: false, //-----------新增文件夹弹窗
             dialogVisible2: false, //----------新增文件弹窗
             dialogVisible3: false, //----------导入第三方文档弹窗
@@ -952,6 +956,12 @@ export default {
     }
     .el-tree-node__content:hover {
         background: none;
+    }
+    .el-tree-node.is-drop-inner {
+        background: mix($theme-color, $white, 80%);
+    }
+    .el-tree__drop-indicator {
+        height: size(3);
     }
     .tool {
         position: relative;

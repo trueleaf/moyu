@@ -6,8 +6,8 @@
 */
 <template>
     <div class="s-collaps mb-1">
-        <div class="header" @click="isActive = !isActive">
-            <span class="gray-700" :class="{'el-icon-arrow-down': isActive, 'el-icon-arrow-right': !isActive}"></span>
+        <div class="header" @click="toggleCollapse">
+            <span v-if="!disabled" class="gray-700" :class="{'el-icon-arrow-down': isActive, 'el-icon-arrow-right': !isActive}"></span>
             <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
             <slot v-else name="title" />
         </div>
@@ -28,6 +28,10 @@ export default {
             type: Boolean,
             default: true,
         },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -45,7 +49,14 @@ export default {
     created() {
 
     },
-    methods: {},
+    methods: {
+        toggleCollapse() {
+            if (this.disabled) {
+                return;
+            }
+            this.isActive = !this.isActive
+        },
+    },
 };
 </script>
 
