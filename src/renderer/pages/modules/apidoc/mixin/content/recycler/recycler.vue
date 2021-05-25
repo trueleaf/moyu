@@ -71,7 +71,7 @@
                                     <el-divider direction="vertical"></el-divider>
                                     <el-popover v-model="docInfo._visible" placement="right" trigger="manual" transition="none">
                                         <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
-                                        <span slot="reference" class="theme-color cursor-pointer" @click="handleShowDetail(docInfo)">详情</span>
+                                        <el-button slot="reference" type="text" @click="handleShowDetail(docInfo)">详情</el-button>
                                     </el-popover>
                                 </div>
                                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
@@ -126,7 +126,6 @@ export default {
                 operators: [], //----操作者信息
             },
             customDateRange: [], //--自定义日期范围
-            deletedInfo: {}, //------历史记录列表
             deletedList: [],
             dateRange: "", //--------日期范围
             //===================================枚举参数====================================//
@@ -143,6 +142,33 @@ export default {
     computed: {
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        deletedInfo() {
+            const result = {};
+            this.deletedList.forEach((item) => {
+                const { updatedAt } = item;
+                const ymdString = dayjs(updatedAt).format("YYYY-MM-DD");
+                const ymdhmString = dayjs(updatedAt).format("YYYY-MM-DD HH:mm");
+                if (!result[ymdString]) {
+                    let title = "";
+                    if (dayjs(updatedAt).isToday()) {
+                        title = "今天"
+                    } else if (dayjs(updatedAt).isYesterday()) {
+                        title = "昨天"
+                    } else {
+                        title = dayjs(updatedAt).format("YYYY年M月DD号");
+                    }
+                    result[ymdString] = {
+                        title,
+                        deleted: {},
+                    };
+                }
+                if (!result[ymdString].deleted[ymdhmString]) {
+                    result[ymdString].deleted[ymdhmString] = [];
+                }
+                result[ymdString].deleted[ymdhmString].push(item);
+            })
+            return result;
         },
     },
     watch: {
@@ -214,30 +240,6 @@ export default {
             this.loading = true;
             const params = this.formInfo;
             this.axios.post("/api/docs/docs_deleted_list", params).then((res) => {
-                this.deletedInfo = {};
-                res.data.rows.forEach((item) => {
-                    const { updatedAt } = item;
-                    const ymdString = dayjs(updatedAt).format("YYYY-MM-DD");
-                    const ymdhmString = dayjs(updatedAt).format("YYYY-MM-DD HH:mm");
-                    if (!this.deletedInfo[ymdString]) {
-                        let title = "";
-                        if (dayjs(updatedAt).isToday()) {
-                            title = "今天"
-                        } else if (dayjs(updatedAt).isYesterday()) {
-                            title = "昨天"
-                        } else {
-                            title = dayjs(updatedAt).format("YYYY年M月DD号");
-                        }
-                        this.deletedInfo[ymdString] = {
-                            title,
-                            deleted: {},
-                        };
-                    }
-                    if (!this.deletedInfo[ymdString].deleted[ymdhmString]) {
-                        this.deletedInfo[ymdString].deleted[ymdhmString] = [];
-                    }
-                    this.deletedInfo[ymdString].deleted[ymdhmString].push(item);
-                })
                 this.deletedList = res.data.rows;
             }).catch((err) => {
                 console.error(err);
@@ -273,8 +275,9 @@ export default {
                 this.restoreDocDirectly(docInfo)
             } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
                 this.restoreDocDirectly(docInfo)
+            } else {
+                this.restoreDocDirectly(docInfo)
             }
-            console.log(222, hasParent, isFolder, pid, docInfo)
         },
         //直接恢复
         restoreDocDirectly(docInfo) {
@@ -288,7 +291,16 @@ export default {
                     _id: docInfo._id,
                     projectId: this.$route.query.id,
                 };
-                this.axios.put("/api/docs/docs_restore", params).then(() => {
+                this.axios.put("/api/docs/docs_restore", params).then((res) => {
+                    const delIds = res.data;
+                    console.log(22, delIds)
+                    for (let i = 0; i < delIds.length; i += 1) {
+                        const id = delIds[i];
+                        console.log(id)
+                        const delIndex = this.deletedList.findIndex((val) => val._id === id);
+                        this.deletedList.splice(delIndex, 1)
+                    }
+                    // console.log(delIds, this.deletedList);
                     this.$event.emit("apidoc/freshBanner")
                 }).catch((err) => {
                     console.error(err);
@@ -311,15 +323,10 @@ export default {
         handleClearDate() {
             this.dateRange = null; //startTime和endTime会在watch中发送改变
         },
-        //清空日志类型
-        handleClearType() {
-            this.formInfo.operationTypes = [];
-        },
         //全部清空
         clearAll() {
             this.handleClearOperator();
             this.handleClearDate();
-            this.handleClearType();
         },
         //显示文档详情
         handleShowDetail(docInfo) {
@@ -396,7 +403,7 @@ export default {
                     }
                 }
                 .op-area {
-                    width: size(80);
+                    width: size(100);
                 }
             }
         }
