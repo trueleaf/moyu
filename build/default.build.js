@@ -58,7 +58,6 @@ module.exports = {
                 "echarts",
                 "brace",
                 "urllib",
-                "cookie-parser",
                 "got",
                 "@koa/cors",
                 "form-data",
