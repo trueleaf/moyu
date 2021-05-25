@@ -6,7 +6,7 @@
 */
 <template>
     <div class="doc-import">
-        <s-fieldset title="支持：Postman、摸鱼文档、Swagger/OpenApi 3.0">
+        <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
                 class="w-100"
                 drag
@@ -78,6 +78,7 @@ import mixin from "@/pages/modules/apidoc/mixin" //公用数据和函数
 import jsyaml from "js-yaml"
 import OpenApiTranslator from "./openapi"
 import PostmanTranslator from "./postman"
+import YAPITranslator from "./yapi"
 
 export default {
     mixins: [mixin],
@@ -107,7 +108,8 @@ export default {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         },
     },
-    created() {},
+    created() {
+    },
     methods: {
         //=====================================文件上传====================================//
         //检查文件格式
@@ -115,11 +117,12 @@ export default {
             const standerFileType = file.type;
             const suffixFileType = file.name.match(/(?<=\.)[^.]+$/) ? file.name.match(/(?<=\.)[^.]+$/)[0] : "";
             this.fileType = standerFileType || suffixFileType;
+            // console.log("文件类型", this.fileType, standerFileType, suffixFileType)
             if (!standerFileType && !suffixFileType) {
                 this.$message.error("未知的文件格式，无法解析");
                 return false;
             }
-            if (this.fileType !== "application/json" && this.fileType !== "yaml") {
+            if (this.fileType !== "application/json" && this.fileType !== "yaml" && this.fileType !== "application/x-yaml") {
                 this.$message.error("仅支持JSON格式或者YAML格式文件");
                 return false;
             }
@@ -132,7 +135,7 @@ export default {
         //自定义上传成功操作
         requestHook(e) {
             e.file.text().then((fileStr) => {
-                if (this.fileType === "yaml") {
+                if (this.fileType === "yaml" || this.fileType === "application/x-yaml") {
                     this.jsonText = jsyaml.load(fileStr);
                 } else {
                     this.jsonText = JSON.parse(fileStr)
@@ -146,11 +149,15 @@ export default {
         getImportFileInfo() {
             this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
             this.postmanTranslatorInstance = new PostmanTranslator(this.$route.query.id);
+            this.yapiTranslatorInstance = new YAPITranslator(this.$route.query.id);
+            const isArray = Array.isArray(this.jsonText);
+            const firstEl = isArray ? this.jsonText[0] : null;
+            const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
             if (this.jsonText.type === "moyu") {
                 this.importTypeInfo.name = "moyu";
                 this.formInfo.type = "moyu";
                 this.formInfo.moyuData = this.jsonText;
-            } else if (this.jsonText.info._postman_id) {
+            } else if (this.jsonText.info?._postman_id) {
                 this.importTypeInfo.name = "postman";
                 this.importTypeInfo.version = "postman";
                 this.formInfo.type = "postman";
@@ -165,6 +172,10 @@ export default {
                 this.importTypeInfo.version = this.jsonText.swagger;
                 this.formInfo.type = "swagger";
                 this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
+            } else if (isYapi) {
+                this.importTypeInfo.name = "yapi";
+                this.formInfo.type = "yapi";
+                this.formInfo.moyuData = this.yapiTranslatorInstance.convertYapiData(this.jsonText);
             } else {
                 this.importTypeInfo.name = "未知类型";
             }
@@ -177,9 +188,10 @@ export default {
                     this.$message.warning("请选择需要导入的文件");
                     return;
                 }
+                const mountedId = this.currentMountedNode?._id;
                 const docs = this.formInfo.moyuData.docs.map((val) => ({
                     ...val,
-                    pid: this.currentMountedNode ? this.currentMountedNode._id : "",
+                    pid: val.pid || mountedId,
                 }))
                 const params = {
                     projectId: this.$route.query.id,
@@ -189,6 +201,7 @@ export default {
                         docs,
                     },
                 };
+                // console.log(params, JSON.parse(JSON.stringify(this.formInfo.moyuData)))
                 this.axios.post("/api/project/import/moyu", params).then(() => {
                     this.$event.emit("apidoc/importDocSuccess");
                 }).catch((err) => {
@@ -234,7 +247,7 @@ export default {
                     this.$errorThrow(err, this);
                 });
             }
-            console.log(val)
+            // console.log(val)
         },
         //节点选中状态改变时候
         handleCheckChange(data, checkNode) {

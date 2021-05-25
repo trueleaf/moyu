@@ -14,7 +14,7 @@
             <!-- <el-form-item label="备注：">
                 <el-input v-model="formInfo.remark" size="mini" placeholder="请输入备注"></el-input>
             </el-form-item> -->
-            <el-form-item label="成员：">
+            <el-form-item label="选择成员：">
                 <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" placeholder="输入用户名或真实姓名查找用户">
                     <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
                         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">

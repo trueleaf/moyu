@@ -55,7 +55,7 @@
         <div slot="right" class="ml-1 flex1">
             <el-divider content-position="left">数据展示</el-divider>
             <!-- 表格展示 -->
-            <s-table ref="table" url="/api/project/doc_service" :params="{projectId: $route.query.id}">
+            <s-table ref="table" url="/api/project/doc_service" :params="{projectId: $route.query.id}" delete-many delete-url="/api/project/doc_service" @deleteMany="handleDeleteMany">
                 <el-table-column label="服务器名称" align="center">
                     <template slot-scope="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
@@ -232,7 +232,7 @@ export default {
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
-                this.axios.delete("api/project/doc_service", { data: { ids: [_id] } }).then(() => {
+                this.axios.delete("/api/project/doc_service", { data: { ids: [_id] } }).then(() => {
                     this.$refs.table.getData();
                     this.$emit("change");
                 }).catch((err) => {
@@ -243,6 +243,10 @@ export default {
             }).catch((err) => {
                 console.error(err);
             });
+        },
+        //批量删除成功
+        handleDeleteMany() {
+            this.$emit("change");
         },
         //=====================================其他操作====================================//
         //关闭弹窗

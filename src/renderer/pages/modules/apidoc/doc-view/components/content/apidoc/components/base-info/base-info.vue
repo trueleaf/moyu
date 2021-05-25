@@ -11,6 +11,7 @@
             <el-popover placement="top-start" trigger="hover" :open-delay="600" :content="mockServer" class="mr-2">
                 <el-radio slot="reference" :label="mockServer" border>Mock服务器</el-radio>
             </el-popover>
+            <!-- <el-radio label="custom" border class="mr-2">自定义服务器</el-radio> -->
             <el-popover v-for="(item, index) in hostEnum" :key="index" :open-delay="600" :close-delay="0" placement="top-start" trigger="hover" :content="item.url" class="mr-2">
                 <el-radio slot="reference" :label="item.url" border>{{ item.name }}</el-radio>
             </el-popover>
@@ -40,6 +41,10 @@
         </div>
         <!-- 请求参数展示 -->
         <pre class="full-url">{{ host }}{{ path }}</pre>
+        <!-- <div v-if="tagInfo.name" class="mt-1">
+            <span class="dot" :style="{background: tagInfo.color}"></span>
+            <span :style="{color: tagInfo.color}">{{ tagInfo.name }}</span>
+        </div> -->
     </div>
 </template>
 
@@ -52,7 +57,7 @@ export default {
     data() {
         return {
             path: "",
-            host: "",
+            // host: "",
             requestPath: "",
             mockServer: `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`, //-------------------mock服务器
             loading2: false,
@@ -68,6 +73,16 @@ export default {
             },
             set(val) {
                 this.$store.commit("apidoc/initAndChangeHostEnum", val);
+            },
+        },
+        host: { //host信息
+            get() {
+                return this.$store.state.apidoc.apidocInfo?.item?.url?.host;
+            },
+            set(val) {
+                if (val) {
+                    this.$store.commit("apidoc/changeDocHost", val);
+                }
             },
         },
         apidocInfo() {

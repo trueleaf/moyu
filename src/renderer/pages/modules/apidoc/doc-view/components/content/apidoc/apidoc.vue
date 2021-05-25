@@ -10,7 +10,10 @@
             <s-base-info class="base-view"></s-base-info>
             <div class="params-view">
                 <s-fieldset title="请求参数" class="mb-5">
-                    <template v-if="hasQueryParams || hasBodyParams">
+                    <template v-if="hasQueryParams || hasBodyParams || hasPathParams">
+                        <s-collapse v-if="hasPathParams" title="请求参数(Path)">
+                            <s-array-view :data="apidocItem.paths" show-checkbox class="mt-2"></s-array-view>
+                        </s-collapse>
                         <s-collapse v-if="hasQueryParams" title="请求参数(Params)">
                             <s-array-view :data="apidocItem.queryParams" show-checkbox class="mt-2">
                                 <div slot="header" v-copy="jsonQueryParams" class="copy-json">复制为json</div>
@@ -26,23 +29,23 @@
                             </s-array-view>
                         </s-collapse>
                     </template>
-                    <div v-else>无</div>
+                    <div v-else>空</div>
                 </s-fieldset>
                 <s-fieldset title="返回参数">
                     <div v-for="(item, index) in apidocItem.responseParams" :key="index">
-                        <s-collapse v-if="item.values.length >= 1" :key="index" :active="index === 0" :title="item.title">
-                            <s-array-view :data="item.values" class="mt-2">
+                        <s-collapse :key="index" :active="index === 0" :title="item.title">
+                            <s-array-view v-if="item.values.length >= 1" :data="item.values" class="mt-2">
                                 <div slot="header" v-copy="convertResponseToJson(item)" class="copy-json">复制为json</div>
                             </s-array-view>
+                            <div v-if="item.values.length === 0">空</div>
                         </s-collapse>
-                        <div v-else>无</div>
                     </div>
                 </s-fieldset>
                 <s-fieldset title="请求头">
                     <s-array-view v-if="apidocItem.headers && apidocItem.headers.length > 1" :data="apidocItem.headers">
                         <div slot="header" v-copy="jsonHeaders" class="copy-json">复制为json</div>
                     </s-array-view>
-                    <div v-else>无</div>
+                    <div v-else>空</div>
                 </s-fieldset>
             </div>
         </s-loading>
@@ -110,6 +113,11 @@ export default {
             const headers = this.$store.state.apidoc.apidocInfo?.item?.headers;
             const convertHeaders = this.convertPlainParamsToTreeData(headers || []);
             return JSON.stringify(convertHeaders, null, 4);
+        },
+        hasPathParams() {
+            const apidocItem = this.$store.state.apidoc.apidocInfo?.item;
+            const hasPathParams = apidocItem && apidocItem.paths && apidocItem.paths.length > 1;
+            return hasPathParams;
         },
         hasQueryParams() {
             const apidocItem = this.$store.state.apidoc.apidocInfo?.item;

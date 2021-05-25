@@ -5,72 +5,13 @@
     备注：xxxx
 */
 <template>
-    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @click="handleClickBanner">
+    <div ref="banner" class="banner" tabindex="1" :style="{'user-select': isDragging ? 'none' : 'auto'}" @mouseenter="handleFocusBanner" @click="handleClickBanner">
         <!-- 工具栏 -->
         <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
             <el-input v-model="queryData" class="doc-search" placeholder="文档名称,文档url,创建者" clearable @input="handleSearchTree"></el-input>
-            <div class="tool-icon d-flex j-between mt-1 px-1">
-                <el-tooltip class="item" effect="dark" content="新增文件夹" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenAddFolderDialog();docParentId = '';">
-                        <use xlink:href="#iconxinzengwenjian"></use>
-                    </svg>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="新增文件" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenAddFileDialog();docParentId = '';">
-                        <use xlink:href="#iconwenjian"></use>
-                    </svg>
-                </el-tooltip>
-                <el-tooltip class="item" effect="dark" content="导出文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenExportPage">
-                        <use xlink:href="#icondaochu1"></use>
-                    </svg>
-                </el-tooltip>
-                <!-- <el-tooltip class="item" effect="dark" content="导入文档" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="dialogVisible3 = true">
-                        <use xlink:href="#icondaoru"></use>
-                    </svg>
-                </el-tooltip> -->
-                <el-tooltip class="item" effect="dark" content="在线链接" :open-delay="300">
-                    <svg class="svg-icon" aria-hidden="true" @click="handleOpenOnlineLink">
-                        <use xlink:href="#iconlink"></use>
-                    </svg>
-                </el-tooltip>
-                <svg class="item svg-icon" aria-hidden="true" @click="freshBanner">
-                    <use xlink:href="#iconshuaxin"></use>
-                </svg>
-                <el-dropdown ref="dropdown" trigger="click" class="mr-1">
-                    <i class="more-op el-icon-more" title="更多操作"></i>
-                    <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="handleViewDoc">
-                            <div class="dropdown-item">
-                                <span>预览文档</span>
-                                <span class="gray-500">Ctrl+P</span>
-                            </div>
-                        </el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOpenImportPage">
-                            <div class="dropdown-item">
-                                <span>导入文档</span>
-                                <span class="gray-500">Ctrl+I</span>
-                            </div>
-                        </el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOpenHistoryPage">
-                            <div class="dropdown-item">
-                                <span>历史记录</span>
-                                <span class="gray-500">Ctrl+H</span>
-                            </div>
-                        </el-dropdown-item>
-                        <el-dropdown-item @click.native="handleOpenConfigPage">
-                            <div class="dropdown-item">
-                                <span>全局设置</span>
-                                <span class="gray-500">Ctrl+,</span>
-                            </div>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </el-dropdown>
-            </div>
+            <s-shortcut></s-shortcut>
         </div>
-        <div class="filter"></div>
         <!-- 树形文档导航 -->
         <s-loading :loading="loading" class="doc-nav">
             <el-tree
@@ -106,12 +47,15 @@
                         <div
                             slot="reference"
                             class="custom-tree-node"
-                            :class="{'selected': multiSelectNode.find((val) => val.data._id === scope.data._id), 'active': currentSelectDoc && currentSelectDoc._id === scope.data._id}"
+                            :class="{
+                                'selected': multiSelectNode.find((val) => val.data._id === scope.data._id),
+                                'active': currentSelectDoc && currentSelectDoc._id === scope.data._id,
+                            }"
                             tabindex="0"
-                            @keydown.stop="handleKeydown($event, scope.data)"
+                            @keydown.stop="handleKeydown($event, scope)"
                             @keyup.stop="handleKeyUp($event, scope.data)"
                             @click="handleClickNode($event, scope)"
-                            @mouseenter="handleHoverNode($event, scope)"
+                            @mouseenter.stop="handleHoverNode($event, scope)"
                             @mouseleave="hoverNodeId = ''"
                         >
                             <!-- file渲染 -->
@@ -189,6 +133,7 @@ import addFolderDialog from "../../dialog/add-folder.vue";
 import addFileDialog from "../../dialog/add-file.vue";
 import templateDialog from "./dialog/template.vue";
 import contextmenu from "./components/contextmenu.vue";
+import shortcut from "./components/shortcut.vue"
 
 export default {
     name: "SDocEditBanner",
@@ -196,10 +141,11 @@ export default {
         "s-add-folder-dialog": addFolderDialog,
         "s-add-file-dialog": addFileDialog,
         "s-template-dialog": templateDialog,
+        "s-shortcut": shortcut,
     },
     data() {
         return {
-            //=====================================文档增删改查====================================//
+            //=====================================文档增删改查===============================//
             queryData: "", //------------------文档过滤条件
             docParentId: "", //----------------文档父id
             contextmenu: null, //--------------右键弹窗
@@ -216,8 +162,11 @@ export default {
             bannerWidth: 0, //-----------------banner宽度
             isDragging: false, //--------------是否正在拖拽
             isRename: false, //----------------正在重命名
+            //=====================================复制粘贴相关=================================//
+            copyData: null, //-----------------拷贝的数据
             //=====================================其他参数====================================//
             hoverNodeId: "", //----------------控制导航节点更多选项显示
+            dropNodeId: "", //-----------------拖拽过程中dropNode节点id
             dialogVisible: false, //-----------新增文件夹弹窗
             dialogVisible2: false, //----------新增文件弹窗
             dialogVisible3: false, //----------导入第三方文档弹窗
@@ -259,18 +208,16 @@ export default {
     },
 
     mounted() {
-        this.init();
-        this.$event.one("apidoc/importDocSuccess", () => {
-            this.getDocBanner();
-            this.$store.dispatch("apidoc/getHostEnum", {
-                projectId: this.$route.query.id,
-            });
-        })
+        this.getDocBanner(); //获取banner数据
+        this.initGlobalClickEvent(); //初始化全局点击事件
+        this.initDrag();
+        this.initShortcutEvent();
+        this.initBannerContextmenuEvent();
     },
     methods: {
         //=====================================初始化相关====================================//
-        init() {
-            this.getDocBanner();
+        //初始化全局点击事件
+        initGlobalClickEvent() {
             document.documentElement.addEventListener("click", () => {
                 this.clearContextmenu();
                 this.multiSelectNode = [];
@@ -278,14 +225,54 @@ export default {
                 this.clearPopover();
                 this.pressCtrl = false;
             });
-            //右键菜单
+        },
+        //初始化拖拽相关事件
+        initDrag() {
+            //拖拽相关
+            document.documentElement.addEventListener("mouseup", () => {
+                this.isDragging = false;
+                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            })
+            const bannerWidth = localStorage.getItem("apidoc/bannerWidth") || 300;
+            const { banner, bar } = this.$refs;
+            bar.style.left = `${bannerWidth}px`;
+            banner.style.width = `${bannerWidth}px`;
+        },
+        //初始化快捷方式事件
+        initShortcutEvent() {
+            //导入文档成功
+            this.$event.one("apidoc/importDocSuccess", () => {
+                this.getDocBanner();
+                this.$store.dispatch("apidoc/getHostEnum", {
+                    projectId: this.$route.query.id,
+                });
+            })
+            //新建根文件夹
+            this.$event.one("apidoc/addRootFolder", () => {
+                this.docParentId = "";
+                this.handleOpenAddFolderDialog();
+            })
+            //新建根文件
+            this.$event.one("apidoc/addRootFile", () => {
+                this.docParentId = "";
+                this.handleOpenAddFileDialog();
+            })
+            //刷新banner
+            this.$event.one("apidoc/freshBanner", () => {
+                if (!this.loading) {
+                    this.getDocBanner();
+                }
+            })
+        },
+        //初始化banner鼠标右键事件
+        initBannerContextmenuEvent() {
             this.$refs.bannerContext.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
                 this.clearContextmenu(); //清除contextmenu
                 const ContextmenuConstructor = Vue.extend(contextmenu);
                 const x = e.clientX; //当前点击位置
                 const y = e.clientY; //当前点击位置
-                const operations = ["file", "folder"]
+                const operations = ["file", "folder", "paste"]
                 this.contextmenu = new ContextmenuConstructor({
                     propsData: {
                         operations,
@@ -300,24 +287,17 @@ export default {
                 this.contextmenu.$on("folder", () => {
                     this.handleOpenAddFolderDialog();
                 })
+                this.contextmenu.$on("close", () => {
+                    this.clearContextmenu()
+                });
+                this.contextmenu.$on("paste", () => { //粘贴
+                    if (this.copyData) {
+                        this.handlePaste();
+                    }
+                });
             })
-            //拖拽相关
-            document.documentElement.addEventListener("mouseup", () => {
-                this.isDragging = false;
-                document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-            })
-            const bannerWidth = localStorage.getItem("apidoc/bannerWidth") || 300;
-            const { banner, bar } = this.$refs;
-            bar.style.left = `${bannerWidth}px`;
-            banner.style.width = `${bannerWidth}px`;
         },
-        //=====================================操作栏操作====================================//
-        //刷新banner
-        freshBanner() {
-            if (!this.loading) {
-                this.getDocBanner();
-            }
-        },
+        //=====================================获取数据====================================//
         //获取banner数据
         getDocBanner() {
             this.loading = true;
@@ -325,46 +305,6 @@ export default {
                 console.error(err);
             }).finally(() => {
                 this.loading = false;
-            });
-        },
-        //打开在线链接tab
-        handleOpenOnlineLink() {
-            this.handleAddTab("生成在线链接", "onlineLink");
-        },
-        //打开导出tab
-        handleOpenExportPage() {
-            this.handleAddTab("文档导出", "exportDoc");
-        },
-        //打开导入tab
-        handleOpenImportPage() {
-            this.handleAddTab("文档导入", "importDoc");
-        },
-        //打开配置界面
-        handleOpenConfigPage() {
-            this.handleAddTab("文档全局配置", "config");
-        },
-        //打开历史记录界面
-        handleOpenHistoryPage() {
-            this.handleAddTab("历史记录", "history");
-        },
-        //打开新的tab
-        handleAddTab(name, tabType) {
-            this.$store.commit("apidoc/changeCurrentTab", {
-                _id: tabType,
-                projectId: this.$route.query.id,
-                name,
-                changed: false,
-                tabType,
-            });
-            if (this.tabs && this.tabs.find((tab) => tab.tabType === tabType)) { //存在则返回不处理
-                return;
-            }
-            this.$store.commit("apidoc/addTab", {
-                _id: tabType,
-                projectId: this.$route.query.id,
-                name,
-                changed: false,
-                tabType,
             });
         },
         //=====================================导航操作==================================//
@@ -399,11 +339,11 @@ export default {
                 case "addByTemplate":
                     this.addByTemplate(data);
                     break;
-                case "copy":
+                case "fork":
                     if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
                         this.$message.warning(`单个文件夹里面文档个数不超过${this.docRules.fileInFolderLimit}个`);
                     } else {
-                        this.copyDoc(data, node);
+                        this.fork(data, node);
                     }
                     break;
                 default:
@@ -418,19 +358,27 @@ export default {
             const x = e.clientX; //当前点击位置
             const y = e.clientY; //当前点击位置
             let operations = [];
+            let disabledOperations = [];
             if (this.multiSelectNode.length > 0) {
-                operations = ["deleteMany"];
+                operations = ["deleteMany", "copy"];
             } else {
-                operations = data.isFolder ? ["file", "folder", "template", "rename", "delete"] : ["rename", "delete", "copy"];
+                operations = data.isFolder ? ["file", "folder", "template", "rename", "copyFolder", "delete", "paste"] : ["rename", "delete", "copy", "fork"];
+            }
+            if (!this.copyData) {
+                disabledOperations = ["paste"];
             }
             this.contextmenu = new ContextmenuConstructor({
                 propsData: {
                     operations,
+                    disabledOperations,
                     left: x,
                     top: y,
                 },
             }).$mount();
             document.body.appendChild(this.contextmenu.$el);
+            this.contextmenu.$on("close", () => {
+                this.clearContextmenu()
+            });
             this.contextmenu.$on("file", () => {
                 this.docParentId = data._id;
                 if (node && node.childNodes.length >= this.docRules.fileInFolderLimit) {
@@ -461,23 +409,42 @@ export default {
             this.contextmenu.$on("template", () => {
                 this.addByTemplate(data);
             })
-            this.contextmenu.$on("copy", () => {
+            this.contextmenu.$on("fork", () => {
                 if (node && node.parent && node.parent.childNodes && node.parent.childNodes.length >= this.docRules.fileInFolderLimit) {
                     this.$message.warning(`单个文件夹里面文档个数不超过${this.docRules.fileInFolderLimit}个`);
                 } else {
-                    this.copyDoc(data, node);
+                    this.fork(data, node);
+                }
+            });
+            this.contextmenu.$on("copyFolder", () => { //复制文件夹
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
+            });
+            this.contextmenu.$on("copy", () => { //复制文件
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
+            });
+            this.contextmenu.$on("paste", () => { //粘贴
+                if (data.isFolder && this.copyData) {
+                    this.handlePaste(data);
                 }
             });
         },
         //鼠标移动到当前node上面
         handleHoverNode(e, scope) {
             if (!this.isRename) { //防止focus导致输入框失焦
-                e.currentTarget.focus(); //实其能够触发keydown事件
+                e.currentTarget.focus(); //使其能够触发keydown事件
             }
             this.hoverNodeId = scope.data._id
         },
         //处理节点上面keydown快捷方式(例如f2重命名)
-        handleKeydown(e, data) {
+        handleKeydown(e, { data, node }) {
             if (e.code === "F2") {
                 this.$set(data, "_name", data.name); //文档名称备份,防止修改名称用户名称填空导致异常
                 this.renameNodeId = data._id;
@@ -486,6 +453,18 @@ export default {
                     this.enableDrag = false;
                     this.isRename = true; //重命名
                 })
+            } else if (e.ctrlKey && (e.key === "D" || e.key === "d")) {
+                this.handleDeleteItem(data, node);
+            } else if (e.ctrlKey && (e.key === "C" || e.key === "c")) {
+                if (this.multiSelectNode && this.multiSelectNode.length > 0) { //多选
+                    this.copyData = this.$helper.cloneDeep(this.multiSelectNode.map((v) => v.data));
+                } else {
+                    this.copyData = [this.$helper.cloneDeep(data)];
+                }
+            } else if (e.ctrlKey && (e.key === "V" || e.key === "v")) {
+                if (data.isFolder && this.copyData) {
+                    this.handlePaste(data);
+                }
             } else if (e.code === "ControlLeft" || e.code === "ControlRight") {
                 this.clearPopover();
                 this.$set(data, "_ctrlPress", true);
@@ -643,7 +622,7 @@ export default {
             this.multiSelectNode = [];
         },
         //拷贝节点
-        copyDoc(data, node) {
+        fork(data, node) {
             const params = {
                 _id: data._id,
                 projectId: this.$route.query.id,
@@ -678,6 +657,12 @@ export default {
             }).catch((err) => {
                 this.$errorThrow(err, this);
             });
+        },
+        //focus当前banner
+        handleFocusBanner() {
+            if (!this.isRename) {
+                this.$refs.banner?.focus();
+            }
         },
         //=====================================前后端交互====================================//
         handleSearchTree() {
@@ -835,6 +820,74 @@ export default {
             });
             this.renameNodeId = "";
         },
+        //粘贴文档或者文件夹
+        handlePaste(mountedData) {
+            const mountedId = mountedData?._id; //挂载点id
+            let copyedDocs = []; //拷贝的数据
+            const params = {
+                projectId: this.$route.query.id,
+                mountedId,
+                docs: [],
+            };
+            //展开数据
+            this.$helper.forEachForest(this.copyData, (node) => {
+                copyedDocs.push({
+                    ...node,
+                    _id: node._id,
+                    pid: node.pid,
+                });
+            });
+            //去重数据
+            copyedDocs = this.$helper.unique(copyedDocs, "_id");
+
+            const treeDocs = [];
+            for (let i = 0; i < copyedDocs.length; i += 1) {
+                const docInfo = copyedDocs[i];
+                const currentDocId = docInfo._id;
+                const hasParent = copyedDocs.find((v) => v._id === docInfo.pid);
+                if (!hasParent) { //无父级元素
+                    docInfo.children = [];
+                    treeDocs.push(docInfo);
+                }
+                for (let j = 0; j < copyedDocs.length; j += 1) {
+                    if (currentDocId === copyedDocs[j].pid) { //项目中新增的数据使用标准id
+                        if (docInfo.children == null) {
+                            docInfo.children = [];
+                        }
+                        docInfo.children.push(copyedDocs[j]);
+                    }
+                }
+            }
+            params.docs = copyedDocs.map((v) => ({
+                _id: v._id,
+                pid: v.pid,
+            }));
+            this.axios.post("/api/project/paste_docs", params).then((res) => {
+                const mapIds = res.data;
+                this.$helper.forEachForest(treeDocs, (node) => {
+                    const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+                    if (matchedIdInfo) {
+                        node._id = matchedIdInfo.newId;
+                        node.pid = matchedIdInfo.newPid;
+                        this.defaultExpandedKeys.push(matchedIdInfo.newId)
+                    }
+                });
+                treeDocs.forEach((doc) => {
+                    if (mountedData) { //挂载节点
+                        if (!mountedData.children) {
+                            this.$set(mountedData, "children", [])
+                        }
+                        mountedData.children.push(doc);
+                    } else {
+                        this.navTreeData.push(doc);
+                    }
+                })
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
         //=====================================弹窗相关====================================//
         //打开文件新增弹窗
         handleOpenAddFolderDialog() {
@@ -844,21 +897,10 @@ export default {
         handleOpenAddFileDialog() {
             this.dialogVisible2 = true;
         },
-        //预览文档
-        handleViewDoc() {
-            this.$router.push({
-                path: "/v1/apidoc/doc-view",
-                query: {
-                    id: this.$route.query.id,
-                    name: this.$route.query.name,
-                },
-            });
-        },
         //以模板新增
         addByTemplate() {
             this.dialogVisible5 = true;
         },
-
         //=====================================其他操作=====================================//
         //点击banner区域
         handleClickBanner() {
@@ -886,7 +928,7 @@ export default {
         },
         //清除contextmenu
         clearContextmenu() {
-            if (this.contextmenu) {
+            if (this.contextmenu && this.contextmenu.$el) {
                 document.body.removeChild(this.contextmenu.$el);
                 this.contextmenu = null;
             }
@@ -914,6 +956,12 @@ export default {
     }
     .el-tree-node__content:hover {
         background: none;
+    }
+    .el-tree-node.is-drop-inner {
+        background: mix($theme-color, $white, 80%);
+    }
+    .el-tree__drop-indicator {
+        height: size(3);
     }
     .tool {
         position: relative;

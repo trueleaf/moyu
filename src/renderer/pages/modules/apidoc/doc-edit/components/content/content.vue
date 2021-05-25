@@ -27,12 +27,15 @@
             <s-variable v-if="currentSelectDoc.tabType === 'variable'"></s-variable>
             <!-- mock管理 -->
             <s-mock v-if="currentSelectDoc.tabType === 'mock'"></s-mock>
+            <!-- 回收站管理 -->
+            <s-recycler v-if="currentSelectDoc.tabType === 'recycler'"></s-recycler>
         </keep-alive>
     </div>
     <s-statistics v-else></s-statistics>
 </template>
 
 <script>
+import recycler from "@/pages/modules/apidoc/mixin/content/recycler/recycler.vue";
 import docHistory from "@/pages/modules/apidoc/mixin/content/history/history.vue";
 import onlineLink from "@/pages/modules/apidoc/mixin/content/link/link.vue";
 import config from "@/pages/modules/apidoc/mixin/content/config/config.vue";
@@ -47,6 +50,7 @@ import paramsTemplate from "./params-template/params-template.vue";
 export default {
     components: {
         "s-apidoc": apidoc,
+        "s-recycler": recycler,
         "s-config": config,
         "s-statistics": statistics,
         "s-params-template": paramsTemplate,

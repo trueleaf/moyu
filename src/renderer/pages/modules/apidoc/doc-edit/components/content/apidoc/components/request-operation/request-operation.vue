@@ -146,7 +146,12 @@ export default {
                 return this.$store.state.apidoc.apidocInfo?.item?.url.path;
             },
             set(val) {
-                this.$store.commit("apidoc/changeDocPath", val);
+                const currentDoc = this.$store.state.apidoc.activeDoc[this.$route.query.id];
+                const currentDocId = currentDoc._id;
+                this.$store.commit("apidoc/changeDocPath", {
+                    path: val,
+                    id: currentDocId,
+                });
             },
         },
         requestMethod: { //请求方法
@@ -182,7 +187,6 @@ export default {
         },
     },
     mounted() {
-        this.getTagsEnum();
         window.addEventListener("keydown", this.shortcutSave)
     },
     beforeDestroy() {
@@ -241,6 +245,7 @@ export default {
         },
         //保存接口
         saveRequest() {
+            this.$store.commit("apidoc/changeDocPathEnum");
             if (!this.currentSelectDoc.changed) { //接口未发生改变不请求后台
                 this.loading2 = true;
                 setTimeout(() => {
@@ -525,17 +530,6 @@ export default {
                 return "当前请求方法被禁止，可以在全局配置中进行相关配置";
             }
             return "";
-        },
-        //获取标签枚举
-        getTagsEnum() {
-            const params = {
-                projectId: this.$route.query.id,
-            };
-            this.axios.get("/api/docs/docs_tag_enum", { params }).then((res) => {
-                this.tagsEnum = res.data;
-            }).catch((err) => {
-                console.error(err);
-            })
         },
     },
 };

@@ -212,7 +212,13 @@ export default {
         },
         //改变请求路径
         changeDocPath(state, payload) {
-            state.apidocInfo.item.url.path = payload;
+            const { id, path } = payload;
+            state.apidocInfo.item.url.path = path;
+            forEachForest(state.banner, (data) => { //同步改变banner path值，修复mock数据保存后无法立即生效问题
+                if (data._id === id) {
+                    data.url.path = path;
+                }
+            });
         },
         //改变请求方法
         changeDocMethod(state, payload) {
@@ -306,6 +312,10 @@ export default {
         changeCookies(state, payload) {
             state.cookies = payload;
         },
+        //改变tag
+        changeTagInfo(state, payload) {
+            Vue.set(state.apidocInfo.info, "tag", payload)
+        },
         //=====================================发送请求====================================//
         //改变模拟发送请求返回结果loading效果
         changeSendRequestLoading(state, loading) {
@@ -362,9 +372,9 @@ export default {
         },
         //=====================================Mock数据====================================//
         //改变路径方法映射枚举信息
-        changeDocPathEnum(state, payload) {
+        changeDocPathEnum(state) {
             const result = [];
-            forEachForest(payload, (data) => {
+            forEachForest(state.banner, (data) => {
                 if (!data.isFolder && data.url && data.url.path) {
                     result.push({
                         url: data.url.path,
@@ -386,7 +396,7 @@ export default {
                 axios.get("/api/project/doc_tree_node", { params }).then((res) => {
                     const result = res.data;
                     context.commit("changeDocBanner", result);
-                    context.commit("changeDocPathEnum", result);
+                    context.commit("changeDocPathEnum");
                     resolve();
                 }).catch((err) => {
                     reject(err);

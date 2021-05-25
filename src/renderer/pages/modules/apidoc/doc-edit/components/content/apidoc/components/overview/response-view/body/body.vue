@@ -97,7 +97,7 @@
                     <span>因浏览器限制，请在Electron环境进行请求发送</span>
                 </div>
                 <div>
-                    <a href="https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe">下载Electron</a>
+                    <a :href="config.renderConfig.download.gitee">下载Electron</a>
                 </div>
             </div>
         </s-empty>

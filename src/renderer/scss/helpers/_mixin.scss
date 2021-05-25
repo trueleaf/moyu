@@ -111,7 +111,52 @@
         transform: translate(0, -50%);
     }
 }
-
+//contextmenu
+@mixin contextmenu {
+    position: fixed;
+    background: $white;
+    border-radius: $border-radius-sm;
+    box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
+    z-index: $zIndex-contextmenu;
+    // min-width: size(240);
+    animation: ctx-fade .2s;
+    @keyframes ctx-fade {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    .item-list {
+        line-height: 2em;
+        padding: size(5) size(25);
+        cursor: pointer;
+        display: flex;
+        &.disabled {
+            color: $gray-500;
+            cursor: default;
+            &:hover {
+                background: inherit;
+                color: $gray-500;
+            }
+        }
+        .hot-key {
+            margin-left: auto;
+            color: $gray-500;
+        }
+        &:hover {
+            background: $gray-200;
+            color: $theme-color;
+        }
+    }
+    .divider {
+        margin: size(4) 0;
+        border-top: 1px solid $gray-200;
+    }
+}
 
 //拖拽bar样式
 @mixin bar {
@@ -129,6 +174,16 @@
     }
 }
 
+//右上角关闭按钮
+@mixin rt-close {
+    display: flex;
+    position: absolute;
+    right: size(3);
+    top: size(4);
+    font-size: fz(18);
+    color: $red;
+    cursor: pointer;
+}
 
 
 

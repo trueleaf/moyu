@@ -11,10 +11,16 @@
                 <s-label-value label="请求地址：" class="w-100 mt-2">
                     <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
                 </s-label-value>
-                <s-label-value label="请求方式：" class="d-flex">
+                <s-label-value label="请求方式：" class="w-50">
                     <template v-for="(req) in validRequestMethods">
                         <span v-if="apidocInfo.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                     </template>
+                </s-label-value>
+                <s-label-value label="标签信息：" class="w-50">
+                    <div v-if="tagInfo.name">
+                        <!-- <span class="dot" :style="{background: tagInfo.color}"></span> -->
+                        <span :style="{color: tagInfo.color}">{{ tagInfo.name }}</span>
+                    </div>
                 </s-label-value>
                 <div class="base-info">
                     <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-50">
@@ -56,6 +62,9 @@ export default {
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
         },
+        tagInfo() { //标签信息
+            return this.$store.state.apidoc.apidocInfo?.info?.tag || {};
+        },
     },
     created() {
 
@@ -94,6 +103,14 @@ export default {
         flex: 0 0 calc(100vh - #{size(290)});
         overflow-x: hidden;
         overflow-y: auto;
+    }
+    .dot {
+        display: inline-block;
+        width: size(10);
+        height: size(10);
+        border-radius: 50%;
+        margin-right: size(5);
+        margin-top: -size(2);
     }
 }
 </style>

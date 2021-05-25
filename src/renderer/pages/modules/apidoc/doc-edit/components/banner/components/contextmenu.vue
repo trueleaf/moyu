@@ -5,14 +5,38 @@
     备注：
 */
 <template>
-    <div class="ctx-wrap" :style="{left: left + 'px', top: top + 'px'}">
-        <div v-show="operations.includes('file')" class="item-list" @click="handleClickItem('file')">新建文档</div>
-        <div v-show="operations.includes('folder')" class="item-list" @click="handleClickItem('folder')">新建文件夹</div>
-        <div v-show="operations.includes('template')" class="item-list" @click="handleClickItem('template')">以模板新建</div>
-        <div v-show="operations.includes('rename')" class="item-list" @click="handleClickItem('rename')">重命名</div>
-        <div v-show="operations.includes('copy')" class="item-list" @click="handleClickItem('copy')">复制接口</div>
-        <div v-show="operations.includes('delete')" class="item-list" @click="handleClickItem('delete')">删除</div>
-        <div v-show="operations.includes('deleteMany')" class="item-list" @click="handleClickItem('deleteMany')">批量删除</div>
+    <div ref="contextmenu" class="ctx-wrap" :style="{left: left + 'px', top: top + 'px'}">
+        <div v-show="operations.includes('file')" class="item-list" @click.stop="handleClickItem('file')">新建文档</div>
+        <div v-show="operations.includes('folder')" class="item-list" @click.stop="handleClickItem('folder')">新建文件夹</div>
+        <div v-show="operations.includes('template')" class="item-list" @click.stop="handleClickItem('template')">以模板新建</div>
+        <div v-show="operations.includes('copyFolder')" class="divider"></div>
+        <div v-show="operations.includes('copyFolder')" class="item-list" @click.stop="handleClickItem('copyFolder')">
+            <span>复制文件夹</span>
+            <span class="hot-key">Ctrl + C</span>
+        </div>
+        <div v-show="operations.includes('paste')" class="item-list" :class="{disabled: disabledOperations.includes('paste')}" @click.stop="handleClickItem('paste')">
+            <span>粘贴</span>
+            <span class="hot-key">Ctrl + V</span>
+        </div>
+        <div v-show="operations.includes('copy') && operations.includes('paste')" class="divider"></div>
+        <div v-show="operations.includes('copy')" class="item-list" @click.stop="handleClickItem('copy')">
+            <span>复制接口</span>
+            <span class="hot-key">Ctrl + C</span>
+        </div>
+        <div v-show="operations.includes('fork')" class="item-list" @click.stop="handleClickItem('fork')">
+            <span>生成副本</span>
+            <span class="hot-key">Ctrl + V</span>
+        </div>
+        <div v-show="operations.includes('rename')" class="divider"></div>
+        <div v-show="operations.includes('rename')" class="item-list" @click.stop="handleClickItem('rename')">
+            <span>重命名</span>
+            <span class="hot-key">F2</span>
+        </div>
+        <div v-show="operations.includes('delete')" class="item-list" @click.stop="handleClickItem('delete')">
+            <span>删除</span>
+            <span class="hot-key">Ctrl + D</span>
+        </div>
+        <div v-show="operations.includes('deleteMany')" class="item-list" @click.stop="handleClickItem('deleteMany')">批量删除</div>
     </div>
 </template>
 
@@ -23,6 +47,12 @@ export default {
             type: Array,
             default() {
                 return ["file", "folder"];
+            },
+        },
+        disabledOperations: {
+            type: Array,
+            default() {
+                return [];
             },
         },
         left: {
@@ -42,6 +72,9 @@ export default {
     },
     methods: {
         handleClickItem(type) {
+            if (this.disabledOperations.includes(type)) {
+                return
+            }
             /*eslint-disable indent*/
             switch (type) {
                 case "file":
@@ -62,12 +95,22 @@ export default {
                 case "copy":
                     this.$emit("copy")
                     break;
+                case "fork":
+                    this.$emit("fork")
+                    break;
+                case "paste":
+                    this.$emit("paste")
+                    break;
+                case "copyFolder":
+                    this.$emit("copyFolder")
+                    break;
                 case "deleteMany":
                     this.$emit("deleteMany")
                     break;
                 default:
                     break;
             }
+             this.$emit("close")
         },
     },
 };
@@ -75,30 +118,7 @@ export default {
 
 <style lang="scss">
     .ctx-wrap {
-        position: fixed;
-        background: $white;
-        border-radius: $border-radius-sm;
-        box-shadow: $box-shadow-sm;
-        z-index: $zIndex-contextmenu;
-        animation: ctx-fade .2s;
-        @keyframes ctx-fade {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        .item-list {
-            line-height: 2em;
-            padding: .3em 2em;
-            cursor: pointer;
-            &:hover {
-                background: $gray-200;
-                color: $theme-color;
-            }
-        }
+        min-width: size(240);
+        @include contextmenu;
     }
 </style>

@@ -40,6 +40,7 @@ module.exports = {
         version: packageJSON.version, //当前项目版本
         server: "http://xxx.xxx.cn", //更新服务器地址
         filePath: "/electron/windows", //更新文件地址
+        autoUpdate: false, //是否开启自动更新
     },
     //渲染进程配置
     renderConfig: {
@@ -84,6 +85,10 @@ module.exports = {
         //导入文档相关配置
         import: {
             size: 1024 * 1024 * 5, //导入文件大小
+        },
+        //下载相关
+        download: {
+            gitee: "https://gitee.com/shuzhikai/moyu/attach_files/696158/download/moyu%20Setup%200.5.0.exe",
         },
     },
     //主进程配置
