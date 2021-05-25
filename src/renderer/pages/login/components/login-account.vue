@@ -38,14 +38,25 @@
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
                     <use xlink:href="#icongithub"></use>
                 </svg>
-                <div>GitHub</div>
+                <div class="mt-1">GitHub</div>
             </a>
-
             <a href="https://gitee.com/shuzhikai/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转码云">
                     <use xlink:href="#icongitee"></use>
                 </svg>
-                <div>码云</div>
+                <div class="mt-1">码云</div>
+            </a>
+            <a href="https://www.yuque.com/happymoyu/as0gig/fayyy6" target="_blank" class="d-flex flex-column j-center a-center">
+                <svg class="svg-icon" aria-hidden="true" title="跳转介绍文档">
+                    <use xlink:href="#iconyuque"></use>
+                </svg>
+                <div class="mt-1">产品文档</div>
+            </a>
+            <a href="https://www.yuque.com/happymoyu/as0gig/vapwmq" target="_blank" class="d-flex flex-column j-center a-center">
+                <svg class="svg-icon" aria-hidden="true" title="跳转部署文档">
+                    <use xlink:href="#iconbushu"></use>
+                </svg>
+                <div class="mt-1">部署文档</div>
             </a>
         </div>
     </el-form>
