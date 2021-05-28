@@ -26,6 +26,38 @@
                 </div>
             </el-upload>
         </s-fieldset>
+        <s-fieldset v-if="0" title="导入数据预览">
+            <el-tree
+                ref="docTree"
+                :data="previewNavTreeData"
+                node-key="_id"
+                show-checkbox
+                :expand-on-click-node="true"
+                :check-strictly="true"
+                @check="handleCheckChange"
+            >
+                <template slot-scope="scope">
+                    <div
+                        slot="reference"
+                        class="custom-tree-node"
+                        tabindex="0"
+                    >
+                        <!-- 文件夹渲染 -->
+                        <template v-if="scope.data.isFolder">
+                            <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
+                            <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                        </template>
+                        <!-- file渲染 -->
+                        <template v-if="!scope.data.isFolder">
+                            <template v-for="(req) in validRequestMethods">
+                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                            </template>
+                            <span>{{ scope.data.name }}</span>
+                        </template>
+                    </div>
+                </template>
+            </el-tree>
+        </s-fieldset>
         <s-fieldset title="额外配置">
             <div>
                 <s-config :has-check="false" label="导入方式" description="请谨慎选择导入方式">
@@ -106,6 +138,27 @@ export default {
     computed: {
         validRequestMethods() {
             return this.$store.state.apidocRules.requestMethods.filter((val) => val.enabled);
+        },
+        previewNavTreeData() { //导入数据预览
+            const docs = this.formInfo.moyuData?.docs || [];
+            const result = [];
+            for (let i = 0; i < docs.length; i += 1) {
+                const docInfo = docs[i];
+                if (!docInfo.pid) { //根元素
+                    docInfo.children = [];
+                    result.push(docInfo);
+                }
+                const id = docInfo._id.toString();
+                for (let j = 0; j < docs.length; j += 1) {
+                    if (id === docs[j].pid) { //项目中新增的数据使用标准id
+                        if (docInfo.children == null) {
+                            docInfo.children = [];
+                        }
+                        docInfo.children.push(docs[j]);
+                    }
+                }
+            }
+            return result;
         },
     },
     created() {

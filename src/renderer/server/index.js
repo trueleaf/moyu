@@ -31,6 +31,7 @@ const MockServer = (() => {
                     const method = ctx.request.method.toLowerCase();
                     store.commit("apidoc/changeDocPathEnum");
                     const matchedReuqest = store.state.apidoc.uniquePathEnum.find((data) => (data.url === url && data.method === method));
+                    console.log(matchedReuqest)
                     if (matchedReuqest) {
                         const params = {
                             projectId,
