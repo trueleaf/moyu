@@ -139,7 +139,7 @@ class PostmanTranslator {
     //获取所有变量信息
     getVariables(postmanData) {
         const { variable } = postmanData;
-        variable.forEach((v) => {
+        variable?.forEach((v) => {
             this.variables.push({
                 ...v,
             })

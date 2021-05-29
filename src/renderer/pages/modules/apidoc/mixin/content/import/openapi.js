@@ -39,9 +39,11 @@ class OpenApiTranslate {
         this.projectId = projectId; //项目id
         this.openApiData = null; //openapi数据
         this.moyuProjectInfo = {}; //转换后符合规范的数据
+        this.config = {}; //配置信息
     }
 
-    convertToMoyuDocs(data) {
+    convertToMoyuDocs(data, config) {
+        this.config = config || {};
         if (!data) {
             throw new Error("缺少转换数据");
         }
@@ -145,6 +147,7 @@ class OpenApiTranslate {
      * @return
      */
     getDocInfo() {
+        const { folderNamedType } = this.config;
         const openApiDocInfo = this.openApiData.paths;
         const docsArr = [];
         const allTags = new Set();
@@ -154,7 +157,18 @@ class OpenApiTranslate {
         }
         Object.keys(openApiDocInfo).forEach((reqUrl) => {
             const element = openApiDocInfo[reqUrl];
-            const pid = "";
+            let pid = "";
+            if (folderNamedType === "url") {
+                pid = uuid();
+                const folderDoc = this.generateDoc();
+                folderDoc._id = pid; //目录id
+                folderDoc.isFolder = true; //是目录
+                folderDoc.sort = Date.now(); //排序
+                folderDoc.item = {}; //目录item数据为空
+                folderDoc.info.type = "folder";
+                folderDoc.info.name = reqUrl;
+                docsArr.push(folderDoc);
+            }
             Object.keys(element).forEach((method) => {
                 const moyuDoc = this.generateDoc();
                 const openApiDoc = element[method];
@@ -198,26 +212,30 @@ class OpenApiTranslate {
                 docsArr.push(moyuDoc);
             });
         })
-        // const folderDocs = docsArr.filter((v) => v.isFolder);
-        const tags = Array.from(allTags);
-        tags.forEach((tag) => {
-            const pid = uuid();
-            const folderDoc = this.generateDoc();
-            folderDoc._id = pid; //目录id
-            folderDoc.isFolder = true; //是目录
-            folderDoc.sort = Date.now(); //排序
-            folderDoc.item = {}; //目录item数据为空
-            folderDoc.info.type = "folder";
-            folderDoc.info.name = tag;
+        //默认为按照tag为文件名
+        if (!folderNamedType || folderNamedType === "tag") {
+            const tags = Array.from(allTags);
+            tags.sort().forEach((tag) => {
+                const pid = uuid();
+                const folderDoc = this.generateDoc();
+                folderDoc._id = pid; //目录id
+                folderDoc.isFolder = true; //是目录
+                folderDoc.sort = Date.now(); //排序
+                folderDoc.item = {}; //目录item数据为空
+                folderDoc.info.type = "folder";
+                folderDoc.info.name = tag;
 
-            docsArr.forEach((docInfo) => {
-                const docTag = docInfo.info.tag?.name;
-                if (docTag === tag) {
-                    docInfo.pid = pid;
-                }
+                docsArr.forEach((docInfo) => {
+                    const docTag = docInfo.info.tag?.name;
+                    if (docTag === tag) {
+                        docInfo.pid = pid;
+                    }
+                })
+                docsArr.push(folderDoc);
             })
-            docsArr.push(folderDoc);
-        })
+        } else if (folderNamedType === "none") {
+            return docsArr;
+        }
         return docsArr;
     }
 
@@ -318,6 +336,9 @@ class OpenApiTranslate {
     // eslint-disable-next-line class-methods-use-this
     convertResponse(response) {
         const result = [];
+        if (!response) {
+            return result;
+        }
         Object.keys(response).forEach((status) => {
             const content = response[status]?.content;
             const convertContent = this.convertContent(content);

@@ -6,6 +6,7 @@
 */
 <template>
     <div class="doc-import">
+        <!-- 文件选择 -->
         <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
                 class="w-100"
@@ -26,15 +27,17 @@
                 </div>
             </el-upload>
         </s-fieldset>
-        <s-fieldset v-if="0" title="导入数据预览">
+        <!-- 导入数据预览 -->
+        <s-fieldset title="导入数据预览">
+            <div>
+                <s-label-value label="文档数：" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) => !v.isFolder).length }}</s-label-value>
+                <s-label-value label="文件夹数：" label-width="auto">{{ formInfo.moyuData.docs.filter((v) => v.isFolder).length }}</s-label-value>
+            </div>
             <el-tree
                 ref="docTree"
                 :data="previewNavTreeData"
                 node-key="_id"
-                show-checkbox
                 :expand-on-click-node="true"
-                :check-strictly="true"
-                @check="handleCheckChange"
             >
                 <template slot-scope="scope">
                     <div
@@ -45,28 +48,41 @@
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
                             <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
-                            <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+                            <span :title="scope.data.info.name" class="node-name text-ellipsis ml-1">{{ scope.data.info.name }}</span>
                         </template>
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
                             <template v-for="(req) in validRequestMethods">
-                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
+                                <span v-if="scope.data.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toLowerCase() }}</span>
                             </template>
-                            <span>{{ scope.data.name }}</span>
+                            <span>{{ scope.data.info.name }}</span>
                         </template>
                     </div>
                 </template>
             </el-tree>
         </s-fieldset>
+        <!-- 额外配置信息 -->
         <s-fieldset title="额外配置">
             <div>
+                <s-config
+                    v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'"
+                    :has-check="false"
+                    label="文件夹命名方式"
+                    description="none代表不存在文件夹，所有节点扁平放置"
+                >
+                    <el-radio-group v-model="openapiFolderNamedType" size="mini" @change="handleChangeNamedType">
+                        <el-radio label="tag">Tag</el-radio>
+                        <el-radio label="url">Url</el-radio>
+                        <el-radio label="none">none</el-radio>
+                    </el-radio-group>
+                </s-config>
                 <s-config :has-check="false" label="导入方式" description="请谨慎选择导入方式">
                     <el-radio-group v-model="formInfo.cover" size="mini" @change="handleChangeIsCover">
                         <el-radio :label="false">追加方式</el-radio>
                         <el-radio :label="true">覆盖方式</el-radio>
                     </el-radio-group>
                 </s-config>
-                <s-config label="目标目录" description="不选择目标目录则默认为根目录" @change="handleToggleTargetFolder">
+                <s-config label="目标目录" description="选择需要挂载的节点，不选择则默认挂载到根目录" @change="handleToggleTargetFolder">
                     <template slot-scope="prop">
                         <s-loading :loading="loading2">
                             <div v-show="prop.enabled" class="doc-nav">
@@ -118,7 +134,9 @@ export default {
         return {
             //=====================================业务参数====================================//
             formInfo: {
-                moyuData: [],
+                moyuData: {
+                    docs: [],
+                },
                 type: "",
                 cover: false,
             }, //-------项目信息
@@ -130,6 +148,8 @@ export default {
             fileType: "", //-------文件类型
             navTreeData: [], //文档树数据
             currentMountedNode: null, //当前选中挂载节点
+            //openapi
+            openapiFolderNamedType: "tag", //tag、url、none
             //=====================================其他参数====================================//
             loading: false, //-----确认按钮
             loading2: false, //----目标节点菜单
@@ -219,12 +239,12 @@ export default {
                 this.importTypeInfo.name = "openapi";
                 this.importTypeInfo.version = this.jsonText.openapi;
                 this.formInfo.type = "openapi";
-                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
+                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText, { folderNamedType: this.openapiFolderNamedType });
             } else if (this.jsonText.swagger) {
                 this.importTypeInfo.name = "swagger";
                 this.importTypeInfo.version = this.jsonText.swagger;
                 this.formInfo.type = "swagger";
-                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText);
+                this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText, { folderNamedType: this.openapiFolderNamedType });
             } else if (isYapi) {
                 this.importTypeInfo.name = "yapi";
                 this.formInfo.type = "yapi";
@@ -234,6 +254,7 @@ export default {
             }
         },
         //=====================================组件间交互====================================//
+        //确定导入
         handleSubmit() {
             try {
                 this.loading = true;
@@ -310,6 +331,12 @@ export default {
             }
             this.currentMountedNode = data;
         },
+        //改变命名方式
+        handleChangeNamedType() {
+            this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText, {
+                folderNamedType: this.openapiFolderNamedType,
+            });
+        },
     },
 };
 </script>
@@ -327,10 +354,8 @@ export default {
     .el-upload-dragger {
         width: 100%;
     }
-    .doc-nav {
-        .custom-tree-node {
-            @include custom-tree-node;
-        }
+    .custom-tree-node {
+        @include custom-tree-node;
     }
 }
 </style>
