@@ -654,13 +654,23 @@ export default {
     }
     .el-tree-node__content {
         height: size(60);
+        &:hover {
+            background: $gray-200;
+        }
+    }
+    .el-tree-node.is-focusable.is-current {
+        .el-tree-node__content {
+            // background: $gray-300;
+            // border: 1px solid $gray-500;
+        }
     }
     .el-input__inner {
         border-radius: 0;
         border: none;
         border-bottom: 1px solid $gray-400;
+        padding-bottom: 1px;
         &:focus {
-            border-bottom: 1px solid $theme-color;
+            border-bottom: 2px solid $theme-color;
         }
     }
     .el-input.is-disabled .el-input__inner {

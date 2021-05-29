@@ -84,7 +84,7 @@
                                     <el-dropdown-menu slot="dropdown">
                                         <el-dropdown-item v-if="scope.data.isFolder" command="addFile">新建文档</el-dropdown-item>
                                         <el-dropdown-item v-if="scope.data.isFolder" command="addByTemplate">以模板新建</el-dropdown-item>
-                                        <el-dropdown-item v-if="!scope.data.isFolder" command="copy">复制接口</el-dropdown-item>
+                                        <el-dropdown-item v-if="!scope.data.isFolder" command="fork">生成副本</el-dropdown-item>
                                         <el-dropdown-item command="rename">重命名</el-dropdown-item>
                                         <el-dropdown-item command="delete">删除</el-dropdown-item>
                                     </el-dropdown-menu>
