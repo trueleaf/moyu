@@ -345,7 +345,7 @@ export default {
                 property.children.push(this.generateProperty());
                 requestBody.push(property);
             }
-            if (lastItemIsEmpty(responseParams)) {
+            if (responseParams.length === 0) {
                 responseParams.push({
                     title: "成功返回",
                     values: [this.generateProperty()],
