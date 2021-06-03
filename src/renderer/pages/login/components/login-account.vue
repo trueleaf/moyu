@@ -18,22 +18,22 @@
                 <img :src="captchaUrl" @click="freshCapchaUrl" />
             </div>
         </el-form-item>
-        <el-form-item class="mb-1">
+        <el-form-item v-if="config.localization.enableGuest" class="mb-1">
             <div>
                 <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
             </div>
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading" :type="config.localization.enableGuest ? 'plain' : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
             </div>
         </el-form-item>
-        <el-form-item>
+        <el-form-item v-if="config.localization.enableRegister">
             <div>
                 <el-button size="small" class="w-100" @click="handleJumpToRegister">注册账号</el-button>
             </div>
         </el-form-item>
-        <div class="d-flex j-around">
+        <div v-if="config.localization.enableDocLink" class="d-flex j-around">
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
                     <use xlink:href="#icongithub"></use>
@@ -70,8 +70,8 @@ export default {
         return {
             //账号密码登录
             userInfo: {
-                loginName: process.env.NODE_ENV === "development" ? "shu" : "", //-----------登录名称
-                password: process.env.NODE_ENV === "development" ? "111111" : "", //---------密码
+                loginName: process.env.NODE_ENV === "development" ? "moyu" : "", //-----------登录名称
+                password: process.env.NODE_ENV === "development" ? "111111aaa" : "", //---------密码
                 captcha: "", //----------------验证码
             },
             rules: {

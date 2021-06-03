@@ -10,7 +10,7 @@
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
             </div>
             <div class="right">
-                <h2 class="text-center">体验版本({{ config.version }})</h2>
+                <h2 class="text-center">{{ config.renderConfig.layout.title }}({{ config.version }})</h2>
                 <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
                     <el-tab-pane label="账号登录" name="first">
@@ -21,7 +21,7 @@
                         <s-login-phone></s-login-phone>
                     </el-tab-pane>
                     <!-- 注册 -->
-                    <el-tab-pane label="账号注册" name="third">
+                    <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="third">
                         <s-register></s-register>
                     </el-tab-pane>
                 </el-tabs>
