@@ -49,13 +49,17 @@ module.exports = {
             title: packageJSON.name, //项目标题
             size: "mini", //项目中组件库大小
         },
+        //权限相关
+        permission: {
+            free: true,
+            whiteList: ["/", "/login", "/test"],
+        },
         //http请求相关
         httpRequest: {
             url: isDev ? "http://127.0.0.1:7004" : "https://online.jobtool.cn",
             imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
-            whiteList: ["/", "/login", "/test"],
         },
         //mock相关配置
         mock: {
