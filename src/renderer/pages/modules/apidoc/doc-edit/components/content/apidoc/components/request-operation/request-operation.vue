@@ -50,6 +50,7 @@
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
                 <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item @click.native="handleViewDoc">预览接口</el-dropdown-item>
                     <el-dropdown-item @click.native="publishRequest">发布接口</el-dropdown-item>
                     <el-dropdown-item @click.native="handleOpenVariablePage">全局变量</el-dropdown-item>
                     <el-dropdown-item @click.native="dialogVisible = true">内置参数</el-dropdown-item>
@@ -312,6 +313,16 @@ export default {
                 });
             }).finally(() => {
                 this.loading2 = false;
+            });
+        },
+        //预览接口
+        handleViewDoc() {
+            this.$router.push({
+                path: "/v1/apidoc/doc-view",
+                query: {
+                    id: this.$route.query.id,
+                    name: this.$route.query.name,
+                },
             });
         },
         //发布接口
