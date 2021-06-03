@@ -62,7 +62,7 @@
             </el-tree>
         </s-fieldset>
         <!-- 额外配置信息 -->
-        <s-fieldset title="额外配置">
+        <s-fieldset v-if="!importAsProject" title="额外配置">
             <div>
                 <s-config
                     v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'"
@@ -118,6 +118,16 @@
                 <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">确定导入</el-button>
             </div>
         </s-fieldset>
+        <template v-if="importAsProject">
+            <el-form ref="form" :model="formInfo" label-width="80px" class="mt-3">
+                <el-form-item label="项目名称">
+                    <el-input v-model="projectName" name="name" size="mini" placeholder="请输入项目名称" class="w-100" maxlength="100" clearable></el-input>
+                </el-form-item>
+            </el-form>
+            <div class="d-flex j-center mt-2">
+                <el-button :loading="loading" size="mini" type="primary" @click="handleSubmitAsProject">确定导入</el-button>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -130,9 +140,16 @@ import YAPITranslator from "./yapi"
 
 export default {
     mixins: [mixin],
+    props: {
+        importAsProject: { //是否直接导出为项目
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             //=====================================业务参数====================================//
+            projectName: "", //项目名称
             formInfo: {
                 moyuData: {
                     docs: [],
@@ -252,6 +269,7 @@ export default {
             } else {
                 this.importTypeInfo.name = "未知类型";
             }
+            this.projectName = this.formInfo.moyuData?.info?.projectName;
         },
         //=====================================组件间交互====================================//
         //确定导入
@@ -278,6 +296,30 @@ export default {
                 // console.log(params, JSON.parse(JSON.stringify(this.formInfo.moyuData)))
                 this.axios.post("/api/project/import/moyu", params).then(() => {
                     this.$event.emit("apidoc/importDocSuccess");
+                }).catch((err) => {
+                    this.$errorThrow(err, this);
+                }).finally(() => {
+                    this.loading = false;
+                });
+            } catch (error) {
+                this.$message.warning(error.message);
+                this.loading = false;
+            }
+        },
+        //导入为项目
+        handleSubmitAsProject() {
+            try {
+                this.loading = true;
+                if (!this.formInfo.moyuData.docs) {
+                    this.$message.warning("请选择需要导入的文件");
+                    return;
+                }
+                const params = {
+                    projectName: this.projectName || "未命名项目",
+                    moyuData: this.formInfo.moyuData,
+                };
+                this.axios.post("/api/project/import", params).then(() => {
+                    this.$event.emit("apidoc/importAsProjectSuccess")
                 }).catch((err) => {
                     this.$errorThrow(err, this);
                 }).finally(() => {
