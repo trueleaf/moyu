@@ -14,22 +14,16 @@
             <div class="base-info px-3">
                 <div class="w-50 flex0">
                     <div class="d-flex a-center">
-                        <h2>{{ userInfo.realName }}({{ userInfo.department }})</h2>
+                        <h2>{{ userInfo.realName || userInfo.loginName }}</h2>
                         <el-button type="text" class="ml-3" @click="dialogVisible = true">修改密码</el-button>
                     </div>
                     <div class="px-3">
                         <s-label-value label="登录名称：" :value="userInfo.loginName" class="w-45"></s-label-value>
                         <s-label-value label="手机号码：" :value="userInfo.phone" class="w-45"></s-label-value>
-                        <s-label-value label="所在部门：" :value="userInfo.department" class="w-45"></s-label-value>
-                        <s-label-value label="所属职位：" :value="userInfo.title" class="w-45"></s-label-value>
-                        <s-label-value label="qq号码：" :value="userInfo.qq" class="w-45"></s-label-value>
                         <s-label-value label="最后登录：" class="w-45">
-                            <span class="orange">{{ new Date(userInfo.lastLogin).toLocaleString() }}</span>
+                            <span class="orange">{{ $helper.formatDate(userInfo.lastLogin) }}</span>
                         </s-label-value>
                     </div>
-                </div>
-                <div class="flex1">
-                    <div>所拥有项目</div>
                 </div>
             </div>
         </s-card>
