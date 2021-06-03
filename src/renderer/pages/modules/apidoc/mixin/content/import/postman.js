@@ -8,9 +8,9 @@ import mixin from "../../index"
 
 class PostmanTranslator {
     constructor(projectId) {
-        if (!projectId) {
-            throw new Error("缺少项目id");
-        }
+        // if (!projectId) {
+        //     throw new Error("缺少项目id");
+        // }
         this.projectId = projectId; //项目id
         this.variables = [];
     }

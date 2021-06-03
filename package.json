@@ -1,6 +1,6 @@
 {
   "name": "moyu",
-  "version": "0.5.3",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev:web": "vue-cli-service serve src/renderer/main.js",

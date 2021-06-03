@@ -46,8 +46,13 @@ module.exports = {
     renderConfig: {
         //布局相关
         layout: {
-            title: packageJSON.name, //项目标题
+            title: "快乐摸鱼", //项目标题
             size: "mini", //项目中组件库大小
+        },
+        //权限相关
+        permission: {
+            free: true,
+            whiteList: ["/", "/login", "/test"],
         },
         //http请求相关
         httpRequest: {
@@ -55,7 +60,6 @@ module.exports = {
             imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
-            whiteList: ["/", "/login", "/test"],
         },
         //mock相关配置
         mock: {
@@ -101,5 +105,11 @@ module.exports = {
     //打包相关配置
     build: {
         publicPath: "/",
+    },
+    //本地部署相关配置
+    localization: {
+        enableRegister: true, //是否允许注册
+        enableGuest: true, //是否允许来宾用户体验
+        enableDocLink: true, //是否显示文档和帮助链接
     },
 };

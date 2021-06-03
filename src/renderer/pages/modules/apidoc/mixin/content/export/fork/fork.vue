@@ -281,7 +281,16 @@ export default {
                     targetMountedId, //目标挂载节点id
                     targetNodeSort,
                 };
-                this.axios.post("/api/project/export/fork", params).then(() => {
+                this.axios.post("/api/project/export/fork", params).then((res) => {
+                    const docsIdMap = res.data;
+                    this.$helper.forEachForest(this.targetTreeData, (data) => {
+                        const { _id } = data;
+                        const newId = docsIdMap[_id]
+                        if (newId) {
+                            console.log(222, newId, res.data)
+                            data._id = newId;
+                        }
+                    });
                     this.$message.success("导入成功");
                 }).catch((err) => {
                     console.error(err);

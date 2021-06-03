@@ -4,6 +4,7 @@
  * @create             2020-02-25 16:38
  */
 import api from "@/api/api";
+import config from "@/../config";
 import { routes, router } from "@/router";
 import { unique } from "@/lib";
 import layout from "@/pages/layout/index.vue";
@@ -22,46 +23,76 @@ export default {
     mutations: {
         //改变当前访问菜单
         changeMenus(state, payload) {
-            state.menus = payload;
+            if (config.renderConfig.permission.free && state.userInfo.loginName === "admin") {
+                state.menus = [{
+                    path: "/v1/apidoc/doc-list",
+                    name: "api文档",
+                }, {
+                    path: "/v1/permission/permission",
+                    name: "权限管理",
+                }];
+            } else if (config.renderConfig.permission.free) {
+                state.menus = [{
+                    path: "/v1/apidoc/doc-list",
+                    name: "api文档",
+                }];
+            } else {
+                state.menus = payload;
+            }
         },
         //改变用户可访问路由
         changeRoutes(state, payload) {
-            let localRoutes = sessionStorage.getItem("permission/routes") || "[]";
-            localRoutes = JSON.parse(localRoutes);
-            const storeRoutes = unique(localRoutes.concat(payload), "path");
-            sessionStorage.setItem("permission/routes", JSON.stringify(storeRoutes));
-            state.routes = storeRoutes;
+            if (config.renderConfig.permission.fre) {
+                state.routes = routes;
+            } else {
+                let localRoutes = sessionStorage.getItem("permission/routes") || "[]";
+                localRoutes = JSON.parse(localRoutes);
+                const storeRoutes = unique(localRoutes.concat(payload), "path");
+                sessionStorage.setItem("permission/routes", JSON.stringify(storeRoutes));
+                state.routes = storeRoutes;
+            }
         },
         // 动态生成路由
         generateRoutes(state) {
-            const matchedRoutes = [];
-            routes.forEach((route) => { //遍历本地所有路由
-                state.routes.forEach((val) => {
-                    if (val.path === route.path) {
-                        if (!matchedRoutes.find((m) => m.path === val.path)) { //如果已经存在匹配的数据则不再push
-                            matchedRoutes.push(route);
+            if (config.renderConfig.permission.free) {
+                router.addRoutes([
+                    {
+                        path: "/v1",
+                        component: layout,
+                        children: [
+                            ...routes,
+                        ],
+                    },
+                ]);
+            } else {
+                const matchedRoutes = [];
+                routes.forEach((route) => { //遍历本地所有路由
+                    state.routes.forEach((val) => {
+                        if (val.path === route.path) {
+                            if (!matchedRoutes.find((m) => m.path === val.path)) { //如果已经存在匹配的数据则不再push
+                                matchedRoutes.push(route);
+                            }
                         }
-                    }
+                    });
                 });
-            });
-            router.addRoutes([
-                {
-                    path: "/v1",
-                    component: layout,
-                    children: [
-                        ...matchedRoutes,
-                    ],
-                },
-                {
-                    path: "*",
-                    redirect: "/404",
-                },
-                {
-                    path: "/404",
-                    component: notFound,
-                },
-            ]);
-            // console.log(matchedRoutes)
+                router.addRoutes([
+                    {
+                        path: "/v1",
+                        component: layout,
+                        children: [
+                            ...matchedRoutes,
+                        ],
+                    },
+                    {
+                        path: "*",
+                        redirect: "/404",
+                    },
+                    {
+                        path: "/404",
+                        component: notFound,
+                    },
+                ]);
+            }
         },
         // 清空全部权限
         clearAllPermission(state) {
@@ -82,18 +113,6 @@ export default {
     actions: {
         async getPermission(context) {
             return new Promise((resolve, reject) => {
-                // let userInfo = sessionStorage.getItem("permission/userInfo");
-                // userInfo = JSON.parse(userInfo);
-                // if (userInfo) {
-                //     setTimeout(() => { //hack
-                //         context.commit("changeUserInfo", userInfo);
-                //         context.commit("changeMenus", userInfo.clientBanner);
-                //         context.commit("changeRoutes", userInfo.clientRoutes);
-                //         context.commit("generateRoutes");
-                //         resolve(userInfo);
-                //     })
-                // } else {
-                // }
                 axios.get("/api/security/user_base_info").then((res) => {
                     context.commit("changeUserInfo", res.data);
                     context.commit("changeMenus", res.data.clientBanner);

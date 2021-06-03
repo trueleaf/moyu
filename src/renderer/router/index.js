@@ -15,7 +15,7 @@ import permission from "@/pages/modules/permission/permission.vue";
 import devOps from "@/pages/modules/devops/devops.vue";
 
 Vue.use(Router);
-
+//=========================================================================//
 const allRoutes = [
     {
         path: "/v1/apidoc/doc-list",
@@ -82,6 +82,7 @@ const allRoutes = [
         component: () => import("@/pages/modules/dictionary/maintain/maintain.vue"),
     },
 ];
+//=========================================================================//
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 const router = new Router({
     routes: [
@@ -101,10 +102,11 @@ const router = new Router({
     ],
 });
 
+//=========================================================================//
 router.beforeEach((to, from, next) => {
     NProgress.start();
     const hasPermission = store.state.permission.routes.length > 0; //挂载了路由代表存在权限
-    if (config.renderConfig.httpRequest.whiteList.find((val) => val === to.path)) {
+    if (config.renderConfig.permission.whiteList.find((val) => val === to.path)) {
         //白名单内的路由直接放行
         next();
         return;
@@ -126,7 +128,7 @@ router.afterEach((to) => {
     localStorage.setItem("history/lastVisitePage", to.fullPath);
     NProgress.done(); // 页面顶部的加载条
 });
-
+//=========================================================================//
 export {
     router,
     allRoutes as routes,

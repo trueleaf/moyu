@@ -33,9 +33,9 @@ const VALID_CONTENT_TYPE = {
 }
 class OpenApiTranslate {
     constructor(projectId) {
-        if (!projectId) {
-            throw new Error("缺少项目id");
-        }
+        // if (!projectId) {
+        //     throw new Error("缺少项目id");
+        // }
         this.projectId = projectId; //项目id
         this.openApiData = null; //openapi数据
         this.moyuProjectInfo = {}; //转换后符合规范的数据

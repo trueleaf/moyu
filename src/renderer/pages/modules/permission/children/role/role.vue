@@ -12,7 +12,7 @@
             <el-table-column prop="remark" label="备注" align="center"></el-table-column>
             <el-table-column label="创建时间" align="center">
                 <template slot-scope="scope">
-                    {{ new Date(scope.row.createdAt).toLocaleString() }}
+                    {{ $helper.formatDate(scope.row.createdAt) }}
                 </template>
             </el-table-column>
             <el-table-column label="操作" align="center">

@@ -24,9 +24,9 @@ const TYPE_ENUM = { //参数类型映射
 
 class YapiTranslator {
     constructor(projectId) {
-        if (!projectId) {
-            throw new Error("缺少项目id");
-        }
+        // if (!projectId) {
+        //     throw new Error("缺少项目id");
+        // }
         this.projectId = projectId; //项目id
     }
 

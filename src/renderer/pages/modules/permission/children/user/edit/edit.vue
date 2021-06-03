@@ -14,13 +14,7 @@
             <!-- eslint-disable-next-line vue/attribute-hyphenation -->
             <s-form-item label="真实姓名" vModel="realName" halfLine disabled></s-form-item>
             <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-            <s-form-item label="手机号" vModel="phone" required halfLine phone></s-form-item>
-            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-            <s-form-item label="部门" vModel="department" required halfLine></s-form-item>
-            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-            <s-form-item label="职位" vModel="title" required halfLine></s-form-item>
-            <!-- eslint-disable-next-line vue/attribute-hyphenation -->
-            <s-form-item label="qq号" vModel="qq" required halfLine></s-form-item>
+            <s-form-item label="手机号" vModel="phone" halfLine phone></s-form-item>
         </s-form>
         <el-divider content-position="left">角色选择</el-divider>
         <el-checkbox-group v-model="formInfo.roleIds">

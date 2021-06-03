@@ -9,7 +9,7 @@
         <div class="s-header">
             <div class="ml-5 header-left fl d-flex a-center">
                 <span class="f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.renderConfig.layout.title }}</span>
-                <el-menu :default-active="activeMenu" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
+                <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
                     <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
                         {{ item.name }}
                     </el-menu-item>
@@ -63,25 +63,25 @@ if (window.require) {
 export default {
     data() {
         return {
-            activeMenu: "",
-            progress: 0,
-            downloading: false,
-            isWeb: !window.require,
-            isManual: false, //是否手动更新
-            ip: null,
+            activeMenuPath: "", //=========当前路由路径
+            progress: 0, //================下载进度
+            downloading: false, //=========是否正在下载安装包
+            isWeb: !window.require, //=====当前环境，electron环境才允许下载升级
+            isManual: false, //============是否手动更新
+            ip: null, //===================当前本机内网ip地址，方便联调
         };
     },
     computed: {
-        menus() {
+        menus() { //所有菜单
             return this.$store.state.permission.menus;
         },
-        userInfo() {
+        userInfo() { //用户信息
             return this.$store.state.permission.userInfo;
         },
     },
     watch: {
         $route(val) {
-            this.activeMenu = val.path;
+            this.activeMenuPath = val.path;
         },
     },
     mounted() {
@@ -141,7 +141,7 @@ export default {
         },
         //=========================================================================//
         initCurrentMenu() {
-            this.activeMenu = this.$route.path;
+            this.activeMenuPath = this.$route.path;
         },
         //跳转到首页
         jumpToHome() {

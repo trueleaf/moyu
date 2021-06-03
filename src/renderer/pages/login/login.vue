@@ -8,18 +8,10 @@
     <div class="login-container d-flex a-center j-center">
         <div class="login-box d-flex">
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
-                <!-- <el-carousel class="carousel" :interval="5000">
-                    <el-carousel-item v-for="item in candoList" :key="item" class="item-wrap">
-                        <h2>{{ item.title }}</h2>
-                        <ul>
-                            <li v-for="(item2, index2) in item.values" :key="index2">{{ item2.content }}</li>
-                        </ul>
-                    </el-carousel-item>
-                </el-carousel> -->
             </div>
             <div class="right">
-                <h2 class="text-center">体验版本({{ config.version }})</h2>
-                <el-tabs v-model="activeName" class="w-100" @tab-click="handleClickTabs">
+                <h2 class="text-center">{{ config.renderConfig.layout.title }}({{ config.version }})</h2>
+                <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
                     <el-tab-pane label="账号登录" name="first">
                         <s-login-account @jumpToRegister="handleJumpToRegister"></s-login-account>
@@ -29,7 +21,7 @@
                         <s-login-phone></s-login-phone>
                     </el-tab-pane>
                     <!-- 注册 -->
-                    <el-tab-pane label="账号注册" name="third">
+                    <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="third">
                         <s-register></s-register>
                     </el-tab-pane>
                 </el-tabs>
@@ -59,7 +51,7 @@ export default {
     },
     methods: {
         //=====================================组件操作====================================//
-        handleClickTabs() {},
+        //跳转注册页面
         handleJumpToRegister() {
             this.activeName = "third";
         },

@@ -219,6 +219,9 @@ export default {
     },
     created() {
         this.getProjectList(); //获取项目列表
+        this.$event.once("apidoc/importAsProjectSuccess", () => {
+            this.getProjectList();
+        });
     },
     methods: {
         //=====================================获取远程数据==================================//
