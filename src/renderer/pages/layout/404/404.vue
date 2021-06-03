@@ -5,8 +5,10 @@
     备注：xxxx
 */
 <template>
-    <div>
-        <el-button @click="handleJumpToLogin">返回登录</el-button>
+    <div class="h-100 d-flex a-center j-center flex-column">
+        <h2>404</h2>
+        <img :src="require('@/assets/imgs/logo.png')" alt="logo">
+        <el-button type="text" @click="handleJumpToLogin">返回登录</el-button>
     </div>
 </template>
 
