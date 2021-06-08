@@ -28,6 +28,7 @@ export default {
 
                Gitee地址：https://gitee.com/shuzhikai/moyu
             `)
+            console.log(process.env.VUE_APP_BUILD_TIME);
         }
     },
     methods: {
