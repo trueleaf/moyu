@@ -3,9 +3,6 @@
 | 默认项目全局配置信息
 |--------------------------------------------------------------------------
 */
-// import { global, process } from "../types/config"
-
-
 
 let ip = "127.0.0.1";
 if (global && global.require) {
@@ -91,4 +88,3 @@ export default {
         enableDocLink: true, //是否显示文档和帮助链接
     },
 }
-

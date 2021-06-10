@@ -1,4 +1,4 @@
-const config = require("@/../config/config.js");
+import config from "@/../config/config"
 import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { App } from "vue"
 import jsCookie from "js-cookie";
@@ -10,7 +10,7 @@ axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超�
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
 
 export default {
-    install(app: App) {
+    install(app: App): void {
         //===============================axiosInstance请求钩子==========================================//
         axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
             reqConfig.headers["x-csrf-token"] = jsCookie.get("csrfToken");
@@ -32,10 +32,13 @@ export default {
                     if (res.data.constructor.name === "Blob") {
                         let jsonData = await res.data.text();
                         jsonData = JSON.parse(jsonData);
+                        // eslint-disable-next-line prefer-destructuring
                         code = jsonData.code;
                     } else {
+                        // eslint-disable-next-line prefer-destructuring
                         code = res.data.code; //自定义请求状态码
                     }
+                    /*eslint-disable indent*/
                     switch (code) {
                         case 0: //正确请求
                             break;

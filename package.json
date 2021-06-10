@@ -1,6 +1,6 @@
 {
-  "name": "demo",
-  "version": "0.1.0",
+  "name": "moyu",
+  "version": "0.7.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -20,6 +20,7 @@
     "core-js": "^3.6.5",
     "electron-updater": "^4.3.9",
     "element-plus": "^1.0.2-beta.46",
+    "js-cookie": "^2.2.1",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
@@ -29,6 +30,8 @@
     "@types/electron-devtools-installer": "^2.2.0",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
+    "@commitlint/cli": "^9.1.2",
+    "@commitlint/config-conventional": "^9.1.2",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-e2e-cypress": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
@@ -48,10 +51,12 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^7.0.0",
+    "husky": "^6.0.0",
     "sass": "~1.32.6",
     "sass-loader": "^8.0.2",
     "typescript": "~4.1.5",
     "vue-cli-plugin-electron-builder": "~2.0.0"
   },
+
   "__npminstall_done": false
 }

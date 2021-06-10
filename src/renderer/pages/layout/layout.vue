@@ -54,7 +54,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from "vue";
+import { IpcRenderer } from "electron"
+
+let ipcRenderer: IpcRenderer;
+if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
+    ipcRenderer = window.require("electron").ipcRenderer;
+}
 
 export default defineComponent({
     data() {
@@ -76,6 +83,36 @@ export default defineComponent({
         },
     },
     methods: {
+        //=====================================操作区域====================================//
+        //刷新页面
+        freshContent() {
+            if (ipcRenderer) {
+                ipcRenderer.send("vue-fresh-content");
+            }
+        },
+        //后退
+        goBack() {
+            this.$router.back();
+        },
+        //前进
+        goForward() {
+            this.$router.forward();
+        },
+        //=====================================组件操作====================================//
+        //跳转到首页
+        jumpToHome() {
+            this.$router.push("/v1/apidoc/doc-list");
+        },
+        //跳转到用户设置
+        jumpToUserSetting() {
+            this.$router.push("/v1/settings/user");
+        },
+        //退出登录
+        logout() {
+            this.$store.commit("permission/clearAllPermission");
+            sessionStorage.clear();
+            this.$router.push("/login");
+        },
     },
 })
 </script>
