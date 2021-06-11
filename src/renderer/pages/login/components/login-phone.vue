@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-09-21 10:25
-    模块名称：手机号登录
-    备注：xxxx
+    创建时间：2021-06-11 22:43
+    模块名称：使用手机号登录
+    备注：
 */
 <template>
-    <el-form ref="form" :model="userInfo" :rules="rules" @submit.native.stop.prevent="handleLogin">
+    <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="phone">
             <el-input v-model="userInfo.phone" prefix-icon="el-icon-user" name="phone" type="text" placeholder="请输入手机号..."></el-input>
         </el-form-item>
@@ -21,15 +21,20 @@
     </el-form>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+import { ElForm } from "@@/elementui"
+import { UserInfo } from "@@/api";
+
+export default defineComponent({
     data() {
         return {
-            //手机号密码登录
+            //=====================================用户信息====================================//
             userInfo: {
                 phone: "", //------------------手机号码
                 smsCode: "", //----------------短信验证码
             },
+            //=====================================表单验证====================================//
             rules: {
                 phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
                 smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
@@ -38,10 +43,9 @@ export default {
             loading: false,
         };
     },
-    created() {},
     methods: {
         //校验手机号码
-        smsCodeHook() {
+        smsCodeHook(): boolean {
             if (this.userInfo.phone.length !== 11) {
                 this.$message.warning("请填写正确手机号");
                 return false;
@@ -53,25 +57,24 @@ export default {
             const params = {
                 phone: this.userInfo.phone,
             };
-            this.axios.get("/api/security/sms", { params }).then(() => {}).catch((err) => {
-                this.$errorThrow(err, this);
+            this.axios.get("/api/security/sms", { params }).catch((err) => {
+                console.error(err)
             });
         },
         //手机号登录
         handleLogin() {
-            this.$refs.form.validate((valid) => {
+            (this.$refs.form as ElForm).validate((valid) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post("/api/security/login_phone", this.userInfo).then((res) => {
+                    this.axios.post<UserInfo, UserInfo>("/api/security/login_phone", this.userInfo).then((res: UserInfo) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
-                            this.isShowCapture = true;
                         } else {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }
                     }).catch((err) => {
-                        this.$errorThrow(err, this);
+                        console.error(err);
                     }).finally(() => {
                         this.loading = false;
                     });
@@ -79,15 +82,16 @@ export default {
                     this.$nextTick(() => {
                         const input = document.querySelector(".el-form-item.is-error input");
                         if (input) {
-                            input.focus();
+                            (input as HTMLElement).focus();
                         }
                     });
                 }
             });
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
+
 </style>

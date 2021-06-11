@@ -12,6 +12,5 @@ const app = createApp(App, {
     mixin: [mixin]
 })
 app.use(axios).use(store).use(ElementPlus).use(router);
-app.config.globalProperties.test = 22;
 
 app.mount("#app")

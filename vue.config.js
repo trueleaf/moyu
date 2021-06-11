@@ -4,6 +4,8 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
+process.env.VUE_APP_TITLE = "moyu";
+process.env.VUE_APP_BUILD_TIME = new Date().toLocaleString();
 
 module.exports = {
     pages: {
@@ -33,6 +35,7 @@ module.exports = {
         resolve: {
             alias: {
                 "@": path.resolve(__dirname, "./src/renderer"),
+                "@@": path.resolve(__dirname, "./src"),
                 "~": path.resolve(__dirname, "./"),
             },
         },

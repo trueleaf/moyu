@@ -1,6 +1,6 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-09-21 10:16
+    创建时间：2020-09-21 22:16
     模块名称：账号密码登录
     备注：xxxx
 */
@@ -64,6 +64,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { ElForm } from "@@/elementui"
+import { UserInfo } from "@@/api"
 import config from "@/../config/config"
 
 export default defineComponent({
@@ -98,32 +100,31 @@ export default defineComponent({
     methods: {
         //用户名密码登录
         handleLogin() {
-            // console.log(this.$refs.form?.validte)
-            // this.$refs.form.validate((valid) => {
-            //     if (valid) {
-            //         this.loading = true;
-            //         this.axios.post("/api/security/login_password", this.userInfo).then((res) => {
-            //             if (res.code === 2006 || res.code === 2003) {
-            //                 this.$message.warning(res.msg);
-            //                 this.isShowCapture = true;
-            //             } else {
-            //                 this.$router.push("/v1/apidoc/doc-list");
-            //                 sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-            //             }
-            //         }).catch((err) => {
-            //             this.$errorThrow(err, this);
-            //         }).finally(() => {
-            //             this.loading = false;
-            //         });
-            //     } else {
-            //         this.$nextTick(() => {
-            //             const input = document.querySelector(".el-form-item.is-error input");
-            //             if (input) {
-            //                 input.focus();
-            //             }
-            //         });
-            //     }
-            // });
+            (this.$refs.form as ElForm).validate((valid: boolean) => {
+                if (valid) {
+                    this.loading = true;
+                    this.axios.post<UserInfo, UserInfo>("/api/security/login_password", this.userInfo).then((res: UserInfo) => {
+                        if (res.code === 2006 || res.code === 2003) {
+                            this.$message.warning(res.msg);
+                            this.isShowCapture = true;
+                        } else {
+                            this.$router.push("/v1/apidoc/doc-list");
+                            sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                        }
+                    }).catch((err) => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.loading = false;
+                    });
+                } else {
+                    this.$nextTick(() => {
+                        const input = document.querySelector(".el-form-item.is-error input");
+                        if (input) {
+                            (input as HTMLElement).focus();
+                        }
+                    });
+                }
+            });
         },
         //刷新验证码
         freshCapchaUrl() {
@@ -135,15 +136,15 @@ export default defineComponent({
         },
         //体验账号登录
         handleGuesttLogin() {
-            // this.loading = true;
-            // this.axios.post("/api/security/login_guest", this.userInfo).then((res) => {
-            //     this.$router.push("/v1/apidoc/doc-list");
-            //     sessionStorage.setItem("userInfo", JSON.stringify(res.data));
-            // }).catch((err) => {
-            //     console.error(err);
-            // }).finally(() => {
-            //     this.loading = false;
-            // });
+            this.loading = true;
+            this.axios.post("/api/security/login_guest", this.userInfo).then((res) => {
+                this.$router.push("/v1/apidoc/doc-list");
+                sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
+            });
         },
     },
 })

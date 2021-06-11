@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-09-21 10:30
+    创建时间：2021-06-11 22:13
     模块名称：账号注册
-    备注：xxxx
+    备注：
 */
 <template>
-    <el-form ref="form" :model="registerInfo" :rules="rules" @submit.native.stop.prevent="handleRegister">
+    <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
         <el-form-item prop="loginName">
             <el-input v-model="registerInfo.loginName" name="loginName" type="text" placeholder="请输入登录名称..."></el-input>
         </el-form-item>
@@ -30,13 +30,16 @@
     </el-form>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+import { ElForm } from "@@/elementui"
+
+export default defineComponent({
     data() {
         const matchString = /[a-zA-Z]/;
         const matchNumber = /\d/;
         const inValidKey = /[^\w\d!@#]/;
-        const validatePassword = (rule, value, callback) => {
+        const validatePassword = (rule: unknown, value: string, callback: (err?: Error) => void) => {
             if (value.trim() === "") {
                 callback(new Error("请输入密码"));
             } else if (value.match(inValidKey)) {
@@ -45,12 +48,12 @@ export default {
                 callback(new Error("数字+字符串，并且大于8位"));
             } else {
                 if (this.registerInfo.password2 !== "") {
-                    this.$refs.form.validateField("password2");
+                    (this.$refs.form as ElForm).validateField("password2");
                 }
                 callback();
             }
         };
-        const validatePassword2 = (rule, value, callback) => {
+        const validatePassword2 = (rule: unknown, value: string, callback: (err?: Error) => void) => {
             if (value === "") {
                 callback(new Error("请再次输入密码"));
             } else if (value.match(inValidKey)) {
@@ -66,11 +69,11 @@ export default {
         return {
             //=====================================基础信息====================================//
             registerInfo: {
-                loginName: "",
-                smsCode: "",
-                password: "",
-                password2: "",
-                phone: "",
+                loginName: "", //---登录名称
+                smsCode: "", //-----验证码
+                password: "", //----密码
+                password2: "", //---确认密码
+                phone: "", //-------手机号码
             },
             //=====================================校验规则====================================//
             rules: {
@@ -90,7 +93,6 @@ export default {
             loading: false,
         };
     },
-    created() {},
     methods: {
         //校验手机号码
         smsCodeHook() {
@@ -143,8 +145,9 @@ export default {
             });
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
+
 </style>
