@@ -7,8 +7,15 @@ declare module "@vue/runtime-core" {
     interface State {
         count: number
     }
+    interface ElMessage {
+        success<T>(msg: T) : void,
+        warning<T>(msg: T) : void,
+        danger<T>(msg: T) : void,
+    }
     interface ComponentCustomProperties {
         $store: Store<State>,
+        $message: ElMessage,
+        $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
     }
 }
