@@ -36,36 +36,6 @@ import { ElForm } from "@@/elementui"
 
 export default defineComponent({
     data() {
-        const matchString = /[a-zA-Z]/;
-        const matchNumber = /\d/;
-        const inValidKey = /[^\w\d!@#]/;
-        const validatePassword = (rule: unknown, value: string, callback: (err?: Error) => void) => {
-            if (value.trim() === "") {
-                callback(new Error("请输入密码"));
-            } else if (value.match(inValidKey)) {
-                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
-            } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-                callback(new Error("数字+字符串，并且大于8位"));
-            } else {
-                if (this.registerInfo.password2 !== "") {
-                    (this.$refs.form as ElForm).validateField("password2");
-                }
-                callback();
-            }
-        };
-        const validatePassword2 = (rule: unknown, value: string, callback: (err?: Error) => void) => {
-            if (value === "") {
-                callback(new Error("请再次输入密码"));
-            } else if (value.match(inValidKey)) {
-                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
-            } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-                callback(new Error("数字+字符串，并且大于8位"));
-            } else if (value !== this.registerInfo.password) {
-                callback(new Error("两次输入密码不一致!"));
-            } else {
-                callback();
-            }
-        };
         return {
             //=====================================基础信息====================================//
             registerInfo: {
@@ -80,11 +50,11 @@ export default defineComponent({
                 loginName: [{ required: true, message: "请输入登录名称", trigger: "blur" }],
                 password: [
                     { required: true, message: "请输入密码", trigger: "blur" },
-                    { validator: validatePassword, trigger: "blur" },
+                    { validator: this.validatePassword, trigger: "blur" },
                 ],
                 password2: [
                     { required: true, message: "请再次输入密码", trigger: "blur" },
-                    { validator: validatePassword2, trigger: "blur" },
+                    { validator: this.validatePassword2, trigger: "blur" },
                 ],
                 phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
                 smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
@@ -94,6 +64,39 @@ export default defineComponent({
         };
     },
     methods: {
+        validatePassword(rule: unknown, value: string, callback: (err?: Error) => void) {
+            const matchString = /[a-zA-Z]/;
+            const matchNumber = /\d/;
+            const inValidKey = /[^\w\d!@#]/;
+            if (value.trim() === "") {
+                callback(new Error("请输入密码"));
+            } else if (value.match(inValidKey)) {
+                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
+            } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
+                callback(new Error("数字+字符串，并且大于8位"));
+            } else {
+                if (this.registerInfo.password2 !== "") {
+                    (this.$refs.form as ElForm).validateField("password2");
+                }
+                callback();
+            }
+        },
+        validatePassword2(rule: unknown, value: string, callback: (err?: Error) => void) {
+            const matchString = /[a-zA-Z]/;
+            const matchNumber = /\d/;
+            const inValidKey = /[^\w\d!@#]/;
+            if (value === "") {
+                callback(new Error("请再次输入密码"));
+            } else if (value.match(inValidKey)) {
+                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
+            } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
+                callback(new Error("数字+字符串，并且大于8位"));
+            } else if (value !== this.registerInfo.password) {
+                callback(new Error("两次输入密码不一致!"));
+            } else {
+                callback();
+            }
+        },
         //校验手机号码
         smsCodeHook() {
             if (this.registerInfo.phone.length !== 11) {
@@ -107,13 +110,13 @@ export default defineComponent({
             const params = {
                 phone: this.registerInfo.phone,
             };
-            this.axios.get("/api/security/sms", { params }).then(() => {}).catch((err) => {
-                this.$errorThrow(err, this);
+            this.axios.get("/api/security/sms", { params }).catch((err) => {
+                console.error(err);
             });
         },
         //用户注册
         handleRegister() {
-            this.$refs.form.validate((valid) => {
+            (this.$refs.form as ElForm).validate((valid) => {
                 if (valid) {
                     const userInfo = {
                         loginName: this.registerInfo.loginName,
@@ -124,7 +127,7 @@ export default defineComponent({
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }).catch((err) => {
-                            this.$errorThrow(err, this);
+                            console.error(err);
                         }).finally(() => {
                             this.loading = false;
                         });
@@ -136,7 +139,7 @@ export default defineComponent({
                     this.$nextTick(() => {
                         const input = document.querySelector(".el-form-item.is-error input");
                         if (input) {
-                            input.focus();
+                            (input as HTMLElement).focus();
                         }
                     });
                     this.$message.warning("请完善必填信息");

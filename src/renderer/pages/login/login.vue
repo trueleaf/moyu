@@ -22,7 +22,7 @@
                     </el-tab-pane>
                     <!-- 注册 -->
                     <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="register">
-                        <!-- <s-register></s-register> -->
+                        <s-register></s-register>
                     </el-tab-pane>
                 </el-tabs>
             </div>
@@ -34,14 +34,14 @@
 import config from "@/../config/config"
 import loginAccount from "./components/login-account.vue";
 import loginPhone from "./components/login-phone.vue";
-// import register from "./components/register.vue";
+import register from "./components/register.vue";
 import { defineComponent } from "vue"
 
 export default defineComponent({
     components: {
         "s-login-account": loginAccount,
         "s-login-phone": loginPhone,
-        // "s-register": register,
+        "s-register": register,
     },
     data() {
         return {
