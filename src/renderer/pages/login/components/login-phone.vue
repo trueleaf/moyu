@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { ElForm } from "@@/elementui"
-import { UserInfo } from "@@/api";
+import { UserInfo, Response } from "@@/index";
 
 export default defineComponent({
     data() {
@@ -66,7 +66,7 @@ export default defineComponent({
             (this.$refs.form as ElForm).validate((valid) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post<UserInfo, UserInfo>("/api/security/login_phone", this.userInfo).then((res: UserInfo) => {
+                    this.axios.post<Response<UserInfo>, Response<UserInfo>>("/api/security/login_phone", this.userInfo).then((res: Response<UserInfo>) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                         } else {

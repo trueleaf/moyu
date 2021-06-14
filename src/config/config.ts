@@ -10,8 +10,21 @@ if (global && global.require) {
     ip = internalIp.v4.sync()
 }
 const isDev = process.env.NODE_ENV === "development";
+function isElectron() {
+    if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
+        return true;
+    }
+    if (typeof process !== "undefined" && typeof process.versions === "object" && !!process.versions.electron) {
+        return true;
+    }
+    if (typeof navigator === "object" && typeof navigator.userAgent === "string" && navigator.userAgent.indexOf("Electron") >= 0) {
+        return true;
+    }
+    return false;
+}
 
 export default {
+    isElectron: isElectron(),
     isDev,
     version: "0.7.0", //当前项目版本
     //更新相关配置

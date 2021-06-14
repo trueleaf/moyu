@@ -1,4 +1,4 @@
-import { Config } from "@/../types/config"
+import { Config } from "@@/config"
 // import methods from "./methods";
 import computed from "./computed";
 import props from "./props";

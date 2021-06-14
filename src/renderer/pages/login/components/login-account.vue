@@ -65,7 +65,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { ElForm } from "@@/elementui"
-import { UserInfo } from "@@/api"
+import { UserInfo, Response } from "@@/index"
 import config from "@/../config/config"
 
 export default defineComponent({
@@ -103,7 +103,7 @@ export default defineComponent({
             (this.$refs.form as ElForm).validate((valid: boolean) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post<UserInfo, UserInfo>("/api/security/login_password", this.userInfo).then((res: UserInfo) => {
+                    this.axios.post<Response<UserInfo>, Response<UserInfo>>("/api/security/login_password", this.userInfo).then((res: Response<UserInfo>) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;

@@ -20,7 +20,7 @@ function update() {
     ipcMain.on("vue-check-update", () => {
         autoUpdater.checkForUpdates();
     });
-    ipcMain.on("quit-and-install", () => {
+    ipcMain.on("vue-quit-and-install", () => {
         autoUpdater.quitAndInstall();
     });
     //=====================================参数设置====================================//

@@ -1,12 +1,9 @@
-/* eslint-disable */
 import { ComponentCustomProperties } from "vue"
 import { Store } from "vuex"
 import { AxiosInstance } from "axios"
+import { State } from "@@/store"
 
 declare module "@vue/runtime-core" {
-    interface State {
-        count: number
-    }
     interface ElMessage {
         success<T>(msg: T) : void,
         warning<T>(msg: T) : void,

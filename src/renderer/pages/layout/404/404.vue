@@ -1,8 +1,8 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-06-18 10:10
-    模块名称：
-    备注：xxxx
+    创建时间：2021-06-10 21:39
+    模块名称：404页面
+    备注：
 */
 <template>
     <div class="h-100 d-flex a-center j-center flex-column">
@@ -12,32 +12,22 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     data() {
         return {
-
         };
     },
-    created() {
-
-    },
     methods: {
+        //跳转到登录页面
         handleJumpToLogin() {
             this.$router.push("/login");
         },
-        //=====================================获取远程数据==================================//
-
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-
-        //=====================================其他操作=====================================//
-
     },
-};
+})
 </script>
 
 <style lang="scss">
-
 </style>
