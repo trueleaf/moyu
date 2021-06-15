@@ -150,11 +150,13 @@ export default defineComponent({
                 });
             }
         },
+        //安装更新
         handleInstall() {
             if (config.isElectron) {
                 ipcRenderer.send("vue-quit-and-install");
             }
         },
+        //检查更新
         handleCheckUpdate(isManual: boolean) {
             this.downloading = true;
             this.isManual = isManual;

@@ -18,8 +18,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import user from "./user/user.vue"
 
 export default defineComponent({
+    components: {
+        "s-user": user
+    },
     data() {
         return {
             activeName: "s-user", //当前选中tab

@@ -2,6 +2,7 @@ import { ComponentCustomProperties } from "vue"
 import { Store } from "vuex"
 import { AxiosInstance } from "axios"
 import { State } from "@@/store"
+import { Helper } from "@@/helper"
 
 declare module "@vue/runtime-core" {
     interface ElMessage {
@@ -14,6 +15,7 @@ declare module "@vue/runtime-core" {
         $message: ElMessage,
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
+        $helper: Helper,
     }
 }
 declare module '*.vue' {
