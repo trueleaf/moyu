@@ -5,13 +5,25 @@
     备注：
 */
 <template>
-    <div>aa</div>
+    <el-col>
+        {{ label }}: {{ prop }}
+    </el-col>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 
 export default defineComponent({
+    props: {
+        label: { //文案
+            type: String,
+            default: ""
+        },
+        prop: { //绑定参数的字段名称
+            type: [String, Number, Boolean, Array],
+            default: "",
+        },
+    },
     data() {
         return {
         };
