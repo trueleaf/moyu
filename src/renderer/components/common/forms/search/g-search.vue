@@ -67,9 +67,12 @@ export default defineComponent({
     computed: {
         labelWidth(): string { //搜索框文案宽度
             // const formItems = this.$slots.default || [];
-            if (this.$slots.default) {
-                console.log(this.$slots.default())
-            }
+            // if (this.$slots.default) {
+            //     const allSlots = this.$slots.default();
+            //     this.$helper.forEachForest(allSlots, (slot) => {
+            //         console.log(slot);
+            //     })
+            // }
             // const widgets = formItems.map((val) => {
             //     const { componentOptions } = val;
             //     const propsData = componentOptions ? componentOptions.propsData : null;

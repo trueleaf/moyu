@@ -34,3 +34,42 @@ export const uuid: Uuid = () => {
 export const getType: GetType = (variable) => {
     return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
 }
+
+
+
+type ForestData<T> = {
+    [propName: string]: T[]
+}
+type ForEachForestOptions<K> = {
+    childrenKey?: K
+};
+/**
+ * @description        遍历森林
+ * @author             shuxiaokai
+ * @create             2020-03-02 10:17
+ * @param {array}      arrData 数组数据
+ * @param {function}   fn 每次遍历执行得函数
+ * @param {string}     childrenKey children对应字段
+ */
+export function forEachForest<T extends ForestData<T>, K extends keyof T>(forest: Array<T>, fn: (arg: T) => void, options?: ForEachForestOptions<K>): void {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    const childrenKey = options?.childrenKey || "children";
+    const foo = (forestData: Array<T>, hook: (arg: T) => void, key: K) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            hook(currentData);
+            if (!currentData[key]) {
+                continue;
+            }
+            if (Array.isArray(currentData[key])) {
+                continue;
+            }
+            if ((currentData[key]).length > 0) {
+                foo(currentData[key], hook, key);
+            }
+        }
+    };
+    foo(forest, fn, childrenKey as K);
+}

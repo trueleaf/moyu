@@ -59,7 +59,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router"
 import { IpcRenderer } from "electron"
 import config from "@/../config/config"
-import { Menu, UserInfo } from "@@/index"
+import { Menu, UserInfo } from "@@/global"
 
 let ipcRenderer: IpcRenderer;
 if (window.require) {
