@@ -35,8 +35,6 @@ export const getType: GetType = (variable) => {
     return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
 }
 
-
-
 type ForestData<T> = {
     [propName: string]: T[]
 }

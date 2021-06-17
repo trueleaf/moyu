@@ -71,13 +71,11 @@ interface Config {
              * 是否开启严格权限校验
              */
             free: boolean,
-            
             /**
              * 路由白名单，free模式下所有路由都不拦截
              */
             whiteList: string[],
         },
-        
         /**
          * http请求相关
          */
@@ -102,7 +100,6 @@ interface Config {
              */
             withCredentials: boolean,
         },
-        
         /**
          * mock相关配置
          */
@@ -122,7 +119,6 @@ interface Config {
              */
             ip: string,
         },
-        
         /**
          * 全局组件配置
          */
@@ -145,14 +141,13 @@ interface Config {
             /**
              * 富文本配置
              */
-            richText: { 
+            richText: {
                 /**
                  * 是否使用oss
                  */
                 useOss: boolean,
             },
         },
-        
         /**
          * 本地数据库配置
          */
@@ -167,7 +162,6 @@ interface Config {
              */
             version: number,
         },
-        
         /**
          * 导出文档相关配置
          */
@@ -177,7 +171,6 @@ interface Config {
              */
             baseUrl: string,
         },
-        
         /**
          * 导入文档相关配置
          */
@@ -187,7 +180,6 @@ interface Config {
              */
             size: number,
         },
-        
         /**
          * 客户端下载相关
          */
@@ -198,7 +190,6 @@ interface Config {
             gitee: string,
         },
     },
-    
     /**
      * 主进程配置
      */
@@ -223,7 +214,6 @@ interface Config {
          */
         onlineUrl: string,
     },
-    
     /**
      * 本地部署相关配置
      */
