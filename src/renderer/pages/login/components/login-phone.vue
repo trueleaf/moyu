@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { ElForm } from "@@/elementui"
-import { UserInfo, Response } from "@@/index";
+import { UserInfo, Response } from "@@/global";
 
 export default defineComponent({
     data() {

@@ -3,6 +3,7 @@
 | 默认项目全局配置信息
 |--------------------------------------------------------------------------
 */
+import { Config } from "@@/config"
 
 let ip = "127.0.0.1";
 if (global && global.require) {
@@ -10,7 +11,7 @@ if (global && global.require) {
     ip = internalIp.v4.sync()
 }
 const isDev = process.env.NODE_ENV === "development";
-function isElectron() {
+function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
         return true;
     }
@@ -22,8 +23,7 @@ function isElectron() {
     }
     return false;
 }
-
-export default {
+const config: Config = {
     isElectron: isElectron(),
     isDev,
     version: "0.7.0", //当前项目版本
@@ -101,3 +101,4 @@ export default {
         enableDocLink: true, //是否显示文档和帮助链接
     },
 }
+export default config;

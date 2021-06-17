@@ -3,129 +3,236 @@
 | Electron更新相关配置
 |--------------------------------------------------------------------------
 */
-interface UpdateConfig {
-    readonly version: string, //当前项目版本
-    readonly server: string, //更新服务器地址
-    readonly filePath: string, //更新文件地址
-    readonly autoUpdate: boolean, //是否开启自动更新
-}
-/*
-|--------------------------------------------------------------------------
-| renderer相关配置
-|--------------------------------------------------------------------------
-*/
-//=====================================布局相关====================================//
-enum Size {
-    mini = "mini",
-    small = "small",
-    medium = "medium",
-    large = "large",
-}
-interface Layout {
-    readonly title: string,
-    readonly size: string,
-}
-//=====================================权限====================================//
-interface Permission {
-    readonly free: boolean,
-    readonly whiteList: string[],
-}
-//=====================================Http请求====================================//
-interface HttpRequest {
-    readonly url: string,
-    readonly imgUrl: string,
-    readonly timeout: number,
-    readonly withCredentials: boolean,
-}
-//=====================================Mock相关====================================//
-interface Mock {
-    enabled: boolean,
-    port: number,
-    ip: string,
-}
-//==================================组件配置=======================================//
-interface TableConfig {
-    pageSizes: Array<number>,
-    pageSize: number,
-}
-interface RichText {
-    useOss: boolean,
-}
-interface Components {
-    tableConfig: TableConfig,
-    richText: RichText,
-}
-//===================================indexedDB数据库======================================//
-interface IndexedDB {
-    dbName: string,
-    version: number,
-}
-//=====================================分享文档相关配置====================================//
-interface ShareDoc {
-    baseUrl: string,
-}
-//======================================导入文档相关配置===================================//
-interface ImportDoc {
-    size: number,
-}
-//=====================================Electron下载====================================//
-interface ElectronDownload {
-    gitee: string,
-}
-
-interface RendererConfig {
-    layout: Layout,
-    permission: Permission,
-    httpRequest: HttpRequest,
-    mock: Mock,
-    components: Components,
-    indexedDB: IndexedDB,
-    share: ShareDoc,
-    import: ImportDoc,
-    download: ElectronDownload,
-}
-/*
-|--------------------------------------------------------------------------
-| 主进程相关配置
-|--------------------------------------------------------------------------
-*/
-interface MainConfig {
-    width: number,
-    height: number,
-    useLocalFile: boolean, //使用本地文件作为主进程加载内容
-    onlineUrl: string, //线上地址
-}
-/*
-|--------------------------------------------------------------------------
-| 打包相关配置
-|--------------------------------------------------------------------------
-|
-*/
-interface BuildConfig {
-    publicPath
-}
-/*
-|--------------------------------------------------------------------------
-| 本地部署相关配置
-|--------------------------------------------------------------------------
-*/
-interface Localization {
-    enableRegister: boolean, //是否允许注册
-    enableGuest: boolean, //是否允许来宾用户体验
-    enableDocLink: boolean, //是否显示文档和帮助链接
-}
-
-
-//Electron配置
 interface Config {
-    readonly isDev: boolean, //是否开发环境
-    readonly version: string, //版本信息
-    updateConfig: UpdateConfig, //更新配置
-    renderConfig: RendererConfig, //渲染进程相关配置
-    mainConfig: MainConfig, //主进程相关配置
-    localization: Localization, //本地部署相关配置
-}
-//=========================================================================//
+    /**
+     * 是否为electron环境
+     */
+    isElectron: boolean,
 
-//=========================================================================//
-export { Config, global, process };
+    /**
+     * 是否为开发环境
+     */
+    isDev: boolean,
+
+    /**
+     * 版本信息 eg: 0.6.3
+     */
+    version: string,
+
+    /**
+     * 更新相关配置
+     */
+    updateConfig: {
+        /**
+         * 当前项目版本
+         */
+        version: string,
+
+        /**
+         * 更新服务器地址
+         */
+        server: string,
+
+        /**
+         * 更新文件地址  server + filePath等于完整下载路径
+         */
+        filePath: string,
+
+        /**
+         * 是否开启自动更新
+         */
+        autoUpdate: boolean,
+    },
+
+    /**
+     * 渲染进程配置
+     */
+    renderConfig: {
+        /**
+         * 布局相关
+         */
+        layout: {
+            /**
+             * 项目名称
+             */
+            title: string,
+
+            /**
+             * 项目中组件库大小
+             */
+            size: string,
+        },
+
+        /**
+         * 权限相关
+         */
+        permission: {
+            /**
+             * 是否开启严格权限校验
+             */
+            free: boolean,
+            /**
+             * 路由白名单，free模式下所有路由都不拦截
+             */
+            whiteList: string[],
+        },
+        /**
+         * http请求相关
+         */
+        httpRequest: {
+            /**
+             * 请求url
+             */
+            url: string,
+
+            /**
+             * 图片url
+             */
+            imgUrl: string,
+
+            /**
+             * 超时实践
+             */
+            timeout: number,
+
+            /**
+             * 请求是否携带cookie
+             */
+            withCredentials: boolean,
+        },
+        /**
+         * mock相关配置
+         */
+        mock: {
+            /**
+             * 是否启动mock功能
+             */
+            enabled: boolean,
+
+            /**
+             * mock服务器默认端口
+             */
+            port: number,
+
+            /**
+             * 当前所处环境ip地址
+             */
+            ip: string,
+        },
+        /**
+         * 全局组件配置
+         */
+        components: {
+            /**
+             * 表格相关配置信息
+             */
+            tableConfig: {
+                /**
+                 * 每页条数
+                 */
+                pageSizes: number[],
+
+                /**
+                 * 每页默认显示数量
+                 */
+                pageSize: number,
+            },
+
+            /**
+             * 富文本配置
+             */
+            richText: {
+                /**
+                 * 是否使用oss
+                 */
+                useOss: boolean,
+            },
+        },
+        /**
+         * 本地数据库配置
+         */
+        indexedDB: {
+            /**
+             * indexedDB数据库名称
+             */
+            dbName: string,
+
+            /**
+             * indexedDB数据库版本
+             */
+            version: number,
+        },
+        /**
+         * 导出文档相关配置
+         */
+        share: {
+            /**
+             * 文档分享链接
+             */
+            baseUrl: string,
+        },
+        /**
+         * 导入文档相关配置
+         */
+        import: {
+            /**
+             * 导入文件大小限制
+             */
+            size: number,
+        },
+        /**
+         * 客户端下载相关
+         */
+        download: {
+            /**
+             * 通过码云下载地址
+             */
+            gitee: string,
+        },
+    },
+    /**
+     * 主进程配置
+     */
+    mainConfig: {
+        /**
+         * 默认electron窗口宽度
+         */
+        width: number,
+
+        /**
+         * 默认electron窗口高度
+         */
+        height: number,
+
+        /**
+         * 使用本地文件作为主进程加载内容
+         */
+        useLocalFile: boolean,
+
+        /**
+         * 线上地址
+         */
+        onlineUrl: string,
+    },
+    /**
+     * 本地部署相关配置
+     */
+    localization: {
+        /**
+         * 是否允许注册
+         */
+        enableRegister: boolean,
+
+        /**
+         * 是否允许来宾用户体验
+         */
+        enableGuest: boolean,
+
+        /**
+         * 是否显示文档和帮助链接
+         */
+        enableDocLink: boolean,
+    },
+}
+
+export { Config };

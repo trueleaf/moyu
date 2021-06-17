@@ -1,4 +1,4 @@
-import { UserInfo } from "@@/index"
+import { UserInfo } from "@@/global"
 import { PermissionState } from "@@/store"
 
 export default {

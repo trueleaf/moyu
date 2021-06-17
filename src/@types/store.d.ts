@@ -1,4 +1,4 @@
-import { UserInfo, Menu } from "./index"
+import { UserInfo, Menu } from "./global"
 import { RouteRecordRaw } from "vue-router"
 
 
