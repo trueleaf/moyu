@@ -35,12 +35,10 @@ export const getType: GetType = (variable) => {
     return Object.prototype.toString.call(variable).slice(8, -1).toLocaleLowerCase();
 }
 
-type ForestData<T> = {
-    [propName: string]: T[]
+type ForestData = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [propName: string]: any,
 }
-type ForEachForestOptions<K> = {
-    childrenKey?: K
-};
 /**
  * @description        遍历森林
  * @author             shuxiaokai
@@ -49,25 +47,25 @@ type ForEachForestOptions<K> = {
  * @param {function}   fn 每次遍历执行得函数
  * @param {string}     childrenKey children对应字段
  */
-export function forEachForest<T extends ForestData<T>, K extends keyof T>(forest: Array<T>, fn: (arg: T) => void, options?: ForEachForestOptions<K>): void {
+export function forEachForest<K extends keyof ForestData>(forest: ForestData[], fn: (arg: ForestData[K]) => void, options?: { childrenKey?: K }): void {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }
     const childrenKey = options?.childrenKey || "children";
-    const foo = (forestData: Array<T>, hook: (arg: T) => void, key: K) => {
+    const foo = (forestData: ForestData[], hook: (arg: ForestData[K]) => void) => {
         for (let i = 0; i < forestData.length; i += 1) {
             const currentData = forestData[i];
             hook(currentData);
-            if (!currentData[key]) {
+            if (!currentData[childrenKey]) {
                 continue;
             }
-            if (Array.isArray(currentData[key])) {
+            if (Array.isArray(currentData[childrenKey])) {
                 continue;
             }
-            if ((currentData[key]).length > 0) {
-                foo(currentData[key], hook, key);
+            if ((currentData[childrenKey]).length > 0) {
+                foo(currentData[childrenKey], hook);
             }
         }
     };
-    foo(forest, fn, childrenKey as K);
+    foo(forest, fn);
 }
