@@ -8,7 +8,7 @@
     <div>
         <s-search>
             <div class="xxx">
-                <s-search-item label="aaa" prop="x"></s-search-item>
+                <s-search-item label="aaaaaaxxxxxxxxxxxxxxxxxxxx" prop="x"></s-search-item>
             </div>
             <s-search-item label="aaa" prop="y"></s-search-item>
             <s-search-item label="aaa" prop="z"></s-search-item>

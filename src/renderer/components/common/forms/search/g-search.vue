@@ -41,7 +41,7 @@ export default defineComponent({
         },
         showTip: { //是否formInfo打印,生产环境自动忽略当前值
             type: Boolean,
-            default: false,
+            default: true,
         },
         autoRequest: { //是否触发自动请求
             type: Boolean,
@@ -51,50 +51,45 @@ export default defineComponent({
     emits: ["change", "reset"],
     data() {
         return {
+            labelWidth: "100px", //表单label宽度
             formInfo: {}, //搜索参数
-            // defaultFormInfo: {}, //初始formInfo值
-            // defaultCustomData: {}, //初始customData
             // //=====================================高级筛选相关====================================//
             couldShowLoadMore: false, //是否允许高级筛选
             isFold: true, //是否折叠
-            // itemDom: null, //每个搜索框高度
-            // formDom: null, //表单高度
             //=====================================其他参数====================================//
             config, //-----------配置相关信息
             loading: false, //是否正在加载
         };
     },
-    computed: {
-        labelWidth(): string { //搜索框文案宽度
-            // const formItems = this.$slots.default || [];
-            if (this.$slots.default) {
-                const allSlots = this.$slots.default();
-                this.$helper.forEachForest(allSlots, (slot: VNode) => {
-                    console.log(222, slot)
-                })
-            }
-            // const widgets = formItems.map((val) => {
-            //     const { componentOptions } = val;
-            //     const propsData = componentOptions ? componentOptions.propsData : null;
-            //     if (!propsData || !propsData.label) {
-            //         return 0;
-            //     }
-            //     return val.componentOptions.propsData.label.length;
-            // });
-            // let maxLen = Math.max.apply(Math, widgets) + 1;
-            // const label = document.querySelector(".el-form-item__label");
-            // let labelFontSize = 16;
-            // if (label) {
-            //     labelFontSize = parseFloat(window.getComputedStyle(label).fontSize);
-            // }
-            // const fz = labelFontSize; //根元素字体大小
-            // (maxLen > 10) && (maxLen = 10);
-            // (maxLen < 4) && (maxLen = 4);
-            // return `${maxLen * (fz + 5)}px`;
-            return "aa";
-        },
+    mounted() {
+        this.initLabelWidth(); //初始化label的宽度
     },
     methods: {
+        //初始化label的宽度
+        initLabelWidth() {
+            const searchItems: VNode[] = [];
+            if (this.$slots.default) {
+                const allSlots = this.$slots.default();
+                this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+                    const slotType = slot.type;
+                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
+                        searchItems.push(slot);
+                    }
+                })
+            }
+            const formDom: HTMLElement = this.$el;
+            const labelDom = formDom.querySelector(".el-form-item__label") || document.body;
+            const styleList = window.getComputedStyle(labelDom);
+            const { font } = styleList;
+            const maxLabelWidth = Math.max.apply(Math, searchItems.map((val) => {
+                const { props } = val;
+                const label: string = props ? (props.label || "") : "";
+                const labelWidth = this.$helper.getTextWidth(label, font)
+                return labelWidth;
+            }));
+            const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
+            this.labelWidth = `${Math.ceil(realWidth)}px`
+        },
         //展开项目
         handleExpand() {
             // console.log(this.$helper.cloneDeep())
