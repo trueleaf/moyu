@@ -39,6 +39,7 @@ type ForestData = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [propName: string]: any,
 }
+
 /**
  * @description        遍历森林
  * @author             shuxiaokai
@@ -47,25 +48,37 @@ type ForestData = {
  * @param {function}   fn 每次遍历执行得函数
  * @param {string}     childrenKey children对应字段
  */
-export function forEachForest<K extends keyof ForestData>(forest: ForestData[], fn: (arg: ForestData[K]) => void, options?: { childrenKey?: K }): void {
+export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }
     const childrenKey = options?.childrenKey || "children";
-    const foo = (forestData: ForestData[], hook: (arg: ForestData[K]) => void) => {
+    const foo = (forestData: T[], hook: (arg: T) => void) => {
         for (let i = 0; i < forestData.length; i += 1) {
             const currentData = forestData[i];
             hook(currentData);
             if (!currentData[childrenKey]) {
                 continue;
             }
-            if (Array.isArray(currentData[childrenKey])) {
+            if (!Array.isArray(currentData[childrenKey])) {
                 continue;
             }
-            if ((currentData[childrenKey]).length > 0) {
-                foo(currentData[childrenKey], hook);
+            if ((currentData[childrenKey] as T[]).length > 0) {
+                foo(currentData[childrenKey] as T[], hook);
             }
         }
     };
     foo(forest, fn);
+}
+
+let canvas: HTMLCanvasElement | null;
+/**
+ * 获取字符串宽度
+ */
+export function getTextWidth(text: string, font: string): number {
+    canvas || (canvas = document.createElement("canvas"));
+    const context = canvas.getContext("2d");
+    (context as CanvasRenderingContext2D).font = font;
+    const metrics = (context as CanvasRenderingContext2D).measureText(text);
+    return metrics.width;
 }

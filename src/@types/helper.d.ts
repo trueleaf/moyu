@@ -1,5 +1,5 @@
 import { LoDashStatic } from "lodash"
-import { forEachForest } from "@/helper/index"
+import { forEachForest, getTextWidth } from "@/helper/index"
 
 type IsEqual = LoDashStatic["isEqual"];
 type CloneDeep = LoDashStatic["CloneDeep"];
@@ -17,6 +17,10 @@ interface Helper {
      * 遍历树形数据
      */
     forEachForest: typeof forEachForest,
+    /**
+     * 获取字符串宽度
+     */
+    getTextWidth: typeof getTextWidth,
 }
 
 export { Helper, IsEqual, CloneDeep, Uuid, GetType }
