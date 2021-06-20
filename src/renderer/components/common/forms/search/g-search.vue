@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, VNode } from "vue"
 import config from "@/../config/config"
 
 export default defineComponent({
@@ -67,12 +67,12 @@ export default defineComponent({
     computed: {
         labelWidth(): string { //搜索框文案宽度
             // const formItems = this.$slots.default || [];
-            // if (this.$slots.default) {
-            //     const allSlots = this.$slots.default();
-            //     this.$helper.forEachForest(allSlots, (slot) => {
-            //         console.log(slot);
-            //     })
-            // }
+            if (this.$slots.default) {
+                const allSlots = this.$slots.default();
+                this.$helper.forEachForest(allSlots, (slot: VNode) => {
+                    console.log(222, slot)
+                })
+            }
             // const widgets = formItems.map((val) => {
             //     const { componentOptions } = val;
             //     const propsData = componentOptions ? componentOptions.propsData : null;

@@ -14,6 +14,7 @@
 import { defineComponent } from "vue"
 
 export default defineComponent({
+    name: "SearchItem",
     props: {
         label: { //文案
             type: String,
