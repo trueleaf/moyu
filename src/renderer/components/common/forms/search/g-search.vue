@@ -34,6 +34,11 @@ import { defineComponent, VNode } from "vue"
 import config from "@/../config/config"
 
 export default defineComponent({
+    provide() {
+        return {
+            formInfo: this.formInfo,
+        };
+    },
     props: {
         editData: { //传递进来得数据，会与组件内部formInfo进行合并
             type: Object,
@@ -53,7 +58,6 @@ export default defineComponent({
         return {
             labelWidth: "100px", //表单label宽度
             formInfo: {}, //搜索参数
-            // //=====================================高级筛选相关====================================//
             couldShowLoadMore: false, //是否允许高级筛选
             isFold: true, //是否折叠
             //=====================================其他参数====================================//
@@ -61,8 +65,20 @@ export default defineComponent({
             loading: false, //是否正在加载
         };
     },
+    watch: {
+        editData: {
+            handler(data) {
+                Object.keys(data).forEach((key) => {
+                    this.$set(this.formInfo, key, data[key]);
+                });
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
     mounted() {
         this.initLabelWidth(); //初始化label的宽度
+        this.initFormData(); //初始化表单数据绑定
     },
     methods: {
         //初始化label的宽度
@@ -89,6 +105,19 @@ export default defineComponent({
             }));
             const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
             this.labelWidth = `${Math.ceil(realWidth)}px`
+        },
+        //初始化表单参数
+        initFormData() {
+            if (this.$slots.default) {
+                const allSlots = this.$slots.default();
+                this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+                    const slotType = slot.type;
+                    const { props } = slot;
+                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
+                        console.log(222, props)
+                    }
+                })
+            }
         },
         //展开项目
         handleExpand() {
