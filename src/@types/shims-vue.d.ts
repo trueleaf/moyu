@@ -16,6 +16,7 @@ declare module "@vue/runtime-core" {
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
+        $set(target: Record<string, unknown>, key: string, value: unknown): void,
     }
 }
 declare module "*.vue" {
