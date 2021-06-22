@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <s-card>
+    <s-card class="s-search">
         <div v-if="config.isDev && showTip">
             {{ formInfo }}
         </div>
@@ -169,5 +169,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-
+.s-search {
+    .el-form-item {
+        margin-bottom: size(10);
+    }
+}
 </style>
