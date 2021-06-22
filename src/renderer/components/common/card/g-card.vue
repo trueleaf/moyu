@@ -54,7 +54,7 @@ export default defineComponent({
 <style lang="scss">
 .s-card {
     width: 100%;
-    border: 1px solid $gray-200;
+    border: 1px solid $gray-300;
     background: $white;
     border-radius: $border-radius-base;
     display: flex;

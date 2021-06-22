@@ -8,7 +8,13 @@
     <!-- 普通输入框 -->
     <s-col v-if="type === 'input'" v-bind="$attrs">
         <el-form-item :label="realLabel" :prop="prop">
-            <s-input v-model="formInfo[prop]" :placeholder="realPlaceholder"></s-input>
+            <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder"></s-input>
+        </el-form-item>
+    </s-col>
+    <!-- 下拉搜索框 -->
+    <s-col v-if="type === 'select'" v-bind="$attrs">
+        <el-form-item :label="realLabel" :prop="prop">
+            <s-select v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder"></s-select>
         </el-form-item>
     </s-col>
 </template>
@@ -38,8 +44,7 @@ export default defineComponent({
         },
     },
     data() {
-        return {
-        };
+        return {};
     },
     computed: {
         realLabel(): string { //实际label值，自动拼接

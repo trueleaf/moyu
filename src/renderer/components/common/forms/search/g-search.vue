@@ -19,8 +19,8 @@
             <div class="d-flex a-center">
                 <el-button :size="config.renderConfig.layout.size" type="primary" :disabled="loading" @click="handleSearch">搜索</el-button>
                 <el-button :size="config.renderConfig.layout.size" type="warning" :disabled="loading" @click="handleReset">重置</el-button>
-                <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading" @click="handleExpand">
-                    <span v-if="!isFold">更多筛选</span>
+                <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading" @click="toggleExpand">
+                    <span v-if="isFold">更多筛选</span>
                     <span v-else>折叠筛选</span>
                 </el-button>
                 <slot name="operation" />
@@ -36,7 +36,7 @@ import config from "@/../config/config"
 export default defineComponent({
     provide() {
         return {
-            formInfo: this.formInfo,
+            formInfo: this.formInfo, //将formInfo注入到item中
         };
     },
     props: {
@@ -52,17 +52,22 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        foldedHeight: { //折叠后显示高度
+            type: Number,
+            default: 50,
+        },
     },
-    emits: ["change", "reset"],
+    emits: ["search", "reset", "change"],
     data() {
         return {
-            labelWidth: "100px", //表单label宽度
-            formInfo: {}, //搜索参数
-            couldShowLoadMore: false, //是否允许高级筛选
-            isFold: true, //是否折叠
+            formInfo: {} as Record<string, unknown>, //---搜索参数
+            originFormInfo: {}, //------------------------原始formInfo值(reset时候会用到)
             //=====================================其他参数====================================//
-            config, //-----------配置相关信息
-            loading: false, //是否正在加载
+            couldShowLoadMore: false, //------------------是否允许高级筛选
+            labelWidth: "100px", //-----------------------表单label宽度
+            config, //------------------------------------配置相关信息
+            isFold: false, //-----------------------------是否折叠
+            loading: false, //----------------------------是否正在加载
         };
     },
     watch: {
@@ -79,6 +84,7 @@ export default defineComponent({
     mounted() {
         this.initLabelWidth(); //初始化label的宽度
         this.initFormData(); //初始化表单数据绑定
+        this.checkFormHeight(); //检查是否显示折叠按钮
     },
     methods: {
         //初始化label的宽度
@@ -114,38 +120,47 @@ export default defineComponent({
                     const slotType = slot.type;
                     const { props } = slot;
                     if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
-                        console.log(222, props)
+                        if (props && props.prop) {
+                            this.formInfo[props.prop] = null;
+                        }
                     }
                 })
+                this.originFormInfo = JSON.parse(JSON.stringify(this.formInfo));
             }
         },
-        //展开项目
-        handleExpand() {
-            // console.log(this.$helper.cloneDeep())
-            // const el = this.formDom.$el;
-            // if (this.isFold) {
-            //     if (el) {
-            //         el.style.height = `${this.itemDom.getBoundingClientRect().height * 1}px`;
-            //         el.style.overflow = "hidden";
-            //     }
-            // } else if (el) {
-            //     el.style.height = "auto";
-            //     el.style.overflow = "visible";
-            // }
+        //检查是否显示折叠按钮
+        checkFormHeight() {
+            const { form } = this.$refs;
+            const formDom = (form as { $el: HTMLElement }).$el;
+            const formHeight = formDom.getBoundingClientRect().height;
+            if (formHeight > this.foldedHeight * 2) {
+                this.couldShowLoadMore = true;
+                this.isFold = true;
+                formDom.style.height = `${this.foldedHeight}px`;
+                formDom.style.overflow = "hidden";
+            }
+        },
+        //展开折叠项目
+        toggleExpand() {
+            const { form } = this.$refs;
+            const formDom = (form as { $el: HTMLElement }).$el;
+            if (!this.isFold) {
+                formDom.style.height = `${this.foldedHeight}px`;
+                formDom.style.overflow = "hidden";
+            } else {
+                formDom.style.height = "auto";
+                formDom.style.overflow = "visible";
+            }
             this.isFold = !this.isFold;
         },
         //触发搜索事件
         handleSearch() {
             this.$emit("change", this.formInfo);
+            this.$emit("search", this.formInfo);
         },
         //触发重置事件
         handleReset() {
-            // Object.assign(this.formInfo, this.originFormInfo);
-            // if (this.getComponenstByName("SCascader")) {
-            //     this.getComponenstByName("SCascader").forEach((component) => {
-            //         component.reset();
-            //     });
-            // }
+            Object.assign(this.formInfo, this.originFormInfo);
             this.$emit("change", this.formInfo);
             this.$emit("reset");
         },
