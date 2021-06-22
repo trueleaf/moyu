@@ -19,7 +19,7 @@
     "core-js": "^3.6.5",
     "dayjs": "^1.10.5",
     "electron-updater": "^4.3.9",
-    "element-plus": "^1.0.2-beta.46",
+    "element-plus": "^1.0.2-beta.47",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
     "mitt": "^2.1.0",

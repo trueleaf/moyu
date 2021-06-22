@@ -4643,10 +4643,10 @@ elegant-spinner@^1.0.1:
   resolved "https://registry.nlark.com/elegant-spinner/download/elegant-spinner-1.0.1.tgz#db043521c95d7e303fd8f345bedc3349cfb0729e"
   integrity sha1-2wQ1IcldfjA/2PNFvtwzSc+wcp4=
 
-element-plus@^1.0.2-beta.46:
-  version "1.0.2-beta.46"
-  resolved "https://registry.nlark.com/element-plus/download/element-plus-1.0.2-beta.46.tgz#2423dcc56ce4285d7f2365ebd5622b8b3c7d053b"
-  integrity sha1-JCPcxWzkKF1/I2Xr1WIrizx9BTs=
+element-plus@^1.0.2-beta.47:
+  version "1.0.2-beta.48"
+  resolved "https://registry.nlark.com/element-plus/download/element-plus-1.0.2-beta.48.tgz#8da99decd397b9975cd894d389096d2ed58c699e"
+  integrity sha1-jamd7NOXuZdc2JTTiQltLtWMaZ4=
   dependencies:
     "@popperjs/core" "^2.4.4"
     "@types/lodash" "^4.14.161"
