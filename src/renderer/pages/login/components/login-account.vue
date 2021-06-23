@@ -108,7 +108,7 @@ export default defineComponent({
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;
                         } else {
-                            this.$router.push("/v1/apidoc/doc-list");
+                            this.$router.push("/layout/permission");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }
                     }).catch((err) => {

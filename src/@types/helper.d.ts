@@ -1,18 +1,26 @@
 import { LoDashStatic } from "lodash"
-import { forEachForest, getTextWidth } from "@/helper/index"
+import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate } from "@/helper/index"
 
 type IsEqual = LoDashStatic["isEqual"];
 type CloneDeep = LoDashStatic["CloneDeep"];
 
-type Uuid = () => string;
-
-type GetType = (variable: unknown) => string;
-
 interface Helper {
+    /**
+     * 两个变量是否相等
+     */
     isEqual: IsEqual,
+    /**
+     * 深拷贝
+     */
     cloneDeep: CloneDeep,
-    uuid: Uuid,
-    getType: GetType,
+    /**
+     * 获取uuid
+     */
+    uuid: typeof uuid,
+    /**
+     * 获取变量类型
+     */
+    getType: typeof getType,
     /**
      * 遍历树形数据
      */
@@ -21,6 +29,18 @@ interface Helper {
      * 获取字符串宽度
      */
     getTextWidth: typeof getTextWidth,
+    /**
+     * 获取随机提示信息
+     */
+    randomTip: typeof randomTip,
+    /**
+     * 防抖函数debounce
+     */
+    debounce: typeof debounce,
+    /**
+     * 格式化时间
+     */
+     formatDate: typeof formatDate,
 }
 
 export { Helper, IsEqual, CloneDeep, Uuid, GetType }
