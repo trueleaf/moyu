@@ -13,23 +13,38 @@ import { defineComponent } from "vue"
 
 export default defineComponent({
     props: {
+        /**
+         * 非发送之前文案
+         */
         startLabel: {
             type: String,
             default: "获取验证码",
         },
+        /**
+         * 发送中文案，最终文案 数字+秒+后+发送
+         */
         waitLabel: {
             type: String,
             default: "重新发送"
         },
+        /**
+         * 发送完成后
+         */
         endLabel: {
             type: String,
             default: "重新获取"
         },
-        hook: { //点击前钩子
+        /**
+         * 点击按钮前钩子
+         */
+        hook: {
             type: Function,
             default: null
         },
-        countdown: { //倒计时
+        /**
+         * 倒计时时长
+         */
+        countdown: {
             type: Number,
             default: 60
         },

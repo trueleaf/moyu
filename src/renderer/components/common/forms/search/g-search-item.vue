@@ -26,19 +26,31 @@ export default defineComponent({
     name: "SearchItem",
     inject: ["formInfo"],
     props: {
-        type: { //表单组件类型 input select date daterange text
+        /**
+         * 表单组件类型 input select date daterange text
+         */
+        type: {
             type: String,
             default: "input",
         },
-        label: { //文案
+        /**
+         * 文案
+         */
+        label: {
             type: String,
             default: ""
         },
-        placeholder: { //placeholder
+        /**
+         * placeholder
+         */
+        placeholder: {
             type: String,
             default: "",
         },
-        prop: { //绑定参数的字段名称
+        /**
+         * 绑定参数的字段名称
+         */
+        prop: {
             type: [String, Number, Boolean, Array],
             default: "",
         },

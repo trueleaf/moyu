@@ -24,14 +24,23 @@ import config from "@/../config/config"
 
 export default defineComponent({
     props: {
-        value: { //v-model绑定的值
+        /**
+         * v-model绑定的值
+         */
+        value: {
             type: [String, Number, Boolean, Array],
             default: "",
         },
-        className: { //自定义class值
+        /**
+         * 自定义class值
+         */
+        className: {
             type: String,
             default: "w-100",
         },
+        /**
+         * placeholder(翻译为占位符)
+         */
         placeholder: {
             type: String,
             default: "",

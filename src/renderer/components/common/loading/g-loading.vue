@@ -16,6 +16,9 @@ import { defineComponent } from "vue"
 
 export default defineComponent({
     props: {
+        /**
+         * 加载中状态
+         */
         loading: {
             type: Boolean,
             default: false,

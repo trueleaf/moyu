@@ -27,15 +27,24 @@ import config from "@/../config/config"
 
 export default defineComponent({
     props: {
-        formInfo: { //表单数据
+        /**
+         * 表单数据
+         */
+        formInfo: {
             type: Object,
             default: () => ({})
         },
-        showTips: { //是否formInfo打印,生产环境不生效
+        /**
+         * 是否formInfo打印,生产环境不生效
+         */
+        showTips: {
             type: Boolean,
             default: false,
         },
-        showRules: { //展示rules,生产环境无效
+        /**
+         * 展示rules,生产环境无效
+         */
+        showRules: {
             type: Boolean,
             default: false,
         },

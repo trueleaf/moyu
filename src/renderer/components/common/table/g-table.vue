@@ -198,7 +198,6 @@ export default defineComponent({
             }
             this.initTableHeight();
             window.addEventListener("resize", this.$helper.debounce(() => {
-                console.log(222)
                 this.initTableHeight();
             }, 300))
         },

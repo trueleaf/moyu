@@ -40,19 +40,31 @@ export default defineComponent({
         };
     },
     props: {
-        editData: { //传递进来得数据，会与组件内部formInfo进行合并
+        /**
+         * 传递进来得数据，会与组件内部formInfo进行合并
+         */
+        editData: {
             type: Object,
             default: () => ({}),
         },
-        showTip: { //是否formInfo打印,生产环境自动忽略当前值
+        /**
+         * 是否formInfo打印,生产环境自动忽略当前值
+         */
+        showTip: {
             type: Boolean,
             default: true,
         },
-        autoRequest: { //是否触发自动请求
+        /**
+         * 是否触发自动请求
+         */
+        autoRequest: {
             type: Boolean,
             default: false
         },
-        foldedHeight: { //折叠后显示高度
+        /**
+         * 折叠后显示高度
+         */
+        foldedHeight: {
             type: Number,
             default: 50,
         },

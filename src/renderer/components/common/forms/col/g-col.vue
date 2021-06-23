@@ -15,11 +15,17 @@ import { defineComponent } from "vue"
 
 export default defineComponent({
     props: {
-        oneLine: { //是否一行显示
+        /**
+         * 是否一行显示
+         */
+        oneLine: {
             type: Boolean,
             default: false,
         },
-        halfLine: { //是否只显示半行
+        /**
+         * 是否只显示半行
+         */
+        halfLine: {
             type: Boolean,
             default: false,
         },
