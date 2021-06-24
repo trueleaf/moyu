@@ -15,9 +15,9 @@
                 <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
                     <el-button :loading="loading" size="mini" type="primary" icon="el-icon-upload" @click="loading = true">下载模板</el-button>
                 </s-download>
-                <!-- <s-upload-plain url="/api/security/add_user_by_excel" excel @success="getData" @upload="loading2 = true" @finish="loading2 = false">
+                <s-upload-plain url="/api/security/add_user_by_excel" excel @success="getData" @upload="loading2 = true" @finish="loading2 = false">
                     <el-button :loading="loading2" size="mini" type="primary" icon="el-icon-upload">导入用户</el-button>
-                </s-upload-plain> -->
+                </s-upload-plain>
             </template>
         </s-search>
         <!-- 表格展示 -->
@@ -56,13 +56,18 @@
                 </template> -->
             </el-table-column>
         </s-table>
+        <s-add-user-dialog v-model="addUserDialog" @success="getData"></s-add-user-dialog>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import addUserDialog from "./add/add.vue"
 
 export default defineComponent({
+    components: {
+        "s-add-user-dialog": addUserDialog,
+    },
     data() {
         return {
             addUserDialog: false,
@@ -71,11 +76,11 @@ export default defineComponent({
         };
     },
     methods: {
-        getData() {
-            console.log(22)
+        getData(params: Record<string, unknown>) {
+            (this.$refs.table as { getData(params: Record<string, unknown>):void }).getData(params);
         },
         handleChange(params: Record<string, unknown>) {
-            (this.$refs.table as { getData(params: Record<string, unknown>):void }).getData(params);
+            this.getData(params)
         },
     },
 })

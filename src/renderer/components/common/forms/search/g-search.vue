@@ -86,7 +86,7 @@ export default defineComponent({
         editData: {
             handler(data) {
                 Object.keys(data).forEach((key) => {
-                    this.$set(this.formInfo, key, data[key]);
+                    this.formInfo[key] = data[key]
                 });
             },
             deep: true,
@@ -131,7 +131,7 @@ export default defineComponent({
                 this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
                     const slotType = slot.type;
                     const { props } = slot;
-                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
+                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name === "SearchItem") {
                         if (props && props.prop) {
                             this.formInfo[props.prop] = null;
                         }

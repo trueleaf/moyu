@@ -27,17 +27,33 @@ import { defineComponent } from "vue"
 
 export default defineComponent({
     props: {
+        /**
+         * 是否显示dialog
+         */
         modelValue: {
             type: Boolean,
             default: false,
         },
+        /**
+         * 标题
+         */
         title: {
             type: String,
             default: "",
         },
-        easyClose: { //是否可以通过escape和点击model关闭
+        /**
+         * 是否可以通过escape和点击model关闭
+         */
+        easyClose: {
             type: Boolean,
             default: false,
+        },
+        /**
+         * https://www.vue3js.cn/docs/zh/guide/component-attrs.html
+         */
+        class: {
+            type: String,
+            default: "",
         },
     },
     emits: ["update:modelValue", "close"],
