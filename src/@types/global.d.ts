@@ -3,15 +3,13 @@
 interface Response<T> {
     code: number, //状态码
     msg: string, //登录名称
-    data?: T
+    data: T
 }
 
 /**
- * @description        用户信息
- * @author             shuxiaokai
- * @create             2021-06-14 14:43
+ * 用户信息
  */
- interface UserInfo {
+ type UserInfo = {
      id: string, //用户id
      loginName: string, //登录名称
      phone: string, //手机号码
@@ -19,12 +17,15 @@ interface Response<T> {
      roleIds: Array<string>, //角色id列表
 }
 /**
- * @description        顶部导航菜单
- * @author             shuxiaokai
- * @create             2021-06-14 14:35
+ * 顶部导航菜单
  */
-interface Menu {
+type Menu = {
     name: string,
     path: string,
 }
-export { Menu, UserInfo, Response }
+/**
+ * 角色信息
+ */
+type RoleEnum = { _id: string, roleName: string }[];
+
+export { Menu, UserInfo, Response, RoleEnum }

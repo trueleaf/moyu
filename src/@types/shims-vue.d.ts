@@ -2,19 +2,14 @@ import { Store } from "vuex"
 import { AxiosInstance } from "axios"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
-import { ElMessageBoxShortcutMethod } from "element-plus"
+import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
 
 declare module "@vue/runtime-core" {
     import { ComponentCustomProperties } from "vue"
-    interface ElMessage {
-        success<T>(msg: T) : void,
-        warning<T>(msg: T) : void,
-        danger<T>(msg: T) : void,
-    }
     interface ComponentCustomProperties {
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
-        $message: ElMessage,
+        $message: typeof ElMessage,
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
