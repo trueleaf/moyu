@@ -3,17 +3,31 @@ import { AxiosInstance } from "axios"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
 import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
+type Data = Record<string, unknown>;
 
 declare module "@vue/runtime-core" {
     import { ComponentCustomProperties } from "vue"
     interface ComponentCustomProperties {
+        $refs: {
+            form: {
+                validate: (fn: (valid: boolean) => void) => void,
+                validateField: (field: string) => void,
+                resetFields: () => void,
+                $el: HTMLElement,
+                formInfo: Data,
+            }
+            table: {
+                getData: (params?: Data) => void,
+                $el: HTMLElement,
+            },
+        },
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
         $message: typeof ElMessage,
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
-        $set(target: Record<string, unknown>, key: string, value: unknown): void,
+        $set(target: Data, key: string, value: unknown): void,
     }
 }
 declare module "*.vue" {
