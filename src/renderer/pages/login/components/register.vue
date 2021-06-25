@@ -32,7 +32,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ElForm } from "@@/elementui"
 
 export default defineComponent({
     data() {
@@ -76,7 +75,7 @@ export default defineComponent({
                 callback(new Error("数字+字符串，并且大于8位"));
             } else {
                 if (this.registerInfo.password2 !== "") {
-                    (this.$refs.form as ElForm).validateField("password2");
+                    this.$refs.form.validateField("password2");
                 }
                 callback();
             }
@@ -116,7 +115,7 @@ export default defineComponent({
         },
         //用户注册
         handleRegister() {
-            (this.$refs.form as ElForm).validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     const userInfo = {
                         loginName: this.registerInfo.loginName,

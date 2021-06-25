@@ -64,7 +64,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ElForm } from "@@/elementui"
 import { UserInfo, Response } from "@@/global"
 import config from "@/../config/config"
 
@@ -100,7 +99,7 @@ export default defineComponent({
     methods: {
         //用户名密码登录
         handleLogin() {
-            (this.$refs.form as ElForm).validate((valid: boolean) => {
+            this.$refs.form.validate((valid: boolean) => {
                 if (valid) {
                     this.loading = true;
                     this.axios.post<Response<UserInfo>, Response<UserInfo>>("/api/security/login_password", this.userInfo).then((res: Response<UserInfo>) => {

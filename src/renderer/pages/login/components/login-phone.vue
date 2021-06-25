@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ElForm } from "@@/elementui"
 import { UserInfo, Response } from "@@/global";
 
 export default defineComponent({
@@ -63,7 +62,7 @@ export default defineComponent({
         },
         //手机号登录
         handleLogin() {
-            (this.$refs.form as ElForm).validate((valid) => {
+            this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
                     this.axios.post<Response<UserInfo>, Response<UserInfo>>("/api/security/login_phone", this.userInfo).then((res: Response<UserInfo>) => {

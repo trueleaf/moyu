@@ -48,12 +48,12 @@
                 </template>
             </el-table-column>
             <el-table-column label="操作" align="center" width="200px">
-                <!-- <template #default="scope">
+                <template #default="scope">
                     <el-button type="text" @click="handleOpenEditUser(scope.row)">修改用户信息</el-button>
                     <el-button type="text" @click="handleForbidRole(scope.row._id, scope.row.enable)">
                         {{ scope.row.enable ? "禁用" : "启用" }}
                     </el-button>
-                </template> -->
+                </template>
             </el-table-column>
         </s-table>
         <s-add-user-dialog v-model="addUserDialog" @success="getData"></s-add-user-dialog>
@@ -70,17 +70,51 @@ export default defineComponent({
     },
     data() {
         return {
-            addUserDialog: false,
-            loading: false,
-            loading2: false,
+            roleId: "", //----------------------------编辑时候用户id
+            roleIds: [] as string[], //---------------编辑时候已存在角色信息
+            addUserDialog: false, //------------------新增用户弹窗
+            editUserDialog: false, //-----------------编辑用户弹窗
+            loading: false, //------------------------下载模板加载效果
+            loading2: false, //-----------------------批量导入用户加载效果
         };
     },
     methods: {
+        //获取用户基本信息
         getData(params: Record<string, unknown>) {
-            (this.$refs.table as { getData(params: Record<string, unknown>):void }).getData(params);
+            this.$refs.table.getData(params);
         },
+        //搜索用户
         handleChange(params: Record<string, unknown>) {
             this.getData(params)
+        },
+        //禁用角色
+        handleForbidRole(_id: string, enable: boolean) {
+            const tipLabel = enable ? "禁用" : "启用";
+            this.$confirm(`确实要${tipLabel}该用户吗?`, "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                const params = {
+                    _id,
+                    enable: !enable,
+                };
+                this.axios.put("/api/security/user_state", params).then(() => {
+                    this.$refs.table.getData();
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }).catch((err: Error | string) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                console.error(err);
+            });
+        },
+        handleOpenEditUser(row: { _id: string, roleIds: string[] }) {
+            this.roleId = row._id;
+            this.roleIds = row.roleIds;
+            this.editUserDialog = true;
         },
     },
 })

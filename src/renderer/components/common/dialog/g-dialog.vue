@@ -48,13 +48,6 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
-        /**
-         * https://www.vue3js.cn/docs/zh/guide/component-attrs.html
-         */
-        class: {
-            type: String,
-            default: "",
-        },
     },
     emits: ["update:modelValue", "close"],
     methods: {

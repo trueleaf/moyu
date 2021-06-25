@@ -243,7 +243,7 @@ export default defineComponent({
         //=========================================================================//
         //初始化
         initTableHeight() {
-            const tableDom: HTMLElement = (this.$refs.table as { $el: HTMLElement }).$el;
+            const tableDom = this.$refs.table.$el;
             //hack
             setTimeout(() => {
                 const { top } = tableDom.getBoundingClientRect(); //表格距离顶部距离

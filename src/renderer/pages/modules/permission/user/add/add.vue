@@ -5,15 +5,15 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" class="add-user" title="新增用户(默认密码111111)" @close="handleClose">
+    <s-dialog :model-value="modelValue" title="新增用户(默认密码111111)" @close="handleClose">
         <el-divider content-position="left">基础信息</el-divider>
-        <s-form ref="form" :form-info="formInfo" show-tips show-rules>
+        <s-form ref="form">
             <s-form-item label="登录名称" prop="loginName" required half-line></s-form-item>
             <s-form-item label="真实姓名" prop="realName" required half-line></s-form-item>
-            <s-form-item label="手机号" prop="phone" half-line phone></s-form-item>
+            <s-form-item label="手机号" prop="phone" half-line phone required></s-form-item>
         </s-form>
         <el-divider content-position="left">角色选择</el-divider>
-        <el-checkbox-group v-model="formInfo.roleIds">
+        <el-checkbox-group v-model="roleIds">
             <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
         </el-checkbox-group>
         <template #footer>
@@ -39,12 +39,9 @@ export default defineComponent({
     emits: ["success", "update:modelValue"],
     data() {
         return {
-            formInfo: { //----------表单信息
-                roleIds: [],
-                roleNames: [],
-            },
+            roleIds: [] as string[], //---------角色id列表
             roleEnum: [] as RoleEnum, //--------角色枚举信息
-            loading: false, //------新增角色按钮
+            loading: false, //------------------新增角色按钮
         };
     },
     created() {
@@ -61,7 +58,35 @@ export default defineComponent({
         },
         //新增用户
         handleAddUser() {
-            console.log(2)
+            this.$refs.form.validate((valid) => {
+                if (valid) {
+                    const { formInfo } = this.$refs.form;
+                    const roleNames = this.roleIds.map((val) => {
+                        const user = this.roleEnum.find((role) => role._id === val);
+                        return user ? user.roleName : "";
+                    });
+                    const params = {
+                        loginName: formInfo.loginName,
+                        realName: formInfo.realName,
+                        phone: formInfo.phone,
+                        roleIds: this.roleIds,
+                        roleNames,
+                    };
+                    this.loading = true;
+                    this.axios.post("/api/security/useradd", params).then(() => {
+                        this.$emit("success");
+                        this.handleClose();
+                    }).catch((err) => {
+                        console.error(err);
+                    }).finally(() => {
+                        this.loading = false;
+                    });
+                } else {
+                    this.$nextTick(() => (document.querySelector(".el-form-item.is-error input") as HTMLInputElement)?.focus());
+                    this.$message.warning("请完善必填信息");
+                    this.loading = false;
+                }
+            });
         },
         //关闭弹窗
         handleClose() {
@@ -72,9 +97,9 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.add-user {
-    .el-dialog__body {
-        padding-top: 0;
-    }
-}
+// .add-user {
+//     .el-dialog__body {
+//         padding-top: 0;
+//     }
+// }
 </style>

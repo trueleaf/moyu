@@ -25,5 +25,9 @@ body {
     .el-form--label-top .el-form-item__label {
         padding: 0;
     }
+    .el-dialog__body {
+        padding-top: 0;
+        padding-bottom: size(10);
+    }
 }
 

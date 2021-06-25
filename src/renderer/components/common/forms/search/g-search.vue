@@ -143,7 +143,7 @@ export default defineComponent({
         //检查是否显示折叠按钮
         checkFormHeight() {
             const { form } = this.$refs;
-            const formDom = (form as { $el: HTMLElement }).$el;
+            const formDom = form.$el;
             const formHeight = formDom.getBoundingClientRect().height;
             if (formHeight > this.foldedHeight * 2) {
                 this.couldShowLoadMore = true;
@@ -155,7 +155,7 @@ export default defineComponent({
         //展开折叠项目
         toggleExpand() {
             const { form } = this.$refs;
-            const formDom = (form as { $el: HTMLElement }).$el;
+            const formDom = form.$el;
             if (!this.isFold) {
                 formDom.style.height = `${this.foldedHeight}px`;
                 formDom.style.overflow = "hidden";
