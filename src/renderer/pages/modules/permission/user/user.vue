@@ -57,23 +57,25 @@
             </el-table-column>
         </s-table>
         <s-add-user-dialog v-model="addUserDialog" @success="getData"></s-add-user-dialog>
+        <s-edit-user-dialog v-if="editUserDialog" v-model="editUserDialog" :user-id="editUserId" @success="getData"></s-edit-user-dialog>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 import addUserDialog from "./add/add.vue"
+import editUserDialog from "./edit/edit.vue"
 
 export default defineComponent({
     components: {
         "s-add-user-dialog": addUserDialog,
+        "s-edit-user-dialog": editUserDialog,
     },
     data() {
         return {
-            roleId: "", //----------------------------编辑时候用户id
-            roleIds: [] as string[], //---------------编辑时候已存在角色信息
             addUserDialog: false, //------------------新增用户弹窗
             editUserDialog: false, //-----------------编辑用户弹窗
+            editUserId: "", //------------------------编辑时候用户id
             loading: false, //------------------------下载模板加载效果
             loading2: false, //-----------------------批量导入用户加载效果
         };
@@ -111,9 +113,8 @@ export default defineComponent({
                 console.error(err);
             });
         },
-        handleOpenEditUser(row: { _id: string, roleIds: string[] }) {
-            this.roleId = row._id;
-            this.roleIds = row.roleIds;
+        handleOpenEditUser(row: { _id: string }) {
+            this.editUserId = row._id;
             this.editUserDialog = true;
         },
     },

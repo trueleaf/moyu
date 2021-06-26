@@ -243,13 +243,15 @@ export default defineComponent({
         //=========================================================================//
         //初始化
         initTableHeight() {
-            const tableDom = this.$refs.table.$el;
-            //hack
-            setTimeout(() => {
-                const { top } = tableDom.getBoundingClientRect(); //表格距离顶部距离
-                const height = this.height || window.innerHeight - top - 70; //100是试出来
-                this.tableHeight = height < 200 ? "200px" : `${height}px`; //高度至少200px
-            })
+            const tableDom = this.$refs.table?.$el;
+            if (tableDom) {
+                //hack
+                setTimeout(() => {
+                    const { top } = tableDom.getBoundingClientRect(); //表格距离顶部距离
+                    const height = this.height || window.innerHeight - top - 70; //100是试出来
+                    this.tableHeight = height < 200 ? "200px" : `${height}px`; //高度至少200px
+                })
+            }
         },
         //选择了数据
         handleSelectionChange(val: Record<string, unknown>[]) {

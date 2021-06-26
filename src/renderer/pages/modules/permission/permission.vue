@@ -8,11 +8,11 @@
     <div class="s-permission">
         <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
             <el-tab-pane label="用户" name="s-user"></el-tab-pane>
-            <el-tab-pane label="角色维护" name="s-role"> </el-tab-pane>
-            <el-tab-pane label="路由维护" name="s-routes"> </el-tab-pane>
-            <el-tab-pane label="菜单维护" name="s-menu"> </el-tab-pane>
+            <el-tab-pane label="角色维护" name="s-role"></el-tab-pane>
+            <el-tab-pane label="路由维护" name="s-routes"></el-tab-pane>
+            <el-tab-pane label="菜单维护" name="s-menu"></el-tab-pane>
         </el-tabs>
-        <components :is="activeName"></components>
+        <component :is="activeName"></component>
     </div>
 </template>
 
