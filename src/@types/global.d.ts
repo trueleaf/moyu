@@ -24,8 +24,31 @@ type Menu = {
     path: string,
 }
 /**
- * 角色信息
+ * 角色枚举信息
  */
 type RoleEnum = { _id: string, roleName: string }[];
 
-export { Menu, UserInfo, Response, RoleEnum }
+/**
+ * 前端路由列表
+ */
+type ClientRoute = {
+    /**
+     * 分组名称
+     */
+    groupName: string,
+    /**
+     * 路由名称
+     */
+    name: string,
+    /**
+     * 路径
+     */
+    path: string,
+    /**
+     * 路由id
+     */
+    _id: string,
+    __select: boolean,
+}
+
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute }
