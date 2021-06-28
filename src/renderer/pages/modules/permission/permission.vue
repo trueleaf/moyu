@@ -19,10 +19,12 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import user from "./user/user.vue"
+import role from "./role/role.vue"
 
 export default defineComponent({
     components: {
-        "s-user": user
+        "s-user": user,
+        "s-role": role,
     },
     data() {
         return {
