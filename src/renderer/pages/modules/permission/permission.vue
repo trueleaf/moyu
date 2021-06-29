@@ -9,8 +9,9 @@
         <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
             <el-tab-pane label="用户" name="s-user"></el-tab-pane>
             <el-tab-pane label="角色维护" name="s-role"></el-tab-pane>
-            <el-tab-pane label="路由维护" name="s-routes"></el-tab-pane>
             <el-tab-pane label="菜单维护" name="s-menu"></el-tab-pane>
+            <el-tab-pane label="前端路由" name="s-client-routes"></el-tab-pane>
+            <el-tab-pane label="后端路由(接口)" name="s-server-routes"></el-tab-pane>
         </el-tabs>
         <component :is="activeName"></component>
     </div>
@@ -20,11 +21,13 @@
 import { defineComponent } from "vue"
 import user from "./user/user.vue"
 import role from "./role/role.vue"
+import clientRoutes from "./client-routes/client-routes.vue"
 
 export default defineComponent({
     components: {
         "s-user": user,
         "s-role": role,
+        "s-client-routes": clientRoutes,
     },
     data() {
         return {
