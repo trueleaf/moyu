@@ -40,7 +40,7 @@ interface Helper {
     /**
      * 格式化时间
      */
-     formatDate: typeof formatDate,
+    formatDate: typeof formatDate,
 }
 
 export { Helper, IsEqual, CloneDeep, Uuid, GetType }

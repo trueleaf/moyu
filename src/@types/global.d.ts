@@ -48,7 +48,27 @@ type ClientRoute = {
      * 路由id
      */
     _id: string,
-    __select: boolean,
+}
+/**
+ * 后端路由列表
+ */
+type ServerRoute = {
+    /**
+     * 分组名称
+     */
+     groupName: string,
+     /**
+      * 路由名称
+      */
+     name: string,
+     /**
+      * 路径
+      */
+     path: string,
+     /**
+      * 路由id
+      */
+     _id: string,
 }
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute }
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute }
