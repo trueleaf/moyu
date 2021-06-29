@@ -24,19 +24,22 @@
         </template>
     </s-table>
     <s-add-role v-if="addRoleDialog" v-model="addRoleDialog" @success="getData"></s-add-role>
-    <!-- <s-edit-role v-model="editRoleDialog" @success="getData"></s-edit-role> -->
+    <s-edit-role v-if="editRoleDialog" v-model="editRoleDialog" :user-id="userId" @success="getData"></s-edit-role>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 import addRole from "./add/add.vue"
+import editRole from "./edit/edit.vue"
 
 export default defineComponent({
     components: {
         "s-add-role": addRole,
+        "s-edit-role": editRole,
     },
     data() {
         return {
+            userId: "", //------------用户id
             addRoleDialog: false, //新增角色弹窗
             editRoleDialog: false, //新增角色弹窗
         };
@@ -47,8 +50,9 @@ export default defineComponent({
             this.$refs.table.getData();
         },
         //修改角色
-        handleOpenEditRole(id: string) {
-            console.log(id)
+        handleOpenEditRole(userId: string) {
+            this.userId = userId;
+            this.editRoleDialog = true;
         },
         //删除角色
         handleDeleteRole(_id: string) {
