@@ -3,6 +3,7 @@ import { AxiosInstance } from "axios"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
 import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
+import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 type Data = Record<string, unknown>;
 
 declare module "@vue/runtime-core" {
@@ -20,6 +21,7 @@ declare module "@vue/runtime-core" {
                 getData: (params?: Data) => void,
                 $el: HTMLElement,
             },
+            tree: TreeNodeOptions["store"],
         },
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
