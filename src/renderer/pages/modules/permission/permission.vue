@@ -21,12 +21,14 @@
 import { defineComponent } from "vue"
 import user from "./user/user.vue"
 import role from "./role/role.vue"
+import menu from "./menu/menu.vue"
 import clientRoutes from "./client-routes/client-routes.vue"
 
 export default defineComponent({
     components: {
         "s-user": user,
         "s-role": role,
+        "s-menu": menu,
         "s-client-routes": clientRoutes,
     },
     data() {
