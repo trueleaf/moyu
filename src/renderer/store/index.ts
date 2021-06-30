@@ -1,14 +1,16 @@
-import { createStore } from "vuex"
-import permission from "./permission/permission";
+import { createStore, Store } from "vuex"
+import { InjectionKey } from "vue"
+import { permission } from "./permission/permission";
+import { PermissionState } from "@@/store"
+interface State {
+    permission: PermissionState,
+}
+export const key: InjectionKey<Store<State>> = Symbol("权限store")
 
-export default createStore({
-    state: {
-    },
-    mutations: {
-    },
-    actions: {
-    },
+const store = createStore<State>({
+    strict: process.env.NODE_ENV !== "production",
     modules: {
         permission,
     }
-})
+});
+export { store };

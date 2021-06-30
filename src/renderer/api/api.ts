@@ -9,7 +9,7 @@ axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCre
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
 
-export default {
+const axiosPlugin = {
     install(app: App): void {
         //===============================axiosInstance请求钩子==========================================//
         axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
@@ -102,5 +102,6 @@ export default {
         );
         app.config.globalProperties.axios = axiosInstance;
     },
-    axios: axiosInstance,
-};
+}
+
+export { axiosPlugin, axiosInstance as axios };

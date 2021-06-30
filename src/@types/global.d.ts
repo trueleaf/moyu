@@ -5,17 +5,7 @@ interface Response<T> {
     msg: string, //登录名称
     data: T
 }
-
-/**
- * 用户信息
- */
- type UserInfo = {
-     id: string, //用户id
-     loginName: string, //登录名称
-     phone: string, //手机号码
-     realName: string, //真实姓名
-     roleIds: Array<string>, //角色id列表
-}
+//=========================================================================//
 /**
  * 顶部导航菜单
  */
@@ -23,11 +13,12 @@ type Menu = {
     name: string,
     path: string,
 }
+//=========================================================================//
 /**
  * 角色枚举信息
  */
 type RoleEnum = { _id: string, roleName: string }[];
-
+//=========================================================================//
 /**
  * 前端路由列表
  */
@@ -49,6 +40,7 @@ type ClientRoute = {
      */
     _id: string,
 }
+//=========================================================================//
 /**
  * 后端路由列表
  */
@@ -70,5 +62,84 @@ type ServerRoute = {
       */
      _id: string,
 }
+//=========================================================================//
+/**
+ * 用户信息
+ */
+ type UserInfo = {
+     /**
+      * 用户id
+      */
+    id: string,
+    /**
+     * 登录名称
+     */
+    loginName: string,
+    /**
+     * 手机号码
+     */
+    phone: string,
+    /**
+     * 真实姓名
+     */
+    realName: string,
+    /**
+     * 角色id列表
+     */
+    roleIds: string[],
+}
+//=========================================================================//
+type ResUserInfo = UserInfo & {
+    /**
+     * 客户端menu，banner信息
+     */
+     clientBanner: {
+        name: string,
+        path: string,
+        id: string,
+    }[],
+    /**
+     * 客户端路由
+     */
+    clientRoutes: {
+        name: string,
+        path: string,
+        id: string,
+    }[],
+}
+//=========================================================================//
+type ResClientMenu = {
+    id?: string,
+    /**
+     * 菜单id
+     */
+    _id: string,
+    /**
+     * 菜单名称
+     */
+    name: string,
+    /**
+     * 菜单路径
+     */
+    path: string,
+    /**
+     * 菜单父元素id
+     */
+    pid: string,
+    /**
+     * 菜单排序
+     */
+    sort: number,
+    /**
+     * 菜单类型，inline:内联菜单  link:外链跳转
+     */
+    type: "inline" | "link",
+    /**
+     * 子菜单
+     */
+    children: ResClientMenu[] | [],
+}
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute }
+//=========================================================================//
+
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu }

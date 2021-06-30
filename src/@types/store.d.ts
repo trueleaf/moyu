@@ -1,7 +1,6 @@
 import { UserInfo, Menu } from "./global"
 import { RouteRecordRaw } from "vue-router"
 
-
 //权限相关state
 interface PermissionState {
     userInfo: UserInfo,
@@ -13,4 +12,4 @@ interface PermissionState {
 interface State {
     permission: PermissionState,
 }
-export { PermissionState, State };
+export { PermissionState, State }
