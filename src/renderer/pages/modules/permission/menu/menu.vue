@@ -5,12 +5,13 @@
     备注：
 */
 <template>
-    <s-left-right>
+    <s-left-right :left-width="500">
         <template #left>
             <s-loading :loading="loading">
                 <s-card title="菜单列表" class="menu-tree">
                     <template #operation>
                         <el-button size="mini" type="text" @click="handleOpenAddDialog">新增</el-button>
+                        <el-button size="mini" type="text" @click="getData">刷新</el-button>
                     </template>
                     <el-tree
                         ref="tree"
@@ -29,25 +30,17 @@
                     >
                         <template #default="{ data }">
                             <div class="tree-node">
-                                <div>
+                                <div class="label">
                                     <img :src="require('@/assets/imgs/apidoc/file.png')" width="14" height="14" class="mr-2" />
                                     <span>{{ data.name }}</span>
                                 </div>
-                                <el-dropdown
-                                    ref="dropdown"
-                                    class="ml-auto mr-2"
-                                    trigger="click"
-                                    @command="handleSelectDropdown"
-                                    @click.stop="() =>{}"
-                                >
-                                    <span class="el-icon-more"></span>
-                                    <template #dropdown>
-                                        <el-dropdown-menu>
-                                            <el-dropdown-item :command="{ type: 'addMenu', data, }">新增菜单</el-dropdown-item>
-                                            <el-dropdown-item :command="{ type: 'delete', data, }">删除</el-dropdown-item>
-                                        </el-dropdown-menu>
-                                    </template>
-                                </el-dropdown>
+                                <div class="ml-auto mr-2">
+                                    <el-button size="mini" type="text" @click="handleOpenAddDialog(data)">新增子菜单</el-button>
+                                    <el-divider direction="vertical"></el-divider>
+                                    <el-button size="mini" type="text" @click="handleOpenEditDialog(data)">编辑</el-button>
+                                    <el-divider direction="vertical"></el-divider>
+                                    <el-button size="mini" type="text" @click="deleteCurrentNode(data)">删除</el-button>
+                                </div>
                             </div>
                         </template>
                     </el-tree>
@@ -62,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, VNode } from "vue"
+import { defineComponent, VNode, ref } from "vue"
 import { Response, ResClientMenu } from "@@/global"
 import addMenuDialog from "./add/add.vue"
 
@@ -70,17 +63,37 @@ export default defineComponent({
     components: {
         "s-add-menu-dialog": addMenuDialog,
     },
+    setup() {
+        const parentId = ref(""); //父元素id
+        const addMenuDialogVisible = ref(false); //新增菜单弹窗
+        const editMenuDialogVisible = ref(false); //修改菜单弹窗
+        //打开新增节点弹窗
+        const handleOpenAddDialog = (data?: ResClientMenu) => {
+            parentId.value = data ? data._id : "";
+            addMenuDialogVisible.value = true;
+        };
+        //打开编辑节点弹窗
+        const handleOpenEditDialog = (data?: ResClientMenu) => {
+            parentId.value = data ? data._id : "";
+            editMenuDialogVisible.value = true;
+        };
+        return {
+            handleOpenAddDialog,
+            handleOpenEditDialog,
+            parentId,
+            addMenuDialogVisible,
+            editMenuDialogVisible
+        };
+    },
     data() {
         return {
             //=====================================树形组件====================================//
             treeData: [] as ResClientMenu[],
             mouseContext: null as VNode | null, //鼠标右键实例
-            parentId: "", //当前操作元素父元素id
             currentActiveNode: null, //当前被选中的元素
             defaultExpandKeys: [] as string[], //默认展开组件
             //=====================================其他参数====================================//
             loading: false, //菜单加载
-            addMenuDialogVisible: false,
         };
     },
     mounted() {
@@ -91,13 +104,6 @@ export default defineComponent({
         document.body.removeEventListener("click", this.removeContextmenu);
     },
     methods: {
-        //初始化事件
-        removeContextmenu() {
-            if (this.mouseContext) {
-                // document.body.removeChild(this.mouseContext.$el);
-                this.mouseContext = null;
-            }
-        },
         //获取树形菜单结构
         getData() {
             this.loading = true;
@@ -111,20 +117,6 @@ export default defineComponent({
             }).finally(() => {
                 this.loading = false;
             });
-        },
-        //下拉选择操作类型
-        handleSelectDropdown(command: { type: "newMenu" | "delete", data: ResClientMenu }) {
-            switch (command.type) {
-            case "newMenu":
-                this.handleOpenAddDialog();
-                this.parentId = command.data._id;
-                break;
-            case "delete":
-                this.deleteCurrentNode(command.data);
-                break;
-            default:
-                break;
-            }
         },
         //删除节点
         deleteCurrentNode(data: ResClientMenu) {
@@ -154,6 +146,7 @@ export default defineComponent({
                 console.error(err);
             });
         },
+        //
         handleNodeDropSuccess() {
             console.log(22)
         },
@@ -174,10 +167,12 @@ export default defineComponent({
             //     this.mouseContext = null;
             // }
         },
-
-        handleOpenAddDialog() {
-            this.parentId = "";
-            this.addMenuDialogVisible = true;
+        //移除contextmenu
+        removeContextmenu() {
+            if (this.mouseContext) {
+                // document.body.removeChild(this.mouseContext.$el);
+                this.mouseContext = null;
+            }
         },
     },
 })
@@ -194,6 +189,12 @@ export default defineComponent({
         height: size(30);
         display: flex;
         align-items: center;
+        overflow: hidden;
+        .label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     }
 }
 </style>

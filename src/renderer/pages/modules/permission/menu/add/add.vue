@@ -56,6 +56,7 @@ export default defineComponent({
                         pid: this.pid,
                     };
                     this.axios.post<Response<{ _id: string }>, Response<{ _id: string }>>("/api/security/client_menu", params).then((res) => {
+                        this.handleClose();
                         this.$emit("success", res.data._id);
                     }).catch((err) => {
                         console.error(err);
