@@ -21,15 +21,33 @@
                         :expand-on-click-node="false"
                         :default-expanded-keys="defaultExpandKeys"
                         @node-drop="handleNodeDropSuccess"
-                        @node-expand="nodeExpand"
-                        @node-collapse="nodeCollapse"
-                        @current-change="handleNodeChange"
+                        @node-expand="clearContextNode"
+                        @node-collapse="clearContextNode"
+                        @current-change="clearContextNode"
                         @node-click="handleNodeClick"
                         @node-contextmenu="handleContextmenu"
                     >
                         <template #default="{ data }">
-                            <div class="custom-tree-node">
-                                <span>{{ data.name }}</span>
+                            <div class="tree-node">
+                                <div>
+                                    <img :src="require('@/assets/imgs/apidoc/file.png')" width="14" height="14" class="mr-2" />
+                                    <span>{{ data.name }}</span>
+                                </div>
+                                <el-dropdown
+                                    ref="dropdown"
+                                    class="ml-auto mr-2"
+                                    trigger="click"
+                                    @command="handleSelectDropdown"
+                                    @click.stop="() =>{}"
+                                >
+                                    <span class="el-icon-more"></span>
+                                    <template #dropdown>
+                                        <el-dropdown-menu>
+                                            <el-dropdown-item :command="{ type: 'addMenu', data, }">新增菜单</el-dropdown-item>
+                                            <el-dropdown-item :command="{ type: 'delete', data, }">删除</el-dropdown-item>
+                                        </el-dropdown-menu>
+                                    </template>
+                                </el-dropdown>
                             </div>
                         </template>
                     </el-tree>
@@ -39,78 +57,46 @@
         <template #right>
             aaa
         </template>
-        <s-dialog v-model="addMenuDialogVisible" title="新增菜单" width="40%">
-            <s-form ref="form" :edit-data="formInfo">
-                <s-form-item label="菜单名称" prop="name" one-line required></s-form-item>
-                <s-form-item label="路径" prop="path" one-line required></s-form-item>
-            </s-form>
-            <template #footer>
-                <div>
-                    <el-button :loading="loading2" size="mini" type="primary" @click="handleAddMenu">确定</el-button>
-                    <el-button size="mini" type="warning" @click="addMenuDialogVisible = false">取消</el-button>
-                </div>
-            </template>
-        </s-dialog>
     </s-left-right>
+    <s-add-menu-dialog v-if="addMenuDialogVisible" v-model="addMenuDialogVisible" :pid="parentId" @success="getData"></s-add-menu-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, VNode } from "vue"
 import { Response, ResClientMenu } from "@@/global"
+import addMenuDialog from "./add/add.vue"
 
 export default defineComponent({
+    components: {
+        "s-add-menu-dialog": addMenuDialog,
+    },
     data() {
         return {
             //=====================================树形组件====================================//
             treeData: [] as ResClientMenu[],
-            mouseContext: null, //鼠标右键实例
+            mouseContext: null as VNode | null, //鼠标右键实例
             parentId: "", //当前操作元素父元素id
-            // currentActiveNode: null, //当前被选中的元素
+            currentActiveNode: null, //当前被选中的元素
             defaultExpandKeys: [] as string[], //默认展开组件
-            //=====================================添加菜单====================================//
-            formInfo: {},
             //=====================================其他参数====================================//
             loading: false, //菜单加载
-            loading2: false, //新增菜单添加按钮
-            loading3: false, //修改菜单按钮
             addMenuDialogVisible: false,
         };
     },
     mounted() {
         this.getData();
+        document.body.addEventListener("click", this.removeContextmenu);
+    },
+    beforeUnmount() {
+        document.body.removeEventListener("click", this.removeContextmenu);
     },
     methods: {
-        handleNodeDropSuccess() {
-            console.log(22)
-        },
-        //点击节点
-        handleNodeClick(data: string) {
-            console.log(data)
-            // this.currentActiveNode = data;
-            // this.defaultExpandKeys.push(data._id);
-        },
-        //节点改变的时候
-        handleNodeChange() {
-            this.clearContextNode();
-        },
-        //节点打开
-        nodeExpand() {
-            this.clearContextNode();
-        },
-        //节点收缩
-        nodeCollapse() {
-            this.clearContextNode();
-        },
-        //contextmenu
-        handleContextmenu() {
-            console.log(3)
-        },
-        //清除鼠标右键dom节点信息
-        clearContextNode() {
-            // if (this.mouseContext) {
-            //     document.body.removeChild(this.mouseContext.$el);
-            //     this.mouseContext = null;
-            // }
+        //初始化事件
+        removeContextmenu() {
+            if (this.mouseContext) {
+                // document.body.removeChild(this.mouseContext.$el);
+                this.mouseContext = null;
+            }
         },
         //获取树形菜单结构
         getData() {
@@ -126,13 +112,72 @@ export default defineComponent({
                 this.loading = false;
             });
         },
+        //下拉选择操作类型
+        handleSelectDropdown(command: { type: "newMenu" | "delete", data: ResClientMenu }) {
+            switch (command.type) {
+            case "newMenu":
+                this.handleOpenAddDialog();
+                this.parentId = command.data._id;
+                break;
+            case "delete":
+                this.deleteCurrentNode(command.data);
+                break;
+            default:
+                break;
+            }
+        },
+        //删除节点
+        deleteCurrentNode(data: ResClientMenu) {
+            const cpData = JSON.parse(JSON.stringify(data));
+            const ids = [cpData._id];
+            this.$helper.forEachForest(cpData.children, (val) => {
+                ids.push(val._id);
+            })
+            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                const params = {
+                    ids,
+                };
+                this.axios.delete("/api/security/client_menu", { data: params }).then(() => {
+                    this.getData();
+                    this.currentActiveNode = null;
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }).catch((err: Error | string) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                console.error(err);
+            });
+        },
+        handleNodeDropSuccess() {
+            console.log(22)
+        },
+        //点击节点
+        handleNodeClick(data: string) {
+            console.log(data)
+            // this.currentActiveNode = data;
+            // this.defaultExpandKeys.push(data._id);
+        },
+        //contextmenu
+        handleContextmenu() {
+            console.log(3)
+        },
+        //清除鼠标右键dom节点信息
+        clearContextNode() {
+            // if (this.mouseContext) {
+            //     document.body.removeChild(this.mouseContext.$el);
+            //     this.mouseContext = null;
+            // }
+        },
+
         handleOpenAddDialog() {
             this.parentId = "";
-            this.formInfo = {};
             this.addMenuDialogVisible = true;
-        },
-        handleAddMenu() {
-            console.log(222)
         },
     },
 })
@@ -140,8 +185,15 @@ export default defineComponent({
 
 <style lang="scss">
 .menu-tree {
-    .custom-tree-node {
-        @include custom-tree-node;
+    min-height: 70vh;
+    .el-tree-node__content {
+        height: size(30);
+    }
+    .tree-node {
+        width: 100%;
+        height: size(30);
+        display: flex;
+        align-items: center;
     }
 }
 </style>

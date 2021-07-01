@@ -4,6 +4,8 @@ import { State } from "@@/store"
 import { Helper } from "@@/helper"
 import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
 import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
+
 type Data = Record<string, unknown>;
 
 declare module "@vue/runtime-core" {
@@ -22,6 +24,7 @@ declare module "@vue/runtime-core" {
                 $el: HTMLElement,
             },
             tree: TreeNodeOptions["store"],
+            dropdown: IElDropdownInstance,
         },
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
