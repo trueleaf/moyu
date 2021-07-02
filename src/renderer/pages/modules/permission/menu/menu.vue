@@ -60,12 +60,10 @@
 
 <script lang="ts">
 import { defineComponent, VNode } from "vue"
-import { Node } from "element-plus/lib/el-tree/src/model/node"
+import Node from "element-plus/lib/el-tree/src/model/node"
 import { Response, ResClientMenu } from "@@/global"
 import addMenuDialog from "./add/add.vue"
 import editMenuDialog from "./edit/edit.vue"
-
-type Date = Record<string, unknown>
 
 export default defineComponent({
     components: {
@@ -150,8 +148,8 @@ export default defineComponent({
         },
         //=====================================节点操作====================================//
         //拖拽成功
-        handleNodeDropSuccess(node: Node, dropNode: Node, type) {
-            console.log(node, 3)
+        handleNodeDropSuccess(node: Node, dropNode: Node) {
+            console.log(node, dropNode)
             // const params = {
             //     _id: node.data._id, //当前节点id
             //     pid: "", //父元素
