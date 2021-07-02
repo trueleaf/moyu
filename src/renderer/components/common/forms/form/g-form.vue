@@ -118,7 +118,7 @@ export default defineComponent({
                     const slotType = slot.type;
                     const { props } = slot;
                     if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
-                        if (props && props.prop) {
+                        if (props && props.prop && !this.formInfo[props.prop]) {
                             this.formInfo[props.prop] = null;
                         }
                     }
