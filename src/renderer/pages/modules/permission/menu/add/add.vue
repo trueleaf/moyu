@@ -32,7 +32,12 @@ export default defineComponent({
             default: "",
         },
     },
-    emits: ["update:modelValue", "success"],
+    emits: {
+        "update:modelValue": null,
+        success(payload: string) {
+            return payload
+        }
+    },
     data() {
         return {
             //=========================================================================//

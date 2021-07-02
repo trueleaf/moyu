@@ -35,11 +35,11 @@
                                     <span>{{ data.name }}</span>
                                 </div>
                                 <div class="ml-auto mr-2">
-                                    <el-button size="mini" type="text" @click="handleOpenAddDialog(data)">新增子菜单</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleOpenAddDialog(data)">新增子菜单</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click="handleOpenEditDialog(data)">编辑</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleOpenEditDialog(data)">编辑</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click="deleteCurrentNode(data)">删除</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleDeleteCurrentNode(data)">删除</el-button>
                                 </div>
                             </div>
                         </template>
@@ -48,52 +48,42 @@
             </s-loading>
         </template>
         <template #right>
-            aaa
+            <ul>
+                <li>支持鼠标右键新增和编辑菜单</li>
+                <li>菜单可以进行拖拽排序</li>
+            </ul>
         </template>
     </s-left-right>
-    <s-add-menu-dialog v-if="addMenuDialogVisible" v-model="addMenuDialogVisible" :pid="parentId" @success="getData"></s-add-menu-dialog>
+    <s-add-menu-dialog v-if="addMenuDialogVisible" v-model="addMenuDialogVisible" :pid="parentId" @success="handleAddSuccess"></s-add-menu-dialog>
+    <s-edit-menu-dialog v-if="editMenuDialogVisible" v-model="editMenuDialogVisible" :data="currentEditNode" @success="getData"></s-edit-menu-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, VNode, ref } from "vue"
+import { defineComponent, VNode } from "vue"
+import { Node } from "element-plus/lib/el-tree/src/model/node"
 import { Response, ResClientMenu } from "@@/global"
 import addMenuDialog from "./add/add.vue"
+import editMenuDialog from "./edit/edit.vue"
+
+type Date = Record<string, unknown>
 
 export default defineComponent({
     components: {
         "s-add-menu-dialog": addMenuDialog,
-    },
-    setup() {
-        const parentId = ref(""); //父元素id
-        const addMenuDialogVisible = ref(false); //新增菜单弹窗
-        const editMenuDialogVisible = ref(false); //修改菜单弹窗
-        //打开新增节点弹窗
-        const handleOpenAddDialog = (data?: ResClientMenu) => {
-            parentId.value = data ? data._id : "";
-            addMenuDialogVisible.value = true;
-        };
-        //打开编辑节点弹窗
-        const handleOpenEditDialog = (data?: ResClientMenu) => {
-            parentId.value = data ? data._id : "";
-            editMenuDialogVisible.value = true;
-        };
-        return {
-            handleOpenAddDialog,
-            handleOpenEditDialog,
-            parentId,
-            addMenuDialogVisible,
-            editMenuDialogVisible
-        };
+        "s-edit-menu-dialog": editMenuDialog,
     },
     data() {
         return {
             //=====================================树形组件====================================//
-            treeData: [] as ResClientMenu[],
-            mouseContext: null as VNode | null, //鼠标右键实例
-            currentActiveNode: null, //当前被选中的元素
-            defaultExpandKeys: [] as string[], //默认展开组件
+            treeData: [] as ResClientMenu[], //-----------------菜单数据
+            mouseContext: null as VNode | null, //--------------鼠标右键实例
+            defaultExpandKeys: [] as string[], //---------------默认展开组件
+            currentEditNode: null as ResClientMenu | null, //---当前编辑的节点
             //=====================================其他参数====================================//
-            loading: false, //菜单加载
+            parentId: "", //------------------------------------父元素id
+            addMenuDialogVisible: false, //---------------------新增菜单弹窗
+            editMenuDialogVisible: false, //--------------------编辑菜单弹窗
+            loading: false, //----------------------------------菜单加载
         };
     },
     mounted() {
@@ -104,6 +94,7 @@ export default defineComponent({
         document.body.removeEventListener("click", this.removeContextmenu);
     },
     methods: {
+        //=====================================数据获取====================================//
         //获取树形菜单结构
         getData() {
             this.loading = true;
@@ -118,11 +109,22 @@ export default defineComponent({
                 this.loading = false;
             });
         },
+        //=====================================节点增删改查====================================//
+        //打开修改弹窗
+        handleOpenEditDialog(data: ResClientMenu) {
+            this.editMenuDialogVisible = true;
+            this.currentEditNode = data;
+        },
+        //打开新增弹窗
+        handleOpenAddDialog(data?: ResClientMenu) {
+            this.parentId = data ? data._id : "";
+            this.addMenuDialogVisible = true;
+        },
         //删除节点
-        deleteCurrentNode(data: ResClientMenu) {
+        handleDeleteCurrentNode(data: ResClientMenu) {
             const cpData = JSON.parse(JSON.stringify(data));
             const ids = [cpData._id];
-            this.$helper.forEachForest(cpData.children, (val) => {
+            this.$helper.forEachForest(cpData.children || [], (val) => {
                 ids.push(val._id);
             })
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
@@ -135,7 +137,7 @@ export default defineComponent({
                 };
                 this.axios.delete("/api/security/client_menu", { data: params }).then(() => {
                     this.getData();
-                    this.currentActiveNode = null;
+                    // this.currentEditNode = null;
                 }).catch((err) => {
                     console.error(err);
                 });
@@ -146,14 +148,44 @@ export default defineComponent({
                 console.error(err);
             });
         },
-        //
-        handleNodeDropSuccess() {
-            console.log(22)
+        //=====================================节点操作====================================//
+        //拖拽成功
+        handleNodeDropSuccess(node: Node, dropNode: Node, type) {
+            console.log(node, 3)
+            // const params = {
+            //     _id: node.data._id, //当前节点id
+            //     pid: "", //父元素
+            //     sort: 0, //当前节点排序效果
+            // };
+            // let pNode = null;
+            // if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
+            //     pNode = findParentNode(node.data._id, this.treeData);
+            //     params.pid = pNode ? pNode.id : "";
+            //     while (pNode != null) {
+            //         pNode = findParentNode(pNode._id, this.treeData);
+            //     }
+            // } else if (node.level === dropNode.level && type !== "inner") {
+            //     params.pid = node.data.pid || "";
+            //     pNode = findParentNode(node.data._id, this.treeData);
+            //     while (pNode != null) {
+            //         pNode = findParentNode(pNode._id, this.treeData);
+            //     }
+            // }
+            // if (type === "after") { //说明这个节点是第一个节点
+            //     params.sort = dropNode.data.sort - 1;
+            // } else if (type === "before") {
+            //     params.sort = dropNode.data.sort + 1;
+            // } else if (type === "inner") {
+            //     params.sort = Date.now();
+            // }
+            // this.axios.put("/api/security/client_menu_position", params).then(() => {}).catch((err) => {
+            //     this.$errorThrow(err, this);
+            // });
         },
         //点击节点
         handleNodeClick(data: string) {
             console.log(data)
-            // this.currentActiveNode = data;
+            // this.currentEditNode = data;
             // this.defaultExpandKeys.push(data._id);
         },
         //contextmenu
@@ -166,6 +198,11 @@ export default defineComponent({
             //     document.body.removeChild(this.mouseContext.$el);
             //     this.mouseContext = null;
             // }
+        },
+        //=========================================================================//
+        handleAddSuccess(id: string) {
+            this.defaultExpandKeys.push(id); //展开刚刚新增的元素
+            this.getData();
         },
         //移除contextmenu
         removeContextmenu() {
