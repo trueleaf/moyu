@@ -54,16 +54,27 @@
             </ul>
         </template>
     </s-left-right>
+    <teleport to="body">
+        <div v-if="currentCtxNode" ref="contextmenu" class="contextmenu" :style="{left: ctxLeft + 'px', top: ctxTop + 'px'}">
+            <div class="item-list" @click="handleOpenAddDialog(currentCtxNode)">新增子菜单</div>
+            <div class="item-list" @click="handleOpenEditDialog(currentCtxNode)">编辑</div>
+            <div class="item-list" @click="handleDeleteCurrentNode(currentCtxNode)">删除</div>
+        </div>
+    </teleport>
     <s-add-menu-dialog v-if="addMenuDialogVisible" v-model="addMenuDialogVisible" :pid="parentId" @success="handleAddSuccess"></s-add-menu-dialog>
     <s-edit-menu-dialog v-if="editMenuDialogVisible" v-model="editMenuDialogVisible" :data="currentEditNode" @success="getData"></s-edit-menu-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, VNode } from "vue"
+import { defineComponent } from "vue"
 import Node from "element-plus/lib/el-tree/src/model/node"
 import { Response, ResClientMenu } from "@@/global"
 import addMenuDialog from "./add/add.vue"
 import editMenuDialog from "./edit/edit.vue"
+
+type TreeNode = Node & {
+    data: ResClientMenu,
+}
 
 export default defineComponent({
     components: {
@@ -74,9 +85,12 @@ export default defineComponent({
         return {
             //=====================================树形组件====================================//
             treeData: [] as ResClientMenu[], //-----------------菜单数据
-            mouseContext: null as VNode | null, //--------------鼠标右键实例
             defaultExpandKeys: [] as string[], //---------------默认展开组件
             currentEditNode: null as ResClientMenu | null, //---当前编辑的节点
+            //=====================================鼠标右键====================================//
+            ctxLeft: 0, //--------------------------------------鼠标右键left值
+            ctxTop: 0, //---------------------------------------鼠标右键top值
+            currentCtxNode: null as ResClientMenu | null, //----当前鼠标右键节点信息
             //=====================================其他参数====================================//
             parentId: "", //------------------------------------父元素id
             addMenuDialogVisible: false, //---------------------新增菜单弹窗
@@ -109,17 +123,25 @@ export default defineComponent({
         },
         //=====================================节点增删改查====================================//
         //打开修改弹窗
-        handleOpenEditDialog(data: ResClientMenu) {
+        handleOpenEditDialog(data: ResClientMenu | null) {
+            if (data === null) {
+                this.$message.warning("参数值不能为null");
+                return
+            }
             this.editMenuDialogVisible = true;
             this.currentEditNode = data;
         },
         //打开新增弹窗
-        handleOpenAddDialog(data?: ResClientMenu) {
+        handleOpenAddDialog(data?: ResClientMenu | null) {
             this.parentId = data ? data._id : "";
             this.addMenuDialogVisible = true;
         },
         //删除节点
-        handleDeleteCurrentNode(data: ResClientMenu) {
+        handleDeleteCurrentNode(data: ResClientMenu | null) {
+            if (data === null) {
+                this.$message.warning("参数值不能为null");
+                return
+            }
             const cpData = JSON.parse(JSON.stringify(data));
             const ids = [cpData._id];
             this.$helper.forEachForest(cpData.children || [], (val) => {
@@ -148,37 +170,37 @@ export default defineComponent({
         },
         //=====================================节点操作====================================//
         //拖拽成功
-        handleNodeDropSuccess(node: Node, dropNode: Node) {
-            console.log(node, dropNode)
-            // const params = {
-            //     _id: node.data._id, //当前节点id
-            //     pid: "", //父元素
-            //     sort: 0, //当前节点排序效果
-            // };
-            // let pNode = null;
-            // if ((node.level !== dropNode.level) || (node.level === dropNode.level && type === "inner")) { //将节点放入子节点中
-            //     pNode = findParentNode(node.data._id, this.treeData);
-            //     params.pid = pNode ? pNode.id : "";
-            //     while (pNode != null) {
-            //         pNode = findParentNode(pNode._id, this.treeData);
-            //     }
-            // } else if (node.level === dropNode.level && type !== "inner") {
-            //     params.pid = node.data.pid || "";
-            //     pNode = findParentNode(node.data._id, this.treeData);
-            //     while (pNode != null) {
-            //         pNode = findParentNode(pNode._id, this.treeData);
-            //     }
-            // }
-            // if (type === "after") { //说明这个节点是第一个节点
-            //     params.sort = dropNode.data.sort - 1;
-            // } else if (type === "before") {
-            //     params.sort = dropNode.data.sort + 1;
-            // } else if (type === "inner") {
-            //     params.sort = Date.now();
-            // }
-            // this.axios.put("/api/security/client_menu_position", params).then(() => {}).catch((err) => {
-            //     this.$errorThrow(err, this);
-            // });
+        handleNodeDropSuccess(node: TreeNode, dropNode: TreeNode, type: "inner" | "before" | "after") {
+            const params = {
+                _id: node.data._id, //当前节点id
+                pid: "", //父元素
+                sort: 0, //当前节点排序效果
+            };
+            const nodeIsSameLevel = node.level === dropNode.level;
+            let pNode = null;
+            if ((!nodeIsSameLevel) || (nodeIsSameLevel && type === "inner")) { //将节点放入子节点中
+                pNode = this.$helper.findParentById(this.treeData, node.data._id);
+                params.pid = pNode ? pNode._id : "";
+                while (pNode != null) {
+                    pNode = this.$helper.findParentById(this.treeData, pNode._id);
+                }
+            } else if (nodeIsSameLevel && type !== "inner") {
+                params.pid = node.data.pid || "";
+                pNode = this.$helper.findParentById(this.treeData, node.data._id);
+                while (pNode != null) {
+                    pNode = this.$helper.findParentById(this.treeData, pNode._id);
+                }
+            }
+            if (type === "after") { //说明这个节点是第一个节点
+                params.sort = dropNode.data.sort - 1;
+            } else if (type === "before") {
+                params.sort = dropNode.data.sort + 1;
+            } else if (type === "inner") {
+                params.sort = Date.now();
+            }
+            this.axios.put("/api/security/client_menu_position", params).catch((err) => {
+                console.error(err);
+            });
         },
         //点击节点
         handleNodeClick(data: string) {
@@ -186,16 +208,15 @@ export default defineComponent({
             // this.currentEditNode = data;
             // this.defaultExpandKeys.push(data._id);
         },
-        //contextmenu
-        handleContextmenu() {
-            console.log(3)
+        //处理contextmenu事件
+        handleContextmenu(e: MouseEvent, treeData: ResClientMenu) {
+            this.ctxLeft = e.clientX;
+            this.ctxTop = e.clientY;
+            this.currentCtxNode = treeData;
         },
         //清除鼠标右键dom节点信息
         clearContextNode() {
-            // if (this.mouseContext) {
-            //     document.body.removeChild(this.mouseContext.$el);
-            //     this.mouseContext = null;
-            // }
+            this.currentCtxNode = null;
         },
         //=========================================================================//
         handleAddSuccess(id: string) {
@@ -204,10 +225,7 @@ export default defineComponent({
         },
         //移除contextmenu
         removeContextmenu() {
-            if (this.mouseContext) {
-                // document.body.removeChild(this.mouseContext.$el);
-                this.mouseContext = null;
-            }
+            this.currentCtxNode = null;
         },
     },
 })
@@ -231,5 +249,9 @@ export default defineComponent({
             white-space: nowrap;
         }
     }
+}
+.contextmenu {
+    min-width: size(240);
+    @include contextmenu;
 }
 </style>
