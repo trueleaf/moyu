@@ -20,7 +20,7 @@
             <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
             <slot />
         </el-table>
-        <div v-if="plain !== true" class="d-flex j-end mt-1">
+        <div class="d-flex j-end mt-1">
             <slot name="operation" />
             <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">刷新</el-button>
             <el-button
@@ -38,7 +38,7 @@
             <el-pagination
                 v-model:currentPage="formInfo.pageNum"
                 class="ml-4"
-                layout="total, sizes, prev, pager, next, jumper"
+                :layout="paging ? 'total, sizes, prev, pager, next, jumper' : 'total'"
                 :total="total"
                 background
                 :page-sizes="config.renderConfig.components.tableConfig.pageSizes"
@@ -151,9 +151,9 @@ export default defineComponent({
         /**
          * 是否展示分页
          */
-        plain: {
+        paging: {
             type: Boolean,
-            default: false
+            default: true
         }
     },
     emits: ["finish", "select", "deleteMany"],
@@ -208,16 +208,19 @@ export default defineComponent({
                 if (Object.prototype.toString.call(searchParams).slice(8, -1) !== "MouseEvent") { //修复鼠标事件导致第一个参数数据错误
                     p = JSON.parse(JSON.stringify(searchParams || {})); //防止数据变化产生递归
                 }
-                const params = !this.plain ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
+                const params = this.paging ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
 
                 this.loading = true;
                 this.axios.get(this.url, { params }).then((res) => {
                     this.responseData = res.data;
                     if (this.resHook) {
                         this.resHook(res, this);
-                    } else {
+                    } else if (this.paging) { //分页
                         this.total = res.data.total;
                         this.tableInfo = res.data.rows;
+                    } else { //不分页
+                        this.total = res.data.length;
+                        this.tableInfo = res.data;
                     }
                 }).catch((err) => {
                     console.error(err);
