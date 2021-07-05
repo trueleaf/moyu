@@ -10,6 +10,8 @@ import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
 import dayjs from "dayjs";
 
+type Data = Record<string, unknown>
+
 //对象对比
 export const isEqual = lodashIsEqual;
 //深拷贝
@@ -44,7 +46,7 @@ type ForestData = {
 }
 
 /**
- * @description        遍历森林
+ * @description        遍历森林(深度优先)
  * @author             shuxiaokai
  * @create             2020-03-02 10:17
  * @param {array}      arrData 数组数据
@@ -72,6 +74,38 @@ export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) =>
         }
     };
     foo(forest, fn);
+}
+
+/**
+ * 根据id查询父元素
+ */
+export function findParentById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    const childrenKey = options?.childrenKey || "children";
+    const idKey = options?.idKey || "id";
+    let pNode: ForestData | null = null;
+    let hasPNode = false;
+    const foo = (forestData: ForestData) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            if (currentData[idKey] === id) {
+                hasPNode = true;
+                break;
+            }
+            if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
+                pNode = currentData;
+                foo(currentData[childrenKey]);
+            }
+        }
+    };
+    foo(forest);
+    if (hasPNode) {
+        return pNode;
+    } else {
+        return null;
+    }
 }
 
 let canvas: HTMLCanvasElement | null;
@@ -105,5 +139,26 @@ export function formatDate(date: string | number | Date | dayjs.Dayjs | undefine
 }
 
 /**
- * 深度优先遍历
- */
+    @description  将数组对象[{id: 1}]根据指定的key值进行去重,key值对应的数组元素不存在则直接过滤掉，若不传入id则默认按照set形式进行去重。
+    @create       2019-11-20 22:40
+    @update       2019-11-20 22:42
+    @param  {array}  array 需要处理的数组
+    @param  {string?} key 指定对象数组的去重依据
+    @return {Array}  返回一个去重后的新数组，不会改变原数组
+    @example
+        unique([{id: 1}, {id: 2}, {id: 1}], "id") => [{id: 1}, {id: 2}]
+        unique([{id: 1}, {id: 2}, {id: 1}]) => [{id: 1}, {id: 2}, {id: 1}]
+        unique([{id: 1}, {}, {id: 1}]) => [{id: 1}, {id: 2}, {id: 1}]
+        unique([1, 2, 3, 4, 3, 3]) => [1, 2, 3, 4]
+*/
+
+export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K): T[] {
+    const result: T[] = [];
+    for (let i = 0, len = data.length; i < len; i += 1) {
+        const isInResult = result.find((val) => val[key] === data[i][key]);
+        if (data[i][key] != null && !isInResult) {
+            result.push(data[i]);
+        }
+    }
+    return result;
+}

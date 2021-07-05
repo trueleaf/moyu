@@ -1,5 +1,5 @@
 import { LoDashStatic } from "lodash"
-import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate } from "@/helper/index"
+import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById } from "@/helper/index"
 
 type IsEqual = LoDashStatic["isEqual"];
 type CloneDeep = LoDashStatic["CloneDeep"];
@@ -26,6 +26,10 @@ interface Helper {
      */
     forEachForest: typeof forEachForest,
     /**
+     * 查找父元素
+     */
+    findParentById: typeof findParentById,
+    /**
      * 获取字符串宽度
      */
     getTextWidth: typeof getTextWidth,
@@ -41,6 +45,10 @@ interface Helper {
      * 格式化时间
      */
     formatDate: typeof formatDate,
+    /**
+     * 格式化事件
+     */
+    uniqueByKey: typeof uniqueByKey,
 }
 
 export { Helper, IsEqual, CloneDeep, Uuid, GetType }

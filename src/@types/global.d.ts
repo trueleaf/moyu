@@ -108,6 +108,9 @@ type ResUserInfo = UserInfo & {
     }[],
 }
 //=========================================================================//
+/**
+ * 客户端菜单
+ */
 type ResClientMenu = {
     id?: string,
     /**
@@ -139,7 +142,28 @@ type ResClientMenu = {
      */
     children: ResClientMenu[] | [],
 }
-
+//=========================================================================//
+/**
+ * 前端路由
+ */
+type ResClientRoute = {
+    /**
+     * 前端路由id
+     */
+    _id: string,
+    /**
+     * 前端路由名称
+     */
+    name: string,
+    /**
+     * 前端路由路径
+     */
+    path: string,
+    /**
+     * 分组名称
+     */
+     groupName: string,
+}
 //=========================================================================//
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu }
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute }

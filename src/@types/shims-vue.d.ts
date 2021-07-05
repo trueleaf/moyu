@@ -20,6 +20,9 @@ declare module "@vue/runtime-core" {
                 formInfo: Data,
             }
             table: {
+                /**
+                 * 获取表格数据
+                 */
                 getData: (params?: Data) => void,
                 $el: HTMLElement,
             },
