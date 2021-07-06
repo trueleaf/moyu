@@ -8,13 +8,13 @@
     <!-- 普通输入框 -->
     <s-col v-if="type === 'input'" v-bind="$attrs">
         <el-form-item :label="realLabel" :prop="prop">
-            <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder"></s-input>
+            <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder" @change="handleChange"></s-input>
         </el-form-item>
     </s-col>
     <!-- 下拉搜索框 -->
     <s-col v-if="type === 'select'" v-bind="$attrs">
         <el-form-item :label="realLabel" :prop="prop">
-            <s-select v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder"></s-select>
+            <s-select v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder" @change="handleChange"></s-select>
         </el-form-item>
     </s-col>
 </template>
@@ -55,6 +55,7 @@ export default defineComponent({
             default: "",
         },
     },
+    emits: ["change"],
     data() {
         return {};
     },
@@ -72,6 +73,9 @@ export default defineComponent({
         },
     },
     methods: {
+        handleChange(value: string) {
+            this.$helper.event.emit<string>("searchItem/change", value);
+        },
     },
 })
 </script>

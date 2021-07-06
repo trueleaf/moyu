@@ -1,5 +1,5 @@
 import { LoDashStatic } from "lodash"
-import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById } from "@/helper/index"
+import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById, uniqueByKey, event } from "@/helper/index"
 
 type IsEqual = LoDashStatic["isEqual"];
 type CloneDeep = LoDashStatic["CloneDeep"];
@@ -49,6 +49,10 @@ interface Helper {
      * 格式化事件
      */
     uniqueByKey: typeof uniqueByKey,
+    /**
+     * 全局事件
+     */
+     event: typeof event,
 }
 
 export { Helper, IsEqual, CloneDeep, Uuid, GetType }

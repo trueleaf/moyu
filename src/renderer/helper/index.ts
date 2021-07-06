@@ -9,6 +9,7 @@ import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
 import dayjs from "dayjs";
+import mitt from "mitt"
 
 type Data = Record<string, unknown>
 
@@ -18,7 +19,10 @@ export const isEqual = lodashIsEqual;
 export const cloneDeep = lodashCloneDeep;
 //防抖函数
 export const debounce = lodashDebounce;
+//全局事件订阅发布
+const emitter = mitt()
 
+export const event = emitter;
 /**
  * @description        返回uuid
  * @author             shuxiaokai

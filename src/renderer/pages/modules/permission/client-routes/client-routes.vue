@@ -7,8 +7,9 @@
 <template>
     <div>
         <!-- 搜索条件 -->
-        <s-search @change="handleChange">
+        <s-search auto-request @change="handleChange">
             <s-search-item label="名称&地址" prop="name"></s-search-item>
+            <s-search-item label="分组名称" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
             <template #operation>
                 <el-button type="success" size="mini">新增路由</el-button>
                 <el-button type="success" size="mini">批量修改类型</el-button>
@@ -18,7 +19,7 @@
         <s-table ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false">
             <el-table-column prop="name" label="路由名称" align="center"></el-table-column>
             <el-table-column prop="path" label="路由地址" align="center"></el-table-column>
-            <el-table-column prop="groupName" label="分类名称" align="center"></el-table-column>
+            <el-table-column prop="groupName" label="分组名称" align="center"></el-table-column>
             <el-table-column label="操作" align="center">
                 <template #default="scope">
                     <el-button type="text" @click.stop="handleOpenClientEditDialog(scope.row)">修改</el-button>
@@ -40,6 +41,7 @@ type HookThis = {
 export default defineComponent({
     data() {
         return {
+            groupEnum: [] as { id: string, name: string }[], //分组信息
             dialogVisible: false, //修改路由信息弹窗
             loading: false, //
         };
@@ -49,7 +51,7 @@ export default defineComponent({
     },
     methods: {
         handleChange(params: Record<string, unknown>) {
-            this.$refs.table.getData(params);
+            console.log(params, this.$refs.table.tableData)
         },
         //获取前端路由信息
         hookRequest(res: Response<ClientRoute[]>, _this: HookThis) {
@@ -57,6 +59,7 @@ export default defineComponent({
             _this.tableInfo = res.data;
             _this.total = res.data.length;
             const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
+            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName }))
             console.log(uniqueData)
         },
         //打开修改前端路由组件

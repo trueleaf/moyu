@@ -97,8 +97,16 @@ export default defineComponent({
         this.initLabelWidth(); //初始化label的宽度
         this.initFormData(); //初始化表单数据绑定
         this.checkFormHeight(); //检查是否显示折叠按钮
+        this.$helper.event.on<string>("searchItem/change", this.handleChangeEvent);
+    },
+    beforeUnmount() {
+        this.$helper.event.off("searchItem/change", this.handleChangeEvent);
     },
     methods: {
+        //处理change事件
+        handleChangeEvent(value?: string) {
+            console.log(value, "event")
+        },
         //初始化label的宽度
         initLabelWidth() {
             const searchItems: VNode[] = [];

@@ -24,6 +24,14 @@ declare module "@vue/runtime-core" {
                  * 获取表格数据
                  */
                 getData: (params?: Data) => void,
+                /**
+                 * 表格数据
+                 */
+                tableData: unknown[],
+                /**
+                 * 表格数据总量
+                 */
+                total: number,
                 $el: HTMLElement,
             },
             tree: TreeNodeOptions["store"],
