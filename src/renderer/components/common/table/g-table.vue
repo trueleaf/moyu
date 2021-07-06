@@ -9,7 +9,7 @@
         <el-table
             ref="table"
             v-bind="$attrs"
-            :data="tableInfo"
+            :data="tableData"
             stripe
             border
             :size="config.renderConfig.layout.size"
@@ -164,7 +164,7 @@ export default defineComponent({
                 pageSize: config.renderConfig.components.tableConfig.pageSize, //----分页大小
                 pageNum: 1, //-------------------------------------------------------当前页数
             },
-            tableInfo: [], //--------------------------------------------------------表格数据
+            tableData: [], //--------------------------------------------------------表格数据
             tableHeight: "100", //-----------------------------------------------------表格高度
             selectData: [] as Record<string, unknown>[], //-------------------------------------------------------选中的表格数据
             total: 0, //-------------------------------------------------------------数据总数
@@ -217,10 +217,10 @@ export default defineComponent({
                         this.resHook(res, this);
                     } else if (this.paging) { //分页
                         this.total = res.data.total;
-                        this.tableInfo = res.data.rows;
+                        this.tableData = res.data.rows;
                     } else { //不分页
                         this.total = res.data.length;
-                        this.tableInfo = res.data;
+                        this.tableData = res.data;
                     }
                 }).catch((err) => {
                     console.error(err);
