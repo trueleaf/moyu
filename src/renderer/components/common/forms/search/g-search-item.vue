@@ -8,7 +8,7 @@
     <!-- 普通输入框 -->
     <s-col v-if="type === 'input'" v-bind="$attrs">
         <el-form-item :label="realLabel" :prop="prop">
-            <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder" @change="handleChange"></s-input>
+            <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder" @input="handleChange" @change="handleChange"></s-input>
         </el-form-item>
     </s-col>
     <!-- 下拉搜索框 -->
@@ -20,11 +20,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, inject } from "vue"
 
 export default defineComponent({
     name: "SearchItem",
-    inject: ["formInfo"],
     props: {
         /**
          * 表单组件类型 input select date daterange text
@@ -51,11 +50,17 @@ export default defineComponent({
          * 绑定参数的字段名称
          */
         prop: {
-            type: [String, Number, Boolean, Array],
+            type: [String, Number],
             default: "",
         },
     },
     emits: ["change"],
+    setup() {
+        const formInfo = inject<Record<string, unknown>>("formInfo", {})
+        return {
+            formInfo: formInfo,
+        }
+    },
     data() {
         return {};
     },

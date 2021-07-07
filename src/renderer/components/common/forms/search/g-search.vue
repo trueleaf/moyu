@@ -104,8 +104,10 @@ export default defineComponent({
     },
     methods: {
         //处理change事件
-        handleChangeEvent(value?: string) {
-            console.log(value, "event")
+        handleChangeEvent() {
+            this.$nextTick(() => {
+                this.$emit("change", this.formInfo);
+            });
         },
         //初始化label的宽度
         initLabelWidth() {

@@ -87,7 +87,7 @@ export default defineComponent({
             default: "",
         },
     },
-    emits: ["change"],
+    emits: ["change", "update:value"],
     data() {
         return {
             selectData: "",
@@ -119,11 +119,14 @@ export default defineComponent({
         handleChange(val: unknown) {
             if (this.rawResult && this.multi) { //多选返回原始数据
                 this.$emit("change", val);
+                this.$emit("update:value", val);
             } else if (!this.multi) { //单选
                 if (val === "") { //如果是空字符，则返回null
                     this.$emit("change", null);
+                    this.$emit("update:value", null);
                 } else {
                     this.$emit("change", val);
+                    this.$emit("update:value", val);
                 }
             }
         },
