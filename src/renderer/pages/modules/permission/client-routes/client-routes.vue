@@ -34,33 +34,36 @@
 import { defineComponent } from "vue"
 import { Response, ClientRoute } from "@@/global"
 type HookThis = {
-    tableInfo: unknown[],
+    tableData: ClientRoute[],
     total: number,
 }
 
 export default defineComponent({
     data() {
         return {
+            originTableData: [] as ClientRoute[],
             groupEnum: [] as { id: string, name: string }[], //分组信息
             dialogVisible: false, //修改路由信息弹窗
             loading: false, //
         };
     },
-    created() {
-        // this.getClientRoutes();
-    },
     methods: {
-        handleChange(params: Record<string, unknown>) {
-            console.log(params, this.$refs.table.tableData)
+        handleChange(params: { name: string, groupName: string }) {
+            const { name, groupName } = params;
+            this.$refs.table.tableData = this.originTableData.filter((val) => {
+                const matchedName = name ? val.name.match(name) : true;
+                const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
+                return matchedName && matchedGroupName;
+            })
         },
         //获取前端路由信息
         hookRequest(res: Response<ClientRoute[]>, _this: HookThis) {
             this.loading = true;
-            _this.tableInfo = res.data;
+            this.originTableData = res.data;
+            _this.tableData = res.data;
             _this.total = res.data.length;
             const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
             this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName }))
-            console.log(uniqueData)
         },
         //打开修改前端路由组件
         handleOpenClientEditDialog(row: ClientRoute) {
