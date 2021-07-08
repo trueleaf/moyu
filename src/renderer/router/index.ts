@@ -8,7 +8,7 @@ const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复�
 const routes: Array<RouteRecordRaw> = [
     {
         path: "/",
-        redirect: lastVisitPage || "/layout/apidoc",
+        redirect: lastVisitPage || "/v1/apidoc/doc-list",
     },
     {
         path: "/login",
@@ -28,6 +28,11 @@ const routes: Array<RouteRecordRaw> = [
             name: "Permission",
             component: () => import(/* webpackChunkName: "Permission" */ "@/pages/modules/permission/permission.vue"),
         }],
+    },
+    {
+        path: "/:catchAll(.*)",
+        name: "404",
+        component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
     },
 ]
 const router = createRouter({
