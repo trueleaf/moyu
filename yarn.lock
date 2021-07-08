@@ -11659,7 +11659,7 @@ vue-template-es2015-compiler@^1.9.0:
 
 vue@^3.1.12:
   version "3.1.4"
-  resolved "https://registry.nlark.com/vue/download/vue-3.1.4.tgz?cache=0&sync_timestamp=1625229601537&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvue%2Fdownload%2Fvue-3.1.4.tgz#120d6818c51eaa35d0879e5bc1cff60135bc69fd"
+  resolved "https://registry.nlark.com/vue/download/vue-3.1.4.tgz#120d6818c51eaa35d0879e5bc1cff60135bc69fd"
   integrity sha1-Eg1oGMUeqjXQh55bwc/2ATW8af0=
   dependencies:
     "@vue/compiler-dom" "3.1.4"

@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-06-28 21:04
-    模块名称：新增前端路由
+    模块名称：修改前端路由
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="新增前端路由" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" title="修改前端路由" @close="handleClose">
         <s-form ref="form" :edit-data="formInfo">
             <s-form-item label="名称" prop="name" required one-line></s-form-item>
             <s-form-item label="路径" prop="path" required one-line></s-form-item>
@@ -19,7 +19,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, PropType, ref, watch } from "vue"
+import { ClientRoute } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -27,16 +28,27 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        editData: {
+            type: Object as PropType<ClientRoute>,
+            default: () => {
+                return {}
+            }
+        },
     },
     emits: ["update:modelValue", "success"],
+    setup(props) {
+        const formInfo = ref({});
+        watch(props.editData, (val) => {
+            formInfo.value = val;
+        }, {
+            immediate: true
+        })
+        return {
+            formInfo
+        };
+    },
     data() {
         return {
-            formInfo: {
-                name: "", //------------路由名称
-                path: "", //------------路由地址
-                groupName: "", //-------路由分组名称
-            },
-            //=========================================================================//
             //=========================================================================//
             loading: false,
         };
@@ -50,7 +62,7 @@ export default defineComponent({
                         ...formInfo,
                     };
                     this.loading = true;
-                    this.axios.post("/api/security/client_routes", params).then(() => {
+                    this.axios.put("/api/security/client_routes", params).then(() => {
                         this.$emit("success");
                         this.handleClose();
                     }).catch((err) => {
