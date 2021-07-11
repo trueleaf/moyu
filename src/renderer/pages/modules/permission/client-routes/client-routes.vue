@@ -1,7 +1,7 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-06-29 21:54
-    模块名称：路由管理
+    模块名称：前端路由管理
     备注：
 */
 <template>
@@ -12,7 +12,7 @@
             <s-search-item label="分组名称" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
             <template #operation>
                 <el-button type="success" size="mini" @click="handleOpenAddRouteDialog">新增路由</el-button>
-                <el-button :disabled="selectedData.length === 0" type="success" size="mini">批量修改类型</el-button>
+                <el-button :disabled="selectedData.length === 0" type="success" size="mini" @click="handleOpenMultiEditTypeDialog">批量修改类型</el-button>
             </template>
         </s-search>
         <!-- 表格展示 -->
@@ -29,6 +29,7 @@
         </s-table>
         <s-add-client-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-client-route>
         <s-edit-client-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-client-route>
+        <s-multi-edit-client-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-client-route>
     </div>
 </template>
 
@@ -36,6 +37,7 @@
 import { defineComponent } from "vue"
 import addClientRoute from "./add/add.vue"
 import editClientRoute from "./edit/edit.vue"
+import multiEditClientRoute from "./edit/edit2.vue"
 import { Response, ClientRoute } from "@@/global"
 type HookThis = {
     tableData: ClientRoute[],
@@ -45,6 +47,7 @@ export default defineComponent({
     components: {
         "s-add-client-route": addClientRoute,
         "s-edit-client-route": editClientRoute,
+        "s-multi-edit-client-route": multiEditClientRoute,
     },
     data() {
         return {
@@ -54,6 +57,7 @@ export default defineComponent({
             groupEnum: [] as { id: string, name: string }[], //---分组信息
             dialogVisible: false, //------------------------------新增路由信息弹窗
             dialogVisible2: false, //-----------------------------修改路由信息弹窗
+            dialogVisible3: false, //-----------------------------批量修改路由信息弹窗
         };
     },
     methods: {
@@ -82,7 +86,6 @@ export default defineComponent({
         //=========================================================================//
         handleSelect(routeList: ClientRoute[]) {
             this.selectedData = routeList;
-            console.log(222, routeList)
         },
         //删除前端路由组件
         handleDeleteClientRoute(row: ClientRoute) {
@@ -113,6 +116,10 @@ export default defineComponent({
         handleOpenClientEditDialog(row: ClientRoute) {
             this.editData = row;
             this.dialogVisible2 = true;
+        },
+        //打开批量修改前端路由类型
+        handleOpenMultiEditTypeDialog() {
+            this.dialogVisible3 = true;
         },
     },
 })
