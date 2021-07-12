@@ -4,7 +4,7 @@ import { uniqueByKey } from "@/helper/index"
 import { router, routes } from "@/router/index"
 import { RouteRecordRaw } from "vue-router"
 import type { State as RootState, PermissionState } from "@@/store"
-import { UserInfo, Response, ResUserInfo, ClientRoute } from "@@/global"
+import { UserInfo, Response, ResUserInfo } from "@@/global"
 import config from "@/../config/config"
 import layout from "@/pages/layout/layout.vue";
 
@@ -59,8 +59,9 @@ const permission = {
                         ...matchedRoutes,
                     ],
                 });
+                console.log(333, matchedRoutes, state.routes, routes)
                 router.addRoute({
-                    path: "/:catchAll(.*)",
+                    path: "/.*/",
                     name: "404",
                     component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
                 })

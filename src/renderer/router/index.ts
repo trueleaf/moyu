@@ -20,11 +20,11 @@ const routes: Array<RouteRecordRaw> = [
         name: "Layout",
         component: () => import(/* webpackChunkName: "Layout" */ "@/pages/layout/layout.vue"),
         children: [{
-            path: "/layout/test",
+            path: "/v1/test",
             name: "Test",
             component: () => import(/* webpackChunkName: "Test" */ "@/pages/test/test.vue"),
         }, {
-            path: "/layout/permission",
+            path: "/v1/permission",
             name: "Permission",
             component: () => import(/* webpackChunkName: "Permission" */ "@/pages/modules/permission/permission.vue"),
         }],
