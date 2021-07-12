@@ -59,12 +59,6 @@ const permission = {
                         ...matchedRoutes,
                     ],
                 });
-                console.log(333, matchedRoutes, state.routes, routes)
-                router.addRoute({
-                    path: "/.*/",
-                    name: "404",
-                    component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
-                })
             }
         },
         /**

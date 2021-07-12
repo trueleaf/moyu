@@ -29,6 +29,11 @@ const routes: Array<RouteRecordRaw> = [
             component: () => import(/* webpackChunkName: "Permission" */ "@/pages/modules/permission/permission.vue"),
         }],
     },
+    {
+        path: "/:pathMatch(.*)*",
+        name: "404",
+        component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
+    },
 ]
 const router = createRouter({
     history: createWebHashHistory(),

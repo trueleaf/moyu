@@ -107,7 +107,7 @@ export default defineComponent({
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;
                         } else {
-                            this.$router.push("/layout/permission");
+                            this.$router.push("/v1/permission");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }
                     }).catch((err) => {
