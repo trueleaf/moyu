@@ -1,11 +1,11 @@
 import { UserInfo, Menu } from "./global"
-import { RouteRecordRaw } from "vue-router"
+import type { ResUserInfo } from "@@/global"
 
 //权限相关state
 interface PermissionState {
     userInfo: UserInfo,
     menus: Menu[],
-    routes: RouteRecordRaw[],
+    routes: ResUserInfo["clientRoutes"],
     loadingBanner: boolean,
 }
 //全局state
