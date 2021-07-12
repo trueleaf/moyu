@@ -71,8 +71,9 @@ export default defineComponent({
             const { name, groupName } = params;
             this.$refs.table.tableData = this.originTableData.filter((val) => {
                 const matchedName = name ? val.name.match(name) : true;
+                const matchedPath = name ? val.path.match(name) : true;
                 const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
-                return matchedName && matchedGroupName;
+                return (matchedName || matchedPath) && matchedGroupName;
             })
         },
         //获取前端路由信息
@@ -81,7 +82,9 @@ export default defineComponent({
             _this.tableData = res.data;
             _this.total = res.data.length;
             const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
-            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName }))
+            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
+                return (a.name.charCodeAt(0) - b.name.charCodeAt(0));
+            })
         },
         //=========================================================================//
         handleSelect(routeList: ClientRoute[]) {

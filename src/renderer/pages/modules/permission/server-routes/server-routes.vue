@@ -16,44 +16,44 @@
             </template>
         </s-search>
         <!-- 表格展示 -->
-        <s-table ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
+        <s-table ref="table" url="/api/security/server_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
             <el-table-column prop="name" label="路由名称" align="center"></el-table-column>
             <el-table-column prop="path" label="路由地址" align="center"></el-table-column>
             <el-table-column prop="groupName" label="分组名称" align="center"></el-table-column>
             <el-table-column label="操作" align="center">
                 <template #default="scope">
-                    <el-button type="text" @click.stop="handleOpenClientEditDialog(scope.row)">修改</el-button>
-                    <el-button type="text" @click.stop="handleDeleteClientRoute(scope.row)">删除</el-button>
+                    <el-button type="text" @click.stop="handleOpenServerEditDialog(scope.row)">修改</el-button>
+                    <el-button type="text" @click.stop="handleDeleteServerRoute(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
         </s-table>
-        <s-add-client-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-client-route>
-        <s-edit-client-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-client-route>
-        <s-multi-edit-client-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-client-route>
+        <s-add-server-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-server-route>
+        <s-edit-server-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-server-route>
+        <s-multi-edit-server-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-server-route>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import addClientRoute from "./add/add.vue"
-import editClientRoute from "./edit/edit.vue"
-import multiEditClientRoute from "./edit/edit2.vue"
-import { Response, ClientRoute } from "@@/global"
+import addServerRoute from "./add/add.vue"
+import editServerRoute from "./edit/edit.vue"
+import multiEditServerRoute from "./edit/edit2.vue"
+import { Response, ServerRoute } from "@@/global"
 type HookThis = {
-    tableData: ClientRoute[],
+    tableData: ServerRoute[],
     total: number,
 }
 export default defineComponent({
     components: {
-        "s-add-client-route": addClientRoute,
-        "s-edit-client-route": editClientRoute,
-        "s-multi-edit-client-route": multiEditClientRoute,
+        "s-add-server-route": addServerRoute,
+        "s-edit-server-route": editServerRoute,
+        "s-multi-edit-server-route": multiEditServerRoute,
     },
     data() {
         return {
-            selectedData: [] as ClientRoute[], //-----------------当前被选中的表单数据
-            editData: {} as ClientRoute, //-----------------------需要编辑的数据
-            originTableData: [] as ClientRoute[], //--------------原始表单数据
+            selectedData: [] as ServerRoute[], //-----------------当前被选中的表单数据
+            editData: {} as ServerRoute, //-----------------------需要编辑的数据
+            originTableData: [] as ServerRoute[], //--------------原始表单数据
             groupEnum: [] as { id: string, name: string }[], //---分组信息
             dialogVisible: false, //------------------------------新增路由信息弹窗
             dialogVisible2: false, //-----------------------------修改路由信息弹窗
@@ -71,31 +71,34 @@ export default defineComponent({
             const { name, groupName } = params;
             this.$refs.table.tableData = this.originTableData.filter((val) => {
                 const matchedName = name ? val.name.match(name) : true;
+                const matchedPath = name ? val.path.match(name) : true;
                 const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
-                return matchedName && matchedGroupName;
+                return (matchedName || matchedPath) && matchedGroupName;
             })
         },
         //获取前端路由信息
-        hookRequest(res: Response<ClientRoute[]>, _this: HookThis) {
+        hookRequest(res: Response<ServerRoute[]>, _this: HookThis) {
             this.originTableData = res.data;
             _this.tableData = res.data;
             _this.total = res.data.length;
             const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
-            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName }))
+            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
+                return (a.name.charCodeAt(0) - b.name.charCodeAt(0));
+            })
         },
         //=========================================================================//
-        handleSelect(routeList: ClientRoute[]) {
+        handleSelect(routeList: ServerRoute[]) {
             this.selectedData = routeList;
         },
         //删除前端路由组件
-        handleDeleteClientRoute(row: ClientRoute) {
+        handleDeleteServerRoute(row: ServerRoute) {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
                 const params = { ids: [row._id] };
-                this.axios.delete("/api/security/client_routes", { data: params }).then(() => {
+                this.axios.delete("/api/security/server_routes", { data: params }).then(() => {
                     this.$refs.table.getData();
                 }).catch((err) => {
                     console.error(err);
@@ -113,7 +116,7 @@ export default defineComponent({
             this.dialogVisible = true;
         },
         //打开修改前端路由
-        handleOpenClientEditDialog(row: ClientRoute) {
+        handleOpenServerEditDialog(row: ServerRoute) {
             this.editData = row;
             this.dialogVisible2 = true;
         },

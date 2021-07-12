@@ -23,6 +23,7 @@ import user from "./user/user.vue"
 import role from "./role/role.vue"
 import menu from "./menu/menu.vue"
 import clientRoutes from "./client-routes/client-routes.vue"
+import serverRoutes from "./server-routes/server-routes.vue"
 
 export default defineComponent({
     components: {
@@ -30,6 +31,7 @@ export default defineComponent({
         "s-role": role,
         "s-menu": menu,
         "s-client-routes": clientRoutes,
+        "s-server-routes": serverRoutes,
     },
     data() {
         return {
