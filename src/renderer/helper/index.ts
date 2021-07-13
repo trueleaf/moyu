@@ -4,22 +4,36 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
+import type { HttpRequestMethod } from "@@/global"
 import tips from "./tips"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
+import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
 
 type Data = Record<string, unknown>
 
-//对象对比
+/**
+ * 对象对比
+ */
 export const isEqual = lodashIsEqual;
-//深拷贝
+/**
+ * 深拷贝
+ */
 export const cloneDeep = lodashCloneDeep;
-//防抖函数
+/**
+ * 防抖函数
+ */
 export const debounce = lodashDebounce;
-//全局事件订阅发布
+/**
+ * 节流函数
+ */
+export const throttle = lodashThrottle;
+/**
+ * 全局事件订阅发布
+ */
 const emitter = mitt()
 
 export const event = emitter;
@@ -165,4 +179,11 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
         }
     }
     return result;
+}
+
+/**
+ * 获取请求方法
+ */
+export function getRequestMethodEnum(): HttpRequestMethod[] {
+    return ["GET", "POST", "PUT", "DELETE", "TRACE", "CONNECTION", "OPTIONS", "PATCH", "HEAD"];
 }

@@ -165,5 +165,34 @@ type ResClientRoute = {
      groupName: string,
 }
 //=========================================================================//
+/**
+ * http请求方法
+ * https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
+ */
+type HttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH" | "HEAD" | "CONNECTION" | "TRACE";
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute }
+/**
+ * 项目列表
+ */
+type ApiProjectInfo = {
+    _id: string,
+    docNum: number,
+    owner: {
+        id: string,
+        name: string,
+    },
+    projectName: string,
+    remark: string,
+    updatedAt: string,
+    /**
+     * 是否被收藏
+     */
+    isStared: boolean,
+};
+type ResApiProjectList = {
+    list: ApiProjectInfo[],
+    recentVisitProjects: string[],
+    starProjects: string[],
+}
+
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectList, ApiProjectInfo }

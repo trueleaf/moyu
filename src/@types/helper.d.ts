@@ -1,8 +1,7 @@
-import { LoDashStatic } from "lodash"
-import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById, uniqueByKey, event } from "@/helper/index"
+import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById, uniqueByKey, event, getRequestMethodEnum, cloneDeep } from "@/helper/index"
 
-type IsEqual = LoDashStatic["isEqual"];
-type CloneDeep = LoDashStatic["CloneDeep"];
+// type IsEqual = LoDashStatic["isEqual"];
+// type CloneDeep = LoDashStatic["CloneDeep"];
 
 interface Helper {
     /**
@@ -12,7 +11,7 @@ interface Helper {
     /**
      * 深拷贝
      */
-    cloneDeep: CloneDeep,
+    cloneDeep: typeof cloneDeep,
     /**
      * 获取uuid
      */
@@ -53,6 +52,10 @@ interface Helper {
      * 全局事件
      */
      event: typeof event,
+     /**
+      * 获取方法枚举信息
+      */
+    getRequestMethodEnum: typeof getRequestMethodEnum,
 }
 
-export { Helper, IsEqual, CloneDeep, Uuid, GetType }
+export { Helper, IsEqual, CloneDeep }
