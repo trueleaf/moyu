@@ -195,4 +195,23 @@ type ResApiProjectList = {
     starProjects: string[],
 }
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectList, ApiProjectInfo }
+type ResUserBaseInfo = {
+    /**
+     * 登录名称
+     */
+    loginName: string,
+    /**
+     * 真实姓名
+     */
+    realName: string,
+    /**
+     * 用户id
+     */
+    userId: string,
+    /**
+     * 权限
+     */
+    permission?: "readAndWrite" | "readOnly" | "admin"
+};
+
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectList, ApiProjectInfo, ResUserBaseInfo }
