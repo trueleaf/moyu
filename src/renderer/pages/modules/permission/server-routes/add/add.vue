@@ -8,7 +8,7 @@
     <s-dialog :model-value="modelValue" top="10vh" title="新增服务端路由" @close="handleClose">
         <s-form ref="form" :edit-data="formInfo">
             <s-form-item label="名称" prop="name" required one-line></s-form-item>
-            <s-form-item label="请求方法" prop="method" required one-line></s-form-item>
+            <s-form-item label="请求方法" prop="method" type="select" :select-enum="requestMethodEnum" required one-line></s-form-item>
             <s-form-item label="路径" prop="path" required one-line></s-form-item>
             <s-form-item label="分组名称" prop="groupName" required one-line></s-form-item>
         </s-form>
@@ -38,12 +38,22 @@ export default defineComponent({
                 method: "", //----------请求方法
                 groupName: "", //-------路由分组名称
             },
-            //=========================================================================//
+            requestMethodEnum: [] as { id: string, name: string }[], //请求方法枚举
             //=========================================================================//
             loading: false,
         };
     },
+    created() {
+        this.getRequestMethodEnum();
+    },
     methods: {
+        getRequestMethodEnum() {
+            this.requestMethodEnum = this.$helper.getRequestMethodEnum().map((v) => ({
+                id: v,
+                name: v.toLocaleLowerCase(),
+            }));
+        },
+        //保存路由
         handleSaveServerRoute() {
             this.$refs.form.validate((valid) => {
                 if (valid) {

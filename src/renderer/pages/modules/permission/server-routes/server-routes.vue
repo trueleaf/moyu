@@ -17,6 +17,15 @@
         </s-search>
         <!-- 表格展示 -->
         <s-table ref="table" url="/api/security/server_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
+            <el-table-column label="请求方法" align="center">
+                <template #default="scope">
+                    <span v-if="scope.row.method === 'get'" class="green">GET</span>
+                    <span v-else-if="scope.row.method === 'post'" class="orange">POST</span>
+                    <span v-else-if="scope.row.method === 'put'" class="teal">PUT</span>
+                    <span v-else-if="scope.row.method === 'delete'" class="red">DELETE</span>
+                    <span v-else>{{ scope.row.method }}</span>
+                </template>
+            </el-table-column>
             <el-table-column prop="name" label="路由名称" align="center"></el-table-column>
             <el-table-column prop="path" label="路由地址" align="center"></el-table-column>
             <el-table-column prop="groupName" label="分组名称" align="center"></el-table-column>
