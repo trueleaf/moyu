@@ -52,6 +52,7 @@ const permission = {
                         }
                     });
                 });
+                console.log(33, matchedRoutes, routes)
                 router.addRoute({
                     path: "/v1",
                     component: layout,
@@ -78,10 +79,10 @@ const permission = {
         changeMenus(state: PermissionState, payload: ResUserInfo["clientBanner"]): void {
             if (config.renderConfig.permission.free && state.userInfo.loginName === "admin") {
                 state.menus = [{
-                    path: "/layout/apidoc/doc-list",
+                    path: "/v1/apidoc/doc-list",
                     name: "api文档",
                 }, {
-                    path: "/layout/permission/permission",
+                    path: "/v1/permission/permission",
                     name: "权限管理",
                 }];
             } else if (config.renderConfig.permission.free) {

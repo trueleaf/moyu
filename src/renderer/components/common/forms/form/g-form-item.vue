@@ -20,11 +20,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, inject } from "vue"
 
 export default defineComponent({
     name: "FormItem",
-    inject: ["formInfo"],
     props: {
         /**
          * 表单组件类型 input select date daterange text
@@ -51,7 +50,7 @@ export default defineComponent({
          * 绑定参数的字段名称
          */
         prop: {
-            type: [String, Number, Boolean, Array],
+            type: [String, Number],
             default: "",
         },
         //=====================================快捷规则====================================//
@@ -90,6 +89,12 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+    },
+    setup() {
+        const formInfo = inject<Record<string, unknown>>("formInfo", {})
+        return {
+            formInfo: formInfo,
+        }
     },
     data() {
         return {};

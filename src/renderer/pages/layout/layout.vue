@@ -105,7 +105,7 @@ export default defineComponent({
     },
     computed: {
         menus(): Menu[] { //所有菜单
-            return [];
+            return this.$store.state.permission.menus;
         },
         userInfo(): UserInfo { //用户信息
             return this.$store.state.permission.userInfo;

@@ -12,7 +12,7 @@
         :multiple="multi"
         filterable
         :size="config.renderConfig.layout.size"
-        :class="{'w-100': !className, className}"
+        :class="className"
         clearable
         :visible-change="getSelectEnum"
         @change="handleChange"
