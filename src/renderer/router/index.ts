@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import(/* webpackChunkName: "login" */ "@/pages/login/login.vue")
     },
     {
-        path: "/layout",
+        path: "/v1",
         name: "Layout",
         component: () => import(/* webpackChunkName: "Layout" */ "@/pages/layout/layout.vue"),
         children: [{
@@ -24,9 +24,13 @@ const routes: Array<RouteRecordRaw> = [
             name: "Test",
             component: () => import(/* webpackChunkName: "Test" */ "@/pages/test/test.vue"),
         }, {
-            path: "/v1/permission",
+            path: "/v1/permission/permission",
             name: "Permission",
             component: () => import(/* webpackChunkName: "Permission" */ "@/pages/modules/permission/permission.vue"),
+        }, {
+            path: "/v1/apidoc/doc-list",
+            name: "DocList",
+            component: () => import(/* webpackChunkName: "Permission" */ "@/pages/modules/apidoc/doc-list/doc-list.vue"),
         }],
     },
     {
