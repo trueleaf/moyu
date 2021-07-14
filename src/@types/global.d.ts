@@ -1,6 +1,6 @@
 
 //基础返回类型
-interface Response<T> {
+type Response<T> = {
     code: number, //状态码
     msg: string, //登录名称
     data: T

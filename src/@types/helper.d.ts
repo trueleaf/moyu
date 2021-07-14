@@ -3,7 +3,7 @@ import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, format
 // type IsEqual = LoDashStatic["isEqual"];
 // type CloneDeep = LoDashStatic["CloneDeep"];
 
-interface Helper {
+type Helper = {
     /**
      * 两个变量是否相等
      */

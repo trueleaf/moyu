@@ -52,7 +52,6 @@ const permission = {
                         }
                     });
                 });
-                console.log(33, matchedRoutes, routes)
                 router.addRoute({
                     path: "/v1",
                     component: layout,
