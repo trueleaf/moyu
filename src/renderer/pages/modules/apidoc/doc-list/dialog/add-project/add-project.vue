@@ -59,9 +59,6 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import type { ResUserBaseInfo } from "@@/global"
-// type UserBaseInfo = ResUserBaseInfo & {
-//     permission: "readAndWrite" | "readOnly" | "admin"
-// }
 
 export default defineComponent({
     props: {
@@ -75,18 +72,18 @@ export default defineComponent({
         return {
             //=====================================新建项目====================================//
             formInfo: {
-                projectName: "", //----项目名称
-                remark: "", //---------项目备注
+                projectName: "", //-------------------------项目名称
+                remark: "", //------------------------------项目备注
             },
-            rules: {
+            rules: { //-------------------------------------新增项目校验规则
                 projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
-            }, //----------------------新增项目校验规则
+            },
             remoteMembers: [] as ResUserBaseInfo[], //------远程用户列表
             selectUserData: [] as ResUserBaseInfo[], //-----已选中的用户
-            remoteQueryName: "", //----用户名称
+            remoteQueryName: "", //-------------------------用户名称
             //=====================================其他参数====================================//
-            loading: false, //---------成员数据加载状态
-            loading2: false, //--------新增项目
+            loading: false, //------------------------------成员数据加载状态
+            loading2: false, //-----------------------------新增项目
         };
     },
     methods: {
@@ -141,7 +138,6 @@ export default defineComponent({
                 }
             });
         },
-        //=====================================组件间交互====================================//
         //选取用户
         handleSelectUser(item: ResUserBaseInfo) {
             this.remoteMembers = [];

@@ -37,13 +37,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="d-flex j-end a-center gray-500 mt-2">
-                    <span>最新更新:</span>
-                    <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
-                </div>
-                <div class="d-flex j-end a-center gray-500">
+                <div class="d-flex j-end a-center gray-600 mt-2">
                     <span>创建者:</span>
                     <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+                </div>
+                <div class="d-flex j-end a-center gray-600">
+                    <span>最新更新:</span>
+                    <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
                 </div>
                 <div class="project-bottom d-flex">
                     <div>
