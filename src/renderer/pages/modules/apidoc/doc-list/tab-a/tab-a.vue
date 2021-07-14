@@ -13,46 +13,95 @@
             <el-button size="small" type="success" icon="el-icon-download" @click="dialogVisible3 = true">导入项目</el-button>
         </div>
         <!-- 项目列表 -->
-        <s-loading :loading="loading" class="project-wrap">
-            <div v-for="(item, index) in projectList" :key="index" class="project-list">
-                <div class="project-header">
-                    <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
-                    <div class="operator">
-                        <div title="编辑" @click="handleOpenEditDialog(item)">
-                            <i class="el-icon-edit"></i>
+        <s-loading :loading="loading">
+            <!-- 收藏的项目 -->
+            <h2 v-show="starProjects.length > 0">收藏的项目</h2>
+            <div v-show="starProjects.length > 0" class="project-wrap">
+                <div v-for="(item, index) in starProjects" :key="index" class="project-list">
+                    <div class="project-header">
+                        <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                        <div class="operator">
+                            <div title="编辑" @click="handleOpenEditDialog(item)">
+                                <i class="el-icon-edit"></i>
+                            </div>
+                            <div title="成员管理" @click="handleOpenPermissionDialog(item)">
+                                <i class="el-icon-user"></i>
+                            </div>
+                            <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
+                                <i v-if="!starLoading" class="el-icon-star-off"></i>
+                                <i v-if="starLoading" class="el-icon-loading"></i>
+                            </div>
+                            <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
+                                <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
+                                <i v-if="unStarLoading" class="el-icon-loading"></i>
+                            </div>
+                            <div title="删除" @click="deleteProject(item._id)">
+                                <i class="el-icon-delete"></i>
+                            </div>
                         </div>
-                        <div title="成员管理" @click="handleOpenPermissionDialog(item)">
-                            <i class="el-icon-user"></i>
+                    </div>
+                    <div class="d-flex j-end a-center gray-500 mt-2">
+                        <span>最新更新:</span>
+                        <span>{{ new Date(item.updatedAt).toLocaleDateString() }}</span>&nbsp;&nbsp;
+                    </div>
+                    <div class="d-flex j-end a-center gray-500">
+                        <span>创建者:</span>
+                        <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+                    </div>
+                    <div class="project-bottom d-flex">
+                        <div>
+                            <span class="f-sm">接口数:</span>
+                            <span class="teal">{{ item.docNum }}</span>
                         </div>
-                        <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
-                            <i v-if="!starLoading" class="el-icon-star-off"></i>
-                            <i v-if="starLoading" class="el-icon-loading"></i>
-                        </div>
-                        <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
-                            <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
-                            <i v-if="unStarLoading" class="el-icon-loading"></i>
-                        </div>
-                        <div title="删除" @click="deleteProject(item._id)">
-                            <i class="el-icon-delete"></i>
+                        <div class="ml-auto">
+                            <el-button type="primary" size="mini" @click="jumpToProject(item._id, item.projectName)">编辑</el-button>
+                            <el-button type="primary" size="mini" @click="handleView(item)">预览</el-button>
                         </div>
                     </div>
                 </div>
-                <div class="d-flex j-end a-center gray-600 mt-2">
-                    <span>创建者:</span>
-                    <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
-                </div>
-                <div class="d-flex j-end a-center gray-600">
-                    <span>最新更新:</span>
-                    <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
-                </div>
-                <div class="project-bottom d-flex">
-                    <div>
-                        <span class="f-sm">接口数:</span>
-                        <span class="teal">{{ item.docNum }}</span>
+            </div>
+            <!-- 项目列表 -->
+            <div class="project-wrap">
+                <div v-for="(item, index) in projectList" :key="index" class="project-list">
+                    <div class="project-header">
+                        <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                        <div class="operator">
+                            <div title="编辑" @click="handleOpenEditDialog(item)">
+                                <i class="el-icon-edit"></i>
+                            </div>
+                            <div title="成员管理" @click="handleOpenPermissionDialog(item)">
+                                <i class="el-icon-user"></i>
+                            </div>
+                            <div v-if="!item.isStared" title="收藏" @click="handleStar(item)">
+                                <i v-if="!starLoading" class="el-icon-star-off"></i>
+                                <i v-if="starLoading" class="el-icon-loading"></i>
+                            </div>
+                            <div v-if="item.isStared" title="取消收藏" @click="handleUnStar(item)">
+                                <i v-if="!unStarLoading" class="el-icon-star-on f-base yellow"></i>
+                                <i v-if="unStarLoading" class="el-icon-loading"></i>
+                            </div>
+                            <div title="删除" @click="deleteProject(item._id)">
+                                <i class="el-icon-delete"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="ml-auto">
-                        <el-button type="primary" size="mini" @click="handleJumpToProject(item)">编辑</el-button>
-                        <el-button type="primary" size="mini" @click="handleJumpToView(item)">预览</el-button>
+                    <div class="d-flex j-end a-center gray-600 mt-2">
+                        <span>创建者:</span>
+                        <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
+                    </div>
+                    <div class="d-flex j-end a-center gray-600">
+                        <span>最新更新:</span>
+                        <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
+                    </div>
+                    <div class="project-bottom d-flex">
+                        <div>
+                            <span class="f-sm">接口数:</span>
+                            <span class="teal">{{ item.docNum }}</span>
+                        </div>
+                        <div class="ml-auto">
+                            <el-button type="primary" size="mini" @click="handleJumpToProject(item)">编辑</el-button>
+                            <el-button type="primary" size="mini" @click="handleJumpToView(item)">预览</el-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -85,9 +134,25 @@ export default defineComponent({
         };
     },
     computed: {
+        /**
+         * 项目列表
+         */
         projectList(): ApiProjectInfo[] {
             const filteredProjectList = this.projectListCopy.filter((val) => val.projectName.match(new RegExp(this.projectName, "gi")))
             return filteredProjectList.map((val) => {
+                const isStared = this.starProjectIds.find((id) => id === val._id);
+                return {
+                    ...val,
+                    isStared: !!isStared,
+                };
+            });
+        },
+        /**
+         * 当前收藏的项目
+         */
+        starProjects(): ApiProjectInfo[] {
+            const filteredProjectList = this.projectListCopy.filter((val) => val.projectName.match(new RegExp(this.projectName, "gi")))
+            return filteredProjectList.filter((projectInfo) => this.starProjectIds.find((id) => id === projectInfo._id)).map((val) => {
                 const isStared = this.starProjectIds.find((id) => id === val._id);
                 return {
                     ...val,
@@ -124,15 +189,56 @@ export default defineComponent({
         },
         //收藏项目
         handleStar(item: ApiProjectInfo) {
-            console.log(item)
+            if (this.starLoading) {
+                return;
+            }
+            this.starLoading = true;
+            this.axios.put("/api/project/star", { projectId: item._id }).then(() => {
+                item.isStared = true;
+                this.starProjectIds.push(item._id);
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.starLoading = false;
+            });
         },
         //取消收藏项目
         handleUnStar(item: ApiProjectInfo) {
-            console.log(item)
+            if (this.unStarLoading) {
+                return;
+            }
+            this.unStarLoading = true;
+            this.axios.put("/api/project/unstar", { projectId: item._id }).then(() => {
+                item.isStared = true;
+                const delIndex = this.starProjectIds.findIndex((val) => val === item._id);
+                this.starProjectIds.splice(delIndex, 1);
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.unStarLoading = false;
+            });
         },
         //删除项目
         deleteProject(_id: string) {
-            console.log(_id)
+            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+            }).then(() => {
+                const params = {
+                    ids: [_id],
+                };
+                this.axios.delete("/api/project/delete_project", { data: params }).then(() => {
+                    this.getProjectList();
+                }).catch((err) => {
+                    console.error(err);
+                });
+            }).catch((err: Error | string) => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                console.error(err);
+            });
         },
         //跳转到编辑
         handleJumpToProject(item: ApiProjectInfo) {
@@ -155,7 +261,8 @@ export default defineComponent({
     .project-wrap {
         display: flex;
         flex-wrap: wrap;
-        align-items: flex-start;
+        align-items: center;
+        margin-bottom: size(20);
         @media only screen and (max-width: 1199px) {
             justify-content: center;
         }
@@ -165,7 +272,6 @@ export default defineComponent({
         border: 1px solid $gray-200;
         box-shadow: $box-shadow-sm;
         margin-right: size(30);
-        margin-bottom: size(20);
         padding: 10px;
         position: relative;
         @media only screen and (max-width: 1199px) {
