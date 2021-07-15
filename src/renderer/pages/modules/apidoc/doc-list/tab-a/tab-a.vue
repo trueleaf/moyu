@@ -75,7 +75,7 @@ export default defineComponent({
             projectName: "", //--------------------------------------------项目名称
             recentVisitProjectIds: [] as string[], //----------------------最近访问项目id集合
             starProjectIds: [] as string[], //-----------------------------收藏项目id集合
-            projectListCopy: [] as ApiProjectInfo[], //-----------项目列表拷贝用户数据过滤
+            projectListCopy: [] as ApiProjectInfo[], //--------------------项目列表拷贝
             loading: false, //---------------------------------------------项目数据加载
             starLoading: false, //-----------------------------------------是否正在收藏
             unStarLoading: false, //---------------------------------------是否取消收藏
@@ -104,6 +104,7 @@ export default defineComponent({
         //获取项目列表
         getProjectList() {
             this.loading = true;
+            // this.$cache.get("/api/project/project_list");
             this.axios.get<Response<ResApiProjectList>, Response<ResApiProjectList>>("/api/project/project_list").then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
