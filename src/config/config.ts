@@ -36,6 +36,7 @@ const config: Config = {
     },
     //渲染进程配置
     renderConfig: {
+        //缓存相关
         //布局相关
         layout: {
             title: "moyu", //项目标题

@@ -43,5 +43,6 @@ declare module "@vue/runtime-core" {
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
+        $cache: 1
     }
 }
