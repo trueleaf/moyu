@@ -5,8 +5,10 @@ import { axios } from "@/api/api"
 import { Response, ResApiProjectList } from "@@/global";
 
 type Api = {
+    /**
+     * 获取项目列表数据
+     */
     "/api/project/project_list": () => Promise<Response<ResApiProjectList>>,
-    "b": () => number,
 }
 
 const api: Api = {
@@ -20,19 +22,14 @@ const api: Api = {
             });
         })
     },
-    b() {
-        return 222;
-    },
 }
 const cache = {
     /**
      * 获取数据信息
      */
-    get<URL extends keyof Api>(url: URL): Api[URL] {
+    get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]> {
         const apiFn = api[url];
-        return apiFn;
+        return apiFn() as ReturnType<Api[URL]>;
     }
 }
-
-// const foo = cache.get("/api/project/project_list")()
 export default cache;

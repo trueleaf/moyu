@@ -1,8 +1,17 @@
 
 //基础返回类型
 type Response<T> = {
-    code: number, //状态码
-    msg: string, //登录名称
+    /**
+     * 状态码
+     */
+    code: number,
+    /**
+     * 登录名称
+     */
+    msg: string,
+    /**
+     * 返回数据
+     */
     data: T
 }
 //=========================================================================//
@@ -190,8 +199,17 @@ type ApiProjectInfo = {
     isStared: boolean,
 };
 type ResApiProjectList = {
+    /**
+     * 项目列表
+     */
     list: ApiProjectInfo[],
+    /**
+     * 最近访问项目ids
+     */
     recentVisitProjects: string[],
+    /**
+     * 用户star的项目ids
+     */
     starProjects: string[],
 }
 
