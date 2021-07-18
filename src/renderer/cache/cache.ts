@@ -3,6 +3,7 @@
  */
 import { axios } from "@/api/api"
 import { Response, ResApiProjectList } from "@@/global";
+import "./database"
 
 type Api = {
     /**
@@ -23,13 +24,30 @@ const api: Api = {
         })
     },
 }
-const cache = {
+
+interface ICaceh {
+    dbBase: IDBDatabase | null;
+    get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]>;
+}
+
+let singleton: null | ICaceh = null;
+class Cache implements ICaceh {
+    public dbBase: IDBDatabase | null = null;
+    constructor() {
+        if (!singleton) {
+            singleton = this;
+        } else {
+            return singleton;
+        }
+    }
+
     /**
      * 获取数据信息
      */
-    get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]> {
+    public get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]> {
         const apiFn = api[url];
         return apiFn() as ReturnType<Api[URL]>;
     }
 }
-export default cache;
+
+export default Cache;
