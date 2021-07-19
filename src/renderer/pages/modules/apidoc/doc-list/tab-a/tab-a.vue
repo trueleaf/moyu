@@ -8,7 +8,7 @@
     <div class="tab-a">
         <!-- 搜索条件 -->
         <div class="search-item d-flex a-center mb-3">
-            <el-input v-model="projectName" placeholder="搜索项目名称" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
+            <el-input v-model="projectName" placeholder="项目名称或者接口URL" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
             <el-button size="small" type="success" icon="el-icon-download" @click="dialogVisible3 = true">导入项目</el-button>
         </div>
@@ -42,7 +42,7 @@
                     </div>
                     <div class="d-flex j-end a-center gray-500 mt-2">
                         <span>最新更新:</span>
-                        <span>{{ new Date(item.updatedAt).toLocaleDateString() }}</span>&nbsp;&nbsp;
+                        <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
                     </div>
                     <div class="d-flex j-end a-center gray-500">
                         <span>创建者:</span>
@@ -54,14 +54,19 @@
                             <span class="teal">{{ item.docNum }}</span>
                         </div>
                         <div class="ml-auto">
-                            <el-button type="primary" size="mini" @click="jumpToProject(item._id, item.projectName)">编辑</el-button>
-                            <el-button type="primary" size="mini" @click="handleView(item)">预览</el-button>
+                            <el-button type="primary" size="mini" @click="handleJumpToProject(item)">编辑</el-button>
+                            <el-button type="primary" size="mini" @click="handleJumpToView(item)">预览</el-button>
                         </div>
                     </div>
                 </div>
             </div>
+            <h2 class="cursor-pointer" @click="toggleCollapse">
+                <span v-if="!isFold" class="el-icon-caret-bottom"></span>
+                <span v-else class="el-icon-caret-right"></span>
+                <span>全部项目({{ projectList.length }})</span>
+            </h2>
             <!-- 项目列表 -->
-            <div class="project-wrap">
+            <div v-show="!isFold" class="project-wrap">
                 <div v-for="(item, index) in projectList" :key="index" class="project-list">
                     <div class="project-header">
                         <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
@@ -108,16 +113,19 @@
         </s-loading>
     </div>
     <s-add-project-dialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
+    <s-edit-project-dialog v-if="dialogVisible2" v-model="dialogVisible2" :project-id="currentEditProjectId" :project-name="currentEditProjectName" @success="handleEditSuccess"></s-edit-project-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Response, ResApiProjectList, ApiProjectInfo } from "@@/global";
+import { Response, ResApiProjectInfo, ApiProjectInfo } from "@@/global";
 import addProject from "../dialog/add-project/add-project.vue"
+import editProject from "../dialog/edit-project/edit-project.vue"
 
 export default defineComponent({
     components: {
-        "s-add-project-dialog": addProject
+        "s-add-project-dialog": addProject,
+        "s-edit-project-dialog": editProject,
     },
     data() {
         return {
@@ -125,6 +133,10 @@ export default defineComponent({
             recentVisitProjectIds: [] as string[], //----------------------最近访问项目id集合
             starProjectIds: [] as string[], //-----------------------------收藏项目id集合
             projectListCopy: [] as ApiProjectInfo[], //--------------------项目列表拷贝
+            currentEditProjectId: "", //-----------------------------------项目id用于编辑
+            currentEditProjectName: "", //---------------------------------项目名称用于编辑
+            //=====================================其他参数====================================//
+            isFold: false, //----------------------------------------------是否折叠
             loading: false, //---------------------------------------------项目数据加载
             starLoading: false, //-----------------------------------------是否正在收藏
             unStarLoading: false, //---------------------------------------是否取消收藏
@@ -163,14 +175,17 @@ export default defineComponent({
     },
     created() {
         this.getProjectList();
+        this.initCahce();
     },
     methods: {
         //=====================================项目增删改查====================================//
-        //获取项目列表
+        /**
+         * 获取项目列表
+         */
         getProjectList() {
             this.loading = true;
             // this.$cache.get("/api/project/project_list");
-            this.axios.get<Response<ResApiProjectList>, Response<ResApiProjectList>>("/api/project/project_list").then((res) => {
+            this.axios.get<Response<ResApiProjectInfo>, Response<ResApiProjectInfo>>("/api/project/project_list").then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
                 this.projectListCopy = res.data.list;
@@ -180,15 +195,23 @@ export default defineComponent({
                 this.loading = false;
             });
         },
-        //编辑项目弹窗
+        /**
+         * 编辑项目弹窗
+         */
         handleOpenEditDialog(item: ApiProjectInfo) {
-            console.log(item)
+            this.currentEditProjectId = item._id;
+            this.currentEditProjectName = item.projectName;
+            this.dialogVisible2 = true;
         },
-        //编辑权限弹窗
+        /**
+         * 编辑权限弹窗
+         */
         handleOpenPermissionDialog(item: ApiProjectInfo) {
             console.log(item)
         },
-        //收藏项目
+        /**
+         * 收藏项目
+         */
         handleStar(item: ApiProjectInfo) {
             if (this.starLoading) {
                 return;
@@ -203,7 +226,9 @@ export default defineComponent({
                 this.starLoading = false;
             });
         },
-        //取消收藏项目
+        /**
+         * 取消收藏项目
+         */
         handleUnStar(item: ApiProjectInfo) {
             if (this.unStarLoading) {
                 return;
@@ -219,7 +244,9 @@ export default defineComponent({
                 this.unStarLoading = false;
             });
         },
-        //删除项目
+        /**
+         * 删除项目
+         */
         deleteProject(_id: string) {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
@@ -241,17 +268,43 @@ export default defineComponent({
                 console.error(err);
             });
         },
-        //跳转到编辑
+        //=====================================其他操作====================================//
+        /**
+         * 初始化一些缓存
+         */
+        initCahce() {
+            this.isFold = localStorage.getItem("doc-list/isFold") === "close";
+        },
+        /**
+         * 跳转到编辑
+         */
         handleJumpToProject(item: ApiProjectInfo) {
             console.log(item)
         },
-        //跳转到预览
+        /**
+         * 跳转到预览
+         */
         handleJumpToView(item: ApiProjectInfo) {
             console.log(item)
         },
-        //新增项目成功
+        /**
+         * 新增项目成功
+         */
         handleAddSuccess() {
-            console.log(33)
+            this.getProjectList()
+        },
+        /**
+         * 编辑项目成功
+         */
+        handleEditSuccess() {
+            this.getProjectList()
+        },
+        /**
+         * 折叠打开项目列表
+         */
+        toggleCollapse() {
+            this.isFold = !this.isFold;
+            localStorage.setItem("doc-list/isFold", this.isFold ? "close" : "open");
         },
     },
 })
@@ -269,10 +322,12 @@ export default defineComponent({
         }
     }
     .project-list {
-        width: 300px;
+        width: size(300);
+        // height: size(160);
         border: 1px solid $gray-200;
         box-shadow: $box-shadow-sm;
         margin-right: size(30);
+        margin-bottom: size(20);
         padding: 10px;
         position: relative;
         @media only screen and (max-width: 1199px) {

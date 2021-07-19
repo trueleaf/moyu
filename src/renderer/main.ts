@@ -2,7 +2,7 @@ import { createApp } from "vue"
 import ElementPlus from "element-plus";
 import zhLocale from "element-plus/lib/locale/lang/zh-cn"
 import mixin from "@/mixin/index"
-import cache from "./cache/cache"
+import { cache } from "./cache/cache"
 import App from "./App.vue"
 import { axiosPlugin } from "@/api/api"
 import * as helper from "@/helper/index"

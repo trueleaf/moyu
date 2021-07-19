@@ -20,7 +20,7 @@
     "dayjs": "^1.10.5",
     "dexie": "^3.0.3",
     "electron-updater": "^4.3.9",
-    "element-plus": "^1.0.2-beta.47",
+    "element-plus": "^1.0.2-beta.55",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
     "mitt": "^3.0.0",
