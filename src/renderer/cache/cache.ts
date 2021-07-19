@@ -1,26 +1,37 @@
 /**
  * web存储，提供接口文档离线使用能力
  */
-import { axios } from "@/api/api"
-import { Response, ResApiProjectList } from "@@/global";
-import "./database"
+// import { axios } from "@/api/api"
+import { Response, ResApiProjectInfo } from "@@/global";
+import db from "./database"
 
 type Api = {
     /**
      * 获取项目列表数据
      */
-    "/api/project/project_list": () => Promise<Response<ResApiProjectList>>,
+    "/api/project/project_list": () => Promise<Response<ResApiProjectInfo>>,
 }
 
 const api: Api = {
-    "/api/project/project_list"(): Promise<Response<ResApiProjectList>> {
+    "/api/project/project_list"(): Promise<Response<ResApiProjectInfo>> {
         return new Promise((resolve, reject) => {
-            axios.get<Response<ResApiProjectList>, Response<ResApiProjectList>>("/api/project/project_list").then((res) => {
-                resolve(res);
-            }).catch((err) => {
-                console.error(err)
-                reject(err)
+            db.transaction("rw", db.projectList, async () => {
+                const result = await db.projectList.toArray();
+                resolve({
+                    code: 0,
+                    msg: "xx",
+                    data: result[0]
+                });
+            }).catch((e) => {
+                console.error(e);
+                reject(e);
             });
+            // axios.get<Response<ResApiProjectInfo>, Response<ResApiProjectInfo>>("/api/project/project_list").then((res) => {
+            //     resolve(res);
+            // }).catch((err) => {
+            //     console.error(err)
+            //     reject(err)
+            // });
         })
     },
 }
@@ -49,5 +60,6 @@ class Cache implements ICaceh {
         return apiFn() as ReturnType<Api[URL]>;
     }
 }
+const cache = new Cache();
 
-export default Cache;
+export { cache, ICaceh };

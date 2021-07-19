@@ -198,7 +198,7 @@ type ApiProjectInfo = {
      */
     isStared: boolean,
 };
-type ResApiProjectList = {
+type ResApiProjectInfo = {
     /**
      * 项目列表
      */
@@ -232,4 +232,4 @@ type ResUserBaseInfo = {
     permission?: "readAndWrite" | "readOnly" | "admin"
 };
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectList, ApiProjectInfo, ResUserBaseInfo }
+export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectInfo, ApiProjectInfo, ResUserBaseInfo }

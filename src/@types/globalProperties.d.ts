@@ -6,6 +6,7 @@ import { Helper } from "@@/helper"
 import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
 import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
+import { ICaceh } from "@/cache/cache"
 
 type Data = Record<string, unknown>;
 
@@ -43,6 +44,6 @@ declare module "@vue/runtime-core" {
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
-        $cache: 1
+        $cache: ICaceh,
     }
 }
