@@ -72,6 +72,7 @@ export default defineComponent({
                     this.loading = true;
                     const params = {
                         projectName: this.formInfo.projectName,
+                        _id: this.projectId,
                     };
                     this.axios.put("/api/project/edit_project", params).then((res) => {
                         this.handleClose();

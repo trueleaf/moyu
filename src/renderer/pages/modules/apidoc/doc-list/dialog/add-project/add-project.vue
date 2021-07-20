@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { ResUserBaseInfo } from "@@/global"
+import type { ResUserBaseInfo, ProjectMemberInfo } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -79,7 +79,7 @@ export default defineComponent({
                 projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
             },
             remoteMembers: [] as ResUserBaseInfo[], //------远程用户列表
-            selectUserData: [] as ResUserBaseInfo[], //-----已选中的用户
+            selectUserData: [] as ProjectMemberInfo[], //-----已选中的用户
             remoteQueryName: "", //-------------------------用户名称
             //=====================================其他参数====================================//
             loading: false, //------------------------------成员数据加载状态
@@ -147,8 +147,11 @@ export default defineComponent({
                 this.$message.warning("请勿重复添加");
                 return;
             }
-            item.permission = "readAndWrite";
-            this.selectUserData.push(item);
+            const userInfo: ProjectMemberInfo = {
+                ...item,
+                permission: "readAndWrite",
+            }
+            this.selectUserData.push(userInfo);
         },
         //删除成员
         handleDeleteMember(index: number) {

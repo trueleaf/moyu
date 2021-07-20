@@ -114,18 +114,21 @@
     </div>
     <s-add-project-dialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
     <s-edit-project-dialog v-if="dialogVisible2" v-model="dialogVisible2" :project-id="currentEditProjectId" :project-name="currentEditProjectName" @success="handleEditSuccess"></s-edit-project-dialog>
+    <s-edit-permission-dialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId" @leave="getProjectList"></s-edit-permission-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Response, ResApiProjectInfo, ApiProjectInfo } from "@@/global";
+import { Response, ResApiProjectListInfo, ApiProjectInfo } from "@@/global";
 import addProject from "../dialog/add-project/add-project.vue"
 import editProject from "../dialog/edit-project/edit-project.vue"
+import editPermissionProject from "../dialog/permission/permission.vue"
 
 export default defineComponent({
     components: {
         "s-add-project-dialog": addProject,
         "s-edit-project-dialog": editProject,
+        "s-edit-permission-dialog": editPermissionProject,
     },
     data() {
         return {
@@ -143,6 +146,7 @@ export default defineComponent({
             dialogVisible: false, //---------------------------------------新增项目弹窗
             dialogVisible2: false, //--------------------------------------修改项目弹窗
             dialogVisible3: false, //--------------------------------------导入项目弹窗
+            dialogVisible4: false, //--------------------------------------修改项目权限弹窗
         };
     },
     computed: {
@@ -185,7 +189,7 @@ export default defineComponent({
         getProjectList() {
             this.loading = true;
             // this.$cache.get("/api/project/project_list");
-            this.axios.get<Response<ResApiProjectInfo>, Response<ResApiProjectInfo>>("/api/project/project_list").then((res) => {
+            this.axios.get<Response<ResApiProjectListInfo>, Response<ResApiProjectListInfo>>("/api/project/project_list").then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
                 this.projectListCopy = res.data.list;
@@ -207,7 +211,8 @@ export default defineComponent({
          * 编辑权限弹窗
          */
         handleOpenPermissionDialog(item: ApiProjectInfo) {
-            console.log(item)
+            this.currentEditProjectId = item._id;
+            this.dialogVisible4 = true;
         },
         /**
          * 收藏项目
