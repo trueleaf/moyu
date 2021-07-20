@@ -5,10 +5,10 @@
  */
 import Dexie from "dexie";
 // import config from "@/../config/config";
-import { ResApiProjectInfo } from "@@/global"
+import { ResApiProjectListInfo } from "@@/global"
 
 class MoyuDataBase extends Dexie {
-    public projectList: Dexie.Table<ResApiProjectInfo, number>
+    public projectList: Dexie.Table<ResApiProjectListInfo, number>
     public constructor() {
         super("MoyuDataBase");
         this.version(1).stores({

@@ -179,17 +179,49 @@ type ResClientRoute = {
  * https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
  */
 type HttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH" | "HEAD" | "CONNECTION" | "TRACE";
+type ProjectPermission = "readAndWrite" | "readOnly" | "admin"
 
+type ProjectMemberInfo = {
+    /**
+     * 登录名称
+     */
+    loginName: string,
+    /**
+     * 用户权限 "readAndWrite" | "readOnly" | "admin"
+     */
+    permission: ProjectPermission,
+    /**
+     * 真实姓名
+     */
+    realName: string,
+    /**
+     * 用户id
+     */
+    userId: string,
+}
 /**
  * 项目列表
  */
 type ApiProjectInfo = {
+    /**
+     * 项目id
+     */
     _id: string,
+    /**
+     * 项目接口数量
+     */
     docNum: number,
+    /**
+     * 项目创建者
+     */
     owner: {
         id: string,
         name: string,
     },
+    /**
+     * 项目成员信息
+     */
+    members: ProjectMemberInfo[],
     projectName: string,
     remark: string,
     updatedAt: string,
@@ -198,7 +230,7 @@ type ApiProjectInfo = {
      */
     isStared: boolean,
 };
-type ResApiProjectInfo = {
+type ResApiProjectListInfo = {
     /**
      * 项目列表
      */
@@ -226,10 +258,22 @@ type ResUserBaseInfo = {
      * 用户id
      */
     userId: string,
-    /**
-     * 权限
-     */
-    permission?: "readAndWrite" | "readOnly" | "admin"
 };
 
-export { Menu, UserInfo, Response, RoleEnum, ClientRoute, ServerRoute, ResUserInfo, ResClientMenu, ResClientRoute, HttpRequestMethod, ResApiProjectInfo, ApiProjectInfo, ResUserBaseInfo }
+export {
+    Menu,
+    UserInfo,
+    Response,
+    RoleEnum,
+    ClientRoute,
+    ServerRoute,
+    ResUserInfo,
+    ResClientMenu,
+    ResClientRoute,
+    HttpRequestMethod,
+    ResApiProjectListInfo,
+    ApiProjectInfo,
+    ResUserBaseInfo,
+    ProjectMemberInfo,
+    ProjectPermission,
+}
