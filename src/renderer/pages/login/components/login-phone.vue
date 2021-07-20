@@ -71,6 +71,7 @@ export default defineComponent({
                         } else {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                            this.$store.dispatch("permission/getPermission")
                         }
                     }).catch((err) => {
                         console.error(err);
