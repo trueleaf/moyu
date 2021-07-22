@@ -284,7 +284,15 @@ export default defineComponent({
          * 跳转到编辑
          */
         handleJumpToProject(item: ApiProjectInfo) {
-            console.log(item)
+            this.axios.put("/api/project/visited", { projectId: item._id }).catch((err) => {
+                console.error(err);
+            });
+            this.$router.push({
+                path: "/v1/apidoc/doc-edit",
+                query: {
+                    id: item._id,
+                },
+            });
         },
         /**
          * 跳转到预览
