@@ -28,9 +28,29 @@ export default defineComponent({
     },
     data() {
         return {
+            loading: false, //数据加载效果
         };
     },
+    created() {
+        this.getProjectInfo();
+    },
     methods: {
+        /**
+         * 获取项目基本信息
+         */
+        getProjectInfo() {
+            this.loading = true;
+            const params = {
+                _id: this.$route.query.id,
+            }
+            this.axios.get("/api/project/project_full_info", { params }).then((res) => {
+                console.log(res)
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
     },
 })
 </script>

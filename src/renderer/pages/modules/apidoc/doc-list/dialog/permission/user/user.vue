@@ -52,8 +52,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import type { ApiProjectInfo, Response, ProjectMemberInfo, ProjectPermission } from "@@/global"
-type UserInfo = ApiProjectInfo["members"][0] & { _permission: ProjectPermission };
-type ProjectInfo = ApiProjectInfo
+type UserInfo = ProjectMemberInfo & { _permission: ProjectPermission };
 
 export default defineComponent({
     props: {
@@ -66,7 +65,7 @@ export default defineComponent({
     data() {
         return {
             remoteMembers: [] as ProjectMemberInfo[], //------远程用户列表
-            selectedUserData: [] as ProjectInfo["members"], //-----已选中的用户
+            selectedUserData: [] as ApiProjectInfo["members"], //-----已选中的用户
             remoteQueryName: "", //----用户名称
             //===================================其他参数====================================//
             loading: false, //---------项目详情
@@ -79,15 +78,15 @@ export default defineComponent({
         },
     },
     created() {
-        this.getProjectInfo();
+        this.getProjectMemberInfo();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
-        //获取项目基本信息
-        getProjectInfo() {
+        //获取项目成员信息
+        getProjectMemberInfo() {
             this.loading = true;
-            this.axios.get<Response<ApiProjectInfo>, Response<ApiProjectInfo>>("/api/project/project_info", { params: { _id: this.id } }).then((res) => {
-                this.selectedUserData = res.data.members.map((v) => ({
+            this.axios.get<Response<ProjectMemberInfo[]>, Response<ProjectMemberInfo[]>>("/api/project/project_members", { params: { _id: this.id } }).then((res) => {
+                this.selectedUserData = res.data.map((v) => ({
                     ...v,
                     _permission: v.permission,
                 })) || [];
