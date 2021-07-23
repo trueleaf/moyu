@@ -173,7 +173,12 @@ type ResClientRoute = {
      */
      groupName: string,
 }
-//=========================================================================//
+/*
+|--------------------------------------------------------------------------
+| 项目列表相关申明
+|--------------------------------------------------------------------------
+|
+*/
 /**
  * http请求方法
  * https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
@@ -259,6 +264,42 @@ type ResUserBaseInfo = {
      */
     userId: string,
 };
+/*
+|--------------------------------------------------------------------------
+| 接口文档相关类型声明
+|--------------------------------------------------------------------------
+|
+*/
+type ProjectHost = {
+    /**
+     * 主机名称
+     */
+    name: string,
+    /**
+     * 主机地址
+     */
+    url: string,
+    /**
+     * 主机id
+     */
+    _id: string,
+}
+//接口参数信息， header pathParams queryParams bodyParams
+type DocProperty = {
+    /**
+     * 参数id
+     */
+    _id: string,
+    /**
+     * 字段名称(键)
+     */
+    key: string,
+    /**
+     * 字段值
+     */
+    value: string,
+
+}
 
 export {
     Menu,
@@ -276,4 +317,5 @@ export {
     ResUserBaseInfo,
     ProjectMemberInfo,
     ProjectPermission,
+    ProjectHost,
 }
