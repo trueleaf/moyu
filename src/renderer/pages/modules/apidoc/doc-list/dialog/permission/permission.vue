@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-07-20 19:21
-    模块名称：修改项目权限
+    模块名称：成员管理
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="修改项目权限" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" title="成员管理" @close="handleClose">
         <s-user :id="projectId" @leave="handleLeave"></s-user>
         <!-- <template #footer>
             <el-button :loading="loading" size="mini" type="primary" @click="handleChangePermission">确定</el-button>
