@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div>aa</div>
+    <div>content</div>
 </template>
 
 <script lang="ts">

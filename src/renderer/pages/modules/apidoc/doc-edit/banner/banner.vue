@@ -5,7 +5,9 @@
     备注：
 */
 <template>
-    <div ref="banner" class="banner" tabindex="1">
+    <div ref="bannerRef" class="banner" tabindex="1">
+        <!-- <s-loading :loading="loading">{{ banner }}</s-loading> -->
+        {{ banner }}
         <!-- 工具栏 -->
         <!-- <div class="tool">
             <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
@@ -15,8 +17,29 @@
     </div>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts">
+import { ref, defineComponent } from "vue"
+import { useStore } from "vuex"
+import { DocBanner } from "@@/global"
 
+export default defineComponent({
+    setup() {
+        const store = useStore();
+        const banner = ref<DocBanner[]>([]);
+        const loading = ref(false);
+        const getBannerData = async () => {
+            loading.value = true;
+            banner.value = await store.dispatch("");
+            loading.value = false;
+        }
+        getBannerData();
+        return {
+            banner,
+            loading,
+            getBannerData,
+        };
+    },
+})
 </script>
 
 <style lang="scss">
