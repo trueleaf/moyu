@@ -1,4 +1,4 @@
-import { UserInfo, Menu } from "./global"
+import { UserInfo, Menu, DocBanner } from "./global"
 import type { ResUserInfo } from "@@/global"
 
 //权限相关state
@@ -8,8 +8,10 @@ type PermissionState = {
     routes: ResUserInfo["clientRoutes"],
     loadingBanner: boolean,
 }
+//文档banner state
+type DocBannerState = DocBanner[];
 //全局state
 type State = {
     permission: PermissionState,
 }
-export { PermissionState, State }
+export { PermissionState, State, DocBannerState }

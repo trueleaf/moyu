@@ -298,7 +298,69 @@ type DocProperty = {
      * 字段值
      */
     value: string,
-
+    /**
+     * 字段类型
+     */
+    type: "string" | "number" | "boolean" | "array" | "object" | "file",
+    /**
+     * 是否必填
+     */
+    required: string
+    /**
+     * 是否选中(选中数据会随请求一起发送)
+     */
+    select: boolean,
+    /**
+     * 最后修改人
+     */
+    editor: string,
+    /**
+     * 最后修改人id
+     */
+    editorId: string,
+    /**
+     * 子节点信息
+     */
+    children: DocProperty[],
+}
+//文档banner信息
+type DocBanner = {
+    /**
+     * 文档id
+     */
+    _id: string,
+    /**
+     * 最近一次更新日期
+     */
+    updatedAt: string,
+    /**
+     * 文档类型
+     */
+    type: "folder" | "api" | "markdown",
+    /**
+     * 排序值
+     */
+    sort: number,
+    /**
+     * 父元素id
+     */
+    pid: string,
+    /**
+     * 名称
+     */
+    name: string,
+    /**
+     * 是否为文件夹
+     */
+    isFolder: boolean,
+    /**
+     * 更新人
+     */
+    updator: string,
+    /**
+     * 子节点
+     */
+    children: docBanner[]
 }
 
 export {
@@ -318,4 +380,6 @@ export {
     ProjectMemberInfo,
     ProjectPermission,
     ProjectHost,
+    DocProperty,
+    DocBanner,
 }
