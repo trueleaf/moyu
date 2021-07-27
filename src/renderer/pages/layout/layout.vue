@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useStore } from "vuex";
+import { useStore } from "@/store/index";
 import { useRouter } from "vue-router"
 import { IpcRenderer } from "electron"
 import config from "@/../config/config"

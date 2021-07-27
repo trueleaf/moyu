@@ -5,34 +5,22 @@
     备注：
 */
 <template>
-    <div ref="bannerRef" class="banner" tabindex="1">
-        <!-- <s-loading :loading="loading">{{ banner }}</s-loading> -->
-        {{ banner }}
-        <!-- 工具栏 -->
-        <!-- <div class="tool">
-            <h2 class="gray-700 f-lg text-center text-ellipsis" :title="$route.query.name">{{ $route.query.name }}</h2>
-            <el-input v-model="queryData" class="doc-search" placeholder="文档名称,文档url,创建者" clearable @input="handleSearchTree"></el-input>
-            <s-shortcut></s-shortcut>
-        </div> -->
-    </div>
+    <s-loading ref="bannerRef" :loading="loading" class="banner" tabindex="1">
+        <s-tool></s-tool>
+    </s-loading>
 </template>
 
 <script lang="ts">
-import { ref, defineComponent } from "vue"
-import { useStore } from "vuex"
-import { DocBanner } from "@@/global"
+import { defineComponent } from "vue"
+import tool from "./components/tool/tool.vue"
+import { useBannerData } from "./composables/banner-data"
 
 export default defineComponent({
+    components: {
+        "s-tool": tool,
+    },
     setup() {
-        const store = useStore();
-        const banner = ref<DocBanner[]>([]);
-        const loading = ref(false);
-        const getBannerData = async () => {
-            loading.value = true;
-            banner.value = await store.dispatch("");
-            loading.value = false;
-        }
-        getBannerData();
+        const { loading, banner, getBannerData } = useBannerData();
         return {
             banner,
             loading,

@@ -39,17 +39,7 @@ export default defineComponent({
          * 获取项目基本信息
          */
         getProjectInfo() {
-            this.loading = true;
-            const params = {
-                _id: this.$route.query.id,
-            }
-            this.axios.get("/api/project/project_full_info", { params }).then((res) => {
-                console.log(res)
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
+            this.$store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: this.$route.query.id })
         },
     },
 })
