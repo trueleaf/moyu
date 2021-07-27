@@ -270,20 +270,10 @@ type ResUserBaseInfo = {
 |--------------------------------------------------------------------------
 |
 */
-type ProjectHost = {
-    /**
-     * 主机名称
-     */
-    name: string,
-    /**
-     * 主机地址
-     */
-    url: string,
-    /**
-     * 主机id
-     */
-    _id: string,
-}
+type DocPropertyType = "string" | "number" | "boolean" | "array" | "object" | "file";
+//文档参数类型
+type DocParamsType = "pathParams" | "queryParams" | "bodyParams" | "responseParams" | "headerParams";
+
 //接口参数信息， header pathParams queryParams bodyParams
 type DocProperty = {
     /**
@@ -301,7 +291,7 @@ type DocProperty = {
     /**
      * 字段类型
      */
-    type: "string" | "number" | "boolean" | "array" | "object" | "file",
+    type: DocPropertyType,
     /**
      * 是否必填
      */
@@ -379,7 +369,8 @@ export {
     ResUserBaseInfo,
     ProjectMemberInfo,
     ProjectPermission,
-    ProjectHost,
     DocProperty,
+    DocPropertyType,
+    DocParamsType,
     DocBanner,
 }
