@@ -1,21 +1,18 @@
-import { createStore, Store, useStore as baseUseStore } from "vuex"
 import { InjectionKey } from "vue"
+import { createStore, Store, useStore as baseUseStore } from "vuex"
 import { permission } from "./permission/permission";
 import { banner } from "./apidoc/banner";
-import { PermissionState } from "@@/store"
-type State = {
-    permission: PermissionState,
-}
-const key: InjectionKey<Store<State>> = Symbol("权限store")
+import { baseInfo } from "./apidoc/base-info";
+import { State } from "@@/store"
 
-const store = createStore<State>({
+export const key: InjectionKey<Store<State>> = Symbol("")
+
+export const store = createStore<State>({
     strict: process.env.NODE_ENV !== "production",
     modules: {
         permission,
-        banner,
+        "apidoc/banner": banner,
+        "apidoc/baseInfo": baseInfo,
     }
 });
-function useStore(): Store<State> {
-    return baseUseStore(key);
-}
-export { store, key, useStore };
+export const useStore = (): Store<State> => baseUseStore(key);

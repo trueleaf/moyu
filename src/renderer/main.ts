@@ -9,7 +9,7 @@ import * as helper from "@/helper/index"
 import "./registerServiceWorker"
 import "element-plus/lib/theme-chalk/index.css";
 import { router } from "./router"
-import { store } from "./store"
+import { store, key } from "./store"
 import { registeGlobalComponent } from "@/components"
 const app = createApp(App, {
     mixin: [mixin]
@@ -19,6 +19,6 @@ app.config.globalProperties.$helper = helper; //挂载全局辅助函数
 app.config.globalProperties.$cache = cache; //挂载全局storage方法
 
 registeGlobalComponent(app); //注册全局组件
-app.use(store);
+app.use(store, key);
 app.use(axiosPlugin).use(ElementPlus, { locale: zhLocale }).use(router);
 app.mount("#app")
