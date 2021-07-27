@@ -2,18 +2,18 @@
  * web存储，提供接口文档离线使用能力
  */
 // import { axios } from "@/api/api"
-import { Response, ResApiProjectListInfo } from "@@/global";
+import { Response, ApidocProjectListInfo } from "@@/global";
 import db from "./database"
 
 type Api = {
     /**
      * 获取项目列表数据
      */
-    "/api/project/project_list": () => Promise<Response<ResApiProjectListInfo>>,
+    "/api/project/project_list": () => Promise<Response<ApidocProjectListInfo>>,
 }
 
 const api: Api = {
-    "/api/project/project_list"(): Promise<Response<ResApiProjectListInfo>> {
+    "/api/project/project_list"(): Promise<Response<ApidocProjectListInfo>> {
         return new Promise((resolve, reject) => {
             db.transaction("rw", db.projectList, async () => {
                 const result = await db.projectList.toArray();
@@ -26,7 +26,7 @@ const api: Api = {
                 console.error(e);
                 reject(e);
             });
-            // axios.get<Response<ResApiProjectListInfo>, Response<ResApiProjectListInfo>>("/api/project/project_list").then((res) => {
+            // axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>("/api/project/project_list").then((res) => {
             //     resolve(res);
             // }).catch((err) => {
             //     console.error(err)

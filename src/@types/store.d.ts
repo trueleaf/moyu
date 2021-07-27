@@ -1,5 +1,5 @@
-import { UserInfo, Menu, DocBanner, DocPropertyType, DocProperty } from "./global"
-import type { ResUserInfo, DocParamsType } from "@@/global"
+import { UserInfo, Menu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
+import type { ResUserInfo, ApidocParamsType } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +26,7 @@ type PermissionState = {
 
 //文档banner state
 type ApidocBannerState = {
-    banner: DocBanner[]
+    banner: ApidocBanner[]
 };
 //项目基本信息
 type ProjectVariable = {
@@ -41,7 +41,7 @@ type ProjectVariable = {
     /**
      * 变量类型
      */
-    type: DocPropertyType,
+    type: ApidocPropertyType,
     /**
      * 变量值
      */
@@ -64,10 +64,10 @@ type ProjectHost = {
 }
 //项目联想参数
 type ProjectMindParam = {
-    paths: DocProperty[],
-    queryParams: DocProperty[],
-    requestBody: DocProperty[],
-    responseParams: DocProperty[],
+    paths: ApidocProperty[],
+    queryParams: ApidocProperty[],
+    requestBody: ApidocProperty[],
+    responseParams: ApidocProperty[],
 }
 //项目参数模板
 type ProjectParamsTemplate = {
@@ -82,7 +82,7 @@ type ProjectParamsTemplate = {
     /**
      * 模板参数类型
      */
-    presetParamsType: DocParamsType,
+    presetParamsType: ApidocParamsType,
     /**
      * 创建者
      */
@@ -90,7 +90,7 @@ type ProjectParamsTemplate = {
     /**
      * 参数信息
      */
-    items: DocProperty[],
+    items: ApidocProperty[],
 }
 //项目规则
 type ProjectRules = {

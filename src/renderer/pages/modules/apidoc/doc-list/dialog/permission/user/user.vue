@@ -51,8 +51,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { ApiProjectInfo, Response, ProjectMemberInfo, ProjectPermission } from "@@/global"
-type UserInfo = ProjectMemberInfo & { _permission: ProjectPermission };
+import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from "@@/global"
+type UserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
 
 export default defineComponent({
     props: {
@@ -64,8 +64,8 @@ export default defineComponent({
     emits: ["leave"],
     data() {
         return {
-            remoteMembers: [] as ProjectMemberInfo[], //------远程用户列表
-            selectedUserData: [] as ApiProjectInfo["members"], //-----已选中的用户
+            remoteMembers: [] as ApidocProjectMemberInfo[], //------远程用户列表
+            selectedUserData: [] as ApidocProjectInfo["members"], //-----已选中的用户
             remoteQueryName: "", //----用户名称
             //===================================其他参数====================================//
             loading: false, //---------项目详情
@@ -78,14 +78,14 @@ export default defineComponent({
         },
     },
     created() {
-        this.getProjectMemberInfo();
+        this.getApidocProjectMemberInfo();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
         //获取项目成员信息
-        getProjectMemberInfo() {
+        getApidocProjectMemberInfo() {
             this.loading = true;
-            this.axios.get<Response<ProjectMemberInfo[]>, Response<ProjectMemberInfo[]>>("/api/project/project_members", { params: { _id: this.id } }).then((res) => {
+            this.axios.get<Response<ApidocProjectMemberInfo[]>, Response<ApidocProjectMemberInfo[]>>("/api/project/project_members", { params: { _id: this.id } }).then((res) => {
                 this.selectedUserData = res.data.map((v) => ({
                     ...v,
                     _permission: v.permission,
@@ -112,7 +112,7 @@ export default defineComponent({
         },
         //=====================================成员增删改查====================================//
         //新增成员
-        handleSelectUser(item: ProjectMemberInfo) {
+        handleSelectUser(item: ApidocProjectMemberInfo) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
             const hasUser = this.selectedUserData.find((val) => val.userId === item.userId);

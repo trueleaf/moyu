@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
-import { DocBanner } from "@@/global"
+import { ApidocBanner } from "@@/global"
 // import config from "@/../config/config"
 
 const banner = {
@@ -11,7 +11,7 @@ const banner = {
     },
     mutations: {
         //改变文档banner
-        changeAllDocBanner(state: ApidocBannerState, payload: DocBanner[]): void {
+        changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
             state.banner = payload;
         },
     },
@@ -19,7 +19,7 @@ const banner = {
         /**
          * 获取文档左侧导航数据
          */
-        async getDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { projectId: string }): Promise<DocBanner> {
+        async getDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { projectId: string }): Promise<ApidocBanner> {
             return new Promise((resolve, reject) => {
                 const params = {
                     projectId: payload.projectId,

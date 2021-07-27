@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { ResClientMenu } from "@@/global"
+import { ClientMenu } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -32,7 +32,7 @@ export default defineComponent({
             default: "",
         },
         data: {
-            type: Object as PropType<ResClientMenu | null>,
+            type: Object as PropType<ClientMenu | null>,
             default: () => {
                 return null;
             },

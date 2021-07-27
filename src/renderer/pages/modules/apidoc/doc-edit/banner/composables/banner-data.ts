@@ -5,13 +5,13 @@
 import { ref, Ref } from "vue"
 import { useStore } from "vuex"
 import { useRoute } from "vue-router"
-import { DocBanner } from "@@/global"
+import { ApidocBanner } from "@@/global"
 import { key } from "@/store/index"
 type ReturnData = {
     /**
      * banner值
      */
-    banner: Ref<DocBanner[]>,
+    banner: Ref<ApidocBanner[]>,
     /**
      * loading加载效果
      */
@@ -26,7 +26,7 @@ export function useBannerData(): ReturnData {
     const store = useStore(key);
     const route = useRoute()
     const projectId = route.query.id;
-    const banner = ref<DocBanner[]>([]);
+    const banner = ref<ApidocBanner[]>([]);
     const loading = ref(false);
     const getBannerData = async () => {
         loading.value = true;

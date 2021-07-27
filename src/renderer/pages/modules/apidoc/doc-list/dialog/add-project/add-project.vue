@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { ResUserBaseInfo, ProjectMemberInfo } from "@@/global"
+import type { UserBaseInfo, ApidocProjectMemberInfo } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -78,8 +78,8 @@ export default defineComponent({
             rules: { //-------------------------------------新增项目校验规则
                 projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
             },
-            remoteMembers: [] as ResUserBaseInfo[], //------远程用户列表
-            selectUserData: [] as ProjectMemberInfo[], //-----已选中的用户
+            remoteMembers: [] as UserBaseInfo[], //------远程用户列表
+            selectUserData: [] as ApidocProjectMemberInfo[], //-----已选中的用户
             remoteQueryName: "", //-------------------------用户名称
             //=====================================其他参数====================================//
             loading: false, //------------------------------成员数据加载状态
@@ -139,7 +139,7 @@ export default defineComponent({
             });
         },
         //选取用户
-        handleSelectUser(item: ResUserBaseInfo) {
+        handleSelectUser(item: UserBaseInfo) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
             const hasUser = this.selectUserData.find((val) => val.userId === item.userId);
@@ -147,7 +147,7 @@ export default defineComponent({
                 this.$message.warning("请勿重复添加");
                 return;
             }
-            const userInfo: ProjectMemberInfo = {
+            const userInfo: ApidocProjectMemberInfo = {
                 ...item,
                 permission: "readAndWrite",
             }

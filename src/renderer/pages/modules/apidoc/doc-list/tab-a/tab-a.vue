@@ -119,7 +119,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Response, ResApiProjectListInfo, ApiProjectInfo } from "@@/global";
+import { Response, ApidocProjectListInfo, ApidocProjectInfo } from "@@/global";
 import addProject from "../dialog/add-project/add-project.vue"
 import editProject from "../dialog/edit-project/edit-project.vue"
 import editPermissionProject from "../dialog/permission/permission.vue"
@@ -135,7 +135,7 @@ export default defineComponent({
             projectName: "", //--------------------------------------------项目名称
             recentVisitProjectIds: [] as string[], //----------------------最近访问项目id集合
             starProjectIds: [] as string[], //-----------------------------收藏项目id集合
-            projectListCopy: [] as ApiProjectInfo[], //--------------------项目列表拷贝
+            projectListCopy: [] as ApidocProjectInfo[], //--------------------项目列表拷贝
             currentEditProjectId: "", //-----------------------------------项目id用于编辑
             currentEditProjectName: "", //---------------------------------项目名称用于编辑
             //=====================================其他参数====================================//
@@ -153,7 +153,7 @@ export default defineComponent({
         /**
          * 项目列表
          */
-        projectList(): ApiProjectInfo[] {
+        projectList(): ApidocProjectInfo[] {
             const filteredProjectList = this.projectListCopy.filter((val) => val.projectName.match(new RegExp(this.projectName, "gi")))
             return filteredProjectList.map((val) => {
                 const isStared = this.starProjectIds.find((id) => id === val._id);
@@ -166,7 +166,7 @@ export default defineComponent({
         /**
          * 当前收藏的项目
          */
-        starProjects(): ApiProjectInfo[] {
+        starProjects(): ApidocProjectInfo[] {
             const filteredProjectList = this.projectListCopy.filter((val) => val.projectName.match(new RegExp(this.projectName, "gi")))
             return filteredProjectList.filter((projectInfo) => this.starProjectIds.find((id) => id === projectInfo._id)).map((val) => {
                 const isStared = this.starProjectIds.find((id) => id === val._id);
@@ -189,7 +189,7 @@ export default defineComponent({
         getProjectList() {
             this.loading = true;
             // this.$cache.get("/api/project/project_list");
-            this.axios.get<Response<ResApiProjectListInfo>, Response<ResApiProjectListInfo>>("/api/project/project_list").then((res) => {
+            this.axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>("/api/project/project_list").then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;
                 this.projectListCopy = res.data.list;
@@ -202,7 +202,7 @@ export default defineComponent({
         /**
          * 编辑项目弹窗
          */
-        handleOpenEditDialog(item: ApiProjectInfo) {
+        handleOpenEditDialog(item: ApidocProjectInfo) {
             this.currentEditProjectId = item._id;
             this.currentEditProjectName = item.projectName;
             this.dialogVisible2 = true;
@@ -210,14 +210,14 @@ export default defineComponent({
         /**
          * 编辑权限弹窗
          */
-        handleOpenPermissionDialog(item: ApiProjectInfo) {
+        handleOpenPermissionDialog(item: ApidocProjectInfo) {
             this.currentEditProjectId = item._id;
             this.dialogVisible4 = true;
         },
         /**
          * 收藏项目
          */
-        handleStar(item: ApiProjectInfo) {
+        handleStar(item: ApidocProjectInfo) {
             if (this.starLoading) {
                 return;
             }
@@ -234,7 +234,7 @@ export default defineComponent({
         /**
          * 取消收藏项目
          */
-        handleUnStar(item: ApiProjectInfo) {
+        handleUnStar(item: ApidocProjectInfo) {
             if (this.unStarLoading) {
                 return;
             }
@@ -283,7 +283,7 @@ export default defineComponent({
         /**
          * 跳转到编辑
          */
-        handleJumpToProject(item: ApiProjectInfo) {
+        handleJumpToProject(item: ApidocProjectInfo) {
             this.axios.put("/api/project/visited", { projectId: item._id }).catch((err) => {
                 console.error(err);
             });
@@ -297,7 +297,7 @@ export default defineComponent({
         /**
          * 跳转到预览
          */
-        handleJumpToView(item: ApiProjectInfo) {
+        handleJumpToView(item: ApidocProjectInfo) {
             console.log(item)
         },
         /**

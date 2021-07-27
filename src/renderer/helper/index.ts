@@ -4,7 +4,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
-import type { HttpRequestMethod } from "@@/global"
+import type { ApidocHttpRequestMethod } from "@@/global"
 import tips from "./tips"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
@@ -184,6 +184,6 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
 /**
  * 获取请求方法
  */
-export function getRequestMethodEnum(): HttpRequestMethod[] {
+export function getRequestMethodEnum(): ApidocHttpRequestMethod[] {
     return ["GET", "POST", "PUT", "DELETE", "TRACE", "CONNECTION", "OPTIONS", "PATCH", "HEAD"];
 }
