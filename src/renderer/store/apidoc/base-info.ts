@@ -6,9 +6,24 @@ import type { Response } from "@@/global"
 const baseInfo = {
     namespaced: true,
     state: {
+        _id: "",
+        projectName: "",
+        variables: [],
+        mindParams: [],
+        paramsTemplate: [],
+        rules: [],
         hosts: [],
     },
     mutations: {
+        changeProjectBaseInfo(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState): void {
+            state._id = payload._id;
+            state.projectName = payload.projectName;
+            state.variables = payload.variables;
+            state.mindParams = payload.mindParams;
+            state.paramsTemplate = payload.paramsTemplate;
+            state.rules = payload.rules;
+            state.hosts = payload.hosts;
+        }
     },
     actions: {
         /**
@@ -20,7 +35,7 @@ const baseInfo = {
                     _id: payload.projectId,
                 }
                 axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/project_full_info", { params }).then((res) => {
-                    console.log(res.data)
+                    context.commit("changeProjectBaseInfo", res.data)
                     resolve()
                 }).catch((err) => {
                     console.error(err);

@@ -66,14 +66,14 @@
 </template>
 
 <script lang="ts">
+import type { Response, PermissionClientMenu } from "@@/global"
 import { defineComponent } from "vue"
 import Node from "element-plus/lib/el-tree/src/model/node"
-import { Response, ClientMenu } from "@@/global"
 import addMenuDialog from "./add/add.vue"
 import editMenuDialog from "./edit/edit.vue"
 
 type TreeNode = Node & {
-    data: ClientMenu,
+    data: PermissionClientMenu,
 }
 
 export default defineComponent({
@@ -84,13 +84,13 @@ export default defineComponent({
     data() {
         return {
             //=====================================树形组件====================================//
-            treeData: [] as ClientMenu[], //-----------------菜单数据
+            treeData: [] as PermissionClientMenu[], //-----------------菜单数据
             defaultExpandKeys: [] as string[], //---------------默认展开组件
-            currentEditNode: null as ClientMenu | null, //---当前编辑的节点
+            currentEditNode: null as PermissionClientMenu | null, //---当前编辑的节点
             //=====================================鼠标右键====================================//
             ctxLeft: 0, //--------------------------------------鼠标右键left值
             ctxTop: 0, //---------------------------------------鼠标右键top值
-            currentCtxNode: null as ClientMenu | null, //----当前鼠标右键节点信息
+            currentCtxNode: null as PermissionClientMenu | null, //----当前鼠标右键节点信息
             //=====================================其他参数====================================//
             parentId: "", //------------------------------------父元素id
             addMenuDialogVisible: false, //---------------------新增菜单弹窗
@@ -110,7 +110,7 @@ export default defineComponent({
         //获取树形菜单结构
         getData() {
             this.loading = true;
-            this.axios.get<Response<ClientMenu[]>, Response<ClientMenu[]>>("/api/security/client_menu_tree").then((res) => {
+            this.axios.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>("/api/security/client_menu_tree").then((res) => {
                 this.$helper.forEachForest(res.data, (val) => {
                     val.id = val._id;
                 })
@@ -123,7 +123,7 @@ export default defineComponent({
         },
         //=====================================节点增删改查====================================//
         //打开修改弹窗
-        handleOpenEditDialog(data: ClientMenu | null) {
+        handleOpenEditDialog(data: PermissionClientMenu | null) {
             if (data === null) {
                 this.$message.warning("参数值不能为null");
                 return
@@ -132,12 +132,12 @@ export default defineComponent({
             this.currentEditNode = data;
         },
         //打开新增弹窗
-        handleOpenAddDialog(data?: ClientMenu | null) {
+        handleOpenAddDialog(data?: PermissionClientMenu | null) {
             this.parentId = data ? data._id : "";
             this.addMenuDialogVisible = true;
         },
         //删除节点
-        handleDeleteCurrentNode(data: ClientMenu | null) {
+        handleDeleteCurrentNode(data: PermissionClientMenu | null) {
             if (data === null) {
                 this.$message.warning("参数值不能为null");
                 return
@@ -209,7 +209,7 @@ export default defineComponent({
             // this.defaultExpandKeys.push(data._id);
         },
         //处理contextmenu事件
-        handleContextmenu(e: MouseEvent, treeData: ClientMenu) {
+        handleContextmenu(e: MouseEvent, treeData: PermissionClientMenu) {
             this.ctxLeft = e.clientX;
             this.ctxTop = e.clientY;
             this.currentCtxNode = treeData;

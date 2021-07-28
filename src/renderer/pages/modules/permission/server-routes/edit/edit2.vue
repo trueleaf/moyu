@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { ServerRoute } from "@@/global"
+import type { PermissionServerRoute } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -27,7 +27,7 @@ export default defineComponent({
             default: false,
         },
         editData: {
-            type: Object as PropType<ServerRoute[]>,
+            type: Object as PropType<PermissionServerRoute[]>,
             default: () => {
                 return {}
             }

@@ -26,11 +26,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ServerRoute, Response } from "@@/global"
+import type { PermissionServerRoute, Response } from "@@/global"
 
 type RouteInfo = {
     selected: boolean,
-    values: ServerRoute[]
+    values: PermissionServerRoute[]
 }
 type ServerGroupRoutes = {
     [propName: string]: RouteInfo
@@ -60,7 +60,7 @@ export default defineComponent({
         //获取后端路由信息
         getServerRoutes() {
             this.loading = true;
-            this.axios.get<Response<ServerRoute[]>, Response<ServerRoute[]>>("/api/security/server_routes").then((res) => {
+            this.axios.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>("/api/security/server_routes").then((res) => {
                 res.data.forEach((val) => {
                     if (!this.serverRoutes[val.groupName || "__default"]) {
                         this.serverRoutes[val.groupName || "__default"] = {

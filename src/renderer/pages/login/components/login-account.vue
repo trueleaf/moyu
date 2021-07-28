@@ -64,7 +64,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { UserInfo, Response } from "@@/global"
+import { PermissionUserInfo, Response } from "@@/global"
 import config from "@/../config/config"
 
 export default defineComponent({
@@ -102,7 +102,7 @@ export default defineComponent({
             this.$refs.form.validate((valid: boolean) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post<Response<UserInfo>, Response<UserInfo>>("/api/security/login_password", this.userInfo).then((res: Response<UserInfo>) => {
+                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>("/api/security/login_password", this.userInfo).then((res: Response<PermissionUserInfo>) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;

@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { ClientMenu } from "@@/global"
+import type { PermissionClientMenu } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -32,7 +32,7 @@ export default defineComponent({
             default: "",
         },
         data: {
-            type: Object as PropType<ClientMenu | null>,
+            type: Object as PropType<PermissionClientMenu | null>,
             default: () => {
                 return null;
             },

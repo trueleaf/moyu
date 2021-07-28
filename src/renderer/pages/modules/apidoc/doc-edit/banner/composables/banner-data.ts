@@ -3,10 +3,9 @@
  */
 
 import { ref, Ref } from "vue"
-import { useStore } from "vuex"
 import { useRoute } from "vue-router"
 import { ApidocBanner } from "@@/global"
-import { key } from "@/store/index"
+import { useStore } from "@/store/index"
 type ReturnData = {
     /**
      * banner值
@@ -23,7 +22,7 @@ type ReturnData = {
 };
 
 export function useBannerData(): ReturnData {
-    const store = useStore(key);
+    const store = useStore();
     const route = useRoute()
     const projectId = route.query.id;
     const banner = ref<ApidocBanner[]>([]);

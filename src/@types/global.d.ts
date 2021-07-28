@@ -25,24 +25,25 @@ type Response<T> = {
 |--------------------------------------------------------------------------
 | 布局和权限相关声明
 |--------------------------------------------------------------------------
-| 声明：Menu(顶部导航菜单)
-| 声明：RoleEnum(角色枚举信息)
-| 声明：UserInfo(用户基本信息)
-| 声明：ClientRoute(前端路由列表)
-| 声明：ClientMenu(前端菜单)
-| 声明：ResUserInfo(用户基本信息返回值)
+| 声明：PermissionMenu(顶部导航菜单)
+| 声明：PermissionRoleEnum(角色枚举信息)
+| 声明：PermissionUserInfo(用户信息)
+| 声明：PermissionUserBaseInfo(用户基本信息)
+| 声明：PermissionClientRoute(前端路由列表)
+| 声明：PermissionServerRoute(后端路由列表)
+| 声明：PermissionClientMenu(前端菜单)
 |
 */
+
 //顶部导航菜单
-type Menu = {
+type PermissionMenu = {
     name: string,
     path: string,
 }
-
 //角色枚举信息
-type RoleEnum = { _id: string, roleName: string }[];
+type PermissionRoleEnum = { _id: string, roleName: string }[];
 //用户信息
- type UserInfo = {
+type PermissionUserInfo = {
     /**
      * 用户id
      */
@@ -65,7 +66,7 @@ type RoleEnum = { _id: string, roleName: string }[];
    roleIds: string[],
 }
 //用户基本信息
-type UserBaseInfo = {
+type PermissionUserBaseInfo = {
     /**
      * 登录名称
      */
@@ -79,27 +80,8 @@ type UserBaseInfo = {
      */
     userId: string,
 };
-//接口返回用户信息
-type ResUserInfo = UserInfo & {
-    /**
-     * 客户端menu，banner信息
-     */
-     clientBanner: {
-        name: string,
-        path: string,
-        id: string,
-    }[],
-    /**
-     * 客户端路由
-     */
-    clientRoutes: {
-        name: string,
-        path: string,
-        id: string,
-    }[],
-}
 //前端路由列表
-type ClientRoute = {
+type PermissionClientRoute = {
     /**
      * 分组名称
      */
@@ -118,7 +100,7 @@ type ClientRoute = {
     _id: string,
 }
 //后端路由列表
-type ServerRoute = {
+type PermissionServerRoute = {
     /**
      * 分组名称
      */
@@ -137,7 +119,7 @@ type ServerRoute = {
      _id: string,
 }
 //客户端菜单
-type ClientMenu = {
+type PermissionClientMenu = {
     id?: string,
     /**
      * 菜单id
@@ -166,7 +148,7 @@ type ClientMenu = {
     /**
      * 子菜单
      */
-    children: ClientMenu[] | [],
+    children: PermissionClientMenu[] | [],
 }
 /*
 |--------------------------------------------------------------------------
@@ -337,23 +319,26 @@ type ApidocBanner = {
      */
     updator: string,
     /**
+     * 请求url
+     */
+    url?: string,
+    /**
      * 子节点
      */
     children: ApidocBanner[]
 }
 export {
-    Menu,
-    UserInfo,
     Response,
-    RoleEnum,
-    ClientRoute,
-    ServerRoute,
-    ResUserInfo,
-    ClientMenu,
+    PermissionMenu,
+    PermissionRoleEnum,
+    PermissionClientRoute,
+    PermissionServerRoute,
+    PermissionUserInfo,
+    PermissionUserBaseInfo,
+    PermissionClientMenu,
     ApidocHttpRequestMethod,
     ApidocProjectListInfo,
     ApidocProjectInfo,
-    UserBaseInfo,
     ApidocProjectMemberInfo,
     ApidocProjectPermission,
     ApidocProperty,

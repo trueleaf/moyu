@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, watch } from "vue"
-import { ClientRoute } from "@@/global"
+import { PermissionClientRoute } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -29,7 +29,7 @@ export default defineComponent({
             default: false,
         },
         editData: {
-            type: Object as PropType<ClientRoute>,
+            type: Object as PropType<PermissionClientRoute>,
             default: () => {
                 return {}
             }

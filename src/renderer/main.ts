@@ -11,6 +11,7 @@ import "element-plus/lib/theme-chalk/index.css";
 import { router } from "./router"
 import { store, key } from "./store"
 import { registeGlobalComponent } from "@/components"
+import "@/assets/css/index.css"
 const app = createApp(App, {
     mixin: [mixin]
 })

@@ -52,7 +52,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from "@@/global"
-type UserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
+type PermissionUserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
 
 export default defineComponent({
     props: {
@@ -135,7 +135,7 @@ export default defineComponent({
             });
         },
         //删除成员
-        handleDeleteMember(row: UserInfo, index: number) {
+        handleDeleteMember(row: PermissionUserInfo, index: number) {
             this.$confirm("确认删除当前成员吗?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
@@ -158,7 +158,7 @@ export default defineComponent({
             });
         },
         //离开团队
-        handleLeaveGroup(row: UserInfo, index: number) {
+        handleLeaveGroup(row: PermissionUserInfo, index: number) {
             const { userInfo } = this.$store.state.permission;
             const hasAdmin = this.selectedUserData.find((info) => {
                 if (info.userId !== userInfo.id && info.permission === "admin") {
@@ -193,7 +193,7 @@ export default defineComponent({
             });
         },
         //改变成员权限
-        handleChangePermission(row: UserInfo) {
+        handleChangePermission(row: PermissionUserInfo) {
             const oldPermission = row._permission
             const hasAdmin = this.selectedUserData.find((info) => {
                 if (info.permission === "admin") {

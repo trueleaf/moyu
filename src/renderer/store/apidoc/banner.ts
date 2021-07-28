@@ -2,7 +2,6 @@ import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
 import { ApidocBanner } from "@@/global"
-// import config from "@/../config/config"
 
 const banner = {
     namespaced: true,

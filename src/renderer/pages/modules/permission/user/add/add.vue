@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { RoleEnum, Response } from "@@/global"
+import { PermissionRoleEnum, Response } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -40,7 +40,7 @@ export default defineComponent({
     data() {
         return {
             roleIds: [] as string[], //---------角色id列表
-            roleEnum: [] as RoleEnum, //--------角色枚举信息
+            roleEnum: [] as PermissionRoleEnum, //--------角色枚举信息
             loading: false, //------------------新增角色按钮
         };
     },
@@ -50,7 +50,7 @@ export default defineComponent({
     methods: {
         //获取角色枚举信息
         getRoleEnum() {
-            this.axios.get<Response<RoleEnum>, Response<RoleEnum>>("/api/security/role_enum").then((res) => {
+            this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>("/api/security/role_enum").then((res) => {
                 this.roleEnum = res.data;
             }).catch((err) => {
                 console.error(err);

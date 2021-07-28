@@ -1,8 +1,5 @@
 import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById, uniqueByKey, event, getRequestMethodEnum, cloneDeep } from "@/helper/index"
 
-// type IsEqual = LoDashStatic["isEqual"];
-// type CloneDeep = LoDashStatic["CloneDeep"];
-
 type Helper = {
     /**
      * 两个变量是否相等
@@ -58,4 +55,4 @@ type Helper = {
     getRequestMethodEnum: typeof getRequestMethodEnum,
 }
 
-export { Helper, IsEqual, CloneDeep }
+export { Helper }

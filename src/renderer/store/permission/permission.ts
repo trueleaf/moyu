@@ -4,9 +4,14 @@ import { uniqueByKey } from "@/helper/index"
 import { router, routes } from "@/router/index"
 import { RouteRecordRaw } from "vue-router"
 import type { State as RootState, PermissionState } from "@@/store"
-import { UserInfo, Response, ResUserInfo } from "@@/global"
+import { Response, PermissionUserInfo, PermissionClientMenu, PermissionClientRoute } from "@@/global"
 import config from "@/../config/config"
 import layout from "@/pages/layout/layout.vue";
+
+type ResUserInfo = PermissionUserInfo & {
+    clientBanner: PermissionClientMenu[],
+    clientRoutes: PermissionClientRoute[],
+}
 
 const permission = {
     namespaced: true,
@@ -20,7 +25,7 @@ const permission = {
         /**
          * 改变用户基本信息
          */
-        changeUserInfo(state: PermissionState, payload: UserInfo): void {
+        changeUserInfo(state: PermissionState, payload: PermissionUserInfo): void {
             state.userInfo = {
                 id: payload.id,
                 loginName: payload.loginName,
@@ -64,10 +69,10 @@ const permission = {
         /**
          * 改变用户可访问路由
          */
-        changeRoutes(state: PermissionState, payload: ResUserInfo["clientRoutes"]): void {
+        changeRoutes(state: PermissionState, payload: PermissionClientRoute[]): void {
             const routes = payload;
             const localRoutesStr = sessionStorage.getItem("permission/routes") || "[]";
-            const localRoutes = JSON.parse(localRoutesStr) as ResUserInfo["clientRoutes"];
+            const localRoutes = JSON.parse(localRoutesStr) as PermissionClientRoute[];
             const storeRoutes = uniqueByKey(localRoutes.concat(routes), "path");
             sessionStorage.setItem("permission/routes", JSON.stringify(storeRoutes));
             state.routes = storeRoutes;
@@ -75,7 +80,7 @@ const permission = {
         /**
          * 改变当前访问菜单
          */
-        changeMenus(state: PermissionState, payload: ResUserInfo["clientBanner"]): void {
+        changeMenus(state: PermissionState, payload: PermissionClientMenu[]): void {
             if (config.renderConfig.permission.free && state.userInfo.loginName === "admin") {
                 state.menus = [{
                     path: "/v1/apidoc/doc-list",

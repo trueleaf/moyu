@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { UserBaseInfo, ApidocProjectMemberInfo } from "@@/global"
+import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from "@@/global"
 
 export default defineComponent({
     props: {
@@ -78,7 +78,7 @@ export default defineComponent({
             rules: { //-------------------------------------新增项目校验规则
                 projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
             },
-            remoteMembers: [] as UserBaseInfo[], //------远程用户列表
+            remoteMembers: [] as PermissionUserBaseInfo[], //------远程用户列表
             selectUserData: [] as ApidocProjectMemberInfo[], //-----已选中的用户
             remoteQueryName: "", //-------------------------用户名称
             //=====================================其他参数====================================//
@@ -139,7 +139,7 @@ export default defineComponent({
             });
         },
         //选取用户
-        handleSelectUser(item: UserBaseInfo) {
+        handleSelectUser(item: PermissionUserBaseInfo) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
             const hasUser = this.selectUserData.find((val) => val.userId === item.userId);

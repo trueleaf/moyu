@@ -38,9 +38,9 @@ import { defineComponent } from "vue"
 import addClientRoute from "./add/add.vue"
 import editClientRoute from "./edit/edit.vue"
 import multiEditClientRoute from "./edit/edit2.vue"
-import { Response, ClientRoute } from "@@/global"
+import { Response, PermissionClientRoute } from "@@/global"
 type HookThis = {
-    tableData: ClientRoute[],
+    tableData: PermissionClientRoute[],
     total: number,
 }
 export default defineComponent({
@@ -51,9 +51,9 @@ export default defineComponent({
     },
     data() {
         return {
-            selectedData: [] as ClientRoute[], //-----------------当前被选中的表单数据
-            editData: {} as ClientRoute, //-----------------------需要编辑的数据
-            originTableData: [] as ClientRoute[], //--------------原始表单数据
+            selectedData: [] as PermissionClientRoute[], //-----------------当前被选中的表单数据
+            editData: {} as PermissionClientRoute, //-----------------------需要编辑的数据
+            originTableData: [] as PermissionClientRoute[], //--------------原始表单数据
             groupEnum: [] as { id: string, name: string }[], //---分组信息
             dialogVisible: false, //------------------------------新增路由信息弹窗
             dialogVisible2: false, //-----------------------------修改路由信息弹窗
@@ -77,7 +77,7 @@ export default defineComponent({
             })
         },
         //获取前端路由信息
-        hookRequest(res: Response<ClientRoute[]>, _this: HookThis) {
+        hookRequest(res: Response<PermissionClientRoute[]>, _this: HookThis) {
             this.originTableData = res.data;
             _this.tableData = res.data;
             _this.total = res.data.length;
@@ -87,11 +87,11 @@ export default defineComponent({
             })
         },
         //=========================================================================//
-        handleSelect(routeList: ClientRoute[]) {
+        handleSelect(routeList: PermissionClientRoute[]) {
             this.selectedData = routeList;
         },
         //删除前端路由组件
-        handleDeleteClientRoute(row: ClientRoute) {
+        handleDeleteClientRoute(row: PermissionClientRoute) {
             this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
@@ -116,7 +116,7 @@ export default defineComponent({
             this.dialogVisible = true;
         },
         //打开修改前端路由
-        handleOpenClientEditDialog(row: ClientRoute) {
+        handleOpenClientEditDialog(row: PermissionClientRoute) {
             this.editData = row;
             this.dialogVisible2 = true;
         },

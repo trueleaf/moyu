@@ -26,10 +26,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ClientRoute, Response } from "@@/global"
+import { PermissionClientRoute, Response } from "@@/global"
 type RouteInfo = {
     selected: boolean,
-    values: ClientRoute[]
+    values: PermissionClientRoute[]
 }
 type ClientGroupRoutes = {
     [propName: string]: RouteInfo
@@ -59,7 +59,7 @@ export default defineComponent({
         //获取前端路由
         getClientRoutes() {
             this.loading = true;
-            this.axios.get<Response<ClientRoute[]>, Response<ClientRoute[]>>("/api/security/client_routes").then((res) => {
+            this.axios.get<Response<PermissionClientRoute[]>, Response<PermissionClientRoute[]>>("/api/security/client_routes").then((res) => {
                 res.data.forEach((val) => {
                     if (!this.clientRoutes[val.groupName || "__default"]) {
                         this.clientRoutes[val.groupName || "__default"] = {

@@ -59,7 +59,7 @@ import { useStore } from "@/store/index";
 import { useRouter } from "vue-router"
 import { IpcRenderer } from "electron"
 import config from "@/../config/config"
-import { Menu, UserInfo } from "@@/global"
+import { PermissionMenu, PermissionUserInfo } from "@@/global"
 
 let ipcRenderer: IpcRenderer;
 if (window.require) {
@@ -104,10 +104,10 @@ export default defineComponent({
         };
     },
     computed: {
-        menus(): Menu[] { //所有菜单
+        menus(): PermissionMenu[] { //所有菜单
             return this.$store.state.permission.menus;
         },
-        userInfo(): UserInfo { //用户信息
+        userInfo(): PermissionUserInfo { //用户信息
             return this.$store.state.permission.userInfo;
         },
     },

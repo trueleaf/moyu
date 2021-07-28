@@ -1,5 +1,5 @@
-import { UserInfo, Menu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ResUserInfo, ApidocParamsType } from "@@/global"
+import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
+import type { ApidocParamsType, PermissionClientRoute } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -10,9 +10,9 @@ import type { ResUserInfo, ApidocParamsType } from "@@/global"
 */
 //权限state
 type PermissionState = {
-    userInfo: UserInfo,
-    menus: Menu[],
-    routes: ResUserInfo["clientRoutes"],
+    userInfo: PermissionUserInfo,
+    menus: PermissionMenu[],
+    routes: PermissionClientRoute[],
     loadingBanner: boolean,
 }
 /*
@@ -29,7 +29,7 @@ type ApidocBannerState = {
     banner: ApidocBanner[]
 };
 //项目基本信息
-type ProjectVariable = {
+type ApidocProjectVariable = {
     /**
      * 变量id
      */
@@ -48,7 +48,7 @@ type ProjectVariable = {
     value: string,
 }
 //项目host信息
-type ProjectHost = {
+type ApidocProjectHost = {
     /**
      * 主机名称
      */
@@ -63,14 +63,14 @@ type ProjectHost = {
     _id: string,
 }
 //项目联想参数
-type ProjectMindParam = {
+type ApidocProjectMindParam = {
     paths: ApidocProperty[],
     queryParams: ApidocProperty[],
     requestBody: ApidocProperty[],
     responseParams: ApidocProperty[],
 }
 //项目参数模板
-type ProjectParamsTemplate = {
+type ApidocProjectParamsTemplate = {
     /**
      * 模板id
      */
@@ -93,7 +93,7 @@ type ProjectParamsTemplate = {
     items: ApidocProperty[],
 }
 //项目规则
-type ProjectRules = {
+type ApidocProjectRules = {
     /**
      * 参数值是否必填
      */
@@ -128,23 +128,23 @@ type ApidocProjectBaseInfoState = {
     /**
      * 项目变量信息
      */
-    variables: ProjectVariable[],
+    variables: ApidocProjectVariable[],
     /**
      * 项目host信息
      */
-    hosts: ProjectHost[],
+    hosts: ApidocProjectHost[],
     /**
      * 联想参数
      */
-    mindParams: ProjectMindParam[],
+    mindParams: ApidocProjectMindParam[],
     /**
      * 参数模板信息
      */
-    paramsTemplate: ProjectParamsTemplate,
+    paramsTemplate: ApidocProjectParamsTemplate,
     /**
      * 项目规则
      */
-    rules: ProjectRules,
+    rules: ApidocProjectRules,
 };
 /*
 |--------------------------------------------------------------------------
@@ -155,7 +155,8 @@ type ApidocProjectBaseInfoState = {
 //全局state
 type State = {
     permission: PermissionState,
-    banner: ApidocBannerState,
+    "apidoc/banner": ApidocBannerState,
+    "apidoc/baseInfo": ApidocProjectBaseInfoState,
 }
 export {
     PermissionState,
