@@ -6,10 +6,11 @@
 */
 <template>
     <div class="tool">
-        <h2 class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
+        <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
+        <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
         <el-input v-model="queryData" class="doc-search" placeholder="文档名称、文档url、创建者" clearable @input="handleFilterBanner"></el-input>
-        <div class="tool-icon mt-1 px-1">
-            <s-draggable v-model="operations" animation="150" item-key="name" class="operation">
+        <div class="tool-icon mt-1">
+            <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
                 <template #item="{ element }">
                     <div>
                         <el-tooltip :key="element.name" class="item" effect="dark" :content="element.name" :open-delay="300">
@@ -19,46 +20,34 @@
                                 </svg>
                             </div>
                         </el-tooltip>
-                        <!-- <el-dropdown ref="dropdown" trigger="click" class="more">
-                            <i class="more-op el-icon-more" title="更多操作"></i>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item @click="handleViewDoc">
-                                        <div class="dropdown-item">
-                                            <span>预览文档</span>
-                                            <span class="gray-500">Ctrl+P</span>
-                                        </div>
-                                    </el-dropdown-item>
-                                    <el-dropdown-item @click="handleOpenExportPage">
-                                        <div class="dropdown-item">
-                                            <span>导出文档</span>
-                                            <span class="gray-500">Ctrl+E</span>
-                                        </div>
-                                    </el-dropdown-item>
-                                    <el-dropdown-item @click="handleOpenImportPage">
-                                        <div class="dropdown-item">
-                                            <span>导入文档</span>
-                                            <span class="gray-500">Ctrl+I</span>
-                                        </div>
-                                    </el-dropdown-item>
-                                    <el-dropdown-item @click="handleOpenHistoryPage">
-                                        <div class="dropdown-item">
-                                            <span>历史记录</span>
-                                            <span class="gray-500">Ctrl+H</span>
-                                        </div>
-                                    </el-dropdown-item>
-                                    <el-dropdown-item @click="handleOpenConfigPage">
-                                        <div class="dropdown-item">
-                                            <span>全局设置</span>
-                                            <span class="gray-500">Ctrl+,</span>
-                                        </div>
-                                    </el-dropdown-item>
-                                </el-dropdown-menu>
-                            </template>
-                        </el-dropdown> -->
                     </div>
                 </template>
             </s-draggable>
+            <el-popover v-model:visible="visible" transition="none" placement="right" :width="350" trigger="manual">
+                <template #reference>
+                    <div class="more" @click.stop="handleShowMoreOperation">
+                        <i class="more-op el-icon-more" title="更多操作"></i>
+                    </div>
+                </template>
+                <div class="border-bottom-gray-300 py-2 px-2">快捷操作</div>
+                <s-draggable v-model="operations" animation="150" item-key="name" group="operation">
+                    <template #item="{ element }">
+                        <div class="dropdown-item">
+                            <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
+                                <use :xlink:href="element.icon"></use>
+                            </svg>
+                            <div class="label">{{ element.name }}</div>
+                            <div class="shortcut">
+                                <span v-for="(item, index) in element.shortcut" :key="item">
+                                    <span>{{ item }}</span>
+                                    <span v-if="index !== element.shortcut.length - 1">+</span>
+                                </span>
+                            </div>
+                            <div class="pin iconfont iconpin"></div>
+                        </div>
+                    </template>
+                </s-draggable>
+            </el-popover>
         </div>
     </div>
 </template>
@@ -66,6 +55,13 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import draggable from "vuedraggable"
+import operations from "./operations"
+type Operation = {
+    name: string,
+    icon: string,
+    op: string,
+    shortcut: string[],
+};
 
 export default defineComponent({
     components: {
@@ -73,66 +69,23 @@ export default defineComponent({
     },
     data() {
         return {
-            operations: [{
-                name: "新增文件夹",
-                icon: "#iconxinzengwenjian",
-                op: "addRootFolder",
-                shortcut: [],
-            }, {
-                name: "新增文件",
-                icon: "#iconwenjian",
-                op: "addRootFile",
-                shortcut: [],
-            }, {
-                name: "在线链接",
-                icon: "#iconlink",
-                op: "onlineLink",
-                shortcut: ["Ctrl", "L"],
-            }, {
-                name: "刷新banner",
-                icon: "#iconshuaxin",
-                op: "freshBanner",
-                shortcut: [],
-            }, {
-                name: "回收站",
-                icon: "#iconhuishouzhan",
-                op: "recycler",
-                shortcut: ["Ctrl", "Alt", "R"],
-            }, {
-                name: "预览文档",
-                icon: "#iconyulan",
-                op: "viewDoc",
-                shortcut: ["Ctrl", "P"],
-            },
-            // {
-            //     name: "导出文档",
-            //     icon: "#icondaochu1",
-            //     op: "exportDoc",
-            //     shortcut: ["Ctrl", "E"],
-            // }, {
-            //     name: "导入文档",
-            //     icon: "#icondaoru",
-            //     op: "importDoc",
-            //     shortcut: ["Ctrl", "I"],
-            // }, {
-            //     name: "历史记录",
-            //     icon: "#iconlishi",
-            //     op: "history",
-            //     shortcut: ["Ctrl", "H"],
-            // }, {
-            //     name: "全局设置",
-            //     icon: "#iconshezhi",
-            //     op: "config",
-            //     shortcut: ["Ctrl", ","],
-            // }
-            ],
+            operations,
             queryData: "", //过滤条件
+            visible: false,
         };
     },
     computed: {
         projectName(): string {
             return this.$store.state["apidoc/baseInfo"].projectName;
         },
+        pinOperations(): Operation[] {
+            return this.operations.slice(0, 5);
+        },
+    },
+    mounted() {
+        document.documentElement.addEventListener("click", () => {
+            this.handleHideMoreOperation();
+        })
     },
     methods: {
         handleFilterBanner() {
@@ -142,72 +95,13 @@ export default defineComponent({
         handleEmit(op: string) {
             console.log(op);
         },
-        //点击新增文件夹
-        handleClickAddFolder() {
-            this.$helper.event.emit("apidoc/addRootFolder");
+        //显示更多操作
+        handleShowMoreOperation() {
+            this.visible = true;
         },
-        //新建文件
-        handleClickAddFile() {
-            this.$helper.event.emit("apidoc/addRootFile");
-        },
-        //刷新banner
-        freshBanner() {
-            this.$helper.event.emit("apidoc/freshBanner");
-        },
-        //打开在线链接tab
-        handleOpenOnlineLink() {
-            this.handleAddTab("生成在线链接", "onlineLink");
-        },
-        //打开导出tab
-        handleOpenExportPage() {
-            this.handleAddTab("文档导出", "exportDoc");
-        },
-        //打开导入tab
-        handleOpenImportPage() {
-            this.handleAddTab("文档导入", "importDoc");
-        },
-        //打开配置界面
-        handleOpenConfigPage() {
-            this.handleAddTab("文档全局配置", "config");
-        },
-        //打开历史记录界面
-        handleOpenHistoryPage() {
-            this.handleAddTab("历史记录", "history");
-        },
-        //打开回收站
-        handleOpenRecyclerPage() {
-            this.handleAddTab("回收站", "recycler");
-        },
-        //打开新的tab
-        handleAddTab(name: string, tabType: string) {
-            console.log(name, tabType)
-            // this.$store.commit("apidoc/changeCurrentTab", {
-            //     _id: tabType,
-            //     projectId: this.$route.query.id,
-            //     name,
-            //     changed: false,
-            //     tabType,
-            // });
-            // if (this.tabs && this.tabs.find((tab) => tab.tabType === tabType)) { //存在则返回不处理
-            //     return;
-            // }
-            // this.$store.commit("apidoc/addTab", {
-            //     _id: tabType,
-            //     projectId: this.$route.query.id,
-            //     name,
-            //     changed: false,
-            //     tabType,
-            // });
-        },
-        //预览文档
-        handleViewDoc() {
-            this.$router.push({
-                path: "/v1/apidoc/doc-view",
-                query: {
-                    id: this.$route.query.id,
-                    name: this.$route.query.name,
-                },
-            });
+        //隐藏更多操作
+        handleHideMoreOperation() {
+            this.visible = false;
         },
     },
 })
@@ -229,11 +123,22 @@ export default defineComponent({
     // 快捷方式样式
     .tool-icon {
         position: relative;
+        align-items: center;
+        display: flex;
+        .item {
+            outline: none;
+        }
         .operation {
+            width: 85%;
             display: flex;
             justify-content: space-between;
         }
         .more {
+            display: flex;
+            justify-content: center;
+            margin-left: auto;
+            width: 10%;
+            position: relative;
         }
         .svg-icon {
             width: size(25);
@@ -254,6 +159,45 @@ export default defineComponent({
         &:hover {
             background: $gray-400;
         }
+    }
+}
+.dropdown-item {
+    height: size(40);
+    width: 100%;
+    padding: 0 size(10) 0 size(20);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    .label {
+        width: size(120);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .shortcut {
+        width: size(100);
+        color: $gray-500;
+    }
+    .svg-icon {
+        width: size(25);
+        height: size(25);
+        padding: size(5);
+        cursor: pointer;
+        &:hover {
+            background: $gray-400;
+        }
+    }
+    &:hover {
+        background: $gray-200;
+        // color: $theme-color;
+        // .shortcut {
+        //     color: $theme-color;
+        // }
+    }
+}
+body {
+    .el-popover.el-popper {
+        padding: 0;
     }
 }
 </style>

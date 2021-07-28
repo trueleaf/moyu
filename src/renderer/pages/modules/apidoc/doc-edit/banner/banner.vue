@@ -43,7 +43,6 @@ export default defineComponent({
 <style lang="scss">
 .banner {
     flex: 0 0 auto;
-    // width: size(300);
     height: 100%;
     border-right: 1px solid $gray-400;
     display: flex;

@@ -7,6 +7,11 @@
 <template>
     <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap">
         <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
+        <div v-if="isDragging" class="indicator">
+            <div class="left"></div>
+            <div class="ct">{{ realTimeWidth }}px</div>
+            <div class="right"></div>
+        </div>
         <slot />
     </div>
 </template>
@@ -54,6 +59,7 @@ export default defineComponent({
     },
     data() {
         return {
+            realTimeWidth: 0, //---------------实时宽度
             mousedownLeft: 0, //---------------鼠标点击距离
             wrapperWidth: 0, //----------------拖拽dom元素宽度
             isDragging: false, //--------------是否正在拖拽
@@ -75,10 +81,12 @@ export default defineComponent({
                 const wrapperWidth = localStorage.getItem(`apidoc/${this.name}`) || 300;
                 (bar as HTMLElement).style.left = `${wrapperWidth}px`;
                 (wrapper as HTMLElement).style.width = `${wrapperWidth}px`;
+                this.realTimeWidth = Number(wrapperWidth);
             } else {
                 const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
                 (bar as HTMLElement).style.left = width;
                 (wrapper as HTMLElement).style.width = width;
+                this.realTimeWidth = Number(width);
             }
         },
         //处理鼠标弹起事件
@@ -106,6 +114,7 @@ export default defineComponent({
             if (this.remember) {
                 localStorage.setItem(`apidoc/${this.name}`, (moveLeft + this.wrapperWidth).toString());
             }
+            this.realTimeWidth = moveLeft + this.wrapperWidth;
         },
     },
 })
@@ -114,6 +123,24 @@ export default defineComponent({
 <style lang="scss">
 .drag-wrap {
     position: relative;
+    .indicator {
+        width: 100%;
+        position: absolute;
+        top: 1px;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        padding: 0 size(10);
+        .left, .right {
+            border-bottom: 1px dashed $red;
+            width: 40%;
+        }
+        .ct {
+            flex: 1;
+            text-align: center;
+            color: $gray-600;
+        }
+    }
     &>.bar {
         @include bar;
     }
