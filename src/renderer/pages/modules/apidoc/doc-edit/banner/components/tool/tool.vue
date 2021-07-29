@@ -9,7 +9,9 @@
         <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
         <el-input v-model="queryData" class="doc-search" placeholder="文档名称、文档url、创建者" clearable @input="handleFilterBanner"></el-input>
+        <!-- 工具栏 -->
         <div class="tool-icon mt-1">
+            <!-- 固定的工具栏操作 -->
             <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
                 <template #item="{ element }">
                     <div>
@@ -23,13 +25,15 @@
                     </div>
                 </template>
             </s-draggable>
-            <el-popover v-model:visible="visible" transition="none" placement="right" :width="350" trigger="manual">
+            <!-- 全部工具栏操作 -->
+            <el-popover v-model:visible="visible" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
-                    <div class="more" @click.stop="handleShowMoreOperation">
+                    <div class="more" @click.stop="visible = true">
                         <i class="more-op el-icon-more" title="更多操作"></i>
                     </div>
                 </template>
                 <div class="border-bottom-gray-300 py-2 px-2">快捷操作</div>
+                <div class="toolbar-close el-icon-close" @click="visible = false"></div>
                 <s-draggable v-model="operations" animation="150" item-key="name" group="operation">
                     <template #item="{ element }">
                         <div class="dropdown-item">
@@ -43,7 +47,7 @@
                                     <span v-if="index !== element.shortcut.length - 1">+</span>
                                 </span>
                             </div>
-                            <div class="pin iconfont iconpin"></div>
+                            <div class="pin iconfont iconpin" :class="{ active: element.pin }" @click="togglePin(element)"></div>
                         </div>
                     </template>
                 </s-draggable>
@@ -57,10 +61,26 @@ import { defineComponent } from "vue"
 import draggable from "vuedraggable"
 import operations from "./operations"
 type Operation = {
+    /**
+     * 操作名称
+     */
     name: string,
+    /**
+     * 图标
+     */
     icon: string,
+    /**
+     * 操作标识
+     */
     op: string,
+    /**
+     * 快捷键
+     */
     shortcut: string[],
+    /**
+     * 是否固定操作栏
+     */
+    pin: boolean,
 };
 
 export default defineComponent({
@@ -69,35 +89,74 @@ export default defineComponent({
     },
     data() {
         return {
-            operations,
-            queryData: "", //过滤条件
-            visible: false,
+            operations: [] as Operation[], //----------所有操作
+            pinOperations: [] as Operation[], //-------固定工具栏操作
+            queryData: "", //--------------------------过滤条件
+            visible: false, //-------------------------是否显示更多操作
         };
     },
     computed: {
+        /**
+         * 项目名称
+         */
         projectName(): string {
             return this.$store.state["apidoc/baseInfo"].projectName;
         },
-        pinOperations(): Operation[] {
-            return this.operations.slice(0, 5);
+    },
+    watch: {
+        /**
+         * 缓存所有操作
+         */
+        operations: {
+            handler(v) {
+                localStorage.setItem("apidoc/toolbarOperations", JSON.stringify(v))
+            },
+            deep: true,
+        },
+        /**
+         * 缓存工具栏操作
+         */
+        pinOperations: {
+            handler(v) {
+                localStorage.setItem("apidoc/PinToolbarOperations", JSON.stringify(v))
+            },
+            deep: true,
         },
     },
     mounted() {
-        document.documentElement.addEventListener("click", () => {
-            this.handleHideMoreOperation();
-        })
+        document.documentElement.addEventListener("click", this.handleHideMoreOperation);
+        this.initCacheOperation();
+    },
+    unmounted() {
+        document.documentElement.removeEventListener("click", this.handleHideMoreOperation);
     },
     methods: {
+        //初始化操作栏缓存
+        initCacheOperation() {
+            const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
+            const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
+            if (localToolbarOperations) {
+                this.operations = JSON.parse(localToolbarOperations);
+            } else {
+                this.operations = operations;
+            }
+            if (localPinToolbarOperations) {
+                this.pinOperations = JSON.parse(localPinToolbarOperations);
+            } else {
+                this.pinOperations = this.operations.filter((v) => v.pin);
+            }
+        },
         handleFilterBanner() {
             console.log(333)
+        },
+        //切换固定操作
+        togglePin(element: Operation) {
+            element.pin = !element.pin;
+            this.pinOperations = this.operations.filter((v) => v.pin);
         },
         //操作
         handleEmit(op: string) {
             console.log(op);
-        },
-        //显示更多操作
-        handleShowMoreOperation() {
-            this.visible = true;
         },
         //隐藏更多操作
         handleHideMoreOperation() {
@@ -167,7 +226,7 @@ export default defineComponent({
     padding: 0 size(10) 0 size(20);
     display: flex;
     align-items: center;
-    cursor: pointer;
+    cursor: default;
     .label {
         width: size(120);
         overflow: hidden;
@@ -183,17 +242,23 @@ export default defineComponent({
         height: size(25);
         padding: size(5);
         cursor: pointer;
-        &:hover {
-            background: $gray-400;
+    }
+    .pin {
+        cursor: pointer;
+        color: $gray-400;
+        &.active {
+            color: $theme-color;
+            &:hover {
+                color: $theme-color;
+            }
         }
     }
     &:hover {
         background: $gray-200;
-        // color: $theme-color;
-        // .shortcut {
-        //     color: $theme-color;
-        // }
     }
+}
+.toolbar-close {
+    @include rt-close;
 }
 body {
     .el-popover.el-popper {
