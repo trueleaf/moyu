@@ -10,7 +10,7 @@ type ReturnData = {
     /**
      * banner值
      */
-    banner: Ref<ApidocBanner[]>,
+     bannerData: Ref<ApidocBanner[]>,
     /**
      * loading加载效果
      */
@@ -25,16 +25,16 @@ export function useBannerData(): ReturnData {
     const store = useStore();
     const route = useRoute()
     const projectId = route.query.id;
-    const banner = ref<ApidocBanner[]>([]);
+    const bannerData = ref<ApidocBanner[]>([]);
     const loading = ref(false);
     const getBannerData = async () => {
         loading.value = true;
-        banner.value = await store.dispatch("apidoc/banner/getDocBanner", { projectId });
+        bannerData.value = await store.dispatch("apidoc/banner/getDocBanner", { projectId });
         loading.value = false;
     }
     getBannerData();
     return {
-        banner,
+        bannerData,
         loading,
         getBannerData,
     };
