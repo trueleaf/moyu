@@ -177,12 +177,20 @@
 //右上角关闭按钮
 @mixin rt-close {
     display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    right: size(3);
-    top: size(4);
-    font-size: fz(18);
+    right: size(5);
+    top: size(5);
+    font-size: fz(16);
+    width: size(22);
+    height: size(22);
     color: $red;
     cursor: pointer;
+    border-radius: 50%;
+    &:hover {
+        background: $gray-300;
+    }
 }
 
 
