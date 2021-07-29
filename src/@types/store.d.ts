@@ -92,6 +92,25 @@ type ApidocProjectParamsTemplate = {
      */
     items: ApidocProperty[],
 }
+//请求方法规则
+type ApidocRequestMethodRule = {
+    /**
+     * 方法名称
+     */
+    name: string,
+    /**
+     * 值
+     */
+    value: string,
+    /**
+     * 颜色
+     */
+    iconColor: string,
+    /**
+     * 是否启用
+     */
+    enabled: boolean,
+};
 //项目规则
 type ApidocProjectRules = {
     /**
@@ -114,6 +133,10 @@ type ApidocProjectRules = {
      * 域名个数限制
      */
     dominLimit: number,
+    /**
+     * 请求方法
+     */
+    requestMethods: ApidocRequestMethodRule[],
 }
 
 type ApidocProjectBaseInfoState = {
