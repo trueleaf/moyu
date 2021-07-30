@@ -112,6 +112,28 @@
     }
 }
 //contextmenu
+@mixin contextmenu-item {
+    line-height: 2em;
+    padding: size(5) size(25);
+    cursor: pointer;
+    display: flex;
+    &.disabled {
+        color: $gray-500;
+        cursor: default;
+        &:hover {
+            background: inherit;
+            color: $gray-500;
+        }
+    }
+    .hot-key {
+        margin-left: auto;
+        color: $gray-500;
+    }
+    &:hover {
+        background: $gray-200;
+        color: $theme-color;
+    }
+}
 @mixin contextmenu {
     position: fixed;
     background: $white;
@@ -131,26 +153,7 @@
         }
     }
     .item-list {
-        line-height: 2em;
-        padding: size(5) size(25);
-        cursor: pointer;
-        display: flex;
-        &.disabled {
-            color: $gray-500;
-            cursor: default;
-            &:hover {
-                background: inherit;
-                color: $gray-500;
-            }
-        }
-        .hot-key {
-            margin-left: auto;
-            color: $gray-500;
-        }
-        &:hover {
-            background: $gray-200;
-            color: $theme-color;
-        }
+        @include contextmenu-item;
     }
     .divider {
         margin: size(4) 0;
