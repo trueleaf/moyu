@@ -112,8 +112,6 @@ export default defineComponent({
             return this.placeholder ? this.placeholder : `请输入${this.label}`;
         },
     },
-    methods: {
-    },
 })
 </script>
 

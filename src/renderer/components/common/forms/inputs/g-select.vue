@@ -31,7 +31,7 @@ export default defineComponent({
          * 参数值
          */
         value: {
-            type: [String, Number, Array],
+            type: [String, Number],
             default: ""
         },
         /**

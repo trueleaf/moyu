@@ -59,7 +59,6 @@ export default defineComponent({
                     } else { 
                         this.realTop = topVal;
                     }
-                    console.log(topVal, height, contextmenuDom)
                 }, 0)
             },
             immediate: true,
