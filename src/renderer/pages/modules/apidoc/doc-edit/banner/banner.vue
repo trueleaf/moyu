@@ -75,8 +75,8 @@
                                         <i class="more-op el-icon-more" title="更多操作"></i>
                                     </div>
                                 </template>
-                                <s-contextmenu-item label="新建文档"></s-contextmenu-item>
-                                <s-contextmenu-item label="新建文件夹"></s-contextmenu-item>
+                                <s-contextmenu-item label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+                                <s-contextmenu-item label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
                                 <s-contextmenu-item label="以模板新建"></s-contextmenu-item>
                                 <s-contextmenu-item type="divider"></s-contextmenu-item>
                                 <s-contextmenu-item label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
@@ -94,8 +94,8 @@
         <!-- 鼠标右键 -->
         <teleport to="body">
             <s-contextmenu v-show="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-                <s-contextmenu-item label="新建文档"></s-contextmenu-item>
-                <s-contextmenu-item label="新建文件夹"></s-contextmenu-item>
+                <s-contextmenu-item label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+                <s-contextmenu-item label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
                 <s-contextmenu-item label="以模板新建"></s-contextmenu-item>
                 <s-contextmenu-item type="divider"></s-contextmenu-item>
                 <s-contextmenu-item label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
@@ -107,18 +107,26 @@
             </s-contextmenu>
         </teleport>
     </s-resize-x>
+    <s-add-file-dialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" :pid="currentOperationalNode?._id" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
+    <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" :pid="currentOperationalNode?._id" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
 </template>
 
 <script lang="ts">
-import { useStore } from "@/store/index"
 import { defineComponent, computed, ref, Ref, onMounted, onUnmounted } from "vue"
-import tool from "./components/tool/tool.vue"
-import { useBannerData } from "./composables/banner-data"
+import { ElMessage } from "element-plus"
+// import { findNodeById } from "@/helper/index"
+import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"
+import { useBannerData } from "./composables/banner-data"
+import tool from "./tool/tool.vue"
+import addFileDialog from "../dialog/add-file.vue"
+import addFolderDialog from "../dialog/add-folder.vue"
 
 export default defineComponent({
     components: {
         "s-tool": tool,
+        "s-add-file-dialog": addFileDialog,
+        "s-add-folder-dialog": addFolderDialog,
     },
     setup() {
         /*
@@ -137,7 +145,7 @@ export default defineComponent({
         const { loading, bannerData, getBannerData } = useBannerData();
         /*
         |--------------------------------------------------------------------------
-        | 获取项目基本信息
+        | 获取项目基本信息,xm
         |--------------------------------------------------------------------------
         */
         const projectInfo = computed(() => {
@@ -149,6 +157,7 @@ export default defineComponent({
         | 鼠标右键显示更多操作
         |--------------------------------------------------------------------------
         */
+        const currentOperationalNode: Ref<ApidocBanner | null> = ref(null); //点击工具栏按钮或者空白处右键这个值为null
         const hoverNode: Ref<ApidocBanner | null> = ref(null);
         const showMoreOpNode: Ref<ApidocBanner | null> = ref(null);
         const showContextmenu = ref(false);
@@ -162,7 +171,9 @@ export default defineComponent({
             if (showBannerOperation.value) { //说明更多操作是打开的，再次点击关闭操作面板
                 showMoreOpNode.value = null;
                 showBannerOperation.value = false;
+                currentOperationalNode.value = null;
             } else {
+                currentOperationalNode.value = data;
                 showMoreOpNode.value = data;
                 showBannerOperation.value = true;
             }
@@ -171,13 +182,88 @@ export default defineComponent({
             showContextmenu.value = true;
             contextmenuLeft.value = e.clientX;
             contextmenuTop.value = e.clientY;
-            console.log(data)
+            currentOperationalNode.value = data;
         }
         /*
         |--------------------------------------------------------------------------
         | 鼠标右键或则点击更多按钮，对节点的 新增、修改、删除、复制、粘贴、拷贝
         |--------------------------------------------------------------------------
         */
+        const addFileDialogVisible = ref(false); //新增接口弹窗
+        const addFolderDialogVisible = ref(false); //新增文件夹弹窗
+        const handleOpenAddFileDialog = () => {
+            const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => !v.isFolder).length || 0;
+            if (!currentOperationalNode.value) { //在根节点操作,不作限制
+                addFileDialogVisible.value = true;
+            } else if (childFileNodeNum > projectInfo.value.rules.fileInFolderLimit) {
+                ElMessage.warning(`单个文件夹里面文档个数不超过${childFileNodeNum}个`);
+            } else {
+                addFileDialogVisible.value = true;
+            }
+        }
+        //添加文件夹或文档成功回调函数
+        const handleAddFileAndFolderCb = (data: ApidocBanner) => {
+            if (currentOperationalNode.value) { //插入到文件夹下面
+                if (data.type === "folder") {
+                    let hasOneFolderNode = false; //至少存在一个folder节点
+                    for (let i = 0; i < currentOperationalNode.value.children.length; i += 1) {
+                        const childNode = currentOperationalNode.value.children[i];
+                        if (!childNode.isFolder) {//放在最后一个文件夹下面
+                            currentOperationalNode.value.children.splice(i, 0, data);
+                            break;
+                        } else {
+                            hasOneFolderNode = true;
+                        }
+                    }
+                    if (!hasOneFolderNode) {
+                        currentOperationalNode.value.children.splice(0, 0, data);
+                    }
+                } else { //如果是文本
+                    currentOperationalNode.value.children.push(data);
+                }
+            } else { //插入到文件夹里面
+            //     if (!pNode.children) {
+            //         this.$set(pNode, "children", []);
+            //     }
+            //     if (data.type === "folder") { //如果是文件夹则放在第一位
+            //         this.defaultExpandedKeys.push(data._id)
+            //         let folderIndex = -1;
+            //         for (let i = 0, len = pNode.children.length; i < len; i += 1) {
+            //             if (!pNode.children[i].isFolder) {
+            //                 pNode.children.splice(i, 0, data);
+            //                 folderIndex = i;
+            //                 break;
+            //             }
+            //         }
+            //         if (folderIndex === -1) { //不存在文件则直接添加到末尾
+            //             pNode.children.push(data);
+            //         }
+            //     } else {
+            //         pNode.children.push(data);
+            //     }
+            // }
+            // if (data.type !== "folder") { //文件夹不做处理
+            //     this.$store.commit("apidoc/addTab", {
+            //         _id: data._id,
+            //         name: data.name,
+            //         changed: data.changed,
+            //         tail: data.method,
+            //         tabType: "doc",
+            //         projectId: this.$route.query.id,
+            //     });
+            //     this.$store.commit("apidoc/changeCurrentTab", {
+            //         _id: data._id,
+            //         name: data.name,
+            //         changed: data.changed,
+            //         tail: data.method,
+            //         tabType: "doc",
+            //         projectId: this.$route.query.id,
+            //     });
+            }
+        };
+        const handleOpenAddFolderDialog = () => {
+            addFolderDialogVisible.value = true;
+        }
         /*
         |--------------------------------------------------------------------------
         | 其他操作
@@ -211,10 +297,16 @@ export default defineComponent({
             showContextmenu,
             contextmenuLeft,
             contextmenuTop,
+            currentOperationalNode,
+            addFileDialogVisible,
+            addFolderDialogVisible,
             getBannerData,
             handleHoverNode,
             handleClickMoreOperation,
             handleContextmenu,
+            handleOpenAddFileDialog,
+            handleOpenAddFolderDialog,
+            handleAddFileAndFolderCb,
         };
     },
 })
