@@ -6,6 +6,7 @@
 */
 <template>
     <el-input
+        ref="ipt"
         v-bind="$attrs"
         :model-value="value"
         :placeholder="placeholder"
@@ -28,7 +29,7 @@ export default defineComponent({
          * v-model绑定的值
          */
         value: {
-            type: [String, Number, Boolean, Array],
+            type: [String, Number],
             default: "",
         },
         /**
@@ -45,12 +46,29 @@ export default defineComponent({
             type: String,
             default: "",
         },
+        /**
+         * 是否默认focus
+         */
+        focus: {
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ["update:value"],
     data() {
         return {
             config, //全局配置
         };
+    },
+    watch: {
+        focus: {
+            handler() {
+                setTimeout(() => {
+                    (this.$refs.ipt as HTMLInputElement).focus();
+                })
+            },
+            immediate: true,
+        },
     },
     methods: {
         handleInput(value: string) {
