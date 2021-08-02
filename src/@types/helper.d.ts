@@ -1,4 +1,18 @@
-import { forEachForest, getTextWidth, uuid, getType, randomTip, debounce, formatDate, findParentById, uniqueByKey, event, getRequestMethodEnum, cloneDeep } from "@/helper/index"
+import { 
+    forEachForest, 
+    getTextWidth, 
+    uuid, 
+    getType, 
+    randomTip, 
+    debounce, 
+    formatDate, 
+    findNodeById,
+    findParentById, 
+    uniqueByKey, 
+    event, 
+    getRequestMethodEnum, 
+    cloneDeep 
+} from "@/helper/index"
 
 type Helper = {
     /**
@@ -21,6 +35,10 @@ type Helper = {
      * 遍历树形数据
      */
     forEachForest: typeof forEachForest,
+    /**
+     * 根据id查询元素
+     */
+    findNodeById: typeof findNodeById,
     /**
      * 查找父元素
      */

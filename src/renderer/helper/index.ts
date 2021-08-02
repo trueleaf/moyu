@@ -125,6 +125,31 @@ export function findParentById<T extends ForestData>(forest: T[], id: string, op
         return null;
     }
 }
+/**
+ * 根据id查询元素
+ */
+export function findNodeById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    let result = null;
+    const childrenKey = options?.childrenKey || "children";
+    const idKey = options?.idKey || "id";
+    const foo = (forestData: ForestData) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            if (currentData[idKey] === id) {
+                result = currentData;
+                break;
+            }
+            if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
+                foo(currentData[childrenKey]);
+            }
+        }
+    };
+    foo(forest);
+    return result;
+}
 
 let canvas: HTMLCanvasElement | null;
 /**
