@@ -13,6 +13,8 @@ const banner = {
         changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
             state.banner = payload;
         },
+        //改变文档数据
+        
     },
     actions: {
         /**
