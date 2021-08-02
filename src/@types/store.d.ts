@@ -124,7 +124,7 @@ type ApidocProjectRules = {
     /**
      * 单个文件夹允许最大文件个数
      */
-    fileInFolderLimit: boolean,
+    fileInFolderLimit: number,
     /**
      * 是否开启折叠动画
      */
