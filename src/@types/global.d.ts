@@ -327,6 +327,8 @@ type ApidocBanner = {
      */
     children: ApidocBanner[]
 }
+//工具栏操作
+type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
 export {
     Response,
     PermissionMenu,
@@ -345,4 +347,5 @@ export {
     ApidocPropertyType,
     ApidocParamsType,
     ApidocBanner,
+    ApidocOperations,
 }
