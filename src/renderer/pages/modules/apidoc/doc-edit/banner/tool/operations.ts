@@ -19,7 +19,7 @@ export default [{
 }, {
     name: "在线链接",
     icon: "#iconlink",
-    op: "onlineLink",
+    op: "generateLink",
     shortcut: ["Ctrl", "L"],
     pin: true,
 }, {

@@ -3,6 +3,12 @@ import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
 import { ApidocBanner } from "@@/global"
 
+type SplicePayload = {
+    opData?: ApidocBanner[],
+    start: number,
+    deleteCount?: number,
+    deleteItem: ApidocBanner,
+}
 const banner = {
     namespaced: true,
     state: {
@@ -14,7 +20,22 @@ const banner = {
             state.banner = payload;
         },
         //改变文档数据
-        
+        splice(state: ApidocBannerState, payload: SplicePayload): void {
+            const { start, deleteCount = 0, deleteItem, opData } = payload;
+            if (!opData) {
+                if (deleteItem) {
+                    state.banner.splice(start, deleteCount, deleteItem)
+                } else {
+                    state.banner.splice(start, deleteCount)
+                }
+            } else {
+                if (deleteItem) {
+                    opData.splice(start, deleteCount, deleteItem)
+                } else {
+                    opData.splice(start, deleteCount)
+                }
+            }
+        },
     },
     actions: {
         /**

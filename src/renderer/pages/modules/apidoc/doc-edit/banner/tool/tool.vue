@@ -54,12 +54,18 @@
             </el-popover>
         </div>
     </div>
+    <s-add-file-dialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
+    <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, ref } from "vue"
 import draggable from "vuedraggable"
+import addFileDialog from "../../dialog/add-file.vue"
+import addFolderDialog from "../../dialog/add-folder.vue"
 import operations from "./operations"
+import type { ApidocBanner, ApidocOperations } from "@@/global"
+import { addFileAndFolderCb } from "../composables/curd-node"
 type Operation = {
     /**
      * 操作名称
@@ -86,6 +92,17 @@ type Operation = {
 export default defineComponent({
     components: {
         "s-draggable": draggable,
+        "s-add-file-dialog": addFileDialog,
+        "s-add-folder-dialog": addFolderDialog,
+    },
+    setup() {
+        //添加文件夹或文档成功回调函数
+        const handleAddFileAndFolderCb = (data: ApidocBanner) => {
+            addFileAndFolderCb.call(this, ref(null), data)
+        };
+        return {
+            handleAddFileAndFolderCb,
+        };
     },
     data() {
         return {
@@ -93,6 +110,8 @@ export default defineComponent({
             pinOperations: [] as Operation[], //-------固定工具栏操作
             queryData: "", //--------------------------过滤条件
             visible: false, //-------------------------是否显示更多操作
+            addFileDialogVisible: false,
+            addFolderDialogVisible: false,
         };
     },
     computed: {
@@ -155,8 +174,17 @@ export default defineComponent({
             this.pinOperations = this.operations.filter((v) => v.pin);
         },
         //操作
-        handleEmit(op: string) {
-            console.log(op);
+        handleEmit(op: ApidocOperations) {
+            switch (op) {
+            case "addRootFolder": //新建文件夹
+                this.addFolderDialogVisible = true;
+                break;
+            case "addRootFile": //新建文件
+                this.addFileDialogVisible = true;
+                break;
+            default:
+                break;
+            }
         },
         //隐藏更多操作
         handleHideMoreOperation() {
@@ -172,6 +200,7 @@ export default defineComponent({
     padding: 0 size(20);
     height: size(150);
     background: $gray-200;
+    flex: 0 0 auto;
     // 搜索框样式
     .doc-search {
         border-radius: 20px;
