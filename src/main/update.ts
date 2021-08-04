@@ -8,7 +8,7 @@ import { autoUpdater } from "electron-updater";
 import { BrowserWindow, ipcMain } from "electron";
 import config from "@/../config/config.js";
 
-function update() {
+function update(): void {
     const { server } = config.updateConfig;
     const url = `${server}${config.updateConfig.filePath}`;
     const winId = BrowserWindow.getFocusedWindow()?.id;
