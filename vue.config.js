@@ -42,6 +42,7 @@ module.exports = {
     },
     pluginOptions: {
         electronBuilder: {
+            nodeIntegration: true, //参考https://nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html
             extends: null,
             externals: [
                 "vue",
