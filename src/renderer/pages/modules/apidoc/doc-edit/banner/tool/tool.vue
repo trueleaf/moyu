@@ -14,14 +14,10 @@
             <!-- 固定的工具栏操作 -->
             <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
                 <template #item="{ element }">
-                    <div>
-                        <el-tooltip :key="element.name" class="item" effect="dark" :content="element.name" :open-delay="300">
-                            <div>
-                                <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
-                                    <use :xlink:href="element.icon"></use>
-                                </svg>
-                            </div>
-                        </el-tooltip>
+                    <div :title="element.name">
+                        <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
+                            <use :xlink:href="element.icon"></use>
+                        </svg>
                     </div>
                 </template>
             </s-draggable>
@@ -66,6 +62,7 @@ import addFolderDialog from "../../dialog/add-folder.vue"
 import operations from "./operations"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { addFileAndFolderCb } from "../composables/curd-node"
+
 type Operation = {
     /**
      * 操作名称
@@ -95,6 +92,7 @@ export default defineComponent({
         "s-add-file-dialog": addFileDialog,
         "s-add-folder-dialog": addFolderDialog,
     },
+    emits: ["fresh"],
     setup() {
         //添加文件夹或文档成功回调函数
         const handleAddFileAndFolderCb = (data: ApidocBanner) => {
@@ -181,6 +179,9 @@ export default defineComponent({
                 break;
             case "addRootFile": //新建文件
                 this.addFileDialogVisible = true;
+                break;
+            case "freshBanner": //刷新页面
+                this.$emit("fresh");
                 break;
             default:
                 break;

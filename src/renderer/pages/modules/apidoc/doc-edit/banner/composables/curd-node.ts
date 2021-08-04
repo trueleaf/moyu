@@ -78,6 +78,21 @@ export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): vo
 }
 
 /**
+ * 粘贴某个节点
+ * 转换逻辑如下
+ * 1. 将所有嵌套数据取出变为扁平一维数组
+ * 2. 根据_id去重所有节点
+ * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
+ * 4. 将这些
+ */
+export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, pasteNode: ApidocBanner): void {
+    console.log(currentOperationalNode.value, pasteNode)
+    // const mountedId = currentOperationalNode.value?._id; //挂载点id
+    // const projectId = router.currentRoute.value.query.id;
+}
+
+
+/**
  * 新增文件和文件夹回调
  */
 export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void {

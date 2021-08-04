@@ -28,6 +28,9 @@ export function useBannerData(): ReturnData {
     const bannerData = ref<ApidocBanner[]>([]);
     const loading = ref(false);
     const getBannerData = async () => {
+        if (loading.value) {
+            return
+        }
         loading.value = true;
         bannerData.value = await store.dispatch("apidoc/banner/getDocBanner", { projectId });
         loading.value = false;

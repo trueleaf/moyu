@@ -8,6 +8,7 @@
     <div ref="contextmenu" class="s-contextmenu" :style="{width: width, left: left + 'px', top: realTop + 'px'}">
         <slot></slot>
     </div>
+    <!-- <div class="contextmenu-shadow"></div> -->
 </template>
 
 <script lang="ts">
@@ -93,4 +94,13 @@ export default defineComponent({
         }
     }
 }
+// .contextmenu-shadow {
+//     position: fixed;
+//     left: 0;
+//     top: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: rgba(0, 0, 0, 0);
+//     z-index: $zIndex-contextmenu - 1;
+// }
 </style>

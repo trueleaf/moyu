@@ -6,7 +6,7 @@
 */
 <template>
     <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
-        <s-tool></s-tool>
+        <s-tool @fresh="getBannerData"></s-tool>
         <s-loading ref="bannerRef" :loading="loading" class="flex1">
             <el-tree
                 ref="docTree"
@@ -16,14 +16,14 @@
                 :default-expanded-keys="defaultExpandedKeys"
                 node-key="_id"
                 empty-text="点击工具栏按钮新增文档或者鼠标右键新增"
-                @node-contextmenu="handleContextmenu"
+                @node-contextmenu="handleShowContextmenu"
             >
                 <template #default="scope">
                     <div
                         class="custom-tree-node"
+                        :class="{ 'select-node': selectNode?._id === scope.data._id }"
                         tabindex="0"
-                        @mouseenter.stop="handleHoverNode($event, scope.data)"
-                        @mouseleave="hoverNode = null"
+                        @click="handleClickNode(scope.data)"
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
@@ -34,26 +34,12 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                                 <s-emphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url" :value="scope.data.url"></s-emphasize>
                             </div>
-                            <el-popover 
-                                v-if="hoverNode?._id === scope.data._id || showMoreOpNode?._id === scope.data._id" 
-                                v-model:visible="showBannerOperation" 
-                                popper-class="banner-popover"
-                                transition="none" 
-                                placement="bottom-end" 
-                                trigger="manual"
-                                :width="240" 
+                            <div 
+                                class="more"
+                                @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <template #reference>
-                                    <div class="more" @click.stop="handleClickMoreOperation(scope.data)">
-                                        <i class="more-op el-icon-more" title="更多操作"></i>
-                                    </div>
-                                </template>
-                                <s-contextmenu-item label="复制" hot-key="Ctrl + C"></s-contextmenu-item>
-                                <s-contextmenu-item label="生成副本" hot-key="Ctrl + V"></s-contextmenu-item>
-                                <s-contextmenu-item type="divider"></s-contextmenu-item>
-                                <s-contextmenu-item label="重命名" hot-key="F12"></s-contextmenu-item>
-                                <s-contextmenu-item label="删除" hot-key="Delete" @click="handleDeleteNode"></s-contextmenu-item>
-                            </el-popover>
+                                <i class="more-op el-icon-more" title="更多操作"></i>
+                            </div>
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
@@ -62,31 +48,12 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
                             </div>
-                            <el-popover 
-                                v-if="hoverNode?._id === scope.data._id || showMoreOpNode?._id === scope.data._id" 
-                                v-model:visible="showBannerOperation" 
-                                popper-class="banner-popover"
-                                transition="none" 
-                                placement="bottom-end" 
-                                trigger="manual"
-                                :width="240" 
+                            <div 
+                                class="more"
+                                @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <template #reference>
-                                    <div class="more" @click.stop="handleClickMoreOperation(scope.data)">
-                                        <i class="more-op el-icon-more" title="更多操作"></i>
-                                    </div>
-                                </template>
-                                <s-contextmenu-item label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
-                                <s-contextmenu-item label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-                                <s-contextmenu-item label="以模板新建"></s-contextmenu-item>
-                                <s-contextmenu-item type="divider"></s-contextmenu-item>
-                                <s-contextmenu-item label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
-                                <s-contextmenu-item label="复制" hot-key="Ctrl + C"></s-contextmenu-item>
-                                <s-contextmenu-item label="粘贴" hot-key="Ctrl + V" disabled></s-contextmenu-item>
-                                <s-contextmenu-item type="divider"></s-contextmenu-item>
-                                <s-contextmenu-item label="重命名" hot-key="F12"></s-contextmenu-item>
-                                <s-contextmenu-item label="删除" hot-key="Delete"></s-contextmenu-item>
-                            </el-popover>
+                                <i class="more-op el-icon-more" title="更多操作"></i>
+                            </div>
                         </template>
                     </div>
                 </template>
@@ -95,13 +62,14 @@
         <!-- 鼠标右键 -->
         <teleport to="body">
             <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-                <s-contextmenu-item label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
-                <s-contextmenu-item label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-                <s-contextmenu-item label="以模板新建"></s-contextmenu-item>
-                <s-contextmenu-item type="divider"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" type="divider"></s-contextmenu-item>
                 <s-contextmenu-item label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
-                <s-contextmenu-item label="复制" hot-key="Ctrl + C"></s-contextmenu-item>
-                <s-contextmenu-item label="粘贴" hot-key="Ctrl + V" disabled></s-contextmenu-item>
+                <s-contextmenu-item label="复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode?.isFolder" label="生成副本" hot-key="Ctrl + V"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="粘贴" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
                 <s-contextmenu-item type="divider"></s-contextmenu-item>
                 <s-contextmenu-item label="重命名" hot-key="F12"></s-contextmenu-item>
                 <s-contextmenu-item label="删除" hot-key="Delete" @click="handleDeleteNode"></s-contextmenu-item>
@@ -113,17 +81,17 @@
 </template>
 
 <script lang="ts">
+import { clipboard } from "electron"
 import { defineComponent, computed, ref, Ref, onMounted, onUnmounted } from "vue"
+import addFileDialog from "../dialog/add-file.vue"
+import addFolderDialog from "../dialog/add-folder.vue"
 import { ElMessage } from "element-plus"
-// import { forEachForest } from "@/helper/index"
-// import { axios } from "@/api/api"
 import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"
 import { useBannerData } from "./composables/banner-data"
-import { deleteNode, addFileAndFolderCb } from "./composables/curd-node"
+import { deleteNode, addFileAndFolderCb, pasteNode } from "./composables/curd-node"
 import tool from "./tool/tool.vue"
-import addFileDialog from "../dialog/add-file.vue"
-import addFolderDialog from "../dialog/add-folder.vue"
+
 export default defineComponent({
     components: {
         "s-tool": tool,
@@ -137,51 +105,41 @@ export default defineComponent({
         |--------------------------------------------------------------------------
         */
         const store = useStore();
+        const pasteValue: Ref<ApidocBanner | null> = ref(null); //需要粘贴的数据
+        const selectNode: Ref<ApidocBanner | null> = ref(null); //当前选中节点
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
         const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
         const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
         /*
         |--------------------------------------------------------------------------
         | 获取banner数据
+        | 获取项目基本信息
         |--------------------------------------------------------------------------
         */
         const { loading, bannerData, getBannerData } = useBannerData();
-        /*
-        |--------------------------------------------------------------------------
-        | 获取项目基本信息,xm
-        |--------------------------------------------------------------------------
-        */
         const projectInfo = computed(() => {
             return store.state["apidoc/baseInfo"];
         });
+       
         /*
         |--------------------------------------------------------------------------
         | 鼠标移动到banner节点，显示更多操作。
         | 鼠标右键显示更多操作
+        | 鼠标左键选中节点
+        | 判断显示是否允许粘贴
         |--------------------------------------------------------------------------
         */
         const currentOperationalNode: Ref<ApidocBanner | null> = ref(null); //点击工具栏按钮或者空白处右键这个值为null
-        const hoverNode: Ref<ApidocBanner | null> = ref(null);
-        const showMoreOpNode: Ref<ApidocBanner | null> = ref(null);
-        const showContextmenu = ref(false);
-        const showBannerOperation = ref(false);
-        const contextmenuLeft = ref(0);
-        const contextmenuTop = ref(0);
-        const handleHoverNode = (e: MouseEvent, data: ApidocBanner) => {
-            hoverNode.value = data;
+        const showContextmenu = ref(false); //是否显示contextmenu
+        const contextmenuLeft = ref(0); //contextmenu left值
+        const contextmenuTop = ref(0); //contextmenu top值
+        const handleClickNode = (data: ApidocBanner) => {
+            showContextmenu.value = false;
+            selectNode.value = data;
         }
-        const handleClickMoreOperation = (data: ApidocBanner) => {
-            if (showBannerOperation.value) { //说明更多操作是打开的，再次点击关闭操作面板
-                showMoreOpNode.value = null;
-                showBannerOperation.value = false;
-                currentOperationalNode.value = null;
-            } else {
-                currentOperationalNode.value = data;
-                showMoreOpNode.value = data;
-                showBannerOperation.value = true;
-            }
-        }
-        const handleContextmenu = (e: MouseEvent, data: ApidocBanner) => {
+        const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
+            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            pasteValue.value = copyData ? JSON.parse(copyData) : null;
             showContextmenu.value = true;
             contextmenuLeft.value = e.clientX;
             contextmenuTop.value = e.clientY;
@@ -194,6 +152,7 @@ export default defineComponent({
         */
         const addFileDialogVisible = ref(false); //新增接口弹窗
         const addFolderDialogVisible = ref(false); //新增文件夹弹窗
+        //打开新增文件弹窗
         const handleOpenAddFileDialog = () => {
             const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => !v.isFolder).length || 0;
             if (!currentOperationalNode.value) { //在根节点操作,不作限制
@@ -204,6 +163,7 @@ export default defineComponent({
                 addFileDialogVisible.value = true;
             }
         }
+        //打开新增文件夹弹窗
         const handleOpenAddFolderDialog = () => {
             addFolderDialogVisible.value = true;
         };
@@ -213,7 +173,20 @@ export default defineComponent({
             defaultExpandedKeys.value.push(data._id);
         };
         //删除节点
-        const handleDeleteNode = deleteNode.bind(this, currentOperationalNode);
+        const handleDeleteNode = () => {
+            deleteNode.call(this, currentOperationalNode);
+        }
+        //复制节点
+        const handleCopyNode = () => {
+            const buffer = Buffer.from(JSON.stringify(currentOperationalNode.value), "utf8")
+            clipboard.writeBuffer("moyu-apidoc-node", buffer)
+        }
+        //粘贴节点
+        const handlePasteNode = () => {
+            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            pasteValue.value = copyData ? JSON.parse(copyData) : null;
+            pasteNode.call(this, currentOperationalNode, pasteValue.value as ApidocBanner);
+        }
         /*
         |--------------------------------------------------------------------------
         | 其他操作
@@ -223,10 +196,8 @@ export default defineComponent({
         |
         */
         const handleGlobalClick = () => {
-            hoverNode.value = null;
-            showMoreOpNode.value = null;
             showContextmenu.value = false;         
-            showBannerOperation.value = false;   
+            selectNode.value = null;
         }
         onMounted(() => {
             document.documentElement.addEventListener("click", handleGlobalClick);
@@ -241,9 +212,8 @@ export default defineComponent({
             loading,
             editNode,
             showMoreNodeInfo,
-            showBannerOperation,
-            hoverNode,
-            showMoreOpNode,
+            selectNode,
+            pasteValue,
             showContextmenu,
             contextmenuLeft,
             contextmenuTop,
@@ -252,13 +222,14 @@ export default defineComponent({
             addFolderDialogVisible,
             defaultExpandedKeys,
             getBannerData,
-            handleHoverNode,
-            handleClickMoreOperation,
-            handleContextmenu,
+            handleClickNode,
+            handleShowContextmenu,
             handleOpenAddFileDialog,
             handleOpenAddFolderDialog,
             handleAddFileAndFolderCb,
             handleDeleteNode,
+            handleCopyNode,
+            handlePasteNode,
         };
     },
 })
@@ -280,6 +251,11 @@ export default defineComponent({
         overflow: hidden;
         // padding: size(5) 0;
         min-height: size(30);
+        &:hover {
+            .more {
+                display: block;
+            }
+        }
         .file-icon {
             font-size: fz(14);
             margin-right: size(5);
@@ -310,9 +286,13 @@ export default defineComponent({
             }
         }
         .more {
+            display: none;
             flex: 0 0 auto;
             margin-left: auto;
             padding: size(5) size(10);
+        }
+        &.select-node {
+            background-color: lighten($theme-color, 30%);
         }
     }
     // 禁用动画提高性能
