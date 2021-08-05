@@ -11,7 +11,8 @@ import {
     uniqueByKey, 
     event, 
     getRequestMethodEnum, 
-    cloneDeep 
+    cloneDeep,
+    flatTree,
 } from "@/helper/index"
 
 type Helper = {
@@ -43,6 +44,10 @@ type Helper = {
      * 查找父元素
      */
     findParentById: typeof findParentById,
+    /**
+     * 将树形数据所有节点转换为一维数组
+     */
+    flatTree: typeof flatTree,
     /**
      * 获取字符串宽度
      */

@@ -152,6 +152,30 @@ export function findNodeById<T extends ForestData>(forest: T[], id: string, opti
     return result;
 }
 
+/**
+ * 将树形数据所有节点转换为一维数组,数据会进行深拷贝
+ */
+type TreeNode<T> = {
+    children: T[],
+};
+export function flatTree<T extends TreeNode<T>>(root: T): T[] {
+    const result: T[] = [];
+    const foo = (nodes: T[]): void => {
+        for(let i = 0; i < nodes.length; i ++) {
+            const item = nodes[i];
+            const itemCopy = cloneDeep(item);
+            itemCopy.children = [];
+            result.push(itemCopy);
+            if (item.children && item.children.length > 0) {
+                foo(item.children);
+            }
+        }
+      
+    }
+    foo([root]);
+    return result;
+}
+
 let canvas: HTMLCanvasElement | null;
 /**
  * 获取字符串宽度
