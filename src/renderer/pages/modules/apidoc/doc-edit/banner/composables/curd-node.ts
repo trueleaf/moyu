@@ -9,6 +9,7 @@ import { ElMessageBox } from "element-plus"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
+import { flatTree, uniqueByKey } from "@/helper/index"
 
 /**
  * 删除某个节点
@@ -87,6 +88,30 @@ export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): vo
  */
 export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, pasteNode: ApidocBanner): void {
     console.log(currentOperationalNode.value, pasteNode)
+    const flatNodes = flatTree(pasteNode);
+    const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
+    // console.log(uniqueFlatNodes)
+    // pasteNode.pid = currentOperationalNode.value?._id || "";
+    // if (currentOperationalNode.value) { //粘贴到某个文件夹
+    //     store.commit("apidoc/banner/splice", {
+    //         opData: currentOperationalNode.value.children,
+    //         start: 0,
+    //         deleteItem: pasteNode,
+    //     })
+    // }
+    const params = {
+        projectId: router.currentRoute.value.query.id,
+        mountedId: currentOperationalNode.value?._id,
+        docs: uniqueFlatNodes.map((v) => ({
+            _id: v._id,
+            pid: v.pid,
+        })),
+    };
+    axios.post("/api/project/paste_docs", params).then((res) => {
+        console.log(res.data)
+    }).catch((err) => {
+        console.error(err);
+    });
     // const mountedId = currentOperationalNode.value?._id; //挂载点id
     // const projectId = router.currentRoute.value.query.id;
 }
@@ -99,28 +124,19 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     const { banner } = store.state["apidoc/banner"];
     if (currentOperationalNode.value) { //插入到某个节点下面
         if (data.type === "folder") {
-            let hasOneFolderNode = false; //至少存在一个folder节点
-            for (let i = 0; i < currentOperationalNode.value.children.length; i += 1) {
-                const childNode = currentOperationalNode.value.children[i];
-                if (!childNode.isFolder) {//放在最后一个文件夹下面
-                    store.commit("apidoc/banner/splice", {
-                        start: i,
-                        deleteCount: 0,
-                        deleteItem: data,
-                        opData: currentOperationalNode.value.children,
-                    });
-                    break;
-                } else {
-                    hasOneFolderNode = true;
-                }
-            }
-            if (!hasOneFolderNode) {
+            const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => !node.isFolder)
+            if (lastFolderIndex !== -1) {
                 store.commit("apidoc/banner/splice", {
-                    start: 0,
+                    start: currentOperationalNode.value.children.length,
                     deleteCount: 0,
                     deleteItem: data,
-                    opData: currentOperationalNode.value.children,
-                });
+                })
+            } else {
+                store.commit("apidoc/banner/splice", {
+                    start: currentOperationalNode.value.children.length,
+                    deleteCount: 0,
+                    deleteItem: data,
+                })
             }
         } else{ //如果是文本
             store.commit("apidoc/banner/splice", {
@@ -132,23 +148,16 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
         }
     } else { //插入到根节点
         if (data.type === "folder") {
-            let hasOneFolderNode = false; //至少存在一个folder节点
-            for (let i = 0; i < banner.length; i += 1) {
-                const childNode = banner[i];
-                if (!childNode.isFolder) {//放在最后一个文件夹下面
-                    store.commit("apidoc/banner/splice", {
-                        start: i,
-                        deleteCount: 0,
-                        deleteItem: data,
-                    })
-                    break;
-                } else {
-                    hasOneFolderNode = true;
-                }
-            }
-            if (!hasOneFolderNode) {
+            const lastFolderIndex = banner.findIndex((node) => !node.isFolder)
+            if (lastFolderIndex !== -1) {
                 store.commit("apidoc/banner/splice", {
-                    start: 0,
+                    start: banner.length,
+                    deleteCount: 0,
+                    deleteItem: data,
+                })
+            } else {
+                store.commit("apidoc/banner/splice", {
+                    start: banner.length,
                     deleteCount: 0,
                     deleteItem: data,
                 })

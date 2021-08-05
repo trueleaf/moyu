@@ -7,10 +7,9 @@
 <template>
     <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
         <s-tool @fresh="getBannerData"></s-tool>
-        <s-loading ref="bannerRef" :loading="loading" class="flex1">
+        <s-loading ref="bannerRef" :loading="loading" class="tree-wrap" @contextmenu="handleWrapContextmenu">
             <el-tree
                 ref="docTree"
-                class="flex0"
                 :class="{ 'show-more': showMoreNodeInfo }"
                 :data="bannerData"
                 :default-expanded-keys="defaultExpandedKeys"
@@ -62,17 +61,17 @@
         <!-- 鼠标右键 -->
         <teleport to="body">
             <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" type="divider"></s-contextmenu-item>
-                <s-contextmenu-item label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
-                <s-contextmenu-item label="复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-                <s-contextmenu-item v-show="!currentOperationalNode?.isFolder" label="生成副本" hot-key="Ctrl + V"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode?.isFolder" label="粘贴" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
-                <s-contextmenu-item type="divider"></s-contextmenu-item>
-                <s-contextmenu-item label="重命名" hot-key="F12"></s-contextmenu-item>
-                <s-contextmenu-item label="删除" hot-key="Delete" @click="handleDeleteNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" label="生成副本" hot-key="Ctrl + V"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="粘贴" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="重命名" hot-key="F12"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="删除" hot-key="Delete" @click="handleDeleteNode"></s-contextmenu-item>
             </s-contextmenu>
         </teleport>
     </s-resize-x>
@@ -127,6 +126,7 @@ export default defineComponent({
         | 鼠标右键显示更多操作
         | 鼠标左键选中节点
         | 判断显示是否允许粘贴
+        | banner鼠标右键
         |--------------------------------------------------------------------------
         */
         const currentOperationalNode: Ref<ApidocBanner | null> = ref(null); //点击工具栏按钮或者空白处右键这个值为null
@@ -138,6 +138,7 @@ export default defineComponent({
             selectNode.value = data;
         }
         const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
+            selectNode.value = data;
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             showContextmenu.value = true;
@@ -145,9 +146,17 @@ export default defineComponent({
             contextmenuTop.value = e.clientY;
             currentOperationalNode.value = data;
         }
+        const handleWrapContextmenu = (e: MouseEvent) => {
+            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            pasteValue.value = copyData ? JSON.parse(copyData) : null;
+            currentOperationalNode.value = null;
+            showContextmenu.value = true;
+            contextmenuLeft.value = e.clientX;
+            contextmenuTop.value = e.clientY;
+        }
         /*
         |--------------------------------------------------------------------------
-        | 鼠标右键或则点击更多按钮，对节点的 新增、修改、删除、复制、粘贴、拷贝
+        | 鼠标右键或则点击更多按钮，对节点的 新增、修改、删除、复制、粘贴、拷贝、批量操作
         |--------------------------------------------------------------------------
         */
         const addFileDialogVisible = ref(false); //新增接口弹窗
@@ -230,6 +239,7 @@ export default defineComponent({
             handleDeleteNode,
             handleCopyNode,
             handlePasteNode,
+            handleWrapContextmenu,
         };
     },
 })
@@ -243,6 +253,11 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     position: relative;
+    //树形组件包裹框
+    .tree-wrap {
+        height: calc(100vh - #{size(150)});
+        overflow-y: auto;
+    }
     // 自定义节点
     .custom-tree-node {
         display: flex;
