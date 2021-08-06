@@ -3,7 +3,7 @@
  */
 
 import { Ref } from "vue"
-import type { ApidocBanner } from "@@/global"
+import type { ApidocBanner, Response } from "@@/global"
 import { findNodeById, forEachForest } from "@/helper/index"
 import { ElMessageBox } from "element-plus"
 import { store } from "@/store/index"
@@ -11,6 +11,12 @@ import { router } from "@/router/index"
 import { axios } from "@/api/api"
 import { flatTree, uniqueByKey } from "@/helper/index"
 
+type MapId = {
+    oldId: string, //历史id
+    newId: string, //新id
+    oldPid: string, //历史pid
+    newPid: string, //新pid
+};
 /**
  * 删除某个节点
  */
@@ -87,18 +93,10 @@ export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): vo
  * 4. 将这些
  */
 export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, pasteNode: ApidocBanner): void {
-    console.log(currentOperationalNode.value, pasteNode)
     const flatNodes = flatTree(pasteNode);
     const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
-    // console.log(uniqueFlatNodes)
-    // pasteNode.pid = currentOperationalNode.value?._id || "";
-    // if (currentOperationalNode.value) { //粘贴到某个文件夹
-    //     store.commit("apidoc/banner/splice", {
-    //         opData: currentOperationalNode.value.children,
-    //         start: 0,
-    //         deleteItem: pasteNode,
-    //     })
-    // }
+    pasteNode.pid = currentOperationalNode.value?._id || "";
+    addFileAndFolderCb(currentOperationalNode, pasteNode);
     const params = {
         projectId: router.currentRoute.value.query.id,
         mountedId: currentOperationalNode.value?._id,
@@ -107,8 +105,16 @@ export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, past
             pid: v.pid,
         })),
     };
-    axios.post("/api/project/paste_docs", params).then((res) => {
-        console.log(res.data)
+    axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
+        const mapIds = res.data;
+        uniqueFlatNodes.forEach((node) => {
+            const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+            if (matchedIdInfo) {
+                node._id = matchedIdInfo.newId;
+                node.pid = matchedIdInfo.newPid;
+                // defaultExpandedKeys.push(matchedIdInfo.newId)
+            }
+        })
     }).catch((err) => {
         console.error(err);
     });
@@ -125,48 +131,50 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
     if (currentOperationalNode.value) { //插入到某个节点下面
         if (data.type === "folder") {
             const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => !node.isFolder)
-            if (lastFolderIndex !== -1) {
+            if (lastFolderIndex === -1) {
                 store.commit("apidoc/banner/splice", {
                     start: currentOperationalNode.value.children.length,
                     deleteCount: 0,
-                    deleteItem: data,
+                    item: data,
+                    opData: currentOperationalNode.value.children,
                 })
             } else {
                 store.commit("apidoc/banner/splice", {
-                    start: currentOperationalNode.value.children.length,
+                    start: lastFolderIndex,
                     deleteCount: 0,
-                    deleteItem: data,
+                    item: data,
+                    opData: currentOperationalNode.value.children,
                 })
             }
         } else{ //如果是文本
             store.commit("apidoc/banner/splice", {
                 start: currentOperationalNode.value.children.length,
                 deleteCount: 0,
-                deleteItem: data,
+                item: data,
                 opData: currentOperationalNode.value.children,
             });
         }
     } else { //插入到根节点
         if (data.type === "folder") {
-            const lastFolderIndex = banner.findIndex((node) => !node.isFolder)
-            if (lastFolderIndex !== -1) {
+            const lastFolderIndex = banner.findIndex((node) => !node.isFolder);
+            if (lastFolderIndex === -1) {
                 store.commit("apidoc/banner/splice", {
                     start: banner.length,
                     deleteCount: 0,
-                    deleteItem: data,
+                    item: data,
                 })
             } else {
                 store.commit("apidoc/banner/splice", {
-                    start: banner.length,
+                    start: lastFolderIndex,
                     deleteCount: 0,
-                    deleteItem: data,
+                    item: data,
                 })
             }
         } else { //如果是文本
             store.commit("apidoc/banner/splice", {
                 start: banner.length,
                 deleteCount: 0,
-                deleteItem: data,
+                item: data,
             })
         }
     }

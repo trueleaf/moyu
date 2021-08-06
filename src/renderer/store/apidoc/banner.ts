@@ -7,7 +7,7 @@ type SplicePayload = {
     opData?: ApidocBanner[],
     start: number,
     deleteCount?: number,
-    deleteItem: ApidocBanner,
+    item: ApidocBanner,
 }
 const banner = {
     namespaced: true,
@@ -21,19 +21,12 @@ const banner = {
         },
         //改变文档数据
         splice(state: ApidocBannerState, payload: SplicePayload): void {
-            const { start, deleteCount = 0, deleteItem, opData } = payload;
-            if (!opData) {
-                if (deleteItem) {
-                    state.banner.splice(start, deleteCount, deleteItem)
-                } else {
-                    state.banner.splice(start, deleteCount)
-                }
+            const { start, deleteCount = 0, item, opData } = payload;
+            const currentOperationData = opData || state.banner;
+            if (item) {
+                currentOperationData.splice(start, deleteCount, item)
             } else {
-                if (deleteItem) {
-                    opData.splice(start, deleteCount, deleteItem)
-                } else {
-                    opData.splice(start, deleteCount)
-                }
+                currentOperationData.splice(start, deleteCount)
             }
         },
     },

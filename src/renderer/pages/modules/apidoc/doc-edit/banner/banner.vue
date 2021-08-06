@@ -22,6 +22,9 @@
                         class="custom-tree-node"
                         :class="{ 'select-node': selectNode?._id === scope.data._id }"
                         tabindex="0"
+                        @keydown.stop="handleNodeKeydown($event, scope.data)"
+                        @keyup.stop="handleNodeKeyUp"
+                        @mouseenter.stop="handleNodeHover"
                         @click="handleClickNode(scope.data)"
                     >
                         <!-- file渲染 -->
@@ -101,6 +104,8 @@ export default defineComponent({
         /*
         |--------------------------------------------------------------------------
         | 变量、函数等内容声明
+        | 获取banner数据
+        | 获取项目基本信息
         |--------------------------------------------------------------------------
         */
         const store = useStore();
@@ -109,17 +114,11 @@ export default defineComponent({
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
         const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
         const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
-        /*
-        |--------------------------------------------------------------------------
-        | 获取banner数据
-        | 获取项目基本信息
-        |--------------------------------------------------------------------------
-        */
+       
         const { loading, bannerData, getBannerData } = useBannerData();
         const projectInfo = computed(() => {
             return store.state["apidoc/baseInfo"];
         });
-       
         /*
         |--------------------------------------------------------------------------
         | 鼠标移动到banner节点，显示更多操作。
@@ -133,10 +132,7 @@ export default defineComponent({
         const showContextmenu = ref(false); //是否显示contextmenu
         const contextmenuLeft = ref(0); //contextmenu left值
         const contextmenuTop = ref(0); //contextmenu top值
-        const handleClickNode = (data: ApidocBanner) => {
-            showContextmenu.value = false;
-            selectNode.value = data;
-        }
+
         const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
             selectNode.value = data;
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
@@ -147,6 +143,7 @@ export default defineComponent({
             currentOperationalNode.value = data;
         }
         const handleWrapContextmenu = (e: MouseEvent) => {
+            selectNode.value = null;
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             currentOperationalNode.value = null;
@@ -161,6 +158,39 @@ export default defineComponent({
         */
         const addFileDialogVisible = ref(false); //新增接口弹窗
         const addFolderDialogVisible = ref(false); //新增文件夹弹窗
+        const multiSelectNode: Ref<ApidocBanner[]> = ref([]); //多选节点
+        const isRename = ref(false); //是否正在重命名
+        const pressCtrl = ref(false); //是否按住ctrl建委
+        //处理节点上面键盘事件
+        const handleNodeKeydown = (e: KeyboardEvent, data: ApidocBanner) => {
+            console.log(e, data)
+            if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                pressCtrl.value = true;
+            }
+        }
+        const handleNodeKeyUp = () => {
+            pressCtrl.value = false;
+        }
+        //点击节点，如果按住ctrl则可以多选
+        const handleClickNode = (data: ApidocBanner) => {
+            showContextmenu.value = false;
+            selectNode.value = data;
+            if (pressCtrl.value) {
+                const delIndex = multiSelectNode.value.findIndex((val) => val._id === data._id);
+                if (delIndex !== -1) {
+                    multiSelectNode.value.splice(delIndex, 1);
+                } else {
+                    multiSelectNode.value.push(data);
+                }
+            }
+        }
+
+        const handleNodeHover = (e: MouseEvent) => {
+            if (!isRename.value) { //防止focus导致输入框失焦
+                (e.currentTarget as HTMLElement).focus(); //使其能够触发keydown事件
+            }
+        }
+        console.log(multiSelectNode.value)
         //打开新增文件弹窗
         const handleOpenAddFileDialog = () => {
             const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => !v.isFolder).length || 0;
@@ -240,6 +270,9 @@ export default defineComponent({
             handleCopyNode,
             handlePasteNode,
             handleWrapContextmenu,
+            handleNodeKeydown,
+            handleNodeKeyUp,
+            handleNodeHover,
         };
     },
 })
