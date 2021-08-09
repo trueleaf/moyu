@@ -152,12 +152,12 @@ export function findNodeById<T extends ForestData>(forest: T[], id: string, opti
     return result;
 }
 
-/**
- * 将树形数据所有节点转换为一维数组,数据会进行深拷贝
- */
 type TreeNode<T> = {
     children: T[],
 };
+/**
+ * 将树形数据所有节点转换为一维数组,数据会进行深拷贝
+ */
 export function flatTree<T extends TreeNode<T>>(root: T): T[] {
     const result: T[] = [];
     const foo = (nodes: T[]): void => {
