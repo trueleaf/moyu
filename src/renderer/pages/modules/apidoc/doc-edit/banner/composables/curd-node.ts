@@ -4,12 +4,11 @@
 
 import { Ref } from "vue"
 import type { ApidocBanner, Response } from "@@/global"
-import { findNodeById, forEachForest } from "@/helper/index"
+import { findNodeById, forEachForest, flatTree, uniqueByKey } from "@/helper/index"
 import { ElMessageBox } from "element-plus"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
-import { flatTree, uniqueByKey } from "@/helper/index"
 
 type MapId = {
     oldId: string, //历史id
@@ -18,27 +17,24 @@ type MapId = {
     newPid: string, //新pid
 };
 /**
- * 删除某个节点
+ * 删除某个(多个)节点
  */
-export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): void {
-    if (!currentOperationalNode.value) {
-        console.warn("被删除节点不存在");
-        return;
-    }
+export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void {
     const { banner } = store.state["apidoc/banner"];
-    const deletePid =  currentOperationalNode.value.pid;
     const projectId = router.currentRoute.value.query.id;
-    const deleteIds = [currentOperationalNode.value._id]; //删除自己
-    if (currentOperationalNode.value.isFolder) { //如果是文件夹则删除所有子元素
-        forEachForest(currentOperationalNode.value.children, (item) => {
-            deleteIds.push(item._id);
-        });
-    }
-    ElMessageBox.confirm(`此操作将永久删除 ${currentOperationalNode.value.name} 节点, 是否继续?`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-    }).then(() => {
+    const deleteIds: string[] = [];
+    selectNodes.forEach((node) => {
+        deleteIds.push(node._id); //删除自己
+        if (node.isFolder) { //如果是文件夹则删除所有子元素
+            forEachForest(node.children, (item) => {
+                if (!deleteIds.find((id) => id === item._id)) {
+                    deleteIds.push(item._id);
+                }
+            });
+        }        
+    })
+    const deleteTip = selectNodes.length > 1 ? `确定批量删除 ${deleteIds.length} 个节点?` : `确定删除 ${selectNodes[0].name} 节点`
+    const deleteOperation = () => {
         const params = {
             data: {
                 projectId,
@@ -46,36 +42,40 @@ export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): vo
             },
         };
         axios.delete("/api/project/doc", params).then(() => {
-            if (!deletePid) { //不存在pid代表在根元素删除
-                const delIndex = banner.findIndex((val) => val._id === currentOperationalNode.value?._id);
-                store.commit("apidoc/banner/splice", {
-                    start: delIndex,
-                    deleteCount: 1,
-                })
-            } else {
-                const parentNode = findNodeById(banner, currentOperationalNode.value?.pid as string, {
-                    idKey: "_id",
-                });
-                const delIndex = parentNode?.children.findIndex((val) => val._id === currentOperationalNode.value?._id);
-                store.commit("apidoc/banner/splice", {
-                    start: delIndex,
-                    deleteCount: 1,
-                    opData: parentNode?.children,
-                })
-            }
-            // console.log(findParentById())
-            // const pNode = node.parent;
-            // if (pNode && pNode.level !== 0) {
-            //     const nodeIndex = pNode.data.children.findIndex((val) => val._id === data._id);
-            //     pNode.data.children.splice(nodeIndex, 1)
-            // } else {
-            //     const nodeIndex = this.navTreeData.findIndex((val) => val._id === data._id);
-            //     this.navTreeData.splice(nodeIndex, 1);
-            // }
-            // this.handleDeleteTabsById(deleteIds);
+            selectNodes.forEach((node) => {
+                const deletePid = node.pid;
+                if (!deletePid) { //不存在pid代表在根元素删除
+                    const delIndex = banner.findIndex((val) => val._id === node._id);
+                    store.commit("apidoc/banner/splice", {
+                        start: delIndex,
+                        deleteCount: 1,
+                    })
+                } else {
+                    const parentNode = findNodeById(banner, node.pid, {
+                        idKey: "_id",
+                    });
+                    const delIndex = parentNode?.children.findIndex((val) => val._id === node._id);
+                    store.commit("apidoc/banner/splice", {
+                        start: delIndex,
+                        deleteCount: 1,
+                        opData: parentNode?.children,
+                    })
+                }                    
+            })
         }).catch((err) => {
             console.error(err);
-        });
+        });        
+    }
+    if (silent) { //不提示用户删除，静默删除
+        deleteOperation();
+        return;
+    }
+    ElMessageBox.confirm(deleteTip, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+    }).then(() => {
+        deleteOperation();
     }).catch((err) => {
         if (err === "cancel" || err === "close") {
             return;
@@ -92,11 +92,12 @@ export function deleteNode(currentOperationalNode: Ref<ApidocBanner | null>): vo
  * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
  * 4. 将这些
  */
-export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, pasteNode: ApidocBanner): void {
-    const flatNodes = flatTree(pasteNode);
+export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): void {
+    const flatNodes: ApidocBanner[] = [];
+    pasteNodes.forEach((pasteNode) => {
+        flatNodes.push(...flatTree(pasteNode))
+    })
     const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
-    pasteNode.pid = currentOperationalNode.value?._id || "";
-    addFileAndFolderCb(currentOperationalNode, pasteNode);
     const params = {
         projectId: router.currentRoute.value.query.id,
         mountedId: currentOperationalNode.value?._id,
@@ -107,21 +108,15 @@ export function pasteNode(currentOperationalNode: Ref<ApidocBanner | null>, past
     };
     axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
         const mapIds = res.data;
-        uniqueFlatNodes.forEach((node) => {
-            const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
-            if (matchedIdInfo) {
-                node._id = matchedIdInfo.newId;
-                node.pid = matchedIdInfo.newPid;
-                // defaultExpandedKeys.push(matchedIdInfo.newId)
-            }
+        store.commit("apidoc/banner/changeBannerIdAndPid", mapIds);
+        pasteNodes.forEach((pasteNode) => {
+            pasteNode.pid = currentOperationalNode.value?._id || "";
+            addFileAndFolderCb(currentOperationalNode, pasteNode);
         })
     }).catch((err) => {
         console.error(err);
     });
-    // const mountedId = currentOperationalNode.value?._id; //挂载点id
-    // const projectId = router.currentRoute.value.query.id;
 }
-
 
 /**
  * 新增文件和文件夹回调
@@ -178,4 +173,21 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
             })
         }
     }
+}
+
+/**
+ * 生成文件副本
+ */
+export function forkNode(currentOperationalNode: ApidocBanner): void {
+    const projectId = router.currentRoute.value.query.id;
+    const params = {
+        _id: currentOperationalNode._id,
+        projectId,
+    };
+    axios.post<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/copy_doc", params).then((res) => {
+        console.log(res.data)
+    }).catch((err) => {
+        console.error(err);
+    });
+    console.log(currentOperationalNode)
 }

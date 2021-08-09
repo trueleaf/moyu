@@ -20,12 +20,15 @@
                 <template #default="scope">
                     <div
                         class="custom-tree-node"
-                        :class="{ 'select-node': selectNode?._id === scope.data._id }"
+                        :class="{ 
+                            'select-node': selectNodes.find(v => v._id === scope.data._id),
+                            'cut-node': cutNodes.find(v => v._id === scope.data._id),
+                        }"
                         tabindex="0"
-                        @keydown.stop="handleNodeKeydown($event, scope.data)"
+                        @keydown.stop="handleNodeKeydown($event)"
                         @keyup.stop="handleNodeKeyUp"
                         @mouseenter.stop="handleNodeHover"
-                        @click="handleClickNode(scope.data)"
+                        @click="handleClickNode($event, scope.data)"
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
@@ -45,7 +48,8 @@
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
-                            <img :src="require('@/assets/imgs/apidoc/folder.png')" class="folder-icon" />
+                            <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+                            <!-- <img :src="require('@/assets/imgs/apidoc/folder.png')" class="folder-icon" /> -->
                             <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
@@ -63,18 +67,25 @@
         </s-loading>
         <!-- 鼠标右键 -->
         <teleport to="body">
-            <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
+            <!-- 单个节点操作 -->
+            <s-contextmenu v-if="showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item>
+                <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item> -->
                 <s-contextmenu-item v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode" label="剪切" hot-key="Ctrl + X"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="剪切" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" label="复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" label="生成副本" hot-key="Ctrl + V"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" label="生成副本" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="粘贴" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" label="重命名" hot-key="F12"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode" label="删除" hot-key="Delete" @click="handleDeleteNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="删除" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
+            </s-contextmenu>
+            <!-- 多个节点操作 -->
+            <s-contextmenu v-if="showContextmenu && selectNodes.length > 1" :left="contextmenuLeft" :top="contextmenuTop">
+                <s-contextmenu-item label="批量剪切" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
+                <s-contextmenu-item label="批量复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
+                <s-contextmenu-item label="批量删除" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
             </s-contextmenu>
         </teleport>
     </s-resize-x>
@@ -91,7 +102,7 @@ import { ElMessage } from "element-plus"
 import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"
 import { useBannerData } from "./composables/banner-data"
-import { deleteNode, addFileAndFolderCb, pasteNode } from "./composables/curd-node"
+import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode } from "./composables/curd-node"
 import tool from "./tool/tool.vue"
 
 export default defineComponent({
@@ -109,8 +120,8 @@ export default defineComponent({
         |--------------------------------------------------------------------------
         */
         const store = useStore();
-        const pasteValue: Ref<ApidocBanner | null> = ref(null); //需要粘贴的数据
-        const selectNode: Ref<ApidocBanner | null> = ref(null); //当前选中节点
+        const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
+        const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
         const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
         const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
@@ -134,7 +145,9 @@ export default defineComponent({
         const contextmenuTop = ref(0); //contextmenu top值
 
         const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
-            selectNode.value = data;
+            if (selectNodes.value.length < 2) { //处理单个节点
+                selectNodes.value = [data];
+            }
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             showContextmenu.value = true;
@@ -143,7 +156,7 @@ export default defineComponent({
             currentOperationalNode.value = data;
         }
         const handleWrapContextmenu = (e: MouseEvent) => {
-            selectNode.value = null;
+            selectNodes.value = [];
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             currentOperationalNode.value = null;
@@ -158,12 +171,10 @@ export default defineComponent({
         */
         const addFileDialogVisible = ref(false); //新增接口弹窗
         const addFolderDialogVisible = ref(false); //新增文件夹弹窗
-        const multiSelectNode: Ref<ApidocBanner[]> = ref([]); //多选节点
         const isRename = ref(false); //是否正在重命名
         const pressCtrl = ref(false); //是否按住ctrl建委
         //处理节点上面键盘事件
-        const handleNodeKeydown = (e: KeyboardEvent, data: ApidocBanner) => {
-            console.log(e, data)
+        const handleNodeKeydown = (e: KeyboardEvent) => {
             if (e.code === "ControlLeft" || e.code === "ControlRight") {
                 pressCtrl.value = true;
             }
@@ -172,16 +183,18 @@ export default defineComponent({
             pressCtrl.value = false;
         }
         //点击节点，如果按住ctrl则可以多选
-        const handleClickNode = (data: ApidocBanner) => {
+        const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
             showContextmenu.value = false;
-            selectNode.value = data;
             if (pressCtrl.value) {
-                const delIndex = multiSelectNode.value.findIndex((val) => val._id === data._id);
+                e.stopPropagation(); //如果按住ctrl键则阻止冒泡，防止点击文件夹展开
+                const delIndex = selectNodes.value.findIndex((val) => val._id === data._id);
                 if (delIndex !== -1) {
-                    multiSelectNode.value.splice(delIndex, 1);
+                    selectNodes.value.splice(delIndex, 1);
                 } else {
-                    multiSelectNode.value.push(data);
+                    selectNodes.value.push(data);
                 }
+            } else {
+                selectNodes.value = [data];
             }
         }
 
@@ -190,7 +203,6 @@ export default defineComponent({
                 (e.currentTarget as HTMLElement).focus(); //使其能够触发keydown事件
             }
         }
-        console.log(multiSelectNode.value)
         //打开新增文件弹窗
         const handleOpenAddFileDialog = () => {
             const childFileNodeNum = currentOperationalNode.value?.children.filter((v) => !v.isFolder).length || 0;
@@ -212,19 +224,35 @@ export default defineComponent({
             defaultExpandedKeys.value.push(data._id);
         };
         //删除节点
-        const handleDeleteNode = () => {
-            deleteNode.call(this, currentOperationalNode);
+        const handleDeleteNodes = () => {
+            deleteNode.call(this, selectNodes.value);
         }
         //复制节点
         const handleCopyNode = () => {
-            const buffer = Buffer.from(JSON.stringify(currentOperationalNode.value), "utf8")
+            cutNodes.value = [];
+            const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
+            clipboard.writeBuffer("moyu-apidoc-node", buffer)
+        }
+        //针对文件生成一份拷贝
+        const handleForkNode = () => {
+            forkNode.call(this, currentOperationalNode.value as ApidocBanner);
+        }
+        //剪切节点
+        const cutNodes: Ref<ApidocBanner[]> = ref([]);
+        const handleCutNode = () => {
+            cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
+            const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
             clipboard.writeBuffer("moyu-apidoc-node", buffer)
         }
         //粘贴节点
         const handlePasteNode = () => {
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
-            pasteNode.call(this, currentOperationalNode, pasteValue.value as ApidocBanner);
+            pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]);
+            if (cutNodes.value.length > 0) { //剪切节点
+                deleteNode.call(this, cutNodes.value, true);
+                cutNodes.value = [];
+            }
         }
         /*
         |--------------------------------------------------------------------------
@@ -236,7 +264,7 @@ export default defineComponent({
         */
         const handleGlobalClick = () => {
             showContextmenu.value = false;         
-            selectNode.value = null;
+            selectNodes.value = [];
         }
         onMounted(() => {
             document.documentElement.addEventListener("click", handleGlobalClick);
@@ -251,7 +279,8 @@ export default defineComponent({
             loading,
             editNode,
             showMoreNodeInfo,
-            selectNode,
+            selectNodes,
+            cutNodes,
             pasteValue,
             showContextmenu,
             contextmenuLeft,
@@ -266,13 +295,15 @@ export default defineComponent({
             handleOpenAddFileDialog,
             handleOpenAddFolderDialog,
             handleAddFileAndFolderCb,
-            handleDeleteNode,
+            handleDeleteNodes,
             handleCopyNode,
             handlePasteNode,
             handleWrapContextmenu,
             handleNodeKeydown,
             handleNodeKeyUp,
             handleNodeHover,
+            handleCutNode,
+            handleForkNode,
         };
     },
 })
@@ -309,6 +340,7 @@ export default defineComponent({
             margin-right: size(5);
         }
         .folder-icon {
+            color: $yellow;
             flex: 0 0 auto;
             width: size(16);
             height: size(16);
@@ -341,6 +373,15 @@ export default defineComponent({
         }
         &.select-node {
             background-color: lighten($theme-color, 30%);
+        }
+        &.cut-node {
+            color: $gray-500;
+            .file-icon {
+                color: $gray-500!important;
+            }
+            .folder-icon {
+                color: $gray-300!important;
+            }
         }
     }
     // 禁用动画提高性能

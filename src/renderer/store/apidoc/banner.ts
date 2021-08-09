@@ -2,6 +2,8 @@ import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
 import { ApidocBanner } from "@@/global"
+import { forEachForest } from "@/helper/index"
+
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -9,6 +11,12 @@ type SplicePayload = {
     deleteCount?: number,
     item: ApidocBanner,
 }
+type MapId = {
+    oldId: string, //历史id
+    newId: string, //新id
+    oldPid: string, //历史pid
+    newPid: string, //新pid
+};
 const banner = {
     namespaced: true,
     state: {
@@ -18,6 +26,17 @@ const banner = {
         //改变文档banner
         changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
             state.banner = payload;
+        },
+        //改变文档的id和pid，一般用在粘贴多个文档的时候
+        changeBannerIdAndPid(state: ApidocBannerState, mapIds: MapId[]): void {
+            forEachForest(state.banner, (node) => {
+                const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+                if (matchedIdInfo) {
+                    console.log(node)
+                    node._id = matchedIdInfo.newId;
+                    node.pid = matchedIdInfo.newPid;
+                }
+            });
         },
         //改变文档数据
         splice(state: ApidocBannerState, payload: SplicePayload): void {
