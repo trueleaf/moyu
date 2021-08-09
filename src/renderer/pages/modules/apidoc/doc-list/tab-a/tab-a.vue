@@ -303,8 +303,13 @@ export default defineComponent({
         /**
          * 新增项目成功
          */
-        handleAddSuccess() {
-            this.getProjectList()
+        handleAddSuccess(id: string) {
+            this.$router.push({
+                path: "/v1/apidoc/doc-edit",
+                query: {
+                    id,
+                }
+            });
         },
         /**
          * 编辑项目成功

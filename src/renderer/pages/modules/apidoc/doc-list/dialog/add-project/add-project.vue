@@ -117,10 +117,7 @@ export default defineComponent({
                     };
                     this.axios.post("/api/project/add_project", params).then((res) => {
                         this.handleClose();
-                        this.$emit("success", {
-                            id: res.data,
-                            name: this.formInfo.projectName,
-                        });
+                        this.$emit("success", res.data);
                     }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
