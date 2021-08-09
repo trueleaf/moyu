@@ -248,11 +248,11 @@ export default defineComponent({
         const handlePasteNode = () => {
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
-            pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]);
-            if (cutNodes.value.length > 0) { //剪切节点
-                deleteNode.call(this, cutNodes.value, true);
-                cutNodes.value = [];
-            }
+            pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
+                if (cutNodes.value.length > 0) { //剪切节点
+                    cutNodes.value = [];
+                } 
+            })
         }
         /*
         |--------------------------------------------------------------------------

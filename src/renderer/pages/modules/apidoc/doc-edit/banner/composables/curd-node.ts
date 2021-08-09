@@ -92,30 +92,43 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
  * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
  * 4. 将这些
  */
-export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): void {
-    const flatNodes: ApidocBanner[] = [];
-    pasteNodes.forEach((pasteNode) => {
-        flatNodes.push(...flatTree(pasteNode))
-    })
-    const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
-    const params = {
-        projectId: router.currentRoute.value.query.id,
-        mountedId: currentOperationalNode.value?._id,
-        docs: uniqueFlatNodes.map((v) => ({
-            _id: v._id,
-            pid: v.pid,
-        })),
-    };
-    axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
-        const mapIds = res.data;
-        store.commit("apidoc/banner/changeBannerIdAndPid", mapIds);
-        pasteNodes.forEach((pasteNode) => {
-            pasteNode.pid = currentOperationalNode.value?._id || "";
-            addFileAndFolderCb(currentOperationalNode, pasteNode);
+export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): Promise<void> {
+    const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pasteNodes));
+    return new Promise((resolve, reject) => {
+        const flatNodes: ApidocBanner[] = [];
+        copyPasteNodes.forEach((pasteNode) => {
+            flatNodes.push(...flatTree(pasteNode))
         })
-    }).catch((err) => {
-        console.error(err);
-    });
+        const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
+        const params = {
+            projectId: router.currentRoute.value.query.id,
+            mountedId: currentOperationalNode.value?._id,
+            docs: uniqueFlatNodes.map((v) => ({
+                _id: v._id,
+                pid: v.pid,
+            })),
+        };
+        axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
+            const mapIds = res.data;
+            forEachForest(copyPasteNodes, (node) => {
+                const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+                if (matchedIdInfo) {
+                    node._id = matchedIdInfo.newId;
+                    node.pid = matchedIdInfo.newPid;
+                }
+            });
+            // store.commit("apidoc/banner/changeBannerIdAndPid", mapIds);
+            copyPasteNodes.forEach((pasteNode) => {
+                pasteNode.pid = currentOperationalNode.value?._id || "";
+                addFileAndFolderCb(currentOperationalNode, pasteNode);
+            })
+            resolve();
+        }).catch((err) => {
+            console.error(err);
+            reject(err);
+        });
+    })
+
 }
 
 /**

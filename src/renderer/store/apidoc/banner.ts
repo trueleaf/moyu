@@ -32,7 +32,7 @@ const banner = {
             forEachForest(state.banner, (node) => {
                 const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
                 if (matchedIdInfo) {
-                    console.log(node)
+                    // console.log(node)
                     node._id = matchedIdInfo.newId;
                     node.pid = matchedIdInfo.newPid;
                 }
@@ -40,6 +40,7 @@ const banner = {
         },
         //改变文档数据
         splice(state: ApidocBannerState, payload: SplicePayload): void {
+            console.log(33, payload, state.banner)
             const { start, deleteCount = 0, item, opData } = payload;
             const currentOperationData = opData || state.banner;
             if (item) {
