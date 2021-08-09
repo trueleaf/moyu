@@ -145,12 +145,13 @@ export default defineComponent({
                 if (valid) {
                     const formData = this.$refs.form.formInfo;
                     const params = {
+                        _id: this.userId,
                         ...this.formInfo,
                         roleName: formData.roleName,
                         remark: formData.remark,
                     };
                     this.loading = true;
-                    this.axios.post("/api/security/role", params).then(() => {
+                    this.axios.put("/api/security/role", params).then(() => {
                         this.$emit("success");
                         this.handleClose();
                     }).catch((err) => {
