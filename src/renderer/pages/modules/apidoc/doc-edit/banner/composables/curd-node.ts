@@ -4,7 +4,7 @@
 
 import { Ref } from "vue"
 import type { ApidocBanner, Response } from "@@/global"
-import { findNodeById, forEachForest, flatTree, uniqueByKey } from "@/helper/index"
+import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from "@/helper/index"
 import { ElMessageBox } from "element-plus"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
@@ -203,4 +203,39 @@ export function forkNode(currentOperationalNode: ApidocBanner): void {
         console.error(err);
     });
     console.log(currentOperationalNode)
+}
+
+/**
+ * 拖拽节点
+ */
+export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: "before" | "after" | "inner"): void {
+    const { banner } = store.state["apidoc/banner"];
+    const params = {
+        _id: dragData._id, //当前节点id
+        pid: "", //父元素
+        sort: 0, //当前节点排序效果
+        projectId: router.currentRoute.value.query.id,
+        dropInfo: {
+            nodeName: dragData.name,
+            nodeId: dragData._id,
+            dropNodeName: dropData.name,
+            dropNodeId: dropData._id,
+            dropType: type,
+        },
+    };
+    const pData = findParentById(banner, dragData._id, { idKey: "_id" });
+    params.pid = pData ? pData._id : "";
+    if (type === "inner") {
+        params.sort = Date.now();
+    } else {
+        const nextSibling = findNextSiblingById<ApidocBanner>(banner, dragData._id, { idKey: "_id" });
+        const previousSibling = findPreviousSiblingById<ApidocBanner>(banner, dragData._id, { idKey: "_id" });
+        const previousSiblingSort = previousSibling ? previousSibling.sort : 0;
+        const nextSiblingSort = nextSibling ? nextSibling.sort : Date.now();
+        params.sort = (nextSiblingSort + previousSiblingSort) / 2;
+        dragData.sort = (nextSiblingSort + previousSiblingSort) / 2;
+    }
+    axios.put("/api/project/change_doc_pos", params).catch((err) => {
+        console.error(err);
+    });
 }

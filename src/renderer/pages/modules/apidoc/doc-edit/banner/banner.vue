@@ -15,6 +15,9 @@
                 :default-expanded-keys="defaultExpandedKeys"
                 node-key="_id"
                 empty-text="点击工具栏按钮新增文档或者鼠标右键新增"
+                :draggable="enableDrag"
+                :allow-drop="handleCheckNodeCouldDrop"
+                @node-drop="handleNodeDropSuccess"
                 @node-contextmenu="handleShowContextmenu"
             >
                 <template #default="scope">
@@ -39,6 +42,15 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                                 <s-emphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url" :value="scope.data.url"></s-emphasize>
                             </div>
+                            <input 
+                                v-else 
+                                :value="scope.data.name"
+                                placeholder="不能为空"
+                                type="text" 
+                                class="rename-ipt" 
+                                @blur="handleChangeNodeName(scope.data)"
+                                @keydown.stop.enter="handleChangeNodeName(scope.data)"
+                            >
                             <div 
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
@@ -78,7 +90,7 @@
                 <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" label="生成副本" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="粘贴" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode" label="重命名" hot-key="F12"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode" label="重命名" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" label="删除" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
             </s-contextmenu>
             <!-- 多个节点操作 -->
@@ -102,8 +114,13 @@ import { ElMessage } from "element-plus"
 import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"
 import { useBannerData } from "./composables/banner-data"
-import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode } from "./composables/curd-node"
+import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode } from "./composables/curd-node"
 import tool from "./tool/tool.vue"
+
+type TreeNode = {
+    data: ApidocBanner,
+    nextSibling?: TreeNode
+}
 
 export default defineComponent({
     components: {
@@ -125,6 +142,7 @@ export default defineComponent({
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
         const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
         const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
+        const enableDrag = ref(true); //是否允许拖拽
        
         const { loading, bannerData, getBannerData } = useBannerData();
         const projectInfo = computed(() => {
@@ -171,7 +189,6 @@ export default defineComponent({
         */
         const addFileDialogVisible = ref(false); //新增接口弹窗
         const addFolderDialogVisible = ref(false); //新增文件夹弹窗
-        const isRename = ref(false); //是否正在重命名
         const pressCtrl = ref(false); //是否按住ctrl建委
         //处理节点上面键盘事件
         const handleNodeKeydown = (e: KeyboardEvent) => {
@@ -199,7 +216,7 @@ export default defineComponent({
         }
 
         const handleNodeHover = (e: MouseEvent) => {
-            if (!isRename.value) { //防止focus导致输入框失焦
+            if (!editNode.value) { //防止focus导致输入框失焦
                 (e.currentTarget as HTMLElement).focus(); //使其能够触发keydown事件
             }
         }
@@ -250,9 +267,41 @@ export default defineComponent({
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
                 if (cutNodes.value.length > 0) { //剪切节点
+                    deleteNode.call(this, cutNodes.value, true);
                     cutNodes.value = [];
                 } 
             })
+        }
+        //判断是否允许拖拽节点
+        const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: "inner" | "prev") => {
+            if (!draggingNode.data.isFolder && dropNode.nextSibling?.data.isFolder) { //不允许文件后面是文件夹
+                return false;
+            }
+            if (!draggingNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
+                return type !== "prev";
+            }
+            if (draggingNode.data.isFolder && !dropNode.data.isFolder) {
+                return false;
+            }
+            if (!dropNode.data.isFolder) {
+                return type !== "inner";
+            }
+            return true;
+        }
+        //拖拽节点
+        const handleNodeDropSuccess = (draggingNode: TreeNode, dropNode: TreeNode, type: "before" | "after" | "inner") => {
+            dragNode.call(this, draggingNode.data, dropNode.data, type)
+        };
+        //重命名节点
+        const handleRenameNode = () => {
+            editNode.value = currentOperationalNode.value;
+            setTimeout(() => {
+                (document.querySelector(".rename-ipt") as HTMLElement).focus();
+                enableDrag.value = false;
+            })
+        }
+        const handleChangeNodeName = (data: ApidocBanner) => {
+            console.log(data)
         }
         /*
         |--------------------------------------------------------------------------
@@ -279,6 +328,7 @@ export default defineComponent({
             loading,
             editNode,
             showMoreNodeInfo,
+            enableDrag,
             selectNodes,
             cutNodes,
             pasteValue,
@@ -304,6 +354,10 @@ export default defineComponent({
             handleNodeHover,
             handleCutNode,
             handleForkNode,
+            handleCheckNodeCouldDrop,
+            handleNodeDropSuccess,
+            handleRenameNode,
+            handleChangeNodeName,
         };
     },
 })
@@ -321,6 +375,16 @@ export default defineComponent({
     .tree-wrap {
         height: calc(100vh - #{size(150)});
         overflow-y: auto;
+    }
+    //拖拽指示器样式
+    .el-tree-node.is-drop-inner {
+        background: mix($theme-color, $white, 70%);
+        .custom-tree-node.select-node {
+            background-color: mix($theme-color, $white, 70%);
+        }
+    }
+    .el-tree__drop-indicator {
+        height: size(3);
     }
     // 自定义节点
     .custom-tree-node {
@@ -364,6 +428,13 @@ export default defineComponent({
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
+        }
+        //重命名输入框
+        .rename-ipt {
+            flex: 0 0 75%;
+            height: size(22);
+            border: 1px solid $theme-color;
+            text-indent: size(5);
         }
         .more {
             display: none;

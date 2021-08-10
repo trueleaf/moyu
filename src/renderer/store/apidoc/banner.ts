@@ -2,7 +2,7 @@ import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
 import { ApidocBanner } from "@@/global"
-import { forEachForest } from "@/helper/index"
+import { forEachForest, findNodeById } from "@/helper/index"
 
 
 type SplicePayload = {
@@ -17,12 +17,26 @@ type MapId = {
     oldPid: string, //历史pid
     newPid: string, //新pid
 };
+type EditBannerPayload = {
+    id: string,
+    field: keyof ApidocBanner,
+    value: ApidocBanner[keyof ApidocBanner],
+};
+
 const banner = {
     namespaced: true,
     state: {
         banner: [],
     },
     mutations: {
+        //根据id改变节点属性
+        changeBannerInfoById(state: ApidocBannerState, payload: EditBannerPayload): void {
+            const { id, field, value } = payload;
+            const editData = findNodeById(state.banner, id, {
+                idKey: "_id",
+            }) as ApidocBanner;
+            console.log(id, field, value, editData)
+        },
         //改变文档banner
         changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
             state.banner = payload;
