@@ -17,10 +17,10 @@ type MapId = {
     oldPid: string, //历史pid
     newPid: string, //新pid
 };
-type EditBannerPayload = {
+type EditBannerPayload<K extends keyof ApidocBanner> = {
     id: string,
-    field: keyof ApidocBanner,
-    value: ApidocBanner[keyof ApidocBanner],
+    field: K,
+    value: ApidocBanner[K],
 };
 
 const banner = {
@@ -30,12 +30,12 @@ const banner = {
     },
     mutations: {
         //根据id改变节点属性
-        changeBannerInfoById(state: ApidocBannerState, payload: EditBannerPayload): void {
+        changeBannerInfoById<K extends keyof ApidocBanner>(state: ApidocBannerState, payload: EditBannerPayload<K>): void {
             const { id, field, value } = payload;
             const editData = findNodeById(state.banner, id, {
                 idKey: "_id",
             }) as ApidocBanner;
-            console.log(id, field, value, editData)
+            editData[field] = value
         },
         //改变文档banner
         changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
