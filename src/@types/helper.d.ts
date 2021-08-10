@@ -13,6 +13,8 @@ import {
     getRequestMethodEnum, 
     cloneDeep,
     flatTree,
+    findPreviousSiblingById,
+    findNextSiblingById
 } from "@/helper/index"
 
 type Helper = {
@@ -44,6 +46,14 @@ type Helper = {
      * 查找父元素
      */
     findParentById: typeof findParentById,
+    /**
+     * 根据id查找下一个兄弟节点
+     */
+    findNextSiblingById: typeof findNextSiblingById,
+    /**
+     * 根据id查找上一个兄弟节点
+     */
+    findPreviousSiblingById: typeof findPreviousSiblingById,
     /**
      * 将树形数据所有节点转换为一维数组
      */

@@ -105,27 +105,78 @@ export function findParentById<T extends ForestData>(forest: T[], id: string, op
     const idKey = options?.idKey || "id";
     let pNode: T | null = null;
     let hasPNode = false;
-    const foo = (forestData: ForestData) => {
+    const foo = (forestData: ForestData, deep: number) => {
         for (let i = 0; i < forestData.length; i += 1) {
             const currentData = forestData[i];
-            if (currentData[idKey] === id) {
-                console.log(currentData, pNode)
+            if (currentData[idKey] === id && deep !== 0) {
                 hasPNode = true;
                 break;
             }
             if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
                 pNode = currentData;
-                foo(currentData[childrenKey]);
+                foo(currentData[childrenKey], deep + 1);
             }
         }
     };
-    foo(forest);
+    foo(forest, 0);
     if (hasPNode) {
         return pNode;
     } else {
         return null;
     }
 }
+
+/**
+ * 根据id查询下一个兄弟节点
+ */
+export function findNextSiblingById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    const childrenKey = options?.childrenKey || "children";
+    const idKey = options?.idKey || "id";
+    let nextSibling: T | null = null;
+    const foo = (forestData: ForestData) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            if (currentData[idKey] === id) {
+                nextSibling = forestData[i + 1]
+                break;
+            }
+            if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
+                foo(currentData[childrenKey]);
+            }
+        }
+    };
+    foo(forest);
+    return nextSibling;
+}
+/**
+ * 根据id查询上一个兄弟节点
+ */
+export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    const childrenKey = options?.childrenKey || "children";
+    const idKey = options?.idKey || "id";
+    let previousSibling: T | null = null;
+    const foo = (forestData: ForestData) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            if (currentData[idKey] === id) {
+                previousSibling = forestData[i - 1]
+                break;
+            }
+            if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
+                foo(currentData[childrenKey]);
+            }
+        }
+    };
+    foo(forest);
+    return previousSibling;
+}
+
 /**
  * 根据id查询元素
  */
