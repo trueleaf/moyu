@@ -92,7 +92,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
  * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
  * 4. 将这些
  */
-export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): Promise<void> {
+export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): Promise<ApidocBanner[]> {
     const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pasteNodes));
     return new Promise((resolve, reject) => {
         const flatNodes: ApidocBanner[] = [];
@@ -117,18 +117,16 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
                     node.pid = matchedIdInfo.newPid;
                 }
             });
-            // store.commit("apidoc/banner/changeBannerIdAndPid", mapIds);
             copyPasteNodes.forEach((pasteNode) => {
                 pasteNode.pid = currentOperationalNode.value?._id || "";
                 addFileAndFolderCb(currentOperationalNode, pasteNode);
             })
-            resolve();
+            resolve(copyPasteNodes);
         }).catch((err) => {
             console.error(err);
             reject(err);
         });
     })
-
 }
 
 /**
@@ -238,4 +236,43 @@ export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: "
     axios.put("/api/project/change_doc_pos", params).catch((err) => {
         console.error(err);
     });
+}
+
+let isRename = false;
+/**
+ * 重命名节点
+ */
+export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): void {
+    if (isRename) {
+        return;
+    }
+    const projectId = router.currentRoute.value.query.id;
+    const iptValue = (e.target as HTMLInputElement).value;
+    const originValue = data.name;
+    (e.target as HTMLInputElement).classList.remove("error");
+    if (iptValue.trim() === "") {
+        return;
+    } else {
+        isRename = true;
+        store.commit("apidoc/banner/changeBannerInfoById", {
+            id: data._id,
+            field: "name",
+            value: iptValue,
+        });
+        const params = {
+            _id: data._id,
+            projectId,
+            name: iptValue,
+        };
+        axios.put("/api/project/change_doc_info", params).catch((err) => {
+            console.error(err);
+            store.commit("apidoc/banner/changeBannerInfoById", {
+                id: data._id,
+                field: "name",
+                value: originValue,
+            });
+        }).finally(() => {
+            isRename = false;
+        });
+    }
 }

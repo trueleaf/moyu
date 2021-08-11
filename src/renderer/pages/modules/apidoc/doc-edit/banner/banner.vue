@@ -47,9 +47,11 @@
                                 :value="scope.data.name"
                                 placeholder="不能为空"
                                 type="text" 
-                                class="rename-ipt" 
-                                @blur="handleChangeNodeName(scope.data)"
-                                @keydown.stop.enter="handleChangeNodeName(scope.data)"
+                                class="rename-ipt"
+                                :class="{error: scope.data.name.trim() === ''}"
+                                @blur="handleChangeNodeName($event, scope.data)"
+                                @input="handleWatchNodeInput($event)"
+                                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
                             >
                             <div 
                                 class="more"
@@ -66,6 +68,17 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
                             </div>
+                            <input 
+                                v-else 
+                                :value="scope.data.name"
+                                placeholder="不能为空"
+                                type="text" 
+                                class="rename-ipt"
+                                :class="{error: scope.data.name.trim() === ''}"
+                                @blur="handleChangeNodeName($event, scope.data)"
+                                @input="handleWatchNodeInput($event)"
+                                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
+                            >
                             <div 
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
@@ -114,7 +127,8 @@ import { ElMessage } from "element-plus"
 import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"
 import { useBannerData } from "./composables/banner-data"
-import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode } from "./composables/curd-node"
+import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
+import { router } from "@/router/index"
 import tool from "./tool/tool.vue"
 
 type TreeNode = {
@@ -137,6 +151,7 @@ export default defineComponent({
         |--------------------------------------------------------------------------
         */
         const store = useStore();
+        const projectId = router.currentRoute.value.query.id;
         const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
         const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
@@ -190,18 +205,13 @@ export default defineComponent({
         const addFileDialogVisible = ref(false); //新增接口弹窗
         const addFolderDialogVisible = ref(false); //新增文件夹弹窗
         const pressCtrl = ref(false); //是否按住ctrl建委
-        //处理节点上面键盘事件
-        const handleNodeKeydown = (e: KeyboardEvent) => {
-            if (e.code === "ControlLeft" || e.code === "ControlRight") {
-                pressCtrl.value = true;
-            }
-        }
         const handleNodeKeyUp = () => {
             pressCtrl.value = false;
         }
         //点击节点，如果按住ctrl则可以多选
         const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
             showContextmenu.value = false;
+            currentOperationalNode.value = data;
             if (pressCtrl.value) {
                 e.stopPropagation(); //如果按住ctrl键则阻止冒泡，防止点击文件夹展开
                 const delIndex = selectNodes.value.findIndex((val) => val._id === data._id);
@@ -212,6 +222,16 @@ export default defineComponent({
                 }
             } else {
                 selectNodes.value = [data];
+                if (!data.isFolder) {
+                    store.commit("apidoc/tabs/addTab", {
+                        _id: data._id,
+                        projectId,
+                        tabType: "doc",
+                        label: data.name,
+                        saved: true,
+                        fixed: false,
+                    })
+                }
             }
         }
 
@@ -263,6 +283,9 @@ export default defineComponent({
         }
         //粘贴节点
         const handlePasteNode = () => {
+            if (currentOperationalNode.value && !currentOperationalNode.value.isFolder){ //只允许根元素或者文件夹粘贴
+                return
+            }
             const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
@@ -270,6 +293,9 @@ export default defineComponent({
                     deleteNode.call(this, cutNodes.value, true);
                     cutNodes.value = [];
                 } 
+                if (currentOperationalNode.value) {
+                    defaultExpandedKeys.value = [currentOperationalNode.value._id];
+                }
             })
         }
         //判断是否允许拖拽节点
@@ -290,7 +316,10 @@ export default defineComponent({
         }
         //拖拽节点
         const handleNodeDropSuccess = (draggingNode: TreeNode, dropNode: TreeNode, type: "before" | "after" | "inner") => {
-            dragNode.call(this, draggingNode.data, dropNode.data, type)
+            dragNode.call(this, draggingNode.data, dropNode.data, type);
+            if (type === "inner") {
+                defaultExpandedKeys.value = [dropNode.data._id];
+            }
         };
         //重命名节点
         const handleRenameNode = () => {
@@ -300,17 +329,46 @@ export default defineComponent({
                 enableDrag.value = false;
             })
         }
-        const handleChangeNodeName = (data: ApidocBanner) => {
-            console.log(data)
+        const handleChangeNodeName = (e: FocusEvent | KeyboardEvent, data: ApidocBanner) => {
+            renameNode.call(this, e, data);
+            editNode.value = null;
+            enableDrag.value = true;
         }
+        const handleWatchNodeInput = (e: Event) => {
+            const iptValue = (e.target as HTMLInputElement).value;
+            if (iptValue.trim() === "") {
+                (e.target as HTMLInputElement).classList.add("error");
+            } else {
+                (e.target as HTMLInputElement).classList.remove("error");
+            }
+        }
+        
         /*
         |--------------------------------------------------------------------------
         | 其他操作
         |--------------------------------------------------------------------------
         | 1. 清空事件绑定
         | 2. 处理全局点击某些弹窗隐藏
+        | 3. 快捷键处理
         |
         */
+        //处理节点上面键盘事件
+        const handleNodeKeydown = (e: KeyboardEvent) => {
+            if (e.code === "ControlLeft" || e.code === "ControlRight") {
+                pressCtrl.value = true;
+            }
+            if (e.code === "F2") {
+                handleRenameNode()
+            } else if (e.ctrlKey && (e.key === "D" || e.key === "d")) {
+                handleDeleteNodes();
+            } else if (e.ctrlKey && (e.key === "C" || e.key === "c")) {
+                handleCopyNode();
+            } else if (e.ctrlKey && (e.key === "V" || e.key === "v")) {
+                handlePasteNode();
+            } else if (e.ctrlKey && (e.key === "X" || e.key === "x")) {
+                handleCutNode();
+            }
+        }
         const handleGlobalClick = () => {
             showContextmenu.value = false;         
             selectNodes.value = [];
@@ -358,6 +416,7 @@ export default defineComponent({
             handleNodeDropSuccess,
             handleRenameNode,
             handleChangeNodeName,
+            handleWatchNodeInput,
         };
     },
 })
@@ -434,7 +493,11 @@ export default defineComponent({
             flex: 0 0 75%;
             height: size(22);
             border: 1px solid $theme-color;
-            text-indent: size(5);
+            font-size: 1em;
+            margin-left: -1px;
+            &.error {
+                border: 2px solid $red;
+            }
         }
         .more {
             display: none;
