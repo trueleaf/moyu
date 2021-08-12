@@ -12,15 +12,21 @@ const tabs = {
         tabs: {},
     },
     mutations: {
-        // changeProjectBaseInfo(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState): void {
-        //     state._id = payload._id;
-        //     state.projectName = payload.projectName;
-        //     state.variables = payload.variables;
-        //     state.mindParams = payload.mindParams;
-        //     state.paramsTemplate = payload.paramsTemplate;
-        //     state.rules = payload.rules;
-        //     state.hosts = payload.hosts;
-        // }
+        //=====================================初始化和更新tab====================================//
+        //初始化本地tab
+        initLocalTabs(state: ApidocTabsState, payload: { projectId: string }): void {
+            const { projectId } = payload;
+            const localEditTabs = localStorage.getItem("apidoc/editTabs");
+            const tabs: ApidocTabsState["tabs"]  = localEditTabs ? JSON.parse(localEditTabs) : {};
+            state.tabs[projectId] = tabs[projectId];
+        },
+        //更新全部的tab
+        updateAllTabs(state: ApidocTabsState, payload: { tabs: ApidocTab[], projectId: string }): void {
+            const { tabs, projectId } = payload;
+            state.tabs[projectId] = tabs;
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //新增一个tab
         addTab(state: ApidocTabsState, payload: ApidocTab): void {
             const { _id, projectId } = payload;
             const tabInfo = payload;
@@ -28,16 +34,55 @@ const tabs = {
             if (!isInProject) {
                 state.tabs[projectId] = [];
             }
+            const selectedTabIndex =  state.tabs[projectId].findIndex((val) => val.selected); //获取之前选中节点index
+            state.tabs[projectId].forEach((tab) => tab.selected = false); //选中状态全部清空
             const hasTab = state.tabs[projectId].find((val) => val._id === _id);
+            const unFixedTab = state.tabs[projectId].find((val) => !val.fixed);
             const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed);
-            const hasUnfixedTab = unFixedTabIndex !== -1
-            if (hasUnfixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
+
+            if (unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
-            } else if (unFixedTabIndex !== -1 && hasTab) { //如果tabs里面存在未固定的tab并且不是新增一个tab则固定当前标签
+            } else if (unFixedTab && hasTab && hasTab._id === unFixedTab._id) {
                 state.tabs[projectId][unFixedTabIndex].fixed = true;
-            } else if (!hasUnfixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
-                state.tabs[projectId].push(tabInfo);
+            } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
+                state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
             }
+
+            const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
+            matchedTab.selected = true;
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //根据id删除tab
+        deleteTabByIds(state: ApidocTabsState, payload: { ids: string[], projectId: string }): void {
+            const { ids, projectId } = payload;
+            if (!state.tabs[projectId]) {
+                return;
+            }
+            ids.forEach((id) => {
+                const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
+                state.tabs[projectId].splice(deleteIndex, 1)
+            })
+            const selectTab = state.tabs[projectId].find((tab) => tab.selected);
+            const selectTabIndex = state.tabs[projectId].findIndex((tab) => tab.selected);
+            const hasTab = state.tabs[projectId].length > 0;
+            if (!selectTab && hasTab) {
+                state.tabs[projectId][selectTabIndex + 1].selected = true;
+            }
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //根据id选中tab
+        selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {
+            const { id, projectId } = payload;
+            if (!state.tabs[projectId]) {
+                return;
+            }
+            state.tabs[projectId].forEach((tab) => {
+                if (tab._id === id) {
+                    tab.selected = true;
+                } else {
+                    tab.selected = false;
+                }
+            })
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
     },
