@@ -230,6 +230,7 @@ export default defineComponent({
                         label: data.name,
                         saved: true,
                         fixed: false,
+                        selected: true,
                     })
                 }
             }
@@ -451,7 +452,6 @@ export default defineComponent({
         align-items: center;
         width: 100%;
         overflow: hidden;
-        // padding: size(5) 0;
         min-height: size(30);
         &:hover {
             .more {

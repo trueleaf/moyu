@@ -210,7 +210,11 @@ type ApidocTab = {
     /**
      * 是否固定
      */
-    fixed: boolean
+    fixed: boolean,
+    /**
+     * 是否选中
+     */
+    selected: boolean,
 };
 type ApidocTabsState = {
     tabs: {

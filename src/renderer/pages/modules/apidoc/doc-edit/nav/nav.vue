@@ -10,50 +10,57 @@
             <div class="btn left" @click="moveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
-            <s-draggable v-model="tabs" animation="150" item-key="name" class="tab-list" group="operation">
-                <template #item="{ element, index }">
-                    <div
-                        ref="tabItem"
-                        :title="element.label"
-                        class="item"
-                    >
-                        <!-- 接口文档 -->
-                        <template v-if="element.tabType === 'doc'">
-                            <!-- <template v-for="(req) in validRequestMethods">
-                                <span v-if="element.tail === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
-                            </template> -->
+            <!-- https://github.com/element-plus/element-plus/issues/2293 -->
+            <el-scrollbar view-style="display:inline-block;">
+                <div class="tab-list">
+                    <s-draggable v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex">
+                        <template #item="{ element }">
+                            <div
+                                ref="tabItem"
+                                :title="element.label"
+                                class="item"
+                                :class="{active: element.selected}"
+                                @click="selectCurrentTab(element)"
+                            >
+                                <!-- 接口文档 -->
+                                <template v-if="element.tabType === 'doc'">
+                                    <!-- <template v-for="(req) in validRequestMethods">
+                                        <span v-if="element.tail === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                    </template> -->
+                                </template>
+                                <!-- 其他 -->
+                                <template v-else>
+                                    <!-- 配置 -->
+                                    <span v-if="element.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                                    <!-- 参数模板 -->
+                                    <span v-if="element.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
+                                    <!-- 链接 -->
+                                    <span v-if="element.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
+                                    <!-- 导出文档 -->
+                                    <span v-if="element.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
+                                    <!-- 导入文档 -->
+                                    <span v-if="element.tabType === 'importDoc'" class="el-icon-download red f-base mr-2"></span>
+                                    <!-- 历史记录 -->
+                                    <span v-if="element.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
+                                    <!-- 全局变量配置 -->
+                                    <span v-if="element.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
+                                    <!-- mock管理 -->
+                                    <span v-if="element.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
+                                    <!-- 回收站管理 -->
+                                    <span v-if="element.tabType === 'recycler'" class="el-icon-delete-solid red f-base mr-2"></span>
+                                </template>
+                                <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
+                                <span class="operaion">
+                                    <span v-show="!element.saved" class="has-change">
+                                        <span class="dot"></span>
+                                    </span>
+                                    <i v-show="element.saved" class="el-icon-close close" @click.stop="handleCloseCurrent(element)"></i>
+                                </span>
+                            </div>
                         </template>
-                        <!-- 其他 -->
-                        <template v-else>
-                            <!-- 配置 -->
-                            <span v-if="element.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
-                            <!-- 参数模板 -->
-                            <span v-if="element.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
-                            <!-- 链接 -->
-                            <span v-if="element.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
-                            <!-- 导出文档 -->
-                            <span v-if="element.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
-                            <!-- 导入文档 -->
-                            <span v-if="element.tabType === 'importDoc'" class="el-icon-download red f-base mr-2"></span>
-                            <!-- 历史记录 -->
-                            <span v-if="element.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
-                            <!-- 全局变量配置 -->
-                            <span v-if="element.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
-                            <!-- mock管理 -->
-                            <span v-if="element.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
-                            <!-- 回收站管理 -->
-                            <span v-if="element.tabType === 'recycler'" class="el-icon-delete-solid red f-base mr-2"></span>
-                        </template>
-                        <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
-                        <span class="operaion">
-                            <span v-show="!element.saved" class="has-change">
-                                <span class="dot"></span>
-                            </span>
-                            <i v-show="element.saved" class="el-icon-close close" @click.stop="handleCloseCurrent(element, index)"></i>
-                        </span>
-                    </div>
-                </template>
-            </s-draggable>
+                    </s-draggable>            
+                </div>
+            </el-scrollbar>
             <div class="btn right" @click="moveRight">
                 <i class="el-icon-arrow-right"></i>
             </div>
@@ -86,12 +93,17 @@ export default defineComponent({
                 return this.$store.state["apidoc/tabs"].tabs[projectId]
             },
             set(val) { //拖拽tabs会导致数据写入
-                this.$store.commit("apidoc/updateAllTabs", {
+                this.$store.commit("apidoc/tabs/updateAllTabs", {
                     projectId: this.$route.query.id,
                     tabs: val,
                 });
             },
         },
+    },
+    created() {
+        this.$store.commit("apidoc/tabs/initLocalTabs", {
+            projectId: this.$route.query.id,
+        });
     },
     methods: {
         moveLeft() {
@@ -100,8 +112,21 @@ export default defineComponent({
         moveRight() {
             console.log("right")
         },
-        handleCloseCurrent(element: ApidocTab, index: number) {
-            console.log(element, index)
+        //关闭当前tab
+        handleCloseCurrent(element: ApidocTab) {
+            const projectId = this.$route.query.id;
+            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: [element._id]
+            });
+        },
+        //选中当前tab
+        selectCurrentTab(element: ApidocTab) {
+            const projectId = this.$route.query.id;
+            this.$store.commit("apidoc/tabs/selectTabById", {
+                projectId,
+                id: element._id
+            });
         },
     },
 })
@@ -124,7 +149,6 @@ export default defineComponent({
             flex: 0 0 auto;
             height: size(40);
             width: size(25);
-            position: relative;
             z-index: $zIndex-tabs;
             background: $gray-200;
             display: flex;
@@ -133,11 +157,15 @@ export default defineComponent({
             cursor: pointer;
             box-shadow: $box-shadow-base;
             position: absolute;
+            top: 0;
             &.left {
                 left: 0;
             }
             &.right {
                 right: 0;
+            }
+            &:hover {
+                background-color: $gray-300;
             }
         }
     }
@@ -145,11 +173,9 @@ export default defineComponent({
         width: calc(100% - #{size(50)});
         line-height: 40px;
         height: 40px;
-        display: flex;
         color: #5f6368;
         white-space: nowrap;
-        position: absolute;
-        left: size(25);
+        margin-left: size(25);
         transition: left .1s;
         .item {
             display: flex;
@@ -167,6 +193,7 @@ export default defineComponent({
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                font-size: fz(13);
                 &.unfixed {
                     font-style: Italic;
                 }
@@ -235,6 +262,10 @@ export default defineComponent({
                 }
             }
     }
+    }
+    //滚动条样式
+    .el-scrollbar__bar {
+        bottom: 0;
     }
 }
 </style>
