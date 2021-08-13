@@ -7,16 +7,15 @@
 <template>
     <div class="nav">
         <div class="tab-wrap">
-            <div class="btn left" @click="moveLeft">
+            <div class="btn left" @click="handleMoveLeft">
                 <i class="el-icon-arrow-left"></i>
             </div>
             <!-- https://github.com/element-plus/element-plus/issues/2293 -->
-            <el-scrollbar view-style="display:inline-block;">
+            <el-scrollbar ref="scrollBar" view-style="display:inline-block;">
                 <div class="tab-list">
-                    <s-draggable v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex">
+                    <s-draggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex">
                         <template #item="{ element }">
                             <div
-                                ref="tabItem"
                                 :title="element.label"
                                 class="item"
                                 :class="{active: element.selected}"
@@ -61,7 +60,7 @@
                     </s-draggable>            
                 </div>
             </el-scrollbar>
-            <div class="btn right" @click="moveRight">
+            <div class="btn right" @click="handleMoveRight">
                 <i class="el-icon-arrow-right"></i>
             </div>
         </div>
@@ -84,6 +83,7 @@ export default defineComponent({
     },
     data() {
         return {
+            moveLeft: 0,
         };
     },
     computed: {
@@ -100,16 +100,43 @@ export default defineComponent({
             },
         },
     },
-    created() {
+    mounted() {
         this.$store.commit("apidoc/tabs/initLocalTabs", {
             projectId: this.$route.query.id,
         });
+        this.watchTabListWrap();
     },
     methods: {
-        moveLeft() {
+        //监听tabs包裹框变化
+        watchTabListWrap() {
+            const tabWrap = (this.$refs.tabListWrap as { $el:  HTMLLIElement}).$el;
+            const scrollBar = this.$refs.scrollBar as { setScrollLeft: (left: number) => void };
+            const config = { attributes: true, childList: true, subtree: false };
+            const observer = new MutationObserver((mutationsList) => {
+                for(let mutation of mutationsList) {
+                    if (mutation.type === "childList") {
+                        const activeNode = tabWrap.querySelector(".item.active") as HTMLElement;
+                        const activeNodeLeft = activeNode.getBoundingClientRect().left;
+                        const tabWrapLeft = tabWrap.getBoundingClientRect().left;
+                        const offsetLeft = activeNodeLeft - tabWrapLeft;
+                        const tabWrapWidth = tabWrap.getBoundingClientRect().width;
+                        const maxOffsetLeft = tabWrapWidth - 200; //50代表两个按钮宽度和，200代表tab宽度
+                        console.log(offsetLeft, this.moveLeft, maxOffsetLeft)
+                        if (offsetLeft + this.moveLeft > maxOffsetLeft) { 
+                            this.moveLeft = maxOffsetLeft - offsetLeft;
+                            scrollBar.setScrollLeft(this.moveLeft);
+                            console.log(maxOffsetLeft, offsetLeft, 2222)
+
+                        }
+                    }
+                }
+            })
+            observer.observe(tabWrap, config);
+        },
+        handleMoveLeft() {
             console.log("left")
         },
-        moveRight() {
+        handleMoveRight() {
             console.log("right")
         },
         //关闭当前tab
@@ -142,6 +169,7 @@ export default defineComponent({
     .tab-wrap {
         width: 90%;
         min-width: 300px;
+        display: flex;
         overflow-x: hidden;
         overflow-y: hidden;
         position: relative;
@@ -156,26 +184,17 @@ export default defineComponent({
             justify-content: center;
             cursor: pointer;
             box-shadow: $box-shadow-base;
-            position: absolute;
-            top: 0;
-            &.left {
-                left: 0;
-            }
-            &.right {
-                right: 0;
-            }
             &:hover {
                 background-color: $gray-300;
             }
         }
     }
     .tab-list {
-        width: calc(100% - #{size(50)});
+        width: 100%;
         line-height: 40px;
         height: 40px;
         color: #5f6368;
         white-space: nowrap;
-        margin-left: size(25);
         transition: left .1s;
         .item {
             display: flex;

@@ -32,6 +32,7 @@
                         @keyup.stop="handleNodeKeyUp"
                         @mouseenter.stop="handleNodeHover"
                         @click="handleClickNode($event, scope.data)"
+                        @dblclick="handleDbclickNode(scope.data)"
                     >
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
@@ -235,6 +236,13 @@ export default defineComponent({
                 }
             }
         }
+        //双击节点固定这个节点
+        const handleDbclickNode = (data: ApidocBanner) => {
+            store.commit("apidoc/tabs/fixedTab", {
+                _id: data._id,
+                projectId,
+            })
+        }
 
         const handleNodeHover = (e: MouseEvent) => {
             if (!editNode.value) { //防止focus导致输入框失焦
@@ -418,6 +426,7 @@ export default defineComponent({
             handleRenameNode,
             handleChangeNodeName,
             handleWatchNodeInput,
+            handleDbclickNode,
         };
     },
 })

@@ -42,14 +42,21 @@ const tabs = {
 
             if (unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
-            } else if (unFixedTab && hasTab && hasTab._id === unFixedTab._id) {
-                state.tabs[projectId][unFixedTabIndex].fixed = true;
             } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
                 state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
             }
 
             const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
             matchedTab.selected = true;
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //固定一个tab
+        fixedTab(state: ApidocTabsState, payload: ApidocTab): void {
+            const { _id, projectId } = payload;
+            const matchedTab = state.tabs[projectId].find((val) => val._id === _id);
+            if (matchedTab) {
+                matchedTab.fixed = true;
+            }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
         //根据id删除tab
