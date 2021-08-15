@@ -56,6 +56,13 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        /**
+         * bar在左侧还是右侧，默认在右侧
+         */
+        barLeft: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -78,13 +85,21 @@ export default defineComponent({
             document.documentElement.addEventListener("mouseup", this.handleResizeMouseup);
             const { wrapper, bar } = this.$refs;
             if (this.remember) {
-                const wrapperWidth = localStorage.getItem(`apidoc/${this.name}`) || 300;
-                (bar as HTMLElement).style.left = `${wrapperWidth}px`;
+                const wrapperWidth = localStorage.getItem(`dragBar/${this.name}`) || 300;
+                if (this.barLeft) {
+                    (bar as HTMLElement).style.left = `${0}px`;
+                } else {
+                    (bar as HTMLElement).style.left = `${wrapperWidth}px`;
+                }
                 (wrapper as HTMLElement).style.width = `${wrapperWidth}px`;
                 this.realTimeWidth = Number(wrapperWidth);
             } else {
                 const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
-                (bar as HTMLElement).style.left = width;
+                if (this.barLeft) {
+                    (bar as HTMLElement).style.left = `${0}px`;
+                } else {
+                    (bar as HTMLElement).style.left = `${width}px`;
+                }
                 (wrapper as HTMLElement).style.width = width;
                 this.realTimeWidth = Number(width);
             }
@@ -104,15 +119,25 @@ export default defineComponent({
         //处理鼠标移动事件
         handleResizeMousemove(e: MouseEvent) {
             const { bar, wrapper } = this.$refs;
-            const moveLeft = e.clientX - this.mousedownLeft;
+            let moveLeft = 0;
+            // console.log(e.clientX, this.mousedownLeft)
+            if (this.barLeft) {
+                moveLeft = this.mousedownLeft - e.clientX;
+            } else {
+                moveLeft = e.clientX - this.mousedownLeft;
+            }
             const wrapperWidth = moveLeft + this.wrapperWidth;
             if (wrapperWidth < this.min || wrapperWidth > this.max) {
                 return;
             }
-            (bar as HTMLElement).style.left = `${moveLeft + this.wrapperWidth}px`;
+            if (this.barLeft) {
+                (bar as HTMLElement).style.left = `${0}px`;
+            } else {
+                (bar as HTMLElement).style.left = `${moveLeft + this.wrapperWidth}px`;
+            }
             (wrapper as HTMLElement).style.width = `${moveLeft + this.wrapperWidth}px`;
             if (this.remember) {
-                localStorage.setItem(`apidoc/${this.name}`, (moveLeft + this.wrapperWidth).toString());
+                localStorage.setItem(`dragBar/${this.name}`, (moveLeft + this.wrapperWidth).toString());
             }
             this.realTimeWidth = moveLeft + this.wrapperWidth;
         },
