@@ -30,7 +30,7 @@
                 </template>
                 <div class="border-bottom-gray-300 py-2 px-2">快捷操作</div>
                 <div class="toolbar-close el-icon-close" @click="visible = false"></div>
-                <s-draggable v-model="operations" animation="150" item-key="name" group="operation">
+                <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
                     <template #item="{ element }">
                         <div class="dropdown-item">
                             <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
