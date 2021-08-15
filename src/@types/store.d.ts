@@ -170,7 +170,7 @@ type ApidocProjectBaseInfoState = {
     rules: ApidocProjectRules,
 };
 //=========================================================================//
-type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "emptyDoc"
+type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide"
 //tabs导航
 
 type ApidocTab = {
