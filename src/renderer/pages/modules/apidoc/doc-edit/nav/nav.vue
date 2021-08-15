@@ -20,6 +20,8 @@
                                 class="item"
                                 :class="{active: element.selected}"
                                 @click="selectCurrentTab(element)"
+                                @dblclick="fixCurrentTab(element)"
+                                @contextmenu.stop="handleContextmenu($event, element)"
                             >
                                 <!-- 接口文档 -->
                                 <template v-if="element.tabType === 'doc'">
@@ -53,7 +55,7 @@
                                     <span v-show="!element.saved" class="has-change">
                                         <span class="dot"></span>
                                     </span>
-                                    <i v-show="element.saved" class="el-icon-close close" @click.stop="handleCloseCurrent(element)"></i>
+                                    <i v-show="element.saved" class="el-icon-close close" @click.stop="handleCloseCurrentTab(element)"></i>
                                 </span>
                             </div>
                         </template>
@@ -64,12 +66,20 @@
                 <i class="el-icon-arrow-right"></i>
             </div>
         </div>
-        <!-- <div :title="element.name">
-            <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
-                <use :xlink:href="element.icon"></use>
-            </svg>
-        </div> -->
     </div>
+    <teleport to="body">
+        <!-- 单个节点操作 -->
+        <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
+            <s-contextmenu-item label="关闭" hot-key="Ctrl + F4" @click="handleCloseCurrentTab"></s-contextmenu-item>
+            <s-contextmenu-item label="关闭左侧" @click="handleCloseLeftTab"></s-contextmenu-item>
+            <s-contextmenu-item label="关闭右侧" @click="handleCloseRightTab"></s-contextmenu-item>
+            <s-contextmenu-item label="关闭其他" @click="handleCloseOtherTab"></s-contextmenu-item>
+            <s-contextmenu-item label="全部关闭" @click="handleCloseAllTab"></s-contextmenu-item>
+            <s-contextmenu-item type="divider"></s-contextmenu-item>
+            <s-contextmenu-item label="复制url"></s-contextmenu-item>
+            <s-contextmenu-item label="刷新接口"></s-contextmenu-item>
+        </s-contextmenu>
+    </teleport>
 </template>
 
 <script lang="ts">
@@ -84,6 +94,10 @@ export default defineComponent({
     data() {
         return {
             moveLeft: 0,
+            showContextmenu: false,
+            contextmenuLeft: 0,
+            contextmenuTop: 0,
+            currentOperationNode: null as ApidocTab | null, 
         };
     },
     computed: {
@@ -101,12 +115,22 @@ export default defineComponent({
         },
     },
     mounted() {
+        document.body.addEventListener("click", this.bindGlobalClick);
+        document.body.addEventListener("contextmenu", this.bindGlobalClick);
         this.$store.commit("apidoc/tabs/initLocalTabs", {
             projectId: this.$route.query.id,
         });
         this.watchTabListWrap();
     },
+    beforeUnmount() {
+        document.body.removeEventListener("click", this.bindGlobalClick);
+        document.body.removeEventListener("contextmenu", this.bindGlobalClick);
+    },
     methods: {
+        //绑定全局点击
+        bindGlobalClick() {
+            this.showContextmenu = false;
+        },
         //监听tabs包裹框变化
         watchTabListWrap() {
             const tabWrap = (this.$refs.tabListWrap as { $el:  HTMLLIElement}).$el;
@@ -115,13 +139,16 @@ export default defineComponent({
             const observer = new MutationObserver((mutationsList) => {
                 for(let mutation of mutationsList) {
                     if (mutation.type === "childList") {
-                        const activeNode = tabWrap.querySelector(".item.active") as HTMLElement;
+                        const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
+                        if (!activeNode) {
+                            break;
+                        }
                         const activeNodeLeft = activeNode.getBoundingClientRect().left;
                         const tabWrapLeft = tabWrap.getBoundingClientRect().left;
                         const offsetLeft = activeNodeLeft - tabWrapLeft;
                         const tabWrapWidth = tabWrap.getBoundingClientRect().width;
                         const maxOffsetLeft = tabWrapWidth - 200; //50代表两个按钮宽度和，200代表tab宽度
-                        console.log(offsetLeft, this.moveLeft, maxOffsetLeft)
+                        // console.log(offsetLeft, this.moveLeft, maxOffsetLeft)
                         if (offsetLeft + this.moveLeft > maxOffsetLeft) { 
                             this.moveLeft = maxOffsetLeft - offsetLeft;
                             scrollBar.setScrollLeft(this.moveLeft);
@@ -139,12 +166,79 @@ export default defineComponent({
         handleMoveRight() {
             console.log("right")
         },
+        //=====================================contextmenu====================================//
+        handleContextmenu(e: MouseEvent, item: ApidocTab) {
+            this.currentOperationNode = item;
+            this.contextmenuLeft = e.clientX;
+            this.contextmenuTop = e.clientY;
+            this.showContextmenu = true;
+        },
         //关闭当前tab
-        handleCloseCurrent(element: ApidocTab) {
+        handleCloseCurrentTab(element: ApidocTab) {
             const projectId = this.$route.query.id;
+            const currentOperationNodeId = this.currentOperationNode?._id || ""
+            const tabId: string = element ? element._id : currentOperationNodeId;
             this.$store.commit("apidoc/tabs/deleteTabByIds", {
                 projectId,
-                ids: [element._id]
+                ids: [tabId]
+            });
+        },
+        //关闭其他
+        handleCloseOtherTab() {
+            const currentOperationNodeId = this.currentOperationNode?._id;
+            const projectId: string = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const delTabs: string[] = [];
+            tabs.forEach((tab) => {
+                if (tab._id !== currentOperationNodeId) {
+                    delTabs.push(tab._id);
+                }
+            })
+            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: delTabs
+            });
+        },
+        //关闭左侧
+        handleCloseLeftTab() {
+            const currentOperationNodeId = this.currentOperationNode?._id;
+            const projectId: string = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const delTabs: string[] = [];
+            for(let i = 0; i < tabs.length; i ++) {
+                if (tabs[i]._id !== currentOperationNodeId) {
+                    delTabs.push(tabs[i]._id);
+                } else {
+                    break;
+                }
+            }
+            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: delTabs
+            });
+        },
+        //关闭右侧
+        handleCloseRightTab() {
+            const currentOperationNodeId = this.currentOperationNode?._id;
+            const projectId: string = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
+            const delTabs: string[] = [];
+            for(let i = currentNodeIndex + 1; i < tabs.length; i ++) {
+                delTabs.push(tabs[i]._id);
+            }
+            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: delTabs
+            });
+        },
+        //关闭全部
+        handleCloseAllTab() {
+            const projectId: string = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: tabs.map((v) => v._id)
             });
         },
         //选中当前tab
@@ -154,6 +248,14 @@ export default defineComponent({
                 projectId,
                 id: element._id
             });
+        },
+        //固定当前tab
+        fixCurrentTab(element: ApidocTab) {
+            const projectId = this.$route.query.id;
+            this.$store.commit("apidoc/tabs/fixedTab", {
+                _id: element._id,
+                projectId,
+            })
         },
     },
 })
@@ -173,6 +275,9 @@ export default defineComponent({
         overflow-x: hidden;
         overflow-y: hidden;
         position: relative;
+        .el-scrollbar {
+            width: 100%;
+        }
         .btn {
             flex: 0 0 auto;
             height: size(40);

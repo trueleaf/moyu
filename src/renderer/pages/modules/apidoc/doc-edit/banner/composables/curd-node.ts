@@ -62,6 +62,17 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
                     })
                 }                    
             })
+            //删除所有nav节点
+            const delNodeIds: string[] = [];
+            forEachForest(selectNodes, (node) => {
+                if (!node.isFolder) {
+                    delNodeIds.push(node._id);
+                }
+            })
+            store.commit("apidoc/tabs/deleteTabByIds", {
+                projectId,
+                ids: delNodeIds
+            });
         }).catch((err) => {
             console.error(err);
         });        
@@ -184,6 +195,18 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
             })
         }
     }
+    if (!data.isFolder) {
+        const projectId = router.currentRoute.value.query.id;
+        store.commit("apidoc/tabs/addTab", {
+            _id: data._id,
+            projectId,
+            tabType: "doc",
+            label: data.name,
+            saved: true,
+            fixed: true,
+            selected: true,
+        })
+    }
 }
 
 /**
@@ -254,11 +277,19 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
         return;
     } else {
         isRename = true;
+        //改变banner中当前节点名称
         store.commit("apidoc/banner/changeBannerInfoById", {
             id: data._id,
             field: "name",
             value: iptValue,
         });
+        //改变tabs名称
+        store.commit("apidoc/tabs/changeTabInfoById", {
+            id: data._id,
+            field: "label",
+            value: iptValue,
+        });
+        //=========================================================================//
         const params = {
             _id: data._id,
             projectId,

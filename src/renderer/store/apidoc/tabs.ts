@@ -1,10 +1,15 @@
 /**
  * tabs导航
  */
-// import { ActionContext } from "vuex"
-// import { axios } from "@/api/api"
+import { findNodeById } from "@/helper/index"
 import type { ApidocTabsState, ApidocTab } from "@@/store"
-// import type { Response } from "@@/global"
+import { router } from "@/router/index"
+
+type EditTabPayload<K extends keyof ApidocTab> = {
+    id: string,
+    field: K,
+    value: ApidocTab[K],
+};
 
 const tabs = {
     namespaced: true,
@@ -70,10 +75,10 @@ const tabs = {
                 state.tabs[projectId].splice(deleteIndex, 1)
             })
             const selectTab = state.tabs[projectId].find((tab) => tab.selected);
-            const selectTabIndex = state.tabs[projectId].findIndex((tab) => tab.selected);
             const hasTab = state.tabs[projectId].length > 0;
             if (!selectTab && hasTab) {
-                state.tabs[projectId][selectTabIndex + 1].selected = true;
+                const selectTabIndex = state.tabs[projectId].length - 1;
+                state.tabs[projectId][selectTabIndex].selected = true;
             }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
@@ -91,6 +96,16 @@ const tabs = {
                 }
             })
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //根据id改变节点属性
+        changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
+            const { id, field, value } = payload;
+            const projectId = router.currentRoute.value.query.id as string;
+            const tabs = state.tabs[projectId];
+            const editData = findNodeById(tabs, id, {
+                idKey: "_id",
+            }) as ApidocTab;
+            editData[field] = value;
         },
     },
 }
