@@ -25,6 +25,7 @@
                         class="custom-tree-node"
                         :class="{ 
                             'select-node': selectNodes.find(v => v._id === scope.data._id),
+                            'active-node': activeNode && activeNode._id === scope.data._id,
                             'cut-node': cutNodes.find(v => v._id === scope.data._id),
                         }"
                         tabindex="0"
@@ -152,17 +153,21 @@ export default defineComponent({
         |--------------------------------------------------------------------------
         */
         const store = useStore();
-        const projectId = router.currentRoute.value.query.id;
+        const projectId = router.currentRoute.value.query.id as string;
         const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
         const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
         const defaultExpandedKeys: Ref<string[]> = ref([]); //默认展开节点
         const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
         const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
         const enableDrag = ref(true); //是否允许拖拽
+        // const activeNode: Ref<ApidocBanner | null> = ref(null); //当前tab选中节点
        
         const { loading, bannerData, getBannerData } = useBannerData();
         const projectInfo = computed(() => {
             return store.state["apidoc/baseInfo"];
+        });
+        const activeNode = computed(() => {
+            return store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected);
         });
         /*
         |--------------------------------------------------------------------------
@@ -243,7 +248,7 @@ export default defineComponent({
                 projectId,
             })
         }
-
+        //鼠标放到节点上面
         const handleNodeHover = (e: MouseEvent) => {
             if (!editNode.value) { //防止focus导致输入框失焦
                 (e.currentTarget as HTMLElement).focus(); //使其能够触发keydown事件
@@ -391,6 +396,7 @@ export default defineComponent({
 
         return {
             projectInfo,
+            activeNode,
             bannerData,
             loading,
             editNode,
@@ -514,8 +520,11 @@ export default defineComponent({
             margin-left: auto;
             padding: size(5) size(10);
         }
-        &.select-node {
+        &.active-node {
             background-color: lighten($theme-color, 30%);
+        }
+        &.select-node {
+            background-color: lighten($theme-color, 20%);
         }
         &.cut-node {
             color: $gray-500;
