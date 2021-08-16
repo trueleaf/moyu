@@ -38,7 +38,7 @@
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
                             <template v-for="(req) in projectInfo.rules.requestMethods">
-                                <span v-if="scope.data.method === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>

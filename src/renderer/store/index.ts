@@ -4,6 +4,7 @@ import { permission } from "./permission/permission";
 import { banner } from "./apidoc/banner";
 import { baseInfo } from "./apidoc/base-info";
 import { tabs } from "./apidoc/tabs";
+import { apidoc } from "./apidoc/apidoc";
 import { State } from "@@/store"
 
 export const key: InjectionKey<Store<State>> = Symbol("")
@@ -15,6 +16,7 @@ export const store = createStore<State>({
         "apidoc/banner": banner,
         "apidoc/baseInfo": baseInfo,
         "apidoc/tabs": tabs,
+        "apidoc/apidoc": apidoc,
     }
 });
 export const useStore = (): Store<State> => baseUseStore(key);

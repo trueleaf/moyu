@@ -23,6 +23,7 @@ import operation from "./operation/operation.vue"
 import params from "./params/params.vue"
 import info from "./info/info.vue"
 import response from "./response/response.vue"
+import type { ApidocTab } from "@@/store"
 
 export default defineComponent({
     components: {
@@ -35,7 +36,34 @@ export default defineComponent({
         return {
         };
     },
+    computed: {
+        currentSelectTab(): ApidocTab | null { //当前选中的doc
+            const projectId = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+            return currentSelectTab;
+        },
+    },
+    watch: {
+        currentSelectTab: {
+            handler(val: ApidocTab | null, oldVal: ApidocTab | null) {
+                const isApidoc = val?.tabType === "doc";
+                if (isApidoc && val?._id !== oldVal?._id) {
+                    this.getApidocInfo();
+                }
+            },
+            deep: true,
+            immediate: true,
+        },
+    },
     methods: {
+        //获取api文档数据
+        getApidocInfo() {
+            this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
+                id: this.currentSelectTab?._id,
+                projectId: this.$route.query.id,
+            })
+        },
     },
 })
 </script>
