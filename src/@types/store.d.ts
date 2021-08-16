@@ -1,5 +1,5 @@
 import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ApidocParamsType, PermissionClientRoute } from "@@/global"
+import type { ApidocParamsType, PermissionClientRoute, ApidocDetail } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -223,6 +223,17 @@ type ApidocTabsState = {
 }
 /*
 |--------------------------------------------------------------------------
+| api文档，文档录入、远端返回值
+|--------------------------------------------------------------------------
+|
+*/
+type ApidocState = {
+    apidoc: ApidocDetail,
+    loading: boolean,
+}
+
+/*
+|--------------------------------------------------------------------------
 | 其他
 |--------------------------------------------------------------------------
 |
@@ -233,6 +244,7 @@ type State = {
     "apidoc/banner": ApidocBannerState,
     "apidoc/baseInfo": ApidocProjectBaseInfoState,
     "apidoc/tabs": ApidocTabsState,
+    "apidoc/apidoc": ApidocState,
 }
 export {
     PermissionState,
@@ -240,5 +252,6 @@ export {
     ApidocProjectBaseInfoState,
     ApidocTabsState,
     ApidocTab,
+    ApidocState,
     State,
 }

@@ -246,7 +246,7 @@ type ApidocPropertyType = "string" | "number" | "boolean" | "array" | "object" |
 //文档参数类型
 type ApidocParamsType = "pathParams" | "queryParams" | "bodyParams" | "responseParams" | "headerParams";
 //接口参数信息， header pathParams queryParams bodyParams
-type ApidocProperty = {
+type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
     /**
      * 参数id
      */
@@ -262,7 +262,7 @@ type ApidocProperty = {
     /**
      * 字段类型
      */
-    type: ApidocPropertyType,
+    type: T,
     /**
      * 是否必填
      */
@@ -284,6 +284,201 @@ type ApidocProperty = {
      */
     children: ApidocProperty[],
 }
+//=========================================================================//
+//=========================================================================//
+//=========================================================================//
+//文档基础信息
+type ApidocBaseInfo = {
+    /**
+     * 文档名称
+     */
+    name: string,
+    /**
+     * 文档描述
+     */
+    description: string,
+    /**
+     * 版本信息
+     */
+    version: string,
+    /**
+     * 文档类型
+     */
+    type: "folder" | "api" | "markdown",
+    /**
+     * 文档标签
+     */
+    tag: {
+        _id: string,
+        name: string,
+        color: string,
+    },
+    /**
+     * 创建者
+     */
+    creator: string,
+    /**
+     * 维护人员
+     */
+    maintainer: string,
+    /**
+     * 删除人员
+     */
+    deletePerson: string,
+    /**
+     * 花费时间
+     */
+    spendTime: number,
+}
+//api文档ContentType
+type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html"
+//api文档请求body
+type ApidocBodyParams = {
+    /**
+     * 模式，对应相关的content-type值
+     * json类型、formdata类型、urlencoded类型、binary类型需要单独处理，其余均为字符串(特殊类型可以做一些客户端校验，但本质上都是字符串)
+     */
+    mode: "json" | "raw" | "formdata" | "urlencoded" | "binary",
+    /**
+     * json类型参数
+     */
+    json: ApidocProperty[],
+    /**
+     * formData类型参数
+     */
+    formdata: ApidocProperty<string>[],
+    /**
+     * urlencoded类型参数
+     */
+    urlencoded: ApidocProperty<string>[],
+    /**
+     * raw类型参数
+     */
+    raw: {
+        data: string,
+        dataType: "xml" | "javascript" | "text/plain" | "text/html"
+    },
+    /**
+     * file类型参数
+     */
+    file: {
+        src: string,
+    },
+}
+//api文档返回参数
+type ApidocResponseParams = {
+    /**
+     * 返回参数表述
+     */
+    title: string,
+    /**
+     * 状态码
+     */
+    statusCode: number,
+    /**
+     * 返回值
+     */
+    value: {
+        /**
+         * 返回参数类型
+         */
+        dataType: ApidocContentType,
+        /**
+         * json返回类型数据
+         */
+        json: ApidocProperty[],
+        /**
+         * 文本类型返回数据
+         */
+        text: string,
+        /**
+         * 文件类型返回数据
+         */
+        file: {
+            /**
+             * 转换为可访问本地路径
+             */
+            url: string,
+            /**
+             * 原始值
+             */
+            raw: string,
+        },
+    }
+};
+//完整文档信息
+type ApidocDetail = {
+    /**
+     * 父元素id
+     */
+    pid: string,
+    /**
+     * 项目id
+     */
+    projectId: string,
+    /**
+     * 是否为文件夹
+     */
+    isFolder: boolean,
+    /**
+     * 排序
+     */
+    sort: number,
+    /**
+     * 基本信息
+     */
+    info: ApidocBaseInfo,
+    /**
+     * 接口信息
+     */
+    item: {
+        /**
+         * 请求方法
+         */
+        method: ApidocHttpRequestMethod,
+        /**
+         * 请求地址
+         */
+        url: {
+            /**
+             * 服务器地址
+             */
+            host: string,
+            /**
+             * 请求路径
+             */
+            path: string,
+        },
+        /**
+         * restful请求路径
+         */
+        paths: ApidocProperty<string>[],
+        /**
+         * 查询字符串
+         */
+        queryParams: ApidocProperty<string>[],
+        /**
+         * 请求body
+         */
+        requestBody: ApidocBodyParams,
+        /**
+         * 返回参数
+         */
+        responseParams: ApidocResponseParams[],
+        /**
+         * 请求头
+         */
+        headers: ApidocProperty<string>[],
+        /**
+         * ContentType类型
+         */
+        contentType: ApidocContentType,
+    },
+}
+
+//=========================================================================//
+//=========================================================================//
+//=========================================================================//
 //文档banner信息
 type ApidocBanner = {
     /**
@@ -348,4 +543,5 @@ export {
     ApidocParamsType,
     ApidocBanner,
     ApidocOperations,
+    ApidocDetail,
 }
