@@ -22,7 +22,7 @@
                 </template>
             </s-draggable>
             <!-- 全部工具栏操作 -->
-            <el-popover v-model:visible="visible" transition="none" placement="right" :width="320" trigger="manual">
+            <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
                     <div class="more" @click.stop="visible = true">
                         <i class="more-op el-icon-more" title="更多操作"></i>
@@ -57,8 +57,8 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue"
 import draggable from "vuedraggable"
-import addFileDialog from "../../dialog/add-file.vue"
-import addFolderDialog from "../../dialog/add-folder.vue"
+import addFileDialog from "../../dialog/add-file/add-file.vue"
+import addFolderDialog from "../../dialog/add-folder/add-folder.vue"
 import operations from "./operations"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { addFileAndFolderCb } from "../composables/curd-node"
@@ -290,9 +290,7 @@ export default defineComponent({
 .toolbar-close {
     @include rt-close;
 }
-body {
-    .el-popover.el-popper {
-        padding: 0;
-    }
+.el-popover.el-popper.tool-panel {
+    padding: 0;
 }
 </style>
