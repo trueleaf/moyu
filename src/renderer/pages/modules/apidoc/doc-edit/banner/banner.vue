@@ -123,8 +123,8 @@
 <script lang="ts">
 import { clipboard } from "electron"
 import { defineComponent, computed, ref, Ref, onMounted, onUnmounted } from "vue"
-import addFileDialog from "../dialog/add-file.vue"
-import addFolderDialog from "../dialog/add-folder.vue"
+import addFileDialog from "../dialog/add-file/add-file.vue"
+import addFolderDialog from "../dialog/add-folder/add-folder.vue"
 import { ElMessage } from "element-plus"
 import { useStore } from "@/store/index"
 import type { ApidocBanner } from "@@/global"

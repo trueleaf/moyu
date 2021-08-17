@@ -5,18 +5,63 @@
     备注：
 */
 <template>
-    <div class="api-operation">operation</div>
+    <div class="api-operation">
+        <!-- 环境、host、服务器地址 -->
+        <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
+            <el-popover placement="top-start" trigger="hover" width="250px" :content="mockServer" class="mr-2">
+                <template #reference>
+                    <el-radio :label="mockServer" border>Mock服务器</el-radio>
+                </template>
+            </el-popover>
+            <el-popover v-for="(item, index) in hostEnum" :key="index" placement="top-start" trigger="hover" :content="item.url" class="mr-2">
+                <template #reference>
+                    <el-radio :label="item.url" border>{{ item.name }}</el-radio>
+                </template>
+            </el-popover>
+        </el-radio-group>
+        <el-button type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
+    </div>
+    <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import config from "@/../config/config"
+import curdHost from "../dialog/curd-host/curd-host.vue"
 
 export default defineComponent({
+    components: {
+        "s-curd-host-dialog": curdHost,
+    },
     data() {
         return {
+            mockServer: `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`, //-------------------mock服务器
+            hostDialogVisible: false, //环境维护弹窗
         };
     },
+    computed: {
+        /**
+         * host数据
+         */
+        host: {
+            get() {
+                return this.$store.state["apidoc/apidoc"].apidoc.item.url.host;
+            },
+            set(val) {
+                this.$store.commit("apidoc/apidoc/changeApidocHost", val);
+            },
+        },
+        /**
+         * host枚举
+         */
+        hostEnum() {
+            return this.$store.state["apidoc/baseInfo"].hosts
+        },
+    },
     methods: {
+        handleChangeHost() {
+            console.log(2)
+        },
     },
 })
 </script>
