@@ -8,15 +8,58 @@ const cancel: Canceler[] = [] //请求列表
 const apidoc = {
     namespaced: true,
     state: {
-        apidoc: {},
+        apidoc: {
+            pid: "",
+            projectId: "",
+            isFolder: false,
+            sort: 0,
+            info: {
+                name: "",
+                description: "",
+                version: "",
+                type: "",
+                tag: {
+                    _id: "",
+                    name: "",
+                    color: "",
+                },
+                creator: "",
+                maintainer: "",
+                deletePerson: "",
+                spendTime: 0,
+            },
+            item: {
+                method: "GET",
+                url: {
+                    host: "",
+                    path: "",
+                },
+                paths: [],
+                queryParams: [],
+                requestBody: [],
+                responseParams: [{
+                    title: "成功返回",
+                    statusCode: 200,
+                    value: {}
+                }],
+                headers: [],
+                contentType: "",
+            },
+        },
         loading: false,
     },
     mutations: {
+        //重新赋值apidoc数据
         changeApidoc(state: ApidocState, payload: ApidocDetail): void {
             state.apidoc = payload;
         },
+        //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {
             state.loading = loading;
+        },
+        //改变host值
+        changeApidocHost(state: ApidocState, host: string): void {
+            state.apidoc.item.url.host = host;
         },
     },
     actions: {
@@ -41,8 +84,7 @@ const apidoc = {
                         cancel.push(c);
                     }),
                 }).then((res) => {
-                    console.log(res.data)
-                    // context.commit("changeProjectBaseInfo", res.data)
+                    context.commit("changeApidoc", res.data)
                     resolve()
                 }).catch((err) => {
                     console.error(err);
