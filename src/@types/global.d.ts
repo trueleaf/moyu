@@ -20,6 +20,24 @@ type Response<T> = {
      */
     data: T
 }
+//表单返回
+type ResponseTable<T> = {
+    /**
+     * 状态码
+     */
+     code: number,
+     /**
+      * 登录名称
+      */
+     msg: string,
+     /**
+      * 返回数据
+      */
+     data: {
+        rows: T,
+        total: number,
+     }
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -526,6 +544,7 @@ type ApidocBanner = {
 type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
 export {
     Response,
+    ResponseTable,
     PermissionMenu,
     PermissionRoleEnum,
     PermissionClientRoute,
