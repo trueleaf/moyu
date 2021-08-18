@@ -203,34 +203,39 @@ export default defineComponent({
         },
         //获取数据
         getData(searchParams?: unknown) {
-            this.$nextTick(() => {
-                let p = {};
-                if (Object.prototype.toString.call(searchParams).slice(8, -1) !== "MouseEvent") { //修复鼠标事件导致第一个参数数据错误
-                    p = JSON.parse(JSON.stringify(searchParams || {})); //防止数据变化产生递归
-                }
-                const params = this.paging ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
-
-                this.loading = true;
-                this.axios.get(this.url, { params }).then((res) => {
-                    this.responseData = res.data;
-                    if (this.resHook) {
-                        this.resHook(res, this);
-                    } else if (this.paging) { //分页
-                        this.total = res.data.total;
-                        this.tableData = res.data.rows;
-                    } else { //不分页
-                        this.total = res.data.length;
-                        this.tableData = res.data;
+            return new Promise((resolve, reject) => {
+                this.$nextTick(() => {
+                    let p = {};
+                    if (Object.prototype.toString.call(searchParams).slice(8, -1) !== "MouseEvent") { //修复鼠标事件导致第一个参数数据错误
+                        p = JSON.parse(JSON.stringify(searchParams || {})); //防止数据变化产生递归
                     }
-                }).catch((err) => {
-                    console.error(err);
-                }).finally(() => {
-                    this.loading = false;
-                    this.$nextTick(() => {
-                        this.$emit("finish", this.responseData, this);
-                    })
-                });
-            })
+                    const params = this.paging ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
+
+                    this.loading = true;
+                    this.axios.get(this.url, { params }).then((res) => {
+                        this.responseData = res.data;
+                        if (this.resHook) {
+                            this.resHook(res, this);
+                        } else if (this.paging) { //分页
+                            this.total = res.data.total;
+                            this.tableData = res.data.rows;
+                        } else { //不分页
+                            this.total = res.data.length;
+                            this.tableData = res.data;
+                        }
+                        resolve(res);
+                    }).catch((err) => {
+                        console.error(err);
+                        reject(err);
+                    }).finally(() => {
+                        this.loading = false;
+                        this.$nextTick(() => {
+                            this.$emit("finish", this.responseData, this);
+                        })
+                    });
+                })                
+            });
+
         },
         // 分页
         handleSizeChange(size: number) {
@@ -273,8 +278,8 @@ export default defineComponent({
                 Object.assign(params, this.deleteParams);
                 this.loading2 = true;
                 this.axios.delete(this.deleteUrl, { data: params }).then(() => {
-                    this.getData();
                     this.$emit("deleteMany");
+                    // this.getData();
                 }).catch((err) => {
                     console.error(err);
                 }).finally(() => {

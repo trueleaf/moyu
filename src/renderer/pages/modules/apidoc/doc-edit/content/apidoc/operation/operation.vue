@@ -8,12 +8,12 @@
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
         <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
-            <el-popover placement="top-start" trigger="hover" width="250px" :content="mockServer" class="mr-2">
+            <el-popover placement="top-start" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                 <template #reference>
                     <el-radio :label="mockServer" border>Mock服务器</el-radio>
                 </template>
             </el-popover>
-            <el-popover v-for="(item, index) in hostEnum" :key="index" placement="top-start" trigger="hover" :content="item.url" class="mr-2">
+            <el-popover v-for="(item, index) in hostEnum" :key="index" placement="top-start" trigger="hover" width="auto" :content="item.url">
                 <template #reference>
                     <el-radio :label="item.url" border>{{ item.name }}</el-radio>
                 </template>
@@ -75,5 +75,8 @@ export default defineComponent({
     background: $white;
     z-index: $zIndex-request-info-wrap;
     height: size(150);
+    .el-radio {
+        margin-right: size(5);
+    }
 }
 </style>

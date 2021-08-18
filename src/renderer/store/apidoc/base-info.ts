@@ -15,6 +15,7 @@ const baseInfo = {
         hosts: [],
     },
     mutations: {
+        //改变项目基本信息
         changeProjectBaseInfo(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState): void {
             state._id = payload._id;
             state.projectName = payload.projectName;
@@ -23,7 +24,12 @@ const baseInfo = {
             state.paramsTemplate = payload.paramsTemplate;
             state.rules = payload.rules;
             state.hosts = payload.hosts;
-        }
+        },
+        //改变hosts
+        changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
+            console.log(444, payload)
+            state.hosts = payload;
+        },
     },
     actions: {
         /**
