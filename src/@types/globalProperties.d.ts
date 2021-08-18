@@ -24,7 +24,7 @@ declare module "@vue/runtime-core" {
                 /**
                  * 获取表格数据
                  */
-                getData: (params?: Data) => void,
+                getData: <T = Data>(params?: T) => Promise<T>,
                 /**
                  * 表格数据
                  */
