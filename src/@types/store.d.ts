@@ -253,5 +253,6 @@ export {
     ApidocTabsState,
     ApidocTab,
     ApidocState,
+    ApidocProjectHost,
     State,
 }
