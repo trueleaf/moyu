@@ -254,5 +254,6 @@ export {
     ApidocTab,
     ApidocState,
     ApidocProjectHost,
+    ApidocRequestMethodRule,
     State,
 }

@@ -4,7 +4,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
-import type { ApidocHttpRequestMethod } from "@@/global"
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType } from "@@/global"
 import tips from "./tips"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
@@ -287,4 +287,24 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
  */
 export function getRequestMethodEnum(): ApidocHttpRequestMethod[] {
     return ["GET", "POST", "PUT", "DELETE", "TRACE", "CONNECTION", "OPTIONS", "PATCH", "HEAD"];
+}
+
+
+/**
+ * 生成一条接口参数
+ */
+export function apidocGenerateProperty(type: ApidocPropertyType = "string"): ApidocProperty {
+    const result = {
+        _id: uuid(),
+        key: "",
+        type,
+        description: "",
+        value: "",
+        required: true,
+        select: true,
+        children: [],        
+        editor: "",
+        editorId: "",
+    };
+    return result;
 }

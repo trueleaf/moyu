@@ -2,7 +2,7 @@ import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { axios as axiosInstance } from "@/api/api"
 import type { State as RootState, ApidocState } from "@@/store"
-import type { ApidocDetail, Response } from "@@/global"
+import type { ApidocDetail, Response, ApidocProperty } from "@@/global"
 
 const cancel: Canceler[] = [] //请求列表
 const apidoc = {
@@ -60,6 +60,14 @@ const apidoc = {
         //改变host值
         changeApidocHost(state: ApidocState, host: string): void {
             state.apidoc.item.url.host = host;
+        },
+        //改变url值
+        changeApidocUrl(state: ApidocState, path: string): void {
+            state.apidoc.item.url.path = path;
+        },
+        //改变path参数
+        changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
+            state.apidoc.item.paths = paths
         },
     },
     actions: {
