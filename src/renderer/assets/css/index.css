@@ -79,6 +79,19 @@ body .el-form--label-top .el-form-item__label {
 body .el-dialog__body {
   padding-top: 0;
   padding-bottom: 10px; }
+body .el-dialog__headerbtn {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%; }
+  body .el-dialog__headerbtn:hover {
+    background-color: #dee2e6; }
+  body .el-dialog__headerbtn .el-dialog__close {
+    font-size: 20px; }
+    body .el-dialog__headerbtn .el-dialog__close:hover {
+      color: #f56c6c; }
 
 .primary {
   color: #409EFF; }
