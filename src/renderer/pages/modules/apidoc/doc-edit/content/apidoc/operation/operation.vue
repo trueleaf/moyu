@@ -75,7 +75,10 @@
                 </template>
             </el-dropdown>
         </div>
-        <pre class="pre-url">{{ host }}{{ requestPath }}</pre>
+        <pre class="pre-url">
+            <span>完整路径：</span>
+            <span>{{ host }}{{ requestPath }}</span>
+        </pre>
     </div>
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
 </template>
@@ -150,24 +153,56 @@ export default defineComponent({
                 store.commit("apidoc/apidoc/changePathParams", [])
             }
         };
-        //格式化url
-        const handleFormatUrl = (url: string) => {
-            requestPath.value = "/" + requestPath.value
-            console.log(url)
-        };
         //将请求url后面查询参数转换为params
-        // const convertQueryToParams = () => {
-        //     let queryString = requestPath.value.split("?") || "";
-        //     queryString = queryString ? queryString[1] : "";
-        //     if (!queryString) {
-        //         return;
-        //     }
-        //     const queryParams = qs.parse(queryString);
-        //     const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
-        //     this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
-        //     const matchedComponent = this.getComponentByName("QueryParams");
-        //     matchedComponent.selectChecked();
-        // };
+        const convertQueryToParams = () => {
+            const stringParams = requestPath.value.split("?")[1] || "";
+            const urlSearchParams = new URLSearchParams(stringParams);
+            const queryParams = Object.fromEntries(urlSearchParams.entries());
+            console.log(queryParams)
+            // let queryString = requestPath.value.split("?") || "";
+            // queryString = queryString ? queryString[1] : "";
+            // if (!queryString) {
+            //     return;
+            // }
+            // const queryParams = qs.parse(queryString);
+            // const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
+            // this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
+            // const matchedComponent = this.getComponentByName("QueryParams");
+            // matchedComponent.selectChecked();
+        };
+        //格式化url
+        const handleFormatUrl = () => {
+            /**
+             * 用例：http://127.0.0.1:80
+             * 用例：http://127.0.0.1
+             * 用例：http://255.255.0.1
+             * 用例：https://www.baidu.com
+             * 用例：demo.google.com
+             */
+            convertQueryToParams();
+            const ipReg = /https?:\/\/(\d|[1-9]\d|2[0-5]{2}\.){3}(\d|[1-9]\d|2[0-5]{2})(:\d{2,5})?(\/.+)?/;
+            const dominReg = /(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
+            const matchedIp = requestPath.value.match(ipReg);
+            const matchedDomin = requestPath.value.match(dominReg);
+            let formatPath = requestPath.value;
+            if (!matchedIp && !matchedDomin) {
+                const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
+                //路径处理
+                const matchedPath = formatPath.match(pathReg);
+                if (matchedPath) {
+                    formatPath = matchedPath[0];
+                } else if (formatPath.trim() === "") {
+                    formatPath = "/";
+                } else if (!formatPath.startsWith("/")) {
+                    formatPath = `/${formatPath}`;
+                }
+                const queryReg = /\?.*/;
+                formatPath = formatPath.replace(queryReg, "")
+            } else {
+                host.value = ""
+            }
+            requestPath.value = formatPath;
+        };
         /*
         |--------------------------------------------------------------------------
         | 请求方法
@@ -221,8 +256,6 @@ export default defineComponent({
         const handleOpenViewDoc = () => {
             console.log(5)
         }
-      
-
         return {
             config,
             host,
@@ -277,6 +310,8 @@ export default defineComponent({
         height: size(30);
         width: 100%;
         white-space: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
         &::-webkit-scrollbar {
             height: 0px;
         }
