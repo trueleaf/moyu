@@ -6,7 +6,14 @@
 */
 <template>
     <div class="api-params">
-        params
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="Params" name="s-params"></el-tab-pane>
+            <el-tab-pane label="Body" name="s-b"></el-tab-pane>
+            <el-tab-pane label="返回参数" name="s-d"></el-tab-pane>
+            <el-tab-pane label="请求头" name="s-e"></el-tab-pane>
+            <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
+        </el-tabs>
+        <component :is="activeName"></component>
         <div class="view-type">
             <div class="active cursor-pointer">横向</div>
             <el-divider direction="vertical"></el-divider>
@@ -17,10 +24,15 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import params from "./params/params.vue";
 
 export default defineComponent({
+    components: {
+        "s-params": params,
+    },
     data() {
         return {
+            activeName: "s-params",
         };
     },
     methods: {
@@ -38,7 +50,7 @@ export default defineComponent({
         display: flex;
         align-items: center;
         position: absolute;
-        top: size(5);
+        top: size(10);
         right: size(5);
         color: $gray-500;
         .active {
