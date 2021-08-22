@@ -6,23 +6,20 @@
 */
 <template>
     <div>
-        <s-params-tree></s-params-tree>
+        <!-- {{ queryTreeData }} -->
+        <s-params-tree :data="queryTreeData"></s-params-tree>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { computed } from "vue"
+import { store } from "@/store/index"
 
-export default defineComponent({
-    data() {
-        return {
-        };
-    },
-    methods: {
-    },
+// const pathTreeData = store.state["apidoc/apidoc"].apidoc.item.paths;
+const queryTreeData = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc.item.queryParams;
 })
 </script>
-
 <style lang="scss">
 
 </style>

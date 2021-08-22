@@ -3,6 +3,7 @@ import axios, { Canceler } from "axios"
 import { axios as axiosInstance } from "@/api/api"
 import type { State as RootState, ApidocState } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty } from "@@/global"
+import { apidocGenerateProperty } from "@/helper/index"
 
 const cancel: Canceler[] = [] //请求列表
 const apidoc = {
@@ -36,7 +37,19 @@ const apidoc = {
                 },
                 paths: [],
                 queryParams: [],
-                requestBody: [],
+                requestBody: {
+                    mode: "json",
+                    json: [],
+                    formdata: [],
+                    urlencoded: [],
+                    raw: {
+                        data: "",
+                        dataType: "text/plain"
+                    },
+                    file: {
+                        src: "",
+                    },
+                },
                 responseParams: [{
                     title: "成功返回",
                     statusCode: 200,
@@ -51,7 +64,21 @@ const apidoc = {
     mutations: {
         //重新赋值apidoc数据
         changeApidoc(state: ApidocState, payload: ApidocDetail): void {
+            // queryParams如果没有数据则默认添加一条空数据
+            if (payload.item.queryParams.length === 0) {
+                payload.item.queryParams.push(apidocGenerateProperty());
+            }
+            // bodyParams如果没有数据则默认添加一条空数据
+            if (payload.item.requestBody.mode === "json" && payload.item.requestBody.json.length === 0) {
+                const bodyRootParams = apidocGenerateProperty("object");
+                bodyRootParams.children[0] = apidocGenerateProperty();
+                payload.item.requestBody.json.push(bodyRootParams);
+            }
             state.apidoc = payload;
+        },
+        //添加一个嵌套数据
+        addNestParams(state: ApidocState, payload: { data: ApidocProperty, params: ApidocProperty }): void {
+            payload.data.children[0] = payload.params;
         },
         //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {
