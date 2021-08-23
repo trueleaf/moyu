@@ -6,8 +6,8 @@
 */
 <template>
     <div>
-        <!-- {{ queryTreeData }} -->
-        <s-params-tree :data="queryTreeData"></s-params-tree>
+        <pre>{{ queryTreeData }}</pre>
+        <s-params-tree nest enable-file show-checkbox :data="queryTreeData"></s-params-tree>
     </div>
 </template>
 

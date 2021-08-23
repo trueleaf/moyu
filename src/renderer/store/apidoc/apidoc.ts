@@ -5,6 +5,12 @@ import type { State as RootState, ApidocState } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty } from "@@/global"
 import { apidocGenerateProperty } from "@/helper/index"
 
+type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
+    data: ApidocProperty,
+    field: K,
+    value: ApidocProperty[K]
+}
+
 const cancel: Canceler[] = [] //请求列表
 const apidoc = {
     namespaced: true,
@@ -76,10 +82,6 @@ const apidoc = {
             }
             state.apidoc = payload;
         },
-        //添加一个嵌套数据
-        addNestParams(state: ApidocState, payload: { data: ApidocProperty, params: ApidocProperty }): void {
-            payload.data.children[0] = payload.params;
-        },
         //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {
             state.loading = loading;
@@ -95,6 +97,15 @@ const apidoc = {
         //改变path参数
         changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
             state.apidoc.item.paths = paths
+        },
+        //添加一个请求参数数据
+        addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
+            payload.data.push(payload.params);
+        },
+        //改变请求参数某个属性的值
+        changePropertyValue<K extends keyof ApidocProperty>(state: ApidocState, payload: EditApidocPropertyPayload<K>): void {
+            const { data, field, value } = payload;
+            data[field] = value;
         },
     },
     actions: {

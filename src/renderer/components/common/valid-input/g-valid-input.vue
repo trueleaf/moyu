@@ -60,12 +60,15 @@ export default defineComponent({
 <style lang="scss">
 .valid-input {
     height: size(45);
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     .ipt-wrap {
+        width: 100%;
         .ipt-inner {
+            width: 100%;
             height: size(28);
             display: flex;
             align-items: center;
@@ -73,6 +76,10 @@ export default defineComponent({
             border-radius: size(4);
             padding: 0 size(10);
             font-size: fz(12);
+            &::placeholder {
+                color: $gray-400;
+                font-size: fz(12);
+            }
             &.error {
                 border: 1px solid $red;
             }

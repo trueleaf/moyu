@@ -19,7 +19,7 @@
         @check-change="handleCheckChange"
     >
         <template #default="scope">
-            <div class="custom-tree-node">
+            <div class="custom-params-tree-node">
                 <!-- 新增嵌套数据按钮 -->
                 <el-button
                     v-if="!disableAdd"
@@ -40,8 +40,75 @@
                     icon="el-icon-close"
                     @click="deleteTreeData(scope)"
                 >
-                    {{ scope.node.level }}
                 </el-button>
+                <!-- 参数key值录入 -->
+                <div class="w-20 mr-2 d-flex a-center">
+                    <s-valid-input
+                        v-if="!readonlyKey"
+                        :model-value="scope.data.key"
+                        :disabled="checkKeyInputDisable(scope)"
+                        :title="convertKeyPlaceholder(scope)"
+                        :placeholder="convertKeyPlaceholder(scope)"
+                        @update:modelValue="handleChangeKeyData($event, scope.data)"
+                        @input="handleKeyInput(scope)"
+                        @focus="enableDrag = false"
+                        @blur="handleCheckKeyField(scope);enableDrag=true"
+                    >
+                    </s-valid-input>
+                    <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
+                </div>
+                <!-- 请求参数类型 -->
+                <el-select :model-value="scope.data.type" :disabled="!nest && !enableFile" :title="typeTip" placeholder="类型" size="mini" class="mr-2" @update:modelValue="handleChangeParamsType($event, scope.data)">
+                    <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
+                    <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
+                    <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
+                    <el-option :disabled="!nest" label="Object" value="object"></el-option>
+                    <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
+                    <el-option :disabled="!enableFile" title="传输数据类型为formData才能使用file类型" label="file" value="file"></el-option>
+                </el-select>
+                <!-- 参数值录入 -->
+                <el-popover
+                    v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
+                    :visible="scope.data._id === currentOpData?._id"
+                    placement="top-start"
+                    trigger="manual"
+                    width="auto"
+                >
+                    <s-mock
+                        v-if="scope.data.type !== 'boolean' && scope.data.type !== 'file'"
+                        :search-value="scope.data.value"
+                        @close="handleCloseMockModel"
+                        @select="handleSelectMockValue($event, scope.data)"
+                    >
+                    </s-mock>
+                    <template #reference>
+                        <el-input
+                            :model-value="scope.data.value"
+                            :disabled="scope.data._readOnly || scope.data.type === 'object'"
+                            title="对象和数组不必填写参数值"
+                            size="mini"
+                            class="w-20"
+                            :placeholder="getValuePlaceholder(scope.data)"
+                            @update:modelValue="handleChangeInputValue($event, scope.data)"
+                            @focus="handleFocusValue(scope.data)"
+                            @blur="handleBlurValue"
+                        >
+                        </el-input>
+                    </template>
+                </el-popover>
+                <!-- 文件类型参数录入 -->
+                <div v-if="scope.data.type === 'file'" class="flex0 w-20">
+                    <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
+                        <label v-show="!scope.data.value" for="fileInput" class="label">选择文件</label>
+                        <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
+                        <!-- <el-popover v-show="scope.data.value" placement="top-start" trigger="hover" :content="scope.data.value" :open-delay="200">
+                            <template #reference>
+                            </template>
+                        </el-popover> -->
+                        <span v-if="scope.data.value" class="close el-icon-close" @click="handleClearSelectType(scope.data)"></span>
+                    </div>
+                    <input id="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
+                </div>
             </div>
         </template>
     </el-tree>
@@ -51,13 +118,19 @@
 import { ref, Ref, PropType, defineProps, computed } from "vue"
 import type { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 import type { ApidocProperty } from "@@/global"
-import { apidocGenerateProperty } from "@/helper/index"
+import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
+import type { MockItem } from "@@/global"
 
 type TreeNode = {
     level: number,
     data: ApidocProperty,
     parent: TreeNode
+}
+type RootTreeNode = {
+    level: number,
+    data: ApidocProperty[],
+    parent: RootTreeNode
 }
 const props = defineProps({
     /**
@@ -102,6 +175,13 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /**
+     * 是否允许file类型
+     */
+    enableFile: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 /*
@@ -137,7 +217,7 @@ const handleNodeDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: "inner
 }
 /*
 |--------------------------------------------------------------------------
-| 数据增删改查
+| 数据新增和数据删除
 |--------------------------------------------------------------------------
 |
 */
@@ -151,8 +231,8 @@ const addNestTip = computed(() => {
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
     const params = apidocGenerateProperty();
-    store.commit("apidoc/apidoc/addNestParams", {
-        data,
+    store.commit("apidoc/apidoc/addProperty", {
+        data: data.children,
         params,
     });
     setTimeout(() => { //hack，添加一个数据默认选中当前数据
@@ -161,21 +241,226 @@ const addNestTreeData = (data: ApidocProperty) => {
     })
 }
 //删除一条数据
-const deleteTreeData = (node: TreeNode) => {
-    console.log(node)
-    // const parentNode = node.parent;
-    // const parentData = node.parent.data;
-    // if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-    //     const deleteIndex = parentData.findIndex((val) => val._id === data._id);
-    //     if (parentData.length - 1 === deleteIndex) { //不允许删除最后一个元素
-    //         return;
-    //     }
-    //     parentData.splice(deleteIndex, 1);
-    // } else {
-    //     const deleteIndex = parentData.children.findIndex((val) => val._id === data._id);
-    //     parentData.children.splice(deleteIndex, 1)
-    // }
+const deleteTreeData = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
+    // console.log(node, data)
+    const parentNode = node.parent;
+    const parentData = node.parent.data;
+    if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
+        const deleteIndex = (parentData as RootTreeNode["data"]).findIndex((val) => val._id === data._id);
+        if ((parentData as RootTreeNode["data"]).length - 1 === deleteIndex) { //不允许删除最后一个元素
+            return;
+        }
+        (parentData as RootTreeNode["data"]).splice(deleteIndex, 1);
+    } else {
+        const deleteIndex = (parentData as TreeNode["data"]).children.findIndex((val) => val._id === data._id);
+        (parentData as TreeNode["data"]).children.splice(deleteIndex, 1)
+    }
 };
+/*
+|--------------------------------------------------------------------------
+| 参数key值录入
+|--------------------------------------------------------------------------
+*/
+//改变key的值
+const handleChangeKeyData = (val: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "key",
+        value: val,
+    });
+}
+//处理key输入框输入，新增一行
+const handleKeyInput = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
+    if (node.level === 1 && props.nest) {
+        return;
+    }
+    if (data.key && data.key.trim() !== "") {
+        const parentNode = node.parent;
+        const parentData = node.parent.data as TreeNode["data"];
+        const rootParentData = node.parent.data as RootTreeNode["data"];
+        if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
+            if ((rootParentData)[(rootParentData).length - 1].key && (rootParentData)[(rootParentData).length - 1].key.trim() !== "") {
+                store.commit("apidoc/apidoc/addProperty", {
+                    data: rootParentData,
+                    params: apidocGenerateProperty(),
+                });
+            }
+        } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== "") {
+            store.commit("apidoc/apidoc/addProperty", {
+                data: parentData.children,
+                params: apidocGenerateProperty(),
+            });
+            parentData.children.push(apidocGenerateProperty());
+        }
+        tree.value?.setChecked(data._id, true, true);
+    }
+}
+//检查key输入框是否被禁用
+const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
+    const isComplex = node.data.type === "object" || node.data.type === "array"
+    // const isReadOnly = data._readOnly;
+    const parentIsArray = node.parent.data.type === "array";
+    const isRootObject = props.nest && node.level === 1 && isComplex;
+    return parentIsArray || isRootObject;
+} 
+//转换key输入框placeholder值
+const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
+    const isComplex = node.data.type === "array" || node.data.type === "object";
+    if (node.level === 1 && isComplex) {
+        return "根元素";
+    }
+    if (node.parent.data.type === "array") {
+        return "父元素为数组不必填写参数名称";
+    }
+    return "输入参数名称"
+} 
+//校验key值是否满足规范
+const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
+    const parentNode = node.parent;
+    const parentData = node.parent.data as TreeNode["data"];
+    const rootParentData = node.parent.data as RootTreeNode["data"];
+    const nodeIndex = (parentNode.level === 0) ? rootParentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
+    if (parentNode.level === 0 && rootParentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
+        return;
+    }
+    if (nodeIndex !== rootParentData.length - 1) { //只要不是最后一个值都需要做数据校验
+        console.log("校验")
+    }
+}
+/*
+|--------------------------------------------------------------------------
+| 参数类型选择
+|--------------------------------------------------------------------------
+*/
+// 禁用参数类型提示
+const typeTip = computed(() => {
+    if (!props.nest) {
+        return "参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string"
+    }
+    return "";
+})
+//改变参数类型
+const handleChangeParamsType = (value: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "type",
+        value,
+    });
+    if (data.type === "boolean") {
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data,
+            field: "value",
+            value: "true",
+        });
+    } else if (data.type === "file") {
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data,
+            field: "value",
+            value: "",
+        });
+    } else if (data.type === "number") {
+        const couldConvertToNumber = !Number.isNaN(Number(data.value));
+        console.log(couldConvertToNumber)
+        if (!couldConvertToNumber) {
+            store.commit("apidoc/apidoc/changePropertyValue", {
+                data,
+                field: "value",
+                value: "0",
+            });
+        }
+    } else if (data.type === "object" || data.type === "array") {
+        if (data.type === "array" && data.children && data.children.length > 0) { //清空子元素所有参数名称
+            forEachForest(data.children, (_data) => {
+                store.commit("apidoc/apidoc/changePropertyValue", {
+                    data: _data,
+                    field: "key",
+                    value: "",
+                });
+            },)
+        }
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data,
+            field: "key",
+            value: "",
+        });
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data,
+            field: "value",
+            value: "",
+        });
+        defaultExpandedKeys.value.push(data._id);
+    }
+}
+/*
+|--------------------------------------------------------------------------
+| 参数值填写
+|--------------------------------------------------------------------------
+*/
+//当前操作节点
+const currentOpData: Ref<ApidocProperty | null> = ref(null);
+//value值placeholder处理
+const getValuePlaceholder = (data: ApidocProperty) => {
+    if (data.type === "object") {
+        return "对象类型不必填写"
+    }
+    if (data.type === "array") {
+        return "填写数字代表mock数据条数"
+    }
+    return "参数值、@开头代表mock数据"
+}
+//改变value值
+const handleChangeInputValue = (value: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value,
+    });
+    if (data.value.startsWith("@")) {
+        currentOpData.value = data;
+    } else {
+        currentOpData.value = null;
+    }
+}
+//处理value值focus事件
+const handleFocusValue = (data: ApidocProperty) => {
+    enableDrag.value = false;
+    if (data.value.startsWith("@")) {
+        currentOpData.value = data;
+    }
+}
+//处理value值blur事件
+const handleBlurValue = () => {
+    enableDrag.value = true;
+}
+//处理value值mock移入
+const handleCloseMockModel = () => {
+    currentOpData.value = null;
+}
+//选择某个mock类型数据
+const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value: `@${item.value}`,
+    });
+    currentOpData.value = null;
+}
+
+//清空选中的文件
+const handleClearSelectType = (data: ApidocProperty) => {
+    console.log("clear", data)
+}
+//选择文件
+const handleSelectFile = (e: Event, data: ApidocProperty) => {
+    console.log("select", e.target, data)
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value: "",
+    });
+}
+
+
 
 const handleCheckChange = (data: ApidocProperty, select: boolean) => {
     console.log(2, data, select)
@@ -183,5 +468,40 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
 </script>
 
 <style lang="scss">
-
+.custom-params-tree-node {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    .el-input__inner {
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid $gray-400;
+        &:focus {
+            border-bottom: 2px solid $theme-color;
+            margin-bottom: -1px;
+        }
+    }
+    .valid-input .ipt-wrap .ipt-inner {
+        border: none;
+        border-radius: 0;
+        border-bottom: 1px solid $gray-400;
+        &:focus {
+            border-bottom: 2px solid $theme-color;
+            margin-bottom: -1px;
+        }
+    }
+}
+.el-tree-node:focus>.el-tree-node__content {
+    background: none;
+}
+.el-tree-node__content {
+    height: size(50);
+    &:hover {
+        background: $gray-200;
+        // background: none;
+    }
+}
+.collapse-transition {
+    transition: none;
+}
 </style>
