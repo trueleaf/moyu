@@ -64,7 +64,7 @@
                     <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
                     <el-option :disabled="!nest" label="Object" value="object"></el-option>
                     <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
-                    <el-option :disabled="!enableFile" title="传输数据类型为formData才能使用file类型" label="file" value="file"></el-option>
+                    <el-option :disabled="!enableFile" title="传输数据类型为formData才能使用file类型" label="File" value="file"></el-option>
                 </el-select>
                 <!-- 参数值录入 -->
                 <el-popover
@@ -448,16 +448,23 @@ const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
 
 //清空选中的文件
 const handleClearSelectType = (data: ApidocProperty) => {
-    console.log("clear", data)
-}
-//选择文件
-const handleSelectFile = (e: Event, data: ApidocProperty) => {
-    console.log("select", e.target, data)
     store.commit("apidoc/apidoc/changePropertyValue", {
         data,
         field: "value",
         value: "",
     });
+}
+//选择文件
+const handleSelectFile = (e: Event, data: ApidocProperty) => {
+    const { files } = (e.target as HTMLInputElement);
+    if (files) {
+        const file = files[0]
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data,
+            field: "value",
+            value: file.path,
+        });
+    }
 }
 
 
@@ -488,6 +495,36 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
+        }
+    }
+    .fake-input {
+        cursor: pointer;
+        background: $gray-300;
+        height: size(25);
+        line-height: size(25);
+        text-indent: 1em;
+        width: 80%;
+        position: relative;
+        &.active {
+            background: none;
+            border: 1px solid $gray-300;
+            cursor: auto;
+        }
+        .label {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .close {
+            position: absolute;
+            right: size(3);
+            top: size(4);
+            font-size: fz(16);
+            cursor: pointer;
+            &:hover {
+                color: $red;
+            }
         }
     }
 }
