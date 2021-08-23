@@ -542,6 +542,21 @@ type ApidocBanner = {
 }
 //工具栏操作
 type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
+
+//=========================================================================//
+//=========================================================================//
+//=================================mock相关================================//
+//=========================================================================//
+//=========================================================================//
+//mock项目
+type MockItem = {
+    name: string,
+    value: string,
+    tags: string[],
+}
+
+
+
 export {
     Response,
     ResponseTable,
@@ -563,4 +578,5 @@ export {
     ApidocBanner,
     ApidocOperations,
     ApidocDetail,
+    MockItem,
 }
