@@ -2,7 +2,7 @@ import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { axios as axiosInstance } from "@/api/api"
 import type { State as RootState, ApidocState } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty } from "@@/global"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode } from "@@/global"
 import { apidocGenerateProperty } from "@/helper/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -75,7 +75,7 @@ const apidoc = {
                 payload.item.queryParams.push(apidocGenerateProperty());
             }
             // bodyParams如果没有数据则默认添加一条空数据
-            if (payload.item.requestBody.mode === "json" && payload.item.requestBody.json.length === 0) {
+            if (payload.item.requestBody.json.length === 0) {
                 const bodyRootParams = apidocGenerateProperty("object");
                 bodyRootParams.children[0] = apidocGenerateProperty();
                 payload.item.requestBody.json.push(bodyRootParams);
@@ -94,6 +94,10 @@ const apidoc = {
         changeApidocUrl(state: ApidocState, path: string): void {
             state.apidoc.item.url.path = path;
         },
+        //改变body参数mode类型
+        changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {
+            state.apidoc.item.requestBody.mode = mode;
+        },
         //改变path参数
         changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
             state.apidoc.item.paths = paths
@@ -101,6 +105,10 @@ const apidoc = {
         //添加一个请求参数数据
         addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
             payload.data.push(payload.params);
+        },
+        //删除一个请求参数数据
+        deleteProperty(state: ApidocState, payload: { data: ApidocProperty[], index: number }): void {
+            payload.data.splice(payload.index, 1);
         },
         //改变请求参数某个属性的值
         changePropertyValue<K extends keyof ApidocProperty>(state: ApidocState, payload: EditApidocPropertyPayload<K>): void {

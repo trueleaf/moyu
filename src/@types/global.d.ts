@@ -349,14 +349,15 @@ type ApidocBaseInfo = {
     spendTime: number,
 }
 //api文档ContentType
-type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html"
+type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
+type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
 //api文档请求body
 type ApidocBodyParams = {
     /**
      * 模式，对应相关的content-type值
      * json类型、formdata类型、urlencoded类型、binary类型需要单独处理，其余均为字符串(特殊类型可以做一些客户端校验，但本质上都是字符串)
      */
-    mode: "json" | "raw" | "formdata" | "urlencoded" | "binary",
+    mode: ApidocBodyMode,
     /**
      * json类型参数
      */
@@ -578,5 +579,7 @@ export {
     ApidocBanner,
     ApidocOperations,
     ApidocDetail,
+    ApidocContentType,
+    ApidocBodyMode,
     MockItem,
 }

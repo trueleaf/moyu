@@ -1,5 +1,5 @@
 import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ApidocParamsType, PermissionClientRoute, ApidocDetail } from "@@/global"
+import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +94,10 @@ type ApidocProjectParamsTemplate = {
 }
 //请求方法规则
 type ApidocRequestMethodRule = {
+    /**
+     * 允许请求参数类型
+     */
+    enabledContenTypes: ApidocContentType[],
     /**
      * 方法名称
      */
