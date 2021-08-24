@@ -85,6 +85,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref, computed } from "vue"
+import { router } from "@/router/index"
 import { useStore } from "@/store/index"
 import globalConfig from "@/../config/config"
 import curdHost from "../dialog/curd-host/curd-host.vue"
@@ -98,7 +99,13 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
-        const config: Ref<Config> = ref(globalConfig)
+        const config: Ref<Config> = ref(globalConfig);
+        const projectId = router.currentRoute.value.query.id as string;
+        const currentSelectTab = computed(() => {
+            const tabs = store.state["apidoc/tabs"].tabs[projectId];
+            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+            return currentSelectTab;
+        });
         /*
         |--------------------------------------------------------------------------
         | host相关
@@ -249,8 +256,15 @@ export default defineComponent({
             console.log(3)
         };
         //刷新文档
+
         const handleFreshApidoc = () => {
-            console.log(4)
+            loading3.value = true;
+            store.dispatch("apidoc/apidoc/getApidocDetail", {
+                id: currentSelectTab.value?._id,
+                projectId,
+            }).then(() => {
+                loading3.value = false;
+            })
         };
         //预览文档
         const handleOpenViewDoc = () => {

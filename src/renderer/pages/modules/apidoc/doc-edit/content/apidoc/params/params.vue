@@ -8,7 +8,7 @@
     <div class="api-params">
         <el-tabs v-model="activeName">
             <el-tab-pane label="Params" name="s-params"></el-tab-pane>
-            <el-tab-pane label="Body" name="s-b"></el-tab-pane>
+            <el-tab-pane label="Body" name="s-request-body"></el-tab-pane>
             <el-tab-pane label="返回参数" name="s-d"></el-tab-pane>
             <el-tab-pane label="请求头" name="s-e"></el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
@@ -25,17 +25,26 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import params from "./params/params.vue";
+import requestBody from "./body/body.vue";
 
 export default defineComponent({
     components: {
         "s-params": params,
+        "s-request-body": requestBody,
     },
     data() {
         return {
             activeName: "s-params",
         };
     },
-    methods: {
+    watch: {
+        activeName() {
+            localStorage.setItem("apidoc/paramsActiveTab", this.activeName)
+        },
+    },
+    created() {
+        const activeName = localStorage.getItem("apidoc/paramsActiveTab");
+        this.activeName = activeName || "s-params";
     },
 })
 </script>
