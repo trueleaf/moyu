@@ -147,7 +147,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, defineProps, computed } from "vue"
+import { ref, Ref, PropType, defineProps, computed, watch } from "vue"
 import type { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 import type { ApidocProperty } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
@@ -214,6 +214,13 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /**
+     * 展开的节点key值
+     */
+    expandKeys: {
+        type: Array as PropType<string[]>,
+        default: () => [],
+    },
 });
 
 /*
@@ -224,6 +231,16 @@ const props = defineProps({
 */
 const defaultExpandedKeys: Ref<string[]> = ref([]);
 const tree: Ref<TreeNodeOptions["store"] | null> = ref(null)
+watch(props.data, (data) => {
+    const expandKeys: string[] = [];
+    forEachForest(data, (val) => {
+        expandKeys.push(val._id);
+    });
+    defaultExpandedKeys.value = expandKeys;
+}, {
+    deep: true,
+    immediate: true,
+});
 /*
 |--------------------------------------------------------------------------
 | 拖拽相关处理
@@ -324,7 +341,6 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
                 data: parentData.children,
                 params: apidocGenerateProperty(),
             });
-            parentData.children.push(apidocGenerateProperty());
         }
         tree.value?.setChecked(data._id, true, true);
     }
