@@ -38,19 +38,18 @@
                     :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
                     type="text"
                     icon="el-icon-close"
-                    @click="deleteTreeData(scope)"
+                    @click="handleDeleteParams(scope)"
                 >
                 </el-button>
                 <!-- 参数key值录入 -->
-                <div class="w-20 mr-2 d-flex a-center">
+                <div class="w-15 flex0 mr-2 d-flex a-center">
                     <s-valid-input
                         v-if="!readonlyKey"
                         :model-value="scope.data.key"
                         :disabled="checkKeyInputDisable(scope)"
                         :title="convertKeyPlaceholder(scope)"
                         :placeholder="convertKeyPlaceholder(scope)"
-                        @update:modelValue="handleChangeKeyData($event, scope.data)"
-                        @input="handleKeyInput(scope)"
+                        @update:modelValue="handleChangeKeyData($event, scope)"
                         @focus="enableDrag = false"
                         @blur="handleCheckKeyField(scope);enableDrag=true"
                     >
@@ -58,7 +57,15 @@
                     <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
                 </div>
                 <!-- 请求参数类型 -->
-                <el-select :model-value="scope.data.type" :disabled="!nest && !enableFile" :title="typeTip" placeholder="类型" size="mini" class="mr-2" @update:modelValue="handleChangeParamsType($event, scope.data)">
+                <el-select 
+                    :model-value="scope.data.type" 
+                    :disabled="!nest && !enableFile"
+                    :title="typeTip" 
+                    placeholder="类型" 
+                    size="mini" 
+                    class="w-15 flex0 mr-2" 
+                    @update:modelValue="handleChangeParamsType($event, scope.data)"
+                >
                     <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
                     <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Number" value="number"></el-option>
                     <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
@@ -87,17 +94,29 @@
                             :disabled="scope.data._readOnly || scope.data.type === 'object'"
                             title="对象和数组不必填写参数值"
                             size="mini"
-                            class="w-20"
+                            class="w-25 flex0"
                             :placeholder="getValuePlaceholder(scope.data)"
-                            @update:modelValue="handleChangeInputValue($event, scope.data)"
+                            @update:modelValue="handleChangeValue($event, scope.data)"
                             @focus="handleFocusValue(scope.data)"
                             @blur="handleBlurValue"
                         >
                         </el-input>
                     </template>
                 </el-popover>
+                <!-- 布尔值类型录入 -->
+                <el-select 
+                    v-if="scope.data.type === 'boolean'" 
+                    :model-value="scope.data.value"
+                    placeholder="请选择" 
+                    size="mini"
+                    class="w-25 mr-2"
+                    @update:modelValue="handleChangeBooleanValue($event, scope.data)"
+                >
+                    <el-option label="true" value="true"></el-option>
+                    <el-option label="false" value="false"></el-option>
+                </el-select>
                 <!-- 文件类型参数录入 -->
-                <div v-if="scope.data.type === 'file'" class="flex0 w-20">
+                <div v-if="scope.data.type === 'file'" class="flex0 w-15">
                     <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
                         <label v-show="!scope.data.value" for="fileInput" class="label">选择文件</label>
                         <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
@@ -109,6 +128,19 @@
                     </div>
                     <input id="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
+                <!-- 参数是否必填 -->
+                <el-checkbox :model-value="scope.data.required" label="必有" @update:modelValue="handleChangeIsRequired($event, scope.data)"></el-checkbox>
+                <!-- 参数描述 -->
+                <s-valid-input
+                    :model-value="scope.data.description"
+                    :disabled="scope.node.parent.data.type === 'array'"
+                    class="w-40 ml-2"
+                    placeholder="参数描述与备注"
+                    @focus="enableDrag = false"
+                    @blur="handleDescriptionBlur"
+                    @update:modelValue="handleChangeDescription($event, scope.data)"
+                >
+                </s-valid-input>
             </div>
         </template>
     </el-tree>
@@ -237,12 +269,11 @@ const addNestTreeData = (data: ApidocProperty) => {
     });
     setTimeout(() => { //hack，添加一个数据默认选中当前数据
         tree.value?.setChecked(params._id, true, true);
-        defaultExpandedKeys.value.push(params._id);
+        defaultExpandedKeys.value = [params._id];
     })
 }
 //删除一条数据
-const deleteTreeData = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
-    // console.log(node, data)
+const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
     const parentNode = node.parent;
     const parentData = node.parent.data;
     if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
@@ -250,10 +281,16 @@ const deleteTreeData = ({ node, data }: { node: TreeNode | RootTreeNode, data: A
         if ((parentData as RootTreeNode["data"]).length - 1 === deleteIndex) { //不允许删除最后一个元素
             return;
         }
-        (parentData as RootTreeNode["data"]).splice(deleteIndex, 1);
+        store.commit("apidoc/apidoc/deleteProperty", {
+            data: parentData,
+            index: deleteIndex,
+        });
     } else {
         const deleteIndex = (parentData as TreeNode["data"]).children.findIndex((val) => val._id === data._id);
-        (parentData as TreeNode["data"]).children.splice(deleteIndex, 1)
+        store.commit("apidoc/apidoc/deleteProperty", {
+            data: (parentData as TreeNode["data"]).children,
+            index: deleteIndex,
+        });
     }
 };
 /*
@@ -262,16 +299,13 @@ const deleteTreeData = ({ node, data }: { node: TreeNode | RootTreeNode, data: A
 |--------------------------------------------------------------------------
 */
 //改变key的值
-const handleChangeKeyData = (val: string, data: ApidocProperty) => {
+const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
     store.commit("apidoc/apidoc/changePropertyValue", {
         data,
         field: "key",
         value: val,
     });
-}
-//处理key输入框输入，新增一行
-const handleKeyInput = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
-    if (node.level === 1 && props.nest) {
+    if (node.level === 1 && props.nest) { //只允许有一个根元素
         return;
     }
     if (data.key && data.key.trim() !== "") {
@@ -409,7 +443,7 @@ const getValuePlaceholder = (data: ApidocProperty) => {
     return "参数值、@开头代表mock数据"
 }
 //改变value值
-const handleChangeInputValue = (value: string, data: ApidocProperty) => {
+const handleChangeValue = (value: string, data: ApidocProperty) => {
     store.commit("apidoc/apidoc/changePropertyValue", {
         data,
         field: "value",
@@ -420,6 +454,14 @@ const handleChangeInputValue = (value: string, data: ApidocProperty) => {
     } else {
         currentOpData.value = null;
     }
+}
+//改变布尔值
+const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value,
+    });
 }
 //处理value值focus事件
 const handleFocusValue = (data: ApidocProperty) => {
@@ -445,7 +487,6 @@ const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
     });
     currentOpData.value = null;
 }
-
 //清空选中的文件
 const handleClearSelectType = (data: ApidocProperty) => {
     console.log("clear", data)
@@ -460,10 +501,43 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
     });
 }
 
+/*
+|--------------------------------------------------------------------------
+| 参数是否必填
+|--------------------------------------------------------------------------
+|
+*/
+const handleChangeIsRequired = (value: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value,
+    });
+}
 
+/*
+|--------------------------------------------------------------------------
+| 参数备注填写
+|--------------------------------------------------------------------------
+|
+*/
+const handleDescriptionBlur = () => {
+    enableDrag.value = true;
+}
+const handleChangeDescription = (value: string, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "description",
+        value,
+    });
+}
 
 const handleCheckChange = (data: ApidocProperty, select: boolean) => {
-    console.log(2, data, select)
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "select",
+        value: select,
+    });
 }
 </script>
 
