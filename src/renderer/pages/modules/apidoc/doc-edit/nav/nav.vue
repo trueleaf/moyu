@@ -25,9 +25,9 @@
                             >
                                 <!-- 接口文档 -->
                                 <template v-if="element.tabType === 'doc'">
-                                    <!-- <template v-for="(req) in validRequestMethods">
-                                        <span v-if="element.tail === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
-                                    </template> -->
+                                    <template v-for="(req) in requestMethods">
+                                        <span v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                    </template>
                                 </template>
                                 <!-- 其他 -->
                                 <template v-else>
@@ -112,6 +112,9 @@ export default defineComponent({
                     tabs: val,
                 });
             },
+        },
+        requestMethods() {
+            return this.$store.state["apidoc/baseInfo"].rules.requestMethods
         },
     },
     mounted() {

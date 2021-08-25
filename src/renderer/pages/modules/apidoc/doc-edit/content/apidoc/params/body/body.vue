@@ -6,10 +6,10 @@
 */
 <template>
     <div class="body-params">
-        <!-- <pre>{{ bodyType }}</pre> -->
+        <!-- <pre>{{ jsonBodyData }}</pre> -->
         <div class="d-flex a-center">
             <!-- body类型选择 -->
-            <el-radio-group v-model="bodyType" @change="handleChangeBodyType">
+            <el-radio-group v-model="bodyType">
                 <el-radio label="json">json</el-radio>
                 <el-radio label="form-data">form-data</el-radio>
                 <el-radio label="x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
@@ -46,7 +46,7 @@ const jsonBodyData = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
 })
 //body类型
-const bodyType = computed({
+const bodyType = computed<ApidocBodyMode>({
     get() {
         return store.state["apidoc/apidoc"].apidoc.item.requestBody.mode;
     },
@@ -54,18 +54,6 @@ const bodyType = computed({
         store.commit("apidoc/apidoc/changeBodyMode", val);
     },
 });
-//改变body参数类型
-const handleChangeBodyType = (type: ApidocBodyMode) => {
-    // if (type === "json") {
-    //     const keys: string[] = [];
-    //     forEachForest(jsonBodyData.value, (value) => {
-    //         keys.push(value._id);
-    //     });
-    //     // console.log(keys)
-    //     jsonExpandKeys.value = keys
-    // }
-    console.log(type)
-}
 </script>
 
 <style lang="scss">

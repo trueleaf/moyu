@@ -2,7 +2,7 @@ import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { axios as axiosInstance } from "@/api/api"
 import type { State as RootState, ApidocState } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode } from "@@/global"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod } from "@@/global"
 import { apidocGenerateProperty } from "@/helper/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -93,6 +93,10 @@ const apidoc = {
         //改变url值
         changeApidocUrl(state: ApidocState, path: string): void {
             state.apidoc.item.url.path = path;
+        },
+        //改变请求method
+        changeApidocMethod(state: ApidocState, method: ApidocHttpRequestMethod): void {
+            state.apidoc.item.method = method;
         },
         //改变body参数mode类型
         changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {

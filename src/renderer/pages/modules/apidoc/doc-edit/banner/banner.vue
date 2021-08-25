@@ -237,6 +237,9 @@ export default defineComponent({
                         saved: true,
                         fixed: false,
                         selected: true,
+                        head: {
+                            icon: data.method,
+                        },
                     })
                 }
             }

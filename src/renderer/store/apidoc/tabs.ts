@@ -106,6 +106,7 @@ const tabs = {
                 idKey: "_id",
             }) as ApidocTab;
             editData[field] = value;
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
     },
 }
