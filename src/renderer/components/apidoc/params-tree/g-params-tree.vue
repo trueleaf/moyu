@@ -15,6 +15,7 @@
         :allow-drop="handleCheckNodeCouldDrop"
         :show-checkbox="showCheckbox"
         :default-expanded-keys="defaultExpandedKeys"
+        :default-checked-keys="defaultCheckedKeys"
         @node-drop="handleNodeDrop"
         @check-change="handleCheckChange"
     >
@@ -230,12 +231,18 @@ const props = defineProps({
 |
 */
 const defaultExpandedKeys: Ref<string[]> = ref([]);
+const defaultCheckedKeys: Ref<string[]> = ref([]);
 const tree: Ref<TreeNodeOptions["store"] | null> = ref(null)
-watch(props.data, (data) => {
+watch(() => props.data, (data) => {
     const expandKeys: string[] = [];
+    const selectKeys: string[] = [];
     forEachForest(data, (val) => {
         expandKeys.push(val._id);
+        if (val.select) {
+            selectKeys.push(val._id);
+        }
     });
+    defaultCheckedKeys.value = selectKeys;
     defaultExpandedKeys.value = expandKeys;
 }, {
     deep: true,
