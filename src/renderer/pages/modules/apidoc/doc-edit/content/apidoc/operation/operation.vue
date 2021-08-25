@@ -38,7 +38,7 @@
                             <el-option
                                 v-for="(item, index) in requestMethodEnum"
                                 :key="index"
-                                :value="item"
+                                :value="item.value"
                                 :label="item.name"
                                 :title="disabledTip(item)"
                                 :disabled="!item.enabled"
@@ -77,7 +77,7 @@
         </div>
         <pre class="pre-url">
             <span>完整路径：</span>
-            <span>{{ host }}{{ requestPath }}</span>
+            <span>{{ fullUrl }}</span>
         </pre>
     </div>
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
@@ -85,12 +85,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, Ref, computed } from "vue"
-import { router } from "@/router/index"
-import { useStore } from "@/store/index"
 import globalConfig from "@/../config/config"
 import curdHost from "../dialog/curd-host/curd-host.vue"
-import { apidocGenerateProperty } from "@/helper/index"
-import type { ApidocRequestMethodRule } from "@@/store" 
+import getHostPart from "./composables/host"
+import getUrlPart from "./composables/url"
+import getMethodPart from "./composables/method"
+import getOperationPart from "./composables/operation"
+import { useStore } from "@/store/index"
 import type { Config } from "@@/config" 
 
 export default defineComponent({
@@ -98,178 +99,52 @@ export default defineComponent({
         "s-curd-host-dialog": curdHost,
     },
     setup() {
-        const store = useStore();
         const config: Ref<Config> = ref(globalConfig);
-        const projectId = router.currentRoute.value.query.id as string;
-        const currentSelectTab = computed(() => {
-            const tabs = store.state["apidoc/tabs"].tabs[projectId];
-            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-            return currentSelectTab;
-        });
+        const store = useStore();
         /*
         |--------------------------------------------------------------------------
         | host相关
         |--------------------------------------------------------------------------
         */
-        const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`);
-        const hostDialogVisible = ref(false); //环境维护弹窗
-        //host值
-        const host = computed({
-            get() {
-                return store.state["apidoc/apidoc"].apidoc.item.url.host;
-            },
-            set(val) {
-                store.commit("apidoc/apidoc/changeApidocHost", val);
-            },
-        });
-        //host枚举
-        const hostEnum = computed(() => {
-            return store.state["apidoc/baseInfo"].hosts
-        });
-        //改变host值
-        const handleChangeHost = () => {
-            console.log(2)
-        };
+        const hostPart = getHostPart();
+        const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
         /*
         |--------------------------------------------------------------------------
         | 请求URL
         |--------------------------------------------------------------------------
         */
-        //请求路径
-        const requestPath: Ref<string> = computed({
-            get() {
-                return store.state["apidoc/apidoc"].apidoc.item.url.path;
-            },
-            set(path) {
-                store.commit("apidoc/apidoc/changeApidocUrl", path)
-            },
-        });
-        //从url中找出path参数
-        const handlePickPathParams = (requestPath: string) => {
-            const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
-            let matchedPathParams = requestPath.match(pathParamsReg);
-            if (matchedPathParams) {
-                matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, ""))
-                const result = matchedPathParams.map((param) => {
-                    const property = apidocGenerateProperty();
-                    property.key = param;
-                    return property;
-                });
-                store.commit("apidoc/apidoc/changePathParams", result)
-            } else {
-                store.commit("apidoc/apidoc/changePathParams", [])
-            }
-        };
-        //将请求url后面查询参数转换为params
-        const convertQueryToParams = () => {
-            const stringParams = requestPath.value.split("?")[1] || "";
-            const urlSearchParams = new URLSearchParams(stringParams);
-            const queryParams = Object.fromEntries(urlSearchParams.entries());
-            console.log(queryParams)
-            // let queryString = requestPath.value.split("?") || "";
-            // queryString = queryString ? queryString[1] : "";
-            // if (!queryString) {
-            //     return;
-            // }
-            // const queryParams = qs.parse(queryString);
-            // const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
-            // this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
-            // const matchedComponent = this.getComponentByName("QueryParams");
-            // matchedComponent.selectChecked();
-        };
-        //格式化url
-        const handleFormatUrl = () => {
-            /**
-             * 用例：http://127.0.0.1:80
-             * 用例：http://127.0.0.1
-             * 用例：http://255.255.0.1
-             * 用例：https://www.baidu.com
-             * 用例：demo.google.com
-             */
-            convertQueryToParams();
-            const ipReg = /https?:\/\/(\d|[1-9]\d|2[0-5]{2}\.){3}(\d|[1-9]\d|2[0-5]{2})(:\d{2,5})?(\/.+)?/;
-            const dominReg = /(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
-            const matchedIp = requestPath.value.match(ipReg);
-            const matchedDomin = requestPath.value.match(dominReg);
-            let formatPath = requestPath.value;
-            if (!matchedIp && !matchedDomin) {
-                const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
-                //路径处理
-                const matchedPath = formatPath.match(pathReg);
-                if (matchedPath) {
-                    formatPath = matchedPath[0];
-                } else if (formatPath.trim() === "") {
-                    formatPath = "/";
-                } else if (!formatPath.startsWith("/")) {
-                    formatPath = `/${formatPath}`;
-                }
-                const queryReg = /\?.*/;
-                formatPath = formatPath.replace(queryReg, "")
-            } else {
-                host.value = ""
-            }
-            requestPath.value = formatPath;
-        };
+        const urlPart = getUrlPart(host);
+        const { requestPath, handlePickPathParams, handleFormatUrl  } = urlPart;  
         /*
         |--------------------------------------------------------------------------
         | 请求方法
         |--------------------------------------------------------------------------
         */
-        //请求方法
-        const requestMethod = computed({
-            get() {
-                return store.state["apidoc/apidoc"].apidoc.item.method;
-            },
-            set() {
-                console.log(2)
-            },
-        });
-        //禁用请求方法后提示信息
-        const disabledTip = (item: ApidocRequestMethodRule) => {
-            if (!item.enabled) {
-                return "当前请求方法被禁止，可以在全局配置中进行相关配置";
-            }
-            return "";
-        }
-        //请求方法枚举
-        const requestMethodEnum = computed(() => {
-            return store.state["apidoc/baseInfo"].rules.requestMethods;
-        });
+        const methodPart = getMethodPart();
+        const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
         /*
         |--------------------------------------------------------------------------
         | 发送请求、保存接口、刷新接口
         |--------------------------------------------------------------------------
         */
-        const loading = ref(false); //发送请求
-        const loading2 = ref(false); //保存接口
-        const loading3 = ref(false); //刷新接口
-        //发送请求
-        const handleSendRequest = () => {
-            console.log("发送请求")
-        }
-        //停止请求
-        const handleStopRequest = () => {
-            console.log(2)
-        };
-        //保存文档
-        const handleSaveApidoc = () => {
-            console.log(3)
-        };
-        //刷新文档
-
-        const handleFreshApidoc = () => {
-            loading3.value = true;
-            store.dispatch("apidoc/apidoc/getApidocDetail", {
-                id: currentSelectTab.value?._id,
-                projectId,
-            }).then(() => {
-                loading3.value = false;
+        const operationPart = getOperationPart();
+        const { loading, loading2, loading3, handleSendRequest, handleStopRequest, handleSaveApidoc, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
+        //完整url
+        const fullUrl = computed(() => {
+            const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
+            let queryString = "";
+            queryParams.forEach((v) => {
+                if (v.key && v.select) {
+                    queryString += `${v.key}=${v.value}&`
+                }
             })
-        };
-        //预览文档
-        const handleOpenViewDoc = () => {
-            console.log(5)
-        }
+            queryString = queryString.replace(/\&$/, "");
+            if (queryString) {
+                queryString = "?" + queryString;
+            }
+            return host.value + requestPath.value + queryString
+        })
+
         return {
             config,
             host,
@@ -291,6 +166,7 @@ export default defineComponent({
             handleSaveApidoc,
             handleFreshApidoc,
             handleOpenViewDoc,
+            fullUrl,
         };
     },
 })
