@@ -533,6 +533,10 @@ type ApidocBanner = {
      */
     updator: string,
     /**
+     * 请求方法
+     */
+    method: ApidocHttpRequestMethod,
+    /**
      * 请求url
      */
     url?: string,
