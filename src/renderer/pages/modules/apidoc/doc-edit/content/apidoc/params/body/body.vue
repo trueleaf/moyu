@@ -6,13 +6,13 @@
 */
 <template>
     <div class="body-params">
-        <!-- <pre>{{ jsonBodyData }}</pre> -->
+        <pre>{{ bodyType }}</pre>
         <div class="d-flex a-center">
             <!-- body类型选择 -->
-            <el-radio-group v-model="bodyType">
+            <el-radio-group v-model="bodyType" @change="handleChangeBodyType">
                 <el-radio label="json">json</el-radio>
-                <el-radio label="form-data">form-data</el-radio>
-                <el-radio label="x-www-form-urlencoded">x-www-form-urlencoded</el-radio>
+                <el-radio label="formdata">form-data</el-radio>
+                <el-radio label="urlencoded">x-www-form-urlencoded</el-radio>
                 <el-radio label="raw">raw</el-radio>
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
@@ -27,13 +27,25 @@
             </div>
         </div>
         <s-params-tree v-if="bodyType === 'json'" nest show-checkbox :data="jsonBodyData"></s-params-tree>
+        <s-params-tree v-if="bodyType === 'formdata'" show-checkbox :data="formData"></s-params-tree>
+        <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"></s-params-tree>
+        <div v-if="bodyType === 'raw'" class="raw">
+            <!-- <s-code-editor ref="editor" :type="rawType" @input="handleRawInput"></s-code-editor> -->
+            <div class="raw-type">
+                <el-select v-model="rawType" size="mini" @change="handleChangeRawType">
+                    <el-option label="text" value="text/plain"></el-option>
+                    <el-option label="html" value="text/html"></el-option>
+                    <el-option label="xml" value="application/xml"></el-option>
+                </el-select>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue"
 import { store } from "@/store/index"
-import { ApidocBodyMode } from "@@/global"
+import { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
 
 
 /*
@@ -45,6 +57,14 @@ import { ApidocBodyMode } from "@@/global"
 const jsonBodyData = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
 })
+//formData格式body参数
+const formData = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc.item.requestBody.formdata;
+})
+//x-www-form-urlencoded参数
+const urlencodedData = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc.item.requestBody.urlencoded;
+})
 //body类型
 const bodyType = computed<ApidocBodyMode>({
     get() {
@@ -54,6 +74,40 @@ const bodyType = computed<ApidocBodyMode>({
         store.commit("apidoc/apidoc/changeBodyMode", val);
     },
 });
+//raw类型数据
+const rawType = computed<ApidocBodyRawType>({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.item.requestBody.raw.dataType;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeBodyRawType", val);
+    },
+})
+//改变传参类型
+const handleChangeBodyType = (type: ApidocBodyMode) => {
+    if (type === "raw") {
+        store.commit("apidoc/apidoc/changeContentType", "text/plain");
+    } else if (type === "none") {
+        store.commit("apidoc/apidoc/changeContentType", "");
+    } else if (type === "urlencoded") {
+        store.commit("apidoc/apidoc/changeContentType", "application/x-www-form-urlencoded");
+    } else if (type === "json") {
+        store.commit("apidoc/apidoc/changeContentType", "application/json");
+    } else if (type === "formdata") {
+        store.commit("apidoc/apidoc/changeContentType", "multipart/form-data");
+    }
+}
+//切换参数类型
+const handleChangeRawType = () => {
+    if (rawType.value === "text/plain") {
+        store.commit("apidoc/apidoc/changeContentType", "text/plain");
+    } else if (rawType.value === "text/html") {
+        store.commit("apidoc/apidoc/changeContentType", "text/html");
+    } else if (rawType.value === "application/xml") {
+        store.commit("apidoc/apidoc/changeContentType", "application/xml");
+    }
+}
+
 </script>
 
 <style lang="scss">
@@ -64,6 +118,15 @@ const bodyType = computed<ApidocBodyMode>({
         display: flex;
         align-items: center;
         justify-content: flex-end;
+    }
+    .raw {
+        height: size(300);
+        position: relative;
+        .raw-type {
+            position: absolute;
+            right: size(5);
+            bottom: size(35);
+        }
     }
 }
 </style>

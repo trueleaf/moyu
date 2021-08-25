@@ -2,7 +2,7 @@ import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { axios as axiosInstance } from "@/api/api"
 import type { State as RootState, ApidocState } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod } from "@@/global"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
 import { apidocGenerateProperty } from "@/helper/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -80,6 +80,14 @@ const apidoc = {
                 bodyRootParams.children[0] = apidocGenerateProperty();
                 payload.item.requestBody.json.push(bodyRootParams);
             }
+            //formData如果没有数据则默认添加一条空数据
+            if (payload.item.requestBody.formdata.length === 0) {
+                payload.item.requestBody.formdata.push(apidocGenerateProperty());
+            }
+            //urlencoded如果没有数据则默认添加一条空数据
+            if (payload.item.requestBody.urlencoded.length === 0) {
+                payload.item.requestBody.urlencoded.push(apidocGenerateProperty());
+            }
             state.apidoc = payload;
         },
         //改变apidoc数据加载状态
@@ -101,6 +109,14 @@ const apidoc = {
         //改变body参数mode类型
         changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {
             state.apidoc.item.requestBody.mode = mode;
+        },
+        //改变body参数raw的mime类型
+        changeBodyRawType(state: ApidocState, rawType: ApidocBodyRawType): void {
+            state.apidoc.item.requestBody.raw.dataType = rawType;
+        },
+        //改变contentType值
+        changeContentType(state: ApidocState, contentType: ApidocContentType): void {
+            state.apidoc.item.contentType = contentType;
         },
         //改变path参数
         changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {

@@ -205,6 +205,9 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
             saved: true,
             fixed: true,
             selected: true,
+            head: {
+                icon: data.method,
+            },
         })
     }
 }

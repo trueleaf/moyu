@@ -5,20 +5,18 @@
     备注：
 */
 <template>
-    <div>response</div>
+    {{ item.contentType }}
+    <pre class="h-400px overflow-y">{{ item.requestBody }}</pre>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { computed } from "vue"
+import { store } from "@/store/index"
 
-export default defineComponent({
-    data() {
-        return {
-        };
-    },
-    methods: {
-    },
-})
+const item = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc.item
+});
+
 </script>
 
 <style lang="scss">
