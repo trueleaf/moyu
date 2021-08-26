@@ -14,7 +14,9 @@ import {
     cloneDeep,
     flatTree,
     findPreviousSiblingById,
-    findNextSiblingById
+    findNextSiblingById,
+    apidocGenerateProperty,
+    apidocConvertParamsToJsonData,
 } from "@/helper/index"
 
 type Helper = {
@@ -86,6 +88,14 @@ type Helper = {
       * 获取方法枚举信息
       */
     getRequestMethodEnum: typeof getRequestMethodEnum,
+    /**
+     * apidoc生成一个请求参数
+     */
+    apidocGenerateProperty: typeof apidocGenerateProperty,
+    /**
+     * 将录入参数转换为json参数
+     */
+    apidocConvertParamsToJsonData: typeof apidocConvertParamsToJsonData,
 }
 
 export { Helper }
