@@ -308,3 +308,264 @@ export function apidocGenerateProperty(type: ApidocPropertyType = "string"): Api
     };
     return result;
 }
+
+/*
+|--------------------------------------------------------------------------
+| 
+|--------------------------------------------------------------------------
+|
+| 
+|
+*/
+type Properties = ApidocProperty<ApidocPropertyType>[]
+type PropertyValueHook = (value: ApidocProperty) => string | number | boolean
+type JSON = string | number | boolean | null | JsonObj | JsonArr
+type JsonArr = JSON[]
+type JsonObj = {
+    [x: string]: JSON
+}
+type ConvertToObjectOptions = {
+    result: Record<string, JSON> | JSON[],
+    valueHook?: PropertyValueHook,
+    jumpChecked?: boolean,
+    parent: ApidocProperty<ApidocPropertyType>
+}
+
+function convertToJson(properties: Properties, options: ConvertToObjectOptions): void {
+    const { result, parent, jumpChecked, valueHook } = options;
+    for (let i = 0; i < properties.length; i += 1) {
+        const property = properties[i];
+        const { type, value, key, children } = property;
+        const isParentArray = (parent && parent.type === "array");
+        const isComplex = (type === "object" || type === "array" || type === "file");
+        const keyValIsEmpty = key === "" && value === ""
+
+        if (jumpChecked && !property.select) { //过滤掉_select属性为false的值
+            continue;
+        }
+        if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
+            continue
+        }
+        if (!isParentArray && isComplex && (key === "")) { //对象下面对象必须具备key
+            continue
+        }
+        if (isParentArray && keyValIsEmpty && type === "number") { //数组下面为数字
+            continue
+        }
+        if (isParentArray && keyValIsEmpty && type === "boolean") { //数组下面为布尔值
+            continue
+        }
+        const convertValue = valueHook ? valueHook(property) : value;
+        if (isParentArray) { //父元素为数组
+            if (type === "boolean") {
+                (result as JSON[]).push(convertValue === "true" ? true : false);
+            } else if (type === "string") {
+                (result as JSON[]).push(convertValue);
+            } else if (type === "number") {
+                const isNumber = !isNaN(Number(convertValue));
+                if (isNumber) {
+                    (result as JSON[]).push(Number(convertValue));
+                } else {
+                    console.warn("参数无法被转换为数字类型，默认为0");
+                    (result as JSON[]).push(0);
+                }
+            } else if (type === "file") {
+                console.warn("不允许为file类型");
+                (result as JSON[]).push(convertValue);
+            } else if (type === "object") {
+                const pushData = {};
+                (result as JSON[]).push(pushData);
+                convertToJson(children, {
+                    result: pushData,
+                    valueHook: valueHook,
+                    jumpChecked: jumpChecked,
+                    parent: property
+                })
+            } else if (type === "array") {
+                const pushData: JSON[] = [];
+                (result as JSON[]).push(pushData);
+                convertToJson(children, {
+                    result: pushData,
+                    valueHook: valueHook,
+                    jumpChecked: jumpChecked,
+                    parent: property
+                })
+            }
+        } else { //父元素为对象
+            if (type === "boolean") {
+                (result as Record<string, JSON>)[key] = convertValue === "true" ? true : false;
+            } else if (type === "string") {
+                (result as Record<string, JSON>)[key] = convertValue;
+            } else if (type === "number") {
+                const isNumber = !isNaN(Number(convertValue));
+                if (isNumber) {
+                    (result as Record<string, JSON>)[key] = Number(convertValue);
+                } else {
+                    console.warn("参数无法被转换为数字类型，默认为0");
+                    (result as Record<string, JSON>)[key] = 0;
+                }
+            } else if (type === "file") {
+                console.warn("不允许为file类型");
+                (result as Record<string, JSON>)[key] = convertValue;
+            } else if (type === "object") {
+                (result as Record<string, JSON>)[key] = {};
+                convertToJson(children, {
+                    result: (result as Record<string, JSON>)[key] as Record<string, JSON>,
+                    valueHook: valueHook,
+                    jumpChecked: jumpChecked,
+                    parent: property
+                })
+            } else if (type === "array") {
+                (result as Record<string, JSON>)[key] = [];
+                convertToJson(children, {
+                    result: (result as Record<string, JSON>)[key] as JSON[],
+                    valueHook: valueHook,
+                    jumpChecked: jumpChecked,
+                    parent: property
+                })
+            }
+        }
+    }
+}
+
+/**
+ * 将录入参数转换为json参数
+ */
+export function apidocConvertParamsToJsonData(properties: Properties, jumpChecked?: boolean, valueHook?: PropertyValueHook): JSON {
+    if (properties.length === 0) {
+        console.warn("无任何参数值")
+        return null;
+    }
+    const rootType = properties[0].type;
+    const rootValue = properties[0].value;
+    if (rootType === "boolean") {
+        return rootValue === "true" ? true : false;
+    } else if (rootType === "string") {
+        return rootValue;
+    } else if (rootType === "number") {
+        const isNumber = !isNaN(Number(rootValue));
+        if (isNumber) {
+            return Number(rootValue);
+        } else {
+            console.warn("参数无法被转换为数字类型，默认为0");
+            return 0;
+        }
+    } else if (rootType === "file") {
+        console.warn("根元素不允许为file");
+        return null;
+    } else if (rootType === "object") {
+        const resultJson = {};
+        const data = properties[0].children;
+        if (data.every((p) => !p.key)) {
+            return null;
+        }
+        convertToJson(properties[0].children, {
+            result: resultJson,
+            valueHook: valueHook,
+            jumpChecked: jumpChecked,
+            parent: properties[0]
+        });
+        return resultJson
+    } else if (rootType === "array") {
+        const resultJson: JSON[] = [];
+        const data = properties[0].children;
+        if (data.every((p) => ((p.type === "number" && p.value === "") || (p.type === "boolean" && p.value === "") ))) {
+            return null;
+        }
+        convertToJson(properties[0].children, {
+            result: resultJson,
+            valueHook: valueHook,
+            jumpChecked: jumpChecked,
+            parent: properties[0]
+        });
+        return resultJson
+    } else {
+        return {};
+    }
+}
+
+
+// export function apidocConvertParamsToJsonData(properties: Properties, jumpChecked?: boolean, valueHook?: (value: ApidocProperty) => string): Data {
+//     let globalResult = {};
+//     if (properties && properties[0] && properties[0].type === "array") {
+//         globalResult = [];
+//     }
+//     const foo = (items: ApidocProperty<ApidocPropertyType>[], result: unknown, parent: ApidocProperty | Data, level: number) => {
+//         for (let i = 0; i < items.length; i += 1) {
+//             const item = items[i];
+//             const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
+//             const key = item.key?.trim();
+//             const { type, children } = item;
+//             let { value } = item;
+//             if (valueHook) {
+//                 value = valueHook(items[i]);
+//             }
+//             const valueTypeIsArray = Array.isArray(result);
+//             const isComplex = (type === "object" || type === "array" || type === "file");
+//             //============================================================================//
+//             let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
+//             if (jumpChecked && !items[i].select) { //过滤掉_select属性为false的值
+//                 continue;
+//             }
+//             if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
+//                 continue
+//             }
+//             if (isParentArray && !isComplex && key === "" && value === "") { //父元素为数组子元素为简单类型
+//                 continue
+//             }
+//             //=========================================================================//
+//             if (type === "number") { //数字类型需要转换为数字，转换前所有值都为字符串
+//                 const numberValue = Number(value)
+//                 if (valueTypeIsArray) { //当前元素为数组
+//                     (result as number[]).push(numberValue)
+//                 } else {
+//                     (result as Data)[key] = numberValue;
+//                 }
+//             } else if (type === "boolean") {
+//                 const booleanValue = value === "true";
+//                 if (valueTypeIsArray) { //当前元素为数组
+//                     (result as boolean[]).push(booleanValue)
+//                 } else {
+//                     (result as Data)[key] = booleanValue;
+//                 }
+//             } else if (type === "object") {
+//                 if (valueTypeIsArray) {
+//                     arrTypeResultLength = (result as Data[]).push({});
+//                 } else if (level !== 1) {
+//                     (result as Data)[key] = {};
+//                 }
+//                 if (children && children.length > 0) {
+//                     if (valueTypeIsArray) {
+//                         foo(children, (result as Data[])[arrTypeResultLength - 1], items[i], level + 1);
+//                     } else if (level === 1) {
+//                         foo(children, result, items[i], level + 1);
+//                     } else {
+//                         foo(children, (result as Record<string, unknown>)[key], items[i], level + 1);
+//                     }
+//                 }
+//             } else if (type === "array") {
+//                 const { children } = items[i];
+//                 const clonedChildren = cloneDeep(children);
+//                 const repeatChildren = [];
+//                 const repeatNum = Number(value) || 1;
+//                 for (let j = 0; j < repeatNum; j += 1) {
+//                     repeatChildren.push(clonedChildren[0]);
+//                 }
+//                 (result as Record<string, unknown>)[key] = [];
+//                 if (children && children.length > 0) {
+//                     if (level === 1) {
+//                         foo(repeatChildren, result, items[i], level + 1);
+//                     } else {
+//                         foo(repeatChildren, (result as Record<string, unknown>)[key], items[i], level + 1);
+//                     }
+//                 }
+//             } else if (type === "file") {
+//                 (result as Record<string, unknown>)[key] = value;
+//             } else { //字符串或其他类型类型不做处理
+//                 valueTypeIsArray ? (result as unknown[]).push(value) : ((result as Record<string, unknown>)[key] = value);
+//             }
+//         }
+//     }
+//     foo(properties, globalResult, {}, 1);
+//     return globalResult;
+// }
