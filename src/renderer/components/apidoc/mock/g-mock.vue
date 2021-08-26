@@ -68,7 +68,7 @@ export default defineComponent({
             if (this.activeName === "all") {
                 return mockEnum.filter((mock) => {
                     const mockValue = mock.value;
-                    const searchValue = this.searchValue.replace("@", "")
+                    const searchValue = this.searchValue.toString().replace("@", "")
                     return mockValue.includes(searchValue)
                 });
             }
