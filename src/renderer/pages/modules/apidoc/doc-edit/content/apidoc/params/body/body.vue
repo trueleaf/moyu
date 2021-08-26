@@ -27,7 +27,7 @@
             </div>
         </div>
         <s-params-tree v-if="bodyType === 'json'" nest show-checkbox :data="jsonBodyData"></s-params-tree>
-        <s-params-tree v-if="bodyType === 'formdata'" show-checkbox :data="formData"></s-params-tree>
+        <s-params-tree v-if="bodyType === 'formdata'" show-checkbox :data="formData" @change="handleChangeFormData"></s-params-tree>
         <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"></s-params-tree>
         <div v-if="bodyType === 'raw'" class="raw">
             <!-- <s-code-editor ref="editor" :type="rawType" @input="handleRawInput"></s-code-editor> -->
@@ -44,8 +44,9 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
+import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
-import { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
+import type { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
 
 
 /*
@@ -85,16 +86,24 @@ const rawType = computed<ApidocBodyRawType>({
 })
 //改变传参类型
 const handleChangeBodyType = (type: ApidocBodyMode) => {
+    //, formdata, urlencoded, raw, file
+    const { json, formdata } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+    const converJsonData = apidocConvertParamsToJsonData(json);
+    const hasFormData = formdata.some((data) => data.key)
     if (type === "raw") {
         store.commit("apidoc/apidoc/changeContentType", "text/plain");
     } else if (type === "none") {
         store.commit("apidoc/apidoc/changeContentType", "");
     } else if (type === "urlencoded") {
         store.commit("apidoc/apidoc/changeContentType", "application/x-www-form-urlencoded");
-    } else if (type === "json") {
+    } else if (type === "json" && converJsonData) {
         store.commit("apidoc/apidoc/changeContentType", "application/json");
-    } else if (type === "formdata") {
+    } else if (type === "json" && !converJsonData) {
+        store.commit("apidoc/apidoc/changeContentType", "");
+    } else if (type === "formdata" && hasFormData) {
         store.commit("apidoc/apidoc/changeContentType", "multipart/form-data");
+    } else if (type === "formdata" && !hasFormData) {
+        store.commit("apidoc/apidoc/changeContentType", "");
     }
 }
 //切换参数类型
@@ -105,6 +114,22 @@ const handleChangeRawType = () => {
         store.commit("apidoc/apidoc/changeContentType", "text/html");
     } else if (rawType.value === "application/xml") {
         store.commit("apidoc/apidoc/changeContentType", "application/xml");
+    }
+}
+/*
+|--------------------------------------------------------------------------
+| formdata数据处理
+|--------------------------------------------------------------------------
+|
+*/
+const handleChangeFormData = () => {
+    const { formdata } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+    console.log(formdata)
+    const hasFormData = formdata.some((data) => data.key)
+    if (hasFormData) {
+        store.commit("apidoc/apidoc/changeContentType", "multipart/form-data");
+    } else {
+        store.commit("apidoc/apidoc/changeContentType", "");
     }
 }
 

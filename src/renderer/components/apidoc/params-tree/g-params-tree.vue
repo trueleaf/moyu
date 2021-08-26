@@ -92,7 +92,7 @@
                     <template #reference>
                         <el-input
                             :model-value="scope.data.value"
-                            :disabled="scope.data._readOnly || scope.data.type === 'object'"
+                            :disabled="scope.data.type === 'object'"
                             title="对象和数组不必填写参数值"
                             size="mini"
                             class="w-25 flex0"
@@ -110,7 +110,7 @@
                     :model-value="scope.data.value"
                     placeholder="请选择" 
                     size="mini"
-                    class="w-25 mr-2"
+                    class="w-25 flex0"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
                     <el-option label="true" value="true"></el-option>
@@ -148,7 +148,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, defineProps, computed, watch } from "vue"
+import { ref, Ref, PropType, defineProps, defineEmits, computed, watch } from "vue"
 import type { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 import type { ApidocProperty } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
@@ -223,7 +223,7 @@ const props = defineProps({
         default: () => [],
     },
 });
-
+const emit = defineEmits(["change"])
 /*
 |--------------------------------------------------------------------------
 | 基础变量
@@ -244,6 +244,7 @@ watch(() => props.data, (data) => {
     });
     defaultCheckedKeys.value = selectKeys;
     defaultExpandedKeys.value = expandKeys;
+    emit("change");
 }, {
     deep: true,
     immediate: true,
@@ -576,6 +577,9 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
     width: 100%;
     display: flex;
     align-items: center;
+    .el-input-number .el-input__inner {
+        text-align: left;
+    }
     .el-input__inner {
         border-radius: 0;
         border: none;
