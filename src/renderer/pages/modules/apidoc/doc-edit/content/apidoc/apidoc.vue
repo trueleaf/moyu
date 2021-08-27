@@ -10,7 +10,7 @@
             <s-operation></s-operation>
             <s-params></s-params>
         </div>
-        <s-resize-x :min="400" :max="500" :width="400" name="response" bar-left class="response-layout" tabindex="1">
+        <s-resize-x :min="400" :max="700" :width="400" name="response" bar-left class="response-layout" tabindex="1">
             <s-info></s-info>
             <s-response></s-response>
         </s-resize-x>

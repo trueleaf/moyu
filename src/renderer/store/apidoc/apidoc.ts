@@ -114,6 +114,10 @@ const apidoc = {
         changeBodyRawType(state: ApidocState, rawType: ApidocBodyRawType): void {
             state.apidoc.item.requestBody.raw.dataType = rawType;
         },
+        //改变raw的参数值
+        changeBodyRawValue(state: ApidocState, rawValue: string): void {
+            state.apidoc.item.requestBody.raw.data = rawValue;
+        },
         //改变contentType值
         changeContentType(state: ApidocState, contentType: ApidocContentType): void {
             state.apidoc.item.contentType = contentType;

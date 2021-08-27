@@ -351,7 +351,7 @@ type ApidocBaseInfo = {
 //api文档ContentType
 type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
 type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
-type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html"
+type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html" | "application/json"
 //api文档请求body
 type ApidocBodyParams = {
     /**
