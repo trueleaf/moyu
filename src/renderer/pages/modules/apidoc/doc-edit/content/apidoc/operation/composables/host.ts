@@ -5,6 +5,7 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from "vue"
+// import { handleFormatUrl } from "./url"
 import { useStore } from "@/store/index"
 import globalConfig from "@/../config/config"
 import type { ApidocProjectHost } from "@@/store"
@@ -47,9 +48,22 @@ export default (): HostReturn =>  {
             store.commit("apidoc/apidoc/changeApidocHost", val);
         },
     });
+    const requestPath = computed<string>({
+        get() {
+            return store.state["apidoc/apidoc"].apidoc.item.url.path;
+        },
+        set(path) {
+            store.commit("apidoc/apidoc/changeApidocUrl", path)
+        },
+    }); 
     //改变host的值
     const handleChangeHost = () => {
-        console.log("changeHost")
+        const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
+        const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
+        const dominReg = /^(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
+        requestPath.value = requestPath.value.replace(ipReg, "");
+        requestPath.value = requestPath.value.replace(ipWithPortReg, "");
+        requestPath.value = requestPath.value.replace(dominReg, "");
     }
     //host枚举值
     const hostEnum = computed<ApidocProjectHost[]>(() => {
