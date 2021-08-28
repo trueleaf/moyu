@@ -13,7 +13,7 @@
             <el-tab-pane label="请求头" name="s-e"></el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
         </el-tabs>
-        <component :is="activeName"></component>
+        <component :is="activeName" class="workbench"></component>
         <div class="view-type">
             <div class="active cursor-pointer">横向</div>
             <el-divider direction="vertical"></el-divider>
@@ -51,10 +51,14 @@ export default defineComponent({
 
 <style lang="scss">
 .api-params {
-    padding: size(20) size(20) size(10);
+    padding: size(20) size(0) size(10);
     height: calc(100vh - #{size(250)});
     overflow-y: auto;
     position: relative;
+    .el-tabs, .workbench {
+        padding-right: size(20);
+        padding-left: size(20);
+    }
     .view-type {
         display: flex;
         align-items: center;
