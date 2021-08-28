@@ -33,12 +33,12 @@ export default defineComponent({
             type: String as PropType<ApidocBodyRawType>,
             default: "javascript",
         },
-        value: {
+        modelValue: {
             type: String,
             default: "",
         },
     },
-    emits: ["input", "ready"],
+    emits: ["change", "ready", "update:modelValue"],
     data() {
         return {
             editorInstance: null as null | Editor,
@@ -48,9 +48,14 @@ export default defineComponent({
         type: {
             handler(type: ApidocBodyRawType) {
                 if (this.editorInstance) {
-                    console.log(TYPE_MAP[type], type)
                     this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[type]}`);
                 }
+            },
+            immediate: true,
+        },
+        value: {
+            handler(value: string) {
+                this.setValue(value);
             },
             immediate: true,
         },
@@ -70,7 +75,8 @@ export default defineComponent({
             });
             this.editorInstance.on("change", () => {
                 const content = this.editorInstance?.getValue();
-                this.$emit("input", content);
+                this.$emit("update:modelValue", content);
+                this.$emit("change", content);
             });
             this.$emit("ready", this.editorInstance);
         },
