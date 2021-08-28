@@ -88,7 +88,7 @@ import { defineComponent, ref, Ref, computed } from "vue"
 import globalConfig from "@/../config/config"
 import curdHost from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
-import getUrlPart from "./composables/url"
+import { handleFormatUrl, handlePickPathParams } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
 import { useStore } from "@/store/index"
@@ -110,13 +110,6 @@ export default defineComponent({
         const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
         /*
         |--------------------------------------------------------------------------
-        | 请求URL
-        |--------------------------------------------------------------------------
-        */
-        const urlPart = getUrlPart(host);
-        const { requestPath, handlePickPathParams, handleFormatUrl  } = urlPart;  
-        /*
-        |--------------------------------------------------------------------------
         | 请求方法
         |--------------------------------------------------------------------------
         */
@@ -129,7 +122,16 @@ export default defineComponent({
         */
         const operationPart = getOperationPart();
         const { loading, loading2, loading3, handleSendRequest, handleStopRequest, handleSaveApidoc, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
-        //完整url
+        //请求url、完整url
+        const requestPath = computed<string>({
+            get() {
+                const store = useStore();
+                return store.state["apidoc/apidoc"].apidoc.item.url.path;
+            },
+            set(path) {
+                store.commit("apidoc/apidoc/changeApidocUrl", path)
+            },
+        }); 
         const fullUrl = computed(() => {
             const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
             let queryString = "";
