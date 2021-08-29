@@ -6,10 +6,13 @@
 */
 <template>
     <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap">
-        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown"></div>
+        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleResetWidth"></div>
         <div v-if="isDragging" class="indicator">
             <div class="left"></div>
-            <div class="ct">{{ realTimeWidth }}px</div>
+            <div class="ct">
+                <div>{{ realTimeWidth }}px(双击还原)</div>
+                <!-- <div></div> -->
+            </div>
             <div class="right"></div>
         </div>
         <slot />
@@ -84,24 +87,25 @@ export default defineComponent({
         initDrag() {
             document.documentElement.addEventListener("mouseup", this.handleResizeMouseup);
             const { wrapper, bar } = this.$refs;
+            const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
             if (this.remember) {
-                const wrapperWidth = localStorage.getItem(`dragBar/${this.name}`) || 300;
+                const wrapperWidth = localStorage.getItem(`dragBar/${this.name}`) || width;
+                console.log(wrapperWidth, this.name)
                 if (this.barLeft) {
-                    (bar as HTMLElement).style.left = `${0}px`;
+                    (bar as HTMLElement).style.left = `${0}`;
                 } else {
-                    (bar as HTMLElement).style.left = `${wrapperWidth}px`;
+                    (bar as HTMLElement).style.left = `${wrapperWidth}`;
                 }
-                (wrapper as HTMLElement).style.width = `${wrapperWidth}px`;
-                this.realTimeWidth = Number(wrapperWidth);
+                (wrapper as HTMLElement).style.width = `${wrapperWidth}`;
+                this.realTimeWidth = parseFloat(wrapperWidth);
             } else {
-                const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
                 if (this.barLeft) {
-                    (bar as HTMLElement).style.left = `${0}px`;
+                    (bar as HTMLElement).style.left = "0px";
                 } else {
-                    (bar as HTMLElement).style.left = `${width}px`;
+                    (bar as HTMLElement).style.left = `${width}`;
                 }
                 (wrapper as HTMLElement).style.width = width;
-                this.realTimeWidth = Number(width);
+                this.realTimeWidth = parseFloat(width);
             }
         },
         //处理鼠标弹起事件
@@ -120,7 +124,6 @@ export default defineComponent({
         handleResizeMousemove(e: MouseEvent) {
             const { bar, wrapper } = this.$refs;
             let moveLeft = 0;
-            // console.log(e.clientX, this.mousedownLeft)
             if (this.barLeft) {
                 moveLeft = this.mousedownLeft - e.clientX;
             } else {
@@ -137,9 +140,34 @@ export default defineComponent({
             }
             (wrapper as HTMLElement).style.width = `${moveLeft + this.wrapperWidth}px`;
             if (this.remember) {
-                localStorage.setItem(`dragBar/${this.name}`, (moveLeft + this.wrapperWidth).toString());
+                localStorage.setItem(`dragBar/${this.name}`, (moveLeft + this.wrapperWidth).toString() + "px");
             }
             this.realTimeWidth = moveLeft + this.wrapperWidth;
+        },
+        //还原宽度
+        handleResetWidth() {
+            const { bar, wrapper } = this.$refs;
+            // if (this.barLeft) {
+            //     (bar as HTMLElement).style.left = `${0}px`;
+            // } else {
+            //     (bar as HTMLElement).style.left = `${moveLeft + this.wrapperWidth}px`;
+            // }
+            // (wrapper as HTMLElement).style.width = `${moveLeft + this.wrapperWidth}px`;
+            // if (this.remember) {
+            //     localStorage.setItem(`dragBar/${this.name}`, (moveLeft + this.wrapperWidth).toString());
+            // }
+            // this.realTimeWidth = moveLeft + this.wrapperWidth;
+            const width = this.width ? `${this.width}px` : `${(wrapper as HTMLElement).getBoundingClientRect().width}px`;
+            if (this.barLeft) {
+                (bar as HTMLElement).style.left = `${0}`;
+            } else {
+                (bar as HTMLElement).style.left = `${width}`;
+            }
+            (wrapper as HTMLElement).style.width = width;
+            this.realTimeWidth = parseFloat(width);
+            if (this.remember) {
+                localStorage.setItem(`dragBar/${this.name}`, width);
+            }
         },
     },
 })
@@ -158,10 +186,12 @@ export default defineComponent({
         padding: 0 size(10);
         .left, .right {
             border-bottom: 1px dashed $red;
-            width: 40%;
+            // width: 40%;
+            flex: 1;
         }
         .ct {
-            flex: 1;
+            width: size(150);
+            flex: 0 0 auto;
             text-align: center;
             color: $gray-600;
         }
