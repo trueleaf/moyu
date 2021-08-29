@@ -17,6 +17,7 @@ import {
     findNextSiblingById,
     apidocGenerateProperty,
     apidocConvertParamsToJsonData,
+    apidocConvertJsonDataToParams,
 } from "@/helper/index"
 
 type Helper = {
@@ -96,6 +97,10 @@ type Helper = {
      * 将录入参数转换为json参数
      */
     apidocConvertParamsToJsonData: typeof apidocConvertParamsToJsonData,
+    /**
+     * 将json参数转换为moyu参数
+     */
+    apidocConvertJsonDataToParams: typeof apidocConvertJsonDataToParams,
 }
 
 export { Helper }

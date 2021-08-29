@@ -318,12 +318,14 @@ export function apidocGenerateProperty(type: ApidocPropertyType = "string"): Api
 |
 */
 type Properties = ApidocProperty<ApidocPropertyType>[]
-type PropertyValueHook = (value: ApidocProperty) => string | number | boolean
+type PropertyValueHook = (value: ApidocProperty) => string | number | boolean;
+type JsonConvertHook = (property: ApidocProperty<ApidocPropertyType>, itemData: JSON) => void;
 type JSON = string | number | boolean | null | JsonObj | JsonArr
 type JsonArr = JSON[]
 type JsonObj = {
     [x: string]: JSON
 }
+type JsonValueType = "string" | "number" | "boolean" | "array" | "object"
 type ConvertToObjectOptions = {
     result: Record<string, JSON> | JSON[],
     valueHook?: PropertyValueHook,
@@ -427,7 +429,30 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         }
     }
 }
-
+/**
+ * @description        获取property字段类型
+ * @author             shuxiaokai
+ * @create             2021-8-29 13:38
+ * @param {any}        value - 任意类型变量
+ * @return {string}    返回参数类型
+ */
+function getJsonValueType(value: unknown): JsonValueType {
+    let result: JsonValueType = "string";
+    if (typeof value === "string") {
+        result = "string"
+    } else if (typeof value === "number") { //NaN
+        result = "number"
+    } else if (typeof value === "boolean") {
+        result = "boolean"
+    } else if (Array.isArray(value)) {
+        result = "array"
+    } else if (typeof value === "object" && value !== null) {
+        result = "object"
+    } else { // undefined ...
+        result = "string"
+    }
+    return result;
+}
 /**
  * 将录入参数转换为json参数
  */
@@ -484,88 +509,79 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     }
 }
 
-
-// export function apidocConvertParamsToJsonData(properties: Properties, jumpChecked?: boolean, valueHook?: (value: ApidocProperty) => string): Data {
-//     let globalResult = {};
-//     if (properties && properties[0] && properties[0].type === "array") {
-//         globalResult = [];
-//     }
-//     const foo = (items: ApidocProperty<ApidocPropertyType>[], result: unknown, parent: ApidocProperty | Data, level: number) => {
-//         for (let i = 0; i < items.length; i += 1) {
-//             const item = items[i];
-//             const isParentArray = (parent && parent.type === "array"); //父元素为数组，不校验key因为数组元素不必填写key值
-//             const key = item.key?.trim();
-//             const { type, children } = item;
-//             let { value } = item;
-//             if (valueHook) {
-//                 value = valueHook(items[i]);
-//             }
-//             const valueTypeIsArray = Array.isArray(result);
-//             const isComplex = (type === "object" || type === "array" || type === "file");
-//             //============================================================================//
-//             let arrTypeResultLength = 0; //数组类型值长度，用于数组里面嵌套对象时候对象取值
-//             if (jumpChecked && !items[i].select) { //过滤掉_select属性为false的值
-//                 continue;
-//             }
-//             if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
-//                 continue
-//             }
-//             if (isParentArray && !isComplex && key === "" && value === "") { //父元素为数组子元素为简单类型
-//                 continue
-//             }
-//             //=========================================================================//
-//             if (type === "number") { //数字类型需要转换为数字，转换前所有值都为字符串
-//                 const numberValue = Number(value)
-//                 if (valueTypeIsArray) { //当前元素为数组
-//                     (result as number[]).push(numberValue)
-//                 } else {
-//                     (result as Data)[key] = numberValue;
-//                 }
-//             } else if (type === "boolean") {
-//                 const booleanValue = value === "true";
-//                 if (valueTypeIsArray) { //当前元素为数组
-//                     (result as boolean[]).push(booleanValue)
-//                 } else {
-//                     (result as Data)[key] = booleanValue;
-//                 }
-//             } else if (type === "object") {
-//                 if (valueTypeIsArray) {
-//                     arrTypeResultLength = (result as Data[]).push({});
-//                 } else if (level !== 1) {
-//                     (result as Data)[key] = {};
-//                 }
-//                 if (children && children.length > 0) {
-//                     if (valueTypeIsArray) {
-//                         foo(children, (result as Data[])[arrTypeResultLength - 1], items[i], level + 1);
-//                     } else if (level === 1) {
-//                         foo(children, result, items[i], level + 1);
-//                     } else {
-//                         foo(children, (result as Record<string, unknown>)[key], items[i], level + 1);
-//                     }
-//                 }
-//             } else if (type === "array") {
-//                 const { children } = items[i];
-//                 const clonedChildren = cloneDeep(children);
-//                 const repeatChildren = [];
-//                 const repeatNum = Number(value) || 1;
-//                 for (let j = 0; j < repeatNum; j += 1) {
-//                     repeatChildren.push(clonedChildren[0]);
-//                 }
-//                 (result as Record<string, unknown>)[key] = [];
-//                 if (children && children.length > 0) {
-//                     if (level === 1) {
-//                         foo(repeatChildren, result, items[i], level + 1);
-//                     } else {
-//                         foo(repeatChildren, (result as Record<string, unknown>)[key], items[i], level + 1);
-//                     }
-//                 }
-//             } else if (type === "file") {
-//                 (result as Record<string, unknown>)[key] = value;
-//             } else { //字符串或其他类型类型不做处理
-//                 valueTypeIsArray ? (result as unknown[]).push(value) : ((result as Record<string, unknown>)[key] = value);
-//             }
-//         }
-//     }
-//     foo(properties, globalResult, {}, 1);
-//     return globalResult;
-// }
+/**
+ * 将json类型数据转换为moyu类型参数
+ */
+export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyValueHook): Properties {
+    const globalResult = [];
+    const rootType = getJsonValueType(jsonData);
+    if (rootType === "object" || rootType === "array") {
+        const rootProperty = apidocGenerateProperty(rootType);
+        globalResult.push(rootProperty);
+        const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
+            if (getJsonValueType(obj) === "object") {
+                Object.keys(obj as JsonObj).forEach((key) => {
+                    const itemValue = (obj as JsonObj)[key];
+                    const itemType = getJsonValueType(itemValue);
+                    if (itemType === "string" || itemType === "number" || itemType === "boolean") {
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        property.value = itemValue == null ? "null" : itemValue.toString();
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                    } else if (itemType === "object") {
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        foo(itemValue, {
+                            result: property.children, 
+                            deep: deep + 1,
+                            hook,
+                        });
+                    } else if (itemType === "array") {
+                        const itemValue = (obj as JsonObj)[key] as JsonArr
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        if (getJsonValueType(itemValue[0]) === "object") {
+                            const property2 = apidocGenerateProperty("object");
+                            property.children.push(property2)
+                            foo(itemValue[0], {
+                                result: property.children[0].children, 
+                                deep: deep + 1,
+                                hook,
+                            });
+                        } else {
+                            foo(itemValue[0], {
+                                result: property.children, 
+                                deep: deep + 1,
+                                hook,
+                            });
+                        }
+                    }
+                });
+            } else {
+                const valueType = getJsonValueType(obj);
+                const property = apidocGenerateProperty(valueType);
+                result.push(property)
+            }
+        }
+        foo(jsonData, {
+            result: rootProperty.children,
+            deep: 1,
+            hook,
+        });
+    } else {
+        const rootProperty = apidocGenerateProperty(rootType);
+        globalResult.push(rootProperty);
+    }
+    return globalResult;
+}

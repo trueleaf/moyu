@@ -7,8 +7,16 @@
 <template>
     <div class="api-params">
         <el-tabs v-model="activeName">
-            <el-tab-pane label="Params" name="s-params"></el-tab-pane>
-            <el-tab-pane label="Body" name="s-request-body"></el-tab-pane>
+            <el-tab-pane label="Params" name="s-params">
+                <template #label>
+                    <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="Body" name="s-request-body">
+                <template #label>
+                    <el-badge :is-dot="hasBodyParams">Body</el-badge>
+                </template>
+            </el-tab-pane>
             <el-tab-pane label="返回参数" name="s-d"></el-tab-pane>
             <el-tab-pane label="请求头" name="s-e"></el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
@@ -37,6 +45,19 @@ export default defineComponent({
             activeName: "s-params",
         };
     },
+    computed: {
+        hasQueryOrPathsParams() {
+            const { queryParams, paths } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const hasQueryParams = queryParams.some((data) => data.key);
+            const hasPathsParams = paths.some((data) => data.key);
+            return hasQueryParams || hasPathsParams;
+        },
+        hasBodyParams() {
+            const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            console.log(22, contentType)
+            return !!contentType;
+        },
+    },
     watch: {
         activeName() {
             localStorage.setItem("apidoc/paramsActiveTab", this.activeName)
@@ -58,6 +79,13 @@ export default defineComponent({
     .el-tabs, .workbench {
         padding-right: size(20);
         padding-left: size(20);
+    }
+    .el-badge__content {
+        transition: none;
+        top: size(10);
+        &.is-fixed.is-dot {
+            right: size(3);
+        }
     }
     .view-type {
         display: flex;

@@ -9,7 +9,7 @@
         <!-- <pre>{{ bodyType }}</pre> -->
         <div class="d-flex a-center mb-3">
             <!-- body类型选择 -->
-            <el-radio-group v-model="bodyType" @change="checkContentType">
+            <el-radio-group v-model="bodyType" @change="changeBodyType">
                 <el-radio label="json">json</el-radio>
                 <el-radio label="formdata">form-data</el-radio>
                 <el-radio label="urlencoded">x-www-form-urlencoded</el-radio>
@@ -17,8 +17,8 @@
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
             <div class="operation">
-                <div class="active cursor-pointer">导入参数</div>
-                <el-divider direction="vertical"></el-divider>
+                <div v-show="bodyType === 'json'" class="active cursor-pointer" @click="handleOpenImportParams">导入参数</div>
+                <el-divider v-show="bodyType === 'json'" direction="vertical"></el-divider>
                 <div class="cursor-pointer">应用模板 </div>
                 <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">保存为模板 </div>
@@ -44,15 +44,43 @@
             </div>
             <div v-show="rawType === 'application/json'" title="raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数" class="tip">raw模块中json数据可适用与快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数</div>
         </div>
+        <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
-import type { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
+import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
+import importParams from "../../dialog/import-params/import-params.vue"
 
+/*
+|--------------------------------------------------------------------------
+| 操作区域，导入参数、应用模板、保存为模板、预览参数
+|--------------------------------------------------------------------------
+|
+*/
+const importParamsdialogVisible = ref(false);
+const handleOpenImportParams = () => {
+    importParamsdialogVisible.value = true;
+}
+const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
+    console.log(result)
+    const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data: jsonData[0],
+        field: "children",
+        value: result[0].children,
+    });
+}
+
+
+//=========================================================================//
+//改变bodytype类型
+const changeBodyType = () => {
+    checkContentType();
+}
 
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {

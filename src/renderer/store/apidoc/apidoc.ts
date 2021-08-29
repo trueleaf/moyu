@@ -139,6 +139,10 @@ const apidoc = {
             const { data, field, value } = payload;
             data[field] = value;
         },
+        // //改变json类型body参数
+        // changeJsonBodyParams(state: ApidocState, ) {
+        //     state.apidoc.item.requestBody
+        // },
     },
     actions: {
         /**
