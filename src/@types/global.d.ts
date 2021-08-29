@@ -284,7 +284,11 @@ type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
     /**
      * 是否必填
      */
-    required: boolean
+    required: boolean,
+    /**
+     * 备注信息
+     */
+    description: string,
     /**
      * 是否选中(选中数据会随请求一起发送)
      */
