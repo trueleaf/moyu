@@ -4,22 +4,8 @@
 
 import { computed } from "vue"
 import { store } from "@/store/index"
-import { apidocGenerateProperty } from "@/helper/index"
+import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
 import globalConfig from "@/../config/config"
-
-
-
-//请求路径
-// export const requestPath = computed<string>({
-//     get() {
-//         const store = useStore();
-//         return store.state["apidoc/apidoc"].apidoc.item.url.path;
-//     },
-//     set(path) {
-//         const store = useStore();
-//         store.commit("apidoc/apidoc/changeApidocUrl", path)
-//     },
-// }); 
 
 /**
  * 从url中找出path参数
@@ -48,20 +34,8 @@ const convertQueryToParams = (requestPath: string): void => {
     const stringParams = requestPath.split("?")[1] || "";
     const urlSearchParams = new URLSearchParams(stringParams);
     const queryParams = Object.fromEntries(urlSearchParams.entries());
-    console.log(queryParams)
-    // Object.keys(queryParams).forEach((key) => {
-
-    // })
-    // let queryString = requestPath.value.split("?") || "";
-    // queryString = queryString ? queryString[1] : "";
-    // if (!queryString) {
-    //     return;
-    // }
-    // const queryParams = qs.parse(queryString);
-    // const params = this.convertTreeDataToPlainParams(queryParams, this.mindParams.queryParams);
-    // this.$store.commit("apidoc/unshiftQueryParams", params[0].children)
-    // const matchedComponent = this.getComponentByName("QueryParams");
-    // matchedComponent.selectChecked();
+    const params = apidocConvertJsonDataToParams(queryParams);
+    store.commit("apidoc/apidoc/unshiftQueryParams", params[0].children)
 };
 
 /**

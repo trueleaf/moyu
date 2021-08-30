@@ -591,5 +591,6 @@ export {
     ApidocContentType,
     ApidocBodyMode,
     ApidocBodyRawType,
+    ApidocResponseParams,
     MockItem,
 }
