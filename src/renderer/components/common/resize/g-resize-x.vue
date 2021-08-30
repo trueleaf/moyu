@@ -90,7 +90,6 @@ export default defineComponent({
             const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
             if (this.remember) {
                 const wrapperWidth = localStorage.getItem(`dragBar/${this.name}`) || width;
-                console.log(wrapperWidth, this.name)
                 if (this.barLeft) {
                     (bar as HTMLElement).style.left = `${0}`;
                 } else {

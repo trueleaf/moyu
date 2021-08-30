@@ -17,8 +17,8 @@
                     <el-badge :is-dot="hasBodyParams">Body</el-badge>
                 </template>
             </el-tab-pane>
-            <el-tab-pane label="返回参数" name="s-d"></el-tab-pane>
-            <el-tab-pane label="请求头" name="s-e"></el-tab-pane>
+            <el-tab-pane label="返回参数" name="s-response-params"></el-tab-pane>
+            <el-tab-pane label="请求头" name="s-request-headers"></el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
         </el-tabs>
         <component :is="activeName" class="workbench"></component>
@@ -34,11 +34,15 @@
 import { defineComponent } from "vue"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
+import requestHeaders from "./headers/headers.vue";
+import responseParams from "./response/response.vue";
 
 export default defineComponent({
     components: {
         "s-params": params,
         "s-request-body": requestBody,
+        "s-request-headers": requestHeaders,
+        "s-response-params": responseParams,
     },
     data() {
         return {
@@ -54,7 +58,6 @@ export default defineComponent({
         },
         hasBodyParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            console.log(22, contentType)
             return !!contentType;
         },
     },
@@ -65,6 +68,7 @@ export default defineComponent({
     },
     created() {
         const activeName = localStorage.getItem("apidoc/paramsActiveTab");
+        console.log(222, activeName)
         this.activeName = activeName || "s-params";
     },
 })

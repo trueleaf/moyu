@@ -359,7 +359,7 @@ const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
     // const isReadOnly = data._readOnly;
     const parentIsArray = node.parent.data.type === "array";
     const isRootObject = props.nest && node.level === 1 && isComplex;
-    return parentIsArray || isRootObject;
+    return parentIsArray || isRootObject || props.disableAdd;
 } 
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
@@ -636,8 +636,10 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
     height: size(50);
     &:hover {
         background: $gray-200;
-        // background: none;
     }
+}
+.el-tree__drop-indicator {
+    height: size(3);
 }
 .collapse-transition {
     transition: none;
