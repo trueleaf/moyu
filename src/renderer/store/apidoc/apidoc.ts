@@ -1,7 +1,9 @@
 import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
+import { ElMessageBox } from "element-plus"
 import { axios as axiosInstance } from "@/api/api"
-import type { State as RootState, ApidocState } from "@@/store"
+import { store } from "@/store/index"
+import type { State as RootState, ApidocState, } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
 import { apidocGenerateProperty } from "@/helper/index"
 
@@ -9,6 +11,25 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
     field: K,
     value: ApidocProperty[K]
+}
+
+
+function confirmInvalidDoc(projectId: string, delId: string) {
+    ElMessageBox.confirm("当前接口不存在，可能已经被删除!", "提示", {
+        confirmButtonText: "关闭接口",
+        cancelButtonText: "取消",
+        type: "warning",
+    }).then(() => {
+        store.commit("apidoc/tabs/deleteTabByIds", {
+            projectId,
+            ids: [delId]
+        });
+    }).catch((err) => {
+        if (err === "cancel" || err === "close") {
+            return;
+        }
+        console.error(err);
+    });
 }
 
 const cancel: Canceler[] = [] //请求列表
@@ -59,7 +80,15 @@ const apidoc = {
                 responseParams: [{
                     title: "成功返回",
                     statusCode: 200,
-                    value: {}
+                    value: {
+                        file: {
+                            url: "",
+                            raw: ""
+                        },
+                        json: [],
+                        dataType: "json",
+                        text: ""
+                    }
                 }],
                 headers: [],
                 contentType: "",
@@ -68,6 +97,87 @@ const apidoc = {
         loading: false,
     },
     mutations: {
+        /*
+        |--------------------------------------------------------------------------
+        | url、host、method
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变host值
+        changeApidocHost(state: ApidocState, host: string): void {
+            state.apidoc.item.url.host = host;
+        },
+        //改变url值
+        changeApidocUrl(state: ApidocState, path: string): void {
+            state.apidoc.item.url.path = path;
+        },
+        //改变请求method
+        changeApidocMethod(state: ApidocState, method: ApidocHttpRequestMethod): void {
+            state.apidoc.item.method = method;
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | Params
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变path参数
+        changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
+            state.apidoc.item.paths = paths
+        },
+        //在头部插入查询参数
+        unshiftQueryParams(state: ApidocState, queryParams: ApidocProperty<"string">[]): void {
+            queryParams.forEach((params) => {
+                state.apidoc.item.queryParams.unshift(params);
+            })
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | requestBody
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变body参数mode类型
+        changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {
+            state.apidoc.item.requestBody.mode = mode;
+        },
+        //改变body参数raw的mime类型
+        changeBodyRawType(state: ApidocState, rawType: ApidocBodyRawType): void {
+            state.apidoc.item.requestBody.raw.dataType = rawType;
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | raw参数
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变raw的参数值
+        changeBodyRawValue(state: ApidocState, rawValue: string): void {
+            state.apidoc.item.requestBody.raw.data = rawValue;
+        },
+        //改变contentType值
+        changeContentType(state: ApidocState, contentType: ApidocContentType): void {
+            state.apidoc.item.contentType = contentType;
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | response参数
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变某个response的title参数
+        changeResponseParamsTitleByIndex(state: ApidocState, payload: { index: number, title: string }): void {
+            const { index, title } = payload
+            state.apidoc.item.responseParams[index].title = title;
+        },
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | 其它
+        |--------------------------------------------------------------------------
+        |
+        */
         //重新赋值apidoc数据
         changeApidoc(state: ApidocState, payload: ApidocDetail): void {
             // queryParams如果没有数据则默认添加一条空数据
@@ -88,43 +198,15 @@ const apidoc = {
             if (payload.item.requestBody.urlencoded.length === 0) {
                 payload.item.requestBody.urlencoded.push(apidocGenerateProperty());
             }
+            //headers如果没有数据则默认添加一条空数据
+            if (payload.item.headers.length === 0) {
+                payload.item.headers.push(apidocGenerateProperty());
+            }
             state.apidoc = payload;
         },
         //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {
             state.loading = loading;
-        },
-        //改变host值
-        changeApidocHost(state: ApidocState, host: string): void {
-            state.apidoc.item.url.host = host;
-        },
-        //改变url值
-        changeApidocUrl(state: ApidocState, path: string): void {
-            state.apidoc.item.url.path = path;
-        },
-        //改变请求method
-        changeApidocMethod(state: ApidocState, method: ApidocHttpRequestMethod): void {
-            state.apidoc.item.method = method;
-        },
-        //改变body参数mode类型
-        changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {
-            state.apidoc.item.requestBody.mode = mode;
-        },
-        //改变body参数raw的mime类型
-        changeBodyRawType(state: ApidocState, rawType: ApidocBodyRawType): void {
-            state.apidoc.item.requestBody.raw.dataType = rawType;
-        },
-        //改变raw的参数值
-        changeBodyRawValue(state: ApidocState, rawValue: string): void {
-            state.apidoc.item.requestBody.raw.data = rawValue;
-        },
-        //改变contentType值
-        changeContentType(state: ApidocState, contentType: ApidocContentType): void {
-            state.apidoc.item.contentType = contentType;
-        },
-        //改变path参数
-        changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
-            state.apidoc.item.paths = paths
         },
         //添加一个请求参数数据
         addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
@@ -139,10 +221,6 @@ const apidoc = {
             const { data, field, value } = payload;
             data[field] = value;
         },
-        // //改变json类型body参数
-        // changeJsonBodyParams(state: ApidocState, ) {
-        //     state.apidoc.item.requestBody
-        // },
     },
     actions: {
         /**
@@ -166,6 +244,10 @@ const apidoc = {
                         cancel.push(c);
                     }),
                 }).then((res) => {
+                    if (res.data === null) { //接口不存在提示用户删除接口
+                        confirmInvalidDoc(payload.projectId, payload.id);
+                        return;
+                    }
                     context.commit("changeApidoc", res.data)
                     resolve()
                 }).catch((err) => {
