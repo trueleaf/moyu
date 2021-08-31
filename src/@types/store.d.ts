@@ -235,6 +235,36 @@ type ApidocState = {
     apidoc: ApidocDetail,
     loading: boolean,
 }
+type ApidocResponseState = {
+    /**
+     * 返回头信息
+     */
+    header: Record<string, unknown>,
+    /**
+     * http版本信息
+     */
+    httpVersion: string,
+    /**
+     * 远端ip信息
+     */
+    ip: string,
+    /**
+     * 状态码
+     */
+    statusCode: number,
+    /**
+     * 状态信息
+     */
+    statusMessage: string,
+    /**
+     * 耗时
+     */
+    rt: number,
+    /**
+     * 返回值大小
+     */
+    size: number,
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -249,6 +279,7 @@ type State = {
     "apidoc/baseInfo": ApidocProjectBaseInfoState,
     "apidoc/tabs": ApidocTabsState,
     "apidoc/apidoc": ApidocState,
+    "apidoc/response": ApidocResponseState,
 }
 export {
     PermissionState,
@@ -259,5 +290,6 @@ export {
     ApidocState,
     ApidocProjectHost,
     ApidocRequestMethodRule,
+    ApidocResponseState,
     State,
 }
