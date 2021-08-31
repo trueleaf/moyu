@@ -28,7 +28,7 @@
         </div>
         <div class="params-wrap">
             <s-params-tree v-if="bodyType === 'json'" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree>
-            <s-params-tree v-if="bodyType === 'formdata'" show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
+            <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
         </div>
         <div v-show="bodyType === 'raw'" class="raw">
