@@ -184,7 +184,8 @@ type PermissionClientMenu = {
 |
 */
 //http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
-type ApidocHttpRequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "OPTIONS" | "PATCH" | "HEAD" | "CONNECTION" | "TRACE";
+type ApidocHttpRequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "HEAD" | "DELETE" | "OPTIONS" | "TRACE";
+
 //项目权限枚举
 type ApidocProjectPermission = "readAndWrite" | "readOnly" | "admin"
 //项目成员基本信息
@@ -354,6 +355,7 @@ type ApidocBaseInfo = {
 }
 //api文档ContentType
 type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
+// type ApidocResponseContentType = "application/json"
 type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
 type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html" | "application/json"
 //api文档请求body
@@ -370,11 +372,11 @@ type ApidocBodyParams = {
     /**
      * formData类型参数
      */
-    formdata: ApidocProperty<string>[],
+    formdata: ApidocProperty<"string">[],
     /**
      * urlencoded类型参数
      */
-    urlencoded: ApidocProperty<string>[],
+    urlencoded: ApidocProperty<"string">[],
     /**
      * raw类型参数
      */
@@ -476,11 +478,11 @@ type ApidocDetail = {
         /**
          * restful请求路径
          */
-        paths: ApidocProperty<string>[],
+        paths: ApidocProperty<"string">[],
         /**
          * 查询字符串
          */
-        queryParams: ApidocProperty<string>[],
+        queryParams: ApidocProperty<"string">[],
         /**
          * 请求body
          */
@@ -492,7 +494,7 @@ type ApidocDetail = {
         /**
          * 请求头
          */
-        headers: ApidocProperty<string>[],
+        headers: ApidocProperty<"string">[],
         /**
          * ContentType类型
          */

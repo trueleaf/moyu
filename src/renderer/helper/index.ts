@@ -286,18 +286,18 @@ export function uniqueByKey<T extends Data, K extends keyof T>(data: T[], key: K
  * 获取请求方法
  */
 export function getRequestMethodEnum(): ApidocHttpRequestMethod[] {
-    return ["GET", "POST", "PUT", "DELETE", "TRACE", "CONNECTION", "OPTIONS", "PATCH", "HEAD"];
+    return ["GET", "POST", "PUT", "DELETE", "TRACE", "OPTIONS", "PATCH", "HEAD"];
 }
 
 
 /**
  * 生成一条接口参数
  */
-export function apidocGenerateProperty(type: ApidocPropertyType = "string"): ApidocProperty {
+export function apidocGenerateProperty<T extends ApidocPropertyType = "string">(type?: T): ApidocProperty<T> {
     const result = {
         _id: uuid(),
         key: "",
-        type,
+        type: type || "string",
         description: "",
         value: "",
         required: true,
@@ -306,7 +306,7 @@ export function apidocGenerateProperty(type: ApidocPropertyType = "string"): Api
         editor: "",
         editorId: "",
     };
-    return result;
+    return result as ApidocProperty<T>;
 }
 
 /*
