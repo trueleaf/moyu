@@ -76,8 +76,7 @@
             </el-dropdown>
         </div>
         <pre class="pre-url">
-            <span>完整路径：</span>
-            <span>{{ fullUrl }}</span>
+            <span class="label">完整路径：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
@@ -125,13 +124,15 @@ export default defineComponent({
         //请求url、完整url
         const requestPath = computed<string>({
             get() {
-                const store = useStore();
                 return store.state["apidoc/apidoc"].apidoc.item.url.path;
             },
             set(path) {
                 store.commit("apidoc/apidoc/changeApidocUrl", path)
             },
         }); 
+        const paths = computed(() => {
+            return store.state["apidoc/apidoc"].apidoc.item.paths
+        })
         const fullUrl = computed(() => {
             const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
             let queryString = "";
@@ -144,7 +145,16 @@ export default defineComponent({
             if (queryString) {
                 queryString = "?" + queryString;
             }
-            return host.value + requestPath.value + queryString
+            const pathMap: Record<string, string> = {};
+            paths.value.forEach((v) => {
+                if (v.key) {
+                    pathMap[v.key] = v.value;
+                }
+            })
+            const validPath = requestPath.value.replace(/\{([^\}]+)\}/g, ($1, $2) => {
+                return pathMap[$2] || $2
+            })
+            return host.value + validPath + queryString
         })
 
         return {
@@ -206,6 +216,9 @@ export default defineComponent({
         overflow-y: hidden;
         &::-webkit-scrollbar {
             height: 0px;
+        }
+        .label {
+            user-select: none;
         }
     }
 }

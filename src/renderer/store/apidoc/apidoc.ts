@@ -170,6 +170,38 @@ const apidoc = {
             const { index, title } = payload
             state.apidoc.item.responseParams[index].title = title;
         },
+        //改变某个response的statusCode值
+        changeResponseParamsCodeByIndex(state: ApidocState, payload: { index: number, code: number }): void {
+            const { index, code } = payload
+            state.apidoc.item.responseParams[index].statusCode = code;
+        },
+        //改变某个response的dataType值
+        changeResponseParamsDataTypeByIndex(state: ApidocState, payload: { index: number, type: ApidocContentType }): void {
+            const { index, type } = payload
+            state.apidoc.item.responseParams[index].value.dataType = type;
+        },
+        //新增一个response
+        addResponseParam(state: ApidocState): void {
+            const objectParams = apidocGenerateProperty("object");
+            objectParams.children[0] = apidocGenerateProperty();
+            state.apidoc.item.responseParams.push({
+                title: "返回参数名称",
+                statusCode: 200,
+                value: {
+                    dataType: "application/json",
+                    json: [objectParams],
+                    text: "",
+                    file: {
+                        url: "",
+                        raw: "",
+                    },
+                }
+            })
+        },
+        //删除一个response
+        deleteResponseByIndex(state: ApidocState, index: number): void {
+            state.apidoc.item.responseParams.splice(index, 1);
+        },
 
 
         /*
@@ -199,6 +231,17 @@ const apidoc = {
                 payload.item.requestBody.urlencoded.push(apidocGenerateProperty());
             }
             //headers如果没有数据则默认添加一条空数据
+            if (payload.item.headers.length === 0) {
+                payload.item.headers.push(apidocGenerateProperty());
+            }
+            //返回参数为json的如果没有数据则默认添加一条空数据
+            payload.item.responseParams.forEach((params) => {
+                if (params.value.dataType === "application/json" && params.value.json.length === 0) {
+                    const objectParams = apidocGenerateProperty("object");
+                    objectParams.children[0] = apidocGenerateProperty();
+                    params.value.json.push(objectParams);
+                }
+            })
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
             }

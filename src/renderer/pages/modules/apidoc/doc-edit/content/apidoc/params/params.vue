@@ -68,7 +68,6 @@ export default defineComponent({
     },
     created() {
         const activeName = localStorage.getItem("apidoc/paramsActiveTab");
-        console.log(222, activeName)
         this.activeName = activeName || "s-params";
     },
 })
@@ -83,6 +82,9 @@ export default defineComponent({
     .el-tabs, .workbench {
         padding-right: size(20);
         padding-left: size(20);
+    }
+    .el-tabs__item {
+        user-select: none;
     }
     .el-badge__content {
         transition: none;

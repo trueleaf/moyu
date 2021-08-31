@@ -8,33 +8,62 @@
     <div class="response-params">
         <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="index !== 0">
             <template #head>
-                <div class="h-100 d-flex a-center">
-                    <div class="">
-                        <span v-if="!currentEditNode" class="edit-title">名称：{{ item.title }}</span>
-                        <input
-                            v-if="currentEditNode && currentEditNode.title === item.title"
-                            :ref="bindRef"
-                            v-model="currentEditNode._title"
-                            class="edit-input"
-                            :class="{error: currentEditNode._title.length === 0}"
-                            type="text"
-                            placeholder="不能为空"
-                            @click.stop="() => {}"
-                            @keydown.enter="handleConfirmTitle(item, index)"
-                        >
+                <div class="info-wrap">
+                    <div class="label">
+                        <div class="d-flex a-center">
+                            <span class="flex0">名称：</span>
+                            <span v-if="!currentEditNode" class="edit-title">{{ item.title }}</span>
+                            <input
+                                v-if="currentEditNode && currentEditNode.title === item.title"
+                                :ref="bindRef"
+                                v-model="currentEditNode._title"
+                                class="edit-input"
+                                :class="{error: currentEditNode._title.length === 0}"
+                                type="text"
+                                placeholder="不能为空"
+                                @click.stop="() => {}"
+                                @keydown.enter="handleConfirmTitle(item, index)"
+                            >
+                            
+                            <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">确定</span>
+                            <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">取消</span>
+                            <span v-if="!currentEditNode" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
+                        </div>
                     </div>
-                    <el-divider v-if="!currentEditNode" direction="vertical"></el-divider>
-                    <div>
-                        <span v-if="!currentEditNode">状态码：{{ item.statusCode }}</span>                        
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="status-code">
+                        <div class="d-flex a-center j-center">
+                            <span class="flex0">状态码：</span>
+                            <el-dropdown trigger="click">
+                                <span class="cursor-pointer">
+                                    <span>{{ item.statusCode }}</span>
+                                    <i class="el-icon-arrow-down el-icon--right"></i>
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item v-for="(code) in statusCode" :key="code" @click="handleSelectStatusCode(code, index)">{{ code }}</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
                     </div>
-                    <el-divider v-if="!currentEditNode" direction="vertical"></el-divider>
-                    <div>
-                        <span v-if="!currentEditNode">返回格式：{{ item.value.dataType }}</span>
+                    <el-divider direction="vertical"></el-divider>
+                    <div class="content-type">
+                        <div class="d-flex a-center j-center">
+                            <span class="flex0">返回格式：</span>
+                            <el-dropdown trigger="click">
+                                <span class="cursor-pointer">
+                                    <span>{{ item.value.dataType }}</span>
+                                    <i class="el-icon-arrow-down el-icon--right"></i>
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item v-for="(type) in contentType" :key="type" @click="handleSelectContentType(type, index)">{{ type }}</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </div>
                     </div>
-
-                    <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">确定</span>
-                    <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">取消</span>
-                    <span v-if="!currentEditNode" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
                 </div>
             </template>
             <template #tail>
@@ -43,6 +72,7 @@
                     <div v-if="index !== 0" class="red cursor-pointer" @click="handleDeleteResponse(index)">删除</div>
                 </div>
             </template>
+            <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>
         </s-collapse-card>
     </div>
 </template>
@@ -50,7 +80,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
 import { store } from "@/store/index"
-import { ApidocResponseParams } from "@@/global"
+import type { ApidocResponseParams } from "@@/global"
 
 
 /*
@@ -61,7 +91,13 @@ import { ApidocResponseParams } from "@@/global"
 */
 //当前编辑的节点
 const currentEditNode: Ref<null | { title: string, _title: string }> = ref(null);
+//所有输入框
 const inputRefs: unknown[] = [];
+//常用状态码
+const statusCode = ref([200, 201, 202, 204, 400, 401, 403, 404, 410, 422, 500, 502, 503, 504]);
+//常用contentType值
+const contentType = ref(["application/json", "application/xml", "text/plain", "text/html"])
+
 //ref绑定
 const bindRef = (el: unknown) => {
     if (el) {
@@ -95,15 +131,34 @@ const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
         }
     })
 }
+/*
+|--------------------------------------------------------------------------
+| 状态修改、contentType修改、新增response、删除response
+|--------------------------------------------------------------------------
+|
+*/
 
-
+//选择一个statusCode
+const handleSelectStatusCode = (code: number, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseParamsCodeByIndex", {
+        index,
+        code,
+    });
+}
+//选择一个contentType
+const handleSelectContentType = (type: string, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseParamsDataTypeByIndex", {
+        index,
+        type,
+    });
+}
 //新增一个response
 const handleAddResponse = () => {
-    console.log(2)
+    store.commit("apidoc/apidoc/addResponseParam");
 }
 //删除一个response
 const handleDeleteResponse = (index: number) => {
-    console.log(3, index)
+    store.commit("apidoc/apidoc/deleteResponseByIndex", index);
 }
 //response参数值
 const responseData = computed(() => {
@@ -113,6 +168,33 @@ const responseData = computed(() => {
 
 <style lang="scss">
 .response-params {
+    .info-wrap {
+        display: flex;
+        height: 100%;
+        align-items: center;
+        .label {
+            width: size(230);
+        }
+        .status-code {
+            width: size(140);
+        }
+        .content-type {
+            width: size(200);
+        }
+        .edit-title {
+            border: 1px solid transparent;
+        }
+        .edit-input {
+            border: 1px solid $gray-600;
+            font-size: fz(14);
+            height: size(20);
+            line-height: size(20);
+            width: size(120);
+            &.error {
+                border: 1px solid $red;
+            }
+        }
+    }
     .edit-icon {
         display: inline-flex;
         align-items: center;
@@ -125,14 +207,6 @@ const responseData = computed(() => {
             color: $theme-color;
         }
     }
-    .edit-input {
-        border: 1px solid $gray-600;
-        font-size: fz(14);
-        height: size(20);
-        line-height: size(20);
-        &.error {
-            border: 1px solid $red;
-        }
-    }
+
 }
 </style>

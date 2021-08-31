@@ -6,7 +6,7 @@
 */
 <template>
     {{ item.contentType }}
-    <pre class="h-400px overflow-y">{{ item.responseParams }}</pre>
+    <pre class="h-400px overflow-y">{{ item }}</pre>
 </template>
 
 <script lang="ts" setup>

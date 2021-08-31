@@ -42,7 +42,12 @@ export default (): HostReturn =>  {
     //host值
     const host = computed<string>({
         get() {
-            return store.state["apidoc/apidoc"].apidoc.item.url.host;
+            const { host } = store.state["apidoc/apidoc"].apidoc.item.url;
+            // if (!host) {
+            //     store.commit("apidoc/apidoc/changeApidocHost", mockServer.value);
+            //     return mockServer.value
+            // }
+            return host
         },
         set(val) {
             store.commit("apidoc/apidoc/changeApidocHost", val);

@@ -8,6 +8,7 @@ import { ref, Ref, computed } from "vue"
 import { useStore } from "@/store/index"
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
+import { sendRequest } from "@/server/request/request"
 
 type OperationReturn = {
     /**
@@ -57,6 +58,7 @@ export default (): OperationReturn => {
     });
     //发送请求
     const handleSendRequest = () => {
+        sendRequest();
         console.log("发送请求")
     }
     //停止请求
