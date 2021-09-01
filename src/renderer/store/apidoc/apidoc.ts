@@ -13,6 +13,7 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     value: ApidocProperty[K]
 }
 
+//接口删除提示用户
 function confirmInvalidDoc(projectId: string, delId: string) {
     ElMessageBox.confirm("当前接口不存在，可能已经被删除!", "提示", {
         confirmButtonText: "关闭接口",
@@ -30,7 +31,50 @@ function confirmInvalidDoc(projectId: string, delId: string) {
         console.error(err);
     });
 }
+//添加默认请求头
+function getFilterRequestHeaders(headers: ApidocProperty<"string">[]) {
+    const additionalHeaders: ApidocProperty<"string">[] = [];
+    const matchedHost = headers.find((params => params.key.toLocaleLowerCase() === "host"));
+    const matchedContentLength = headers.find((params => params.key.toLocaleLowerCase() === "contentlength" || params.key.toLocaleLowerCase() === "content-length"));
+    const matchedUserAgent = headers.find((params => params.key.toLocaleLowerCase() === "useragent" || params.key.toLocaleLowerCase() === "user-agent"))
+    if (!matchedHost) {
+        const params = apidocGenerateProperty();
+        params.key = "Host";
+        params.value = "<发送请求时候自动计算>";
+        params.description = "<指明了请求将要发送到的服务器主机名和端口号>";
+        additionalHeaders.push(params);
+    } else {
+        matchedHost.key = "Host";
+        matchedHost.value = "<发送请求时候自动计算>";
+        matchedHost.description = "<指明了请求将要发送到的服务器主机名和端口号>";
+    }
 
+    if (!matchedContentLength) {
+        const params = apidocGenerateProperty();
+        params.key = "Content-Length";
+        params.value = "<发送请求时候自动计算>";
+        params.description = "<消息的长度>";
+        additionalHeaders.push(params);
+    } else {
+        console.log(444, matchedContentLength)
+        matchedContentLength.key = "Content-Length";
+        matchedContentLength.value = "<发送请求时候自动计算>";
+        matchedContentLength.description = "<指明了请求将要发送到的服务器主机名和端口号>";
+    }
+
+    if (!matchedUserAgent) {
+        const params = apidocGenerateProperty();
+        params.key = "User-Agent";
+        params.value = "<发送请求时候自动处理>";
+        params.description = "<用户代理软件信息>";
+        additionalHeaders.push(params);
+    } else {
+        matchedUserAgent.key = "User-Agent";
+        matchedUserAgent.value = "<发送请求时候自动处理>";
+        matchedUserAgent.description = "<用户代理软件信息>";
+    }
+    return additionalHeaders;
+}
 
 const cancel: Canceler[] = [] //请求列表
 const apidoc = {
@@ -103,7 +147,6 @@ const apidoc = {
         |--------------------------------------------------------------------------
         | url、host、method
         |--------------------------------------------------------------------------
-        |
         */
         //改变host值
         changeApidocHost(state: ApidocState, host: string): void {
@@ -121,7 +164,6 @@ const apidoc = {
         |--------------------------------------------------------------------------
         | Params
         |--------------------------------------------------------------------------
-        |
         */
         //改变path参数
         changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
@@ -137,7 +179,6 @@ const apidoc = {
         |--------------------------------------------------------------------------
         | requestBody
         |--------------------------------------------------------------------------
-        |
         */
         //改变body参数mode类型
         changeBodyMode(state: ApidocState, mode: ApidocBodyMode): void {
@@ -151,7 +192,6 @@ const apidoc = {
         |--------------------------------------------------------------------------
         | raw参数
         |--------------------------------------------------------------------------
-        |
         */
         //改变raw的参数值
         changeBodyRawValue(state: ApidocState, rawValue: string): void {
@@ -165,7 +205,6 @@ const apidoc = {
         |--------------------------------------------------------------------------
         | response参数
         |--------------------------------------------------------------------------
-        |
         */
         //改变某个response的title参数
         changeResponseParamsTitleByIndex(state: ApidocState, payload: { index: number, title: string }): void {
@@ -213,7 +252,6 @@ const apidoc = {
         //重新赋值apidoc数据
         changeApidoc(state: ApidocState, payload: ApidocDetail): void {
             state.headerReadOnlyKeys = [];
-            
             // queryParams如果没有数据则默认添加一条空数据
             if (payload.item.queryParams.length === 0) {
                 payload.item.queryParams.push(apidocGenerateProperty());
@@ -235,61 +273,12 @@ const apidoc = {
             //headers如果没有数据则默认添加一条空数据
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
-            } else {
-                // const additionalHeaders: ApidocProperty<"string">[] = [];
-                // const { headers } = payload.item;
-                // const hasHost = headers.some((params => params.key.toLocaleLowerCase() === "host"));
-                // const hasContentLength = headers.some((params => params.key.toLocaleLowerCase() === "contentlength" || params.key.toLocaleLowerCase() === "content-length"));
-                // const hasUserAgent = headers.some((params => params.key.toLocaleLowerCase() === "useragent" || params.key.toLocaleLowerCase() === "user-agent"))
-                // headers.forEach((item) => {
-                //     //添加host
-                //     if (item.key.toLocaleLowerCase() === "host") {
-                //         item.key = "host";
-                //         item.value = "<发送请求时候自动计算>";
-                //         item.description = "<指明了请求将要发送到的服务器主机名和端口号>";
-                //         state.headerReadOnlyKeys.push(item._id);
-                //     } else if () {
-                //         const params = apidocGenerateProperty();
-                //         params.key = "Host";
-                //         params.value = "<发送请求时候自动计算>";
-                //         params.description = "<指明了请求将要发送到的服务器主机名和端口号>";
-                //         additionalHeaders.push(params);
-                //         state.headerReadOnlyKeys.push(params._id);
-                //     }
-                //     //添加Content-Length
-                //     if (item.key.toLocaleLowerCase() === "contentlength" || item.key.toLocaleLowerCase() === "content-length") {
-                //         item.key = "Content-Length";
-                //         item.value = "<发送请求时候自动计算>";
-                //         item.description = "<消息的长度>";
-                //         state.headerReadOnlyKeys.push(item._id);
-                //     } else if () {
-                //         const params = apidocGenerateProperty();
-                //         params.key = "Content-Length";
-                //         params.value = "<发送请求时候自动计算>";
-                //         params.description = "<消息的长度>";
-                //         additionalHeaders.push(params);
-                //         state.headerReadOnlyKeys.push(params._id);
-                //     }
-                //     //添加user-agent
-                //     if (item.key.toLocaleLowerCase() === "useragent" || item.key.toLocaleLowerCase() === "user-agent") {
-                //         item.key = "User-Agent";
-                //         item.value = "<发送请求时候自动处理>";
-                //         item.description = "<用户代理软件信息>";
-                //         state.headerReadOnlyKeys.push(item._id);
-                //     } else if () {
-                //         const params = apidocGenerateProperty();
-                //         params.key = "User-Agent";
-                //         params.value = "<发送请求时候自动处理>";
-                //         params.description = "<用户代理软件信息>";
-                //         additionalHeaders.push(params);
-                //         state.headerReadOnlyKeys.push(params._id);
-                //     }
-                // })
-                // console.log(additionalHeaders, payload.item.headers)
-                // uniqueByKey(additionalHeaders, "key").forEach((params) => {
-                //     payload.item.headers.unshift(params);
-                // })
             }
+            const additionalHeaders = getFilterRequestHeaders(payload.item.headers);
+            console.log(additionalHeaders)
+            additionalHeaders.forEach((params) => {
+                payload.item.headers.unshift(params);
+            })
             //返回参数为json的如果没有数据则默认添加一条空数据
             payload.item.responseParams.forEach((params) => {
                 if (params.value.dataType === "application/json" && params.value.json.length === 0) {
