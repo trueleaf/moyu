@@ -233,6 +233,7 @@ type ApidocTabsState = {
 */
 type ApidocState = {
     apidoc: ApidocDetail,
+    headerReadOnlyKeys: string[],
     loading: boolean,
 }
 type ApidocResponseState = {
@@ -240,6 +241,10 @@ type ApidocResponseState = {
      * 返回头信息
      */
     header: Record<string, unknown>,
+    /**
+     * 返回值contentType
+     */
+    contentType: ApidocContentType,
     /**
      * http版本信息
      */
@@ -264,6 +269,10 @@ type ApidocResponseState = {
      * 返回值大小
      */
     size: number,
+    /**
+     * 是否正在请求中
+     */
+    loading: boolean,
 }
 
 /*

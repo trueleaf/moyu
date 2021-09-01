@@ -354,7 +354,7 @@ type ApidocBaseInfo = {
     spendTime: number,
 }
 //api文档ContentType
-type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
+type ApidocContentType = "application/json" | "application/x-www-form-urlencoded" | "text/javascript" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
 // type ApidocResponseContentType = "application/json"
 type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
 type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html" | "application/json"
