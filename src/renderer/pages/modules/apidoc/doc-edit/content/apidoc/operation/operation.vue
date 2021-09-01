@@ -119,8 +119,11 @@ export default defineComponent({
         | 发送请求、保存接口、刷新接口
         |--------------------------------------------------------------------------
         */
+        const loading = computed(() => {
+            return store.state["apidoc/response"].loading;
+        })
         const operationPart = getOperationPart();
-        const { loading, loading2, loading3, handleSendRequest, handleStopRequest, handleSaveApidoc, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
+        const { loading2, loading3, handleSendRequest, handleStopRequest, handleSaveApidoc, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
         //请求url、完整url
         const requestPath = computed<string>({
             get() {

@@ -12,10 +12,6 @@ import { sendRequest } from "@/server/request/request"
 
 type OperationReturn = {
     /**
-     * 发送请求
-     */
-    loading: Ref<boolean>,
-    /**
      * 保存接口
      */
     loading2: Ref<boolean>,
@@ -47,7 +43,6 @@ type OperationReturn = {
 
 export default (): OperationReturn => {
     const store = useStore();
-    const loading = ref(false); //发送请求
     const loading2 = ref(false); //保存接口
     const loading3 = ref(false); //刷新接口
     const projectId = router.currentRoute.value.query.id as string;
@@ -118,7 +113,6 @@ export default (): OperationReturn => {
     }
 
     return {
-        loading,
         loading2,
         loading3,
         handleSendRequest,

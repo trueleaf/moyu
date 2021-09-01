@@ -6,6 +6,9 @@
 */
 <template>
     <div>
+        <div>
+            <!-- <span>隐藏的请求头(5)</span> -->
+        </div>
         <s-params-tree show-checkbox :data="headerData"></s-params-tree>
     </div>
 </template>

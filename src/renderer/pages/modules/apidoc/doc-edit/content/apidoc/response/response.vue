@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    {{ item.contentType }}
+    {{ requestInfo.contentType }}
     <pre class="h-400px overflow-y">{{ item }}</pre>
 </template>
 
@@ -13,8 +13,11 @@
 import { computed } from "vue"
 import { store } from "@/store/index"
 
-const item = computed(() => {
+const requestInfo = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item
+});
+const item = computed(() => {
+    return store.state["apidoc/response"]
 });
 
 </script>
