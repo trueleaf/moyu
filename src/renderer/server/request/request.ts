@@ -4,7 +4,8 @@ import FormData from "form-data"
 import { store } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
-import type { ApidocProperty } from "@@/global"
+import ProxyAgent from "proxy-agent"
+import * as utils from "./utils"
 
 
 let got: Got | null = null;
@@ -30,64 +31,13 @@ function initGot() {
         headers: {
             "user-agent": "moyu(https://github.com/trueleaf/moyu)",
         },
+        agent: {
+            http: new ProxyAgent("http://127.0.0.1:8866")
+        },
     });
     return gotInstance;
 }
 
-/**
- * 将queryParams转换成字符串查询字符串
- */
-function convertQueryParamsToQueryString(queryParams: ApidocProperty<"string">[]): string {
-    let queryString = "";
-    queryParams.forEach((v) => {
-        if (v.key && v.select) {
-            queryString += `${v.key}=${v.value}&`
-        }
-    })
-    queryString = queryString.replace(/\&$/, "");
-    if (queryString) {
-        queryString = "?" + queryString;
-    }
-    return queryString;
-}
-/**
- * 将urlencoded参数转换为字符串
- */
-function convertUrlencodedToBodyString(urlencoded: ApidocProperty<"string">[]): string {
-    let result = "";
-    urlencoded.forEach((v) => {
-        if (v.key && v.select) {
-            result += `${v.key}=${v.value}&`
-        }
-    })
-    result = result.replace(/\&$/, "");
-    return result;
-}
-
-/**
- * 将pathParams转换为字符串
- */
-function getPathParamsMap(pathParams: ApidocProperty<"string">[]) {
-    const pathMap: Record<string, string> = {};
-    pathParams.forEach((v) => {
-        if (v.key) {
-            pathMap[v.key] = v.value;
-        }
-    })
-    return pathMap;
-}
-/**
- * 将formData转换为formData字符串
- */
-function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string">[]) {
-    const formData = new FormData();
-    bodyFormData.forEach((data) => {
-        if (data.select && data.key) {
-            formData.append(data.key, data.value);
-        }
-    })
-    return formData
-}
 
 /**
  * @description                 发送请求
@@ -108,26 +58,42 @@ export function sendRequest(): void {
         return
     }
     try {
-        const { url, method, requestBody, queryParams, paths, contentType } = store.state["apidoc/apidoc"].apidoc.item;
-        const queryString = convertQueryParamsToQueryString(queryParams);
-        const pathMap = getPathParamsMap(paths)
+        store.commit("apidoc/response/changeLoading", true)
+        const { url, method, requestBody, queryParams, paths, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
+        const queryString = utils.convertQueryParamsToQueryString(queryParams);
+        const pathMap = utils.getPathParamsMap(paths)
+        const { mode } = requestBody
         const validPath = url.path.replace(/\{([^\}]+)\}/g, ($1, $2) => {
             return pathMap[$2] || $2
         })
         const requestUrl = url.host + validPath + queryString;
         let body: string | FormData  = "";
+        console.log(contentType)
+        const headers = {
+            "Content-Type": contentType,
+        };
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
             switch (contentType) {
             case "application/json":
-                body = JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
+                body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
                 break;
             case "application/x-www-form-urlencoded":
-                body = convertUrlencodedToBodyString(requestBody.urlencoded);
+                body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
                 break;
             case "multipart/form-data":
-                body = convertFormDataToFormDataString(requestBody.formdata);
+                body = utils.convertFormDataToFormDataString(requestBody.formdata);
+                break;
+            case "text/plain":
+                body = requestBody.raw.data;
+            case "text/html":
+                body = requestBody.raw.data;
+                break;
+            case "application/xml":
+                body = requestBody.raw.data;
+            case "text/javascript":
+                body = requestBody.raw.data;
                 break;
             default:
                 break;
@@ -137,16 +103,25 @@ export function sendRequest(): void {
             isStream: true,
             method,
             body,
+            headers,
         });
         //=====================================数据处理====================================//
         // const streamData = [];
         // let streamSize = 0;
         //收到返回
         gotStream.on("response", (response) => {
+            store.commit("apidoc/response/changeResponseHeader", response.headers);
+            store.commit("apidoc/response/changeResponseBaseInfo", {
+                httpVersion: response.httpVersion,
+                ip: response.ip,
+                statusCode: response.statusCode,
+                statusMessage: response.statusMessage,
+            });
             console.log("response", response)
         });
         //数据获取完毕
         gotStream.on("end", async () => {
+            store.commit("apidoc/response/changeLoading", false)
             console.log("end")
         });
         //获取流数据
@@ -155,6 +130,7 @@ export function sendRequest(): void {
         });
         //错误处理
         gotStream.on("error", (error) => {
+            store.commit("apidoc/response/changeLoading", false)
             console.error(error);
         });
         //重定向
@@ -167,6 +143,7 @@ export function sendRequest(): void {
         });
         console.log(requestUrl, body, pathMap)
     } catch (error) {
+        store.commit("apidoc/response/changeLoading", false)
         console.error(error);
     }
 }
