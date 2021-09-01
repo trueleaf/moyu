@@ -16,9 +16,9 @@
                 <el-radio label="raw">raw</el-radio>
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
-            <div class="operation">
-                <div v-show="bodyType === 'json'" class="active cursor-pointer" @click="handleOpenImportParams">导入参数</div>
-                <el-divider v-show="bodyType === 'json'" direction="vertical"></el-divider>
+            <div v-show="bodyType === 'json'" class="operation">
+                <div class="active cursor-pointer" @click="handleOpenImportParams">导入参数</div>
+                <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">应用模板 </div>
                 <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">保存为模板 </div>
@@ -66,7 +66,6 @@ const handleOpenImportParams = () => {
     importParamsdialogVisible.value = true;
 }
 const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-    console.log(result)
     const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
     store.commit("apidoc/apidoc/changePropertyValue", {
         data: jsonData[0],
