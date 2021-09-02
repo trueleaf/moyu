@@ -85,9 +85,10 @@ const changeBodyType = () => {
 const checkContentType = () => {
     const type = store.state["apidoc/apidoc"].apidoc.item.requestBody.mode
     const { json, formdata, urlencoded, raw } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
-    const converJsonData = apidocConvertParamsToJsonData(json);
-    const hasFormData = formdata.some((data) => data.key);
-    const hasUrlencodedData = urlencoded.some((data) => data.key);
+    const converJsonData = apidocConvertParamsToJsonData(json, true);
+    const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
+    const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
+    const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
     const hasRawData = raw.data;
     if (type === "raw" && hasRawData) {
         store.commit("apidoc/apidoc/changeContentType", raw.dataType || "text/plain");
@@ -99,9 +100,9 @@ const checkContentType = () => {
         store.commit("apidoc/apidoc/changeContentType", "application/x-www-form-urlencoded");
     } else if (type === "urlencoded" && !hasUrlencodedData) {
         store.commit("apidoc/apidoc/changeContentType", "");
-    } else if (type === "json" && converJsonData) {
+    } else if (type === "json" && hasJsonData) {
         store.commit("apidoc/apidoc/changeContentType", "application/json");
-    } else if (type === "json" && !converJsonData) {
+    } else if (type === "json" && !hasJsonData) {
         store.commit("apidoc/apidoc/changeContentType", "");
     } else if (type === "formdata" && hasFormData) {
         store.commit("apidoc/apidoc/changeContentType", "multipart/form-data");
