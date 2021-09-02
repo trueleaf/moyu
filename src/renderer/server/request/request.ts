@@ -14,7 +14,7 @@ if (window.require) {
     got = window.require("got");
 }
 // const INVALID_HEADER_KEYS = ["content-type", "Content-type", "content-Type", "ContentType", "contentType", "host", "HOST", "Host", "user-agent", "userAgent", "UserAgent"];
-
+//初始化请求
 function initGot() {
     if (!got) {
         return;
@@ -28,16 +28,40 @@ function initGot() {
         throwHttpErrors: false,
         followRedirect: true,
         allowGetBody: true,
-        headers: {
-            "user-agent": "moyu(https://github.com/trueleaf/moyu)",
-        },
+        decompress: false,
         agent: {
             http: new ProxyAgent("http://127.0.0.1:8866")
         },
     });
     return gotInstance;
 }
-
+//获取完整headers
+function getRealHeaders() {
+    const realHeaders: Record<string, string | undefined> = {};
+    const { defaultHeaders } = store.state["apidoc/apidoc"];
+    const { headers } = store.state["apidoc/apidoc"].apidoc.item; 
+    defaultHeaders.concat(headers).forEach((item) => {
+        const itemKey = item.key.toLocaleLowerCase();
+        if (item.select && itemKey) {
+            if (itemKey === "user-agent") {
+                realHeaders[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
+            } else if (itemKey === "accept-encoding") {
+                realHeaders[itemKey] = "gzip, deflate, br";
+            } else if (itemKey === "connection") {
+                realHeaders[itemKey] = "keep-alive";
+            } else {
+                realHeaders[itemKey] = item.value;
+            }
+        }
+    })
+    // if (contentType) {
+    //     realHeaders["content-type"] = contentType;
+    // }
+    //删除自动携带的请求头
+    delete realHeaders["content-length"]
+    delete realHeaders["host"]
+    return realHeaders;
+}
 
 /**
  * @description                 发送请求
@@ -68,10 +92,9 @@ export function sendRequest(): void {
         })
         const requestUrl = url.host + validPath + queryString;
         let body: string | FormData  = "";
-        console.log(contentType)
-        const headers = {
-            "Content-Type": contentType,
-        };
+        // console.log(contentType)
+        const realHeaders = getRealHeaders();
+        console.log(realHeaders)
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
@@ -84,6 +107,7 @@ export function sendRequest(): void {
                 break;
             case "multipart/form-data":
                 body = utils.convertFormDataToFormDataString(requestBody.formdata);
+                console.log(body)
                 break;
             case "text/plain":
                 body = requestBody.raw.data;
@@ -103,7 +127,7 @@ export function sendRequest(): void {
             isStream: true,
             method,
             body,
-            headers,
+            headers: realHeaders,
         });
         //=====================================数据处理====================================//
         // const streamData = [];

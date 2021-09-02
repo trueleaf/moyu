@@ -7,7 +7,7 @@
 <template>
     <div class="valid-input">
         <div class="ipt-wrap">
-            <input v-bind="$attrs" :value="modelValue" type="text" class="ipt-inner" :class="{ error }" :placeholder="placeholder" @input="handleInput">
+            <input v-bind="$attrs" :disabled="disabled" :value="modelValue" type="text" class="ipt-inner" :class="{ error, disabled }" :placeholder="placeholder" @input="handleInput">
         </div>
         <div v-if="error" class="ipt-error">{{ errorTip }}</div> 
     </div>
@@ -37,6 +37,10 @@ export default defineComponent({
         errorTip: {
             type: String,
             default: "",
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     emits: ["update:modelValue"],
@@ -76,6 +80,13 @@ export default defineComponent({
             border-radius: size(4);
             padding: 0 size(10);
             font-size: fz(12);
+             &.disabled {
+                cursor: not-allowed;
+                //保持与elementui样式统一
+                background-color: var(--el-disabled-fill-base);
+                border-color: var(--el-disabled-border-base);
+                color: var(--el-disabled-color-base);
+            }
             &::placeholder {
                 color: $gray-400;
                 font-size: fz(12);

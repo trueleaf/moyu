@@ -233,7 +233,7 @@ type ApidocTabsState = {
 */
 type ApidocState = {
     apidoc: ApidocDetail,
-    headerReadOnlyKeys: string[],
+    defaultHeaders: ApidocProperty<"string">[],
     loading: boolean,
 }
 type ApidocResponseState = {

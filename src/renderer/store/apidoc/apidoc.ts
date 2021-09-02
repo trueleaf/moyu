@@ -32,48 +32,45 @@ function confirmInvalidDoc(projectId: string, delId: string) {
     });
 }
 //添加默认请求头
-function getFilterRequestHeaders(headers: ApidocProperty<"string">[]) {
-    const additionalHeaders: ApidocProperty<"string">[] = [];
-    const matchedHost = headers.find((params => params.key.toLocaleLowerCase() === "host"));
-    const matchedContentLength = headers.find((params => params.key.toLocaleLowerCase() === "contentlength" || params.key.toLocaleLowerCase() === "content-length"));
-    const matchedUserAgent = headers.find((params => params.key.toLocaleLowerCase() === "useragent" || params.key.toLocaleLowerCase() === "user-agent"))
-    if (!matchedHost) {
-        const params = apidocGenerateProperty();
-        params.key = "Host";
-        params.value = "<发送请求时候自动计算>";
-        params.description = "<指明了请求将要发送到的服务器主机名和端口号>";
-        additionalHeaders.push(params);
-    } else {
-        matchedHost.key = "Host";
-        matchedHost.value = "<发送请求时候自动计算>";
-        matchedHost.description = "<指明了请求将要发送到的服务器主机名和端口号>";
+function getDefaultHeaders(contentType: ApidocContentType) {
+    const defaultHeaders: ApidocProperty<"string">[] = [];
+    const params = apidocGenerateProperty();
+    params.key = "Content-Length";
+    params.value = "<发送请求时候自动计算>";
+    params.description = "<消息的长度>";
+    defaultHeaders.push(params);
+    //=========================================================================//
+    const params2 = apidocGenerateProperty();
+    params2.key = "User-Agent";
+    params2.value = "<发送请求时候自动处理>";
+    params2.description = "<用户代理软件信息>";
+    defaultHeaders.push(params2);
+    //=========================================================================//
+    const params3 = apidocGenerateProperty();
+    params3.key = "Host";
+    params3.value = "<发送请求时候自动处理>";
+    params3.description = "<主机信息>";
+    defaultHeaders.push(params3);
+    //=========================================================================//
+    const params4 = apidocGenerateProperty();
+    params4.key = "Accept-Encoding";
+    params4.value = "gzip, deflate, br";
+    params4.description = "<客户端理解的编码方式>";
+    defaultHeaders.push(params4);
+    //=========================================================================//
+    const params5 = apidocGenerateProperty();
+    params5.key = "Connection";
+    params5.value = "keep-alive";
+    params5.description = "<当前的事务完成后，是否会关闭网络连接>";
+    defaultHeaders.push(params5);
+    if (contentType) {
+        const params6 = apidocGenerateProperty();
+        params6.key = "Content-type";
+        params6.value = contentType;
+        params6.description = "<根据body类型自动处理>";
+        defaultHeaders.push(params6);
     }
-
-    if (!matchedContentLength) {
-        const params = apidocGenerateProperty();
-        params.key = "Content-Length";
-        params.value = "<发送请求时候自动计算>";
-        params.description = "<消息的长度>";
-        additionalHeaders.push(params);
-    } else {
-        console.log(444, matchedContentLength)
-        matchedContentLength.key = "Content-Length";
-        matchedContentLength.value = "<发送请求时候自动计算>";
-        matchedContentLength.description = "<指明了请求将要发送到的服务器主机名和端口号>";
-    }
-
-    if (!matchedUserAgent) {
-        const params = apidocGenerateProperty();
-        params.key = "User-Agent";
-        params.value = "<发送请求时候自动处理>";
-        params.description = "<用户代理软件信息>";
-        additionalHeaders.push(params);
-    } else {
-        matchedUserAgent.key = "User-Agent";
-        matchedUserAgent.value = "<发送请求时候自动处理>";
-        matchedUserAgent.description = "<用户代理软件信息>";
-    }
-    return additionalHeaders;
+    return defaultHeaders;
 }
 
 const cancel: Canceler[] = [] //请求列表
@@ -138,8 +135,8 @@ const apidoc = {
                 contentType: "",
             },
         },
-        addtionalHeaders: [],
-        headerReadOnlyKeys: [],
+        defaultHeaders: [],
+        formData: null,
         loading: false,
     },
     mutations: {
@@ -200,6 +197,19 @@ const apidoc = {
         //改变contentType值
         changeContentType(state: ApidocState, contentType: ApidocContentType): void {
             state.apidoc.item.contentType = contentType;
+            const matchedValue = state.defaultHeaders.find((val) => val.key === "Content-type");
+            const matchedIndex = state.defaultHeaders.findIndex((val) => val.key === "Content-type");
+            if (contentType && matchedValue) { //存在contentType并且默认header值也有
+                matchedValue.value = contentType
+            } else if (contentType && !matchedValue) { //存在contentType但是默认header没有
+                const params = apidocGenerateProperty();
+                params.key = "Content-type";
+                params.value = contentType;
+                params.description = "<根据body类型自动处理>";
+                state.defaultHeaders.push(params);
+            } else if (!contentType && matchedIndex !== -1) {
+                state.defaultHeaders.splice(matchedIndex, 1)
+            }
         },
         /*
         |--------------------------------------------------------------------------
@@ -251,7 +261,6 @@ const apidoc = {
         */
         //重新赋值apidoc数据
         changeApidoc(state: ApidocState, payload: ApidocDetail): void {
-            state.headerReadOnlyKeys = [];
             // queryParams如果没有数据则默认添加一条空数据
             if (payload.item.queryParams.length === 0) {
                 payload.item.queryParams.push(apidocGenerateProperty());
@@ -274,11 +283,7 @@ const apidoc = {
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
             }
-            const additionalHeaders = getFilterRequestHeaders(payload.item.headers);
-            console.log(additionalHeaders)
-            additionalHeaders.forEach((params) => {
-                payload.item.headers.unshift(params);
-            })
+            state.defaultHeaders = getDefaultHeaders(payload.item.contentType);
             //返回参数为json的如果没有数据则默认添加一条空数据
             payload.item.responseParams.forEach((params) => {
                 if (params.value.dataType === "application/json" && params.value.json.length === 0) {

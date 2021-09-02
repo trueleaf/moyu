@@ -11,7 +11,7 @@
         :indent="50"
         node-key="_id"
         :expand-on-click-node="false"
-        :draggable="enableDrag"
+        :draggable="drag && enableDrag"
         :allow-drop="handleCheckNodeCouldDrop"
         :show-checkbox="showCheckbox"
         :default-expanded-keys="defaultExpandedKeys"
@@ -35,7 +35,7 @@
                 <el-button
                     v-if="!disableDelete"
                     class="mr-2"
-                    :disabled="!scope.node.nextSibling && scope.node.level === 1"
+                    :disabled="checkDeleteDisable(scope)"
                     :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
                     type="text"
                     icon="el-icon-close"
@@ -45,7 +45,6 @@
                 <!-- 参数key值录入 -->
                 <div class="w-15 flex0 mr-2 d-flex a-center">
                     <s-valid-input
-                        v-if="!readonlyKey"
                         :model-value="scope.data.key"
                         :disabled="checkKeyInputDisable(scope)"
                         :title="convertKeyPlaceholder(scope)"
@@ -55,7 +54,7 @@
                         @blur="handleCheckKeyField(scope);enableDrag=true"
                     >
                     </s-valid-input>
-                    <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div>
+                    <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
                 </div>
                 <!-- 请求参数类型 -->
                 <el-select 
@@ -92,7 +91,7 @@
                     <template #reference>
                         <el-input
                             :model-value="scope.data.value"
-                            :disabled="scope.data.type === 'object'"
+                            :disabled="checkDisableValue(scope.data)"
                             title="对象和数组不必填写参数值"
                             size="mini"
                             class="w-25 flex0"
@@ -130,11 +129,17 @@
                     <input id="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
                 <!-- 参数是否必填 -->
-                <el-checkbox :model-value="scope.data.required" label="必有" @update:modelValue="handleChangeIsRequired($event, scope.data)"></el-checkbox>
+                <el-checkbox 
+                    :model-value="scope.data.required" 
+                    label="必有" 
+                    :disabled="checkRequiredDisable(scope.data)"
+                    @update:modelValue="handleChangeIsRequired($event, scope.data)"
+                >
+                </el-checkbox>
                 <!-- 参数描述 -->
                 <s-valid-input
                     :model-value="scope.data.description"
-                    :disabled="scope.node.parent.data.type === 'array'"
+                    :disabled="checkDescriptionDisable(scope)"
                     class="w-40 ml-2"
                     placeholder="参数描述与备注"
                     @focus="enableDrag = false"
@@ -158,7 +163,8 @@ import type { MockItem } from "@@/global"
 type TreeNode = {
     level: number,
     data: ApidocProperty,
-    parent: TreeNode
+    parent: TreeNode,
+    nextSibling: TreeNode,
 }
 type RootTreeNode = {
     level: number,
@@ -221,6 +227,20 @@ const props = defineProps({
     expandKeys: {
         type: Array as PropType<string[]>,
         default: () => [],
+    },
+    /**
+     * 只读的key值
+     */
+    readonlyKeys: {
+        type: Array as PropType<string[]>,
+        default: () => [],
+    },
+    /**
+     * 是否允许拖拽
+     */
+    drag: {
+        type: Boolean,
+        default: true,
     },
 });
 const emit = defineEmits(["change"])
@@ -318,6 +338,11 @@ const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, dat
         });
     }
 };
+//是否禁用删除按钮
+const checkDeleteDisable = ({ node }: { node: TreeNode }) => {
+    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
+    return (!node.nextSibling && node.level === 1) || isReadOnly;
+}
 /*
 |--------------------------------------------------------------------------
 | 参数key值录入
@@ -356,10 +381,10 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
 //检查key输入框是否被禁用
 const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
     const isComplex = node.data.type === "object" || node.data.type === "array"
-    // const isReadOnly = data._readOnly;
+    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
     const parentIsArray = node.parent.data.type === "array";
     const isRootObject = props.nest && node.level === 1 && isComplex;
-    return parentIsArray || isRootObject || props.disableAdd;
+    return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
 } 
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
@@ -531,7 +556,11 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
         });
     }
 }
-
+//判断是否禁用value输入
+const checkDisableValue = (data: ApidocProperty) => {
+    const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
+    return data.type === "object" || isReadOnly
+}
 /*
 |--------------------------------------------------------------------------
 | 参数是否必填
@@ -541,11 +570,15 @@ const handleSelectFile = (e: Event, data: ApidocProperty) => {
 const handleChangeIsRequired = (value: string, data: ApidocProperty) => {
     store.commit("apidoc/apidoc/changePropertyValue", {
         data,
-        field: "value",
+        field: "required",
         value,
     });
 }
-
+//是否必填
+const checkRequiredDisable = (data: ApidocProperty) => {
+    const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
+    return isReadOnly
+}
 /*
 |--------------------------------------------------------------------------
 | 参数备注填写
@@ -569,6 +602,11 @@ const handleCheckChange = (data: ApidocProperty, select: boolean) => {
         field: "select",
         value: select,
     });
+}
+//备注是否禁止
+const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
+    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
+    return node.parent.data.type === "array" || isReadOnly;
 }
 </script>
 
