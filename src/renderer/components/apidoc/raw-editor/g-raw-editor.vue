@@ -53,7 +53,7 @@ export default defineComponent({
             },
             immediate: true,
         },
-        value: {
+        modelValue: {
             handler(value: string) {
                 this.setValue(value);
             },
