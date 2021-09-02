@@ -94,7 +94,7 @@ export function sendRequest(): void {
         let body: string | FormData  = "";
         // console.log(contentType)
         const realHeaders = getRealHeaders();
-        console.log(realHeaders)
+        // console.log(realHeaders)
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
@@ -106,8 +106,10 @@ export function sendRequest(): void {
                 body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
                 break;
             case "multipart/form-data":
-                body = utils.convertFormDataToFormDataString(requestBody.formdata);
-                console.log(body)
+                const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
+                body = data
+                realHeaders["Content-Type"] = headers["content-type"]
+                // console.log(body)
                 break;
             case "text/plain":
                 body = requestBody.raw.data;

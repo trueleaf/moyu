@@ -116,7 +116,7 @@
                     <el-option label="false" value="false"></el-option>
                 </el-select>
                 <!-- 文件类型参数录入 -->
-                <div v-if="scope.data.type === 'file'" class="flex0 w-15">
+                <div v-if="scope.data.type === 'file'" class="flex0 w-25">
                     <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
                         <label v-show="!scope.data.value" for="fileInput" class="label">选择文件</label>
                         <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
@@ -126,7 +126,7 @@
                         </el-popover> -->
                         <span v-if="scope.data.value" class="close el-icon-close" @click="handleClearSelectType(scope.data)"></span>
                     </div>
-                    <input id="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
+                    <input id="fileInput" ref="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
                 <!-- 参数是否必填 -->
                 <el-checkbox 
@@ -537,7 +537,11 @@ const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
     currentOpData.value = null;
 }
 //清空选中的文件
+const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const handleClearSelectType = (data: ApidocProperty) => {
+    if (fileInput.value) {
+        (fileInput.value as HTMLInputElement).value = "";
+    }
     store.commit("apidoc/apidoc/changePropertyValue", {
         data,
         field: "value",
@@ -642,7 +646,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         height: size(25);
         line-height: size(25);
         text-indent: 1em;
-        width: 80%;
+        width: 98%;
         position: relative;
         &.active {
             background: none;

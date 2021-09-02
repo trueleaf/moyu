@@ -1,6 +1,7 @@
 
 import type { ApidocProperty } from "@@/global"
 import FormData from "form-data"
+import fs from "fs"
 /**
  * 将queryParams转换成字符串查询字符串
  */
@@ -46,12 +47,21 @@ export function getPathParamsMap(pathParams: ApidocProperty<"string">[]): Record
 /**
  * 将formData转换为formData字符串
  */
-export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string">[]): FormData {
+export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string" | "file">[]): { data: FormData, headers: FormData.Headers } {
     const formData = new FormData();
-    bodyFormData.forEach((data) => {
-        if (data.select && data.key) {
-            formData.append(data.key, data.value);
+    for(let i = 0; i < bodyFormData.length; i ++) {
+        const item = bodyFormData[i];
+        if (!item.select || !item.key) {
+            continue;
         }
-    })
-    return formData
+        if (item.type === "string") { //字符串类型
+            formData.append(item.key, item.value);
+        } else if (item.type === "file") { //文件处理
+            formData.append(item.key, fs.createReadStream(item.value));
+        }
+    }
+    return {
+        data: formData,
+        headers: formData.getHeaders(),
+    }
 }
