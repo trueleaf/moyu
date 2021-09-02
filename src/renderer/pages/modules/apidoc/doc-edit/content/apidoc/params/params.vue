@@ -21,7 +21,9 @@
             <el-tab-pane label="请求头" name="s-request-headers"></el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
         </el-tabs>
-        <component :is="activeName" class="workbench"></component>
+        <keep-alive>
+            <component :is="activeName" class="workbench"></component>
+        </keep-alive>
         <div class="view-type">
             <div class="active cursor-pointer">横向</div>
             <el-divider direction="vertical"></el-divider>
@@ -52,7 +54,7 @@ export default defineComponent({
     computed: {
         hasQueryOrPathsParams() {
             const { queryParams, paths } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            const hasQueryParams = queryParams.some((data) => data.key);
+            const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
             const hasPathsParams = paths.some((data) => data.key);
             return hasQueryParams || hasPathsParams;
         },
