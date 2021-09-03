@@ -5,20 +5,15 @@
     备注：
 */
 <template>
-    {{ requestInfo.contentType }}
-    <pre class="h-400px overflow-y">{{ item }}</pre>
+    <s-base-info></s-base-info>
+    <s-res-info></s-res-info>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue"
-import { store } from "@/store/index"
+import sBaseInfo from "./base-info/base-info.vue"
+import sResInfo from "./res-info/res-info.vue"
 
-const requestInfo = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item
-});
-const item = computed(() => {
-    return store.state["apidoc/response"]
-});
+
 
 </script>
 

@@ -14,7 +14,7 @@
                             <span class="flex0">名称：</span>
                             <span v-if="!currentEditNode" class="edit-title">{{ item.title }}</span>
                             <input
-                                v-if="currentEditNode && currentEditNode.title === item.title"
+                                v-if="currentEditNode && currentEditNode.index === index"
                                 :ref="bindRef"
                                 v-model="currentEditNode._title"
                                 class="edit-input"
@@ -68,11 +68,21 @@
             </template>
             <template #tail>
                 <div class="d-flex">
-                    <div v-if="index === 0" class="green cursor-pointer" @click="handleAddResponse">新增</div>
-                    <div v-if="index !== 0" class="red cursor-pointer" @click="handleDeleteResponse(index)">删除</div>
+                    <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">新增</div>
+                    <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">删除</div>
                 </div>
             </template>
             <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>
+            <div class="editor-wrap">
+                <s-raw-editor 
+                    v-show="item.value.dataType === 'text/plain'"
+                    :model-value="item.value.text"
+                    :type="item.value.dataType"
+                    class="editor"
+                    @update:modelValue="handleChangeTextValeu($event, index)"
+                >
+                </s-raw-editor>
+            </div>
         </s-collapse-card>
     </div>
 </template>
@@ -90,7 +100,7 @@ import type { ApidocResponseParams } from "@@/global"
 |
 */
 //当前编辑的节点
-const currentEditNode: Ref<null | { title: string, _title: string }> = ref(null);
+const currentEditNode: Ref<null | { title: string, _title: string, index: number }> = ref(null);
 //所有输入框
 const inputRefs: unknown[] = [];
 //常用状态码
@@ -121,6 +131,7 @@ const handleCancelEdit = () => {
 //改变当前编辑的节点
 const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
     const value = {
+        index,
         title: item.title,
         _title: item.title,
     };
@@ -130,6 +141,13 @@ const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
             (inputRefs[index] as HTMLInputElement).focus();
         }
     })
+}
+//改变正在编辑的文本值
+const handleChangeTextValeu = (value: string, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseParamsTextValueByIndex", {
+        index,
+        value,
+    });
 }
 /*
 |--------------------------------------------------------------------------
@@ -205,6 +223,12 @@ const responseData = computed(() => {
         margin-top: size(2);
         &:hover {
             color: $theme-color;
+        }
+    }
+    .editor-wrap {
+        height: size(350);
+        .editor {
+            height: size(350);
         }
     }
 

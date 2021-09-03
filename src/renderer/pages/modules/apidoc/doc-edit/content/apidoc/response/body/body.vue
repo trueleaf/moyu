@@ -1,0 +1,26 @@
+/*
+    创建者：shuxiaokai
+    创建时间：2021-09-03 20:45
+    模块名称：返回body
+    备注：
+*/
+<template>
+    <div>body</div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
+    data() {
+        return {
+        };
+    },
+    methods: {
+    },
+})
+</script>
+
+<style lang="scss">
+
+</style>
