@@ -7,8 +7,8 @@
 <template>
     <div class="collapse-card" :class="{shadow: shadow}" :style="{ width: width }">
         <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
-            <div class="head" @click="showContent = !showContent">
-                <div class="control">
+            <div class="head">
+                <div class="control" @click="showContent = !showContent">
                     <template v-if="!disabled">
                         <span v-if="!showContent" class="el-icon-caret-right"></span>
                         <span v-else class="el-icon-caret-bottom"></span>
