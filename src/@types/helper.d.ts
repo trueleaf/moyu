@@ -18,6 +18,8 @@ import {
     apidocGenerateProperty,
     apidocConvertParamsToJsonData,
     apidocConvertJsonDataToParams,
+    formatBytes,
+    formatMs,
 } from "@/helper/index"
 
 type Helper = {
@@ -101,6 +103,14 @@ type Helper = {
      * 将json参数转换为moyu参数
      */
     apidocConvertJsonDataToParams: typeof apidocConvertJsonDataToParams,
+    /**
+     * 格式化字节数
+     */
+    formatBytes: typeof formatBytes,
+    /**
+     * 格式化毫秒
+     */
+    formatMs: typeof formatMs,
 }
 
 export { Helper }

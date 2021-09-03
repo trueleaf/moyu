@@ -585,3 +585,53 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
     }
     return globalResult;
 }
+
+/**
+ * @description        将byte转换为易读单位
+ * @author              shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {number}      byteNum - 字节数量
+ * @return {String}    返回字符串
+ */
+export function formatBytes(byteNum: number): string {
+    let result = "";
+    if (!byteNum) {
+        return "";
+    }
+    if (byteNum > 0 && byteNum < 1024) {
+        //b
+        result = `${byteNum}B`;
+    } else if (byteNum >= 1024 && byteNum < 1024 * 1024) {
+        //KB
+        result = `${(byteNum / 1024).toFixed(2)}KB`;
+    } else if (byteNum >= 1024 * 1024 && byteNum < 1024 * 1024 * 1024) {
+        //MB
+        result = `${(byteNum / 1024 / 1024).toFixed(2)}MB`;
+    } else if (byteNum >= 1024 * 1024 * 1024 && byteNum < 1024 * 1024 * 1024 * 1024) {
+        //GB
+        result = `${(byteNum / 1024 / 1024 / 1024).toFixed(2)}GB`;
+    }
+    return result;
+}
+
+/**
+ * @description        将毫秒转换为易读单位
+ * @author              shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {number}      ms - 毫秒
+ * @return {String}    返回字符串
+ */
+export function formatMs(ms: number): string {
+    let result = "";
+    if (!ms) {
+        return "";
+    }
+    if (ms > 0 && ms < 1000) { //毫秒
+        result = `${ms}ms`;
+    } else if (ms >= 1000 && ms < 1000 * 60) { //秒
+        result = `${(ms / 1000).toFixed(2)}s`;
+    } else if (ms >= 1000 * 60) { //分钟
+        result = `${(ms / 1000 / 60).toFixed(2)}m`;
+    }
+    return result;
+}
