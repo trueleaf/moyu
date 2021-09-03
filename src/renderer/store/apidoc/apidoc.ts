@@ -231,6 +231,11 @@ const apidoc = {
             const { index, type } = payload
             state.apidoc.item.responseParams[index].value.dataType = type;
         },
+        //改变某个response文本value值
+        changeResponseParamsTextValueByIndex(state: ApidocState, payload: { index: number, value: string }): void {
+            const { index, value } = payload
+            state.apidoc.item.responseParams[index].value.text = value;
+        },
         //新增一个response
         addResponseParam(state: ApidocState): void {
             const objectParams = apidocGenerateProperty("object");

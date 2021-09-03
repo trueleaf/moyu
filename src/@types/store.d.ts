@@ -244,7 +244,7 @@ type ApidocResponseState = {
     /**
      * 返回值contentType
      */
-    contentType: ApidocContentType,
+    contentType: string,
     /**
      * http版本信息
      */
@@ -273,6 +273,43 @@ type ApidocResponseState = {
      * 是否正在请求中
      */
     loading: boolean,
+    /**
+     * 返回进度
+     */
+    process: {
+        /**
+         * 百分比
+         */
+        percent: number,
+        /**
+         * 总大小
+         */
+        total: number,
+        /**
+         * 当前传输数据大小
+         */
+        transferred: number,
+    },
+    /**
+     * 返回值
+     */
+    data: {
+        /**
+         * 文件类型
+         */
+        file: {
+            url: string,
+            raw: string,
+        },
+        /**
+         * 数据类型
+         */
+        type: string,
+        /**
+         * 文本返回值
+         */
+        text: string,
+    },
 }
 
 /*

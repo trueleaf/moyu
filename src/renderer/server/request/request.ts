@@ -1,11 +1,13 @@
 
 import type { Got } from "got"
+import FileType from "file-type/browser";
 import FormData from "form-data"
 import { store } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import ProxyAgent from "proxy-agent"
 import * as utils from "./utils"
+import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
 
 
 let got: Got | null = null;
@@ -62,6 +64,20 @@ function getRealHeaders() {
     delete realHeaders["host"]
     return realHeaders;
 }
+//将buffer值转换为返回参数
+async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
+    const typeInfo = await FileType.fromBuffer(bufferData.buffer);
+    const mime = typeInfo ? typeInfo.mime : contentType; //优先读取真实mime类型
+    const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
+    store.commit("apidoc/response/changeResponseMime", mime);
+    if (textContentType.find(type => contentType.match(type))) {
+        store.commit("apidoc/response/changeResponseTextValue", bufferData.toString());
+    } else {
+        const blobData = new Blob([bufferData], { type: mime });
+        const blobUrl = URL.createObjectURL(blobData);
+        store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
+    }
+}
 
 /**
  * @description                 发送请求
@@ -92,9 +108,7 @@ export function sendRequest(): void {
         })
         const requestUrl = url.host + validPath + queryString;
         let body: string | FormData  = "";
-        // console.log(contentType)
         const realHeaders = getRealHeaders();
-        // console.log(realHeaders)
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
@@ -109,7 +123,6 @@ export function sendRequest(): void {
                 const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
                 body = data
                 realHeaders["Content-Type"] = headers["content-type"]
-                // console.log(body)
                 break;
             case "text/plain":
                 body = requestBody.raw.data;
@@ -132,27 +145,36 @@ export function sendRequest(): void {
             headers: realHeaders,
         });
         //=====================================数据处理====================================//
-        // const streamData = [];
-        // let streamSize = 0;
+        const streamData: Buffer[] = [];
+        let responseData: IncomingMessageWithTimings | null = null;
+        let streamSize = 0;
         //收到返回
-        gotStream.on("response", (response) => {
+        gotStream.on("response", (response: IncomingMessageWithTimings & { ip: string }) => {
+            responseData = response;
             store.commit("apidoc/response/changeResponseHeader", response.headers);
             store.commit("apidoc/response/changeResponseBaseInfo", {
                 httpVersion: response.httpVersion,
                 ip: response.ip,
                 statusCode: response.statusCode,
                 statusMessage: response.statusMessage,
+                contentType: response.headers["content-type"],
             });
-            console.log("response", response)
         });
         //数据获取完毕
         gotStream.on("end", async () => {
-            store.commit("apidoc/response/changeLoading", false)
+            const { contentType } = store.state["apidoc/response"];
+            const bufData = Buffer.concat(streamData, streamSize);
+            await formatResponseBuffer(bufData, contentType);
+            const rt = (responseData?.timings as Timings).phases.total;
+            store.commit("apidoc/response/changeResponseTime", rt);
+            store.commit("apidoc/response/changeResponseSize", streamSize);
+            store.commit("apidoc/response/changeLoading", false);
             console.log("end")
         });
         //获取流数据
         gotStream.on("data", (chunk) => {
-            console.log("data", chunk)
+            streamData.push(Buffer.from(chunk));
+            streamSize += chunk.length;
         });
         //错误处理
         gotStream.on("error", (error) => {
@@ -165,9 +187,8 @@ export function sendRequest(): void {
         });
         //下载进度
         gotStream.on("downloadProgress", (process) => {
-            console.log("process", process);
+            store.commit("apidoc/response/changeResponseProgress", process)
         });
-        console.log(requestUrl, body, pathMap)
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
         console.error(error);
