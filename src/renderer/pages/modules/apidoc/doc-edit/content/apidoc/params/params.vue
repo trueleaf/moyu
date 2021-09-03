@@ -17,8 +17,18 @@
                     <el-badge :is-dot="hasBodyParams">Body</el-badge>
                 </template>
             </el-tab-pane>
-            <el-tab-pane label="返回参数" name="s-response-params"></el-tab-pane>
-            <el-tab-pane label="请求头" name="s-request-headers"></el-tab-pane>
+            <el-tab-pane label="返回参数" name="s-response-params">
+                <template #label>
+                    <el-badge :is-dot="hasBodyParams">返回参数</el-badge>
+                    <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
+                    <el-badge v-else>返回参数</el-badge> -->
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="请求头" name="s-request-headers">
+                <template #label>
+                    <el-badge :is-dot="hasHeaders">请求头</el-badge>
+                </template>
+            </el-tab-pane>
             <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
         </el-tabs>
         <keep-alive>
@@ -38,6 +48,7 @@ import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
+import { apidocConvertParamsToJsonData } from "@/helper/index"
 
 export default defineComponent({
     components: {
@@ -61,6 +72,33 @@ export default defineComponent({
         hasBodyParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
             return !!contentType;
+        },
+        responseNum() {
+            const { responseParams } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            let resNum = 0;
+            responseParams.forEach(response => {
+                const resValue = response.value;
+                const { dataType } = resValue;
+                if (dataType === "application/json") {
+                    const converJsonData = apidocConvertParamsToJsonData(resValue.json);
+                    const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
+                    if (hasJsonData) {
+                        resNum ++;
+                    }
+                } else if (dataType === "text/javascript" || dataType === "text/plain" || dataType === "text/html" || dataType === "application/xml") {
+                    if (resValue.text.length > 0) {
+                        resNum ++;
+                    }
+                } else {
+                    console.warn(`未实现的返回类型${dataType}`);
+                }
+            });
+            return resNum;
+        },
+        hasHeaders() {
+            const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const hasHeaders = headers.filter(p => p.select).some((data) => data.key);
+            return hasHeaders;
         },
     },
     watch: {
