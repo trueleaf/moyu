@@ -30,7 +30,6 @@ function initGot() {
         throwHttpErrors: false,
         followRedirect: true,
         allowGetBody: true,
-        decompress: false,
         agent: {
             http: new ProxyAgent("http://127.0.0.1:8866")
         },
@@ -67,7 +66,7 @@ function getRealHeaders() {
 //将buffer值转换为返回参数
 async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     const typeInfo = await FileType.fromBuffer(bufferData.buffer);
-    const mime = typeInfo ? typeInfo.mime : contentType; //优先读取真实mime类型
+    const mime = contentType ? contentType : (typeInfo ? typeInfo.mime : ""); //优先读取contentType
     const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
     store.commit("apidoc/response/changeResponseMime", mime);
     if (textContentType.find(type => contentType.match(type))) {
@@ -150,8 +149,10 @@ export function sendRequest(): void {
         let streamSize = 0;
         //收到返回
         gotStream.on("response", (response: IncomingMessageWithTimings & { ip: string }) => {
+            console.log("response", response)
             responseData = response;
             store.commit("apidoc/response/changeResponseHeader", response.headers);
+            store.commit("apidoc/response/changeResponseCookies", response.headers["set-cookie"] || []);
             store.commit("apidoc/response/changeResponseBaseInfo", {
                 httpVersion: response.httpVersion,
                 ip: response.ip,
@@ -169,7 +170,6 @@ export function sendRequest(): void {
             store.commit("apidoc/response/changeResponseTime", rt);
             store.commit("apidoc/response/changeResponseSize", streamSize);
             store.commit("apidoc/response/changeLoading", false);
-            console.log("end")
         });
         //获取流数据
         gotStream.on("data", (chunk) => {
@@ -179,6 +179,8 @@ export function sendRequest(): void {
         //错误处理
         gotStream.on("error", (error) => {
             store.commit("apidoc/response/changeLoading", false)
+            store.commit("apidoc/response/changeResponseMime", "error");
+            store.commit("apidoc/response/changeResponseTextValue",error.toString());
             console.error(error);
         });
         //重定向
@@ -191,6 +193,8 @@ export function sendRequest(): void {
         });
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
+        store.commit("apidoc/response/changeResponseMime", "error");
+        store.commit("apidoc/response/changeResponseTextValue",error.toString());
         console.error(error);
     }
 }

@@ -236,6 +236,40 @@ type ApidocState = {
     defaultHeaders: ApidocProperty<"string">[],
     loading: boolean,
 }
+type ApidocCookieInfo = {
+    /**
+     * cookie键
+     */
+    name: string,
+    /**
+     * cookie值
+     */
+    value: string,
+    /**
+     * 有效域
+     */
+    domin: string,
+    /**
+     * path
+     */
+    path: string,
+    /**
+     * expires
+     */
+    expires: string,
+    /**
+     * httpOnly
+     */
+    httpOnly: boolean,
+    /**
+     * secure
+     */
+    secure: boolean,
+    /**
+     * sameSite
+     */
+    sameSite: string,
+}
 type ApidocResponseState = {
     /**
      * 返回头信息
@@ -273,6 +307,10 @@ type ApidocResponseState = {
      * 是否正在请求中
      */
     loading: boolean,
+    /**
+     * cookie信息
+     */
+    cookies: ApidocCookieInfo[],
     /**
      * 返回进度
      */
@@ -337,5 +375,6 @@ export {
     ApidocProjectHost,
     ApidocRequestMethodRule,
     ApidocResponseState,
+    ApidocCookieInfo,
     State,
 }

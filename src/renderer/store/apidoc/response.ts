@@ -1,4 +1,7 @@
-import type { ApidocResponseState } from "@@/store"
+import type { ApidocResponseState, ApidocCookieInfo } from "@@/store"
+import setCookieParser from "set-cookie-parser"
+import { formatDate } from "@/helper/index"
+import { store } from ".."
 
 type ResponseBaseInfo = {
     httpVersion: string,
@@ -27,11 +30,12 @@ const response = {
         contentType: "",
         httpVersion: "",
         ip: "",
-        statusCode: 200,
+        statusCode: 0,
         statusMessage: "",
         rt: 0,
         size: 0,
         loading: false,
+        cookies: [],
         process: {
             percent: 0,
             total: 0,
@@ -90,6 +94,36 @@ const response = {
         //改变返回值大小
         changeResponseSize(state: ApidocResponseState, size: number): void {
             state.size = size;
+        },
+        //改变cookie值
+        changeResponseCookies(state: ApidocResponseState, cookies: string[]): void {
+            const urlInfo = store.state["apidoc/apidoc"].apidoc.item.url
+            const fullPatth = urlInfo.host + urlInfo.path;
+            const dominReg = /([^./]{1,62}\.){1,}[^./]{1,62}/;
+            const matchedDomin = fullPatth.match(dominReg);
+            cookies.forEach((cookieStr) => {
+                const parsedCookie = setCookieParser.parse(cookieStr)
+                const cookieInfo: ApidocCookieInfo = {
+                    name: "",
+                    value: "",
+                    domin: "",
+                    path: "",
+                    expires: "",
+                    httpOnly: false,
+                    secure: false,
+                    sameSite: "",
+                };
+                cookieInfo.name = parsedCookie[0].name;
+                cookieInfo.value = parsedCookie[0].value;
+                cookieInfo.domin = parsedCookie[0].domain || (matchedDomin ? matchedDomin[0] : "");
+                cookieInfo.path = parsedCookie[0].path || "";
+                cookieInfo.expires = formatDate(parsedCookie[0].expires);
+                cookieInfo.httpOnly = parsedCookie[0].httpOnly || false;
+                cookieInfo.secure = parsedCookie[0].secure || false;
+                cookieInfo.sameSite = parsedCookie[0].sameSite || "";
+                console.log(cookieInfo)
+            })
+            // state.cookies = cookies;
         },
     },
 }

@@ -11,7 +11,7 @@ const baseInfo = {
         variables: [],
         mindParams: [],
         paramsTemplate: [],
-        rules: [],
+        rules: {},
         hosts: [],
     },
     mutations: {

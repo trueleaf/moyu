@@ -37,6 +37,10 @@ export default defineComponent({
             type: String,
             default: "",
         },
+        readonly: {
+            type: Boolean,
+            default: false,
+        }
     },
     emits: ["change", "ready", "update:modelValue"],
     data() {
@@ -55,6 +59,7 @@ export default defineComponent({
         },
         modelValue: {
             handler(value: string) {
+               
                 this.setValue(value);
             },
             immediate: true,
@@ -73,6 +78,9 @@ export default defineComponent({
                 // enableSnippets: true,
                 // enableLiveAutocompletion: false
             });
+            if (this.readonly) {
+                this.editorInstance.setReadOnly(true);
+            }
             this.editorInstance.on("change", () => {
                 const content = this.editorInstance?.getValue();
                 this.$emit("update:modelValue", content);
@@ -91,6 +99,6 @@ export default defineComponent({
 <style lang="scss">
 #editor {
     width: 100%;
-    height: 90%;
+    height: 100%;
 }
 </style>

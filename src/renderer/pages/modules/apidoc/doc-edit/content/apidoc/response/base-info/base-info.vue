@@ -7,14 +7,14 @@
 <template>
     <div class="request-view">
         <s-collapse title="基本信息">
-            <s-label-value label="请求地址：" class="d-flex mt-2">
+            <s-label-value label="请求地址：" class="mt-2" one-line>
                 <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
             </s-label-value>
-            <!-- <s-label-value label="请求方式：" class="d-flex">
+            <s-label-value label="请求方式：" one-line>
                 <template v-for="(req) in validRequestMethods">
-                    <span v-if="apidocInfo.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
+                    <span v-if="apidocInfo.item.method === req.value.toUpperCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                 </template>
-            </s-label-value> -->
+            </s-label-value>
             <div class="base-info">
                 <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
@@ -44,9 +44,9 @@ export default defineComponent({
         apidocInfo() { //接口文档信息
             return this.$store.state["apidoc/apidoc"].apidoc
         },
-        // validRequestMethods() {
-        //     return this.$store.state["apidoc/baseInfo"].rules.requestMethods.filter((val) => val.enabled);
-        // },
+        validRequestMethods() {
+            return this.$store.state["apidoc/baseInfo"].rules.requestMethods?.filter((val) => val.enabled);
+        },
     },
 })
 </script>

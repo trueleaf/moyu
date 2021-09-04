@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="d-flex a-center">
+    <div class="d-flex a-center px-3">
         <div class="flex0">
             <span>状态码：</span>
             <template v-if="remoteResponse.statusCode">
@@ -38,7 +38,7 @@
         <el-divider direction="vertical"></el-divider>
         <div class="flex0 d-flex a-center j-center">
             <span>格式：</span>
-            <s-ellipsis-content v-if="remoteResponse.data.type" :value="remoteResponse.data.type" max-width="200px"></s-ellipsis-content>
+            <s-ellipsis-content v-if="remoteResponse.data.type" :value="remoteResponse.data.type" max-width="200px" class="orange"></s-ellipsis-content>
             <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
         </div>
     </div>

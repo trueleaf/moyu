@@ -57,7 +57,12 @@ export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"st
         if (item.type === "string") { //字符串类型
             formData.append(item.key, item.value);
         } else if (item.type === "file") { //文件处理
-            formData.append(item.key, fs.createReadStream(item.value));
+            try {
+                fs.accessSync(item.value);
+                formData.append(item.key, fs.createReadStream(item.value));
+            } catch (error) {
+                console.log("文件不存在");
+            }
         }
     }
     return {
