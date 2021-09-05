@@ -61,8 +61,8 @@
             </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" class="mr-1" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
-            <el-dropdown trigger="click" class="mr-1">
+            <el-button :loading="loading3" type="primary" size="small" class="mr-2" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
+            <el-dropdown trigger="click">
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>

@@ -1,7 +1,7 @@
 import type { ApidocResponseState, ApidocCookieInfo } from "@@/store"
 import setCookieParser from "set-cookie-parser"
 import { formatDate } from "@/helper/index"
-import { store } from ".."
+import { store } from "@/store/index"
 
 type ResponseBaseInfo = {
     httpVersion: string,
@@ -68,6 +68,31 @@ const response = {
             state.statusMessage = payload.statusMessage;
             state.contentType = payload.contentType;
         },
+        //清空response值
+        clearResponseInfo(state: ApidocResponseState): void {
+            state.header = {};
+            state.contentType = "";
+            state.httpVersion = "";
+            state.ip = "";
+            state.statusCode = 0;
+            state.statusMessage = "";
+            state.rt = 0;
+            state.size = 0;
+            state.cookies = [];
+            state.process = {
+                percent: 0,
+                total: 0,
+                transferred: 0,
+            };
+            state.data = {
+                file: {
+                    url: "",
+                    raw: "",
+                },
+                type: "",
+                text: "",
+            };
+        },
         //改变返回值进度
         changeResponseProgress(state: ApidocResponseState, progress: ApidocResponseState["process"]): void {
             state.process = progress;
@@ -101,6 +126,7 @@ const response = {
             const fullPatth = urlInfo.host + urlInfo.path;
             const dominReg = /([^./]{1,62}\.){1,}[^./]{1,62}/;
             const matchedDomin = fullPatth.match(dominReg);
+            state.cookies = [];
             cookies.forEach((cookieStr) => {
                 const parsedCookie = setCookieParser.parse(cookieStr)
                 const cookieInfo: ApidocCookieInfo = {
@@ -121,9 +147,8 @@ const response = {
                 cookieInfo.httpOnly = parsedCookie[0].httpOnly || false;
                 cookieInfo.secure = parsedCookie[0].secure || false;
                 cookieInfo.sameSite = parsedCookie[0].sameSite || "";
-                console.log(cookieInfo)
+                state.cookies.push(cookieInfo);
             })
-            // state.cookies = cookies;
         },
     },
 }

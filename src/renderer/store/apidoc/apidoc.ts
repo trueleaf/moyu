@@ -347,6 +347,7 @@ const apidoc = {
                         return;
                     }
                     context.commit("changeApidoc", res.data)
+                    store.commit("apidoc/response/clearResponseInfo")
                     resolve()
                 }).catch((err) => {
                     console.error(err);

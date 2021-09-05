@@ -31,7 +31,8 @@ function initGot() {
         followRedirect: true,
         allowGetBody: true,
         agent: {
-            http: new ProxyAgent("http://127.0.0.1:8866")
+            http: new ProxyAgent("http://127.0.0.1:8866"),
+            https: new ProxyAgent("http://127.0.0.1:8866"),
         },
     });
     return gotInstance;
@@ -108,6 +109,7 @@ export function sendRequest(): void {
         const requestUrl = url.host + validPath + queryString;
         let body: string | FormData  = "";
         const realHeaders = getRealHeaders();
+        console.log(realHeaders)
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {

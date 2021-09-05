@@ -6,6 +6,7 @@ import { computed } from "vue"
 import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
 import globalConfig from "@/../config/config"
+import type { ApidocProperty, ApidocPropertyType } from "@@/global"
 
 /**
  * 从url中找出path参数
@@ -35,7 +36,16 @@ const convertQueryToParams = (requestPath: string): void => {
     const urlSearchParams = new URLSearchParams(stringParams);
     const queryParams = Object.fromEntries(urlSearchParams.entries());
     const params = apidocConvertJsonDataToParams(queryParams);
-    store.commit("apidoc/apidoc/unshiftQueryParams", params[0].children)
+    const unshiftData = params[0].children;
+    const uniqueData: ApidocProperty<ApidocPropertyType>[] = [];
+    const arrParams = store.state["apidoc/apidoc"].apidoc.item.queryParams;
+    unshiftData.forEach(item => { //过滤重复的query值
+        if (arrParams.every(v => v.key !== item.key)) {
+            console.log(222, item)
+            uniqueData.push(item);
+        }
+    })
+    store.commit("apidoc/apidoc/unshiftQueryParams", uniqueData)
 };
 
 /**

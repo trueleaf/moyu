@@ -19,7 +19,7 @@
             </el-tab-pane>
             <el-tab-pane label="返回参数" name="s-response-params">
                 <template #label>
-                    <el-badge :is-dot="hasBodyParams">返回参数</el-badge>
+                    <el-badge :is-dot="!!responseNum">返回参数</el-badge>
                     <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
                     <el-badge v-else>返回参数</el-badge> -->
                 </template>
