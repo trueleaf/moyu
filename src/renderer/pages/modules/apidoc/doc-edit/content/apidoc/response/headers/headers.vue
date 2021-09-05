@@ -1,11 +1,16 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-09-03 20:45
-    模块名称：返回headers
+    模块名称：返回header
     备注：
 */
 <template>
-    <div>headers</div>
+    <div class="header-view">
+        <el-table :data="headers" stripe border size="mini" height="100%">
+            <el-table-column align="center" prop="key" label="名称"></el-table-column>
+            <el-table-column align="center" prop="value" label="值"></el-table-column>
+        </el-table>
+    </div>
 </template>
 
 <script lang="ts">
@@ -16,11 +21,27 @@ export default defineComponent({
         return {
         };
     },
+    computed: {
+        headers() {
+            const { header } = this.$store.state["apidoc/response"];
+            const result: { key: string, value: string }[] = [];
+            Object.keys(header).forEach(key => {
+                result.push({
+                    key,
+                    value: header[key] as string,
+                });
+            })
+            return result
+        },
+    },
     methods: {
     },
 })
 </script>
 
 <style lang="scss">
-
+.header-view {
+    width: 100%;
+    height: calc(100vh - #{size(370)});
+}
 </style>

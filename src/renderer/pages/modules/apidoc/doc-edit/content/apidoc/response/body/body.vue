@@ -97,6 +97,14 @@
             >
             </s-raw-editor>
         </div>
+        <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
+            <s-raw-editor
+                :model-value="remoteResponse.data.text"
+                readonly
+                type="application/json"
+            >
+            </s-raw-editor>
+        </div>
     </s-loading>
 </template>
 

@@ -5,7 +5,18 @@
     备注：
 */
 <template>
-    <div>cookie</div>
+    <div class="cookie-view">
+        <el-table :data="cookies" stripe border size="mini" height="100%">
+            <el-table-column align="center" prop="name" label="Name"></el-table-column>
+            <el-table-column align="center" prop="value" label="Value"></el-table-column>
+            <el-table-column align="center" prop="domin" label="Domin"></el-table-column>
+            <el-table-column align="center" prop="path" label="Path"></el-table-column>
+            <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
+            <el-table-column align="center" prop="httpOnly" label="HttpOnly"></el-table-column>
+            <el-table-column align="center" prop="secure" label="Secure"></el-table-column>
+            <el-table-column align="center" prop="sameSite" label="SameSite"></el-table-column>
+        </el-table>
+    </div>
 </template>
 
 <script lang="ts">
@@ -16,11 +27,19 @@ export default defineComponent({
         return {
         };
     },
+    computed: {
+        cookies() {
+            return this.$store.state["apidoc/response"].cookies
+        },
+    },
     methods: {
     },
 })
 </script>
 
 <style lang="scss">
-
+.cookie-view {
+    width: 100%;
+    height: calc(100vh - #{size(370)});
+}
 </style>
