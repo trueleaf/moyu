@@ -214,7 +214,7 @@ const formData = computed(() => {
         .raw-type {
             position: absolute;
             right: size(0);
-            bottom: size(31);
+            bottom: size(1);
             width: size(100);
         }
         .tip {
@@ -223,7 +223,7 @@ const formData = computed(() => {
             display: flex;
             align-items: center;
             position: absolute;
-            bottom: size(30);
+            bottom: size(1);
             left: size(40);
             background: lighten($orange, 10%);
             overflow: hidden;
