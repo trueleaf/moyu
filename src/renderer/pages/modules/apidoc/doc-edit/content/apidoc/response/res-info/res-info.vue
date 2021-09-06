@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="d-flex a-center px-3">
+    <div class="d-flex a-center px-3 text-ellipsis">
         <div class="flex0">
             <span>状态码：</span>
             <template v-if="remoteResponse.statusCode">

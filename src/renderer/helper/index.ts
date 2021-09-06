@@ -12,6 +12,7 @@ import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
+import Mock from "@/server/mock"
 
 type Data = Record<string, unknown>
 
@@ -357,7 +358,7 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         if (isParentArray && keyValIsEmpty && type === "boolean") { //数组下面为布尔值
             continue
         }
-        const convertValue = valueHook ? valueHook(property) : value;
+        const convertValue = valueHook ? valueHook(property) : apidocConvertValue(value);
         if (isParentArray) { //父元素为数组
             if (type === "boolean") {
                 (result as JSON[]).push(convertValue === "true" ? true : false);
@@ -584,6 +585,21 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
         globalResult.push(rootProperty);
     }
     return globalResult;
+}
+
+/**
+ * @description        apidoc转换value值
+ * @author             shuxiaokai
+ * @create             2021-8-26 21:56
+ * @param {string}     value - 需要转换的值
+ * @return {String}    返回转换后的字符串
+ * @remark             这个方法具有强耦合性
+ */
+export function apidocConvertValue(value: string): string {
+    if (value.startsWith("@")) {
+        return Mock.mock(value);
+    }
+    return value;
 }
 
 /**

@@ -172,6 +172,10 @@ type ApidocProjectBaseInfoState = {
      * 项目规则
      */
     rules: ApidocProjectRules,
+    /**
+     * 全局cookie信息
+     */
+    globalCookies: Record<string, ApidocCookieInfo[]>
 };
 //=========================================================================//
 type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide"

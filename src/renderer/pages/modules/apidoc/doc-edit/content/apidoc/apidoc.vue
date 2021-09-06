@@ -6,7 +6,7 @@
 */
 <template>
     <div class="apidoc">
-        <div class="request-layout">
+        <div v-loading="loading" class="request-layout">
             <s-operation></s-operation>
             <s-params></s-params>
         </div>
@@ -39,6 +39,9 @@ export default defineComponent({
             const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
             const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
             return currentSelectTab;
+        },
+        loading() {
+            return this.$store.state["apidoc/apidoc"].loading;
         },
     },
     watch: {

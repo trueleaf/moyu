@@ -109,7 +109,6 @@ export function sendRequest(): void {
         const requestUrl = url.host + validPath + queryString;
         let body: string | FormData  = "";
         const realHeaders = getRealHeaders();
-        console.log(realHeaders)
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
@@ -139,6 +138,7 @@ export function sendRequest(): void {
                 break;
             }
         }
+        console.log(realHeaders, requestUrl, body)
         const gotStream = gotInstance(requestUrl, {
             isStream: true,
             method,

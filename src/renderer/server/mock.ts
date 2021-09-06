@@ -3,6 +3,10 @@ import Mock from "mockjs";
 const { Random } = Mock;
 
 Random.extend({
+    //时间戳
+    timestamp() {
+        return Date.now();
+    },
     // image(data, background) {
     //     let width = 0;
     //     let height = 0;

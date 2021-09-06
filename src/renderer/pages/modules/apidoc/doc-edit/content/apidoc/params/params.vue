@@ -35,9 +35,9 @@
             <component :is="activeName" class="workbench"></component>
         </keep-alive>
         <div class="view-type">
-            <div class="active cursor-pointer">横向</div>
+            <div class="active cursor-pointer">编辑</div>
             <el-divider direction="vertical"></el-divider>
-            <div class="cursor-pointer">纵向</div>
+            <div class="cursor-pointer">预览</div>
         </div>
     </div>
 </template>
@@ -49,6 +49,8 @@ import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
 import { apidocConvertParamsToJsonData } from "@/helper/index"
+import type { ApidocTab } from "@@/store"
+import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({
     components: {
@@ -63,16 +65,19 @@ export default defineComponent({
         };
     },
     computed: {
+        //是否存在查询参数
         hasQueryOrPathsParams() {
             const { queryParams, paths } = this.$store.state["apidoc/apidoc"].apidoc.item;
             const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
             const hasPathsParams = paths.some((data) => data.key);
             return hasQueryParams || hasPathsParams;
         },
+        //是否存在body参数
         hasBodyParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
             return !!contentType;
         },
+        //返回参数个数
         responseNum() {
             const { responseParams } = this.$store.state["apidoc/apidoc"].apidoc.item;
             let resNum = 0;
@@ -95,20 +100,39 @@ export default defineComponent({
             });
             return resNum;
         },
+        //是否存在headers
         hasHeaders() {
             const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
             const hasHeaders = headers.filter(p => p.select).some((data) => data.key);
             return hasHeaders;
         },
-    },
-    watch: {
-        activeName() {
-            localStorage.setItem("apidoc/paramsActiveTab", this.activeName)
+        //当前选中tab
+        currentSelectTab(): ApidocTab | null { //当前选中的doc
+            const projectId = this.$route.query.id as string;
+            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+            return currentSelectTab;
         },
     },
+    watch: {
+        activeName(val: string) {
+            if (this.currentSelectTab) {
+                apidocCache.setActiveParamsTab(this.currentSelectTab._id, val);
+            }
+        },
+        currentSelectTab() {
+            this.initTabCache();
+        }
+    },
     created() {
-        const activeName = localStorage.getItem("apidoc/paramsActiveTab");
-        this.activeName = activeName || "s-params";
+        this.initTabCache();
+    },
+    methods: {
+        initTabCache() {
+            if (this.currentSelectTab) {
+                this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || "s-params";
+            }
+        },
     },
 })
 </script>

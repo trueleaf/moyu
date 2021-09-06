@@ -39,7 +39,8 @@ export default defineComponent({
          * 获取项目基本信息
          */
         getProjectInfo() {
-            this.$store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: this.$route.query.id })
+            this.$store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: this.$route.query.id });
+            this.$store.commit("apidoc/baseInfo/initCookies")
         },
     },
 })

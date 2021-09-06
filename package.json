@@ -15,7 +15,6 @@
   },
   "main": "background.js",
   "dependencies": {
-    "@types/js-beautify": "^1.13.2",
     "@types/mockjs": "^1.0.4",
     "@types/set-cookie-parser": "^2.4.1",
     "axios": "^0.21.1",
@@ -28,7 +27,6 @@
     "file-type": "^16.5.3",
     "form-data": "^4.0.0",
     "got": "^11.8.2",
-    "js-beautify": "^1.14.0",
     "js-cookie": "^2.2.1",
     "lodash": "^4.17.21",
     "mitt": "^3.0.0",

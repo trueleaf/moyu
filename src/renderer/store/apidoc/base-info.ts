@@ -13,6 +13,7 @@ const baseInfo = {
         paramsTemplate: [],
         rules: {},
         hosts: [],
+        globalCookies: {},
     },
     mutations: {
         //改变项目基本信息
@@ -29,6 +30,17 @@ const baseInfo = {
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
             console.log(444, payload)
             state.hosts = payload;
+        },
+        //初始化cookie值
+        initCookies(state: ApidocProjectBaseInfoState): void {
+            const localCookies = localStorage.getItem("apidoc/globalCookies") || "{}";
+            try {
+                const jsonCookies = JSON.parse(localCookies)
+                state.globalCookies = jsonCookies;
+            } catch (error) {
+                console.error(error);
+                localStorage.setItem("apidoc/globalCookies", "{}")
+            }
         },
     },
     actions: {

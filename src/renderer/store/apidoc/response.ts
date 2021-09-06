@@ -49,6 +49,7 @@ const response = {
             type: "",
             text: "",
         },
+        globalCookies: {},
     },
     mutations: {
         //改变加载状态
@@ -139,16 +140,28 @@ const response = {
                     secure: false,
                     sameSite: "",
                 };
+                const realDomin = parsedCookie[0].domain || (matchedDomin ? matchedDomin[0] : "")
                 cookieInfo.name = parsedCookie[0].name;
                 cookieInfo.value = parsedCookie[0].value;
-                cookieInfo.domin = parsedCookie[0].domain || (matchedDomin ? matchedDomin[0] : "");
+                cookieInfo.domin = realDomin;
                 cookieInfo.path = parsedCookie[0].path || "";
                 cookieInfo.expires = formatDate(parsedCookie[0].expires);
                 cookieInfo.httpOnly = parsedCookie[0].httpOnly || false;
                 cookieInfo.secure = parsedCookie[0].secure || false;
                 cookieInfo.sameSite = parsedCookie[0].sameSite || "";
                 state.cookies.push(cookieInfo);
+                const { globalCookies } = store.state["apidoc/baseInfo"];
+                if (!globalCookies[realDomin]) {
+                    globalCookies[realDomin] = [];
+                }
+                const matchedCookieIndex = globalCookies[realDomin].findIndex(info => info.name === cookieInfo.name)
+                if (matchedCookieIndex === -1) { //不存在则添加一个
+                    globalCookies[realDomin].push(JSON.parse(JSON.stringify(cookieInfo)));
+                } else { //存在则覆盖
+                    globalCookies[realDomin][matchedCookieIndex] = JSON.parse(JSON.stringify(cookieInfo));
+                }
             })
+            localStorage.setItem("apidoc/globalCookies", JSON.stringify(store.state["apidoc/baseInfo"].globalCookies))
         },
     },
 }
