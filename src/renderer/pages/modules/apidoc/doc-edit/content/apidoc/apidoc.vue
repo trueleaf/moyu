@@ -5,12 +5,15 @@
     备注：
 */
 <template>
-    <div class="apidoc">
-        <div v-loading="loading" class="request-layout">
+    <div class="apidoc" :class="{ vertical: layout === 'vertical' }">
+        <div v-loading="loading" class="request-layout" :class="{ vertical: layout === 'vertical' }">
             <s-operation></s-operation>
             <s-params></s-params>
         </div>
-        <s-resize-x :min="400" :max="700" :width="400" name="response" bar-left class="response-layout" tabindex="1">
+        <s-resize-y v-show="layout === 'vertical'" :min="150" :max="550" :height="350" name="response-y" tabindex="1">
+            <s-response></s-response>
+        </s-resize-y>
+        <s-resize-x v-show="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
             <s-response></s-response>
         </s-resize-x>
     </div>
@@ -29,10 +32,6 @@ export default defineComponent({
         "s-params": params,
         "s-response": response,
     },
-    data() {
-        return {
-        };
-    },
     computed: {
         currentSelectTab(): ApidocTab | null { //当前选中的doc
             const projectId = this.$route.query.id as string;
@@ -42,6 +41,9 @@ export default defineComponent({
         },
         loading() {
             return this.$store.state["apidoc/apidoc"].loading;
+        },
+        layout() {
+            return this.$store.state["apidoc/baseInfo"].layout;
         },
     },
     watch: {
@@ -73,11 +75,22 @@ export default defineComponent({
     overflow-y: auto;
     height: calc(100vh - #{size(100)});
     display: flex;
+    &.vertical {
+        flex-direction: column;
+        overflow: hidden;
+    }
     // 请求编辑区域
     .request-layout {
         flex: 1;
         overflow: hidden;
         border-right: 1px solid $gray-400;
+        &.vertical {
+            flex: 1;
+            border-bottom: 1px solid $gray-500;
+            overflow-y: auto;
+            // margin-top: -2px;
+            // box-shadow: 0 3px 1px $gray-400;
+        }
     }
     // 返回编辑区域
     .response-layout {

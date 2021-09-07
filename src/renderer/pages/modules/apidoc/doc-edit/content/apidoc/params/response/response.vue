@@ -73,9 +73,12 @@
                 </div>
             </template>
             <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>
-            <div class="editor-wrap">
+            <div 
+                v-show="item.value.dataType === 'text/plain' || item.value.dataType === 'text/html' || item.value.dataType === 'application/xml'"
+                class="editor-wrap" 
+                :class="{ vertical: layout === 'vertical' }"
+            >
                 <s-raw-editor 
-                    v-show="item.value.dataType === 'text/plain'"
                     :model-value="item.value.text"
                     :type="item.value.dataType"
                     class="editor"
@@ -182,6 +185,10 @@ const handleDeleteResponse = (index: number) => {
 const responseData = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item.responseParams;
 }) 
+//布局
+const layout = computed(() => {
+    return store.state["apidoc/baseInfo"].layout;
+})
 </script>
 
 <style lang="scss">
@@ -227,6 +234,9 @@ const responseData = computed(() => {
     }
     .editor-wrap {
         height: size(350);
+        &.vertical {
+            height: size(250);
+        }
         .editor {
             height: size(350);
         }

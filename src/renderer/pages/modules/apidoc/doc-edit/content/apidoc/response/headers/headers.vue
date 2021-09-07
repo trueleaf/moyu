@@ -5,8 +5,8 @@
     备注：
 */
 <template>
-    <div class="header-view">
-        <el-table :data="headers" stripe border size="mini" height="100%">
+    <div class="header-view" :class="{ vertical: layout === 'vertical' }">
+        <el-table :data="headers" stripe border size="mini">
             <el-table-column align="center" prop="key" label="名称"></el-table-column>
             <el-table-column align="center" prop="value" label="值"></el-table-column>
         </el-table>
@@ -33,6 +33,10 @@ export default defineComponent({
             })
             return result
         },
+        //布局
+        layout() {
+            return this.$store.state["apidoc/baseInfo"].layout;
+        },
     },
     methods: {
     },
@@ -43,5 +47,8 @@ export default defineComponent({
 .header-view {
     width: 100%;
     height: calc(100vh - #{size(370)});
+    &.vertical {
+        height: 100%;
+    }
 }
 </style>

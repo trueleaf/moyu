@@ -5,12 +5,12 @@
     备注：
 */
 <template>
-    <s-base-info></s-base-info>
-    <s-res-info></s-res-info>
-    <div class="px-3">
-        <el-tabs v-model="activeName">
+    <s-base-info v-show="layout === 'horizontal'"></s-base-info>
+    <s-res-info v-show="layout === 'horizontal'"></s-res-info>
+    <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3" :class="{ vertical: layout === 'vertical' }">
+        <el-tabs v-model="activeName" class="h-100">
             <el-tab-pane label="返回值" name="s-body">
-                <s-body></s-body>
+                <s-body class="h-100"></s-body>
             </el-tab-pane>
             <el-tab-pane name="s-cookie">
                 <template #label>
@@ -29,6 +29,7 @@
             </el-tab-pane>
         </el-tabs>
     </div>
+    <el-empty v-show="!remoteResponse.data.type" description="Response"></el-empty>
 </template>
 
 <script lang="ts" setup>
@@ -56,10 +57,26 @@ const headers = computed(() => {
     })
     return result
 })
-
+const layout = computed(() => {
+    return store.state["apidoc/baseInfo"].layout;
+})
+const remoteResponse = computed(() => {
+    return store.state["apidoc/response"]
+})
 
 </script>
 
 <style lang="scss">
-
+.remote-response-wrap {
+    &.vertical {
+        height: 100%;
+        .el-tabs__content {
+            height: calc(100% - 55px);
+            overflow-y: auto;
+            .el-tab-pane {
+                height: 100%;
+            }
+        }
+    }
+}
 </style>

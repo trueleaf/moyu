@@ -33,14 +33,21 @@ export default defineComponent({
     },
     created() {
         this.getProjectInfo();
+        this.initCookies();
+        this.initLayout();
     },
     methods: {
-        /**
-         * 获取项目基本信息
-         */
+        //获取项目基本信息
         getProjectInfo() {
             this.$store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: this.$route.query.id });
+        },
+        //初始化cookie
+        initCookies() {
             this.$store.commit("apidoc/baseInfo/initCookies")
+        },
+        //初始化布局
+        initLayout() {
+            this.$store.commit("apidoc/baseInfo/initLayout")
         },
     },
 })

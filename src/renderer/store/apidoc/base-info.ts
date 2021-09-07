@@ -14,6 +14,7 @@ const baseInfo = {
         rules: {},
         hosts: [],
         globalCookies: {},
+        layout: "horizontal"
     },
     mutations: {
         //改变项目基本信息
@@ -42,6 +43,21 @@ const baseInfo = {
                 localStorage.setItem("apidoc/globalCookies", "{}")
             }
         },
+        //改变布局方式
+        changeLayout(state: ApidocProjectBaseInfoState, layout: "horizontal" | "vertical"): void {
+            state.layout = layout;
+            localStorage.setItem("apidoc/layout", layout)
+        },
+        //初始化布局
+        initLayout(state: ApidocProjectBaseInfoState): void {
+            const localLayout = localStorage.getItem("apidoc/layout");
+            if (localLayout !== "horizontal" && localLayout !== "vertical") {
+                state.layout = "horizontal";
+            } else {
+                state.layout = localLayout;
+            }
+           
+        }
     },
     actions: {
         /**

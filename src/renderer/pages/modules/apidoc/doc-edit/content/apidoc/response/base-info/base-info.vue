@@ -6,7 +6,11 @@
 */
 <template>
     <div class="request-view">
-        <s-collapse title="基本信息">
+        <!-- <s-collapse title="基本信息">
+            
+        </s-collapse> -->
+        <div class="text-bold">基本信息</div>
+        <div class="px-4">
             <s-label-value label="请求地址：" class="mt-2" one-line>
                 <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
             </s-label-value>
@@ -32,7 +36,7 @@
                     <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.createdAt) }}</span>
                 </s-label-value>
             </div>
-        </s-collapse>
+        </div>
     </div>
 </template>
 

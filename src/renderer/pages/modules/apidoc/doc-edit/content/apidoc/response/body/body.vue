@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="body-view">
+    <s-loading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
         <template v-if="remoteResponse.data.type">
             <!-- svg图片 -->
             <div v-if="remoteResponse.data.type.includes('image/svg+xml')">svg</div>
@@ -125,6 +125,10 @@ export default defineComponent({
         loading() {
             return this.$store.state["apidoc/response"].loading;
         },
+        //布局
+        layout() {
+            return this.$store.state["apidoc/baseInfo"].layout;
+        },
     },
     methods: {
         //美化html文件
@@ -141,6 +145,9 @@ export default defineComponent({
     width: 100%;
     height: calc(100vh - #{size(370)});
     overflow-y: auto;
+    &.vertical {
+        height: 100%;
+    }
     .text-wrap {
         height: 100%;
     }

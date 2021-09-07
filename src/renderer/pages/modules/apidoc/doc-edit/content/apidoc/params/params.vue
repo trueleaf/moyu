@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="api-params">
+    <div class="api-params" :class="{ vertical: layout === 'vertical' }">
         <el-tabs v-model="activeName">
             <el-tab-pane label="Params" name="s-params">
                 <template #label>
@@ -37,7 +37,10 @@
         <div class="view-type">
             <div class="active cursor-pointer">编辑</div>
             <el-divider direction="vertical"></el-divider>
-            <div class="cursor-pointer">预览</div>
+            <div class="cursor-pointer mr-5">预览</div>
+            <div class="cursor-pointer" :class="{ active: layout === 'horizontal' }" @click="handleChangeLayout('horizontal')">左右布局</div>
+            <el-divider direction="vertical"></el-divider>
+            <div class="cursor-pointer" :class="{ active: layout === 'vertical' }" @click="handleChangeLayout('vertical')">上下布局</div>
         </div>
     </div>
 </template>
@@ -113,6 +116,10 @@ export default defineComponent({
             const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
             return currentSelectTab;
         },
+        //布局
+        layout() {
+            return this.$store.state["apidoc/baseInfo"].layout;
+        },
     },
     watch: {
         activeName(val: string) {
@@ -128,10 +135,15 @@ export default defineComponent({
         this.initTabCache();
     },
     methods: {
+        //初始化tab缓存
         initTabCache() {
             if (this.currentSelectTab) {
                 this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || "s-params";
             }
+        },
+        //切换布局
+        handleChangeLayout(layout: "vertical" | "horizontal") {
+            this.$store.commit("apidoc/baseInfo/changeLayout", layout);
         },
     },
 })
@@ -143,6 +155,11 @@ export default defineComponent({
     height: calc(100vh - #{size(250)});
     overflow-y: auto;
     position: relative;
+    &.vertical {
+        // height: calc(100% - #{size(130)});
+        height: size(300);
+        // border-bottom: 1px solid $gray-500;
+    }
     .el-tabs, .workbench {
         padding-right: size(20);
         padding-left: size(20);

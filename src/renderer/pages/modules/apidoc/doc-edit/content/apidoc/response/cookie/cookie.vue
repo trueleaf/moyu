@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="cookie-view">
+    <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
         <el-table :data="cookies" stripe border size="mini" height="100%">
             <el-table-column align="center" prop="name" label="Name"></el-table-column>
             <el-table-column align="center" prop="value" label="Value"></el-table-column>
@@ -31,6 +31,10 @@ export default defineComponent({
         cookies() {
             return this.$store.state["apidoc/response"].cookies
         },
+        //布局
+        layout() {
+            return this.$store.state["apidoc/baseInfo"].layout;
+        },
     },
     methods: {
     },
@@ -41,5 +45,8 @@ export default defineComponent({
 .cookie-view {
     width: 100%;
     height: calc(100vh - #{size(370)});
+    &.vertical {
+        height: 100%;
+    }
 }
 </style>
