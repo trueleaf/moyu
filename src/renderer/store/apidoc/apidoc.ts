@@ -5,7 +5,7 @@ import { axios as axiosInstance } from "@/api/api"
 import { store } from "@/store/index"
 import type { State as RootState, ApidocState, } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
-import { apidocGenerateProperty } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep } from "@/helper/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -77,64 +77,8 @@ const cancel: Canceler[] = [] //请求列表
 const apidoc = {
     namespaced: true,
     state: {
-        apidoc: {
-            pid: "",
-            projectId: "",
-            isFolder: false,
-            sort: 0,
-            info: {
-                name: "",
-                description: "",
-                version: "",
-                type: "",
-                tag: {
-                    _id: "",
-                    name: "",
-                    color: "",
-                },
-                creator: "",
-                maintainer: "",
-                deletePerson: "",
-                spendTime: 0,
-            },
-            item: {
-                method: "GET",
-                url: {
-                    host: "",
-                    path: "",
-                },
-                paths: [],
-                queryParams: [],
-                requestBody: {
-                    mode: "json",
-                    json: [],
-                    formdata: [],
-                    urlencoded: [],
-                    raw: {
-                        data: "",
-                        dataType: "text/plain"
-                    },
-                    file: {
-                        src: "",
-                    },
-                },
-                responseParams: [{
-                    title: "成功返回",
-                    statusCode: 200,
-                    value: {
-                        file: {
-                            url: "",
-                            raw: ""
-                        },
-                        json: [],
-                        dataType: "json",
-                        text: ""
-                    }
-                }],
-                headers: [],
-                contentType: "",
-            },
-        },
+        apidoc: apidocGenerateApidoc(),
+        originApidoc: apidocGenerateApidoc(),
         defaultHeaders: [],
         formData: null,
         loading: false,
@@ -301,6 +245,7 @@ const apidoc = {
                 payload.item.headers.push(apidocGenerateProperty());
             }
             state.apidoc = payload;
+            state.originApidoc = cloneDeep(payload);
         },
         //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {

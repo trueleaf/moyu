@@ -241,6 +241,7 @@ type ApidocTabsState = {
 */
 type ApidocState = {
     apidoc: ApidocDetail,
+    originApidoc: ApidocDetail,
     defaultHeaders: ApidocProperty<"string">[],
     loading: boolean,
 }

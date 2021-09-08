@@ -29,7 +29,11 @@
             </el-tab-pane>
         </el-tabs>
     </div>
-    <el-empty v-show="!remoteResponse.data.type" description="Response"></el-empty>
+    <el-empty v-show="!remoteResponse.data.type">
+        <template #description>
+            <span>点击发送按钮发送请求</span>
+        </template>
+    </el-empty>
 </template>
 
 <script lang="ts" setup>

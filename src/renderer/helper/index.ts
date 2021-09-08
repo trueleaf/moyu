@@ -4,7 +4,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType } from "@@/global"
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail } from "@@/global"
 import tips from "./tips"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
@@ -600,6 +600,73 @@ export function apidocConvertValue(value: string): string {
         return Mock.mock(value);
     }
     return value;
+}
+
+/**
+ * @description        生成一份apidoc默认值
+ * @author             shuxiaokai
+ * @create             2021-09-07 22:35
+ * @return {Apidoc}    返回字符串
+ */
+export function apidocGenerateApidoc(): ApidocDetail {
+    return {
+        pid: "",
+        projectId: "",
+        isFolder: false,
+        sort: 0,
+        info: {
+            name: "",
+            description: "",
+            version: "",
+            type: "api",
+            tag: {
+                _id: "",
+                name: "",
+                color: "",
+            },
+            creator: "",
+            maintainer: "",
+            deletePerson: "",
+            spendTime: 0,
+        },
+        item: {
+            method: "GET",
+            url: {
+                host: "",
+                path: "",
+            },
+            paths: [],
+            queryParams: [],
+            requestBody: {
+                mode: "json",
+                json: [],
+                formdata: [],
+                urlencoded: [],
+                raw: {
+                    data: "",
+                    dataType: "text/plain"
+                },
+                file: {
+                    src: "",
+                },
+            },
+            responseParams: [{
+                title: "成功返回",
+                statusCode: 200,
+                value: {
+                    file: {
+                        url: "",
+                        raw: ""
+                    },
+                    json: [],
+                    dataType: "application/json",
+                    text: ""
+                }
+            }],
+            headers: [],
+            contentType: "",
+        },
+    }
 }
 
 /**

@@ -58,7 +58,6 @@ const response = {
         },
         //改变responseHeader
         changeResponseHeader(state: ApidocResponseState, payload: Record<string, unknown>): void {
-            // console.log(444, payload)
             state.header = payload;
         },
         //改变response基本信息,

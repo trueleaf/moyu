@@ -54,6 +54,7 @@ import responseParams from "./response/response.vue";
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import type { ApidocTab } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
+import type { ApidocDetail, ApidocProperty } from "@@/global"
 
 export default defineComponent({
     components: {
@@ -120,6 +121,10 @@ export default defineComponent({
         layout() {
             return this.$store.state["apidoc/baseInfo"].layout;
         },
+        //apidoc
+        apidoc() {
+            return this.$store.state["apidoc/apidoc"].apidoc;
+        },
     },
     watch: {
         activeName(val: string) {
@@ -129,7 +134,14 @@ export default defineComponent({
         },
         currentSelectTab() {
             this.initTabCache();
-        }
+        },
+        apidoc: {
+            handler(apidoc: ApidocDetail) {
+                const { originApidoc } = this.$store.state["apidoc/apidoc"];
+                console.log("equal", this.checkApidocIsEqual(apidoc, originApidoc));
+            },
+            deep: true,
+        },
     },
     created() {
         this.initTabCache();
@@ -144,6 +156,122 @@ export default defineComponent({
         //切换布局
         handleChangeLayout(layout: "vertical" | "horizontal") {
             this.$store.commit("apidoc/baseInfo/changeLayout", layout);
+        },
+        //=========================================================================//
+        //判断apidoc是否发生改变
+        checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
+            const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+            const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
+            const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
+            const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
+            const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
+            const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
+            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual) {
+                return false;
+            }
+            if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
+                return false;
+            }
+            const { requestBody } = cpApidoc.item;
+            if (requestBody.mode === "json") {
+                const jsonBodyIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.json, cpOriginApidoc.item.requestBody.json);
+                if (!jsonBodyIsEqual) {
+                    return false;
+                }
+            } else if (requestBody.mode === "formdata") {
+                const formDataIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.formdata, cpOriginApidoc.item.requestBody.formdata);
+                if (!formDataIsEqual) {
+                    return false;
+                }
+            } else if (requestBody.mode === "urlencoded") {
+                const urlencodedIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.urlencoded, cpOriginApidoc.item.requestBody.urlencoded);
+                if (!urlencodedIsEqual) {
+                    return false;
+                }
+            } else if (requestBody.mode === "raw") {
+                const rawDataIsEqual = cpApidoc.item.requestBody.raw.data === cpOriginApidoc.item.requestBody.raw.data
+                const rawTypeIsEqual = cpApidoc.item.requestBody.raw.dataType === cpOriginApidoc.item.requestBody.raw.dataType
+                if (!rawTypeIsEqual) {
+                    return false;
+                }
+                if (!rawDataIsEqual) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        //检查请求方法是否发生改变
+        checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
+        },
+        //检查请求url是否发生改变
+        checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            const apidocHost = apidoc.item.url.host;
+            const apidocPath = apidoc.item.url.path;
+            const originHost = originApidoc.item.url.host;
+            const originPath = originApidoc.item.url.path;
+            return apidocHost === originHost && apidocPath === originPath;
+        },
+        //检查ApidocProperty[]类型数据是否相同 
+        checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]) {
+            if (value.length !== originValue.length){
+                return false;
+            }
+            for(let i = 0; i < value.length; i ++) {
+                const item = value[i];
+                const { _id } = item;
+                const matchedOriginItem = originValue.find(v => v._id === _id);
+                if (!matchedOriginItem) {
+                    return false;
+                }
+                if (!this.checkIsSameProperty(item, matchedOriginItem)) {
+                    return false;
+                }
+            }
+            return true;
+        },
+       
+        //检查每个ApidocProperty是否一致
+        checkIsSameProperty(prop: ApidocProperty, prop2: ApidocProperty) {
+            let isSame = true;
+            const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
+                if (prop.key !== prop2.key) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.value !== prop2.value) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.type !== prop2.type) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.required !== prop2.required) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.description !== prop2.description) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.select !== prop2.select) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.children.length !== prop2.children.length) {
+                    isSame = false;
+                    return;
+                }
+                if (prop.children.length > 0) { //prop2长度肯定也大于0
+                    for(let i = 0; i < prop.children.length; i ++) {
+                        checkProperty(prop.children[i], prop2.children[i]);
+                    }
+                }
+            }
+            checkProperty(prop, prop2);
+            return isSame
         },
     },
 })
