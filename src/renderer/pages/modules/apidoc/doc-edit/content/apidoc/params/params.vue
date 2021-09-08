@@ -138,7 +138,20 @@ export default defineComponent({
         apidoc: {
             handler(apidoc: ApidocDetail) {
                 const { originApidoc } = this.$store.state["apidoc/apidoc"];
-                console.log("equal", this.checkApidocIsEqual(apidoc, originApidoc));
+                const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
+                if (!isEqual) {
+                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: this.currentSelectTab?._id,
+                        field: "saved",
+                        value: false,
+                    })
+                } else {
+                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: this.currentSelectTab?._id,
+                        field: "saved",
+                        value: true,
+                    })
+                }
             },
             deep: true,
         },
@@ -285,7 +298,7 @@ export default defineComponent({
     position: relative;
     &.vertical {
         // height: calc(100% - #{size(130)});
-        height: size(300);
+        height: auto;
         // border-bottom: 1px solid $gray-500;
     }
     .el-tabs, .workbench {
