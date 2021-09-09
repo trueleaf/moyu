@@ -292,6 +292,8 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
             field: "label",
             value: iptValue,
         });
+        //改变apidoc名称
+        store.commit("apidoc/apidoc/changeApidocName", iptValue);
         //=========================================================================//
         const params = {
             _id: data._id,
@@ -305,6 +307,7 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
                 field: "name",
                 value: originValue,
             });
+            store.commit("apidoc/apidoc/changeApidocName", originValue);
         }).finally(() => {
             isRename = false;
         });

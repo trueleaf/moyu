@@ -610,6 +610,7 @@ export function apidocConvertValue(value: string): string {
  */
 export function apidocGenerateApidoc(): ApidocDetail {
     return {
+        _id: "",
         pid: "",
         projectId: "",
         isFolder: false,

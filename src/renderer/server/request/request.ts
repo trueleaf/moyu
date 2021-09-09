@@ -5,15 +5,17 @@ import FormData from "form-data"
 import { store } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
-import ProxyAgent from "proxy-agent"
 import * as utils from "./utils"
 import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
 
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let ProxyAgent: any = null;
 if (window.require) {
     got = window.require("got");
+    ProxyAgent = window.require("proxy-agent");
 }
 // const INVALID_HEADER_KEYS = ["content-type", "Content-type", "content-Type", "ContentType", "contentType", "host", "HOST", "Host", "user-agent", "userAgent", "UserAgent"];
 //初始化请求

@@ -25,6 +25,7 @@ import operation from "./operation/operation.vue"
 import params from "./params/params.vue"
 import response from "./response/response.vue"
 import type { ApidocTab } from "@@/store"
+import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({
     components: {
@@ -61,10 +62,25 @@ export default defineComponent({
     methods: {
         //获取api文档数据
         getApidocInfo() {
-            this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
-                id: this.currentSelectTab?._id,
-                projectId: this.$route.query.id,
-            })
+            if (!this.currentSelectTab) {
+                return
+            }
+            if (this.currentSelectTab.saved) { //取最新值
+                this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
+                    id: this.currentSelectTab?._id,
+                    projectId: this.$route.query.id,
+                })
+            } else { //取缓存值
+                const catchedApidoc = apidocCache.getApidoc(this.currentSelectTab._id);
+                if (!catchedApidoc) {
+                    this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
+                        id: this.currentSelectTab?._id,
+                        projectId: this.$route.query.id,
+                    })
+                } else {
+                    this.$store.commit("apidoc/apidoc/changeApidoc", catchedApidoc);
+                }
+            }
         },
     },
 })

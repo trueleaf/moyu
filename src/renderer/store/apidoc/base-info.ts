@@ -29,7 +29,6 @@ const baseInfo = {
         },
         //改变hosts
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
-            console.log(444, payload)
             state.hosts = payload;
         },
         //初始化cookie值

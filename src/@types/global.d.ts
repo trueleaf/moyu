@@ -435,6 +435,10 @@ type ApidocResponseParams = {
 //完整文档信息
 type ApidocDetail = {
     /**
+     * 当前文档id
+     */
+    _id: string,
+    /**
      * 父元素id
      */
     pid: string,

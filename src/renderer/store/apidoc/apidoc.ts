@@ -86,7 +86,7 @@ const apidoc = {
     mutations: {
         /*
         |--------------------------------------------------------------------------
-        | url、host、method
+        | url、host、method、name
         |--------------------------------------------------------------------------
         */
         //改变host值
@@ -100,6 +100,10 @@ const apidoc = {
         //改变请求method
         changeApidocMethod(state: ApidocState, method: ApidocHttpRequestMethod): void {
             state.apidoc.item.method = method;
+        },
+        //改变接口名称
+        changeApidocName(state: ApidocState, name: string): void {
+            state.apidoc.info.name = name;
         },
         /*
         |--------------------------------------------------------------------------
@@ -245,7 +249,10 @@ const apidoc = {
                 payload.item.headers.push(apidocGenerateProperty());
             }
             state.apidoc = payload;
-            state.originApidoc = cloneDeep(payload);
+        },
+        //改变apidoc原始缓存值
+        changeOriginApidoc(state: ApidocState): void {
+            state.originApidoc = cloneDeep(state.apidoc);
         },
         //改变apidoc数据加载状态
         changeApidocLoading(state: ApidocState, loading: boolean): void {
@@ -292,6 +299,7 @@ const apidoc = {
                         return;
                     }
                     context.commit("changeApidoc", res.data)
+                    context.commit("changeOriginApidoc")
                     store.commit("apidoc/response/clearResponseInfo")
                     resolve()
                 }).catch((err) => {

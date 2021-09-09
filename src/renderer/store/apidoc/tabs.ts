@@ -4,7 +4,8 @@
 import { findNodeById } from "@/helper/index"
 import type { ApidocTabsState, ApidocTab } from "@@/store"
 import { router } from "@/router/index"
-// import { ElMessageBox } from "element-plus"
+import { ElMessageBox } from "element-plus"
+import { store } from "@/store/index";
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,
@@ -66,14 +67,41 @@ const tabs = {
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
         //根据id删除tab
-        deleteTabByIds(state: ApidocTabsState, payload: { ids: string[], projectId: string }): void {
+        async deleteTabByIds(state: ApidocTabsState, payload: { ids: string[], projectId: string }): Promise<void> {
             const { ids, projectId } = payload;
             if (!state.tabs[projectId]) {
                 return;
             }
+            const unsavedTabs: ApidocTab[] = state.tabs[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
+            // const allDeleteTabs: ApidocTab[] = state.tabs[projectId].filter(tab => ids.find(v => v === tab._id));
+            for(let i = 0; i < unsavedTabs.length; i ++) {
+                const unsavedTab = unsavedTabs[i];
+                try {
+                    await ElMessageBox.confirm(`是否要保存对${unsavedTab.label}的修改`, "提示", {
+                        confirmButtonText: "保存",
+                        cancelButtonText: "不保存",
+                        type: "warning",
+                        distinguishCancelAndClose: true,
+                    })
+                } catch (error) {
+                    if (error === "close") {
+                        return;
+                    }
+                    if (error === "cancel") { //不保存，异步方法无法直接改变state值
+                        const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === unsavedTab._id);
+                        store.commit("apidoc/tabs/deleteTabByIndex", {
+                            projectId,
+                            deleteIndex,
+                        });
+                    }
+                }
+            }
             ids.forEach((id) => {
                 const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
-                state.tabs[projectId].splice(deleteIndex, 1)
+                const deleteTab = state.tabs[projectId].find((tab) => tab._id === id);
+                if (deleteTab?.saved) { //只删除保存的
+                    state.tabs[projectId].splice(deleteIndex, 1)
+                }
             })
             const selectTab = state.tabs[projectId].find((tab) => tab.selected);
             const hasTab = state.tabs[projectId].length > 0;
@@ -82,6 +110,10 @@ const tabs = {
                 state.tabs[projectId][selectTabIndex].selected = true;
             }
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+        },
+        //在异步回调中无法直接改变state的值
+        deleteTabByIndex(state: ApidocTabsState, payload: { deleteIndex: number, projectId: string }): void {
+            state.tabs[payload.projectId].splice(payload.deleteIndex, 1)
         },
         //根据id选中tab
         selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {

@@ -152,6 +152,8 @@ export default defineComponent({
                         value: true,
                     })
                 }
+                //缓存接口信息
+                apidocCache.setApidoc(apidoc);
             },
             deep: true,
         },

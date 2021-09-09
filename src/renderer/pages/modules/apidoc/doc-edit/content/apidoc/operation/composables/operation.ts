@@ -89,7 +89,14 @@ export default (): OperationReturn => {
                 field: "method",
                 value: params.item.method,
             })
-
+            //改变origindoc的值
+            store.commit("apidoc/apidoc/changeOriginApidoc");
+            //改变tab未保存小圆点
+            store.commit("apidoc/tabs/changeTabInfoById", {
+                id: currentSelectTab.value?._id,
+                field: "saved",
+                value: true,
+            });
         }).catch((err) => {
             console.error(err);
         }).finally(() => {
