@@ -2,22 +2,22 @@
  * apidoc文档缓存
  */
 
+import { ApidocDetail } from "@@/global";
+
 
 class ApidocCache {
     constructor() {
         if (!localStorage.getItem("apidoc/paramsConfig")) {
             localStorage.setItem("apidoc/paramsConfig", "{}");
         }
-    }
-    private generateConfig() {
-        return {
-            activeParamsModel: "",
+        if (!localStorage.getItem("apidoc/apidoc")) {
+            localStorage.setItem("apidoc/apidoc", "{}");
         }
     }
     /**
      * @description        获取当前选中params tab的值
      * @author             shuxiaokai
-     * @create             2021-09-06 13:50
+     * @create             2021-09-06 21:50
      * @param {string}     id - 当前tab的id
      */
     getActiveParamsTab(id: string): string | null {
@@ -36,7 +36,7 @@ class ApidocCache {
     /**
      * @description        设置当前选中params tab的值
      * @author             shuxiaokai
-     * @create             2021-09-06 13:50
+     * @create             2021-09-06 21:50
      * @param {string}     id - 当前tab的id
      * @param {string}     val - 需要设置的值
      */
@@ -53,6 +53,41 @@ class ApidocCache {
         }
     }
 
+    /**
+     * @description        缓存接口信息     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    setApidoc(val: ApidocDetail) {
+        try {
+            const localApidoc = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
+            localApidoc[val._id] = val;
+            localStorage.setItem("apidoc/apidoc", JSON.stringify(localApidoc));
+        } catch (error) {
+            console.error(error);
+            const data: Record<string, ApidocDetail> = {};
+            data[val._id] = val;
+            localStorage.setItem("apidoc/apidoc", JSON.stringify(data));
+        }
+    }
+    /**
+     * @description        获取缓存接口信息     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    getApidoc(id: string): ApidocDetail | null {
+        try {
+            const localApidoc: Record<string, ApidocDetail> = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
+            if (!localApidoc[id]) {
+                return null;
+            }
+            return localApidoc[id];
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/apidoc", "{}")
+            return null;
+        }
+    }
 }
 
 
