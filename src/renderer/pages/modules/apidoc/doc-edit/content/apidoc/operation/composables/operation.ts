@@ -8,7 +8,7 @@ import { ref, Ref, computed } from "vue"
 import { useStore } from "@/store/index"
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
-import { sendRequest } from "@/server/request/request"
+import { sendRequest, stopRequest } from "@/server/request/request"
 
 type OperationReturn = {
     /**
@@ -57,7 +57,7 @@ export default (): OperationReturn => {
     }
     //停止请求
     const handleStopRequest = () => {
-        console.log(2)
+        stopRequest();
     };
     //保存文档
     const handleSaveApidoc = () => {
