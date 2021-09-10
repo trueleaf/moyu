@@ -19,13 +19,13 @@
                     </span>
                 </template>
             </el-tab-pane>
-            <el-tab-pane name="all">
+            <el-tab-pane name="全部">
                 <template #label>
                     <span>全部</span>
                     <span>
                         <span>(</span>
                         <span v-if="activeName === '全部'">{{ mockEnum.length }}</span>
-                        <span v-else>{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.length }}</span>
                         <span>/{{ cpMockEnum.length }}</span>
                         <span>)</span>
                     </span>
@@ -169,7 +169,7 @@ export default defineComponent({
                 const searchValue = this.searchValue.toString().replace("@", "")
                 return mockValue.includes(searchValue)
             });
-            if (this.activeName === "all") {
+            if (this.activeName === "全部") {
                 return matchedMockData;
             }
             return matchedMockData.filter((val) => val.tags.find((tag) => tag === this.activeName))
