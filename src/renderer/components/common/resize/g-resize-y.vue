@@ -60,6 +60,7 @@ export default defineComponent({
             required: true,
         },
     },
+    emits: ["dragStart", "dragEnd"],
     data() {
         return {
             realTimeHeight: 0, //---------------实时高度
@@ -96,6 +97,7 @@ export default defineComponent({
         handleResizeMouseup() {
             this.isDragging = false;
             document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            this.$emit("dragEnd");
         },
         //处理鼠标按下事件
         handleResizeMousedown(e: MouseEvent) {
@@ -103,6 +105,7 @@ export default defineComponent({
             this.wrapperHeight = (this.$refs.wrapper as HTMLElement).getBoundingClientRect().height;
             this.isDragging = true;
             document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+            this.$emit("dragStart")
         },
         //处理鼠标移动事件
         handleResizeMousemove(e: MouseEvent) {

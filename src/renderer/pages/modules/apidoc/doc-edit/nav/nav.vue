@@ -181,7 +181,7 @@ export default defineComponent({
             const projectId = this.$route.query.id;
             const currentOperationNodeId = this.currentOperationNode?._id || ""
             const tabId: string = element ? element._id : currentOperationNodeId;
-            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: [tabId]
             });
@@ -197,7 +197,7 @@ export default defineComponent({
                     delTabs.push(tab._id);
                 }
             })
-            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: delTabs
             });
@@ -215,7 +215,7 @@ export default defineComponent({
                     break;
                 }
             }
-            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: delTabs
             });
@@ -230,7 +230,7 @@ export default defineComponent({
             for(let i = currentNodeIndex + 1; i < tabs.length; i ++) {
                 delTabs.push(tabs[i]._id);
             }
-            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: delTabs
             });
@@ -239,7 +239,7 @@ export default defineComponent({
         handleCloseAllTab() {
             const projectId: string = this.$route.query.id as string;
             const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
-            this.$store.commit("apidoc/tabs/deleteTabByIds", {
+            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: tabs.map((v) => v._id)
             });

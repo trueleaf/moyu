@@ -74,6 +74,7 @@ class ApidocCache {
      * @description        获取缓存接口信息     
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
+     * @param {string}     id 接口id
      */
     getApidoc(id: string): ApidocDetail | null {
         try {

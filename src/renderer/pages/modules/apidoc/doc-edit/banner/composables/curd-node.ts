@@ -69,7 +69,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
                     delNodeIds.push(node._id);
                 }
             })
-            store.commit("apidoc/tabs/deleteTabByIds", {
+            store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: delNodeIds
             });

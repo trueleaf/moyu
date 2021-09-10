@@ -12,10 +12,6 @@ body {
         background: $gray-200;
         color: $theme-color;
     }
-    .el-divider__text {
-        color: $cyan;
-        font-size: fz(16);
-    }
     .el-table .cell {
         line-height: size(24); //修复奇数高度文本错位
     }

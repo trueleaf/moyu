@@ -68,7 +68,6 @@ body .el-dropdown-menu__item:focus, body .el-dropdown-menu__item:not(.is-disable
   background: #f4f4f4;
   color: #409EFF; }
 body .el-divider__text {
-  color: #17a2b8;
   font-size: 16px; }
 body .el-table .cell {
   line-height: 24px; }

@@ -10,7 +10,17 @@
             <s-operation></s-operation>
             <s-params></s-params>
         </div>
-        <s-resize-y v-show="layout === 'vertical'" :min="150" :max="550" :height="350" name="response-y" tabindex="1">
+        <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
+        <s-resize-y 
+            v-show="layout === 'vertical'"
+            :min="150"
+            :max="550"
+            :height="350"
+            name="response-y"
+            tabindex="1"
+            @dragStart="isVerticalDrag = true"
+            @dragEnd="isVerticalDrag = false"
+        >
             <s-response></s-response>
         </s-resize-y>
         <s-resize-x v-show="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
@@ -32,6 +42,11 @@ export default defineComponent({
         "s-operation": operation,
         "s-params": params,
         "s-response": response,
+    },
+    data() {
+        return {
+            isVerticalDrag: false
+        };
     },
     computed: {
         currentSelectTab(): ApidocTab | null { //当前选中的doc
@@ -102,7 +117,7 @@ export default defineComponent({
         border-right: 1px solid $gray-400;
         &.vertical {
             flex: 1;
-            border-bottom: 1px solid $gray-500;
+            // border-bottom: 1px solid $gray-500;
             overflow-y: auto;
             // margin-top: -2px;
             // box-shadow: 0 3px 1px $gray-400;
@@ -114,6 +129,11 @@ export default defineComponent({
         flex-shrink: 0;
         width: size(300);
         // flex: 0 0 size(500);
+    }
+    .el-divider--horizontal {
+       margin: 0;
+       z-index: $zIndex-banner-bar;
+       font-size: fz(14);
     }
 }
 </style>

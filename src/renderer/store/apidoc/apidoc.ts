@@ -20,7 +20,7 @@ function confirmInvalidDoc(projectId: string, delId: string) {
         cancelButtonText: "取消",
         type: "warning",
     }).then(() => {
-        store.commit("apidoc/tabs/deleteTabByIds", {
+        store.dispatch("apidoc/tabs/deleteTabByIds", {
             projectId,
             ids: [delId]
         });
