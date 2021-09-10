@@ -567,11 +567,121 @@ type ApidocBanner = {
 //工具栏操作
 type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
 
-//=========================================================================//
-//=========================================================================//
-//=================================mock相关================================//
-//=========================================================================//
-//=========================================================================//
+
+/*
+|--------------------------------------------------------------------------
+| 数组类型参数数据转换为json预览格式
+|--------------------------------------------------------------------------
+*/
+type ApidocASTInfo = {
+    /**
+     * id值
+     */
+    id: string,
+    /**
+     * 缩进
+     */
+    indent: number,
+    /**
+     * 行号
+     */
+    line: number, //行号
+    /**
+     * 键
+     */
+    path: {
+        /**
+         * 键对应的值
+         */
+        value: string,
+        /**
+         * 键是否存在双引号
+         */
+        widthQuote: boolean,
+    },
+    /**
+     * 值
+     */
+    value: string,
+    /**
+     * 值类型
+     */
+    valueType: string,
+    /**
+     * 冒号
+     */
+    colon: string,
+    /**
+     * 逗号
+     */
+    comma: string,
+    /**
+     * 备注信息
+     */
+    description: string,
+    /**
+     * 是否必填
+     */
+    required: boolean,
+    /**
+     * 左花括号
+     */
+    leftCurlBrace: {
+        /**
+         * 与之相匹配的另一个括号id
+         */
+        pairId: string,
+        /**
+         * 值
+         */
+        value: string,
+    },
+    /**
+     * 右花括号
+     */
+    rightCurlBrace: {
+        /**
+         * 与之相匹配的另一个括号id
+         */
+        pairId: string,
+        /**
+         * 值
+         */
+        value: string,
+    },
+    /**
+     * 左中括号
+     */
+    leftBracket: {
+        /**
+         * 与之相匹配的另一个括号id
+         */
+        pairId: string,
+        value: string,
+    },
+    /**
+     * 右中括号
+     */
+    rightBracket: {
+        /**
+         * 与之相匹配的另一个括号id
+         */
+        pairId: string,
+        value: string,
+    },
+    _hidden?: boolean,
+    _close?: boolean,
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| mock相关
+|--------------------------------------------------------------------------
+|
+| 
+|
+*/
 //mock项目
 type MockItem = {
     name: string,
@@ -606,5 +716,6 @@ export {
     ApidocBodyMode,
     ApidocBodyRawType,
     ApidocResponseParams,
+    ApidocASTInfo,
     MockItem,
 }
