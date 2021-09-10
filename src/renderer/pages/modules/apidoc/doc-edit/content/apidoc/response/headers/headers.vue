@@ -47,6 +47,7 @@ export default defineComponent({
 .header-view {
     width: 100%;
     height: calc(100vh - #{size(370)});
+    overflow-y: auto;
     &.vertical {
         height: 100%;
     }

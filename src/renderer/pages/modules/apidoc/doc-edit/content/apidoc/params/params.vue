@@ -1,46 +1,51 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-08-15 22:11
-    模块名称：参数录入
+    模块名称：参数录入与展示
     备注：
 */
 <template>
     <div class="api-params" :class="{ vertical: layout === 'vertical' }">
-        <el-tabs v-model="activeName">
-            <el-tab-pane label="Params" name="s-params">
-                <template #label>
-                    <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
-                </template>
-            </el-tab-pane>
-            <el-tab-pane label="Body" name="s-request-body">
-                <template #label>
-                    <el-badge :is-dot="hasBodyParams">Body</el-badge>
-                </template>
-            </el-tab-pane>
-            <el-tab-pane label="返回参数" name="s-response-params">
-                <template #label>
-                    <el-badge :is-dot="!!responseNum">返回参数</el-badge>
-                    <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
-                    <el-badge v-else>返回参数</el-badge> -->
-                </template>
-            </el-tab-pane>
-            <el-tab-pane label="请求头" name="s-request-headers">
-                <template #label>
-                    <el-badge :is-dot="hasHeaders">请求头</el-badge>
-                </template>
-            </el-tab-pane>
-            <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
-        </el-tabs>
-        <keep-alive>
-            <component :is="activeName" class="workbench"></component>
-        </keep-alive>
         <div class="view-type">
-            <div class="active cursor-pointer">编辑</div>
+            <div class="cursor-pointer" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">编辑</div>
             <el-divider direction="vertical"></el-divider>
-            <div class="cursor-pointer mr-5">预览</div>
+            <div class="cursor-pointer mr-5" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">预览</div>
             <div class="cursor-pointer" :class="{ active: layout === 'horizontal' }" @click="handleChangeLayout('horizontal')">左右布局</div>
             <el-divider direction="vertical"></el-divider>
             <div class="cursor-pointer" :class="{ active: layout === 'vertical' }" @click="handleChangeLayout('vertical')">上下布局</div>
+        </div>
+        <div v-show="workMode === 'edit'">
+            <el-tabs v-model="activeName" class="mt-2">
+                <el-tab-pane label="Params" name="s-params">
+                    <template #label>
+                        <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane label="Body" name="s-request-body">
+                    <template #label>
+                        <el-badge :is-dot="hasBodyParams">Body</el-badge>
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane label="返回参数" name="s-response-params">
+                    <template #label>
+                        <el-badge :is-dot="!!responseNum">返回参数</el-badge>
+                        <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
+                        <el-badge v-else>返回参数</el-badge> -->
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane label="请求头" name="s-request-headers">
+                    <template #label>
+                        <el-badge :is-dot="hasHeaders">请求头</el-badge>
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
+            </el-tabs>    
+            <keep-alive>
+                <component :is="activeName" class="workbench"></component>
+            </keep-alive>        
+        </div>
+        <div v-show="workMode === 'view'">
+            <s-view></s-view>
         </div>
     </div>
 </template>
@@ -51,6 +56,7 @@ import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
+import view from "./view/view.vue"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import type { ApidocTab } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
@@ -62,9 +68,11 @@ export default defineComponent({
         "s-request-body": requestBody,
         "s-request-headers": requestHeaders,
         "s-response-params": responseParams,
+        "s-view": view,
     },
     data() {
         return {
+            workMode: "view" as "edit" | "view", //是否开启预览模式
             activeName: "s-params",
         };
     },
@@ -246,7 +254,6 @@ export default defineComponent({
             }
             return true;
         },
-       
         //检查每个ApidocProperty是否一致
         checkIsSameProperty(prop: ApidocProperty, prop2: ApidocProperty) {
             let isSame = true;
@@ -287,6 +294,11 @@ export default defineComponent({
             }
             checkProperty(prop, prop2);
             return isSame
+        },
+        //=========================================================================//
+        //切换工作模式
+        toggleWorkMode(mode: "edit" | "view") {
+            this.workMode = mode;
         },
     },
 })
