@@ -3,6 +3,7 @@ import config from "@/../config/config"
 import { store } from "@/store/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
+import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue"
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [
@@ -13,7 +14,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: "/login",
         name: "Login",
-        component: () => import(/* webpackChunkName: "login" */ "@/pages/login/login.vue")
+        component: () => import(/* webpackChunkName: "Login" */ "@/pages/login/login.vue")
     },
     {
         path: "/v1",
@@ -34,7 +35,7 @@ const routes: Array<RouteRecordRaw> = [
         }, {
             path: "/v1/apidoc/doc-edit",
             name: "DocEdit",
-            component: () => import(/* webpackChunkName: "DocEdit" */ "@/pages/modules/apidoc/doc-edit/doc-edit.vue"),
+            component: docEdit,
         }],
     },
     {
