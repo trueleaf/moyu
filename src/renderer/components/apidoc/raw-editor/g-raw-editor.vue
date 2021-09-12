@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType, WatchStopHandle } from "vue"
 import ace, { Editor} from "brace";
 import "brace/mode/json";
 import "brace/mode/javascript";
@@ -46,6 +46,7 @@ export default defineComponent({
     data() {
         return {
             editorInstance: null as null | Editor,
+            watchStoper: null as null | WatchStopHandle,
         };
     },
     watch: {
@@ -57,19 +58,19 @@ export default defineComponent({
             },
             immediate: true,
         },
-        modelValue: {
-            handler(value: string) {
-                this.setValue(value);
-            },
-            immediate: true,
-        },
     },
     mounted() {
         this.initEditor();
+        this.watchStoper = this.$watch("modelValue", (value: string) => {
+            this.setValue(value)
+        }, {
+            immediate: true
+        })
     },
     methods: {
         initEditor() {
             this.editorInstance = ace.edit(this.$el);
+            this.editorInstance.$blockScrolling = Infinity;
             this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || "text"}`);
             this.editorInstance.setTheme("ace/theme/github");
             this.editorInstance.setOptions({
@@ -81,9 +82,12 @@ export default defineComponent({
                 this.editorInstance.setReadOnly(true);
             }
             this.editorInstance.on("change", () => {
+                if (this.watchStoper) {
+                    this.watchStoper();
+                }
                 const content = this.editorInstance?.getValue();
                 this.$emit("update:modelValue", content);
-                this.$emit("change", content);
+                // this.$emit("change", content);
             });
             this.$emit("ready", this.editorInstance);
         },
