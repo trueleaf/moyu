@@ -308,6 +308,13 @@ const addNestTip = computed(() => {
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
     const params = apidocGenerateProperty();
+    if (data.type !== "object" && data.type !== "array") {
+        store.commit("apidoc/apidoc/changePropertyValue", {
+            data: data,
+            field: "type",
+            value: "object",
+        });
+    }
     store.commit("apidoc/apidoc/addProperty", {
         data: data.children,
         params,
