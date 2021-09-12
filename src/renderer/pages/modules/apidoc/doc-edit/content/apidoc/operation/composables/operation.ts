@@ -98,6 +98,12 @@ export default (): OperationReturn => {
                 value: true,
             });
         }).catch((err) => {
+            //改变tab未保存小圆点
+            store.commit("apidoc/tabs/changeTabInfoById", {
+                id: currentSelectTab.value?._id,
+                field: "saved",
+                value: false,
+            });
             console.error(err);
         }).finally(() => {
             loading2.value = false;
