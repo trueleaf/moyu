@@ -5,15 +5,53 @@
     备注：
 */
 <template>
-    <div class="px-3">
+    <div class="params-view px-3">
         <s-fieldset title="请求参数" class="mb-5">
-            <div v-if="hasQueryParams" class="f-base mb-2">Query参数</div>
-            <s-params-view v-if="hasQueryParams" :data="apidocInfo.queryParams" plain class="mb-3"></s-params-view>
-            <div v-if="hasPathsParams" class="f-base mb-2">Path参数</div>
-            <s-params-view v-if="hasPathsParams" :data="apidocInfo.paths" plain></s-params-view>
-            <div v-if="hasBodyParams" class="f-base mb-2">Body参数</div>
-            <s-params-view v-if="hasBodyParams" :data="apidocInfo.requestBody.json" plain></s-params-view>
+            <template v-if="hasQueryParams">
+                <div class="title">Query参数</div>
+                <s-params-view :data="apidocInfo.queryParams" plain class="mb-3"></s-params-view>
+            </template>
+            <template v-if="hasPathsParams">
+                <div class="title">Path参数</div>
+                <s-params-view :data="apidocInfo.paths" plain class="mb-3"></s-params-view>
+            </template>
+            <template v-if="hasJsonBodyParams">
+                <div class="title">Body参数(application/json)</div>
+                <s-params-view :data="apidocInfo.requestBody.json"></s-params-view>
+            </template>
+            <template v-if="hasFormDataParams">
+                <div class="title">Body参数(multipart/formdata)</div>
+                <s-params-view :data="apidocInfo.requestBody.formdata" plain></s-params-view>
+            </template>
+            <template v-if="hasUrlEncodedParams">
+                <div class="title">Body参数(x-www-form-urlencoded)</div>
+                <s-params-view :data="apidocInfo.requestBody.urlencoded" plain></s-params-view>
+            </template>
+            <template v-if="hasRawParams">
+                <div class="title">Body参数({{ apidocInfo.requestBody.raw.dataType }})</div>
+                <pre>{{ apidocInfo.requestBody.raw.data }}</pre>
+            </template>
+            <div v-else>暂无数据</div>
         </s-fieldset>
+        <s-fieldset title="返回参数">
+            <div v-for="(item, index) in apidocInfo.responseParams" :key="index" class="title">
+                <div class="mb-2">
+                    <span>名称：</span>
+                    <span>{{ item.title }}</span>
+                    <el-divider direction="vertical"></el-divider>
+                    <span>状态码：</span>
+                    <span>{{ item.statusCode }}</span>
+                    <el-divider direction="vertical"></el-divider>
+                    <span>返回格式：</span>
+                    <span>{{ item.value.dataType }}</span>
+                </div>
+                <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view>
+                <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'" class="h-150px">
+                    <s-raw-editor :data="item.value.json" :type="item.value.dataType" readonly></s-raw-editor>
+                </div>
+            </div>
+        </s-fieldset>
+        <s-fieldset title="请求头"></s-fieldset>
     </div>
 </template>
 
@@ -42,9 +80,25 @@ export default defineComponent({
             return hasPathsParams;
         },
         //是否存在body参数
-        hasBodyParams() {
+        hasJsonBodyParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            return !!contentType;
+            const { mode } = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody;
+            return contentType === "application/json" && mode === "json";
+        },
+        //是否存在formData参数
+        hasFormDataParams() {
+            const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            return contentType === "multipart/form-data";
+        },
+        //是否存在formData参数
+        hasUrlEncodedParams() {
+            const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            return contentType === "application/x-www-form-urlencoded";
+        },
+        //raw类型返回参数
+        hasRawParams() {
+            const { mode, raw } = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody;
+            return mode === "raw" && raw.data;
         },
         //返回参数个数
         // responseNum() {
@@ -82,4 +136,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+.params-view {
+    .title {
+        margin-bottom: size(10);
+        font-size: fz(15);
+    }
+}
 </style>
