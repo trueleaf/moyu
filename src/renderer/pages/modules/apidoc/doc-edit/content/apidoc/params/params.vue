@@ -6,7 +6,7 @@
 */
 <template>
     <div class="api-params" :class="{ vertical: layout === 'vertical' }">
-        <div class="view-type">
+        <div class="view-type" :class="{ vertical: layout === 'vertical' }">
             <div class="cursor-pointer" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">编辑</div>
             <el-divider direction="vertical"></el-divider>
             <div class="cursor-pointer mr-5" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">预览</div>
@@ -306,7 +306,7 @@ export default defineComponent({
 
 <style lang="scss">
 .api-params {
-    padding: size(20) size(0) size(10);
+    padding: size(0) size(0) size(10);
     height: calc(100vh - #{size(250)});
     overflow-y: auto;
     position: relative;
@@ -326,16 +326,27 @@ export default defineComponent({
         transition: none;
         top: size(10);
         &.is-fixed.is-dot {
+            top: size(10);
             right: size(3);
         }
     }
     .view-type {
         display: flex;
         align-items: center;
-        position: absolute;
-        top: size(10);
-        right: size(5);
+        justify-content: flex-end;
+        position: sticky;
+        top: size(3);
         color: $gray-500;
+        padding: size(0) size(20);
+        height: size(30);
+        display: flex;
+        align-items: center;
+        background: $white;
+        z-index: $zIndex-request-info-wrap;
+        &.vertical {
+            // position: relative;
+            z-index: 1;
+        }
         .active {
             color: $theme-color;
         }

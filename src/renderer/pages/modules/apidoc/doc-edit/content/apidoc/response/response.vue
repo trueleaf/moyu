@@ -74,6 +74,7 @@ const remoteResponse = computed(() => {
 .remote-response-wrap {
     &.vertical {
         height: 100%;
+        margin-top: size(15);
         .el-tabs__content {
             height: calc(100% - 55px);
             overflow-y: auto;

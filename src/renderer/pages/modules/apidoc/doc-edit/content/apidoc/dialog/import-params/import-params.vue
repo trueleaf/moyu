@@ -6,11 +6,13 @@
 */
 <template>
     <s-dialog :model-value="modelValue" width="40%" title="导入参数" @close="handleClose">
-        <div class="h-400px">
+        <div>
             <div class="d-flex j-end">
                 <el-button type="text" @click="formatJSON">格式化JSON</el-button>
             </div>
-            <s-raw-editor v-model="jsonParams" type="application/json" @ready="handleCodeReady"></s-raw-editor>
+            <div class="h-300px">
+                <s-raw-editor v-model="jsonParams" type="application/json" @ready="handleCodeReady"></s-raw-editor>
+            </div>
         </div>
         <template #footer>
             <el-button size="mini" type="primary" @click="handleSubmit">确认导入</el-button>
