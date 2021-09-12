@@ -45,6 +45,7 @@
                             <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
                             <span v-if="item.valueType === 'null'" class="null-value">null</span>
                             <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
+                            <span v-if="item.valueType === 'file'" class="file-value">{{ item.value }}</span>
                         </span>
                         <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
@@ -322,6 +323,10 @@ $theme-color: #282c34;
             }
             .null-value {
                 color: #f60;
+                font-size: .9em;
+            }
+            .file-value {
+                color: #7ec699;
                 font-size: .9em;
             }
         }
