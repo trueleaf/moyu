@@ -31,7 +31,7 @@
                 <div class="title">Body参数({{ apidocInfo.requestBody.raw.dataType }})</div>
                 <pre>{{ apidocInfo.requestBody.raw.data }}</pre>
             </template>
-            <div v-else>暂无数据</div>
+            <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">暂无数据</div>
         </s-fieldset>
         <s-fieldset title="返回参数">
             <div v-for="(item, index) in apidocInfo.responseParams" :key="index" class="title">
