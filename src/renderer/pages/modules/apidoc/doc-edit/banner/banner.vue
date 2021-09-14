@@ -7,7 +7,7 @@
 <template>
     <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
         <s-tool @fresh="getBannerData"></s-tool>
-        <s-loading ref="bannerRef" :loading="loading" class="tree-wrap" @contextmenu="handleWrapContextmenu">
+        <s-loading ref="bannerRef" :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
             <el-tree
                 ref="docTree"
                 :class="{ 'show-more': showMoreNodeInfo }"
@@ -121,7 +121,7 @@
 </template>
 
 <script lang="ts">
-import { clipboard } from "electron"
+import { Clipboard } from "electron"
 import { defineComponent, computed, ref, Ref, onMounted, onUnmounted } from "vue"
 import addFileDialog from "../dialog/add-file/add-file.vue"
 import addFolderDialog from "../dialog/add-folder/add-folder.vue"
@@ -132,6 +132,12 @@ import { useBannerData } from "./composables/banner-data"
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
 import { router } from "@/router/index"
 import tool from "./tool/tool.vue"
+
+let clipboard: Clipboard | null = null
+if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
+    clipboard = window.require("electron").clipboard;
+}
 
 type TreeNode = {
     data: ApidocBanner,
@@ -187,7 +193,7 @@ export default defineComponent({
             if (selectNodes.value.length < 2) { //处理单个节点
                 selectNodes.value = [data];
             }
-            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             showContextmenu.value = true;
             contextmenuLeft.value = e.clientX;
@@ -196,7 +202,7 @@ export default defineComponent({
         }
         const handleWrapContextmenu = (e: MouseEvent) => {
             selectNodes.value = [];
-            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             currentOperationalNode.value = null;
             showContextmenu.value = true;
@@ -285,7 +291,7 @@ export default defineComponent({
         const handleCopyNode = () => {
             cutNodes.value = [];
             const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
-            clipboard.writeBuffer("moyu-apidoc-node", buffer)
+            clipboard?.writeBuffer("moyu-apidoc-node", buffer)
         }
         //针对文件生成一份拷贝
         const handleForkNode = () => {
@@ -296,14 +302,14 @@ export default defineComponent({
         const handleCutNode = () => {
             cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
             const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
-            clipboard.writeBuffer("moyu-apidoc-node", buffer)
+            clipboard?.writeBuffer("moyu-apidoc-node", buffer)
         }
         //粘贴节点
         const handlePasteNode = () => {
             if (currentOperationalNode.value && !currentOperationalNode.value.isFolder){ //只允许根元素或者文件夹粘贴
                 return
             }
-            const copyData = clipboard.readBuffer("moyu-apidoc-node").toString();
+            const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
             pasteValue.value = copyData ? JSON.parse(copyData) : null;
             pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
                 if (cutNodes.value.length > 0) { //剪切节点
