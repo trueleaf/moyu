@@ -14,6 +14,13 @@ const axiosPlugin = {
         //===============================axiosInstance请求钩子==========================================//
         axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
             reqConfig.headers["x-csrf-token"] = jsCookie.get("csrfToken");
+            const userInfoStr = localStorage.getItem("userInfo") || "{}";
+            try {
+                const userInfo = JSON.parse(userInfoStr);
+                reqConfig.headers.Authorization = userInfo.token
+            } catch (error) {
+                Promise.reject(error)
+            }
             return reqConfig;
         }, (err) => Promise.reject(err));
         //===============================axiosInstance响应钩子=======================================//

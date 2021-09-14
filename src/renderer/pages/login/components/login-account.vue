@@ -108,7 +108,7 @@ export default defineComponent({
                             this.isShowCapture = true;
                         } else {
                             this.$router.push("/v1/apidoc/doc-list");
-                            sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                            localStorage.setItem("userInfo", JSON.stringify(res.data));
                             this.$store.dispatch("permission/getPermission")
                         }
                     }).catch((err) => {
@@ -139,7 +139,7 @@ export default defineComponent({
             this.loading = true;
             this.axios.post("/api/security/login_guest", this.userInfo).then((res) => {
                 this.$router.push("/v1/apidoc/doc-list");
-                sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                localStorage.setItem("userInfo", JSON.stringify(res.data));
             }).catch((err) => {
                 console.error(err);
             }).finally(() => {
