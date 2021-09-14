@@ -72,7 +72,7 @@ export default defineComponent({
     },
     data() {
         return {
-            workMode: "view" as "edit" | "view", //是否开启预览模式
+            workMode: "edit" as "edit" | "view", //是否开启预览模式
             activeName: "s-params",
         };
     },

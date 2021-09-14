@@ -32,7 +32,7 @@
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
         </div>
         <div v-show="bodyType === 'raw'" class="raw">
-            <s-raw-editor ref="editor" v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
+            <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
             <div class="raw-type">
                 <el-select v-model="rawType" size="mini" class="w-100" @change="handleChangeRawType">
                     <el-option label="text" value="text/plain"></el-option>

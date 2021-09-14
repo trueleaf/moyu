@@ -26,7 +26,7 @@
         <div class="op-wrap">
             <el-input
                 v-model="requestPath"
-                placeholder="只需要输入接口地址，前面不需要加域名，加了会被忽略"
+                placeholder="输入请求url"
                 size="small"
                 @input="handlePickPathParams"
                 @blur="handleFormatUrl"

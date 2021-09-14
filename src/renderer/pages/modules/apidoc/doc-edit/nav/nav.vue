@@ -21,7 +21,7 @@
                                 :class="{active: element.selected}"
                                 @click="selectCurrentTab(element)"
                                 @dblclick="fixCurrentTab(element)"
-                                @contextmenu.stop="handleContextmenu($event, element)"
+                                @contextmenu.stop.prevent="handleContextmenu($event, element)"
                             >
                                 <!-- 接口文档 -->
                                 <template v-if="element.tabType === 'doc'">
@@ -320,7 +320,7 @@ export default defineComponent({
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                font-size: fz(13);
+                // font-size: fz(12);
                 &.unfixed {
                     font-style: Italic;
                 }
