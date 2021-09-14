@@ -7,6 +7,9 @@ import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
 import globalConfig from "@/../config/config"
 import type { ApidocProperty, ApidocPropertyType } from "@@/global"
+import type { ApidocProjectHost } from "@@/store"
+import { router } from "@/router/index"
+import { apidocCache } from "@/cache/apidoc"
 
 /**
  * 从url中找出path参数
@@ -52,6 +55,7 @@ const convertQueryToParams = (requestPath: string): void => {
  * 格式化url
  */
 export function handleFormatUrl():void {
+    const projectId = router.currentRoute.value.query.id as string;
     const requestPath = computed<string>({
         get() {
             return store.state["apidoc/apidoc"].apidoc.item.url.path;
@@ -60,6 +64,14 @@ export function handleFormatUrl():void {
             store.commit("apidoc/apidoc/changeApidocUrl", path)
         },
     }); 
+    const currentHost = computed<string>(() => {
+        return store.state["apidoc/apidoc"].apidoc.item.url.host
+    }); 
+    const hostEnum = computed<ApidocProjectHost[]>(() => {
+        const localData = apidocCache.getApidocServer(projectId)
+        return store.state["apidoc/baseInfo"].hosts.concat(localData)
+    })
+    const matchedHost = hostEnum.value.find(hostInfo => hostInfo.url === currentHost.value)
     /**
      * 用例：http://127.0.0.1:80
      * 用例：http://127.0.0.1
@@ -75,6 +87,7 @@ export function handleFormatUrl():void {
     const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
     const matchedDomin = requestPath.value.match(dominReg);
     let formatPath = requestPath.value;
+    console.log(matchedHost)
     if (!matchedIp && !matchedDomin && !matchedIpWithPort) {
         const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`;
         const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
@@ -87,7 +100,9 @@ export function handleFormatUrl():void {
         } else if (!formatPath.startsWith("/")) {
             formatPath = `/${formatPath}`;
         }
-        store.commit("apidoc/apidoc/changeApidocHost", mockServer);
+        if (!matchedHost) {
+            store.commit("apidoc/apidoc/changeApidocHost", mockServer);
+        }
     } else {
         store.commit("apidoc/apidoc/changeApidocHost", "");
     }

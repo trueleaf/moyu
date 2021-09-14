@@ -12191,9 +12191,9 @@ vue-loader@^15.9.2:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-vue-router@^4.0.0-0:
+vue-router@4:
   version "4.0.11"
-  resolved "https://registry.nlark.com/vue-router/download/vue-router-4.0.11.tgz#cd649a0941c635281763a20965b599643ddc68ed"
+  resolved "https://registry.nlark.com/vue-router/download/vue-router-4.0.11.tgz?cache=0&sync_timestamp=1628495505697&other_urls=https%3A%2F%2Fregistry.nlark.com%2Fvue-router%2Fdownload%2Fvue-router-4.0.11.tgz#cd649a0941c635281763a20965b599643ddc68ed"
   integrity sha1-zWSaCUHGNSgXY6IJZbWZZD3caO0=
   dependencies:
     "@vue/devtools-api" "^6.0.0-beta.14"
