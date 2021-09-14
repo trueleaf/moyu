@@ -9,6 +9,9 @@ import { ref, Ref, computed, WritableComputedRef, ComputedRef } from "vue"
 import { useStore } from "@/store/index"
 import globalConfig from "@/../config/config"
 import type { ApidocProjectHost } from "@@/store"
+import { apidocCache } from "@/cache/apidoc"
+import { router } from "@/router/index"
+
 
 type HostReturn = {
     /**
@@ -72,7 +75,9 @@ export default (): HostReturn =>  {
     }
     //host枚举值
     const hostEnum = computed<ApidocProjectHost[]>(() => {
-        return store.state["apidoc/baseInfo"].hosts
+        const projectId = router.currentRoute.value.query.id as string;
+        const localData = apidocCache.getApidocServer(projectId)
+        return store.state["apidoc/baseInfo"].hosts.concat(localData)
     })
     return {
         mockServer,

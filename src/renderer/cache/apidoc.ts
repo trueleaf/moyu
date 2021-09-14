@@ -3,6 +3,11 @@
  */
 
 import { ApidocDetail } from "@@/global";
+import type { ApidocProjectHost } from "@@/store"
+
+type ServerInfo = ApidocProjectHost & {
+    isLocal?: boolean,
+};
 
 
 class ApidocCache {
@@ -87,6 +92,71 @@ class ApidocCache {
             console.error(error);
             localStorage.setItem("apidoc/apidoc", "{}")
             return null;
+        }
+    }
+    /**
+     * @description        缓存服务器地址     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    addApidocServer(serverInfo: ServerInfo, projectId: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            if (!localData[projectId]) {
+                localData[projectId] = [];
+            }
+            if (localData[projectId].find((v: ServerInfo) => v.url === serverInfo.url)) {
+                return
+            }
+            localData[projectId].push(serverInfo);
+            localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            const data: Record<string, ServerInfo[]> = {};
+            data[projectId] = [serverInfo];
+            localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
+        }
+    }
+    /**
+     * @description        删除缓存服务器地址     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    deleteApidocServer(host: string, projectId: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            if (!localData[projectId]) {
+                localData[projectId] = [];
+            }
+            const delIndex = localData[projectId].findIndex((v: ServerInfo) => v.url === host);
+            if (delIndex !== -1) {
+                localData[projectId].splice(delIndex, 1);
+            }
+            localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            const data: Record<string, ServerInfo[]> = {};
+            data[projectId] = [];
+            localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
+        }
+    }
+    /**
+     * @description        获取缓存服务器地址     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     * @param {string}     projectId 项目id
+     */
+    getApidocServer(projectId: string): ServerInfo[] | [] {
+        try {
+            const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            if (!localData[projectId]) {
+                return [];
+            }
+            return localData[projectId];
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/apidocServer", "{}")
+            return [];
         }
     }
 }

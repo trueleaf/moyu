@@ -31,9 +31,9 @@
                         </li>
                     </ul>
                 </s-fieldset>
-                <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px" class="mt-2">
+                <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
                     <el-form-item label="服务器名称：" prop="name">
-                        <el-input v-model="formInfo.name" size="mini" placeholder="例如：张三本地" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                        <el-input v-model="formInfo.name" size="mini" placeholder="例如：张三本地" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item label="服务器地址：" prop="server">
                         <el-input v-model="formInfo.server" name="name" size="mini" placeholder="服务器地址+请求地址" class="w-100" maxlength="100" clearable>
@@ -45,6 +45,12 @@
                             </template>
                         </el-input>
                     </el-form-item>
+                    <el-form-item label="保存到：" prop="name">
+                        <el-radio-group v-model="formInfo.isLocal">
+                            <el-radio :label="true">保存本地</el-radio>
+                            <el-radio :label="false">保存到远端</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
                     <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ formInfo.protocol + formInfo.server }}</div>
                     <div class="d-flex j-end">
                         <el-button v-success="isSuccess" :loading="loading" type="primary" size="mini" @click="handleAddHost">确认添加</el-button>
@@ -53,7 +59,15 @@
             </s-resize-x>
             <!-- 右侧数据展示 -->
             <div class="flex1">
-                <s-table ref="table" url="/api/project/doc_service" :params="{projectId: $route.query.id}" delete-many delete-url="/api/project/doc_service" @deleteMany="getTableData">
+                <s-table
+                    ref="table"
+                    url="/api/project/doc_service"
+                    :params="{projectId: $route.query.id}"
+                    delete-many
+                    delete-url="/api/project/doc_service"
+                    :res-hook="handleHookResponse"
+                    @deleteMany="getTableData"
+                >
                     <el-table-column label="服务器名称" align="center">
                         <template #default="scope">
                             <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
@@ -72,6 +86,12 @@
                             >
                             </s-valid-input>
                             <div v-else class="url-wrap">{{ scope.row.url }}</div>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="是否为本地" align="center">
+                        <template #default="scope">
+                            <span v-if="scope.row.isLocal" class="orange">本地</span>
+                            <span v-else class="green">远端</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" align="center">
@@ -95,10 +115,17 @@
 import { defineComponent } from "vue"
 import { ResponseTable } from "@@/global"
 import { ApidocProjectHost } from "@@/store"
-
+import { apidocCache } from "@/cache/apidoc"
 type HostInfo = ApidocProjectHost & {
     _originValue?: string,
+    isLocal?: boolean,
 };
+
+type HookThis = {
+    tableData: HostInfo[],
+    total: number,
+}
+
 
 export default defineComponent({
     props: {
@@ -126,6 +153,7 @@ export default defineComponent({
                 name: "", //-------------------服务器名称
                 protocol: "http://", //--------协议
                 server: "", //-----------------服务器url
+                isLocal: true, //是否为本地
             },
             rules: {
                 name: [{ required: true, message: "请输入服务器名称", trigger: "blur" }],
@@ -149,6 +177,12 @@ export default defineComponent({
         },
     },
     methods: {
+        //返回钩子
+        handleHookResponse(res: ResponseTable<HostInfo[]>, _this: HookThis) {
+            const localData = apidocCache.getApidocServer(this.$route.query.id as string)
+            _this.tableData = res.data.rows.concat(localData);
+            _this.total = res.data.total + localData.length
+        },
         //获取data数据
         getTableData() {
             this.$refs.table.getData<ResponseTable<ApidocProjectHost[]>>().then((res) => {
@@ -164,11 +198,28 @@ export default defineComponent({
             }
             this.$refs.form.validate((valid) => {
                 if (valid) {
+                    const url = this.formInfo.protocol + this.formInfo.server;
+                    const projectId = this.$route.query.id as string;
+                    //保存为本地
+                    if (this.formInfo.isLocal) {
+                        const serverInfo = {
+                            url,
+                            name: this.formInfo.name,
+                            isLocal: true,
+                            _id: this.$helper.uuid(),
+                        }
+                        this.isSuccess = true;
+                        setTimeout(() => {
+                            this.isSuccess = false;
+                        }, 300)
+                        apidocCache.addApidocServer(serverInfo, projectId);
+                        return;
+                    }
                     this.loading = true;
                     const params = {
                         name: this.formInfo.name,
-                        url: this.formInfo.protocol + this.formInfo.server,
-                        projectId: this.$route.query.id,
+                        url,
+                        projectId,
                     };
                     this.isSuccess = false;
                     this.axios.post("/api/project/doc_service", params).then(() => {
@@ -191,6 +242,18 @@ export default defineComponent({
         //提交编辑
         handleSubmitEdit(row: HostInfo) {
             if (!this.errorInfo.error) {
+                if (row.isLocal) {
+                    const serverInfo = {
+                        url: row.url,
+                        name: row.name,
+                        isLocal: true,
+                        _id: this.$helper.uuid(),
+                    }
+                    apidocCache.deleteApidocServer(row._originValue as string, this.$route.query.id as string);
+                    apidocCache.addApidocServer(serverInfo, this.$route.query.id as string);
+                    this.editItem = null;
+                    return;
+                }
                 const params = {
                     _id: row._id,
                     name: row.name,
@@ -203,7 +266,6 @@ export default defineComponent({
                     console.error(err);
                 });
             }
-            console.log(row)
         },
         //取消编辑
         handleCancelEdit(row: HostInfo) {
@@ -220,6 +282,12 @@ export default defineComponent({
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
+                if (row.isLocal) {
+                    apidocCache.deleteApidocServer(row.url, this.$route.query.id as string);
+                    this.editItem = null;
+                    this.getTableData()
+                    return;
+                }
                 this.axios.delete("/api/project/doc_service", { data: params }).then(() => {
                     this.getTableData();
                 }).catch((err) => {
@@ -259,7 +327,9 @@ export default defineComponent({
 <style lang="scss">
 .host-wrap {
     display: flex;
+    overflow-y: auto;
     .add-host {
+        flex: 0 0 auto;
         padding-right: size(10);
         margin-right: size(10);
         border-right: 1px solid $gray-400;
