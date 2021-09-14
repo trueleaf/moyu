@@ -72,6 +72,13 @@ const remoteResponse = computed(() => {
 
 <style lang="scss">
 .remote-response-wrap {
+    height: calc(100vh - #{size(310)});
+    .el-tabs__content {
+        height: calc(100% - 55px);
+        .el-tab-pane {
+            height: 100%;
+        }
+    }
     &.vertical {
         height: 100%;
         margin-top: size(15);
