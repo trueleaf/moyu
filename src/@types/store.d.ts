@@ -244,6 +244,7 @@ type ApidocState = {
     originApidoc: ApidocDetail,
     defaultHeaders: ApidocProperty<"string">[],
     loading: boolean,
+    saveLoading: boolean,
 }
 type ApidocCookieInfo = {
     /**

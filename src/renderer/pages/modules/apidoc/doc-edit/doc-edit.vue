@@ -15,10 +15,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, computed, onMounted, onBeforeUnmount } from "vue"
 import banner from "./banner/banner.vue";
 import nav from "./nav/nav.vue";
 import content from "./content/content.vue";
+// import type { ApidocTab } from "@@/store"
+import { router } from "@/router/index"
+import { useStore } from "@/store/index"
 
 export default defineComponent({
     components: {
@@ -26,30 +29,53 @@ export default defineComponent({
         "s-nav": nav,
         "s-content": content,
     },
-    data() {
-        return {
-            loading: false, //数据加载效果
-        };
-    },
-    created() {
-        this.getProjectInfo();
-        this.initCookies();
-        this.initLayout();
-    },
-    methods: {
+    setup() {
+        const store = useStore();
+        const projectId = router.currentRoute.value.query.id as string;
+        //当前选中的tab
+        const currentSelectTab = computed(() => {
+            const tabs = store.state["apidoc/tabs"].tabs[projectId];
+            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+            return currentSelectTab;
+        })
+        //是否正在保存数据
+        const saveDocLoading = computed(() => {
+            return store.state["apidoc/apidoc"].loading;
+        })
+        //=====================================绑定快捷键====================================//
+        const bindShortcut = (e: KeyboardEvent) => {
+            const tabs = store.state["apidoc/tabs"].tabs[projectId];
+            const hasTabs = tabs && tabs.length > 0;
+            const currentTabIsDoc = currentSelectTab.value?.tabType === "doc";
+            if (hasTabs && currentTabIsDoc && e.ctrlKey && e.key === "s" && saveDocLoading.value === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                store.dispatch("apidoc/apidoc/saveApidoc");
+            }
+        }
+        //=====================================基本数据获取====================================//
         //获取项目基本信息
-        getProjectInfo() {
-            this.$store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: this.$route.query.id });
-        },
+        const getProjectInfo = () => {
+            store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId });
+        }
         //初始化cookie
-        initCookies() {
-            this.$store.commit("apidoc/baseInfo/initCookies")
-        },
+        const initCookies = () => {
+            store.commit("apidoc/baseInfo/initCookies")
+        }
         //初始化布局
-        initLayout() {
-            this.$store.commit("apidoc/baseInfo/initLayout")
-        },
-    },
+        const initLayout = () => {
+            store.commit("apidoc/baseInfo/initLayout")
+        }
+        onMounted(() => {
+            window.addEventListener("keydown", bindShortcut);
+            getProjectInfo();
+            initCookies();
+            initLayout();
+        })
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", bindShortcut);
+        })
+    }
 })
 </script>
 

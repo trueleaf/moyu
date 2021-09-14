@@ -2,6 +2,7 @@ import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { ElMessageBox } from "element-plus"
 import { axios as axiosInstance } from "@/api/api"
+import { router } from "@/router/index"
 import { store } from "@/store/index"
 import type { State as RootState, ApidocState, } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
@@ -77,11 +78,26 @@ const cancel: Canceler[] = [] //请求列表
 const apidoc = {
     namespaced: true,
     state: {
+        /**
+         * 实时文档信息
+         */
         apidoc: apidocGenerateApidoc(),
+        /**
+         * 原始文档信息
+         */
         originApidoc: apidocGenerateApidoc(),
+        /**
+         * 默认请求头
+         */
         defaultHeaders: [],
-        formData: null,
+        /**
+         * 是否正在加载接口
+         */
         loading: false,
+        /**
+         * 是否正在保存接口
+         */
+        saveLoading: false,
     },
     mutations: {
         /*
@@ -258,6 +274,10 @@ const apidoc = {
         changeApidocLoading(state: ApidocState, loading: boolean): void {
             state.loading = loading;
         },
+        //保存apidoc时候更新loading
+        changeApidocSaveLoading(state: ApidocState, loading: boolean): void {
+            state.saveLoading = loading;
+        },
         //添加一个请求参数数据
         addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
             payload.data.push(payload.params);
@@ -309,6 +329,65 @@ const apidoc = {
                     context.commit("changeApidocLoading", false);
                 })
             });
+        },
+        /**
+         * 保存接口
+         */
+        saveApidoc(context: ActionContext<ApidocState, RootState>): Promise<void> {
+            return new Promise((resolve, reject) => {
+                const projectId = router.currentRoute.value.query.id as string;
+                const tabs = store.state["apidoc/tabs"].tabs[projectId];
+                const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+                if (!currentSelectTab) {
+                    console.warn("缺少tab信息");
+                    return;
+                }
+                const apidocDetail = context.state.apidoc;
+                context.commit("changeApidocSaveLoading", true)
+                const params = {
+                    _id: currentSelectTab._id,
+                    projectId,
+                    info: apidocDetail.info,
+                    item: apidocDetail.item,
+                };
+                axiosInstance.post("/api/project/fill_doc", params).then(() => {
+                    //改变tab请求方法
+                    store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: currentSelectTab._id,
+                        field: "head",
+                        value: {
+                            icon: params.item.method,
+                            color: "",
+                        },
+                    });
+                    //改变banner请求方法
+                    store.commit("apidoc/banner/changeBannerInfoById", {
+                        id: currentSelectTab._id,
+                        field: "method",
+                        value: params.item.method,
+                    })
+                    //改变origindoc的值
+                    store.commit("apidoc/apidoc/changeOriginApidoc");
+                    //改变tab未保存小圆点
+                    store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: currentSelectTab._id,
+                        field: "saved",
+                        value: true,
+                    });
+                    resolve();
+                }).catch((err) => {
+                    //改变tab未保存小圆点
+                    store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: currentSelectTab._id,
+                        field: "saved",
+                        value: false,
+                    });
+                    console.error(err);
+                    reject(err);
+                }).finally(() => {
+                    context.commit("changeApidocSaveLoading", false)
+                });
+            })
         },
     },
 }

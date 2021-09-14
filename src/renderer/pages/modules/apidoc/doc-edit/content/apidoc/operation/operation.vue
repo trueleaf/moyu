@@ -123,7 +123,13 @@ export default defineComponent({
             return store.state["apidoc/response"].loading;
         })
         const operationPart = getOperationPart();
-        const { loading2, loading3, handleSendRequest, handleStopRequest, handleSaveApidoc, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
+        const loading2 = computed(() => {
+            return store.state["apidoc/apidoc"].saveLoading;
+        })
+        const handleSaveApidoc = () => {
+            store.dispatch("apidoc/apidoc/saveApidoc");
+        }
+        const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
         //请求url、完整url
         const requestPath = computed<string>({
             get() {
