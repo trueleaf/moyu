@@ -64,7 +64,7 @@ export default defineComponent({
         this.watchStoper = this.$watch("modelValue", (value: string) => {
             this.setValue(value)
         }, {
-            immediate: true
+            immediate: true,
         })
     },
     methods: {
@@ -82,7 +82,7 @@ export default defineComponent({
                 this.editorInstance.setReadOnly(true);
             }
             this.editorInstance.on("change", () => {
-                if (this.watchStoper) {
+                if (this.watchStoper && !this.readonly) {
                     this.watchStoper();
                 }
                 const content = this.editorInstance?.getValue();
