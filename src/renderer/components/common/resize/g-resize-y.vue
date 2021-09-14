@@ -165,7 +165,7 @@ export default defineComponent({
         height: size(6);
         width: 100%;
         background: transparent;
-        z-index: $zIndex-banner-bar;
+        z-index: $zIndex-drag-bar;
         box-sizing: content-box;
         cursor: ns-resize;
         left: 0;

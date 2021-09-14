@@ -7,10 +7,10 @@
 <template>
     <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap">
         <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleResetWidth"></div>
-        <div v-if="isDragging" class="indicator">
+        <div v-show="isDragging" class="indicator">
             <div class="left"></div>
             <div class="ct">
-                <div>{{ realTimeWidth }}px(双击还原)</div>
+                <div>{{ realTimeWidth.toFixed(0) }}px(双击还原)</div>
                 <!-- <div></div> -->
             </div>
             <div class="right"></div>
@@ -179,10 +179,10 @@ export default defineComponent({
         width: 100%;
         position: absolute;
         top: 1px;
-        z-index: 1;
         display: flex;
         align-items: center;
         padding: 0 size(10);
+        z-index: $zIndex-drag-bar;
         .left, .right {
             border-bottom: 1px dashed $red;
             // width: 40%;
@@ -193,6 +193,7 @@ export default defineComponent({
             flex: 0 0 auto;
             text-align: center;
             color: $gray-600;
+            position: relative;
         }
     }
     &>.bar {

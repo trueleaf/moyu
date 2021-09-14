@@ -132,7 +132,7 @@ export default defineComponent({
     }
     .el-divider--horizontal {
        margin: 0;
-       z-index: $zIndex-banner-bar;
+       z-index: $zIndex-drag-bar;
        font-size: fz(14);
     }
 }
