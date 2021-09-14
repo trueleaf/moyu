@@ -91,7 +91,7 @@
         </template>
         <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
             <s-raw-editor
-                :model-value="remoteResponse.data.text"
+                :model-value="htmlResponse"
                 readonly
                 type="text/html"
             >
@@ -99,7 +99,7 @@
         </div>
         <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
             <s-raw-editor
-                :model-value="remoteResponse.data.text"
+                :model-value="jsonResponse"
                 readonly
                 type="application/json"
             >
@@ -110,6 +110,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import beautify from "js-beautify"
 
 export default defineComponent({
     data() {
@@ -128,6 +129,16 @@ export default defineComponent({
         //布局
         layout() {
             return this.$store.state["apidoc/baseInfo"].layout;
+        },
+        //json返回参数
+        jsonResponse() {
+            const data = this.$store.state["apidoc/response"].data.text
+            return beautify(data, { indent_size: 4 });
+        },
+        //HTML返回参数
+        htmlResponse() {
+            const data = this.$store.state["apidoc/response"].data.text;
+            return beautify.html(data, { indent_size: 4 });
         },
     },
     methods: {
