@@ -45,10 +45,10 @@
                             </template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="保存到：" prop="name">
+                    <el-form-item label="是否共享：" prop="name">
                         <el-radio-group v-model="formInfo.isLocal">
-                            <el-radio :label="true">保存本地</el-radio>
-                            <el-radio :label="false">保存到远端</el-radio>
+                            <el-radio :label="true">仅本地</el-radio>
+                            <el-radio :label="false">可共享</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ formInfo.protocol + formInfo.server }}</div>
@@ -88,10 +88,10 @@
                             <div v-else class="url-wrap">{{ scope.row.url }}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column label="是否为本地" align="center">
+                    <el-table-column label="是否共享" align="center">
                         <template #default="scope">
-                            <span v-if="scope.row.isLocal" class="orange">本地</span>
-                            <span v-else class="green">远端</span>
+                            <span v-if="scope.row.isLocal" class="orange">仅本地</span>
+                            <span v-else class="green">共享</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" align="center">
