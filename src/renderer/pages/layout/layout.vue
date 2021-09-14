@@ -113,6 +113,10 @@ export default defineComponent({
     },
     created() {
         this.activeMenuPath = this.$route.path;
+        this.initUploadEvent();
+        if (this.config.updateConfig.autoUpdate) {
+            this.handleCheckUpdate();
+        }
     },
     methods: {
         //初始化自动更新相关事件
@@ -157,7 +161,7 @@ export default defineComponent({
             }
         },
         //检查更新
-        handleCheckUpdate(isManual: boolean) {
+        handleCheckUpdate(isManual = false) {
             this.downloading = true;
             this.isManual = isManual;
             if (config.isElectron) {

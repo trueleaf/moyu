@@ -6,7 +6,7 @@
 import path from "path";
 import { autoUpdater } from "electron-updater";
 import { BrowserWindow, ipcMain } from "electron";
-import config from "@/../config/config.js";
+import config from "../config/config";
 
 function update(): void {
     const { server } = config.updateConfig;
@@ -14,7 +14,7 @@ function update(): void {
     const winId = BrowserWindow.getFocusedWindow()?.id;
     const win = BrowserWindow.fromId(winId as number);
     if (process.env.NODE_ENV === "development") {
-        autoUpdater.updateConfigPath = path.join(__dirname, "../../dev-app-update.yml");
+        autoUpdater.updateConfigPath = path.join(__dirname, "../local-update.yml");
     }
     //=====================================render进程事件====================================//
     ipcMain.on("vue-check-update", () => {

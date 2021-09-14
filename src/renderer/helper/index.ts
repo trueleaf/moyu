@@ -342,7 +342,6 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         const isParentArray = (parent && parent.type === "array");
         const isComplex = (type === "object" || type === "array" || type === "file");
         const keyValIsEmpty = key === "" && value === ""
-
         if (jumpChecked && !property.select) { //过滤掉_select属性为false的值
             continue;
         }
@@ -464,6 +463,7 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     }
     const rootType = properties[0].type;
     const rootValue = properties[0].value;
+
     if (rootType === "boolean") {
         return rootValue === "true" ? true : false;
     } else if (rootType === "string") {

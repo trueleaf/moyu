@@ -42,6 +42,7 @@ module.exports = {
     },
     pluginOptions: {
         electronBuilder: {
+            contextIsolation: false,
             nodeIntegration: true, //参考https://nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html
             extends: null,
             externals: [
@@ -96,6 +97,18 @@ module.exports = {
                     icon: "build/icons",
                 },
             },
+            //参考 https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/1432
+            chainWebpackMainProcess: config => {
+                config.module
+                    .rule("babel")
+                    .before("ts")
+                    .use("babel")
+                    .loader("babel-loader")
+                    .options({
+                        presets: [["@babel/preset-env", { modules: false }]],
+                        plugins: ["@babel/plugin-proposal-class-properties"]
+                    })
+            }
         },
     },
     //=====================================eslint配置====================================//
