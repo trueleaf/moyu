@@ -13,6 +13,7 @@ import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
 import Mock from "@/server/mock"
+import { store } from "@/store/index"
 
 type Data = Record<string, unknown>
 
@@ -596,8 +597,14 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
  * @remark             这个方法具有强耦合性
  */
 export function apidocConvertValue(value: string): string {
+    const matchdVariable = value.match(/\{\{\s*([^} ]+)\s*\}\}/);
+    const allVariables = store.state["apidoc/baseInfo"].variables;
     if (value.startsWith("@")) {
         return Mock.mock(value);
+    }
+    if (matchdVariable) {
+        const varInfo = allVariables.find((v) => v.name === matchdVariable[1]);
+        return varInfo?.value || value;
     }
     return value;
 }

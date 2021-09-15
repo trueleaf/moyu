@@ -673,6 +673,29 @@ type ApidocASTInfo = {
     _close?: boolean,
 }
 
+/*
+|--------------------------------------------------------------------------
+| api文档变量
+|--------------------------------------------------------------------------
+*/
+type ApidocVariable = {
+    /**
+     * 变量名称
+     */
+    name: string,
+    /**
+     * 变量类型
+     */
+    type: "string" | "number" | "boolean",
+    /**
+     * 变量值
+     */
+    value: string,
+    /**
+     * 创建者名称
+     */
+    creator: string,
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -717,5 +740,6 @@ export {
     ApidocBodyRawType,
     ApidocResponseParams,
     ApidocASTInfo,
+    ApidocVariable,
     MockItem,
 }
