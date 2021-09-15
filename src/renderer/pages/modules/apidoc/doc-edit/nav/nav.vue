@@ -44,11 +44,13 @@
                                     <!-- 历史记录 -->
                                     <span v-if="element.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
                                     <!-- 全局变量配置 -->
-                                    <span v-if="element.tabType === 'variable'" class="el-icon-truck blue f-base mr-2"></span>
+                                    <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
                                     <!-- mock管理 -->
                                     <span v-if="element.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
                                     <!-- 回收站管理 -->
                                     <span v-if="element.tabType === 'recycler'" class="el-icon-delete-solid red f-base mr-2"></span>
+                                    <!-- 联想参数 -->
+                                    <span v-if="element.tabType === 'mindParams'" class="el-icon-s-opportunity blue f-base mr-2"></span>
                                 </template>
                                 <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
                                 <span class="operaion">

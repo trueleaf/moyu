@@ -10,12 +10,30 @@
             <div class="cursor-pointer" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">编辑</div>
             <el-divider direction="vertical"></el-divider>
             <div class="cursor-pointer mr-5" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">预览</div>
-            <div class="cursor-pointer" :class="{ active: layout === 'horizontal' }" @click="handleChangeLayout('horizontal')">左右布局</div>
-            <el-divider direction="vertical"></el-divider>
-            <div class="cursor-pointer" :class="{ active: layout === 'vertical' }" @click="handleChangeLayout('vertical')">上下布局</div>
+            <!-- <el-divider direction="vertical"></el-divider> -->
+            <el-dropdown trigger="click">
+                <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
+                    <span class="mr-1 f-sm iconfont iconbuju"></span>
+                    <span>布局</span>
+                </div>
+                <template #dropdown>
+                    <el-dropdown-menu>
+                        <el-dropdown-item @click="handleChangeLayout('vertical')">上下布局</el-dropdown-item>
+                        <el-dropdown-item @click="handleChangeLayout('horizontal')">左右布局</el-dropdown-item>
+                    </el-dropdown-menu>
+                </template>
+            </el-dropdown>
+            <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
+                <span class="mr-1 f-sm iconfont iconvariable"></span>
+                <span>变量</span>
+            </div>
+            <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
+                <span class="mr-1 f-base el-icon-s-opportunity"></span>
+                <span>联想值</span>
+            </div>
         </div>
         <div v-show="workMode === 'edit'">
-            <el-tabs v-model="activeName" class="mt-2">
+            <el-tabs v-model="activeName">
                 <el-tab-pane label="Params" name="s-params">
                     <template #label>
                         <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
@@ -300,6 +318,38 @@ export default defineComponent({
         toggleWorkMode(mode: "edit" | "view") {
             this.workMode = mode;
         },
+        //打开变量维护页面
+        handleOpenVariable() {
+            this.$store.commit("apidoc/tabs/addTab", {
+                _id: "variable",
+                projectId: this.$route.query.id,
+                tabType: "variable",
+                label: "变量维护",
+                head: {
+                    icon: "iconvariable",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+        },
+        //打开联想参数
+        handleOpenMindParams() {
+            this.$store.commit("apidoc/tabs/addTab", {
+                _id: "mindParams",
+                projectId: this.$route.query.id,
+                tabType: "mindParams",
+                label: "联想参数",
+                head: {
+                    icon: "iconmindParams",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+        },
     },
 })
 </script>
@@ -350,6 +400,13 @@ export default defineComponent({
         .active {
             color: $theme-color;
         }
+    }
+    .el-tabs__item {
+        height: size(30);
+        line-height: size(30);
+    }
+    .el-dropdown {
+        line-height: initial;
     }
 }
 </style>

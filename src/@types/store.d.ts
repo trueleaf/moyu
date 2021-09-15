@@ -163,7 +163,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 联想参数
      */
-    mindParams: ApidocProjectMindParam[],
+    mindParams: ApidocProjectMindParam,
     /**
      * 参数模板信息
      */
@@ -182,7 +182,7 @@ type ApidocProjectBaseInfoState = {
     layout: "vertical" | "horizontal"
 };
 //=========================================================================//
-type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide"
+type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"
 //tabs导航
 
 type ApidocTab = {

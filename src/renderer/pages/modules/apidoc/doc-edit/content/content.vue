@@ -7,6 +7,8 @@
 <template>
     <keep-alive>
         <s-guide v-if="!currentSelectTab || currentSelectTab?.tabType === 'guide'"></s-guide>
+        <s-variable v-else-if="currentSelectTab.tabType === 'variable'"></s-variable>
+        <s-mind-params v-else-if="currentSelectTab.tabType === 'mindParams'"></s-mind-params>
         <s-apidoc v-else-if="currentSelectTab.tabType === 'doc'"></s-apidoc>
     </keep-alive>
 </template>
@@ -16,11 +18,15 @@ import { defineComponent } from "vue"
 import type { ApidocTab } from "@@/store"
 import apidoc from "./apidoc/apidoc.vue";
 import guide from "./guide/guide.vue";
+import variable from "./variable/variable.vue";
+import mindParams from "./mind-params/mind-params.vue";
 
 export default defineComponent({
     components: {
         "s-guide": guide,
         "s-apidoc": apidoc,
+        "s-variable": variable,
+        "s-mind-params": mindParams,
     },
     data() {
         return {

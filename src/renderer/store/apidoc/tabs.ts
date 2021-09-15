@@ -99,6 +99,7 @@ const tabs = {
             editData[field] = value;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
+        //新增一个tab
     },
     actions: {
         //根据id删除tab
