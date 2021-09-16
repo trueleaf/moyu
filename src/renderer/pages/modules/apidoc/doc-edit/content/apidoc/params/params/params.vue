@@ -8,9 +8,9 @@
     <div class="query-path-params">
         <!-- <pre>{{ hasPathParams }}</pre> -->
         <div class="title">Query&nbsp;参数</div>
-        <s-params-tree show-checkbox :data="queryTreeData"></s-params-tree>
+        <s-params-tree show-checkbox :data="queryTreeData" :mind-params="mindQueryData"></s-params-tree>
         <div v-show="hasPathParams" class="title">Path&nbsp;参数</div>
-        <s-params-tree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData"></s-params-tree>
+        <s-params-tree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData" :mind-params="mindPathData"></s-params-tree>
     </div>
 </template>
 
@@ -18,11 +18,22 @@
 import { computed } from "vue"
 import { store } from "@/store/index"
 
+//path参数
 const pathTreeData = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item.paths;
 }) 
+//path参数联想值
+const mindPathData = computed(() => {
+    return store.state["apidoc/baseInfo"].mindParams.paths;
+})
+
+//query参数
 const queryTreeData = computed(() => {
     return store.state["apidoc/apidoc"].apidoc.item.queryParams;
+})
+//query参数联想值
+const mindQueryData = computed(() => {
+    return store.state["apidoc/baseInfo"].mindParams.queryParams;
 })
 //是否存在path参数
 const hasPathParams = computed(() => {
@@ -30,6 +41,7 @@ const hasPathParams = computed(() => {
     const hasPathsParams = paths.some((data) => data.key);
     return hasPathsParams;
 })
+
 
 </script>
 <style lang="scss">

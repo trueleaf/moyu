@@ -49,6 +49,8 @@
                         :disabled="checkKeyInputDisable(scope)"
                         :title="convertKeyPlaceholder(scope)"
                         :placeholder="convertKeyPlaceholder(scope)"
+                        :select-data="mindParams"
+                        @remote-select="handleRemoteSelectKey($event, scope.data)"
                         @update:modelValue="handleChangeKeyData($event, scope)"
                         @focus="enableDrag = false"
                         @blur="handleCheckKeyField(scope);enableDrag=true"
@@ -242,6 +244,15 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    /**
+     * 联想参数
+     */
+    mindParams: {
+        type: Array as PropType<ApidocProperty[]>,
+        default: () => {
+            return [];
+        }
+    },
 });
 const emit = defineEmits(["change"])
 /*
@@ -416,6 +427,24 @@ const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, da
     if (nodeIndex !== rootParentData.length - 1) { //只要不是最后一个值都需要做数据校验
         console.log("校验")
     }
+}
+//获取远端返回的key值
+const handleRemoteSelectKey = (item: ApidocProperty, data: ApidocProperty) => {
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "type",
+        value: item.type,
+    });
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "value",
+        value: item.value,
+    });
+    store.commit("apidoc/apidoc/changePropertyValue", {
+        data,
+        field: "description",
+        value: item.description,
+    });
 }
 /*
 |--------------------------------------------------------------------------
