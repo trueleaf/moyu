@@ -14,6 +14,7 @@
 import { defineComponent } from "vue"
 import { ElConfigProvider } from "element-plus"
 import zhCn from "element-plus/lib/locale/lang/zh-cn"
+import config from "@/../config/config"
 
 export default defineComponent({
     components: {
@@ -24,7 +25,25 @@ export default defineComponent({
             locale: zhCn,
         };
     },
-    methods: {
+    created() {
+        if (!config.isDev) {
+            console.log(`
+                     _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
+                    / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
+                   / / \\ \\        / / \\ \\       / /           \\ \\    \\   \\ /   /    |  |       |  |
+                  / /   \\ \\      / /   \\ \\     | |             | |    \\   /   /     |  |       |  |
+                 / /     \\ \\    / /     \\ \\    | |             | |     \\ /   /      |  |       |  |
+                / /       \\ \\  / /       \\ \\    \\ \\_ _ _ _ _ _/ /       /   /       \\ _|_ _ _ _| _/
+               /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
+
+               基于Vue和Electron的接口文档工具
+
+               GitHub地址：https://github.com/trueleaf/moyu
+
+               Gitee地址：https://gitee.com/shuzhikai/moyu
+            `)
+            console.log(process.env.VUE_APP_BUILD_TIME);
+        }
     },
 })
 </script>

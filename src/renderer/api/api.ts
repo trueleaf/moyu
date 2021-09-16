@@ -17,6 +17,9 @@ const axiosPlugin = {
             const userInfoStr = localStorage.getItem("userInfo") || "{}";
             try {
                 const userInfo = JSON.parse(userInfoStr);
+                if (!userInfo.token) {
+                    router.push("/login");
+                }
                 reqConfig.headers.Authorization = userInfo.token
             } catch (error) {
                 Promise.reject(error)
