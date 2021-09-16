@@ -7,6 +7,7 @@ const path = require("path");
 process.env.VUE_APP_TITLE = "moyu";
 process.env.VUE_APP_BUILD_TIME = new Date().toLocaleString();
 
+
 module.exports = {
     pages: {
         index: {
@@ -39,10 +40,11 @@ module.exports = {
                 "~": path.resolve(__dirname, "./"),
             },
         },
+        target: "web"
     },
     pluginOptions: {
         electronBuilder: {
-            contextIsolation: false,
+            // contextIsolation: false,
             nodeIntegration: true, //参考https://nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html
             extends: null,
             externals: [
@@ -116,5 +118,5 @@ module.exports = {
     //=====================================打包上线配置====================================//
     publicPath: "/",
     outputDir: "dist", //输出文件类型
-    productionSourceMap: true, //打包时候js是否添加sourceMap
+    productionSourceMap: false, //打包时候js是否添加sourceMap
 };
