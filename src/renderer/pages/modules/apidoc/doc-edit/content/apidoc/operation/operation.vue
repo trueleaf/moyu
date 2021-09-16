@@ -51,7 +51,6 @@
             <el-button
                 v-if="!loading"
                 :loading="loading"
-                :disabled="!config.isElectron"
                 :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
                 type="success"
                 size="small"
