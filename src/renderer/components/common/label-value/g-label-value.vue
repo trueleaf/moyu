@@ -1,21 +1,23 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-08-30 19:28
+    创建时间：2021-09-04 15:11
     模块名称：label-value
-    备注：xxxx
+    备注：
 */
 <template>
     <div class="label-value" :style="{width: realWidth}">
         <span class="label" :style="{width: labelWidth}">
             <span>{{ label }}</span>
         </span>
-        <span v-if="!$slots.default" class="value">{{ value }}</span>
+        <span v-if="!$slots.default" :title="value" class="value">{{ value }}</span>
         <slot v-else class="value" />
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
         label: {
             type: String,
@@ -49,14 +51,7 @@ export default {
             return "";
         },
     },
-    created() {},
-    methods: {
-        //=====================================获取远程数据==================================//
-        //=====================================前后端交互====================================//
-        //=====================================组件间交互====================================//
-        //=====================================其他操作=====================================//
-    },
-};
+})
 </script>
 
 <style lang="scss">

@@ -1,0 +1,44 @@
+/**
+ * 获取banner数据
+ */
+
+import { ref, Ref } from "vue"
+import { useRoute } from "vue-router"
+import { ApidocBanner } from "@@/global"
+import { useStore } from "@/store/index"
+type ReturnData = {
+    /**
+     * banner值
+     */
+     bannerData: Ref<ApidocBanner[]>,
+    /**
+     * loading加载效果
+     */
+    loading: Ref<boolean>,
+    /**
+     * 获取banner数据
+     */
+    getBannerData: () => Promise<void>,
+};
+
+export function useBannerData(): ReturnData {
+    const store = useStore();
+    const route = useRoute()
+    const projectId = route.query.id;
+    const bannerData = ref<ApidocBanner[]>([]);
+    const loading = ref(false);
+    const getBannerData = async () => {
+        if (loading.value) {
+            return
+        }
+        loading.value = true;
+        bannerData.value = await store.dispatch("apidoc/banner/getDocBanner", { projectId });
+        loading.value = false;
+    }
+    getBannerData();
+    return {
+        bannerData,
+        loading,
+        getBannerData,
+    };
+}

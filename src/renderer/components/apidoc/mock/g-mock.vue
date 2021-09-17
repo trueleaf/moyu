@@ -1,24 +1,118 @@
 /*
     创建者：shuxiaokai
-    创建时间：2021-04-28 19:54
-    模块名称：
+    创建时间：2021-08-23 22:25
+    模块名称：mock组件
     备注：
 */
 <template>
-    <div class="s-mock-select" @click="handleClick">
+    <div class="s-mock-select" @click.stop="() => {}">
         <el-tabs v-model="activeName">
-            <el-tab-pane label="全部" name="all">
+            <el-tab-pane name="常用">
+                <template #label>
+                    <span>常用</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '常用'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "常用")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "常用")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
             </el-tab-pane>
-            <el-tab-pane label="日期/时间" name="日期/时间"></el-tab-pane>
-            <el-tab-pane label="图片" name="图片"></el-tab-pane>
-            <el-tab-pane label="中文文本" name="中文文本"></el-tab-pane>
-            <el-tab-pane label="英文文本" name="英文文本"></el-tab-pane>
-            <el-tab-pane label="地区相关" name="地区相关"></el-tab-pane>
-            <el-tab-pane label="颜色" name="颜色"></el-tab-pane>
+            <el-tab-pane name="全部">
+                <template #label>
+                    <span>全部</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '全部'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.length }}</span>
+                        <span>/{{ cpMockEnum.length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane name="日期/时间">
+                <template #label>
+                    <span>日期&时间</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '日期/时间'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "日期/时间")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "日期/时间")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="图片" name="图片">
+                <template #label>
+                    <span>图片</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '图片'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "图片")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "图片")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane name="中文文本">
+                <template #label>
+                    <span>中文文本</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '中文文本'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "中文文本")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "中文文本")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="英文文本" name="英文文本">
+                <template #label>
+                    <span>英文文本</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '英文文本'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "英文文本")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "英文文本")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="地区相关" name="地区相关">
+                <template #label>
+                    <span>地区相关</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '地区相关'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "地区相关")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "地区相关")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="颜色" name="颜色">
+                <template #label>
+                    <span>颜色</span>
+                    <span>
+                        <span>(</span>
+                        <span v-if="activeName === '颜色'">{{ mockEnum.length }}</span>
+                        <span v-else>{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "颜色")).length }}</span>
+                        <span>/{{ cpMockEnum.filter(v => v.tags.find((tag) => tag === "颜色")).length }}</span>
+                        <span>)</span>
+                    </span>
+                </template>
+            </el-tab-pane>
         </el-tabs>
         <div class="wrap">
-            <div class="list">
-                <div v-for="(item, index) in mockEnum" :key="index" class="list-item" @mouseenter="handleMockView(item)" @click="handleSelectMockData(item)">
+            <div class="list" tabindex="-1">
+                <div 
+                    v-for="(item, index) in mockEnum"
+                    :key="index"
+                    class="list-item"
+                    @mouseenter="handleMockView(item)"
+                    @click="handleSelectMockData(item)"
+                >
                     <span>{{ item.value }}</span>
                     <span>{{ item.name }}</span>
                 </div>
@@ -32,69 +126,86 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue"
 import Mock from "@/server/mock"
 import mockEnum from "./mock-enum";
+import type { MockItem } from "@@/global"
 
-export default {
+const cpMockEnum: MockItem[] = JSON.parse(JSON.stringify(mockEnum));
+
+export default defineComponent({
     props: {
+        /**
+         * 过滤值
+         */
         searchValue: {
             type: String,
             default: "",
         },
+        /**
+         * 点击非内容区域是否关闭
+         */
+        closeOnClickModal: {
+            type: Boolean,
+            default: true
+        },
     },
+    emits: ["select", "close"],
     data() {
         return {
-            //=================================表单与表格参数================================//
-            //===================================枚举参数====================================//
-            //===================================业务参数====================================//
-            activeName: "all",
+            cpMockEnum,
+            activeName: "常用",
             mockValue: "",
-            mockTags: "",
+            mockTags: [] as string[],
+            currentSelectMockData: null as MockItem | null,
             //===================================其他参数====================================//
         };
     },
     computed: {
         mockEnum() {
-            if (this.activeName === "all") {
-                return mockEnum.filter((mock) => {
-                    const mockValue = mock.value;
-                    const searchValue = this.searchValue.replace("@", "")
-                    return mockValue.includes(searchValue)
-                });
+            const matchedMockData = mockEnum.filter((mock) => {
+                const mockValue = mock.value;
+                const searchValue = this.searchValue.toString().replace("@", "")
+                return mockValue.includes(searchValue)
+            });
+            if (this.activeName === "全部") {
+                return matchedMockData;
             }
-            return mockEnum.filter((val) => val.tags.find((tag) => tag === this.activeName));
+            return matchedMockData.filter((val) => val.tags.find((tag) => tag === this.activeName))
         },
     },
-    created() {
-
+    watch: {
+        searchValue() {
+            this.currentSelectMockData = mockEnum[0];
+        },
+    },
+    mounted() {
+        document.documentElement.addEventListener("click", this.handleCloseModel)
+    },
+    beforeUnmount() {
+        document.documentElement.removeEventListener("click", this.handleCloseModel)
     },
     methods: {
-        handleClick() {
-        },
-        handleMockView(item) {
+        handleMockView(item: MockItem) {
             this.mockValue = Mock.mock(`@${item.value}`)
             this.mockTags = item.tags;
         },
-        handleSelectMockData(item) {
+        handleSelectMockData(item: MockItem) {
             this.$emit("select", item);
         },
-        //==================================初始化&获取远端数据===============================//
-
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-
-        //=====================================其他操作=====================================//
-
+        handleCloseModel() {
+            this.$emit("close");
+        },
     },
-};
+})
 </script>
 
 <style lang="scss">
 .s-mock-select {
     width: size(700);
     height: size(250);
+    background: $white;
     .wrap {
         height: size(220);
         display: flex;
@@ -109,6 +220,9 @@ export default {
                 align-items: center;
                 justify-content: space-between;
                 padding: 0 size(10);
+                &.active {
+                    background: $gray-200;
+                }
                 &:hover {
                     background: $gray-200;
                     cursor: pointer;

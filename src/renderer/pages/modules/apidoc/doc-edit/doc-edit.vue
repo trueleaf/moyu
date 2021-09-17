@@ -1,162 +1,89 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-06-24 20:24
-    模块名称：文档编辑界面
-    备注：xxxx
+    创建时间：2021-07-21 21:58
+    模块名称：文档编辑页面
+    备注：
 */
 <template>
-    <div class="doc-edit">
+    <div class="doc-view">
         <s-banner></s-banner>
         <div class="doc-wrap">
-            <s-navs></s-navs>
+            <s-nav></s-nav>
             <s-content></s-content>
         </div>
     </div>
 </template>
 
-<script>
-import Server from "@/server"
-import banner from "./components/banner/banner.vue";
-import navs from "./components/navs/navs.vue";
-import content from "./components/content/content.vue";
+<script lang="ts">
+import { defineComponent, computed, onMounted, onBeforeUnmount } from "vue"
+import banner from "./banner/banner.vue";
+import nav from "./nav/nav.vue";
+import content from "./content/content.vue";
+// import type { ApidocTab } from "@@/store"
+import { router } from "@/router/index"
+import { useStore } from "@/store/index"
 
-export default {
+export default defineComponent({
     components: {
         "s-banner": banner,
-        "s-navs": navs,
+        "s-nav": nav,
         "s-content": content,
     },
-    data() {
-        return {
-            mockServer: null,
-        };
-    },
-    computed: {
-        tabs() { //--------------全部tabs
-            return this.$store.state.apidoc.tabs[this.$route.query.id];
-        },
-    },
-    created() {
-        this.getMindParamsEnum(); //获取联想参数枚举
-        this.getPresetParams(); //获取预设参数
-        this.getHostEnum(); //获取host值
-        this.getVariables(); //获取全局变量
-        this.getProjectRules(); //获取项目规则
-        this.getLocalCookies(); //获取本地cookies
-        this.initMockServer(); //初始化mock服务器
-    },
-    mounted() {
-        window.addEventListener("keydown", this.initShortcut, true);
-    },
-    beforeDestroy() {
-        window.removeEventListener("keydown", this.initShortcut);
-    },
-    methods: {
-        //=====================================快捷键====================================//
-        initShortcut(e) {
-            if (e.ctrlKey && (e.key === "h" || e.key === "H")) {
+    setup() {
+        const store = useStore();
+        const projectId = router.currentRoute.value.query.id as string;
+        //当前选中的tab
+        const currentSelectTab = computed(() => {
+            const tabs = store.state["apidoc/tabs"].tabs[projectId];
+            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+            return currentSelectTab;
+        })
+        //是否正在保存数据
+        const saveDocLoading = computed(() => {
+            return store.state["apidoc/apidoc"].loading;
+        })
+        //=====================================绑定快捷键====================================//
+        const bindShortcut = (e: KeyboardEvent) => {
+            const tabs = store.state["apidoc/tabs"].tabs[projectId];
+            const hasTabs = tabs && tabs.length > 0;
+            const currentTabIsDoc = currentSelectTab.value?.tabType === "doc";
+            if (hasTabs && currentTabIsDoc && e.ctrlKey && e.key === "s" && saveDocLoading.value === false) {
                 e.preventDefault();
-                this.addAndChangeTab("历史记录", "history");
-            } else if (e.ctrlKey && e.key === ",") {
-                this.addAndChangeTab("文档全局配置", "config");
-            } else if (e.ctrlKey && (e.key === "p" || e.key === "P")) {
-                if (this.$route.path === "/v1/apidoc/doc-view") {
-                    return;
-                }
-                this.$router.push({
-                    path: "/v1/apidoc/doc-view",
-                    query: {
-                        id: this.$route.query.id,
-                        name: this.$route.query.name,
-                    },
-                });
-            } else if (e.ctrlKey && e.key === "i") {
-                this.addAndChangeTab("文档导入", "importDoc");
-            } else if (e.ctrlKey && e.key === "e") {
-                this.addAndChangeTab("文档导出", "exportDoc");
-            } else if (e.ctrlKey && e.key === "m") {
-                e.preventDefault();
-                this.addAndChangeTab("mock管理", "mock");
+                e.stopPropagation();
+                store.dispatch("apidoc/apidoc/saveApidoc");
             }
-        },
-        initMockServer() {
-            this.mockServer = new Server();
-            this.mockServer.init(this.$route.query.id);
-            this.mockServer.start();
-        },
-        //新增并且改变当前选中tab
-        addAndChangeTab(name, type) {
-            this.$store.commit("apidoc/addTab", {
-                _id: type,
-                name,
-                changed: false,
-                tail: "",
-                tabType: type,
-                projectId: this.$route.query.id,
-            });
-            this.$store.commit("apidoc/changeCurrentTab", {
-                _id: type,
-                name,
-                changed: false,
-                tail: "",
-                tabType: type,
-                projectId: this.$route.query.id,
-            });
-        },
-        //=====================================获取远程数据==================================//
-        //获取联想参数
-        getMindParamsEnum() {
-            this.$store.dispatch("apidoc/getMindParamsEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取预设参数
-        getPresetParams() {
-            this.$store.dispatch("apidoc/getPresetParams", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取host值
-        getHostEnum() {
-            this.$store.dispatch("apidoc/getHostEnum", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取全局变量
-        getVariables() {
-            this.$store.dispatch("apidoc/getDocVariable", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取项目规则
-        getProjectRules() {
-            this.$store.dispatch("apidocRules/getRuels", {
-                projectId: this.$route.query.id,
-            });
-        },
-        //获取本地cookies
-        getLocalCookies() {
-            let localCookies = localStorage.getItem("apidoc/cookies") || "[]";
-            localCookies = JSON.parse(localCookies);
-            localCookies = localCookies[this.$route.query.id] || [];
-            this.$store.commit("apidoc/changeCookies", localCookies);
-        },
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-
-        //=====================================其他操作=====================================//
-    },
-};
+        }
+        //=====================================基本数据获取====================================//
+        //获取项目基本信息
+        const getProjectInfo = () => {
+            store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId });
+        }
+        //初始化cookie
+        const initCookies = () => {
+            store.commit("apidoc/baseInfo/initCookies")
+        }
+        //初始化布局
+        const initLayout = () => {
+            store.commit("apidoc/baseInfo/initLayout")
+        }
+        onMounted(() => {
+            window.addEventListener("keydown", bindShortcut);
+            getProjectInfo();
+            initCookies();
+            initLayout();
+        })
+        onBeforeUnmount(() => {
+            window.removeEventListener("keydown", bindShortcut);
+        })
+    }
+})
 </script>
 
 <style lang="scss">
-.doc-edit {
-    height: 100%;
+.doc-view {
     display: flex;
-    .banner {
-        flex: 0 0 auto;
-    }
+    overflow: hidden;
+    height: 100%;
     .doc-wrap {
         flex: 1;
         overflow: hidden;

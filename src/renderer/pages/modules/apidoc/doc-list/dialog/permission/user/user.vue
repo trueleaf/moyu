@@ -1,108 +1,103 @@
 /*
     创建者：shuxiaokai
-    创建时间：2021-05-17 22:56
-    模块名称：
+    创建时间：2021-07-20 21:35
+    模块名称：项目用户选择
     备注：
 */
 <template>
-    <div>
-        <div class="d-flex a-center mb-3">
-            <span>添加用户：</span>
-            <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2" placeholder="输入用户名或真实姓名查找用户" class="w-300px">
-                <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
-                    <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
-                        <span>{{ item.loginName }}</span>
-                        <span>{{ item.realName }}</span>
-                    </div>
-                </s-remote-select-item>
-            </s-remote-select>
-        </div>
-        <!-- 表格展示 -->
-        <s-loading :loading="loading">
-            <el-table :data="selectedUserData" stripe border size="mini" max-height="300px">
-                <el-table-column prop="loginName" label="用户名" align="center"></el-table-column>
-                <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
-                <el-table-column label="角色(权限)" align="center">
-                    <template slot-scope="scope">
-                        <el-select :value="scope.row.permission" size="mini" @change="(val) => { handleChangePermission(val, scope) }">
-                            <el-option label="只读" value="readOnly">
-                                <template>
-                                    <span>只读</span>
-                                    <span class="gray-500">(仅查看项目)</span>
-                                </template>
-                            </el-option>
-                            <el-option label="读写" value="readAndWrite">
-                                <template>
-                                    <span>读写</span>
-                                    <span class="gray-500">(修改和编辑文档)</span>
-                                </template>
-                            </el-option>
-                            <el-option label="管理员" value="admin">
-                                <template>
-                                    <span>管理员</span>
-                                    <span class="gray-500">(添加新成员)</span>
-                                </template>
-                            </el-option>
-                        </el-select>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作" align="center" width="200px">
-                    <template slot-scope="scope">
-                        <el-button v-if="myLoginName === scope.row.loginName" type="text" size="mini" @click="handleLeaveGroup(scope)">退出</el-button>
-                        <el-button v-else type="text" size="mini" @click="handleDeleteMember(scope)">删除</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-        </s-loading>
+    <div class="d-flex a-center mb-3">
+        <span>添加用户：</span>
+        <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2" placeholder="输入用户名或真实姓名查找用户" class="w-300px">
+            <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
+                <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
+                    <span>{{ item.loginName }}</span>
+                    <span>{{ item.realName }}</span>
+                </div>
+            </s-remote-select-item>
+        </s-remote-select>
     </div>
+    <!-- 表格展示 -->
+    <s-loading :loading="loading">
+        <el-table :data="selectedUserData" stripe border size="mini" max-height="300px">
+            <el-table-column prop="loginName" label="用户名" align="center"></el-table-column>
+            <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
+            <el-table-column label="角色(权限)" align="center">
+                <template #default="scope">
+                    <el-select v-model="scope.row.permission" size="mini" @change="handleChangePermission(scope.row)">
+                        <el-option label="只读" value="readOnly">
+                            <span>只读</span>
+                            <span class="gray-500">(仅查看项目)</span>
+                        </el-option>
+                        <el-option label="读写" value="readAndWrite">
+                            <span>读写</span>
+                            <span class="gray-500">(修改和编辑文档)</span>
+                        </el-option>
+                        <el-option label="管理员" value="admin">
+                            <span>管理员</span>
+                            <span class="gray-500">(添加新成员)</span>
+                        </el-option>
+                    </el-select>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" align="center" width="200px">
+                <template #default="scope">
+                    <el-button v-if="selfLoginName === scope.row.loginName" type="text" size="mini" @click="handleLeaveGroup(scope.row, scope.$index)">退出</el-button>
+                    <el-button v-else type="text" size="mini" @click="handleDeleteMember(scope.row, scope.$index)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </s-loading>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from "@@/global"
+type PermissionUserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
+
+export default defineComponent({
     props: {
         id: {
             type: String,
             default: "",
         },
     },
+    emits: ["leave"],
     data() {
         return {
-            //=================================表单与表格参数================================//
-            remoteMembers: [], //------远程用户列表
-            selectedUserData: [], //-----已选中的用户
+            remoteMembers: [] as ApidocProjectMemberInfo[], //------远程用户列表
+            selectedUserData: [] as ApidocProjectInfo["members"], //-----已选中的用户
             remoteQueryName: "", //----用户名称
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
             //===================================其他参数====================================//
             loading: false, //---------项目详情
             loading2: false, //--------查询用户列表
         };
     },
     computed: {
-        myLoginName() {
+        selfLoginName(): string {
             return this.$store.state.permission.userInfo.loginName;
         },
     },
     created() {
-        this.getProjectInfo();
+        this.getApidocProjectMemberInfo();
     },
     methods: {
         //==================================初始化&获取远端数据===============================//
-        //获取项目基本信息
-        getProjectInfo() {
+        //获取项目成员信息
+        getApidocProjectMemberInfo() {
             this.loading = true;
-            this.axios.get("/api/project/project_info", { params: { _id: this.id } }).then((res) => {
-                this.selectedUserData = res.data.members || [];
+            this.axios.get<Response<ApidocProjectMemberInfo[]>, Response<ApidocProjectMemberInfo[]>>("/api/project/project_members", { params: { _id: this.id } }).then((res) => {
+                this.selectedUserData = res.data.map((v) => ({
+                    ...v,
+                    _permission: v.permission,
+                })) || [];
             }).catch((err) => {
-                this.$errorThrow(err, this);
+                console.error(err);
             }).finally(() => {
                 this.loading = false;
             });
         },
         //根据名称查询用户列表
-        getRemoteUserByName(query) {
+        getRemoteUserByName(query: string) {
             this.loading2 = true;
             const params = {
                 name: query,
@@ -110,16 +105,14 @@ export default {
             this.axios.get("/api/security/userListByName", { params }).then((res) => {
                 this.remoteMembers = res.data;
             }).catch((err) => {
-                this.$errorThrow(err, this);
+                console.error(err);
             }).finally(() => {
                 this.loading2 = false;
             });
         },
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
+        //=====================================成员增删改查====================================//
         //新增成员
-        handleSelectUser(item) {
+        handleSelectUser(item: ApidocProjectMemberInfo) {
             this.remoteMembers = [];
             this.remoteQueryName = "";
             const hasUser = this.selectedUserData.find((val) => val.userId === item.userId);
@@ -135,37 +128,37 @@ export default {
                 projectId: this.id,
             };
             this.axios.post("/api/project/add_user", params).then(() => {
-                this.$set(item, "permission", "readAndWrite");
+                item.permission = "readAndWrite"
                 this.selectedUserData.push(item);
             }).catch((err) => {
-                this.$errorThrow(err, this);
+                console.error(err);
             });
         },
         //删除成员
-        handleDeleteMember(scope) {
+        handleDeleteMember(row: PermissionUserInfo, index: number) {
             this.$confirm("确认删除当前成员吗?", "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
             }).then(() => {
                 const params = {
-                    userId: scope.row.userId,
+                    userId: row.userId,
                     projectId: this.id,
                 };
                 this.axios.delete("/api/project/delete_user", { data: params }).then(() => {
-                    this.selectedUserData.splice(scope.$index, 1);
+                    this.selectedUserData.splice(index, 1);
                 }).catch((err) => {
-                    this.$errorThrow(err, this);
+                    console.error(err);
                 });
-            }).catch((err) => {
+            }).catch((err: Error | string) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
-                this.$errorThrow(err, this);
+                console.error(err);
             });
         },
         //离开团队
-        handleLeaveGroup(scope) {
+        handleLeaveGroup(row: PermissionUserInfo, index: number) {
             const { userInfo } = this.$store.state.permission;
             const hasAdmin = this.selectedUserData.find((info) => {
                 if (info.userId !== userInfo.id && info.permission === "admin") {
@@ -183,24 +176,25 @@ export default {
                 type: "warning",
             }).then(() => {
                 const params = {
-                    userId: scope.row.userId,
+                    userId: row.userId,
                     projectId: this.id,
                 };
                 this.axios.delete("/api/project/delete_user", { data: params }).then(() => {
-                    this.selectedUserData.splice(scope.$index, 1);
+                    this.selectedUserData.splice(index, 1);
+                    this.$emit("leave");
                 }).catch((err) => {
-                    this.$errorThrow(err, this);
+                    console.error(err);
                 });
-            }).catch((err) => {
+            }).catch((err: Error | string) => {
                 if (err === "cancel" || err === "close") {
                     return;
                 }
-                this.$errorThrow(err, this);
+                console.error(err);
             });
         },
         //改变成员权限
-        handleChangePermission(value, scope) {
-            const oldPermission = scope.row.permission;
+        handleChangePermission(row: PermissionUserInfo) {
+            const oldPermission = row._permission
             const hasAdmin = this.selectedUserData.find((info) => {
                 if (info.permission === "admin") {
                     return true
@@ -209,6 +203,7 @@ export default {
             });
             if (!hasAdmin) {
                 this.$message.error("团队至少保留一个管理员");
+                row.permission = oldPermission;
                 return;
             }
             if (oldPermission === "admin") {
@@ -218,40 +213,39 @@ export default {
                     type: "warning",
                 }).then(() => {
                     const params = {
-                        userId: scope.row.userId,
+                        userId: row.userId,
                         projectId: this.id,
-                        permission: value,
+                        permission: row.permission,
                     };
-                    scope.row.permission = value;
                     this.axios.put("/api/project/change_permission", params).then(() => {
+                        row._permission = row.permission;
                     }).catch((err) => {
-                        scope.row.permission = oldPermission;
-                        this.$errorThrow(err, this);
+                        row.permission = oldPermission;
+                        console.error(err);
                     });
-                }).catch((err) => {
+                }).catch((err: Error | string) => {
                     if (err === "cancel" || err === "close") {
+                        row.permission = oldPermission;
                         return;
                     }
-                    this.$errorThrow(err, this);
+                    console.error(err);
                 });
             } else {
                 const params = {
-                    userId: scope.row.userId,
+                    userId: row.userId,
                     projectId: this.id,
-                    permission: value,
+                    permission: row.permission,
                 };
-                scope.row.permission = value;
                 this.axios.put("/api/project/change_permission", params).then(() => {
+                    row._permission = row.permission;
                 }).catch((err) => {
-                    scope.row.permission = oldPermission;
-                    this.$errorThrow(err, this);
+                    row.permission = oldPermission;
+                    console.error(err);
                 });
             }
         },
-        //=====================================其他操作=====================================//
-
     },
-};
+})
 </script>
 
 <style lang="scss">

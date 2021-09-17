@@ -1,8 +1,8 @@
 /*
     创建者：shuxiaokai
-    创建时间：2019-09-06 11:31
-    模块名称：登录注册
-    备注：xxxx
+    创建时间：2021-06-10 21:39
+    模块名称：登录模块
+    备注：
 */
 <template>
     <div class="login-container d-flex a-center j-center">
@@ -13,15 +13,15 @@
                 <h2 class="text-center">{{ config.renderConfig.layout.title }}({{ config.version }})</h2>
                 <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
-                    <el-tab-pane label="账号登录" name="first">
+                    <el-tab-pane label="账号登录" name="loginAccount">
                         <s-login-account @jumpToRegister="handleJumpToRegister"></s-login-account>
                     </el-tab-pane>
                     <!-- 手机号登录 -->
-                    <el-tab-pane label="手机登录" name="second">
+                    <el-tab-pane label="手机登录" name="loginPassword">
                         <s-login-phone></s-login-phone>
                     </el-tab-pane>
                     <!-- 注册 -->
-                    <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="third">
+                    <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="register">
                         <s-register></s-register>
                     </el-tab-pane>
                 </el-tabs>
@@ -30,12 +30,14 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import config from "@/../config/config"
 import loginAccount from "./components/login-account.vue";
 import loginPhone from "./components/login-phone.vue";
 import register from "./components/register.vue";
+import { defineComponent } from "vue"
 
-export default {
+export default defineComponent({
     components: {
         "s-login-account": loginAccount,
         "s-login-phone": loginPhone,
@@ -43,20 +45,17 @@ export default {
     },
     data() {
         return {
-            //=====================================其他参数====================================//
-            activeName: "first", //----------tabs切换
+            config,
+            activeName: "loginAccount", //tabs切换
         };
     },
-    mounted() {
-    },
     methods: {
-        //=====================================组件操作====================================//
         //跳转注册页面
         handleJumpToRegister() {
-            this.activeName = "third";
+            this.activeName = "register";
         },
     },
-};
+})
 </script>
 
 <style lang="scss">

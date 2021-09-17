@@ -1,29 +1,40 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-07-28 17:09
-    模块名称：文字包裹区域(自动处理溢出和提示)
-    备注：xxxx
+    创建时间：2021-08-23 21:11
+    模块名称：文字溢出展示
+    备注：
 */
 <template>
-    <span class="s-ellipsis d-flex a-center">
+    <div class="s-ellipsis">
         <el-tooltip effect="light" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
             <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
         </el-tooltip>
-        <span v-if="copy || isOverflow" v-copy="value" class="copy el-icon-document-copy cursor-pointer orange"></span>
-    </span>
+        <!-- <span v-if="copy || isOverflow" v-copy="value" class="copy el-icon-document-copy cursor-pointer orange"></span> -->
+    </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
+        /**
+         * 展示值
+         */
         value: {
             type: [String, Number, Boolean],
             default: "",
         },
+        /**
+         * 最大宽度
+         */
         maxWidth: {
             type: [String, Number],
             default: 100,
         },
+        /**
+         * 是否允许拷贝
+         */
         copy: {
             type: [Boolean],
             default: false,
@@ -39,7 +50,7 @@ export default {
             handler() {
                 this.changeValueWidth();
                 setTimeout(() => {
-                    const textDom = this.$refs.text;
+                    const textDom = this.$refs.text as HTMLElement;
                     if (textDom) {
                         this.isOverflow = textDom.clientWidth < textDom.scrollWidth;
                     }
@@ -53,7 +64,7 @@ export default {
     },
     methods: {
         changeValueWidth() {
-            const textDom = this.$refs.text;
+            const textDom = this.$refs.text as HTMLElement;
             if (!textDom) {
                 return;
             }
@@ -63,26 +74,21 @@ export default {
                 textDom.style.maxWidth = this.maxWidth;
             }
         },
-        handleSelect(e) {
+        handleSelect(e: Event) {
             const selection = window.getSelection();
-            selection.removeAllRanges();
+            selection?.removeAllRanges();
             const range = document.createRange();
-            range.selectNodeContents(e.target);
-            selection.addRange(range);
+            range.selectNodeContents(e.target as HTMLElement);
+            selection?.addRange(range);
         },
-        //=====================================获取远程数据==================================//
-
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-
-        //=====================================其他操作=====================================//
     },
-};
+})
 </script>
 
 <style lang="scss">
 .s-ellipsis {
+    display: flex;
+    align-items: center;
     .s-ellipsis-content {
         white-space: nowrap;
         overflow: hidden;
@@ -95,5 +101,4 @@ export default {
         margin-right: size(10);
     }
 }
-
 </style>

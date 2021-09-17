@@ -2,7 +2,7 @@
 
 ![logo](https://images.gitee.com/uploads/images/2021/0331/214909_4f34bc9b_1230427.png "屏幕截图.png")
 
-# 摸鱼(客户端)
+# 摸鱼(客户端Typescript版本)
 
 ### 一款基于 Vue 和 Electron 的接口文档管理工具
 

@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-09-21 10:16
+    创建时间：2020-09-21 22:16
     模块名称：账号密码登录
     备注：xxxx
 */
 <template>
-    <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.native.stop.prevent="handleLogin">
+    <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="loginName">
             <el-input v-model="userInfo.loginName" prefix-icon="el-icon-user" name="loginName" type="text" placeholder="请输入用户名..."></el-input>
         </el-form-item>
@@ -25,7 +25,7 @@
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" :type="config.localization.enableGuest ? 'plain' : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading" :type="config.localization.enableGuest ? null : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableRegister">
@@ -62,54 +62,57 @@
     </el-form>
 </template>
 
-<script>
-import config from "@/../config"
+<script lang="ts">
+import { defineComponent } from "vue"
+import { PermissionUserInfo, Response } from "@@/global"
+import config from "@/../config/config"
 
-export default {
+export default defineComponent({
+    emits: ["jumpToRegister"],
     data() {
         return {
-            //账号密码登录
+            //=====================================用户信息====================================//
             userInfo: {
                 loginName: process.env.NODE_ENV === "development" ? "moyu" : "", //-----------登录名称
                 password: process.env.NODE_ENV === "development" ? "111111aaa" : "", //---------密码
                 captcha: "", //----------------验证码
             },
+            //=====================================表单验证规则====================================//
             rules: {
                 loginName: [{ required: true, message: "请输入用户名", trigger: "blur" }],
                 password: [{ required: true, message: "请输入密码", trigger: "blur" }],
                 captcha: [{ required: true, message: "请输入验证码", trigger: "blur" }],
             },
-            random: Math.random(), //----------验证码随机参数
+            //=====================================其他参数====================================//
+            config, //-----------------------配置信息
+            random: Math.random(), //--------验证码随机参数
             isShowCapture: false, //---------是否展示验证码
             loading: false, //---------------登录按钮loading
         };
     },
     computed: {
-        captchaUrl() {
+        captchaUrl(): string {
             const requestUrl = config.renderConfig.httpRequest.url;
             return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
         },
-        version() {
-            return this.$store.state.config.version;
-        },
     },
-    created() {},
     methods: {
         //用户名密码登录
         handleLogin() {
-            this.$refs.form.validate((valid) => {
+            this.$refs.form.validate((valid: boolean) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post("/api/security/login_password", this.userInfo).then((res) => {
+                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>("/api/security/login_password", this.userInfo).then((res: Response<PermissionUserInfo>) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                             this.isShowCapture = true;
                         } else {
                             this.$router.push("/v1/apidoc/doc-list");
-                            sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                            localStorage.setItem("userInfo", JSON.stringify(res.data));
+                            this.$store.dispatch("permission/getPermission")
                         }
                     }).catch((err) => {
-                        this.$errorThrow(err, this);
+                        console.error(err);
                     }).finally(() => {
                         this.loading = false;
                     });
@@ -117,7 +120,7 @@ export default {
                     this.$nextTick(() => {
                         const input = document.querySelector(".el-form-item.is-error input");
                         if (input) {
-                            input.focus();
+                            (input as HTMLElement).focus();
                         }
                     });
                 }
@@ -136,15 +139,15 @@ export default {
             this.loading = true;
             this.axios.post("/api/security/login_guest", this.userInfo).then((res) => {
                 this.$router.push("/v1/apidoc/doc-list");
-                sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                localStorage.setItem("userInfo", JSON.stringify(res.data));
             }).catch((err) => {
-                this.$errorThrow(err, this);
+                console.error(err);
             }).finally(() => {
                 this.loading = false;
             });
         },
     },
-};
+})
 </script>
 
 <style lang="scss">

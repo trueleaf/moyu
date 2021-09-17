@@ -1,59 +1,64 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-05-21 17:32
-    模块名称：权限配置
-    备注：xxxx
+    创建时间：2021-06-14 12:08
+    模块名称：
+    备注：
 */
 <template>
-    <div class="g-container">
+    <div class="s-permission">
         <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
             <el-tab-pane label="用户" name="s-user"></el-tab-pane>
-            <el-tab-pane label="角色维护" name="s-role"> </el-tab-pane>
-            <el-tab-pane label="路由维护" name="s-routes"> </el-tab-pane>
-            <el-tab-pane label="菜单维护" name="s-menu"> </el-tab-pane>
+            <el-tab-pane label="角色维护" name="s-role"></el-tab-pane>
+            <el-tab-pane label="菜单维护" name="s-menu"></el-tab-pane>
+            <el-tab-pane label="前端路由" name="s-client-routes"></el-tab-pane>
+            <el-tab-pane label="后端路由(接口)" name="s-server-routes"></el-tab-pane>
         </el-tabs>
-        <components :is="activeName"></components>
+        <component :is="activeName"></component>
     </div>
 </template>
 
-<script>
-import user from "./children/user/user.vue";
-import role from "./children/role/role.vue";
-import routes from "./children/routes/routes.vue";
-import menu from "./children/menu/menu.vue";
+<script lang="ts">
+import { defineComponent } from "vue"
+import user from "./user/user.vue"
+import role from "./role/role.vue"
+import menu from "./menu/menu.vue"
+import clientRoutes from "./client-routes/client-routes.vue"
+import serverRoutes from "./server-routes/server-routes.vue"
 
-export default {
+export default defineComponent({
     components: {
         "s-user": user,
         "s-role": role,
-        "s-routes": routes,
         "s-menu": menu,
+        "s-client-routes": clientRoutes,
+        "s-server-routes": serverRoutes,
     },
     data() {
         return {
-            activeName: "s-user",
+            activeName: "s-user", //当前选中tab
         };
     },
     created() {
-        this.init();
+        this.restoreLastVisitTab();
     },
     methods: {
-        init() {
+        //恢复上次访问的tab
+        restoreLastVisitTab() {
             const localTab = localStorage.getItem("permission/activeTab");
             if (localTab) {
                 this.activeName = localTab;
             }
         },
-        //改变tabs将上次选择的tab存为本地
+        //缓存上一次访问的tab
         handleChangeTabs() {
             localStorage.setItem("permission/activeTab", this.activeName)
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
-.g-container {
+.s-permission {
     width: 70%;
     margin-top: 20px;
     margin-left: auto;

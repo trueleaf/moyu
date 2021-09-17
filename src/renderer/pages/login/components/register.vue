@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-09-21 10:30
+    创建时间：2021-06-11 22:13
     模块名称：账号注册
-    备注：xxxx
+    备注：
 */
 <template>
-    <el-form ref="form" :model="registerInfo" :rules="rules" @submit.native.stop.prevent="handleRegister">
+    <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
         <el-form-item prop="loginName">
             <el-input v-model="registerInfo.loginName" name="loginName" type="text" placeholder="请输入登录名称..."></el-input>
         </el-form-item>
@@ -30,13 +30,43 @@
     </el-form>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     data() {
-        const matchString = /[a-zA-Z]/;
-        const matchNumber = /\d/;
-        const inValidKey = /[^\w\d!@#]/;
-        const validatePassword = (rule, value, callback) => {
+        return {
+            //=====================================基础信息====================================//
+            registerInfo: {
+                loginName: "", //---登录名称
+                smsCode: "", //-----验证码
+                password: "", //----密码
+                password2: "", //---确认密码
+                phone: "", //-------手机号码
+            },
+            //=====================================校验规则====================================//
+            rules: {
+                loginName: [{ required: true, message: "请输入登录名称", trigger: "blur" }],
+                password: [
+                    { required: true, message: "请输入密码", trigger: "blur" },
+                    { validator: this.validatePassword, trigger: "blur" },
+                ],
+                password2: [
+                    { required: true, message: "请再次输入密码", trigger: "blur" },
+                    { validator: this.validatePassword2, trigger: "blur" },
+                ],
+                phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
+                smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+            },
+            //=====================================其他参数====================================//
+            loading: false,
+        };
+    },
+    methods: {
+        validatePassword(rule: unknown, value: string, callback: (err?: Error) => void) {
+            const matchString = /[a-zA-Z]/;
+            const matchNumber = /\d/;
+            const inValidKey = /[^\w\d!@#]/;
             if (value.trim() === "") {
                 callback(new Error("请输入密码"));
             } else if (value.match(inValidKey)) {
@@ -49,8 +79,11 @@ export default {
                 }
                 callback();
             }
-        };
-        const validatePassword2 = (rule, value, callback) => {
+        },
+        validatePassword2(rule: unknown, value: string, callback: (err?: Error) => void) {
+            const matchString = /[a-zA-Z]/;
+            const matchNumber = /\d/;
+            const inValidKey = /[^\w\d!@#]/;
             if (value === "") {
                 callback(new Error("请再次输入密码"));
             } else if (value.match(inValidKey)) {
@@ -62,36 +95,7 @@ export default {
             } else {
                 callback();
             }
-        };
-        return {
-            //=====================================基础信息====================================//
-            registerInfo: {
-                loginName: "",
-                smsCode: "",
-                password: "",
-                password2: "",
-                phone: "",
-            },
-            //=====================================校验规则====================================//
-            rules: {
-                loginName: [{ required: true, message: "请输入登录名称", trigger: "blur" }],
-                password: [
-                    { required: true, message: "请输入密码", trigger: "blur" },
-                    { validator: validatePassword, trigger: "blur" },
-                ],
-                password2: [
-                    { required: true, message: "请再次输入密码", trigger: "blur" },
-                    { validator: validatePassword2, trigger: "blur" },
-                ],
-                phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
-                smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
-            },
-            //=====================================其他参数====================================//
-            loading: false,
-        };
-    },
-    created() {},
-    methods: {
+        },
         //校验手机号码
         smsCodeHook() {
             if (this.registerInfo.phone.length !== 11) {
@@ -105,8 +109,8 @@ export default {
             const params = {
                 phone: this.registerInfo.phone,
             };
-            this.axios.get("/api/security/sms", { params }).then(() => {}).catch((err) => {
-                this.$errorThrow(err, this);
+            this.axios.get("/api/security/sms", { params }).catch((err) => {
+                console.error(err);
             });
         },
         //用户注册
@@ -122,7 +126,7 @@ export default {
                             this.$router.push("/v1/apidoc/doc-list");
                             sessionStorage.setItem("userInfo", JSON.stringify(res.data));
                         }).catch((err) => {
-                            this.$errorThrow(err, this);
+                            console.error(err);
                         }).finally(() => {
                             this.loading = false;
                         });
@@ -134,7 +138,7 @@ export default {
                     this.$nextTick(() => {
                         const input = document.querySelector(".el-form-item.is-error input");
                         if (input) {
-                            input.focus();
+                            (input as HTMLElement).focus();
                         }
                     });
                     this.$message.warning("请完善必填信息");
@@ -143,8 +147,9 @@ export default {
             });
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
+
 </style>

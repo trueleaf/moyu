@@ -1,7 +1,7 @@
 /*
     创建者：shuxiaokai
-    创建时间：2021-01-13 16:47
-    模块名称：loading效果
+    创建时间：2021-06-23 19:03
+    模块名称：加载框
     备注：
 */
 <template>
@@ -11,9 +11,14 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
+        /**
+         * 加载中状态
+         */
         loading: {
             type: Boolean,
             default: false,
@@ -28,26 +33,13 @@ export default {
         loading: {
             handler(val) {
                 if (val) {
-                    this.loadingText = this.randomTip()
+                    this.loadingText = this.$helper.randomTip();
                 }
             },
             immediate: true,
         },
     },
-    created() {
-
-    },
-    methods: {
-        //==================================初始化&获取远端数据===============================//
-
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-
-        //=====================================其他操作=====================================//
-
-    },
-};
+})
 </script>
 
 <style lang="scss">

@@ -1,26 +1,24 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-10-17 15:56
+    创建时间：2021-08-30 21:01
     模块名称：折叠卡片
-    备注：xxxx
+    备注：
 */
 <template>
-    <div
-        class="collapse-card"
-        :class="{shadow: shadow}"
-        :style="{ width: width }"
-    >
+    <div class="collapse-card" :class="{shadow: shadow}" :style="{ width: width }">
         <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
-            <div class="head" @click="showContent = !showContent">
-                <template v-if="!disabled">
-                    <span v-if="!showContent" class="el-icon-caret-right mr-2"></span>
-                    <span v-else class="el-icon-caret-bottom mr-2"></span>
-                </template>
-                <template v-else>
-                    <svg class="disabled-icon mr-2" aria-hidden="true">
-                        <use xlink:href="#iconweibiaoti-"></use>
-                    </svg>
-                </template>
+            <div class="head">
+                <div class="control" @click="showContent = !showContent">
+                    <template v-if="!disabled">
+                        <span v-if="!showContent" class="el-icon-caret-right"></span>
+                        <span v-else class="el-icon-caret-bottom"></span>
+                    </template>
+                    <template v-else>
+                        <svg class="disabled-icon" aria-hidden="true">
+                            <use xlink:href="#iconweibiaoti-"></use>
+                        </svg>
+                    </template>
+                </div>
                 <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
                 <slot v-else name="head">{{ title }}</slot>
             </div>
@@ -37,8 +35,10 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
         title: { // card头部标题
             type: String,
@@ -91,7 +91,7 @@ export default {
             this.showContent = true;
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
@@ -109,18 +109,25 @@ export default {
         display: flex;
         align-items: center;
         height: size(40);
-        user-select: none;
+        // user-select: none;
         .head {
-            padding-left: size(10);
+            // padding-left: size(10);
             padding-right: size(20);
-            cursor: pointer;
             display: flex;
             align-items: center;
             height: 100%;
             min-width: size(150);
             border-right: 1px solid $gray-300;
-            &:hover {
-                background: $gray-300;
+            .control {
+                width: size(40);
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                &:hover {
+                    background: $gray-300;
+                }
             }
         }
         .title {

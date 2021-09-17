@@ -12,10 +12,6 @@ body {
         background: $gray-200;
         color: $theme-color;
     }
-    .el-divider__text {
-        color: $cyan;
-        font-size: fz(16);
-    }
     .el-table .cell {
         line-height: size(24); //修复奇数高度文本错位
     }
@@ -24,6 +20,27 @@ body {
     }
     .el-form--label-top .el-form-item__label {
         padding: 0;
+    }
+    .el-dialog__body {
+        padding-top: 0;
+        padding-bottom: size(10);
+    }
+    .el-dialog__headerbtn {
+        width: size(25);
+        height: size(25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        &:hover {
+            background-color: $gray-300;
+        }
+        .el-dialog__close {
+            font-size: fz(20);
+            &:hover {
+                color: $red;
+            }
+        }
     }
 }
 

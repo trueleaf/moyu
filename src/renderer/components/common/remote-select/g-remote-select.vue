@@ -1,56 +1,70 @@
 /*
     创建者：shuxiaokai
-    创建时间：2020-06-23 16:43
-    模块名称：远程搜索组件
-    备注：xxxx
+    创建时间：2021-07-13 21:28
+    模块名称：
+    备注：
 */
 <template>
     <div class="remote-select">
         <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
         <div v-if="query" class="select-panel">
-            <div v-if="realLoading" class="loading">加载中...</div>
-            <div v-if="!realLoading && !$slots.default" class="empty">暂无数据</div>
-            <slot v-if="!realLoading && $slots.default" />
+            <div v-if="dataLoading" class="loading">加载中...</div>
+            <div v-if="!dataLoading && !$slots.default" class="empty">暂无数据</div>
+            <slot v-if="!dataLoading && $slots.default" />
         </div>
     </div>
 </template>
 
-<script>
-import { debounce } from "@/lib";
+<script lang="ts">
+import { defineComponent, PropType } from "vue"
+type DebounceFn = (query: string) => void;
 
-export default {
+export default defineComponent({
     props: {
-        placeholder: { //placeholder
+        /**
+         * placeholder
+         */
+        placeholder: {
             type: String,
             default: "请输入...",
         },
-        remoteMethods: { //远程搜索方法
-            type: Function,
+        /**
+         * 远程搜索方法
+         */
+        remoteMethods: {
+            type: Function as PropType<(query: string) => void>,
             default: null,
         },
-        loading: { //数据加载状态
+        /**
+         * 数据加载状态
+         */
+        loading: {
             type: Boolean,
             default: false,
         },
-        value: { //用于处理v-model
+        /**
+         * 用于处理v-model
+         */
+        modelValue: {
             type: String,
             default: "",
         },
     },
+    emits: ["update:modelValue"],
     data() {
         return {
-            query: "", //----------输入值
-            selectData: [], //-----搜索项目
-            debounceFn: null, //---节流函数
-            realLoading: false, //-加载效果
+            query: "", //-------------------------------输入值
+            selectData: [], //--------------------------搜索项目
+            debounceFn: null as null | DebounceFn, //---节流函数
+            dataLoading: false, //----------------------加载效果
         };
     },
     watch: {
         query(val) {
             if (val != null || val === "") {
-                this.realLoading = true;
+                this.dataLoading = true;
                 if (!this.debounceFn) {
-                    this.debounceFn = debounce((query) => {
+                    this.debounceFn = this.$helper.debounce<DebounceFn>((query) => {
                         this.getData(query);
                     });
                 }
@@ -58,25 +72,25 @@ export default {
             }
         },
         loading(val) {
-            this.realLoading = val;
+            this.dataLoading = val;
         },
-        value(val) {
+        modelValue(val) {
             this.query = val;
         },
     },
     methods: {
-        //=====================================获取远程数据==================================//
         //获取远程数据
-        getData(query) {
+        getData(query: string) {
             if (this.remoteMethods) {
                 this.remoteMethods(query);
             }
         },
+        //处理搜索
         handleInput() {
-            this.$emit("input", this.query);
+            this.$emit("update:modelValue", this.query);
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
@@ -103,7 +117,7 @@ export default {
         z-index: $zIndex-panel;
         overflow-y: scroll;
         // padding: size(10) size(20);
-        width: size(300);
+        width: 100%;
         max-height: size(200);
         background: $white;
         border: 1px solid $gray-300;
@@ -117,5 +131,4 @@ export default {
         }
     }
 }
-
 </style>

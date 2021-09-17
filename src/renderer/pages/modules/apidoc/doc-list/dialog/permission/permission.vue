@@ -1,69 +1,61 @@
 /*
     创建者：shuxiaokai
-    创建时间：2021-05-17 22:33"
-    模块名称：权限管理
+    创建时间：2021-07-20 19:21
+    模块名称：成员管理
     备注：
 */
 <template>
-    <s-dialog title="权限管理" :is-show="visible" class="permission" @close="handleClose">
-        <el-tabs v-model="activeName">
-            <el-tab-pane label="成员" name="s-user"></el-tab-pane>
-            <el-tab-pane label="设置" name="s-setting"></el-tab-pane>
-        </el-tabs>
-        <components :is="activeName" v-bind="$attrs"></components>
+    <s-dialog :model-value="modelValue" top="10vh" title="成员管理" @close="handleClose">
+        <s-user :id="projectId" @leave="handleLeave"></s-user>
+        <!-- <template #footer>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleChangePermission">确定</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+        </template> -->
     </s-dialog>
 </template>
 
-<script>
-import setting from "./setting/setting.vue"
+<script lang="ts">
+import { defineComponent } from "vue"
 import user from "./user/user.vue"
 
-export default {
+export default defineComponent({
     components: {
         "s-user": user,
-        "s-setting": setting,
     },
     props: {
-        visible: { //弹窗是否显示
+        modelValue: {
             type: Boolean,
             default: false,
         },
+        /**
+         * 项目id
+         */
+        projectId: {
+            type: String,
+            default: "",
+        },
     },
+    emits: ["update:modelValue", "leave"],
     data() {
         return {
-            //=================================表单与表格参数================================//
-
-            //===================================枚举参数====================================//
-
-            //===================================业务参数====================================//
-
-            //===================================其他参数====================================//
-            activeName: "s-user",
+            //=====================================其他参数====================================//
+            loading: false, //------------------------------成员数据加载状态
         };
     },
-    created() {
-
-    },
     methods: {
-        //==================================初始化&获取远端数据===============================//
-
-        //=====================================前后端交互====================================//
-
-        //=====================================组件间交互====================================//
-        handleSubmit() {
+        //离开项目
+        handleLeave() {
+            this.$emit("leave");
+            this.handleClose();
         },
-        //=====================================其他操作=====================================//
+        //关闭弹窗
         handleClose() {
-            this.$emit("update:visible", false);
+            this.$emit("update:modelValue", false);
         },
     },
-};
+})
 </script>
 
 <style lang="scss">
-.permission {
-    .el-dialog__body {
-        padding: 0 size(20);
-    }
-}
+
 </style>

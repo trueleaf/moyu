@@ -1,8 +1,8 @@
 /*
     创建者：shuxiaokai
-    创建时间：2019-10-29 19:04
-    模块名称：xxxx
-    备注：xxxx
+    创建时间：2021-09-04 15:20
+    模块名称：折叠面板
+    备注：
 */
 <template>
     <div class="s-collaps mb-1">
@@ -17,8 +17,10 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
         title: {
             type: String,
@@ -46,9 +48,6 @@ export default {
             immediate: true,
         },
     },
-    created() {
-
-    },
     methods: {
         toggleCollapse() {
             if (this.disabled) {
@@ -57,7 +56,7 @@ export default {
             this.isActive = !this.isActive
         },
     },
-};
+})
 </script>
 
 <style lang="scss">

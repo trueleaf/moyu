@@ -1,8 +1,8 @@
 /*
     创建者：shuxiaokai
-    创建时间：2019-11-05 15:53
-    模块名称：强调显示文本
-    备注：xxxx
+    创建时间：2021-07-29 22:36
+    模块名称：文字强调组件
+    备注：
 */
 <template>
     <span>
@@ -17,21 +17,35 @@
     </span>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
+        /**
+         * 原始值
+         */
         value: {
             type: String,
             default: "",
         },
+        /**
+         * 关键字
+         */
         keyword: {
             type: String,
             default: "",
         },
+        /**
+         * 高亮颜色
+         */
         activeColor: {
             type: String,
             default: "#f60",
         },
+        /**
+         * 开启则背景颜色高亮而非文字高亮
+         */
         background: {
             type: Boolean,
             default: false,
@@ -39,14 +53,14 @@ export default {
     },
     data() {
         return {
-            leftStr: "",
-            emphasizeStr: "",
-            rightStr: "",
+            leftStr: "", //----------高亮字符串左侧字符串
+            emphasizeStr: "", //-----高亮字符串
+            rightStr: "", //---------高亮字符串右边字符串
         };
     },
     computed: {
-        isMatched() {
-            return this.keyword && this.value.match(this.keyword)
+        isMatched(): boolean {
+            return !!(this.keyword && this.value.match(this.keyword))
         },
     },
     watch: {
@@ -79,7 +93,7 @@ export default {
             this.rightStr = strArr.slice(index + offset).join("");
         },
     },
-};
+})
 </script>
 
 <style lang="scss">

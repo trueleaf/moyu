@@ -1,13 +1,13 @@
 /*
     创建者：shuxiaokai
-    创建时间：2019-07-11 14:14
-    模块名称：xxxx
-    备注：xxxx
+    创建时间：2021-06-28 22:38
+    模块名称：
+    备注：
 */
 <template>
     <div class="s-fieldset">
         <div class="legend">{{ title }}</div>
-        <div class="content" :style="{height: height, 'max-height': maxHeight}">
+        <div class="content" :style="{height: height, 'maxHeight': maxHeight}">
             <slot></slot>
         </div>
         <div class="operation">
@@ -16,8 +16,10 @@
     </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
     props: {
         title: {
             type: String,
@@ -32,12 +34,7 @@ export default {
             default: null,
         },
     },
-    data() {
-        return {};
-    },
-    created() {},
-    methods: {},
-};
+})
 </script>
 
 <style lang="scss">

@@ -112,6 +112,28 @@
     }
 }
 //contextmenu
+@mixin contextmenu-item {
+    line-height: 2em;
+    padding: size(5) size(25);
+    cursor: pointer;
+    display: flex;
+    &.disabled {
+        color: $gray-500;
+        cursor: default;
+        &:hover {
+            background: inherit;
+            color: $gray-500;
+        }
+    }
+    .hot-key {
+        margin-left: auto;
+        color: $gray-500;
+    }
+    &:hover {
+        background: $gray-200;
+        color: $theme-color;
+    }
+}
 @mixin contextmenu {
     position: fixed;
     background: $white;
@@ -131,26 +153,7 @@
         }
     }
     .item-list {
-        line-height: 2em;
-        padding: size(5) size(25);
-        cursor: pointer;
-        display: flex;
-        &.disabled {
-            color: $gray-500;
-            cursor: default;
-            &:hover {
-                background: inherit;
-                color: $gray-500;
-            }
-        }
-        .hot-key {
-            margin-left: auto;
-            color: $gray-500;
-        }
-        &:hover {
-            background: $gray-200;
-            color: $theme-color;
-        }
+        @include contextmenu-item;
     }
     .divider {
         margin: size(4) 0;
@@ -165,7 +168,7 @@
     width: size(6);
     background: transparent;
     left: size(300);
-    z-index: $zIndex-banner-bar;
+    z-index: $zIndex-drag-bar;
     box-sizing: content-box;
     margin-left: size(-3);
     cursor: ew-resize;
@@ -177,12 +180,20 @@
 //右上角关闭按钮
 @mixin rt-close {
     display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-    right: size(3);
-    top: size(4);
-    font-size: fz(18);
+    right: size(5);
+    top: size(5);
+    font-size: fz(16);
+    width: size(22);
+    height: size(22);
     color: $red;
     cursor: pointer;
+    border-radius: 50%;
+    &:hover {
+        background: $gray-300;
+    }
 }
 
 
