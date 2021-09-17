@@ -32,7 +32,17 @@
         </div>
         <el-empty v-show="!remoteResponse.data.type">
             <template #description>
-                <span>点击发送按钮发送请求</span>
+                <div v-if="config.isElectron">点击发送按钮发送请求</div>
+                <div v-else>
+                    <div>
+                        <i class="el-icon-warning orange mr-2"></i>
+                        <span>因浏览器限制，完整HTTP功能请下载Electron</span>
+                    </div>
+                    <div class="mb-2">跨域、、请求头(user-agent,accept-encoding)等受限</div>
+                    <div>
+                        <a :href="config.renderConfig.download.gitee">下载Electron(Gitee)</a>
+                    </div>
+                </div>
             </template>
         </el-empty>
     </s-loading>
@@ -40,6 +50,7 @@
 
 <script lang="ts" setup>
 import { computed, ref } from "vue"
+import config from "@/../config/config"
 import { store } from "@/store/index"
 import sBaseInfo from "./base-info/base-info.vue"
 import sResInfo from "./res-info/res-info.vue"
