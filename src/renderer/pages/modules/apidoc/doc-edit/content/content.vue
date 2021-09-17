@@ -8,6 +8,7 @@
     <keep-alive>
         <s-guide v-if="!currentSelectTab || currentSelectTab?.tabType === 'guide'"></s-guide>
         <s-variable v-else-if="currentSelectTab.tabType === 'variable'"></s-variable>
+        <s-params-template v-else-if="currentSelectTab.tabType === 'paramsTemplate'"></s-params-template>
         <s-mind-params v-else-if="currentSelectTab.tabType === 'mindParams'"></s-mind-params>
         <s-apidoc v-else-if="currentSelectTab.tabType === 'doc'"></s-apidoc>
     </keep-alive>
@@ -20,6 +21,7 @@ import apidoc from "./apidoc/apidoc.vue";
 import guide from "./guide/guide.vue";
 import variable from "./variable/variable.vue";
 import mindParams from "./mind-params/mind-params.vue";
+import paramsTemplate from "./params-template/params-template.vue";
 
 export default defineComponent({
     components: {
@@ -27,6 +29,7 @@ export default defineComponent({
         "s-apidoc": apidoc,
         "s-variable": variable,
         "s-mind-params": mindParams,
+        "s-params-template": paramsTemplate,
     },
     data() {
         return {

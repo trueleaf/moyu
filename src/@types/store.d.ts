@@ -167,7 +167,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 参数模板信息
      */
-    paramsTemplate: ApidocProjectParamsTemplate,
+    paramsTemplate: ApidocProjectParamsTemplate[],
     /**
      * 项目规则
      */
