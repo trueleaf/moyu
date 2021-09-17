@@ -9,6 +9,7 @@ import { router } from "@/router/index"
 import { ElMessageBox } from "element-plus"
 import { apidocCache } from "@/cache/apidoc"
 import type { State as RootState, } from "@@/store"
+import { event } from "@/helper/index"
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,
@@ -38,7 +39,7 @@ const tabs = {
         },
         //新增一个tab
         addTab(state: ApidocTabsState, payload: ApidocTab): void {
-            const { _id, projectId } = payload;
+            const { _id, projectId, fixed } = payload;
             const tabInfo = payload;
             const isInProject = state.tabs[projectId]; //当前项目是否存在tabs
             if (!isInProject) {
@@ -50,15 +51,18 @@ const tabs = {
             const unFixedTab = state.tabs[projectId].find((val) => !val.fixed);
             const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed);
 
-            if (unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
+            if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
             } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
+                state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
+            } else if (fixed && !hasTab) {
                 state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
             }
 
             const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
             matchedTab.selected = true;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            event.emit("apidoc/tabs/addOrDeleteTab")
         },
         //固定一个tab
         fixedTab(state: ApidocTabsState, payload: ApidocTab): void {
@@ -71,7 +75,8 @@ const tabs = {
         },
         //在异步回调中无法直接改变state的值
         deleteTabByIndex(state: ApidocTabsState, payload: { deleteIndex: number, projectId: string }): void {
-            state.tabs[payload.projectId].splice(payload.deleteIndex, 1)
+            state.tabs[payload.projectId].splice(payload.deleteIndex, 1);
+            event.emit("apidoc/tabs/addOrDeleteTab")
         },
         //根据id选中tab
         selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {
