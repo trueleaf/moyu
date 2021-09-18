@@ -53,7 +53,8 @@ export default defineComponent({
                         items: bodyParams,
                     };
                     this.loading = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then(() => {
+                    this.axios.post("/api/project/doc_preset_params", params).then((res) => {
+                        this.$store.commit("apidoc/baseInfo/addParamsTemplate", res.data);
                         this.handleClose();
                     }).catch((err) => {
                         console.error(err);
