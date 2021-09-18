@@ -216,17 +216,33 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
  * 生成文件副本
  */
 export function forkNode(currentOperationalNode: ApidocBanner): void {
+    const { banner } = store.state["apidoc/banner"];
     const projectId = router.currentRoute.value.query.id;
     const params = {
         _id: currentOperationalNode._id,
         projectId,
     };
     axios.post<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/copy_doc", params).then((res) => {
-        console.log(res.data)
+        const pData = findParentById(banner, currentOperationalNode._id, { idKey: "_id" });
+        console.log(pData)
+        if (!pData) {
+            store.commit("apidoc/banner/splice", {
+                start: banner.length,
+                deleteCount: 0,
+                item: res.data,
+            })
+        } else {
+            store.commit("apidoc/banner/splice", {
+                start: pData.children.length,
+                deleteCount: 0,
+                item: res.data,
+                opData: pData.children
+            })
+        }
     }).catch((err) => {
         console.error(err);
     });
-    console.log(currentOperationalNode)
+    
 }
 
 /**

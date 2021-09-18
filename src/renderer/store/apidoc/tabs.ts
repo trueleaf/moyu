@@ -2,6 +2,7 @@
  * tabs导航
  */
 import type { ActionContext } from "vuex"
+import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { findNodeById } from "@/helper/index"
 import type { ApidocTabsState, ApidocTab } from "@@/store"
@@ -29,6 +30,8 @@ const tabs = {
             const { projectId } = payload;
             const localEditTabs = localStorage.getItem("apidoc/editTabs");
             const tabs: ApidocTabsState["tabs"]  = localEditTabs ? JSON.parse(localEditTabs) : {};
+            const selectedTab =  tabs[projectId].find((val) => val.selected);
+            store.commit("apidoc/banner/changeExpandItems", [selectedTab?._id]);
             state.tabs[projectId] = tabs[projectId];
         },
         //更新全部的tab
@@ -63,6 +66,7 @@ const tabs = {
             matchedTab.selected = true;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
             event.emit("apidoc/tabs/addOrDeleteTab")
+            store.commit("apidoc/banner/changeExpandItems", [_id]);
         },
         //固定一个tab
         fixedTab(state: ApidocTabsState, payload: ApidocTab): void {
@@ -92,6 +96,7 @@ const tabs = {
                 }
             })
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            store.commit("apidoc/banner/changeExpandItems", [id]);
         },
         //根据id改变节点属性
         changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
@@ -122,6 +127,8 @@ const tabs = {
                     context.state.tabs[projectId][selectTabIndex].selected = true;
                 }
                 localStorage.setItem("apidoc/editTabs", JSON.stringify(context.state.tabs));
+                const activeTab = context.state.tabs[projectId].find((tab) => tab.selected);
+                store.commit("apidoc/banner/changeExpandItems", [activeTab?._id]);
             }
 
             const { ids, projectId } = payload;
@@ -159,7 +166,6 @@ const tabs = {
                     }).catch((err) => {
                         console.error(err);
                     })
-                    // console.log(11111222223333, apidocCache.getApidoc(unsavedTab._id))
                 } catch (error) {
                     if (error === "close") {
                         return;

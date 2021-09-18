@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
-import type { State as RootState, ApidocProjectBaseInfoState } from "@@/store"
-import type { Response } from "@@/global"
+import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
+import type { Response, } from "@@/global"
 
 const baseInfo = {
     namespaced: true,
@@ -55,8 +55,11 @@ const baseInfo = {
             } else {
                 state.layout = localLayout;
             }
-           
-        }
+        },
+        //添加一个模板
+        addParamsTemplate(state: ApidocProjectBaseInfoState, payload: ApidocProjectParamsTemplate): void {
+            state.paramsTemplate.push(payload);
+        },
     },
     actions: {
         /**
