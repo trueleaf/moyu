@@ -550,7 +550,7 @@ type ApidocBanner = {
     /**
      * 更新人
      */
-    updator: string,
+    maintainer: string,
     /**
      * 请求方法
      */
