@@ -8,7 +8,69 @@
     <div class="tool">
         <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
-        <el-input v-model="queryData" class="doc-search" placeholder="文档名称、文档url、创建者" clearable @input="handleFilterBanner"></el-input>
+        <div class="p-relative">
+            <el-input v-model="queryData" class="doc-search" placeholder="文档名称、文档url" clearable @input="handleFilterBanner"></el-input>
+            <el-badge :is-dot="hasFilterCondition" class="badge">
+                <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
+                    <template #reference>
+                        <div class="advance" title="高级筛选">
+                            <i class="iconfont icongaojishaixuan"></i>
+                        </div>
+                    </template>
+                    <s-fieldset title="过滤条件" class="search-panel">
+                        <!-- 操作人员 -->
+                        <div class="op-item a-center">
+                            <div class="flex0">操作人员：</div>
+                            <el-checkbox-group v-model="formInfo.maintainers">
+                                <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
+                                <el-button type="text" class="ml-2" @click="handleClearMaintainer">清空</el-button>
+                            </el-checkbox-group>
+                        </div>
+                        <!-- 日期范围 -->
+                        <div class="op-item">
+                            <div class="flex0">
+                                <span>录入日期&nbsp;</span>
+                                <span>：</span>
+                            </div>
+                            <el-radio-group v-model="dateRange">
+                                <el-radio label="1d">今天</el-radio>
+                                <el-radio label="2d">近两天</el-radio>
+                                <el-radio label="3d">近三天</el-radio>
+                                <el-radio label="7d">近七天</el-radio>
+                                <el-radio label="自定义">自定义</el-radio>
+                                <el-date-picker
+                                    v-if="dateRange === '自定义'"
+                                    v-model="customDateRange"
+                                    type="datetimerange"
+                                    range-separator="至"
+                                    value-format="x"
+                                    start-placeholder="开始日期"
+                                    size="mini"
+                                    class="mr-1"
+                                    end-placeholder="结束日期"
+                                >
+                                </el-date-picker>
+                                <el-button type="text" @click="handleClearDate">清空</el-button>
+                            </el-radio-group>
+                        </div>
+                        <!-- 最近多少条数据 -->
+                        <div class="op-item">
+                            <div class="flex0">
+                                <span>最近多少条&nbsp;</span>
+                                <span>：</span>
+                            </div>
+                            <el-radio-group v-model="formInfo.recentNum">
+                                <el-radio :label="2">2条</el-radio>
+                                <el-radio :label="5">5条</el-radio>
+                                <el-radio :label="10">10条</el-radio>
+                                <el-radio :label="15">15条</el-radio>
+                                <el-button type="text" @click="handleClearRecentNum">清空</el-button>
+                            </el-radio-group>
+                        </div>
+                    </s-fieldset>
+                </el-popover>
+            </el-badge>
+        </div>
         <!-- 工具栏 -->
         <div class="tool-icon mt-1">
             <!-- 固定的工具栏操作 -->
@@ -56,12 +118,14 @@
     <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "vue"
-import draggable from "vuedraggable"
-import addFileDialog from "../../dialog/add-file/add-file.vue"
-import addFolderDialog from "../../dialog/add-folder/add-folder.vue"
-import operations from "./operations"
+<script lang="ts" setup>
+import { ref, Ref, defineEmits, computed, watch, onMounted, onUnmounted } from "vue"
+import sDraggable from "vuedraggable"
+import { store } from "@/store/index"
+import sAddFileDialog from "../../dialog/add-file/add-file.vue"
+import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
+import localOriginOperation from "./operations"
+import { forEachForest } from "@/helper/index"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { addFileAndFolderCb } from "../composables/curd-node"
 
@@ -88,113 +152,187 @@ type Operation = {
     pin: boolean,
 };
 
-export default defineComponent({
-    components: {
-        "s-draggable": draggable,
-        "s-add-file-dialog": addFileDialog,
-        "s-add-folder-dialog": addFolderDialog,
-    },
-    emits: ["fresh"],
-    setup() {
-        //添加文件夹或文档成功回调函数
-        const handleAddFileAndFolderCb = (data: ApidocBanner) => {
-            addFileAndFolderCb.call(this, ref(null), data)
-        };
-        return {
-            handleAddFileAndFolderCb,
-        };
-    },
-    data() {
-        return {
-            operations: [] as Operation[], //----------所有操作
-            pinOperations: [] as Operation[], //-------固定工具栏操作
-            queryData: "", //--------------------------过滤条件
-            visible: false, //-------------------------是否显示更多操作
-            addFileDialogVisible: false,
-            addFolderDialogVisible: false,
-        };
-    },
-    computed: {
-        /**
-         * 项目名称
-         */
-        projectName(): string {
-            return this.$store.state["apidoc/baseInfo"].projectName;
-        },
-    },
-    watch: {
-        /**
-         * 缓存所有操作
-         */
-        operations: {
-            handler(v) {
-                localStorage.setItem("apidoc/toolbarOperations", JSON.stringify(v))
-            },
-            deep: true,
-        },
-        /**
-         * 缓存工具栏操作
-         */
-        pinOperations: {
-            handler(v) {
-                localStorage.setItem("apidoc/PinToolbarOperations", JSON.stringify(v))
-            },
-            deep: true,
-        },
-    },
-    mounted() {
-        document.documentElement.addEventListener("click", this.handleHideMoreOperation);
-        this.initCacheOperation();
-    },
-    unmounted() {
-        document.documentElement.removeEventListener("click", this.handleHideMoreOperation);
-    },
-    methods: {
-        //初始化操作栏缓存
-        initCacheOperation() {
-            const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
-            const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
-            if (localToolbarOperations) {
-                this.operations = JSON.parse(localToolbarOperations);
-            } else {
-                this.operations = operations;
-            }
-            if (localPinToolbarOperations) {
-                this.pinOperations = JSON.parse(localPinToolbarOperations);
-            } else {
-                this.pinOperations = this.operations.filter((v) => v.pin);
-            }
-        },
-        handleFilterBanner() {
-            console.log(333)
-        },
-        //切换固定操作
-        togglePin(element: Operation) {
-            element.pin = !element.pin;
-            this.pinOperations = this.operations.filter((v) => v.pin);
-        },
-        //操作
-        handleEmit(op: ApidocOperations) {
-            switch (op) {
-            case "addRootFolder": //新建文件夹
-                this.addFolderDialogVisible = true;
-                break;
-            case "addRootFile": //新建文件
-                this.addFileDialogVisible = true;
-                break;
-            case "freshBanner": //刷新页面
-                this.$emit("fresh");
-                break;
-            default:
-                break;
-            }
-        },
-        //隐藏更多操作
-        handleHideMoreOperation() {
-            this.visible = false;
-        },
-    },
+
+const emit = defineEmits(["fresh", "filter"])
+
+//新增文件或者文件夹成功回调
+const handleAddFileAndFolderCb = (data: ApidocBanner) => {
+    addFileAndFolderCb.call(this, ref(null), data)
+};
+//=====================================操作栏数据====================================//
+const operations: Ref<Operation[]> = ref([]);
+const pinOperations: Ref<Operation[]> = ref([]);
+const queryData = ref("");
+const visible = ref(false);
+const addFileDialogVisible = ref(false);
+const addFolderDialogVisible = ref(false);
+const projectName = computed(() => {
+    return store.state["apidoc/baseInfo"].projectName;
 })
+//=====================================操作相关数据====================================//
+//初始化缓存数据
+const initCacheOperation = () => {
+    const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
+    const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
+    if (localToolbarOperations) {
+        operations.value = JSON.parse(localToolbarOperations);
+    } else {
+        operations.value = localOriginOperation;
+    }
+    if (localPinToolbarOperations) {
+        pinOperations.value = JSON.parse(localPinToolbarOperations);
+    } else {
+        pinOperations.value = operations.value.filter((v) => v.pin);
+    }
+}
+//缓存所有操作
+watch(operations, (v) => {
+    localStorage.setItem("apidoc/toolbarOperations", JSON.stringify(v))
+}, {
+    deep: true
+})
+//缓存工具栏操作
+watch(pinOperations, (v) => {
+    localStorage.setItem("apidoc/PinToolbarOperations", JSON.stringify(v))
+}, {
+    deep: true
+})
+onMounted(() => {
+    document.documentElement.addEventListener("click", handleHideMoreOperation);
+    initCacheOperation();
+});
+onUnmounted(() => {
+    document.documentElement.removeEventListener("click", handleHideMoreOperation);
+})
+//=====================================工具栏操作====================================//
+//切换固定操作
+const togglePin = (element: Operation) => {
+    element.pin = !element.pin;
+    pinOperations.value = operations.value.filter((v) => v.pin);
+}
+//隐藏更多操作
+const handleHideMoreOperation = () => {
+    visible.value = false;
+}
+//点击操作按钮
+const handleEmit = (op: ApidocOperations) => {
+    switch (op) {
+    case "addRootFolder": //新建文件夹
+        addFolderDialogVisible.value = true;
+        break;
+    case "addRootFile": //新建文件
+        addFileDialogVisible.value = true;
+        break;
+    case "freshBanner": //刷新页面
+        emit("fresh");
+        break;
+    default:
+        break;
+    }
+}
+/*
+|--------------------------------------------------------------------------
+| 数据过滤
+|--------------------------------------------------------------------------
+*/
+//是否存在过滤条件
+const hasFilterCondition = computed(() => {
+    const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
+    const hasOperatorCondition = formInfo.value.maintainers.length > 0;
+    const hasRecentNumCondition = formInfo.value.recentNum;
+    return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
+})
+          
+const formInfo = ref({
+    startTime: null as null | number, //--起始日期
+    endTime: null as null | number, //----结束日期
+    maintainers: [], //----操作者信息
+    recentNum: null, //-显示最近多少条
+})
+//用户列表
+const maintainerEnum = computed(() => {
+    const { banner } = store.state["apidoc/banner"];
+    const allBanner: string[] = [];
+    forEachForest(banner, (bannerInfo) => {
+        if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
+            allBanner.push(bannerInfo.maintainer);
+        }
+    })
+    return allBanner;
+});
+//=====================================日期相关====================================//
+//日期范围
+const dateRange = ref("");
+//自定义日期范围
+const customDateRange = ref([]);
+//清空日期
+const handleClearDate = () => {
+    dateRange.value = ""
+}
+//监听日起段变化
+watch(() => dateRange.value, (val) => {
+    let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+    let endTime = null;
+    switch (val) {
+    case "1d":
+        endTime = Date.now();
+        break;
+    case "2d":
+        endTime = Date.now();
+        startTime = endTime - 86400000;
+        break;
+    case "3d":
+        endTime = Date.now();
+        startTime = endTime - 3 * 86400000;
+        break;
+    case "7d":
+        endTime = Date.now();
+        startTime = endTime - 7 * 86400000;
+        break;
+    case "yesterday":
+        endTime = startTime;
+        startTime -= 86400000;
+        break;
+    default: //自定义
+        startTime = null;
+        endTime = null;
+        customDateRange.value = [];
+        break;
+    }
+    formInfo.value.startTime = startTime;
+    formInfo.value.endTime = endTime;
+})
+//监听日期段变化
+watch(() => customDateRange.value, (val) => {
+    if (!val || val.length === 0) {
+        formInfo.value.startTime = null;
+        formInfo.value.endTime = null;
+    } else {
+        formInfo.value.startTime = val[0];
+        formInfo.value.endTime = val[1];
+    }
+})
+//=====================================维护者信息====================================//
+//清除所有的维护者数据
+const handleClearMaintainer = () => {
+    formInfo.value.maintainers = [];
+}
+//=====================================最近数据条数====================================//
+//清除最近新增条数条件
+const handleClearRecentNum = () => {
+    formInfo.value.recentNum = null;
+}
+//=====================================监听数据变化====================================//
+watch(() => formInfo.value, (formInfo) => {
+    console.log(formInfo)
+}, {
+    deep: true,
+    immediate: true,
+});
+
+const handleFilterBanner = (val: string) => {
+    emit("filter", val);
+}
 </script>
 
 <style lang="scss">
@@ -204,6 +342,24 @@ export default defineComponent({
     height: size(150);
     background: $gray-200;
     flex: 0 0 auto;
+    .badge {
+        width: size(25);
+        height: size(25);
+        position: absolute;
+        top: size(8);
+        right: size(18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    //高级筛选按钮
+    .advance {
+        &>i {
+            font-size: fz(14);
+            cursor: pointer;
+            color: $gray-600;
+        }
+    }
     // 搜索框样式
     .doc-search {
         border-radius: 20px;
@@ -294,5 +450,28 @@ export default defineComponent({
 }
 .el-popover.el-popper.tool-panel {
     padding: 0;
+}
+.search-panel {
+    flex: 0 0 auto;
+    .el-checkbox, .el-radio {
+        margin-right: size(15);
+    }
+    .op-item {
+        min-height: size(40);
+        display: flex;
+        align-items: center;
+        margin-bottom: size(20);
+        &:not(:last-of-type) {
+            border-bottom: 1px dashed $gray-300;
+        }
+        .el-button--text {
+            padding-top: size(5);
+            padding-bottom: size(5);
+        }
+        .el-radio-group {
+            display: flex;
+            align-items: center;
+        }
+    }
 }
 </style>

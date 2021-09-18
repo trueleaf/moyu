@@ -126,7 +126,6 @@ export default defineComponent({
             projectId: this.$route.query.id,
         });
         this.initViewTab();
-       
     },
     beforeUnmount() {
         document.body.removeEventListener("click", this.bindGlobalClick);

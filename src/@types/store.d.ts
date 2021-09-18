@@ -26,7 +26,8 @@ type PermissionState = {
 
 //文档banner state
 type ApidocBannerState = {
-    banner: ApidocBanner[]
+    banner: ApidocBanner[],
+    defaultExpandedKeys: string[],
 };
 //项目基本信息
 type ApidocProjectVariable = {
@@ -386,5 +387,6 @@ export {
     ApidocRequestMethodRule,
     ApidocResponseState,
     ApidocCookieInfo,
+    ApidocProjectParamsTemplate,
     State,
 }

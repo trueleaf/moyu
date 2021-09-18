@@ -124,7 +124,7 @@ export default defineComponent({
         },
         //处理blur
         handleBlur() {
-            console.log(2)
+            console.log("blur")
         },
         //=========================================================================//
         //处理键盘事件

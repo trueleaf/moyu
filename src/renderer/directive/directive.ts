@@ -3,7 +3,6 @@ import { App } from "vue"
 let domList: HTMLElement[] = [];
 
 function createTipDom(left: number, top: number): HTMLElement {
-    console.log(333)
     let tipDom: HTMLElement | null = null;
     tipDom = document.createElement("div");
     tipDom.style.position = "fixed";

@@ -479,7 +479,6 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
         });
     } else if (data.type === "number") {
         const couldConvertToNumber = !Number.isNaN(Number(data.value));
-        console.log(couldConvertToNumber)
         if (!couldConvertToNumber) {
             store.commit("apidoc/apidoc/changePropertyValue", {
                 data,
