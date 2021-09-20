@@ -60,7 +60,7 @@ export function sendRequest(): void {
     console.warn("当前为浏览器环境发送请求、不支持跨域请求、Cookie,user-agent,connect等请求头受浏览器限制!")
     try {
         store.commit("apidoc/response/changeLoading", true)
-        const { url, method, requestBody, queryParams, paths, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
+        const { url, method, requestBody, queryParams, paths, contentType = "text/plain", } = store.state["apidoc/apidoc"].apidoc.item;
         const queryString = utils.convertQueryParamsToQueryString(queryParams);
         const pathMap = utils.getPathParamsMap(paths)
         const { mode } = requestBody
@@ -96,6 +96,7 @@ export function sendRequest(): void {
                 body = requestBody.raw.data;
                 break;
             default:
+                console.warn("未匹配的contentType类型");
                 break;
             }
         }
@@ -127,6 +128,7 @@ export function sendRequest(): void {
             const mime = response.data.type;
             const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
             store.commit("apidoc/response/changeResponseMime", mime);
+            console.log(textContentType, contentType, response)
             if (textContentType.find(type => contentType.match(type))) {
                 store.commit("apidoc/response/changeResponseTextValue", await response.data.text());
             } else {
@@ -135,6 +137,7 @@ export function sendRequest(): void {
                 store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
             }
         }).catch(error => {
+            console.error(error)
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeResponseMime", "error");
             store.commit("apidoc/response/changeResponseTextValue",error.toString());
