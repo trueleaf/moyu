@@ -291,6 +291,7 @@ export default defineComponent({
                 path: "/v1/apidoc/doc-edit",
                 query: {
                     id: item._id,
+                    mode: "edit",
                 },
             });
         },
@@ -298,7 +299,16 @@ export default defineComponent({
          * 跳转到预览
          */
         handleJumpToView(item: ApidocProjectInfo) {
-            console.log(item)
+            this.axios.put("/api/project/visited", { projectId: item._id }).catch((err) => {
+                console.error(err);
+            });
+            this.$router.push({
+                path: "/v1/apidoc/doc-edit",
+                query: {
+                    id: item._id,
+                    mode: "view",
+                },
+            });
         },
         /**
          * 新增项目成功
