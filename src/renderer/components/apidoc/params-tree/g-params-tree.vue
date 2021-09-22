@@ -155,7 +155,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, defineProps, defineEmits, computed, watch } from "vue"
+import { ref, Ref, PropType, defineProps, computed, watch } from "vue"
 import type { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
 import type { ApidocProperty } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"

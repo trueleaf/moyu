@@ -119,7 +119,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, defineEmits, computed, watch, onMounted, onUnmounted } from "vue"
+import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
 import { store } from "@/store/index"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
