@@ -29,12 +29,6 @@ export default [{
     shortcut: ["Ctrl", "Alt", "R"],
     pin: true,
 }, {
-    name: "预览文档",
-    icon: "#iconyulan",
-    op: "viewDoc",
-    shortcut: ["Ctrl", "P"],
-    pin: false,
-}, {
     name: "导出文档",
     icon: "#icondaochu1",
     op: "exportDoc",

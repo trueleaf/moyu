@@ -97,6 +97,14 @@
             >
             </s-raw-editor>
         </div>
+        <div v-show="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
+            <s-raw-editor
+                :model-value="textResponse"
+                readonly
+                type="text/plain"
+            >
+            </s-raw-editor>
+        </div>
         <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
             <s-raw-editor
                 :model-value="jsonResponse"
@@ -139,6 +147,11 @@ export default defineComponent({
         htmlResponse() {
             const data = this.$store.state["apidoc/response"].data.text;
             return beautify.html(data, { indent_size: 4 });
+        },
+        //纯文本返回参数
+        textResponse() {
+            const data = this.$store.state["apidoc/response"].data.text;
+            return data;
         },
     },
     methods: {

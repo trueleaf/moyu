@@ -31,7 +31,9 @@ const tabs = {
             const localEditTabs = localStorage.getItem("apidoc/editTabs");
             const tabs: ApidocTabsState["tabs"]  = localEditTabs ? JSON.parse(localEditTabs) : {};
             const selectedTab =  tabs[projectId]?.find((val) => val.selected);
-            store.commit("apidoc/banner/changeExpandItems", [selectedTab?._id]);
+            if (selectedTab) {
+                store.commit("apidoc/banner/changeExpandItems", [selectedTab._id]);
+            }
             state.tabs[projectId] = tabs[projectId];
         },
         //更新全部的tab

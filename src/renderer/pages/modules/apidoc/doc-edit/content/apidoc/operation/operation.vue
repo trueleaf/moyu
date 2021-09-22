@@ -7,7 +7,7 @@
 <template>
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
-        <div>
+        <div class="d-flex">
             <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                     <template #reference>
@@ -21,6 +21,10 @@
                 </el-popover>
             </el-radio-group>
             <el-button type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
+            <div v-if="!config.isElectron" class="proxy-wrap">
+                <span>代理&nbsp;&nbsp;</span>
+                <el-switch v-model="isProxy"></el-switch>
+            </div>
         </div>
         <!-- 请求地址，发送请求 -->
         <div class="op-wrap">
@@ -65,13 +69,6 @@
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
-                <template #dropdown>
-                    <el-dropdown-menu>
-                        <el-dropdown-item @click="handleOpenViewDoc">预览接口</el-dropdown-item>
-                        <!-- <el-dropdown-item @click="handleOpenVariablePage">全局变量</el-dropdown-item>
-                        <el-dropdown-item @click="handleOpenConfigPage">全局配置</el-dropdown-item> -->
-                    </el-dropdown-menu>
-                </template>
             </el-dropdown>
         </div>
         <pre class="pre-url">
@@ -101,6 +98,20 @@ export default defineComponent({
         const store = useStore();
         /*
         |--------------------------------------------------------------------------
+        | web代理相关
+        |--------------------------------------------------------------------------
+        |
+        */
+        const isProxy = computed({
+            get() {
+                return store.state["apidoc/baseInfo"].webProxy;
+            },
+            set(v) {
+                store.commit("apidoc/baseInfo/changeWebProxy", v);
+            },
+        });
+        /*
+        |--------------------------------------------------------------------------
         | host相关
         |--------------------------------------------------------------------------
         */
@@ -128,7 +139,7 @@ export default defineComponent({
         const handleSaveApidoc = () => {
             store.dispatch("apidoc/apidoc/saveApidoc");
         }
-        const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc, handleOpenViewDoc  } =  operationPart;
+        const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc  } =  operationPart;
         //请求url、完整url
         const requestPath = computed<string>({
             get() {
@@ -185,7 +196,7 @@ export default defineComponent({
             handleStopRequest,
             handleSaveApidoc,
             handleFreshApidoc,
-            handleOpenViewDoc,
+            isProxy,
             fullUrl,
         };
     },
@@ -201,6 +212,9 @@ export default defineComponent({
     background: $white;
     z-index: $zIndex-request-info-wrap;
     height: size(130);
+    .proxy-wrap {
+        margin-left: auto;
+    }
     .el-radio {
         margin-right: size(5);
     }
@@ -214,7 +228,10 @@ export default defineComponent({
                 width: 100px;
             }
         }
-
+        .el-input__suffix {
+            display: flex;
+            align-items: center;
+        }
     }
     .pre-url {
         height: size(30);

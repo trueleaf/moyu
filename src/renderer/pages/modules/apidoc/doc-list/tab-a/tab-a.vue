@@ -8,7 +8,7 @@
     <div class="tab-a">
         <!-- 搜索条件 -->
         <div class="search-item d-flex a-center mb-3">
-            <el-input v-model="projectName" placeholder="项目名称或者接口URL" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable></el-input>
+            <el-input v-model="projectName" placeholder="项目名称或者接口URL" prefix-icon="el-icon-search" size="small" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
             <el-button size="small" type="success" icon="el-icon-plus" @click="dialogVisible = true">新建项目</el-button>
             <el-button size="small" type="success" icon="el-icon-download" @click="dialogVisible3 = true">导入项目</el-button>
         </div>
@@ -19,7 +19,9 @@
             <div v-show="starProjects.length > 0" class="project-wrap">
                 <div v-for="(item, index) in starProjects" :key="index" class="project-list">
                     <div class="project-header">
-                        <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                        <div :title="item.projectName" class="title theme-color text-ellipsis">
+                            <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
+                        </div>
                         <div class="operator">
                             <div title="编辑" @click="handleOpenEditDialog(item)">
                                 <i class="el-icon-edit"></i>
@@ -69,7 +71,9 @@
             <div v-show="!isFold" class="project-wrap">
                 <div v-for="(item, index) in projectList" :key="index" class="project-list">
                     <div class="project-header">
-                        <div :title="item.projectName" class="title theme-color text-ellipsis">{{ item.projectName }}</div>
+                        <div :title="item.projectName" class="title theme-color text-ellipsis">
+                            <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
+                        </div>
                         <div class="operator">
                             <div title="编辑" @click="handleOpenEditDialog(item)">
                                 <i class="el-icon-edit"></i>
@@ -333,6 +337,10 @@ export default defineComponent({
         toggleCollapse() {
             this.isFold = !this.isFold;
             localStorage.setItem("doc-list/isFold", this.isFold ? "close" : "open");
+        },
+        //搜索项目
+        handleSearchProject() {
+            console.log(this.projectName)
         },
     },
 })
