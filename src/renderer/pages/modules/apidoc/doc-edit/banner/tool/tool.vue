@@ -9,7 +9,7 @@
         <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
         <div class="p-relative">
-            <el-input v-model="queryData" class="doc-search" placeholder="文档名称、文档url" clearable @input="handleFilterBanner"></el-input>
+            <el-input v-model="formInfo.iptValue" class="doc-search" placeholder="文档名称、文档url" clearable @change="handleFilterBanner"></el-input>
             <el-badge :is-dot="hasFilterCondition" class="badge">
                 <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
                     <template #reference>
@@ -160,9 +160,12 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
     addFileAndFolderCb.call(this, ref(null), data)
 };
 //=====================================操作栏数据====================================//
+const bannerData = computed(() => {
+    const originBannerData = store.state["apidoc/banner"].banner;
+    return originBannerData
+})
 const operations: Ref<Operation[]> = ref([]);
 const pinOperations: Ref<Operation[]> = ref([]);
-const queryData = ref("");
 const visible = ref(false);
 const addFileDialogVisible = ref(false);
 const addFolderDialogVisible = ref(false);
@@ -244,10 +247,11 @@ const hasFilterCondition = computed(() => {
 })
           
 const formInfo = ref({
+    iptValue: "", //u
     startTime: null as null | number, //--起始日期
     endTime: null as null | number, //----结束日期
-    maintainers: [], //----操作者信息
-    recentNum: null, //-显示最近多少条
+    maintainers: [] as string[], //----操作者信息
+    recentNum: null as null | number, //-显示最近多少条
 })
 //用户列表
 const maintainerEnum = computed(() => {
@@ -323,15 +327,85 @@ const handleClearRecentNum = () => {
     formInfo.value.recentNum = null;
 }
 //=====================================监听数据变化====================================//
-watch(() => formInfo.value, (formInfo) => {
-    console.log(formInfo)
+watch(() => formInfo.value, (formData) => {
+    let plainBannerData: ApidocBanner[] = [];
+    const { startTime, endTime, maintainers, recentNum } = formData;
+    forEachForest(bannerData.value, (v) => {
+        if (!v.isFolder) {
+            plainBannerData.push(v);
+        }
+    }) 
+    if (maintainers.length === 0 && !startTime && !recentNum) {
+        emit("filter", {
+            iptValue: formData.iptValue,
+            recentNumIds: null,
+        });
+        return
+    }
+
+    //录入人员
+    if (maintainers.length > 0) {
+        plainBannerData = plainBannerData.filter(v => {
+            return maintainers.find(v2 => v2 === v.maintainer)
+        })
+    }
+    //录入时间
+    if (startTime && endTime) {
+        plainBannerData = plainBannerData.filter(v => {
+            const updateTimestamp = new Date(v.updatedAt).getTime();
+            return updateTimestamp > startTime && updateTimestamp < endTime;
+        })
+    }
+    //录入数据个数
+    if (recentNum) {
+        plainBannerData = plainBannerData.sort((a, b) => {
+            const aTime = new Date(a.updatedAt).getTime();
+            const bTime = new Date(b.updatedAt).getTime();
+            return aTime - bTime;
+        }).slice(0, recentNum)
+    }
+    emit("filter", {
+        iptValue: formData.iptValue,
+        recentNumIds: plainBannerData.map(v => v._id),
+    });
 }, {
     deep: true,
     immediate: true,
 });
 
-const handleFilterBanner = (val: string) => {
-    emit("filter", val);
+const handleFilterBanner = () => {
+    let plainBannerData: ApidocBanner[] = [];
+    const { startTime, endTime, maintainers } = formInfo.value;
+    forEachForest(bannerData.value, (v) => {
+        if (!v.isFolder) {
+            plainBannerData.push(v);
+        }
+    }) 
+    //录入人员
+    if (maintainers.length > 0) {
+        plainBannerData = plainBannerData.filter(v => {
+            return maintainers.find(v2 => v2 === v.maintainer)
+        })
+    }
+    //录入时间
+    if (startTime && endTime) {
+        plainBannerData = plainBannerData.filter(v => {
+            const updateTimestamp = new Date(v.updatedAt).getTime();
+            return updateTimestamp > startTime && updateTimestamp < endTime;
+        })
+    }
+    //录入数据个数
+    if (formInfo.value.recentNum) {
+        plainBannerData.sort((a, b) => {
+            const aTime = new Date(a.updatedAt).getTime();
+            const bTime = new Date(b.updatedAt).getTime();
+            return aTime - bTime;
+        }).slice(0, formInfo.value.recentNum)
+    }
+    emit("filter", {
+        iptValue: formInfo.value.iptValue,
+        recentNumIds: plainBannerData.map(v => v._id),
+    });
 }
 </script>
 
@@ -351,6 +425,9 @@ const handleFilterBanner = (val: string) => {
         display: flex;
         align-items: center;
         justify-content: center;
+        .el-badge__content {
+            transition: none;
+        }
     }
     //高级筛选按钮
     .advance {

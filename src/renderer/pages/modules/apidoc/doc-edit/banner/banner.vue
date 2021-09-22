@@ -129,22 +129,33 @@ import sAddFileDialog from "../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../dialog/add-folder/add-folder.vue"
 import sTool from "./tool/tool.vue"
 import { useStore } from "@/store/index"
-import type { ApidocBanner } from "@@/global"
 import { useBannerData } from "./composables/banner-data"
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
 import { router } from "@/router/index"
 import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import type { ApidocBanner } from "@@/global"
 
 let clipboard: Clipboard | null = null
 if (window.require) {
     // eslint-disable-next-line prefer-destructuring
     clipboard = window.require("electron").clipboard;
 }
-
+//树节点信息
 type TreeNode = {
     data: ApidocBanner,
     nextSibling?: TreeNode
 }
+//搜索数据
+type SearchData = {
+    /**
+     * 接口名称或者接口路径
+     */
+    iptValue: string,
+    /**
+     * 限制最近访问数据id集合
+     */
+    recentNumIds: string[] | null,
+};
 
 
 /*
@@ -379,14 +390,14 @@ const handleWatchNodeInput = (e: Event) => {
 */
 const filterString = ref("");
 //调用过滤方法
-const handleFilterNode = (filterStr: string) => {
-    (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterStr)
-    filterString.value = filterStr;
+const handleFilterNode = (filterInfo: SearchData) => {
+    (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
+    filterString.value = filterInfo.iptValue;
     
 }
 //过滤节点
-const filterNode = (searchStr: string, data: ApidocBanner) => {
-    if (!searchStr) {
+const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
+    if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
         const treeRef = docTree.value as TreeNodeOptions;
         Object.keys(treeRef.store.nodesMap).map((key) => {
             treeRef.store.nodesMap[key].expanded = false
@@ -394,10 +405,11 @@ const filterNode = (searchStr: string, data: ApidocBanner) => {
         showMoreNodeInfo.value = false;
         return true;
     }
-    const matchedUrl = data.url?.match(searchStr);
-    const matchedName = data.name.match(searchStr);
+    const matchedUrl = filterInfo.iptValue ? data.url?.match(filterInfo.iptValue) : false;
+    const matchedDocName = filterInfo.iptValue ? data.name.match(filterInfo.iptValue) : false;
+    const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === data._id) : false;
     showMoreNodeInfo.value = true;
-    return matchedUrl || matchedName;
+    return (matchedUrl || matchedDocName) || matchedOthers;
 }
 
 /*
