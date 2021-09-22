@@ -26,10 +26,10 @@ function isElectron(): boolean {
 const config: Config = {
     isElectron: isElectron(),
     isDev,
-    version: "0.7.0", //当前项目版本
+    version: "0.8.0", //当前项目版本
     //更新相关配置
     updateConfig: {
-        version: "0.7.0", //当前项目版本
+        version: "0.8.0", //当前项目版本
         server: "http://xxx.xxx.cn", //更新服务器地址
         filePath: "/electron/windows", //更新文件地址
         autoUpdate: false, //是否开启自动更新

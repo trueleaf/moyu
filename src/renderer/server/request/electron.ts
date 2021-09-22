@@ -28,17 +28,23 @@ function initGot() {
     if (gotInstance) {
         return gotInstance;
     }
-    gotInstance = got.extend({
+    const enabledProxy = store.state["apidoc/baseInfo"].proxy.enabled;
+    const proxyPath = store.state["apidoc/baseInfo"].proxy.path;
+    const initGotConfig = {
         timeout: config.timeout || 60000, //超时时间
         retry: 0,
         throwHttpErrors: false,
         followRedirect: true,
         allowGetBody: true,
-        agent: {
-            http: new ProxyAgent("http://127.0.0.1:8866"),
-            https: new ProxyAgent("http://127.0.0.1:8866"),
-        },
-    });
+        agent: {},
+    }
+    if (enabledProxy) {
+        initGotConfig.agent = {
+            http: new ProxyAgent(proxyPath),
+            https: new ProxyAgent(proxyPath),
+        }
+    }
+    gotInstance = got.extend(initGotConfig);
     return gotInstance;
 }
 //获取完整headers

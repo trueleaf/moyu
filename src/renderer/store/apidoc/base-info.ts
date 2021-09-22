@@ -16,6 +16,10 @@ const baseInfo = {
         globalCookies: {},
         layout: "horizontal",
         webProxy: true,
+        proxy: {
+            path: "",
+            enabled: false,
+        },
     },
     mutations: {
         //改变项目基本信息

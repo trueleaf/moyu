@@ -185,6 +185,19 @@ type ApidocProjectBaseInfoState = {
      * 是否启用web端代理功能
      */
     webProxy: boolean,
+    /**
+     * 代理服务器信息
+     */
+    proxy: {
+        /**
+         * 代理服务器地址
+         */
+        path: string,
+        /**
+         * 是否启用代理
+         */
+        enabled: boolean
+    },
 };
 //=========================================================================//
 type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"

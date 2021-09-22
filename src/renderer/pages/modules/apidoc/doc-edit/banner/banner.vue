@@ -7,7 +7,7 @@
 <template>
     <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
         <s-tool @fresh="getBannerData" @filter="handleFilterNode"></s-tool>
-        <s-loading ref="bannerRef" :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
+        <s-loading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
             <el-tree
                 ref="docTree"
                 :class="{ 'show-more': showMoreNodeInfo }"
