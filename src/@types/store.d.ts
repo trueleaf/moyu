@@ -180,7 +180,11 @@ type ApidocProjectBaseInfoState = {
     /**
      * 布局
      */
-    layout: "vertical" | "horizontal"
+    layout: "vertical" | "horizontal",
+    /**
+     * 是否启用web端代理功能
+     */
+    webProxy: boolean,
 };
 //=========================================================================//
 type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"

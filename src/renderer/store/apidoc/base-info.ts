@@ -14,7 +14,8 @@ const baseInfo = {
         rules: {},
         hosts: [],
         globalCookies: {},
-        layout: "horizontal"
+        layout: "horizontal",
+        webProxy: true,
     },
     mutations: {
         //改变项目基本信息
@@ -59,6 +60,10 @@ const baseInfo = {
         //添加一个模板
         addParamsTemplate(state: ApidocProjectBaseInfoState, payload: ApidocProjectParamsTemplate): void {
             state.paramsTemplate.push(payload);
+        },
+        //改变web代理
+        changeWebProxy(state: ApidocProjectBaseInfoState, isProxy: boolean): void {
+            state.webProxy = isProxy;
         },
     },
     actions: {
