@@ -135,6 +135,8 @@ export function sendRequest(): void {
                 }
             }).catch((err) => {
                 console.error(err);
+                store.commit("apidoc/response/changeResponseMime", "error");
+                store.commit("apidoc/response/changeResponseTextValue", err.message);
             }).finally(() => {
                 store.commit("apidoc/response/changeLoading", false)
             })

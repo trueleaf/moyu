@@ -70,6 +70,8 @@ const axiosPlugin = {
                                 router.replace("/login");
                             });
                             return Promise.reject(new Error("登陆已过期"));
+                        case 4200: //代理错误
+                            return Promise.reject(new Error(res.data.msg));
                         case 4002: //暂无权限
                             app.config.globalProperties.$message.warning(res.data.msg || "暂无权限");
                             return Promise.reject(new Error(res.data.msg || "暂无权限"));
