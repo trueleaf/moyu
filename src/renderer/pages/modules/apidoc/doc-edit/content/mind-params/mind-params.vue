@@ -17,10 +17,10 @@
                     <div class="op-item">
                         <div class="label">类型：</div>
                         <el-checkbox-group v-model="formInfo.type">
-                            <el-checkbox label="path">Path参数</el-checkbox>
-                            <el-checkbox label="query">Query参数</el-checkbox>
-                            <el-checkbox label="body">Body参数</el-checkbox>
-                            <el-checkbox label="response">返回参数</el-checkbox>
+                            <el-checkbox label="paths">Path参数</el-checkbox>
+                            <el-checkbox label="queryParams">Query参数</el-checkbox>
+                            <el-checkbox label="requestBody">Body参数</el-checkbox>
+                            <el-checkbox label="responseParams">返回参数</el-checkbox>
                             <el-button type="text" class="ml-5" @click="handleClearType">清空</el-button>
                         </el-checkbox-group>
                     </div>                    
@@ -31,28 +31,28 @@
                             <template #label>
                                 <span>Path参数个数</span>
                             </template>
-                            <span>{{ mindParams.paths ? mindParams.paths.length : 0 }}</span>
+                            <span>{{ tableInfo.filter(v => v.paramsPosition === 'paths').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
                                 <span>Query参数个数</span>
                             </template>
-                            <span>{{ mindParams.queryParams ? mindParams.queryParams.length : 0 }}</span>
+                            <span>{{ tableInfo.filter(v => v.paramsPosition === 'queryParams').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
                                 <span>Body参数个数</span>
                             </template>
-                            <span>{{ mindParams.requestBody ? mindParams.requestBody.length : 0 }}</span>
+                            <span>{{ tableInfo.filter(v => v.paramsPosition === 'requestBody').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
                                 <span>Response参数个数</span>
                             </template>
-                            <span>{{ mindParams.responseParams ? mindParams.responseParams.length : 0 }}</span>
+                            <span>{{ tableInfo.filter(v => v.paramsPosition === 'responseParams').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                     </el-descriptions>
@@ -68,6 +68,7 @@
                 </el-table-column>
                 <el-table-column prop="description" label="备注" align="center"></el-table-column>
                 <el-table-column prop="value" label="参数值" align="center"></el-table-column>
+                <el-table-column prop="type" label="参数类型" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template #default="scope">
                         <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button>
@@ -76,47 +77,22 @@
                 </el-table-column>
             </el-table>
         </s-fieldset>
-        <!-- <pre>{{ mindParams }}</pre> -->
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
 import { store } from "@/store/index"
-import type { ApidocProperty } from "@@/global"
-type ApidocPropertyWithType = ApidocProperty & { _type: "path" | "query" | "body" | "response" }
+import { router } from "@/router/index"
+import type { ApidocMindParam } from "@@/global"
+import { axios } from "@/api/api"
 
-//联想参数
-const mindParams = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams;
-})
+
 //表格参数
 const tableInfo = computed(() => {
-    const { paths = [], queryParams = [], requestBody = [], responseParams = []} = mindParams.value;
-    const allParams: ApidocPropertyWithType[] = [];
-    paths.forEach(v => {
-        allParams.push({
-            ...v,
-            _type: "path"
-        })
-    })
-    queryParams.forEach(v => {
-        allParams.push({
-            ...v,
-            _type: "query"
-        })
-    })
-    requestBody.forEach(v => {
-        allParams.push({
-            ...v,
-            _type: "body"
-        })
-    })
-    responseParams.forEach(v => {
-        allParams.push({
-            ...v,
-            _type: "response"
-        })
+    const allParams: ApidocMindParam[] = [];
+    store.state["apidoc/baseInfo"].mindParams.forEach(v => {
+        allParams.push(v);
     })
     allParams.sort((a, b) => {
         if (a.key.toLowerCase() > b.key.toLowerCase()) {
@@ -131,11 +107,11 @@ const tableInfo = computed(() => {
         if (formInfo.value.type.length === 0) {
             return true;
         }
-        return formInfo.value.type.includes(v._type)
+        return formInfo.value.type.includes(v.paramsPosition)
     })
 });
 //搜索条件
-const formInfo: Ref<{ key: string, type: ApidocPropertyWithType["_type"][] }> = ref({
+const formInfo: Ref<{ key: string, type: ApidocMindParam["paramsPosition"][] }> = ref({
     key: "",
     type: [],
 })
@@ -145,12 +121,21 @@ const handleClearType = () => {
 }
 //=====================================操作====================================//
 //修改参数
-const handleEditParams = (row: ApidocPropertyWithType) => {
+const handleEditParams = (row: ApidocMindParam) => {
     console.log(row)
 }
 //删除某个参数
-const handleDeleteParams = (row: ApidocPropertyWithType) => {
-    console.log(row)
+const handleDeleteParams = (row: ApidocMindParam) => {
+    const projectId = router.currentRoute.value.query.id as string;
+    const params = {
+        projectId,
+        ids: [row._id],
+    };
+    axios.delete("/api/project/doc_params_mind", { data: params }).then((res) => {
+        console.log(222, res)
+    }).catch((err) => {
+        console.error(err);
+    });
 }
 </script>
 

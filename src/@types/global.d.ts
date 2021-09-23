@@ -307,6 +307,11 @@ type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
      */
     children: ApidocProperty[],
 }
+//联想参数
+type ApidocMindParam = ApidocProperty & {
+    paramsPosition: "paths" | "queryParams" | "requestBody" | "responseParams",
+    projectId: string
+}
 //=========================================================================//
 //=========================================================================//
 //=========================================================================//
@@ -731,6 +736,7 @@ export {
     ApidocProjectPermission,
     ApidocProperty,
     ApidocPropertyType,
+    ApidocMindParam,
     ApidocParamsType,
     ApidocBanner,
     ApidocOperations,

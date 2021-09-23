@@ -1,5 +1,5 @@
 import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType } from "@@/global"
+import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType, ApidocMindParam } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -63,13 +63,7 @@ type ApidocProjectHost = {
      */
     _id: string,
 }
-//项目联想参数
-type ApidocProjectMindParam = {
-    paths: ApidocProperty[],
-    queryParams: ApidocProperty[],
-    requestBody: ApidocProperty[],
-    responseParams: ApidocProperty[],
-}
+
 //项目参数模板
 type ApidocProjectParamsTemplate = {
     /**
@@ -164,7 +158,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 联想参数
      */
-    mindParams: ApidocProjectMindParam,
+    mindParams: ApidocMindParam[],
     /**
      * 参数模板信息
      */

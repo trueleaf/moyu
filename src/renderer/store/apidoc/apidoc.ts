@@ -5,8 +5,8 @@ import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
 import type { State as RootState, ApidocState, } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
-import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep } from "@/helper/index"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
+import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -72,6 +72,23 @@ function getDefaultHeaders(contentType: ApidocContentType) {
         defaultHeaders.push(params6);
     }
     return defaultHeaders;
+}
+//过滤合法的联想参数(string、number)
+function filterValidParams(arrayParams: ApidocProperty[], type: ApidocMindParam["paramsPosition"]) {
+    const result: ApidocMindParam[] = [];
+    const projectId = router.currentRoute.value.query.id as string;
+    forEachForest(arrayParams, (data) => {
+        const isComplex = data.type === "object" || data.type === "array";
+        const copyData = cloneDeep(data) as ApidocMindParam;
+        copyData.paramsPosition = type;
+        copyData.projectId = projectId;
+        if (!isComplex && data.key !== "" && data.value !== "" && data.description !== "") { //常规数据
+            result.push(copyData);
+        } else if (isComplex && data.key !== "" && data.description !== "") {
+            result.push(copyData);
+        }
+    });
+    return result;
 }
 
 const cancel: Canceler[] = [] //请求列表
@@ -343,7 +360,8 @@ const apidoc = {
                     return;
                 }
                 const apidocDetail = context.state.apidoc;
-                context.commit("changeApidocSaveLoading", true)
+                context.commit("changeApidocSaveLoading", true);
+                context.dispatch("saveMindParams");
                 const params = {
                     _id: currentSelectTab._id,
                     projectId,
@@ -388,6 +406,28 @@ const apidoc = {
                     context.commit("changeApidocSaveLoading", false)
                 });
             })
+        },
+        /**
+         * 保存联想参数
+         */
+        saveMindParams(context: ActionContext<ApidocState, RootState>): void {
+            const apidocDetail = context.state.apidoc;
+            const projectId = router.currentRoute.value.query.id as string;
+            const paths = filterValidParams(apidocDetail.item.paths, "paths");
+            const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
+            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");
+            const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams");
+            const params = {
+                projectId,
+                mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
+            };
+            axiosInstance.post("/api/project/doc_params_mind", params).then((res) => {
+                if (res.data != null) {
+                    store.commit("/apidoc/baseInfo/changeMindParams", res.data);
+                }
+            }).catch((err) => {
+                console.error(err);
+            });
         },
     },
 }

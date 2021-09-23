@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
-import type { Response, } from "@@/global"
+import type { Response, ApidocMindParam } from "@@/global"
 
 const baseInfo = {
     namespaced: true,
@@ -31,6 +31,10 @@ const baseInfo = {
             state.paramsTemplate = payload.paramsTemplate;
             state.rules = payload.rules;
             state.hosts = payload.hosts;
+        },
+        //改变联想参数信息
+        changeMindParams(state: ApidocProjectBaseInfoState, payload: ApidocMindParam[]): void {
+            state.mindParams = payload;
         },
         //改变hosts
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
