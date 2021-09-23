@@ -18,8 +18,12 @@
                 </div>
                 <template #dropdown>
                     <el-dropdown-menu>
-                        <el-dropdown-item @click="handleChangeLayout('vertical')">上下布局</el-dropdown-item>
-                        <el-dropdown-item @click="handleChangeLayout('horizontal')">左右布局</el-dropdown-item>
+                        <el-dropdown-item @click="handleChangeLayout('horizontal')">
+                            <span :class="{ 'theme-color': layout === 'horizontal' }">左右布局</span>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="handleChangeLayout('vertical')">
+                            <span :class="{ 'theme-color': layout === 'vertical' }">上下布局</span>
+                        </el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
@@ -89,8 +93,9 @@ export default defineComponent({
         "s-view": view,
     },
     data() {
+        const mode = this.$route.query.mode as "edit" | "view";
         return {
-            workMode: "edit" as "edit" | "view", //是否开启预览模式
+            workMode: mode, //是否开启预览模式
             activeName: "s-params",
         };
     },
