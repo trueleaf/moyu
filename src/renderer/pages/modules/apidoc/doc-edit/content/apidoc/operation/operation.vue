@@ -7,7 +7,7 @@
 <template>
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
-        <div class="d-flex">
+        <div class="d-flex a-center">
             <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                     <template #reference>
@@ -64,12 +64,12 @@
             </el-button>
             <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
             <el-button :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" class="mr-2" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
-            <el-dropdown trigger="click">
+            <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
+            <!-- <el-dropdown trigger="click">
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
-            </el-dropdown>
+            </el-dropdown> -->
         </div>
         <pre class="pre-url">
             <span class="label">完整路径：</span><span>{{ fullUrl }}</span>
