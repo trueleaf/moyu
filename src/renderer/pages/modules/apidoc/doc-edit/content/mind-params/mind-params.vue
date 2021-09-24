@@ -60,7 +60,9 @@
             </div>
         </s-fieldset>
         <s-fieldset :title="`联想参数(${tableInfo.length})`" class="mt-3">
-            <el-table :data="tableInfo" stripe border size="mini" height="calc(100vh - 350px)">
+            <el-button type="danger" size="small" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">批量删除</el-button>
+            <el-table :data="tableInfo" stripe border size="mini" height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="key" label="参数名称" align="center">
                     <template #default="scope">
                         <s-emphasize :value="scope.row.key" :keyword="formInfo.key"></s-emphasize>
@@ -71,7 +73,7 @@
                 <el-table-column prop="type" label="参数类型" align="center"></el-table-column>
                 <el-table-column label="操作" align="center">
                     <template #default="scope">
-                        <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button>
+                        <!-- <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
                         <el-button size="mini" type="text" @click="handleDeleteParams(scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
@@ -86,6 +88,7 @@ import { store } from "@/store/index"
 import { router } from "@/router/index"
 import type { ApidocMindParam } from "@@/global"
 import { axios } from "@/api/api"
+import { ElMessageBox } from "element-plus"
 
 
 //表格参数
@@ -120,20 +123,62 @@ const handleClearType = () => {
     formInfo.value.type = [];
 }
 //=====================================操作====================================//
-//修改参数
-const handleEditParams = (row: ApidocMindParam) => {
-    console.log(row)
+//批量选择
+const selectData: Ref<ApidocMindParam[]> = ref([]);
+const handleSelectionChange = (data: ApidocMindParam[]) => {
+    selectData.value = data;
 }
+//修改参数
+// const handleEditParams = (row: ApidocMindParam) => {
+//     console.log(row)
+// }
 //删除某个参数
 const handleDeleteParams = (row: ApidocMindParam) => {
-    const projectId = router.currentRoute.value.query.id as string;
-    const params = {
-        projectId,
-        ids: [row._id],
-    };
-    axios.delete("/api/project/doc_params_mind", { data: params }).then((res) => {
-        console.log(222, res)
+    ElMessageBox.confirm("是否删除当前参数", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+    }).then(() => {
+        const projectId = router.currentRoute.value.query.id as string;
+        const params = {
+            projectId,
+            ids: [row._id],
+        };
+        axios.delete("/api/project/doc_params_mind", { data: params }).then(() => {
+            store.commit("apidoc/baseInfo/deleteMindParamsById", row._id)
+        }).catch((err) => {
+            console.error(err);
+        });
     }).catch((err) => {
+        if (err === "cancel" || err === "close") {
+            return;
+        }
+        console.error(err);
+    });
+}
+//批量删除
+const handleDeleteManyParams = () => {
+    ElMessageBox.confirm("确定批量删除当前选中节点", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+    }).then(() => {
+        const projectId = router.currentRoute.value.query.id as string;
+        const params = {
+            projectId,
+            ids: selectData.value.map(v => v._id),
+        };
+        axios.delete("/api/project/doc_params_mind", { data: params }).then(() => {
+            selectData.value.forEach(v => {
+                store.commit("apidoc/baseInfo/deleteMindParamsById", v._id)
+            })
+        }).catch((err) => {
+            console.error(err);
+        });
+    }).catch((err) => {
+        if (err === "cancel" || err === "close") {
+            return;
+        }
         console.error(err);
     });
 }

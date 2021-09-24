@@ -36,6 +36,11 @@ const baseInfo = {
         changeMindParams(state: ApidocProjectBaseInfoState, payload: ApidocMindParam[]): void {
             state.mindParams = payload;
         },
+        //根据id删除联想参数
+        deleteMindParamsById(state: ApidocProjectBaseInfoState, id: string): void {
+            const delIndex = state.mindParams.findIndex(v => v._id === id);
+            state.mindParams.splice(delIndex, 1)
+        },
         //改变hosts
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
             state.hosts = payload;
