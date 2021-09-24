@@ -70,7 +70,7 @@ export default defineComponent({
                             this.$message.warning(res.msg);
                         } else {
                             this.$router.push("/v1/apidoc/doc-list");
-                            sessionStorage.setItem("userInfo", JSON.stringify(res.data));
+                            localStorage.setItem("userInfo", JSON.stringify(res.data));
                             this.$store.dispatch("permission/getPermission")
                         }
                     }).catch((err) => {
