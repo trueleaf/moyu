@@ -423,7 +423,7 @@ const apidoc = {
             };
             axiosInstance.post("/api/project/doc_params_mind", params).then((res) => {
                 if (res.data != null) {
-                    store.commit("/apidoc/baseInfo/changeMindParams", res.data);
+                    store.commit("apidoc/baseInfo/changeMindParams", res.data);
                 }
             }).catch((err) => {
                 console.error(err);

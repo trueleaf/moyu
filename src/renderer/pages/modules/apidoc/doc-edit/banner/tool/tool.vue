@@ -100,7 +100,7 @@
                             <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
                                 <use :xlink:href="element.icon"></use>
                             </svg>
-                            <div class="label">{{ element.name }}</div>
+                            <div class="label" @click="handleEmit(element.op)">{{ element.name }}</div>
                             <div class="shortcut">
                                 <span v-for="(item, index) in element.shortcut" :key="item">
                                     <span>{{ item }}</span>
@@ -128,6 +128,7 @@ import localOriginOperation from "./operations"
 import { forEachForest } from "@/helper/index"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { addFileAndFolderCb } from "../composables/curd-node"
+import { router } from "@/router/index"
 
 type Operation = {
     /**
@@ -218,6 +219,7 @@ const handleHideMoreOperation = () => {
     visible.value = false;
 }
 //点击操作按钮
+const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
     switch (op) {
     case "addRootFolder": //新建文件夹
@@ -228,6 +230,21 @@ const handleEmit = (op: ApidocOperations) => {
         break;
     case "freshBanner": //刷新页面
         emit("fresh");
+        break;
+    case "exportDoc": //导出文档
+        store.commit("apidoc/tabs/addTab", {
+            _id: "exportDoc",
+            projectId,
+            tabType: "exportDoc",
+            label: "导出文档",
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
         break;
     default:
         break;
@@ -497,6 +514,7 @@ const handleFilterBanner = () => {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        cursor: pointer;
     }
     .shortcut {
         width: size(100);

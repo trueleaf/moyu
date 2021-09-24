@@ -77,9 +77,9 @@
             <s-contextmenu-item label="关闭右侧" @click="handleCloseRightTab"></s-contextmenu-item>
             <s-contextmenu-item label="关闭其他" @click="handleCloseOtherTab"></s-contextmenu-item>
             <s-contextmenu-item label="全部关闭" @click="handleCloseAllTab"></s-contextmenu-item>
-            <s-contextmenu-item type="divider"></s-contextmenu-item>
-            <s-contextmenu-item label="复制url"></s-contextmenu-item>
-            <s-contextmenu-item label="刷新接口"></s-contextmenu-item>
+            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item>
+            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="复制url"></s-contextmenu-item>
+            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="刷新"></s-contextmenu-item>
         </s-contextmenu>
     </teleport>
 </template>

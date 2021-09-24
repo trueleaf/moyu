@@ -1,0 +1,214 @@
+/*
+    创建者：shuxiaokai
+    创建时间：2021-09-24 22:25
+    模块名称：导出文档
+    备注：
+*/
+<template>
+    <div class="doc-export">
+        <s-fieldset title="导出类型">
+            <div class="download-wrap">
+                <div class="item" :class="{active: selectedType === 'html'}" @click="selectedType = 'html'">
+                    <svg class="svg-icon" aria-hidden="true">
+                        <use xlink:href="#iconhtml"></use>
+                    </svg>
+                    <div class="mt-1">HTML</div>
+                </div>
+                <div class="item" :class="{active: selectedType === 'moyu'}" @click="selectedType = 'moyu'">
+                    <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
+                    <div class="mt-1">JSON文档</div>
+                </div>
+                <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
+                    <svg class="svg-icon" aria-hidden="true">
+                        <use xlink:href="#icondaochu1"></use>
+                    </svg>
+                    <div class="mt-1">导出到其他项目</div>
+                </div>
+            </div>
+        </s-fieldset>
+        <s-fieldset v-if="selectedType !== 'otherProject'" title="额外配置">
+            <s-config ref="config" label="选择导出" description="开启后可以自由选择需要导出的文档">
+                <template #default="prop">
+                    <div v-if="prop.enabled" class="doc-nav">
+                        <div>
+                            <span>总数：</span>
+                            <span>{{ allCheckedNodes.length }}</span>
+                            <el-divider direction="vertical"></el-divider>
+                            <span>文件夹数量：</span>
+                            <span>{{ allCheckedNodes.filter(node => node.isFolder).length }}</span>
+                            <el-divider direction="vertical"></el-divider>
+                            <span>文档数量：</span>
+                            <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
+                        </div>
+                        <el-divider></el-divider>
+                        <el-tree
+                            ref="docTree"
+                            :data="bannerData"
+                            node-key="_id"
+                            show-checkbox
+                            :expand-on-click-node="true"
+                            @check-change="handleCheckChange"
+                        >
+                            <template #default="scope">
+                                <div
+                                    class="custom-tree-node"
+                                    tabindex="0"
+                                >
+                                    <!-- file渲染 -->
+                                    <template v-if="!scope.data.isFolder">
+                                        <template v-for="(req) in projectInfo.rules.requestMethods">
+                                            <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                        </template>
+                                        <div class="node-label-wrap">
+                                            <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                                        </div>
+                                    </template>
+                                    <!-- 文件夹渲染 -->
+                                    <template v-if="scope.data.isFolder">
+                                        <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+                                        <div class="node-label-wrap">
+                                            <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </el-tree>
+                    </div>
+                </template>
+            </s-config>
+            <div class="d-flex j-center mt-2">
+                <el-button :loading="loading" size="mini" type="primary" @click="handleExport">确定导出</el-button>
+            </div>
+        </s-fieldset>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { ApidocBanner } from "@@/global";
+import { ref, Ref, computed } from "vue"
+import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { store } from "@/store/index"
+
+//可导出数据类型
+const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
+//项目基本信息
+const projectInfo = computed(() => {
+    return store.state["apidoc/baseInfo"];
+});
+//菜单数据
+const bannerData = computed(() => {
+    return store.state["apidoc/banner"].banner
+})
+//当前选中节点
+let allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
+//节点选中
+const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
+const handleCheckChange = () => {
+    const checkedNodes = docTree.value?.getCheckedNodes() || [];
+    const halfCheckedNodes = docTree.value?.getHalfCheckedNodes() || [];
+    allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
+}
+
+//数据加载状态
+const loading = ref(false);
+//导出
+const handleExport = () => {
+    console.log("导出")
+}
+
+</script>
+
+<style lang="scss">
+.doc-export {
+    overflow-y: auto;
+    height: calc(100vh - #{size(100)});
+    width: 70%;
+    min-width: size(768);
+    margin: 0 auto;
+    .download-wrap {
+        display: flex;
+        .item {
+            width: size(130);
+            height: size(100);
+            padding: size(10);
+            margin-right: size(20);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 1px solid transparent;
+            &.active {
+                border: 1px solid $gray-400;
+                box-shadow: $box-shadow-sm;
+            }
+            &:hover {
+                border: 1px solid $gray-400;
+            }
+            .svg-icon {
+                width: size(70);
+                height: size(70);
+            }
+            .img {
+                width: size(60);
+                height: size(60);
+            }
+        }
+    }
+    .doc-nav {
+        .custom-tree-node {
+           display: flex;
+            align-items: center;
+            width: 100%;
+            overflow: hidden;
+            height: size(30);
+            &:hover {
+                .more {
+                    display: block;
+                }
+            }
+            .file-icon {
+                font-size: fz(14);
+                margin-right: size(5);
+            }
+            .folder-icon {
+                color: $yellow;
+                flex: 0 0 auto;
+                width: size(16);
+                height: size(16);
+                margin-right: size(5);
+            }
+            .node-label-wrap {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
+                overflow: hidden;
+                .node-top {
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                .node-bottom {
+                    color: $gray-500;
+                    width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+        }
+        .el-tree-node__content {
+            height: size(30);
+            display: flex;
+            align-items: center;
+        }
+        .el-tree-node__content>.el-tree-node__expand-icon {
+            transition: none; //去除所有动画
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: -1px;
+        }
+    }
+}
+</style>
