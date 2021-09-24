@@ -4,7 +4,6 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
-process.env.VUE_APP_TITLE = "moyu";
 process.env.VUE_APP_BUILD_TIME = new Date().toLocaleString();
 
 

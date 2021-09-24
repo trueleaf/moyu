@@ -15,11 +15,6 @@ type Config = {
     isDev: boolean,
 
     /**
-     * 版本信息 eg: 0.6.3
-     */
-    version: string,
-
-    /**
      * 更新相关配置
      */
     updateConfig: {
@@ -51,12 +46,7 @@ type Config = {
         /**
          * 布局相关
          */
-        layout: {
-            /**
-             * 项目名称
-             */
-            title: string,
-
+        layout: {          
             /**
              * 项目中组件库大小
              */
@@ -180,15 +170,6 @@ type Config = {
              */
             size: number,
         },
-        /**
-         * 客户端下载相关
-         */
-        download: {
-            /**
-             * 通过码云下载地址
-             */
-            gitee: string,
-        },
     },
     /**
      * 主进程配置
@@ -218,6 +199,31 @@ type Config = {
      * 本地部署相关配置
      */
     localization: {
+        /**
+         * 版本信息 eg: 0.6.3
+         */
+        version: string,
+        /**
+         * 项目名称
+         */
+        title: string,
+        /**
+         * 是否开启控制台欢迎文案
+         */
+         consoleWelcome: boolean,
+         /**
+         * 客户端下载相关
+         */
+          download: {
+            /**
+             * 下载地址
+             */
+            url: string,
+            /**
+             * 是否允许下载
+             */
+            enabled: boolean,
+        },
         /**
          * 是否允许注册
          */
