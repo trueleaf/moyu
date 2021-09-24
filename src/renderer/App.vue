@@ -26,7 +26,7 @@ export default defineComponent({
         };
     },
     created() {
-        if (!config.isDev) {
+        if (!config.isDev && config.localization.consoleWelcome) {
             console.log(`
                      _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
                     / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
@@ -42,8 +42,9 @@ export default defineComponent({
 
                Gitee地址：https://gitee.com/shuzhikai/moyu
             `)
-            console.log(process.env.VUE_APP_BUILD_TIME);
         }
+        console.log(process.env.VUE_APP_BUILD_TIME);
+        document.title = config.localization.title;
     },
 })
 </script>
