@@ -68,7 +68,7 @@ export default (): HostReturn =>  {
     const handleChangeHost = () => {
         const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
         const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
-        const dominReg = /^(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
+        const dominReg = /^(https?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
         requestPath.value = requestPath.value.replace(ipWithPortReg, "");
         requestPath.value = requestPath.value.replace(ipReg, "");
         requestPath.value = requestPath.value.replace(dominReg, "");
