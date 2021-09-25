@@ -43,7 +43,9 @@ export default defineComponent({
                Gitee地址：https://gitee.com/shuzhikai/moyu
             `)
         }
-        console.log(process.env.VUE_APP_BUILD_TIME);
+        if (!config.isDev) {
+            console.log(process.env.VUE_APP_BUILD_TIME);
+        }
         document.title = config.localization.title;
     },
 })

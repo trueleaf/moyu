@@ -3,12 +3,20 @@ import { Store } from "vuex"
 import { AxiosInstance } from "axios"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
-import { ElMessageBoxShortcutMethod, ElMessage } from "element-plus"
-import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { ElMessageBoxShortcutMethod } from "element-plus"
+// import { MessagePartial } from "element-plus/packages/components/message/src/message"
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
 import { ICaceh } from "@/cache/cache"
 
 type Data = Record<string, unknown>;
+type Message = {
+    closeAll(): void;
+    success: (msg?: string) => void;
+    warning: (msg?: string) => void;
+    info: (msg?: string) => void;
+    error: (msg?: string) => void;
+}
 
 declare module "@vue/runtime-core" {
     export interface ComponentCustomProperties {
@@ -40,7 +48,7 @@ declare module "@vue/runtime-core" {
         },
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
-        $message: typeof ElMessage,
+        $message: Message,
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,

@@ -111,7 +111,15 @@ const tabs = {
             editData[field] = value;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
-        //新增一个tab
+        //强制关闭所有节点
+        forceDeleteAllTab(state: ApidocTabsState, projectId: string): void {
+            const deleteIds = store.state["apidoc/tabs"].tabs[projectId].map(v => v._id);
+            deleteIds.forEach((id) => {
+                const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
+                state.tabs[projectId].splice(deleteIndex, 1);
+                event.emit("apidoc/tabs/addOrDeleteTab")
+            })
+        },
     },
     actions: {
         //根据id删除tab
@@ -132,14 +140,22 @@ const tabs = {
                 const activeTab = context.state.tabs[projectId].find((tab) => tab.selected);
                 store.commit("apidoc/banner/changeExpandItems", [activeTab?._id]);
             }
-
+            //=========================================================================//
             const { ids, projectId } = payload;
             if (!context.state.tabs[projectId]) {
                 return;
             }
             const unsavedTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
-            // const allDeleteTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => ids.find(v => v === tab._id));
             for(let i = 0; i < unsavedTabs.length; i ++) {
+                //预览模式直接删除
+                if (store.state["apidoc/baseInfo"].mode === "view") {
+                    const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === unsavedTabs[i]._id);
+                    context.commit("deleteTabByIndex", {
+                        projectId,
+                        deleteIndex,
+                    });
+                    continue;
+                } 
                 const unsavedTab = unsavedTabs[i];
                 try {
                     await ElMessageBox.confirm(`是否要保存对 ${unsavedTab.label} 接口的修改`, "提示", {

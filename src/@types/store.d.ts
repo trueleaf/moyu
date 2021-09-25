@@ -192,6 +192,10 @@ type ApidocProjectBaseInfoState = {
          */
         enabled: boolean
     },
+    /**
+     * 模式，view,edit
+     */
+    mode: "view" | "edit"
 };
 //=========================================================================//
 type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"

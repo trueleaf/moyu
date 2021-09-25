@@ -83,6 +83,7 @@
                                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
                             >
                             <div 
+                                v-if="!isView"
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
@@ -96,7 +97,7 @@
         <!-- 鼠标右键 -->
         <teleport to="body">
             <!-- 单个节点操作 -->
-            <s-contextmenu v-if="showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
+            <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文档" @click="handleOpenAddFileDialog"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="新建文件夹" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
                 <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" label="以模板新建"></s-contextmenu-item> -->
@@ -110,7 +111,7 @@
                 <s-contextmenu-item v-show="currentOperationalNode" label="删除" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
             </s-contextmenu>
             <!-- 多个节点操作 -->
-            <s-contextmenu v-if="showContextmenu && selectNodes.length > 1" :left="contextmenuLeft" :top="contextmenuTop">
+            <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length > 1" :left="contextmenuLeft" :top="contextmenuTop">
                 <s-contextmenu-item label="批量剪切" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
                 <s-contextmenu-item label="批量复制" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
                 <s-contextmenu-item label="批量删除" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
@@ -132,7 +133,7 @@ import { useStore } from "@/store/index"
 import { useBannerData } from "./composables/banner-data"
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
 import { router } from "@/router/index"
-import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
 
 let clipboard: Clipboard | null = null
@@ -172,9 +173,11 @@ const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数�
 const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
-const enableDrag = ref(true); //是否允许拖拽
-// const activeNode: Ref<ApidocBanner | null> = ref(null); //当前tab选中节点
-
+const enableDrag = ref(true); //是否允许拖拽//
+//当前工作区状态
+const isView = computed(() => {
+    return store.state["apidoc/baseInfo"].mode === "view"
+})
 const { loading, getBannerData } = useBannerData();
 //默认展开节点
 const defaultExpandedKeys = computed(() => {
