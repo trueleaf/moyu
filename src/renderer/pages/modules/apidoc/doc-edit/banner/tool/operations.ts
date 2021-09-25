@@ -16,6 +16,7 @@ export default [{
     op: "freshBanner",
     shortcut: [],
     pin: true,
+    viewOnly: true,
 }, {
     name: "在线链接",
     icon: "#iconlink",
@@ -46,6 +47,7 @@ export default [{
     op: "history",
     shortcut: ["Ctrl", "H"],
     pin: false,
+    viewOnly: true,
 }, {
     name: "全局设置",
     icon: "#iconshezhi",

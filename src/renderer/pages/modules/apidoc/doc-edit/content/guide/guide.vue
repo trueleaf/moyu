@@ -11,11 +11,11 @@
             <h2>当前版本{{ config.localization.version }}</h2>
             <div class="d-flex a-center f-base">
                 <div class="d-flex a-center mr-5">
-                    <div>今日新增:</div>
+                    <div>今日新增：</div>
                     <div class="green">{{ docsOfToday.length }}</div>
                 </div>
                 <div class="d-flex a-center mr-5">
-                    <div>接口总数:</div>
+                    <div>接口总数：</div>
                     <div>{{ allDocs.length }}</div>
                 </div>
             </div>
@@ -70,6 +70,7 @@ const docsOfToday = computed(() => {
 .guide {
     height: calc(100vh - #{size(100)});
     position: relative;
+    font-family: none;
     .wrap {
         text-align: center;
         position: absolute;

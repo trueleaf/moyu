@@ -20,8 +20,8 @@
                     </template>
                 </el-popover>
             </el-radio-group>
-            <el-button type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
-            <div v-if="!config.isElectron" class="proxy-wrap">
+            <el-button v-if="!isView" type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
+            <div v-if="!isView && !config.isElectron" class="proxy-wrap">
                 <span>代理&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
             </div>
@@ -62,8 +62,8 @@
             >
                 发送请求
             </el-button>
-            <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
-            <el-button :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
+            <el-button v-if="!isView && loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
+            <el-button v-if="!isView" :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
             <!-- <el-dropdown trigger="click">
                 <el-button type="primary" size="small">
@@ -78,10 +78,10 @@
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, Ref, computed } from "vue"
+<script lang="ts" setup>
+import { ref, Ref, computed } from "vue"
 import globalConfig from "@/../config/config"
-import curdHost from "../dialog/curd-host/curd-host.vue"
+import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handlePickPathParams } from "./composables/url"
 import getMethodPart from "./composables/method"
@@ -89,117 +89,90 @@ import getOperationPart from "./composables/operation"
 import { useStore } from "@/store/index"
 import type { Config } from "@@/config" 
 
-export default defineComponent({
-    components: {
-        "s-curd-host-dialog": curdHost,
+const config: Ref<Config> = ref(globalConfig);
+const store = useStore();
+//当前工作区状态
+const isView = computed(() => {
+    return store.state["apidoc/baseInfo"].mode === "view"
+})
+/*
+|--------------------------------------------------------------------------
+| web代理相关
+|--------------------------------------------------------------------------
+|
+*/
+const isProxy = computed({
+    get() {
+        return store.state["apidoc/baseInfo"].webProxy;
     },
-    setup() {
-        const config: Ref<Config> = ref(globalConfig);
-        const store = useStore();
-        /*
-        |--------------------------------------------------------------------------
-        | web代理相关
-        |--------------------------------------------------------------------------
-        |
-        */
-        const isProxy = computed({
-            get() {
-                return store.state["apidoc/baseInfo"].webProxy;
-            },
-            set(v) {
-                store.commit("apidoc/baseInfo/changeWebProxy", v);
-            },
-        });
-        /*
-        |--------------------------------------------------------------------------
-        | host相关
-        |--------------------------------------------------------------------------
-        */
-        const hostPart = getHostPart();
-        const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
-        /*
-        |--------------------------------------------------------------------------
-        | 请求方法
-        |--------------------------------------------------------------------------
-        */
-        const methodPart = getMethodPart();
-        const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
-        /*
-        |--------------------------------------------------------------------------
-        | 发送请求、保存接口、刷新接口
-        |--------------------------------------------------------------------------
-        */
-        const loading = computed(() => {
-            return store.state["apidoc/response"].loading;
-        })
-        const operationPart = getOperationPart();
-        const loading2 = computed(() => {
-            return store.state["apidoc/apidoc"].saveLoading;
-        })
-        const handleSaveApidoc = () => {
-            store.dispatch("apidoc/apidoc/saveApidoc");
+    set(v) {
+        store.commit("apidoc/baseInfo/changeWebProxy", v);
+    },
+});
+/*
+|--------------------------------------------------------------------------
+| host相关
+|--------------------------------------------------------------------------
+*/
+const hostPart = getHostPart();
+const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
+/*
+|--------------------------------------------------------------------------
+| 请求方法
+|--------------------------------------------------------------------------
+*/
+const methodPart = getMethodPart();
+const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
+/*
+|--------------------------------------------------------------------------
+| 发送请求、保存接口、刷新接口
+|--------------------------------------------------------------------------
+*/
+const loading = computed(() => {
+    return store.state["apidoc/response"].loading;
+})
+const operationPart = getOperationPart();
+const loading2 = computed(() => {
+    return store.state["apidoc/apidoc"].saveLoading;
+})
+const handleSaveApidoc = () => {
+    store.dispatch("apidoc/apidoc/saveApidoc");
+}
+const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc  } =  operationPart;
+//请求url、完整url
+const requestPath = computed<string>({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.item.url.path;
+    },
+    set(path) {
+        store.commit("apidoc/apidoc/changeApidocUrl", path)
+    },
+}); 
+const paths = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc.item.paths
+})
+const fullUrl = computed(() => {
+    const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
+    let queryString = "";
+    queryParams.forEach((v) => {
+        if (v.key && v.select) {
+            queryString += `${v.key}=${v.value}&`
         }
-        const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc  } =  operationPart;
-        //请求url、完整url
-        const requestPath = computed<string>({
-            get() {
-                return store.state["apidoc/apidoc"].apidoc.item.url.path;
-            },
-            set(path) {
-                store.commit("apidoc/apidoc/changeApidocUrl", path)
-            },
-        }); 
-        const paths = computed(() => {
-            return store.state["apidoc/apidoc"].apidoc.item.paths
-        })
-        const fullUrl = computed(() => {
-            const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
-            let queryString = "";
-            queryParams.forEach((v) => {
-                if (v.key && v.select) {
-                    queryString += `${v.key}=${v.value}&`
-                }
-            })
-            queryString = queryString.replace(/\&$/, "");
-            if (queryString) {
-                queryString = "?" + queryString;
-            }
-            const pathMap: Record<string, string> = {};
-            paths.value.forEach((v) => {
-                if (v.key) {
-                    pathMap[v.key] = v.value;
-                }
-            })
-            const validPath = requestPath.value.replace(/\{([^\}]+)\}/g, ($1, $2) => {
-                return pathMap[$2] || $2
-            })
-            return host.value + validPath + queryString
-        })
-
-        return {
-            config,
-            host,
-            hostEnum,
-            mockServer,
-            hostDialogVisible,
-            handleChangeHost,
-            requestMethodEnum,
-            requestPath,
-            requestMethod,
-            handlePickPathParams,
-            handleFormatUrl,
-            disabledTip,
-            handleSendRequest,
-            loading,
-            loading2,
-            loading3,
-            handleStopRequest,
-            handleSaveApidoc,
-            handleFreshApidoc,
-            isProxy,
-            fullUrl,
-        };
-    },
+    })
+    queryString = queryString.replace(/\&$/, "");
+    if (queryString) {
+        queryString = "?" + queryString;
+    }
+    const pathMap: Record<string, string> = {};
+    paths.value.forEach((v) => {
+        if (v.key) {
+            pathMap[v.key] = v.value;
+        }
+    })
+    const validPath = requestPath.value.replace(/\{([^\}]+)\}/g, ($1, $2) => {
+        return pathMap[$2] || $2
+    })
+    return host.value + validPath + queryString
 })
 </script>
 

@@ -3,6 +3,7 @@ import { axios } from "@/api/api"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
 import type { Response, ApidocMindParam } from "@@/global"
 
+
 const baseInfo = {
     namespaced: true,
     state: {
@@ -20,6 +21,7 @@ const baseInfo = {
             path: "",
             enabled: false,
         },
+        mode: "view",
     },
     mutations: {
         //改变项目基本信息
@@ -77,6 +79,10 @@ const baseInfo = {
         //改变web代理
         changeWebProxy(state: ApidocProjectBaseInfoState, isProxy: boolean): void {
             state.webProxy = isProxy;
+        },
+        //改变操作模式
+        changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
+            state.mode = mode;
         },
     },
     actions: {

@@ -84,10 +84,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ApidocBanner } from "@@/global";
+import { ElMessage } from "element-plus";
 import { ref, Ref, computed } from "vue"
-import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { ApidocBanner } from "@@/global";
 import { store } from "@/store/index"
+import { axios } from "@/api/api"
+import { router } from "@/router/index"
 
 //可导出数据类型
 const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
@@ -109,11 +112,62 @@ const handleCheckChange = () => {
     allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
 }
 
+//=====================================导出操作====================================//
 //数据加载状态
 const loading = ref(false);
-//导出
+const config: Ref<{ enabled: boolean } | null> = ref(null)
 const handleExport = () => {
-    console.log("导出")
+    const enableCustomExport = config.value?.enabled;
+    const customExportIsEmpty = allCheckedNodes.value.length === 0;
+    if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
+        ElMessage.warning("请至少选择一个文档导出");
+        return;
+    }
+    if (selectedType.value === "html") {
+        handleExportAsHTML();
+    } else if (selectedType.value === "moyu") {
+        handleExportAsMoyu();
+    } else { //默认兜底导出html
+        handleExportAsHTML();
+    }
+}
+//导出为html
+const handleExportAsHTML = () => {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    loading.value = true;
+    const params = {
+        projectId: router.currentRoute.value.query.id,
+        selectedNodes: selectedIds,
+    };
+    axios.request({
+        method: "post",
+        url: "/api/project/export/html",
+        responseType: "blob",
+        data: params,
+    }).catch((err) => {
+        console.error(err);
+    }).finally(() => {
+        loading.value = false;
+    });
+}
+//导出为moyu文档
+const handleExportAsMoyu = () => {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    loading.value = true;
+    const params = {
+        projectId: router.currentRoute.value.query.id,
+        selectedNodes: selectedIds,
+    };
+    axios.request({
+        method: "post",
+        url: "/api/project/export/moyu",
+        responseType: "blob",
+        data: params,
+    }).catch((err) => {
+        console.error(err);
+    }).finally(() => {
+        loading.value = false;
+    });
 }
 
 </script>

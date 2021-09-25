@@ -84,7 +84,7 @@
                 </template>
             </s-draggable>
             <!-- 全部工具栏操作 -->
-            <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
+            <el-popover v-if="!isView" v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
                     <div class="more" @click.stop="visible = true">
                         <i class="more-op el-icon-more" title="更多操作"></i>
@@ -151,11 +151,18 @@ type Operation = {
      * 是否固定操作栏
      */
     pin: boolean,
+    /**
+     * 预览模式展示
+     */
+    viewOnly?: boolean,
 };
 
 
 const emit = defineEmits(["fresh", "filter"])
-
+//当前工作区状态
+const isView = computed(() => {
+    return store.state["apidoc/baseInfo"].mode === "view"
+})
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
     addFileAndFolderCb.call(this, ref(null), data)
@@ -176,6 +183,10 @@ const projectName = computed(() => {
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
+    if (isView.value) {
+        pinOperations.value = localOriginOperation.filter((v) => v.viewOnly);
+        return;
+    }
     const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
     const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
     if (localToolbarOperations) {
