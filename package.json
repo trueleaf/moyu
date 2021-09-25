@@ -24,7 +24,7 @@
     "dayjs": "^1.10.5",
     "dexie": "^3.0.3",
     "electron-updater": "^4.3.9",
-    "element-plus": "^1.0.2-beta.70",
+    "element-plus": "^1.1.0-beta.16",
     "file-type": "^16.5.3",
     "form-data": "^4.0.0",
     "got": "^11.8.2",
