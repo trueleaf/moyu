@@ -7,7 +7,7 @@
 <template>
     <div class="body-params">
         <!-- <pre>{{ bodyType }}</pre> -->
-        <div class="d-flex a-center mb-3">
+        <div class="body-type d-flex a-center mb-1">
             <!-- body类型选择 -->
             <el-radio-group v-model="bodyType" @change="changeBodyType">
                 <el-radio label="json">json</el-radio>
@@ -47,8 +47,8 @@
                 </div>
                 <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer" @click="handleOpenTemplateDialog">保存为模板 </div>
-                <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer">预览参数 </div>
+                <!-- <el-divider direction="vertical"></el-divider>
+                <div class="cursor-pointer">预览参数 </div> -->
             </div>
         </div>
         <div class="params-wrap">
@@ -202,7 +202,7 @@ const bodyType = computed<ApidocBodyMode>({
 });
 //body参数联想值
 const mindBodyData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.requestBody;
+    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody");
 })
 /*
 |--------------------------------------------------------------------------
@@ -285,6 +285,9 @@ const formData = computed(() => {
 
 <style lang="scss">
 .body-params {
+    .body-type {
+        margin-top: size(-10);
+    }
     .operation {
         margin-top: size(-3);
         flex: 1;
