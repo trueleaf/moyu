@@ -322,6 +322,7 @@ export default defineComponent({
                 path: "/v1/apidoc/doc-edit",
                 query: {
                     id,
+                    mode: "edit"
                 }
             });
         },
