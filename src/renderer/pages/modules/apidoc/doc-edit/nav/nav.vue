@@ -78,9 +78,9 @@
             <s-contextmenu-item label="关闭其他" @click="handleCloseOtherTab"></s-contextmenu-item>
             <s-contextmenu-item label="全部关闭" @click="handleCloseAllTab"></s-contextmenu-item>
             <s-contextmenu-item v-if="!isView" label="强制全部关闭" @click="handleForceCloseAllTab"></s-contextmenu-item>
-            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item>
-            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="复制url"></s-contextmenu-item>
-            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="刷新"></s-contextmenu-item>
+            <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item> -->
+            <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="复制url"></s-contextmenu-item>
+            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" label="刷新"></s-contextmenu-item> -->
         </s-contextmenu>
     </teleport>
 </template>
@@ -240,9 +240,7 @@ export default defineComponent({
         //不保存关闭全部
         handleForceCloseAllTab( ) {
             const projectId: string = this.$route.query.id as string;
-            this.$store.dispatch("apidoc/tabs/forceDeleteAllTab", {
-                projectId,
-            });
+            this.$store.commit("apidoc/tabs/forceDeleteAllTab", projectId);
         },
         //选中当前tab
         selectCurrentTab(element: ApidocTab) {

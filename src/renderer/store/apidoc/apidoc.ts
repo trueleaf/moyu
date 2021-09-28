@@ -417,6 +417,7 @@ const apidoc = {
             const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
             const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");
             const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams");
+            console.log(paths, queryParams, requestBody, responseParams)
             const params = {
                 projectId,
                 mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)

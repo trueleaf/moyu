@@ -224,7 +224,6 @@ export function forkNode(currentOperationalNode: ApidocBanner): void {
     };
     axios.post<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/copy_doc", params).then((res) => {
         const pData = findParentById(banner, currentOperationalNode._id, { idKey: "_id" });
-        console.log(pData)
         if (!pData) {
             store.commit("apidoc/banner/splice", {
                 start: banner.length,

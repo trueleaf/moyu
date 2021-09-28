@@ -12,6 +12,7 @@
         <s-mind-params v-else-if="currentSelectTab.tabType === 'mindParams'"></s-mind-params>
         <s-apidoc v-else-if="currentSelectTab.tabType === 'doc'"></s-apidoc>
         <s-export v-else-if="currentSelectTab.tabType === 'exportDoc'"></s-export>
+        <s-import-doc v-else-if="currentSelectTab.tabType === 'importDoc'"></s-import-doc>
     </keep-alive>
 </template>
 
@@ -24,6 +25,7 @@ import variable from "./variable/variable.vue";
 import mindParams from "./mind-params/mind-params.vue";
 import paramsTemplate from "./params-template/params-template.vue";
 import exportDoc from "./export/export.vue";
+import importDoc from "./import/import.vue"
 
 export default defineComponent({
     components: {
@@ -33,6 +35,7 @@ export default defineComponent({
         "s-mind-params": mindParams,
         "s-params-template": paramsTemplate,
         "s-export": exportDoc,
+        "s-import-doc": importDoc,
     },
     data() {
         return {

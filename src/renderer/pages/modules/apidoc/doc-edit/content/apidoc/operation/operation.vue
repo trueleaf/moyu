@@ -21,7 +21,7 @@
                 </el-popover>
             </el-radio-group>
             <el-button v-if="!isView" type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
-            <div v-if="!isView && !config.isElectron" class="proxy-wrap">
+            <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>代理&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
             </div>
@@ -62,7 +62,7 @@
             >
                 发送请求
             </el-button>
-            <el-button v-if="!isView && loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
+            <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
             <el-button v-if="!isView" :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
             <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
             <!-- <el-dropdown trigger="click">
@@ -79,7 +79,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed } from "vue"
+import { ref, Ref, computed, onMounted } from "vue"
 import globalConfig from "@/../config/config"
 import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
@@ -88,6 +88,8 @@ import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
 import { useStore } from "@/store/index"
 import type { Config } from "@@/config" 
+import { apidocCache } from "@/cache/apidoc"
+import { router } from "@/router/index"
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();
@@ -101,11 +103,20 @@ const isView = computed(() => {
 |--------------------------------------------------------------------------
 |
 */
+const projectId = router.currentRoute.value.query.id as string;
+onMounted(() => {
+    const localProxyState = apidocCache.getApidocProxyState(projectId);
+    if (localProxyState !== null) {
+        store.commit("apidoc/baseInfo/changeWebProxy", localProxyState);
+    }
+})
 const isProxy = computed({
     get() {
+        // const localProxyState = apidocCache.getApidocProxyState(projectId);
         return store.state["apidoc/baseInfo"].webProxy;
     },
-    set(v) {
+    set(v: boolean) {
+        apidocCache.setApidocCacheState(v, projectId);
         store.commit("apidoc/baseInfo/changeWebProxy", v);
     },
 });

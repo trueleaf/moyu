@@ -76,7 +76,7 @@
             <!-- 固定的工具栏操作 -->
             <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
                 <template #item="{ element }">
-                    <div :title="element.name">
+                    <div :title="element.name" class="cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
                         <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
                             <use :xlink:href="element.icon"></use>
                         </svg>
@@ -84,7 +84,7 @@
                 </template>
             </s-draggable>
             <!-- 全部工具栏操作 -->
-            <el-popover v-if="!isView" v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
+            <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
                     <div class="more" @click.stop="visible = true">
                         <i class="more-op el-icon-more" title="更多操作"></i>
@@ -96,7 +96,7 @@
                 </div>
                 <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
                     <template #item="{ element }">
-                        <div class="dropdown-item">
+                        <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
                             <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
                                 <use :xlink:href="element.icon"></use>
                             </svg>
@@ -183,10 +183,6 @@ const projectName = computed(() => {
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-    if (isView.value) {
-        pinOperations.value = localOriginOperation.filter((v) => v.viewOnly);
-        return;
-    }
     const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
     const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
     if (localToolbarOperations) {
@@ -232,6 +228,9 @@ const handleHideMoreOperation = () => {
 //点击操作按钮
 const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
+    if (isView.value && op !== "freshBanner" && op !== "history" ) {
+        return
+    }
     switch (op) {
     case "addRootFolder": //新建文件夹
         addFolderDialogVisible.value = true;
@@ -248,6 +247,21 @@ const handleEmit = (op: ApidocOperations) => {
             projectId,
             tabType: "exportDoc",
             label: "导出文档",
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
+    case "importDoc": //导入文档
+        store.commit("apidoc/tabs/addTab", {
+            _id: "importDoc",
+            projectId,
+            tabType: "importDoc",
+            label: "导入文档",
             head: {
                 icon: "",
                 color: ""
@@ -496,7 +510,6 @@ const handleFilterBanner = () => {
             width: size(25);
             height: size(25);
             padding: size(5);
-            cursor: pointer;
             &:hover {
                 background: $gray-400;
             }
@@ -519,7 +532,7 @@ const handleFilterBanner = () => {
     padding: 0 size(10) 0 size(20);
     display: flex;
     align-items: center;
-    cursor: default;
+    // cursor: default;
     .label {
         width: size(120);
         overflow: hidden;
@@ -535,7 +548,6 @@ const handleFilterBanner = () => {
         width: size(25);
         height: size(25);
         padding: size(5);
-        cursor: pointer;
     }
     .pin {
         cursor: pointer;

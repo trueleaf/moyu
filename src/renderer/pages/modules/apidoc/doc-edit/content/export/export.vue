@@ -80,12 +80,14 @@
                 <el-button :loading="loading" size="mini" type="primary" @click="handleExport">确定导出</el-button>
             </div>
         </s-fieldset>
+        <s-fork v-else></s-fork>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
 import { ref, Ref, computed } from "vue"
+import sFork from "./fork/fork.vue"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { ApidocBanner } from "@@/global";
 import { store } from "@/store/index"
@@ -93,7 +95,7 @@ import { axios } from "@/api/api"
 import { router } from "@/router/index"
 
 //可导出数据类型
-const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
+const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("otherProject")
 //项目基本信息
 const projectInfo = computed(() => {
     return store.state["apidoc/baseInfo"];
