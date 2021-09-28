@@ -5,11 +5,11 @@
 */
 import { Config } from "@@/config"
 
-let ip = "127.0.0.1";
-if (global && global.require) {
-    const internalIp = global.require("internal-ip");
-    ip = internalIp.v4.sync()
-}
+const ip = "127.0.0.1";
+// if (window && window.require) {
+//     const internalIp = window.require("internal-ip");
+//     ip = internalIp.v4.sync()
+// }
 const isDev = process.env.NODE_ENV === "development";
 function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
