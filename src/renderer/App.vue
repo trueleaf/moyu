@@ -41,9 +41,11 @@ export default defineComponent({
                GitHub地址：https://github.com/trueleaf/moyu
 
                Gitee地址：https://gitee.com/shuzhikai/moyu
+
+               最近一次更新：${process.env.VUE_APP_BUILD_TIME}
             `)
         }
-        if (!config.isDev) {
+        if (!config.localization.consoleWelcome) {
             console.log(process.env.VUE_APP_BUILD_TIME);
         }
         document.title = config.localization.title;
