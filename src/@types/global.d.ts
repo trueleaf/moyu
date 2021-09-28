@@ -176,6 +176,7 @@ type PermissionClientMenu = {
 | 声明：ApidocProjectPermission(项目权限枚举)
 | 声明：ApidocProjectMemberInfo(项目成员基本信息)
 | 声明：ApidocProjectInfo(项目成员基本信息)
+| 声明：ApidocProjectEnum(项目枚举信息)
 | 声明：ApidocProjectListInfo(项目列表信息)
 | 声明：ApidocPropertyType(接口文档相关类型声明)
 | 声明：ApidocParamsType(文档参数类型)
@@ -186,6 +187,11 @@ type PermissionClientMenu = {
 //http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
 type ApidocHttpRequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "HEAD" | "DELETE" | "OPTIONS" | "TRACE";
 
+//项目枚举信息
+type ApidocProjectEnum = {
+    projectName: string,
+    _id: string,
+}
 //项目权限枚举
 type ApidocProjectPermission = "readAndWrite" | "readOnly" | "admin"
 //项目成员基本信息
@@ -306,6 +312,11 @@ type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
      * 子节点信息
      */
     children: ApidocProperty[],
+}
+//联想参数
+type ApidocMindParam = ApidocProperty & {
+    paramsPosition: "paths" | "queryParams" | "requestBody" | "responseParams",
+    projectId: string
 }
 //=========================================================================//
 //=========================================================================//
@@ -550,7 +561,7 @@ type ApidocBanner = {
     /**
      * 更新人
      */
-    updator: string,
+    maintainer: string,
     /**
      * 请求方法
      */
@@ -727,10 +738,12 @@ export {
     ApidocHttpRequestMethod,
     ApidocProjectListInfo,
     ApidocProjectInfo,
+    ApidocProjectEnum,
     ApidocProjectMemberInfo,
     ApidocProjectPermission,
     ApidocProperty,
     ApidocPropertyType,
+    ApidocMindParam,
     ApidocParamsType,
     ApidocBanner,
     ApidocOperations,

@@ -10,7 +10,10 @@
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
             </div>
             <div class="right">
-                <h2 class="text-center">{{ config.renderConfig.layout.title }}({{ config.version }})</h2>
+                <h2 class="text-center">
+                    <span>{{ config.localization.title }}</span>
+                    <span v-if="config.localization.version">({{ config.localization.version }})</span>
+                </h2>
                 <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
                     <el-tab-pane label="账号登录" name="loginAccount">

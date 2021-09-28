@@ -3,7 +3,6 @@ import { App } from "vue"
 let domList: HTMLElement[] = [];
 
 function createTipDom(left: number, top: number): HTMLElement {
-    console.log(333)
     let tipDom: HTMLElement | null = null;
     tipDom = document.createElement("div");
     tipDom.style.position = "fixed";
@@ -19,11 +18,9 @@ function createTipDom(left: number, top: number): HTMLElement {
 }
 
 export default (app: App): void => {
+    //=====================================成功提示指令====================================//
     app.directive("success", {
         unmounted() {
-            // domList.forEach((dom) => {
-            //     document.body.removeChild(dom);
-            // })
             domList = [];
         },
         updated(el: Element, binding) {
@@ -38,6 +35,15 @@ export default (app: App): void => {
                     document.body.removeChild(tipDom);
                 }, 500)
             }
+        },
+    });
+    //=====================================flex指令====================================//
+    app.directive("flex1", {
+        updated(el: HTMLElement, binding) {
+            const offsetY = el.getBoundingClientRect().y;
+            const { value } = binding;
+            el.style.height = `calc(100vh - ${offsetY + value}px)`;
+            el.style.overflowY = `auto`;
         },
     });
 }

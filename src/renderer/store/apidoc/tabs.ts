@@ -2,6 +2,7 @@
  * tabs导航
  */
 import type { ActionContext } from "vuex"
+import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { findNodeById } from "@/helper/index"
 import type { ApidocTabsState, ApidocTab } from "@@/store"
@@ -9,6 +10,7 @@ import { router } from "@/router/index"
 import { ElMessageBox } from "element-plus"
 import { apidocCache } from "@/cache/apidoc"
 import type { State as RootState, } from "@@/store"
+import { event } from "@/helper/index"
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,
@@ -28,6 +30,10 @@ const tabs = {
             const { projectId } = payload;
             const localEditTabs = localStorage.getItem("apidoc/editTabs");
             const tabs: ApidocTabsState["tabs"]  = localEditTabs ? JSON.parse(localEditTabs) : {};
+            const selectedTab =  tabs[projectId]?.find((val) => val.selected);
+            if (selectedTab) {
+                store.commit("apidoc/banner/changeExpandItems", [selectedTab._id]);
+            }
             state.tabs[projectId] = tabs[projectId];
         },
         //更新全部的tab
@@ -38,7 +44,7 @@ const tabs = {
         },
         //新增一个tab
         addTab(state: ApidocTabsState, payload: ApidocTab): void {
-            const { _id, projectId } = payload;
+            const { _id, projectId, fixed } = payload;
             const tabInfo = payload;
             const isInProject = state.tabs[projectId]; //当前项目是否存在tabs
             if (!isInProject) {
@@ -50,15 +56,19 @@ const tabs = {
             const unFixedTab = state.tabs[projectId].find((val) => !val.fixed);
             const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed);
 
-            if (unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
+            if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
             } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
+                state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
+            } else if (fixed && !hasTab) {
                 state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
             }
 
             const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
             matchedTab.selected = true;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            event.emit("apidoc/tabs/addOrDeleteTab")
+            store.commit("apidoc/banner/changeExpandItems", [_id]);
         },
         //固定一个tab
         fixedTab(state: ApidocTabsState, payload: ApidocTab): void {
@@ -71,7 +81,8 @@ const tabs = {
         },
         //在异步回调中无法直接改变state的值
         deleteTabByIndex(state: ApidocTabsState, payload: { deleteIndex: number, projectId: string }): void {
-            state.tabs[payload.projectId].splice(payload.deleteIndex, 1)
+            state.tabs[payload.projectId].splice(payload.deleteIndex, 1);
+            event.emit("apidoc/tabs/addOrDeleteTab")
         },
         //根据id选中tab
         selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {
@@ -87,6 +98,7 @@ const tabs = {
                 }
             })
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            store.commit("apidoc/banner/changeExpandItems", [id]);
         },
         //根据id改变节点属性
         changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
@@ -99,7 +111,15 @@ const tabs = {
             editData[field] = value;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
-        //新增一个tab
+        //强制关闭所有节点
+        forceDeleteAllTab(state: ApidocTabsState, projectId: string): void {
+            const deleteIds = store.state["apidoc/tabs"].tabs[projectId].map(v => v._id);
+            deleteIds.forEach((id) => {
+                const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
+                state.tabs[projectId].splice(deleteIndex, 1);
+                event.emit("apidoc/tabs/addOrDeleteTab")
+            })
+        },
     },
     actions: {
         //根据id删除tab
@@ -117,15 +137,25 @@ const tabs = {
                     context.state.tabs[projectId][selectTabIndex].selected = true;
                 }
                 localStorage.setItem("apidoc/editTabs", JSON.stringify(context.state.tabs));
+                const activeTab = context.state.tabs[projectId].find((tab) => tab.selected);
+                store.commit("apidoc/banner/changeExpandItems", [activeTab?._id]);
             }
-
+            //=========================================================================//
             const { ids, projectId } = payload;
             if (!context.state.tabs[projectId]) {
                 return;
             }
             const unsavedTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
-            // const allDeleteTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => ids.find(v => v === tab._id));
             for(let i = 0; i < unsavedTabs.length; i ++) {
+                //预览模式直接删除
+                if (store.state["apidoc/baseInfo"].mode === "view") {
+                    const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === unsavedTabs[i]._id);
+                    context.commit("deleteTabByIndex", {
+                        projectId,
+                        deleteIndex,
+                    });
+                    continue;
+                } 
                 const unsavedTab = unsavedTabs[i];
                 try {
                     await ElMessageBox.confirm(`是否要保存对 ${unsavedTab.label} 接口的修改`, "提示", {
@@ -154,7 +184,6 @@ const tabs = {
                     }).catch((err) => {
                         console.error(err);
                     })
-                    // console.log(11111222223333, apidocCache.getApidoc(unsavedTab._id))
                 } catch (error) {
                     if (error === "close") {
                         return;

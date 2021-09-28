@@ -26,7 +26,7 @@ export default defineComponent({
         };
     },
     created() {
-        if (!config.isDev) {
+        if (!config.isDev && config.localization.consoleWelcome) {
             console.log(`
                      _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
                     / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
@@ -41,9 +41,14 @@ export default defineComponent({
                GitHub地址：https://github.com/trueleaf/moyu
 
                Gitee地址：https://gitee.com/shuzhikai/moyu
+
+               最近一次更新：${process.env.VUE_APP_BUILD_TIME}
             `)
+        }
+        if (!config.localization.consoleWelcome) {
             console.log(process.env.VUE_APP_BUILD_TIME);
         }
+        document.title = config.localization.title;
     },
 })
 </script>

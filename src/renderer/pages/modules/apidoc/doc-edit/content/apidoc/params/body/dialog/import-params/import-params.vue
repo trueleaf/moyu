@@ -56,7 +56,6 @@ export default defineComponent({
         //格式化json
         formatJSON() {
             try {
-                console.log(json5.parse(this.jsonParams))
                 this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, "\t"));
             } catch (e) {
                 console.error(e);

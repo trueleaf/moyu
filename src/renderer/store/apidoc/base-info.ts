@@ -1,7 +1,8 @@
 import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
-import type { State as RootState, ApidocProjectBaseInfoState } from "@@/store"
-import type { Response } from "@@/global"
+import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
+import type { Response, ApidocMindParam } from "@@/global"
+
 
 const baseInfo = {
     namespaced: true,
@@ -14,7 +15,13 @@ const baseInfo = {
         rules: {},
         hosts: [],
         globalCookies: {},
-        layout: "horizontal"
+        layout: "horizontal",
+        webProxy: true,
+        proxy: {
+            path: "",
+            enabled: false,
+        },
+        mode: "view",
     },
     mutations: {
         //改变项目基本信息
@@ -26,6 +33,15 @@ const baseInfo = {
             state.paramsTemplate = payload.paramsTemplate;
             state.rules = payload.rules;
             state.hosts = payload.hosts;
+        },
+        //改变联想参数信息
+        changeMindParams(state: ApidocProjectBaseInfoState, payload: ApidocMindParam[]): void {
+            state.mindParams = payload;
+        },
+        //根据id删除联想参数
+        deleteMindParamsById(state: ApidocProjectBaseInfoState, id: string): void {
+            const delIndex = state.mindParams.findIndex(v => v._id === id);
+            state.mindParams.splice(delIndex, 1)
         },
         //改变hosts
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
@@ -55,8 +71,19 @@ const baseInfo = {
             } else {
                 state.layout = localLayout;
             }
-           
-        }
+        },
+        //添加一个模板
+        addParamsTemplate(state: ApidocProjectBaseInfoState, payload: ApidocProjectParamsTemplate): void {
+            state.paramsTemplate.push(payload);
+        },
+        //改变web代理
+        changeWebProxy(state: ApidocProjectBaseInfoState, isProxy: boolean): void {
+            state.webProxy = isProxy;
+        },
+        //改变操作模式
+        changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
+            state.mode = mode;
+        },
     },
     actions: {
         /**

@@ -7,15 +7,15 @@
 <template>
     <div class="s-content">
         <div class="s-header">
-            <div class="ml-5 header-left fl d-flex a-center">
-                <span class="f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.renderConfig.layout.title }}</span>
+            <div class="ml-5 header-left">
+                <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.localization.title }}</span>
                 <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
                     <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
                         {{ item.name }}
                     </el-menu-item>
                 </el-menu>
             </div>
-            <div class="header-right mr-5 fr">
+            <div class="header-right mr-5 ml-auto">
                 <div class="operation">
                     <div title="刷新" class="op_item" @click="freshPage">
                         <span class="el-icon-refresh-right"></span>
@@ -40,7 +40,7 @@
                         <el-dropdown-menu>
                             <el-dropdown-item @click="jumpToUserSetting">个人中心</el-dropdown-item>
                             <el-dropdown-item v-if="config.isElectron" :disabled="downloading" @click="handleCheckUpdate(true)">检查更新</el-dropdown-item>
-                            <el-dropdown-item>版本{{ config.updateConfig.version }}</el-dropdown-item>
+                            <el-dropdown-item>版本{{ config.localization.version }}</el-dropdown-item>
                             <el-dropdown-item @click="logout">退出登陆</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -179,8 +179,15 @@ export default defineComponent({
     .s-header {
         background: $gray-800;
         height: 60px;
+        display: flex;
         .header-left {
+            display: flex;
+            align-items: center;
+            flex: 1;
             height: 100%;
+            .el-menu {
+                flex: 1;
+            }
         }
         .header-right {
             height: 100%;

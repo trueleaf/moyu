@@ -7,7 +7,7 @@
 <template>
     <div class="body-params">
         <!-- <pre>{{ bodyType }}</pre> -->
-        <div class="d-flex a-center mb-3">
+        <div class="body-type d-flex a-center mb-1">
             <!-- body类型选择 -->
             <el-radio-group v-model="bodyType" @change="changeBodyType">
                 <el-radio label="json">json</el-radio>
@@ -19,11 +19,36 @@
             <div v-show="bodyType === 'json'" class="operation">
                 <div class="active cursor-pointer" @click="handleOpenImportParams">导入参数</div>
                 <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer">应用模板 </div>
+                <div class="p-relative no-select">
+                    <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">应用模板</span>
+                    <div v-if="showTemplate" class="template-wrap">
+                        <div class="header">
+                            <el-input v-model="templateFilterString" size="mini" placeholder="过滤模板" class="w-100" maxlength="100" clearable>
+                                <template #prefix>
+                                    <i class="el-icon-search el-input__icon"></i>
+                                </template>
+                            </el-input>
+                            <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">维护</div>
+                        </div>
+                        <template v-if="bodyTemplateList.length > 0">
+                            <div 
+                                v-for="(item, index) in bodyTemplateList" 
+                                :key="index"
+                                class="select-item"
+                            >
+                                <span class="head">
+                                    <s-emphasize :value="item.name" :keyword="templateFilterString"></s-emphasize>
+                                </span>
+                                <span class="tail">{{ item.creatorName }}</span>
+                            </div>
+                        </template>
+                        <div v-else class="select-item d-flex j-center gray-500">暂无数据</div>
+                    </div>
+                </div>
                 <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer">保存为模板 </div>
-                <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer">预览参数 </div>
+                <div class="cursor-pointer" @click="handleOpenTemplateDialog">保存为模板 </div>
+                <!-- <el-divider direction="vertical"></el-divider>
+                <div class="cursor-pointer">预览参数 </div> -->
             </div>
         </div>
         <div class="params-wrap">
@@ -45,15 +70,18 @@
             <div v-show="rawType === 'application/json'" title="raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数" class="tip">raw模块中json数据可适用与快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数</div>
         </div>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
+        <params-template v-model="paramsTemplatedialogVisible"></params-template>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue"
+import { computed, ref, onMounted, onBeforeUnmount } from "vue"
+import { router } from "@/router/index"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
 import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
-import importParams from "../../dialog/import-params/import-params.vue"
+import importParams from "./dialog/import-params/import-params.vue"
+import paramsTemplate from "./dialog/params-template/params-template.vue"
 
 /*
 |--------------------------------------------------------------------------
@@ -62,9 +90,11 @@ import importParams from "../../dialog/import-params/import-params.vue"
 |
 */
 const importParamsdialogVisible = ref(false);
+//打开导入参数弹窗
 const handleOpenImportParams = () => {
     importParamsdialogVisible.value = true;
 }
+//处理导入成功回调
 const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
     const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
     store.commit("apidoc/apidoc/changePropertyValue", {
@@ -73,7 +103,57 @@ const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
         value: result[0].children,
     });
 }
+const paramsTemplatedialogVisible = ref(false);
+//打开保存参数模板弹窗
+const handleOpenTemplateDialog = () => {
+    paramsTemplatedialogVisible.value = true;
+}
 
+//=====================================模板相关操作====================================//
+//是否显示模板
+const showTemplate = ref(false);
+//模板过滤参数
+const templateFilterString = ref("");
+//模板列表
+const bodyTemplateList = computed(() => {
+    const templates = store.state["apidoc/baseInfo"].paramsTemplate;
+    const result = templates.filter(template => {
+        return template.presetParamsType === "bodyParams";
+    }).filter(template => {
+        if (!templateFilterString.value) {
+            return true;
+        }
+        return template.name.includes(templateFilterString.value);
+    })
+    return result;
+})
+//打开模板维护tab页面
+const projectId = router.currentRoute.value.query.id as string;
+const handleOpenTempateTab = () => {
+    store.commit("apidoc/tabs/addTab", {
+        _id: "paramsTemplate",
+        projectId,
+        tabType: "paramsTemplate",
+        label: "模板维护",
+        head: {
+            icon: "iconvariable",
+            color: ""
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+    });
+}
+//处理模板点击空白区域关闭
+const bindClick = () => {
+    showTemplate.value = false;
+}
+onMounted(() => {
+    document.documentElement.addEventListener("click", bindClick)
+})
+onBeforeUnmount(() => {
+    document.documentElement.removeEventListener("click", bindClick)
+})
 
 //=========================================================================//
 //改变bodytype类型
@@ -122,7 +202,7 @@ const bodyType = computed<ApidocBodyMode>({
 });
 //body参数联想值
 const mindBodyData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.requestBody;
+    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody");
 })
 /*
 |--------------------------------------------------------------------------
@@ -205,12 +285,16 @@ const formData = computed(() => {
 
 <style lang="scss">
 .body-params {
+    .body-type {
+        margin-top: size(-10);
+    }
     .operation {
         margin-top: size(-3);
         flex: 1;
         display: flex;
         align-items: center;
         justify-content: flex-end;
+        position: relative;
     }
     .raw {
         height: size(300);
@@ -239,6 +323,54 @@ const formData = computed(() => {
     }
     .params-wrap {
         border-top: 1px dashed $gray-400;
+    }
+    .template-wrap {
+        top: size(30);
+        left: size(-200);
+        background: $white;
+        z-index: $zIndex-contextmenu;
+        position: absolute;
+        min-width: size(250);
+        border: 1px solid $gray-200;
+        box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
+        max-height: size(220);
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: size(5);
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $gray-400;
+        }
+        .header {
+            border-bottom: 1px solid $gray-300;
+            display: flex;
+            align-items: center;
+            padding: size(3) size(20) size(3) size(5);
+            .el-input__inner {
+                border: none;
+            }
+        }
+        .select-item {
+            line-height: 1.8em;
+            padding: size(5) size(25);
+            cursor: pointer;
+            display: flex;
+            &:hover {
+                background: $theme-color;
+                color: $white;
+            }
+            &.active {
+                background: $theme-color;
+                color: $white;
+            }
+            .head {
+                margin-right: size(10);
+            }
+            .tail {
+                margin-left: auto;
+                // color: $gray-500;
+            }
+        }
     }
 }
 </style>

@@ -30,10 +30,6 @@ type OperationReturn = {
      * 刷新文档
      */
     handleFreshApidoc: () => void,
-    /**
-     * 预览文档
-     */
-    handleOpenViewDoc: () => void,
 }
 
 export default (): OperationReturn => {
@@ -114,11 +110,6 @@ export default (): OperationReturn => {
             loading3.value = false;
         })
     };
-    //预览文档
-    const handleOpenViewDoc = () => {
-        console.log(5)
-    }
-
     return {
         loading2,
         loading3,
@@ -126,6 +117,5 @@ export default (): OperationReturn => {
         handleStopRequest,
         // handleSaveApidoc,
         handleFreshApidoc,
-        handleOpenViewDoc,
     }
 }

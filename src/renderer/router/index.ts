@@ -9,7 +9,7 @@ const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复�
 const routes: Array<RouteRecordRaw> = [
     {
         path: "/",
-        redirect: lastVisitPage || "/v1/apidoc/doc-list",
+        redirect: lastVisitPage || "/login",
     },
     {
         path: "/login",

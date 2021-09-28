@@ -24,7 +24,7 @@ const pathTreeData = computed(() => {
 }) 
 //path参数联想值
 const mindPathData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.paths;
+    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "paths");
 })
 
 //query参数
@@ -33,7 +33,7 @@ const queryTreeData = computed(() => {
 })
 //query参数联想值
 const mindQueryData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.queryParams;
+    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "queryParams");
 })
 //是否存在path参数
 const hasPathParams = computed(() => {

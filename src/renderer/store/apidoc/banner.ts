@@ -27,6 +27,7 @@ const banner = {
     namespaced: true,
     state: {
         banner: [],
+        defaultExpandedKeys: [],
     },
     mutations: {
         //根据id改变节点属性
@@ -60,6 +61,14 @@ const banner = {
             } else {
                 currentOperationData.splice(start, deleteCount)
             }
+        },
+        //新增一个展开项
+        addExpandItem(state: ApidocBannerState, payload: string): void {
+            state.defaultExpandedKeys.push(payload);
+        },
+        //改变整个展开项目
+        changeExpandItems(state: ApidocBannerState, payload: string[]): void {
+            state.defaultExpandedKeys = payload;
         },
     },
     actions: {

@@ -68,7 +68,7 @@
 <script lang="ts">
 import type { Response, PermissionClientMenu } from "@@/global"
 import { defineComponent } from "vue"
-import Node from "element-plus/lib/el-tree/src/model/node"
+import Node from "element-plus/packages/components/tree/src/model/node"
 import addMenuDialog from "./add/add.vue"
 import editMenuDialog from "./edit/edit.vue"
 

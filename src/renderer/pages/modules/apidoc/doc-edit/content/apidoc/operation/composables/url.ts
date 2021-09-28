@@ -44,7 +44,6 @@ const convertQueryToParams = (requestPath: string): void => {
     const arrParams = store.state["apidoc/apidoc"].apidoc.item.queryParams;
     unshiftData.forEach(item => { //过滤重复的query值
         if (arrParams.every(v => v.key !== item.key)) {
-            console.log(222, item)
             uniqueData.push(item);
         }
     })
@@ -87,7 +86,6 @@ export function handleFormatUrl():void {
     const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
     const matchedDomin = requestPath.value.match(dominReg);
     let formatPath = requestPath.value;
-    console.log(matchedHost)
     if (!matchedIp && !matchedDomin && !matchedIpWithPort) {
         const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`;
         const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
