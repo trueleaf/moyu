@@ -156,6 +156,7 @@ export function sendRequest(): void {
             headers: realHeaders,
             cancelToken: source.token
         }).then(async response => {
+            const resContentType = response.headers["content-type"];
             store.commit("apidoc/response/changeResponseHeader", response.headers);
             store.commit("apidoc/response/changeResponseBaseInfo", {
                 httpVersion: "",
@@ -169,8 +170,8 @@ export function sendRequest(): void {
             const mime = response.data.type;
             const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
             store.commit("apidoc/response/changeResponseMime", mime);
-            console.log(textContentType, contentType, response)
-            if (textContentType.find(type => contentType.match(type))) {
+            // console.log(textContentType, resContentType, response)
+            if (textContentType.find(type => resContentType.match(type))) {
                 store.commit("apidoc/response/changeResponseTextValue", await response.data.text());
             } else {
                 const blobData = new Blob([response.data], { type: mime });
@@ -187,7 +188,7 @@ export function sendRequest(): void {
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
         store.commit("apidoc/response/changeResponseMime", "error");
-        store.commit("apidoc/response/changeResponseTextValue",error.toString());
+        store.commit("apidoc/response/changeResponseTextValue", (error as Error).toString());
         console.error(error);
     }
 }
