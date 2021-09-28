@@ -89,13 +89,13 @@ module.exports = {
                     allowToChangeInstallationDirectory: true, // 允许修改安装目录
                 },
                 mac: {
-                    icon: "build/icons/icon.icns",
+                    icon: "public/icons/icon.icns",
                 },
                 win: {
-                    icon: "build/icons/icon.ico",
+                    icon: "public/icons/icon.ico",
                 },
                 linux: {
-                    icon: "build/icons",
+                    icon: "public/icons",
                 },
             },
             //参考 https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/1432
@@ -106,7 +106,7 @@ module.exports = {
                     .use("babel")
                     .loader("babel-loader")
                     .options({
-                        presets: [["@babel/preset-env", { modules: false }]],
+                        presets: [["@babel/preset-env", { modules: false, targets: { electron: "6" } }]],
                         plugins: ["@babel/plugin-proposal-class-properties"]
                     })
             }
