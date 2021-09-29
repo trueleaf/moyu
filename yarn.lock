@@ -8894,6 +8894,11 @@ open@^6.3.0:
   dependencies:
     is-wsl "^1.1.0"
 
+openapi-types@^9.3.0:
+  version "9.3.0"
+  resolved "https://registry.nlark.com/openapi-types/download/openapi-types-9.3.0.tgz#2d90549edb928cf06cf83018485a1a5961fbd2b9"
+  integrity sha1-LZBUntuSjPBs+DAYSFoaWWH70rk=
+
 opener@^1.5.1:
   version "1.5.2"
   resolved "https://registry.nlark.com/opener/download/opener-1.5.2.tgz#5d37e1f35077b9dcac4301372271afdeb2a13598"
