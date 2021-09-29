@@ -5,8 +5,8 @@
     备注：
 */
 <template>
-    <div class="apidoc" :class="{ vertical: layout === 'vertical' }">
-        <div v-loading="loading" class="request-layout" :class="{ vertical: layout === 'vertical' }">
+    <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
+        <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
             <s-operation></s-operation>
             <s-params></s-params>
         </div>
