@@ -138,10 +138,12 @@ import { ref, Ref, computed } from "vue"
 import jsyaml from "js-yaml"
 import { ElMessage, ElMessageBox } from "element-plus";
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import OpenApiTranslator from "./openapi";
 import config from "@/../config/config"
 import { store } from "@/store/index";
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
+import type { OpenAPIV3 } from "openapi-types";
 import type { ApidocBanner } from "@@/global"
 // import type Node from "element-plus/packages/components/tree/src/model/node"
 type FormInfo = {
@@ -165,6 +167,7 @@ defineProps({
         default: false,
     }
 })
+const projectId = router.currentRoute.value.query.id as string;
 //目标树
 const docTree2: Ref<TreeNodeOptions["store"] | null> = ref(null);
 //按钮加载效果
@@ -188,7 +191,7 @@ const importTypeInfo = ref({
     name: "",
     version: "",
 });
-const jsonText = ref("");
+const jsonText: Ref<OpenAPIV3.Document | string> = ref("");
 const fileType = ref("");
 const navTreeData = ref([]);
 const currentMountedNode: Ref<ApidocBanner | null> = ref(null);
@@ -222,7 +225,7 @@ const handleBeforeUpload = (file: File) => {
 const requestHook = (e: { file: File }) => {
     e.file.text().then((fileStr) => {
         if (fileType.value === "yaml" || fileType.value === "application/x-yaml") {
-            jsonText.value = jsyaml.load(fileStr) as string;
+            jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
         } else {
             jsonText.value = JSON.parse(fileStr)
         }
@@ -233,8 +236,8 @@ const requestHook = (e: { file: File }) => {
 }
 //获取导入文件信息
 const getImportFileInfo = () => {
-    console.log(jsonText.value)
-    // this.openApiTranslatorInstance = new OpenApiTranslator(this.$route.query.id);
+    const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+    console.log(openApiTranslatorInstance.getDocsInfo())
     // this.postmanTranslatorInstance = new PostmanTranslator(this.$route.query.id);
     // this.yapiTranslatorInstance = new YAPITranslator(this.$route.query.id);
     // const isArray = Array.isArray(this.jsonText);
@@ -333,7 +336,7 @@ const handleToggleTargetFolder = (val: boolean) => {
     if (val) {
         loading2.value = true;
         const params = {
-            projectId: router.currentRoute.value.query.id,
+            projectId,
         };
         axios.get("/api/project/doc_tree_folder_node", { params }).then((res) => {
             navTreeData.value = res.data;
