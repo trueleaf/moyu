@@ -9,9 +9,9 @@
 */
 
 import { uuid } from "@/helper/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, ApidocHttpRequestMethod } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
 import type { OpenAPIV3 } from "openapi-types";
-import type { ApidocProperty, ApidocDetail } from "@@/global" 
+import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType } from "@@/global" 
 
 //=====================================openapi导入配置信息====================================//
 type Config = {
@@ -30,39 +30,60 @@ type ServerInfo = {
 }
 //=====================================请求方法====================================//
 type HttpMethod = "get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "trace"
+//=====================================解析parameter返回格式====================================//
+type ConvertParams = {
+    paths: ApidocProperty[],
+    query: ApidocProperty[],
+    headers: ApidocProperty[],
+    cookies: ApidocProperty[],
+}
+//=====================================解析requestBody返回值====================================//
+type ConvertRequestBody = {
+    /**
+     * json类型参数
+    */
+    json: ApidocProperty[],
+    /**
+     * formData类型参数
+     */
+    formdata: ApidocProperty<"string">[],
+    /**
+     * urlencoded类型参数
+     */
+    urlencoded: ApidocProperty<"string">[],
+    /**
+     * raw类型参数
+     */
+    raw: {
+        data: string,
+        dataType: ApidocBodyRawType
+    },
+}
+//=========================================================================//
+// const TYPE_ENUM = { //参数类型映射
+//     integer: "number",
+//     long: "number",
+//     float: "number",
+//     double: "number",
+//     number: "number",
+//     string: "string",
+//     byte: "string",
+//     binary: "string",
+//     boolean: "boolean",
+//     date: "string",
+//     dateTime: "string",
+//     object: "object",
+//     array: "array",
+// };
 
-
-const TYPE_ENUM = { //参数类型映射
-    integer: "number",
-    long: "number",
-    float: "number",
-    double: "number",
-    number: "number",
-    string: "string",
-    byte: "string",
-    binary: "string",
-    boolean: "boolean",
-    date: "string",
-    dateTime: "string",
-    object: "object",
-    array: "array",
-};
-// const HTTP_METHOD: ([method in OpenAPIV3.HttpMethods])[] = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
-
-//[keyof typeof OpenAPIV3.HttpMethods]
 
 const HTTP_METHOD = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
-// const VALID_CONTENT_TYPE = { //能够解析的contentType类型
-//     "application/json": "application/json",
-//     "application/x-www-form-urlencoded": "application/x-www-form-urlencoded",
-//     "multipart/form-data": "multipart/form-data",
-// }
+// const VALID_CONTENT_TYPE: ApidocContentType[] = ["application/json", "application/x-www-form-urlencoded", "text/javascript", "multipart/form-data", "text/plain", "application/xml", "text/html"]
 
 
 
 
-
-class OpenApiTranslate {
+class OpenApiTranslator {
     public projectId: string;
     public openApiData: OpenAPIV3.Document;
     public config: Config = {
@@ -72,7 +93,9 @@ class OpenApiTranslate {
         this.projectId = projectId; //项目id
         this.openApiData = data; //openapi数据
     }
-    //获取openapi版本信息
+    /**
+     * 获取openapi版本信息
+     */
     getVersion(): string {
         if (!this.openApiData.openapi) {
             console.warn("缺少Version信息");
@@ -80,7 +103,9 @@ class OpenApiTranslate {
         }
         return this.openApiData.openapi
     }
-    //获取项目信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
+    /**
+     * 获取项目信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
+     */
     getProjectInfo(): ProjectInfo {
         const openApiInfo = this.openApiData.info;
         if (!openApiInfo) {
@@ -91,7 +116,9 @@ class OpenApiTranslate {
             version: openApiInfo?.version || "",
         };
     }
-    //获取服务器信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
+    /**
+     * 获取服务器信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
+     */
     getServersInfo(): ServerInfo[] {
         const openApiServers = this.openApiData.servers;
         const result: ServerInfo[] = [];
@@ -127,7 +154,9 @@ class OpenApiTranslate {
         })
         return result;
     }
-    //获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
+    /**
+     * 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
+     */
     getDocsInfo(): ApidocDetail[] {
         const { folderNamedType } = this.config;
         const serversInfo = this.getServersInfo();
@@ -183,62 +212,210 @@ class OpenApiTranslate {
                     moyuDoc.item.method = matchedMethodKey as ApidocHttpRequestMethod;
                     moyuDoc.item.url.host = serversInfo[0] ? serversInfo[0].url : "";
                     moyuDoc.item.url.path = reqUrl;
+                    this.convertParameters(pathItemObject.parameters);
+                    this.convertRequestBody(pathItemObject.requestBody);
+                    // console.log(parameterInfo)
+                } else {
+                    console.warn(`
+                        paths参数中应该存在"get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "trace"
+                        $ref： ${pathObjectInfo.$ref}
+                        summary： ${pathObjectInfo.summary};
+                        description： ${pathObjectInfo.description};
+                        servers： ${pathObjectInfo.servers}
+                        parameters： ${pathObjectInfo.parameters}
+                    `)
                 }
-
 
 
                 //解析parameters
-                // eslint-disable-next-line no-unused-vars
-                const parameterInfo = this.convertParameters(pathItemObject.parameters);
-                if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
-                if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
-                if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
-                if (parameterInfo?.body?.length > 0) { //较老版本
-                    moyuDoc.item.requestBody = parameterInfo?.body;
-                    moyuDoc.item.contentType = "application/json";
-                }
-                //解析body数据
-                // eslint-disable-next-line no-unused-vars
-                const requestBody = this.convertContent(pathItemObject.requestBody?.content);
-                if (requestBody && requestBody.values) {
-                    moyuDoc.item.requestBody = requestBody.values;
-                    moyuDoc.item.contentType = requestBody.contentType;
-                }
-                // 解析response
-                const responseParams = this.convertResponse(pathItemObject.responses);
-                if (responseParams) {
-                    moyuDoc.item.responseParams = responseParams;
-                }
-                docsResult.push(moyuDoc);
+                // const parameterInfo = this.convertParameters(pathItemObject.parameters);
+                // if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
+                // if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
+                // if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
+                // if (parameterInfo?.body?.length > 0) { //较老版本
+                //     moyuDoc.item.requestBody = parameterInfo?.body;
+                //     moyuDoc.item.contentType = "application/json";
+                // }
+                // //解析body数据
+                // const requestBody = this.convertContent(pathItemObject.requestBody?.content);
+                // if (requestBody && requestBody.values) {
+                //     moyuDoc.item.requestBody = requestBody.values;
+                //     moyuDoc.item.contentType = requestBody.contentType;
+                // }
+                // // 解析response
+                // const responseParams = this.convertResponse(pathItemObject.responses);
+                // if (responseParams) {
+                //     moyuDoc.item.responseParams = responseParams;
+                // }
+                // docsResult.push(moyuDoc);
             });
         })
         //默认为按照tag为文件名
-        if (!folderNamedType || folderNamedType === "tag") {
-            const tags = Array.from(allTags);
-            tags.sort().forEach((tag) => {
-                const pid = uuid();
-                const folderDoc = apidocGenerateApidoc();
-                folderDoc._id = pid; //目录id
-                folderDoc.isFolder = true; //是目录
-                folderDoc.sort = Date.now(); //排序
-                folderDoc.item = {}; //目录item数据为空
-                folderDoc.info.type = "folder";
-                folderDoc.info.name = tag;
+        // if (!folderNamedType || folderNamedType === "tag") {
+        //     const tags = Array.from(allTags);
+        //     tags.sort().forEach((tag) => {
+        //         const pid = uuid();
+        //         const folderDoc = apidocGenerateApidoc();
+        //         folderDoc._id = pid; //目录id
+        //         folderDoc.isFolder = true; //是目录
+        //         folderDoc.sort = Date.now(); //排序
+        //         folderDoc.item = {}; //目录item数据为空
+        //         folderDoc.info.type = "folder";
+        //         folderDoc.info.name = tag;
 
-                docsResult.forEach((docInfo) => {
-                    const docTag = docInfo.info.tag?.name;
-                    if (docTag === tag) {
-                        docInfo.pid = pid;
-                    }
-                })
-                docsResult.push(folderDoc);
-            })
-        } else if (folderNamedType === "none") {
-            return docsResult;
-        }
+        //         docsResult.forEach((docInfo) => {
+        //             const docTag = docInfo.info.tag?.name;
+        //             if (docTag === tag) {
+        //                 docInfo.pid = pid;
+        //             }
+        //         })
+        //         docsResult.push(folderDoc);
+        //     })
+        // } else if (folderNamedType === "none") {
+        //     return docsResult;
+        // }
         return docsResult;
     }
+    /**
+     * 解析parameter参数
+     */
+    convertParameters(parameters: OpenAPIV3.PathItemObject["parameters"]): ConvertParams {
+        const result = {
+            paths: [],
+            query: [],
+            cookies: [],
+            headers: [],
+        } as ConvertParams
+        if (!parameters) {
+            return result;
+        }
+        for(let i = 0; i < parameters.length; i ++) {
+            const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+            const parameter = parameters[i];
+            // const ref = (parameter as OpenAPIV3.ReferenceObject).$ref;
+            // const { schema } = (parameter as OpenAPIV3.ParameterObject);
+            const paramsPosition = (parameter as OpenAPIV3.ParameterObject).in;
+            const { name, description, required } = (parameter as OpenAPIV3.ParameterObject);
+            apidocProperty.key = name;
+            apidocProperty.description = description || "";
+            apidocProperty.required = required || true;
+            //=========================================================================//
+            if (paramsPosition === "query") {
+                result.query.push(apidocProperty);
+            } else if (paramsPosition === "path") {
+                result.paths.push(apidocProperty);
+            } else if (paramsPosition === "header") {
+                result.headers.push(apidocProperty);
+            } else if (paramsPosition === "cookies") {
+                result.cookies.push(apidocProperty);
+            } else {
+                console.warn(`无法解析的参数位置in${paramsPosition}, Parameter的in字段仅允许query、path、header、cookie`);
+            }
+        }
+        // console.log(parameters, result)
+        return result;
+    }
 
+    /**
+     * 解析requestBody
+     */
+    convertRequestBody(requestBody: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject | undefined): ConvertRequestBody | null {
+        const result = {
+            json: [],
+            formdata: [],
+            urlencoded: [],
+            raw: {
+                data: "",
+                dataType: "text/plain"
+            },
+        } as ConvertRequestBody;
+        if (!requestBody) {
+            return result;
+        }
+        const apidocProperty = apidocGenerateProperty();
+        // const ref = (requestBody as OpenAPIV3.ReferenceObject).$ref;
+        const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
+        apidocProperty.description = description || "";
+        apidocProperty.required = required || true;
+        
+        // if (ref) { //参数为引用
+        //     const schemaObject = this.getRefSchema(ref);
+        //     if (schemaObject) {
+        //     }
+        // }
+        Object.keys(content).forEach(contentType => {
+            const bodyData = content[contentType]
+            if (!bodyData.schema) {
+                console.warn(`${contentType}下无数据`)
+                return;
+            }
+            if (contentType.toLocaleLowerCase().startsWith("application/json")) {
+                apidocProperty.children.push(this.convertSchemaObjectToParams(bodyData.schema));
+            }
+        });
+        return null;
+    }
+
+    /**
+     * 解析schemaObject
+     */
+    convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): ApidocProperty {
+        const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+        if ((schema as OpenAPIV3.ReferenceObject).$ref) { //引用
+            const schemaObject = this.getRefSchema((schema as OpenAPIV3.ReferenceObject).$ref);
+            if (schemaObject) {
+                return this.convertSchemaObjectToParams(schemaObject);
+            }
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "array") { //数组类型
+            const schemaInfo = (schema as OpenAPIV3.ArraySchemaObject);
+            apidocProperty.type === "array";
+            apidocProperty.description = schemaInfo.description || "";
+            apidocProperty.children = [this.convertSchemaObjectToParams(schemaInfo.items)];
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "boolean") { //布尔类型
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            apidocProperty.type === "boolean";
+            apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
+            apidocProperty.description = schemaInfo.description || "";
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "number") { //数字类型
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            apidocProperty.type === "number";
+            apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
+            apidocProperty.description = schemaInfo.description || "";
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "object") { //对象类型
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            apidocProperty.type === "object";
+            apidocProperty.description = schemaInfo.description || "";
+            if (schemaInfo.properties) {
+                Object.keys(schemaInfo.properties).forEach((property) => {
+                    if (schemaInfo.properties) {
+                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property]));
+                    }
+                })
+            }
+        }
+        return apidocProperty;
+    }
+    /**
+     * 获取ref对应的Schema
+     */
+    getRefSchema(ref: string): OpenAPIV3.SchemaObject | null  {
+        const copiedOpenApiData = JSON.parse(JSON.stringify(this.openApiData));
+        if (!ref.startsWith("#")) {
+            console.warn(`当前ref路径为${ref}, 路径应该以#开头`);
+            return null;
+        } else {
+            const refPath = ref.replace("#/", "").split("/");
+            let schemaResult: OpenAPIV3.SchemaObject | null = null;
+            for(let i = 0; i < refPath.length; i ++) {
+                if (!copiedOpenApiData[refPath[i]]) {
+                    console.warn(`无法找到${ref}对应的schema`)
+                    return null;
+                }
+                schemaResult = copiedOpenApiData[refPath[i]];
+            }
+            return schemaResult;
+        }
+    }
 }
 
-export default OpenApiTranslate;
+export default OpenApiTranslator;
