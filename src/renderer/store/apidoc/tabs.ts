@@ -138,7 +138,9 @@ const tabs = {
                 }
                 localStorage.setItem("apidoc/editTabs", JSON.stringify(context.state.tabs));
                 const activeTab = context.state.tabs[projectId].find((tab) => tab.selected);
-                store.commit("apidoc/banner/changeExpandItems", [activeTab?._id]);
+                if (activeTab) {
+                    store.commit("apidoc/banner/changeExpandItems", [activeTab._id]);
+                }
             }
             //=========================================================================//
             const { ids, projectId } = payload;
