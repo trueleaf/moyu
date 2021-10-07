@@ -46,11 +46,11 @@ type ConvertRequestBody = {
     /**
      * formData类型参数
      */
-    formdata: ApidocProperty<"string">[],
+    formdata: ApidocProperty[],
     /**
      * urlencoded类型参数
      */
-    urlencoded: ApidocProperty<"string">[],
+    urlencoded: ApidocProperty[],
     /**
      * raw类型参数
      */
@@ -332,7 +332,7 @@ class OpenApiTranslator {
         if (!requestBody) {
             return result;
         }
-        const apidocProperty = apidocGenerateProperty();
+        const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
         // const ref = (requestBody as OpenAPIV3.ReferenceObject).$ref;
         const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
         apidocProperty.description = description || "";
@@ -350,9 +350,26 @@ class OpenApiTranslator {
                 return;
             }
             if (contentType.toLocaleLowerCase().startsWith("application/json")) {
-                apidocProperty.children.push(this.convertSchemaObjectToParams(bodyData.schema));
+                result.json = [this.convertSchemaObjectToParams(bodyData.schema)];
             }
+            if (contentType.toLocaleLowerCase().startsWith("application/x-www-form-urlencoded")) {
+                result.urlencoded = this.convertSchemaObjectToParams(bodyData.schema).children
+            }
+            if (contentType.toLocaleLowerCase().startsWith("multipart/form-data")) {
+                result.formdata = this.convertSchemaObjectToParams(bodyData.schema).children
+            }
+            if (contentType.toLocaleLowerCase().startsWith("*/*")) { //这种情况按照json格式解析
+                console.warn(`*/*按照json格式解析`);
+                result.json = [this.convertSchemaObjectToParams(bodyData.schema)];
+            }
+            if (contentType.toLocaleLowerCase().startsWith("application/xml")) { //xml解析
+                result.raw.dataType = "application/xml";
+                // console.log(22, this.convertSchemaObjectToParams(bodyData.schema))
+                result.raw.data = "";
+            }
+            
         });
+        console.log(result.raw, 9)
         return null;
     }
 
@@ -368,22 +385,47 @@ class OpenApiTranslator {
             }
         } else if ((schema as OpenAPIV3.SchemaObject).type === "array") { //数组类型
             const schemaInfo = (schema as OpenAPIV3.ArraySchemaObject);
-            apidocProperty.type === "array";
+            apidocProperty.type = "array";
             apidocProperty.description = schemaInfo.description || "";
             apidocProperty.children = [this.convertSchemaObjectToParams(schemaInfo.items)];
         } else if ((schema as OpenAPIV3.SchemaObject).type === "boolean") { //布尔类型
             const schemaInfo = (schema as OpenAPIV3.SchemaObject);
-            apidocProperty.type === "boolean";
+            apidocProperty.type = "boolean";
             apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
             apidocProperty.description = schemaInfo.description || "";
         } else if ((schema as OpenAPIV3.SchemaObject).type === "number") { //数字类型
             const schemaInfo = (schema as OpenAPIV3.SchemaObject);
-            apidocProperty.type === "number";
+            apidocProperty.type = "number";
+            apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
+            apidocProperty.description = schemaInfo.description || "";
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "integer") { //数字类型
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            apidocProperty.type = "number";
             apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
             apidocProperty.description = schemaInfo.description || "";
         } else if ((schema as OpenAPIV3.SchemaObject).type === "object") { //对象类型
             const schemaInfo = (schema as OpenAPIV3.SchemaObject);
-            apidocProperty.type === "object";
+            apidocProperty.type = "object";
+            apidocProperty.description = schemaInfo.description || "";
+            if (schemaInfo.properties) {
+                Object.keys(schemaInfo.properties).forEach((property) => {
+                    if (schemaInfo.properties) {
+                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property]));
+                    }
+                })
+            }
+        } else if ((schema as OpenAPIV3.SchemaObject).type === "string") { //字符串类型
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            if (schemaInfo.format === "byte" || schemaInfo.format === "binary") { //二进制
+                apidocProperty.type = "file"
+            } else {
+                apidocProperty.type = "string";
+            }
+            apidocProperty.value = schemaInfo.default ? schemaInfo.default.toString() : "";
+            apidocProperty.description = schemaInfo.description || "";
+        } else if ((schema as OpenAPIV3.SchemaObject).type == null && (schema as OpenAPIV3.SchemaObject).properties) { //不存在type但是存在property
+            const schemaInfo = (schema as OpenAPIV3.SchemaObject);
+            apidocProperty.type = "object";
             apidocProperty.description = schemaInfo.description || "";
             if (schemaInfo.properties) {
                 Object.keys(schemaInfo.properties).forEach((property) => {
@@ -399,7 +441,8 @@ class OpenApiTranslator {
      * 获取ref对应的Schema
      */
     getRefSchema(ref: string): OpenAPIV3.SchemaObject | null  {
-        const copiedOpenApiData = JSON.parse(JSON.stringify(this.openApiData));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let copiedOpenApiData: any = JSON.parse(JSON.stringify(this.openApiData));
         if (!ref.startsWith("#")) {
             console.warn(`当前ref路径为${ref}, 路径应该以#开头`);
             return null;
@@ -411,8 +454,9 @@ class OpenApiTranslator {
                     console.warn(`无法找到${ref}对应的schema`)
                     return null;
                 }
-                schemaResult = copiedOpenApiData[refPath[i]];
+                copiedOpenApiData = copiedOpenApiData[refPath[i]]
             }
+            schemaResult = copiedOpenApiData;
             return schemaResult;
         }
     }
