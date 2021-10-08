@@ -10,8 +10,10 @@
 
 import { uuid } from "@/helper/index"
 import { apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
+import jsontoxml from "jsontoxml"
 import type { OpenAPIV3 } from "openapi-types";
-import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType } from "@@/global" 
+import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global" 
+
 
 //=====================================openapi导入配置信息====================================//
 type Config = {
@@ -32,10 +34,10 @@ type ServerInfo = {
 type HttpMethod = "get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "trace"
 //=====================================解析parameter返回格式====================================//
 type ConvertParams = {
-    paths: ApidocProperty[],
-    query: ApidocProperty[],
-    headers: ApidocProperty[],
-    cookies: ApidocProperty[],
+    paths: ApidocProperty<"string">[],
+    query: ApidocProperty<"string">[],
+    headers: ApidocProperty<"string">[],
+    cookies: ApidocProperty<"string">[],
 }
 //=====================================解析requestBody返回值====================================//
 type ConvertRequestBody = {
@@ -58,6 +60,20 @@ type ConvertRequestBody = {
         data: string,
         dataType: ApidocBodyRawType
     },
+}
+//=====================================解析response返回值====================================//
+type ConvertResponse = {
+    title: string,
+    statusCode: number,
+    value: {
+        file: {
+            url: string,
+            raw: string
+        },
+        json: ApidocProperty[],
+        dataType: ApidocContentType,
+        text: string
+    }
 }
 //=========================================================================//
 // const TYPE_ENUM = { //参数类型映射
@@ -212,9 +228,21 @@ class OpenApiTranslator {
                     moyuDoc.item.method = matchedMethodKey as ApidocHttpRequestMethod;
                     moyuDoc.item.url.host = serversInfo[0] ? serversInfo[0].url : "";
                     moyuDoc.item.url.path = reqUrl;
-                    this.convertParameters(pathItemObject.parameters);
-                    this.convertRequestBody(pathItemObject.requestBody);
-                    // console.log(parameterInfo)
+                    const parameters = this.convertParameters(pathItemObject.parameters);
+                    const requestBody = this.convertRequestBody(pathItemObject.requestBody);
+                    const allResponse = this.convertResponse(pathItemObject.responses);
+                    moyuDoc.item.paths = parameters.paths;
+                    moyuDoc.item.headers = parameters.headers;
+                    moyuDoc.item.queryParams = parameters.query;
+                    moyuDoc.item.requestBody.json = requestBody.json;
+                    moyuDoc.item.requestBody.formdata = requestBody.formdata as ApidocProperty<"string">[];
+                    moyuDoc.item.requestBody.urlencoded = requestBody.urlencoded as ApidocProperty<"string">[];
+                    moyuDoc.item.requestBody.raw.data = requestBody.raw.data;
+                    moyuDoc.item.requestBody.raw.dataType = requestBody.raw.dataType;
+                    allResponse.forEach(response => {
+                        moyuDoc.item.responseParams.push(response);
+                    })
+                    console.log(moyuDoc)
                 } else {
                     console.warn(`
                         paths参数中应该存在"get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "trace"
@@ -226,28 +254,6 @@ class OpenApiTranslator {
                     `)
                 }
 
-
-                //解析parameters
-                // const parameterInfo = this.convertParameters(pathItemObject.parameters);
-                // if (parameterInfo?.paths?.length > 0) moyuDoc.item.paths = parameterInfo.paths;
-                // if (parameterInfo?.queryParams?.length > 0) moyuDoc.item.queryParams = parameterInfo.queryParams;
-                // if (parameterInfo?.headers?.length > 0) moyuDoc.item.headers = parameterInfo.headers;
-                // if (parameterInfo?.body?.length > 0) { //较老版本
-                //     moyuDoc.item.requestBody = parameterInfo?.body;
-                //     moyuDoc.item.contentType = "application/json";
-                // }
-                // //解析body数据
-                // const requestBody = this.convertContent(pathItemObject.requestBody?.content);
-                // if (requestBody && requestBody.values) {
-                //     moyuDoc.item.requestBody = requestBody.values;
-                //     moyuDoc.item.contentType = requestBody.contentType;
-                // }
-                // // 解析response
-                // const responseParams = this.convertResponse(pathItemObject.responses);
-                // if (responseParams) {
-                //     moyuDoc.item.responseParams = responseParams;
-                // }
-                // docsResult.push(moyuDoc);
             });
         })
         //默认为按照tag为文件名
@@ -290,7 +296,7 @@ class OpenApiTranslator {
             return result;
         }
         for(let i = 0; i < parameters.length; i ++) {
-            const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+            const apidocProperty = apidocGenerateProperty<"string">();
             const parameter = parameters[i];
             // const ref = (parameter as OpenAPIV3.ReferenceObject).$ref;
             // const { schema } = (parameter as OpenAPIV3.ParameterObject);
@@ -319,7 +325,7 @@ class OpenApiTranslator {
     /**
      * 解析requestBody
      */
-    convertRequestBody(requestBody: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject | undefined): ConvertRequestBody | null {
+    convertRequestBody(requestBody: OpenAPIV3.ReferenceObject | OpenAPIV3.RequestBodyObject | undefined): ConvertRequestBody {
         const result = {
             json: [],
             formdata: [],
@@ -365,12 +371,67 @@ class OpenApiTranslator {
             if (contentType.toLocaleLowerCase().startsWith("application/xml")) { //xml解析
                 result.raw.dataType = "application/xml";
                 // console.log(22, this.convertSchemaObjectToParams(bodyData.schema))
+                result.raw.data = jsontoxml(this.convertSchemaObjectToParams(bodyData.schema));
+            }
+            if (contentType.toLocaleLowerCase().startsWith("text/*")) { //出文本解析
+                result.raw.dataType = "text/plain";
                 result.raw.data = "";
             }
-            
+            if (contentType.toLocaleLowerCase().startsWith("text/plain")) { //出文本解析
+                result.raw.dataType = "text/plain";
+                result.raw.data = "";
+            }
         });
-        console.log(result.raw, 9)
-        return null;
+        // console.log(result.raw, 9)
+        return result;
+    }
+
+    /**
+     * 解析response
+     */
+    convertResponse(response: OpenAPIV3.ResponsesObject): ConvertResponse[] {
+        const convertedResponse: ConvertResponse[] = [];
+        Object.keys(response).forEach(code => {
+            const resItem = response[code] as OpenAPIV3.ResponseObject;
+            const result = {
+                title: "",
+                statusCode: 200,
+                value: {
+                    file: {
+                        url: "",
+                        raw: "",
+                    },
+                    json: [],
+                    dataType: "",
+                    text: "",
+                }
+            } as ConvertResponse;
+            result.statusCode = Number(code);
+            result.title = resItem.description;
+            if ((response[code] as OpenAPIV3.ReferenceObject).$ref) {
+                console.warn(`无法解析引用类型的返回值${JSON.stringify(resItem)}`);
+                return;
+            }
+            const resContent = resItem.content;
+            if (resContent) {
+                Object.keys(resContent).forEach(contentType => {
+                    const bodyData = resContent[contentType]
+                    if (!bodyData.schema) {
+                        console.warn(`${contentType}下无数据`)
+                        return;
+                    }
+                    if (contentType.toLocaleLowerCase().startsWith("application/json")) {
+                        result.value.json = [this.convertSchemaObjectToParams(bodyData.schema)];
+                    }
+                    if (contentType.toLocaleLowerCase().startsWith("*/*")) { //这种情况按照json格式解析
+                        console.warn(`*/*按照json格式解析`);
+                        result.value.json = [this.convertSchemaObjectToParams(bodyData.schema)];
+                    }
+                });
+            }
+            convertedResponse.push(result);
+        })
+        return convertedResponse;
     }
 
     /**
