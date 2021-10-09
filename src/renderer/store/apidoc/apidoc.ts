@@ -217,6 +217,11 @@ const apidoc = {
             const { index, value } = payload
             state.apidoc.item.responseParams[index].value.text = value;
         },
+        //根据index值改变response
+        changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
+            const { index, value } = payload
+            state.apidoc.item.responseParams[index].value.json  = value;
+        },
         //新增一个response
         addResponseParam(state: ApidocState): void {
             const objectParams = apidocGenerateProperty("object");

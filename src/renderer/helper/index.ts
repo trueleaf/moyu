@@ -613,7 +613,6 @@ export function apidocConvertValue(value: string): string {
  * @description        生成一份apidoc默认值
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
- * @return {Apidoc}    返回字符串
  */
 export function apidocGenerateApidoc(): ApidocDetail {
     return {

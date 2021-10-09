@@ -9,25 +9,6 @@
         <template v-if="remoteResponse.data.type">
             <!-- svg图片 -->
             <div v-if="remoteResponse.data.type.includes('image/svg+xml')">svg</div>
-            <!-- json格式 -->
-            <!-- <s-json-view v-else-if="remoteResponse.data.type.includes('application/json')" :data="JSON.parse(remoteResponse.data.text)">
-                <div slot="header" class="operation">
-                    <el-dropdown trigger="click" size="small">
-                        <span>
-                            <span class="gray-300 hover-gray-100 cursor-pointer">应用为响应值</span>
-                            <i class="el-icon-arrow-down el-icon--right"></i>
-                        </span>
-                        <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item v-for="(item, index) in responseParams" :key="index" @click.native="handleApplyResponse(item)">
-                                <span class="mr-1">应用为</span>
-                                <span>{{ item.title }}</span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </el-dropdown>
-                    <div v-copy="jsonResponse" class="hover-gray-100 cursor-pointer">复制为json</div>
-                    <div class="ml-3 hover-gray-100 cursor-pointer" @click="handleClearRemoteResponse">清空</div>
-                </div>
-            </s-json-view> -->
             <!-- 其他图片类型 -->
             <el-image
                 v-else-if="remoteResponse.data.type.includes('image/')"
@@ -76,18 +57,8 @@
             <pre v-else-if="remoteResponse.data.type.includes('application/xml')">{{ remoteResponse.data.text }}</pre>
             <!-- javascript -->
             <pre v-else-if="remoteResponse.data.type.includes('application/javascript')">{{ remoteResponse.data.text }}</pre>
-            <!-- 其他文本类型 -->
-            <!-- <pre v-else-if="remoteResponse.data.type.includes('text/')">{{ beautifyHtml(remoteResponse.data.text) }}</pre> -->
             <!-- 请求错误 -->
             <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
-            <!-- HTML文本类型 -->
-           
-            <!-- <pre v-else-if="remoteResponse.data.type.includes('text/html')">{{ beautifyHtml(remoteResponse.data.text) }}</pre> -->
-            <!-- <div v-else>
-                <svg class="res-icon" aria-hidden="true" :title="remoteResponse.data">
-                    <use xlink:href="#iconicon_weizhiwenjian"></use>
-                </svg>
-            </div> -->
         </template>
         <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
             <s-raw-editor
@@ -113,12 +84,33 @@
             >
             </s-raw-editor>
         </div>
+        <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
+            <span>
+                <span>应用为响应值</span>
+                <i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <template #dropdown>
+                <el-dropdown-menu>
+                    <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
+                        <span class="mr-1">应用为</span>
+                        <span>{{ item.title }}</span>
+                    </el-dropdown-item>
+                </el-dropdown-menu>
+            </template>
+        </el-dropdown>
+        <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
     </s-loading>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
 import beautify from "js-beautify"
+import { ApidocProperty } from "@@/global";
+type ResponseApplyEnum = {
+    index: number,
+    title: string,
+    contentType: string,
+}
 
 export default defineComponent({
     data() {
@@ -153,12 +145,32 @@ export default defineComponent({
             const data = this.$store.state["apidoc/response"].data.text;
             return data;
         },
+        //返回值类型
+        responseApplyEnum() {
+            return this.$store.state["apidoc/apidoc"].apidoc.item.responseParams.map((v, index) => ({
+                index,
+                title: v.title,
+                contentType: v.value.dataType
+            }));
+        },
     },
     methods: {
         //美化html文件
         beautifyHtml(str: string) {
-            // return beautify.html(str, { indent_size: 4 })
             return str;
+        },
+        //应用为响应值
+        handleApplyResponse(item: ResponseApplyEnum, index: number) {
+            const convertData = this.$helper.apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
+                const mindData = this.$store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams");
+                const matchedData = mindData.find(v => v.key === p.key);
+                if (matchedData) {
+                    p.description = matchedData.description;
+                    p.value = matchedData.value;
+                }
+                return "";
+            });
+            this.$store.commit("apidoc/apidoc/changeResponseByIndex", { index, value: convertData })
         },
     },
 })
@@ -169,8 +181,16 @@ export default defineComponent({
     width: 100%;
     height: calc(100vh - #{size(370)});
     overflow-y: auto;
+    position: relative;
     &.vertical {
         height: 100%;
+    }
+    .apply-response {
+        position: absolute;
+        cursor: pointer;
+        right: size(15);
+        top: size(10);
+        z-index: $zIndex-contextmenu;
     }
     .text-wrap {
         height: 100%;
