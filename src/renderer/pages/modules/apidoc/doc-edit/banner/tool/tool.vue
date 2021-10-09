@@ -417,12 +417,19 @@ watch(() => formInfo.value, (formData) => {
 
 const handleFilterBanner = () => {
     let plainBannerData: ApidocBanner[] = [];
-    const { startTime, endTime, maintainers } = formInfo.value;
+    const { startTime, endTime, maintainers, recentNum } = formInfo.value;
     forEachForest(bannerData.value, (v) => {
         if (!v.isFolder) {
             plainBannerData.push(v);
         }
     }) 
+    if (maintainers.length === 0 && !startTime && !recentNum) {
+        emit("filter", {
+            iptValue: formInfo.value.iptValue,
+            recentNumIds: null,
+        });
+        return
+    }
     //录入人员
     if (maintainers.length > 0) {
         plainBannerData = plainBannerData.filter(v => {
