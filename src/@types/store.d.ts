@@ -403,5 +403,6 @@ export {
     ApidocResponseState,
     ApidocCookieInfo,
     ApidocProjectParamsTemplate,
+    ApidocProjectRules,
     State,
 }

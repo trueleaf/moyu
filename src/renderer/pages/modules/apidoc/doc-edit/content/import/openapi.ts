@@ -15,10 +15,6 @@ import type { OpenAPIV3 } from "openapi-types";
 import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global" 
 
 
-//=====================================openapi导入配置信息====================================//
-type Config = {
-    folderNamedType: "tag" | "url" | "none"
-};
 //=====================================项目信息====================================//
 type ProjectInfo = {
     projectName: string,
@@ -76,23 +72,6 @@ type ConvertResponse = {
     }
 }
 //=========================================================================//
-// const TYPE_ENUM = { //参数类型映射
-//     integer: "number",
-//     long: "number",
-//     float: "number",
-//     double: "number",
-//     number: "number",
-//     string: "string",
-//     byte: "string",
-//     binary: "string",
-//     boolean: "boolean",
-//     date: "string",
-//     dateTime: "string",
-//     object: "object",
-//     array: "array",
-// };
-
-
 const HTTP_METHOD = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
 // const VALID_CONTENT_TYPE: ApidocContentType[] = ["application/json", "application/x-www-form-urlencoded", "text/javascript", "multipart/form-data", "text/plain", "application/xml", "text/html"]
 
@@ -102,9 +81,6 @@ const HTTP_METHOD = ["get", "put", "post", "delete", "options", "head", "patch",
 class OpenApiTranslator {
     public projectId: string;
     public openApiData: OpenAPIV3.Document;
-    public config: Config = {
-        folderNamedType: "none"
-    };
     constructor(projectId: string, data: OpenAPIV3.Document) {
         this.projectId = projectId; //项目id
         this.openApiData = data; //openapi数据
@@ -173,8 +149,7 @@ class OpenApiTranslator {
     /**
      * 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
      */
-    getDocsInfo(): ApidocDetail[] {
-        const { folderNamedType } = this.config;
+    getDocsInfo(folderNamedType: "tag" | "url" | "none" = "none"): ApidocDetail[] {
         const serversInfo = this.getServersInfo();
         const openApiDocInfo = this.openApiData.paths;
         const docsResult: ApidocDetail[] = [];
@@ -189,6 +164,7 @@ class OpenApiTranslator {
             if (folderNamedType === "url") {
                 pid = uuid();
                 const folderDoc = apidocGenerateApidoc();
+                folderDoc.projectId = this.projectId;
                 folderDoc._id = pid; //目录id
                 folderDoc.isFolder = true; //是目录
                 folderDoc.sort = Date.now(); //排序
@@ -204,6 +180,8 @@ class OpenApiTranslator {
             }
             Object.keys(pathObjectInfo).forEach((pathKey) => {
                 const moyuDoc = apidocGenerateApidoc();
+                moyuDoc._id = uuid();
+                moyuDoc.projectId = this.projectId;
                 const matchedMethodKey = HTTP_METHOD.find(v => v === pathKey); //属性是否为http请求方法
                 if (matchedMethodKey) { 
                     const pathItemObject = pathObjectInfo[matchedMethodKey as HttpMethod];
@@ -225,7 +203,7 @@ class OpenApiTranslator {
                     moyuDoc.info.name = pathItemObject.summary || "未命名"; //文档名称
                     moyuDoc.info.description = pathItemObject.description || ""; //文档备注
                     moyuDoc.info.type = "api";
-                    moyuDoc.item.method = matchedMethodKey as ApidocHttpRequestMethod;
+                    moyuDoc.item.method = matchedMethodKey.toUpperCase() as ApidocHttpRequestMethod;
                     moyuDoc.item.url.host = serversInfo[0] ? serversInfo[0].url : "";
                     moyuDoc.item.url.path = reqUrl;
                     const parameters = this.convertParameters(pathItemObject.parameters);
@@ -242,7 +220,7 @@ class OpenApiTranslator {
                     allResponse.forEach(response => {
                         moyuDoc.item.responseParams.push(response);
                     })
-                    console.log(moyuDoc)
+                    docsResult.push(moyuDoc);
                 } else {
                     console.warn(`
                         paths参数中应该存在"get" | "post" | "put" | "delete" | "options" | "head" | "patch" | "trace"
@@ -257,29 +235,30 @@ class OpenApiTranslator {
             });
         })
         //默认为按照tag为文件名
-        // if (!folderNamedType || folderNamedType === "tag") {
-        //     const tags = Array.from(allTags);
-        //     tags.sort().forEach((tag) => {
-        //         const pid = uuid();
-        //         const folderDoc = apidocGenerateApidoc();
-        //         folderDoc._id = pid; //目录id
-        //         folderDoc.isFolder = true; //是目录
-        //         folderDoc.sort = Date.now(); //排序
-        //         folderDoc.item = {}; //目录item数据为空
-        //         folderDoc.info.type = "folder";
-        //         folderDoc.info.name = tag;
+        if (!folderNamedType || folderNamedType === "tag") {
+            const tags = Array.from(allTags);
+            tags.sort().forEach((tag) => {
+                const pid = uuid();
+                const folderDoc = apidocGenerateApidoc();
+                folderDoc.projectId = this.projectId;
+                folderDoc._id = pid; //目录id
+                folderDoc.isFolder = true; //是目录
+                folderDoc.sort = Date.now(); //排序
+                folderDoc.item = {} as ApidocDetail["item"]; //目录item数据为空
+                folderDoc.info.type = "folder";
+                folderDoc.info.name = tag;
 
-        //         docsResult.forEach((docInfo) => {
-        //             const docTag = docInfo.info.tag?.name;
-        //             if (docTag === tag) {
-        //                 docInfo.pid = pid;
-        //             }
-        //         })
-        //         docsResult.push(folderDoc);
-        //     })
-        // } else if (folderNamedType === "none") {
-        //     return docsResult;
-        // }
+                docsResult.forEach((docInfo) => {
+                    const docTag = docInfo.info.tag?.name;
+                    if (docTag === tag) {
+                        docInfo.pid = pid;
+                    }
+                })
+                docsResult.push(folderDoc);
+            })
+        } else if (folderNamedType === "none") {
+            return docsResult;
+        }
         return docsResult;
     }
     /**

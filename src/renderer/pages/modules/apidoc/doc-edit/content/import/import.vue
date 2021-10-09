@@ -7,7 +7,8 @@
 <template>
     <div class="doc-import">
         <!-- 文件选择 -->
-        <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0">
+        <!-- <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
+        <s-fieldset title="支持：摸鱼文档、Swagger/OpenApi 3.0">
             <el-upload
                 class="w-100"
                 drag
@@ -49,17 +50,17 @@
                         <!-- file渲染 -->
                         <template v-if="!scope.data.isFolder">
                             <template v-for="(req) in projectInfo.rules.requestMethods">
-                                <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                             </template>
                             <div class="node-label-wrap">
-                                <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                                <s-emphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></s-emphasize>
                             </div>
                         </template>
                         <!-- 文件夹渲染 -->
                         <template v-if="scope.data.isFolder">
                             <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                             <div class="node-label-wrap">
-                                <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                                <s-emphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></s-emphasize>
                             </div>
                         </template>
                     </div>
@@ -144,15 +145,35 @@ import { store } from "@/store/index";
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
 import type { OpenAPIV3 } from "openapi-types";
-import type { ApidocBanner } from "@@/global"
+import type { ApidocDetail } from "@@/global"
+import type { ApidocProjectRules } from "@@/store"
 // import type Node from "element-plus/packages/components/tree/src/model/node"
 type FormInfo = {
     moyuData: {
-        docs: ApidocBanner[]
+        hosts?: {
+        _id: string,
+        url: string,
+        name: string,
+    }[],
+        docs: (ApidocDetail & { children?: ApidocDetail[] })[]
     },
     type: string,
     cover: boolean
 }
+
+type MoyuInfo = {
+    type: string,
+    rules: ApidocProjectRules[],
+    docs: ApidocDetail[],
+    hosts: {
+        _id: string,
+        url: string,
+        name: string,
+    }[],
+    info: {
+        projectName: string,
+    }
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -191,10 +212,10 @@ const importTypeInfo = ref({
     name: "",
     version: "",
 });
-const jsonText: Ref<OpenAPIV3.Document | string> = ref("");
+const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref("");
 const fileType = ref("");
 const navTreeData = ref([]);
-const currentMountedNode: Ref<ApidocBanner | null> = ref(null);
+const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
 /*
 |--------------------------------------------------------------------------
 | 文件选择
@@ -237,39 +258,51 @@ const requestHook = (e: { file: File }) => {
 //获取导入文件信息
 const getImportFileInfo = () => {
     const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-    console.log(openApiTranslatorInstance.getDocsInfo())
-    // this.postmanTranslatorInstance = new PostmanTranslator(this.$route.query.id);
-    // this.yapiTranslatorInstance = new YAPITranslator(this.$route.query.id);
-    // const isArray = Array.isArray(this.jsonText);
-    // const firstEl = isArray ? this.jsonText[0] : null;
+    console.log(jsonText.value)
+    if ((jsonText.value as MoyuInfo).type === "moyu") {
+        importTypeInfo.value.name = "moyu";
+        formInfo.value.type = "moyu";
+        formInfo.value.moyuData.docs = (jsonText.value as MoyuInfo).docs;
+        formInfo.value.moyuData.hosts = (jsonText.value as MoyuInfo).hosts;
+    } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
+        importTypeInfo.value.name = "openapi";
+        importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
+        formInfo.value.type = "openapi";
+        formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+    }
+    
+    // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
+    // yapiTranslatorInstance = new YAPITranslator($route.query.id);
+    // const isArray = Array.isArray(jsonText);
+    // const firstEl = isArray ? jsonText[0] : null;
     // const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
-    // if (this.jsonText.type === "moyu") {
-    //     this.importTypeInfo.name = "moyu";
-    //     this.formInfo.type = "moyu";
-    //     this.formInfo.moyuData = this.jsonText;
-    // } else if (this.jsonText.info?._postman_id) {
-    //     this.importTypeInfo.name = "postman";
-    //     this.importTypeInfo.version = "postman";
-    //     this.formInfo.type = "postman";
-    //     this.formInfo.moyuData = this.postmanTranslatorInstance.convertPostmanData(this.jsonText);
-    // } else if (this.jsonText.openapi) {
-    //     this.importTypeInfo.name = "openapi";
-    //     this.importTypeInfo.version = this.jsonText.openapi;
-    //     this.formInfo.type = "openapi";
-    //     this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText, { folderNamedType: this.openapiFolderNamedType });
-    // } else if (this.jsonText.swagger) {
-    //     this.importTypeInfo.name = "swagger";
-    //     this.importTypeInfo.version = this.jsonText.swagger;
-    //     this.formInfo.type = "swagger";
-    //     this.formInfo.moyuData = this.openApiTranslatorInstance.convertToMoyuDocs(this.jsonText, { folderNamedType: this.openapiFolderNamedType });
+    // if (jsonText.type === "moyu") {
+    //     importTypeInfo.name = "moyu";
+    //     formInfo.type = "moyu";
+    //     formInfo.moyuData = jsonText;
+    // } else if (jsonText.info?._postman_id) {
+    //     importTypeInfo.name = "postman";
+    //     importTypeInfo.version = "postman";
+    //     formInfo.type = "postman";
+    //     formInfo.moyuData = postmanTranslatorInstance.convertPostmanData(jsonText);
+    // } else if (jsonText.openapi) {
+    //     importTypeInfo.name = "openapi";
+    //     importTypeInfo.version = jsonText.openapi;
+    //     formInfo.type = "openapi";
+    //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
+    // } else if (jsonText.swagger) {
+    //     importTypeInfo.name = "swagger";
+    //     importTypeInfo.version = jsonText.swagger;
+    //     formInfo.type = "swagger";
+    //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
     // } else if (isYapi) {
-    //     this.importTypeInfo.name = "yapi";
-    //     this.formInfo.type = "yapi";
-    //     this.formInfo.moyuData = this.yapiTranslatorInstance.convertYapiData(this.jsonText);
+    //     importTypeInfo.name = "yapi";
+    //     formInfo.type = "yapi";
+    //     formInfo.moyuData = yapiTranslatorInstance.convertYapiData(jsonText);
     // } else {
-    //     this.importTypeInfo.name = "未知类型";
+    //     importTypeInfo.name = "未知类型";
     // }
-    // this.projectName = this.formInfo.moyuData?.info?.projectName;
+    // projectName = formInfo.moyuData?.info?.projectName;
 }
 //导入数据预览
 const previewNavTreeData = computed(() => {
@@ -316,7 +349,7 @@ const handleChangeIsCover = (val: boolean) => {
     }
 }
 //节点选中状态改变时候
-const handleCheckChange = (data: ApidocBanner, { checkedKeys } : { checkedKeys: ApidocBanner[] }) => {
+const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
     docTree2.value?.setCheckedKeys([]);
     if (checkedKeys.length > 0) {
         docTree2.value?.setCheckedKeys([data._id]);
@@ -325,10 +358,8 @@ const handleCheckChange = (data: ApidocBanner, { checkedKeys } : { checkedKeys: 
 }
 //改变命名方式
 const handleChangeNamedType = () => {
-    console.log(2)
-    // formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, {
-    //     folderNamedType: openapiFolderNamedType,
-    // });
+    const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
 }
 //是否导入到特定文件夹
 const handleToggleTargetFolder = (val: boolean) => {
@@ -354,7 +385,37 @@ const handleToggleTargetFolder = (val: boolean) => {
 |
 */
 const handleSubmit = () => {
-    console.log(333)
+    try {
+        loading.value = true;
+        if (!formInfo.value.moyuData.docs) {
+            ElMessage.warning("请选择需要导入的文件");
+            return;
+        }
+        const mountedId = currentMountedNode.value?._id;
+        const docs = formInfo.value.moyuData.docs.map((val) => ({
+            ...val,
+            pid: val.pid || mountedId,
+        }))
+        const params = {
+            projectId,
+            cover: formInfo.value.cover,
+            moyuData: {
+                ...formInfo.value.moyuData,
+                docs,
+            },
+        };
+        console.log(params)
+        axios.post("/api/project/import/moyu", params).then(() => {
+            store.dispatch("apidoc/banner/getDocBanner", { projectId })
+        }).catch((err) => {
+            console.error(err);
+        }).finally(() => {
+            loading.value = false;
+        });
+    } catch (error) {
+        ElMessage.warning((error as Error).message);
+        loading.value = false;
+    }
 }
 </script>
 
@@ -381,6 +442,10 @@ const handleSubmit = () => {
             .more {
                 display: block;
             }
+        }
+        &>img {
+            width: size(16);
+            height: size(16);
         }
         .file-icon {
             font-size: fz(14);
