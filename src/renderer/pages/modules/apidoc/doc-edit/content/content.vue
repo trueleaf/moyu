@@ -13,6 +13,7 @@
         <s-apidoc v-else-if="currentSelectTab.tabType === 'doc'"></s-apidoc>
         <s-export v-else-if="currentSelectTab.tabType === 'exportDoc'"></s-export>
         <s-import-doc v-else-if="currentSelectTab.tabType === 'importDoc'"></s-import-doc>
+        <s-online-link v-else-if="currentSelectTab.tabType === 'onlineLink'"></s-online-link>
     </keep-alive>
 </template>
 
@@ -26,6 +27,7 @@ import mindParams from "./mind-params/mind-params.vue";
 import paramsTemplate from "./params-template/params-template.vue";
 import exportDoc from "./export/export.vue";
 import importDoc from "./import/import.vue"
+import onlineLink from "./link/link.vue"
 
 export default defineComponent({
     components: {
@@ -36,6 +38,7 @@ export default defineComponent({
         "s-params-template": paramsTemplate,
         "s-export": exportDoc,
         "s-import-doc": importDoc,
+        "s-online-link": onlineLink,
     },
     data() {
         return {
