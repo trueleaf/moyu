@@ -33,6 +33,10 @@ const routes: Array<RouteRecordRaw> = [
             name: "DocList",
             component: () => import(/* webpackChunkName: "DocList" */ "@/pages/modules/apidoc/doc-list/doc-list.vue"),
         }, {
+            path: "/v1/apidoc/doc-view",
+            name: "DocView",
+            component: () => import(/* webpackChunkName: "DocView" */ "@/pages/modules/apidoc/doc-view/view/view.vue"),
+        }, {
             path: "/v1/apidoc/doc-edit",
             name: "DocEdit",
             component: docEdit,

@@ -46,4 +46,10 @@ export default (app: App): void => {
             el.style.overflowY = `auto`;
         },
     });
+    //=====================================拷贝指令====================================//
+    app.directive("copy", {
+        updated(el: HTMLElement, binding) {
+            console.log(binding)
+        },
+    })
 }

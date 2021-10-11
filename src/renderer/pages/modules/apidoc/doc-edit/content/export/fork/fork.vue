@@ -217,7 +217,6 @@ const targetTreeData: Ref<ApidocBanner[]> = ref([]);
 const isInSource = ref(false);
 //判断目标树是否允许drop
 const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType) => {
-    console.log(draggingNode, dropNode, type)
     // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
    
     // if (!realDragNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
@@ -229,6 +228,7 @@ const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType
     // if (!dropNode.data.isFolder) {
     //     return type !== "inner";
     // }
+    console.log(type)
     return true;
 }
 
@@ -242,43 +242,6 @@ const handleTargetNodeOver = () => {
     console.log("target over")
     isInSource.value = false;
 }
-
-//拖拽开始(源)
-const handleSourceDragstart = (node: Node, event: Event) => {
-    console.log(3, targetTree.value, event)
-    if (targetTree.value) {
-        targetTree.value.dragState.draggingNode = node;
-    }
-    // targetTree.value?.$emit("node-drag-start", event, { node });
-}
-//拖拽中(源)
-const handleSourceNodeDragOver = () => {
-    isInSource.value = true;
-}
-//拖拽完毕(源)
-const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unknown, event: DragEvent) => {
-    // 插入一个空节点用于占位
-    const emptyData = {
-        _id: uuid(),
-    };
-    sourceTree.value?.insertBefore(emptyData, draggingNode);
-    targetTree.value?.$emit("node-drag-end", event);
-    nextTick(() => {
-        if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
-            sourceTree.value?.remove(emptyData);
-        } else { //在挂载点完成拖拽
-            const data = JSON.parse(JSON.stringify(draggingNode.data));
-            data._id2 = data._id2 || data._id;
-            data._id = uuid();
-            data._isSource = true; //当前节点还原为source
-            sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
-            sourceTree.value?.remove(emptyData);
-        }
-    })
-    // console.log(event, sourceTree.value, nextTick)
-}
-
-
 //目标树drop
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
     console.log("drop111")
@@ -338,6 +301,44 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
     }
     dragNode.data._isSource = false;
 }
+
+
+//拖拽开始(源)
+const handleSourceDragstart = (node: Node, event: Event) => {
+    console.log("drag start", targetTree.value, event, node)
+    if (targetTree.value) {
+        targetTree.value.dragState.draggingNode = { node };
+    }
+}
+//拖拽中(源)
+const handleSourceNodeDragOver = () => {
+    isInSource.value = true;
+}
+//拖拽完毕(源)
+const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unknown, event: DragEvent) => {
+    // 插入一个空节点用于占位
+    const emptyData = {
+        _id: uuid(),
+    };
+    sourceTree.value?.insertBefore(emptyData, draggingNode);
+    targetTree.value?.$emit("node-drag-end", event);
+    nextTick(() => {
+        if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
+            sourceTree.value?.remove(emptyData);
+        } else { //在挂载点完成拖拽
+            const data = JSON.parse(JSON.stringify(draggingNode.data));
+            data._id2 = data._id2 || data._id;
+            data._id = uuid();
+            data._isSource = true; //当前节点还原为source
+            sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
+            sourceTree.value?.remove(emptyData);
+        }
+    })
+    // console.log(event, sourceTree.value, nextTick)
+}
+
+
+
 
 //排序目标树
 const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {

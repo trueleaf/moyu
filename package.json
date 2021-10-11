@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve:share": "vue-cli-service serve --share",
+    "serve:html": "vue-cli-service serve --html",
     "build": "vue-cli-service build",
+    "build:share": "vue-cli-service build --share",
+    "build:html": "vue-cli-service build --html",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",

@@ -3,7 +3,7 @@
 | 默认项目全局配置信息
 |--------------------------------------------------------------------------
 */
-import { Config } from "@@/config"
+import type { Config } from "@@/config"
 
 const ip = "127.0.0.1";
 // if (window && window.require) {

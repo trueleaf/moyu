@@ -71,226 +71,29 @@
                 </el-popover>
             </el-badge>
         </div>
-        <!-- 工具栏 -->
-        <div class="tool-icon mt-1">
-            <!-- 固定的工具栏操作 -->
-            <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
-                <template #item="{ element }">
-                    <div :title="element.name" class="cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
-                        <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
-                            <use :xlink:href="element.icon"></use>
-                        </svg>
-                    </div>
-                </template>
-            </s-draggable>
-            <!-- 全部工具栏操作 -->
-            <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
-                <template #reference>
-                    <div class="more" @click.stop="visible = true">
-                        <i class="more-op el-icon-more" title="更多操作"></i>
-                    </div>
-                </template>
-                <div class="border-bottom-gray-300 py-2 px-2">快捷操作</div>
-                <div class="toolbar-close" @click="visible = false">
-                    <i class="el-icon-close"></i>
-                </div>
-                <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
-                    <template #item="{ element }">
-                        <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
-                            <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
-                                <use :xlink:href="element.icon"></use>
-                            </svg>
-                            <div class="label" @click="handleEmit(element.op)">{{ element.name }}</div>
-                            <div class="shortcut">
-                                <span v-for="(item, index) in element.shortcut" :key="item">
-                                    <span>{{ item }}</span>
-                                    <span v-if="index !== element.shortcut.length - 1">+</span>
-                                </span>
-                            </div>
-                            <div class="pin iconfont iconpin" :class="{ active: element.pin }" @click="togglePin(element)"></div>
-                        </div>
-                    </template>
-                </s-draggable>
-            </el-popover>
-        </div>
     </div>
-    <s-add-file-dialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-    <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
-import sDraggable from "vuedraggable"
+import { ref, computed, watch } from "vue"
 import { store } from "@/store/index"
-import sAddFileDialog from "../../dialog/add-file/add-file.vue"
-import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
-import localOriginOperation from "./operations"
 import { forEachForest } from "@/helper/index"
-import type { ApidocBanner, ApidocOperations } from "@@/global"
-import { addFileAndFolderCb } from "../composables/curd-node"
-import { router } from "@/router/index"
+import type { ApidocBanner } from "@@/global"
 
-type Operation = {
-    /**
-     * 操作名称
-     */
-    name: string,
-    /**
-     * 图标
-     */
-    icon: string,
-    /**
-     * 操作标识
-     */
-    op: string,
-    /**
-     * 快捷键
-     */
-    shortcut: string[],
-    /**
-     * 是否固定操作栏
-     */
-    pin: boolean,
-    /**
-     * 预览模式展示
-     */
-    viewOnly?: boolean,
-};
+
 
 
 const emit = defineEmits(["fresh", "filter"])
-//当前工作区状态
-const isView = computed(() => {
-    return store.state["apidoc/baseInfo"].mode === "view"
-})
-//新增文件或者文件夹成功回调
-const handleAddFileAndFolderCb = (data: ApidocBanner) => {
-    addFileAndFolderCb.call(this, ref(null), data)
-};
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
     const originBannerData = store.state["apidoc/banner"].banner;
     return originBannerData
 })
-const operations: Ref<Operation[]> = ref([]);
-const pinOperations: Ref<Operation[]> = ref([]);
-const visible = ref(false);
-const addFileDialogVisible = ref(false);
-const addFolderDialogVisible = ref(false);
 const projectName = computed(() => {
     return store.state["apidoc/baseInfo"].projectName;
 })
 //=====================================操作相关数据====================================//
-//初始化缓存数据
-const initCacheOperation = () => {
-    const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
-    const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
-    if (localToolbarOperations) {
-        operations.value = JSON.parse(localToolbarOperations);
-    } else {
-        operations.value = localOriginOperation;
-    }
-    if (localPinToolbarOperations) {
-        pinOperations.value = JSON.parse(localPinToolbarOperations);
-    } else {
-        pinOperations.value = operations.value.filter((v) => v.pin);
-    }
-}
-//缓存所有操作
-watch(operations, (v) => {
-    localStorage.setItem("apidoc/toolbarOperations", JSON.stringify(v))
-}, {
-    deep: true
-})
-//缓存工具栏操作
-watch(pinOperations, (v) => {
-    localStorage.setItem("apidoc/PinToolbarOperations", JSON.stringify(v))
-}, {
-    deep: true
-})
-onMounted(() => {
-    document.documentElement.addEventListener("click", handleHideMoreOperation);
-    initCacheOperation();
-});
-onUnmounted(() => {
-    document.documentElement.removeEventListener("click", handleHideMoreOperation);
-})
-//=====================================工具栏操作====================================//
-//切换固定操作
-const togglePin = (element: Operation) => {
-    element.pin = !element.pin;
-    pinOperations.value = operations.value.filter((v) => v.pin);
-}
-//隐藏更多操作
-const handleHideMoreOperation = () => {
-    visible.value = false;
-}
-//点击操作按钮
-const projectId = router.currentRoute.value.query.id as string;
-const handleEmit = (op: ApidocOperations) => {
-    if (isView.value && op !== "freshBanner" && op !== "history" ) {
-        return
-    }
-    switch (op) {
-    case "addRootFolder": //新建文件夹
-        addFolderDialogVisible.value = true;
-        break;
-    case "addRootFile": //新建文件
-        addFileDialogVisible.value = true;
-        break;
-    case "freshBanner": //刷新页面
-        emit("fresh");
-        break;
-    case "generateLink": //在线链接
-        store.commit("apidoc/tabs/addTab", {
-            _id: "onlineLink",
-            projectId,
-            tabType: "onlineLink",
-            label: "在线链接",
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "exportDoc": //导出文档
-        store.commit("apidoc/tabs/addTab", {
-            _id: "exportDoc",
-            projectId,
-            tabType: "exportDoc",
-            label: "导出文档",
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "importDoc": //导入文档
-        store.commit("apidoc/tabs/addTab", {
-            _id: "importDoc",
-            projectId,
-            tabType: "importDoc",
-            label: "导入文档",
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    default:
-        break;
-    }
-    visible.value = false;
-}
+
 /*
 |--------------------------------------------------------------------------
 | 数据过滤

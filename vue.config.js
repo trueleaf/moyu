@@ -4,13 +4,19 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
+const buildShare = process.argv.find((val) => val === "--share");
+const buildHtml = process.argv.find((val) => val === "--html");
 process.env.VUE_APP_BUILD_TIME = new Date().toLocaleString();
+process.env.VUE_APP_BUILD_SHARE = buildShare;
+process.env.VUE_APP_BUILD_HTML = buildHtml;
 
+
+console.log((buildShare || buildHtml) ? "src/renderer/pages/modules/apidoc/doc-view/main.ts" : "src/renderer/main.ts")
 
 module.exports = {
     pages: {
         index: {
-            entry: "src/renderer/main.ts", //添加了entry则不需要rendererProcessFile
+            entry: (buildShare || buildHtml) ? "src/renderer/pages/modules/apidoc/doc-view/main.ts" : "src/renderer/main.ts", //添加了entry则不需要rendererProcessFile
             template: "public/index.html",
         },
     },
