@@ -7,17 +7,12 @@
 <template>
     <div class="online-link">
         <div class="link-wrap">
-            <div class="d-flex j-center mt-5">
-                <svg class="link-icon" aria-hidden="true">
-                    <use xlink:href="#iconlink"></use>
-                </svg>
-            </div>
             <s-fieldset title="生成链接">
                 <div class="d-flex">
                     <pre class="link w-70">{{ shareLink }}</pre>
                     <el-button-group class="flex0 w-200px">
                         <!-- <el-button v-copy="shareLink" :size="config.renderConfig.layout.size">复制</el-button> -->
-                        <!-- <el-button v-copy="shareLink" :size="config.renderConfig.layout.size">复制</el-button> -->
+                        <el-button v-copy="shareLink" :size="config.renderConfig.layout.size">复制</el-button>
                     </el-button-group>
                 </div>
             </s-fieldset>
@@ -75,17 +70,17 @@
                                         <!-- file渲染 -->
                                         <template v-if="!prop.data.isFolder">
                                             <template v-for="(req) in projectInfo.rules.requestMethods">
-                                                <span v-if="prop.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                                <span v-if="prop.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                                             </template>
                                             <div class="node-label-wrap">
-                                                <s-emphasize class="node-top" :title="prop.data.info.name" :value="prop.data.info.name"></s-emphasize>
+                                                <s-emphasize class="node-top" :title="prop.data.name" :value="prop.data.name"></s-emphasize>
                                             </div>
                                         </template>
                                         <!-- 文件夹渲染 -->
                                         <template v-if="prop.data.isFolder">
                                             <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                                             <div class="node-label-wrap">
-                                                <s-emphasize class="node-top" :title="prop.data.info.name" :value="prop.data.info.name"></s-emphasize>
+                                                <s-emphasize class="node-top" :title="prop.data.name" :value="prop.data.name"></s-emphasize>
                                             </div>
                                         </template>
                                     </div>
@@ -128,6 +123,7 @@ const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 
 //树形数据
 const navTreeData = computed(() => {
+    console.log(store.state["apidoc/banner"].banner)
     return store.state["apidoc/banner"].banner;
 })
 
@@ -204,6 +200,9 @@ const formatTooltip = (val: number) => {
         }
     }
     .doc-nav {
+        .el-tree-node__content {
+            height: size(30);
+        }
         .custom-tree-node {
             @include custom-tree-node;
         }

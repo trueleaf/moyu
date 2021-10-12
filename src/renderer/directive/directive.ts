@@ -1,4 +1,6 @@
 import { App } from "vue"
+import scssData from "@/scss/variables/_variables.scss"
+
 
 let domList: HTMLElement[] = [];
 
@@ -47,9 +49,50 @@ export default (app: App): void => {
         },
     });
     //=====================================拷贝指令====================================//
+    const runCopy = (e: MouseEvent, value: string) => {
+        console.log(22, value)
+        const x = e.clientX;
+        const y = e.clientY;  
+        const dom = document.createElement("textarea");
+        dom.value = value;
+        dom.style.position = "fixed";
+        dom.style.top = "-9999px";
+        dom.style.left = "-9999px";
+        document.body.appendChild(dom);
+        dom.select();
+        document.execCommand("Copy", false);
+        document.body.removeChild(dom);
+        //提示
+        const span = document.createElement("span");
+        span.innerHTML = "复制成功";
+        span.style.transition = "all .6s";
+        span.style.color = "#2c2";
+        span.style.position = "fixed";
+        span.style.left = `${x}px`;
+        span.style.top = `${y}px`;
+        span.style.whiteSpace = "nowrap";
+        span.style.zIndex = scssData.zIndexCopy;
+        span.style.transform = `translate3D(0, -1em, 0)`;
+        document.documentElement.appendChild(span);
+        requestAnimationFrame(() => {
+            span.style.transform = `translate3D(0, -2.5em, 0)`;
+        });
+        setTimeout(() => {
+            document.documentElement.removeChild(span);
+        }, 800);
+    };
+    let bindCopyFn: ((e: MouseEvent) => void) | null = null;
     app.directive("copy", {
-        updated(el: HTMLElement, binding) {
-            console.log(binding)
+        mounted(el: HTMLElement, binding) {
+            bindCopyFn = (e: MouseEvent) => {
+                runCopy(e, binding.value);
+            }
+            el.addEventListener("click", bindCopyFn)
         },
+        unmounted(el: HTMLElement) {
+            if (bindCopyFn) {
+                el.removeEventListener("click", bindCopyFn)
+            }
+        }
     })
 }
