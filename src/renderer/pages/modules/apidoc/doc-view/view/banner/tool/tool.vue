@@ -222,7 +222,7 @@ watch(() => formInfo.value, (formData) => {
         plainBannerData = plainBannerData.sort((a, b) => {
             const aTime = new Date(a.updatedAt).getTime();
             const bTime = new Date(b.updatedAt).getTime();
-            return aTime - bTime;
+            return bTime - aTime;
         }).slice(0, recentNum)
     }
     emit("filter", {
