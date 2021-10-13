@@ -11,7 +11,10 @@
                 <span class="label">{{ label }}</span>
             </el-checkbox>
         </div>
-        <div v-else-if="!hasCheck && !$slots.label" class="label">{{ label }}</div>
+        <div v-else-if="!hasCheck && !$slots.label" class="label">
+            <span v-if="required" class="required">*</span>
+            <span>{{ label }}</span>
+        </div>
         <div v-else-if="$slots.label">
             <slot name="label" />
         </div>
@@ -43,6 +46,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        required: { //是否必填
+            type: Boolean,
+            default: false,
+        },
     },
     emits: ["change"],
     data() {
@@ -69,7 +76,11 @@ export default defineComponent({
         color: $gray-500;
     }
     .label {
+        font-weight: bolder;
         font-size: fz(15);
+        .required {
+            color: $red;
+        }
     }
 }
 </style>
