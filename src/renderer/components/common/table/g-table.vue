@@ -20,7 +20,7 @@
             <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
             <slot />
         </el-table>
-        <div class="d-flex j-end mt-1">
+        <div v-if="!plain" class="d-flex j-end mt-1">
             <slot name="operation" />
             <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">刷新</el-button>
             <el-button
@@ -57,6 +57,13 @@ import config from "@/../config/config"
 
 export default defineComponent({
     props: {
+        /**
+         * 仅显示表格
+         */
+        plain: {
+            type: Boolean,
+            default: false,
+        },
         /**
          * 数据回调钩子,回调第一个参数是返回值,返回子组件
          */
@@ -154,7 +161,7 @@ export default defineComponent({
         paging: {
             type: Boolean,
             default: true
-        }
+        },
     },
     emits: ["finish", "select", "deleteMany"],
     data() {
