@@ -6,7 +6,7 @@
 
 ### 一款基于 Vue 和 Electron 的接口文档管理工具
 
-[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/696158/download/moyu%20Setup%200.5.0.exe) | [完整文档](https://www.yuque.com/happymoyu) | [在线体验](https://online.jobtool.cn/)
+[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/852229/download/moyu-0.8.0.exe) | [完整文档](https://www.yuque.com/happymoyu) | [在线体验](https://online.jobtool.cn/)
 
 [    ![](https://img.shields.io/github/v/release/trueleaf/moyu?style=flat-square#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=94&status=done&style=none&width=94)  ](https://github.com/trueleaf/moyu/releases/latest)[    ![](https://img.shields.io/github/license/trueleaf/moyu#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=78&status=done&style=none&width=78)  ](https://github.com/trueleaf/moyu/blob/master/LICENSE)[    ![](https://img.shields.io/github/downloads/trueleaf/moyu/total#align=left&display=inline&height=20&margin=%5Bobject%20Object%5D&originHeight=20&originWidth=86&status=done&style=none&width=86)  ](https://github.com/trueleaf/moyu/releases/latest)
 
