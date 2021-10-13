@@ -95,4 +95,43 @@ export default (app: App): void => {
             }
         }
     })
+    //=====================================倒计时指令====================================//
+    const countdownTimers: number[] = [];
+    app.directive("countdown", {
+        mounted(el: HTMLElement, binding) {
+            const timer = window.setInterval(() => {
+                let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
+                if (restTime === 0) {
+                    el.innerHTML = "过期";
+                    countdownTimers.forEach(t => {
+                        clearInterval(t);
+                    })
+                    return;
+                }
+                const hasFullDay = restTime > 86400000;
+                const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
+                if (hasFullDay) {
+                    restTime = restTime % 86400000;
+                }
+                const hasFullHour = restTime > 3600000;
+                const hour = hasFullHour ? Math.floor(restTime / 3600000) : 0;
+                if (hasFullHour) {
+                    restTime = restTime % 3600000;
+                }
+                const hasFullMinute = restTime > 60000;
+                const minute = hasFullMinute ? Math.floor(restTime / 60000) : 0;
+                if (hasFullMinute) {
+                    restTime = restTime % 60000;
+                }
+                const second = Math.floor(restTime / 1000);
+                el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;
+            }, 1000)
+            countdownTimers.push(timer);
+        },
+        unmounted() {
+            countdownTimers.forEach(t => {
+                clearInterval(t);
+            })
+        }
+    })
 }
