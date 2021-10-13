@@ -10,11 +10,14 @@
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
             </div>
             <div class="right">
-                <h2 class="text-center">{{ config.renderConfig.layout.title }}({{ config.version }})</h2>
+                <h2 class="text-center">
+                    <span>{{ config.localization.title }}</span>
+                    <span v-if="config.localization.version">({{ config.localization.version }})</span>
+                </h2>
                 <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
                     <el-tab-pane label="账号登录" name="loginAccount">
-                        <s-login-account @jumpToRegister="handleJumpToRegister"></s-login-account>
+                        <s-login-account @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></s-login-account>
                     </el-tab-pane>
                     <!-- 手机号登录 -->
                     <el-tab-pane label="手机登录" name="loginPassword">
@@ -23,6 +26,10 @@
                     <!-- 注册 -->
                     <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="register">
                         <s-register></s-register>
+                    </el-tab-pane>
+                    <!-- 忘记密码 -->
+                    <el-tab-pane label="忘记密码" name="reset">
+                        <s-reset-password @jumpToLogin="handleJumpToLogin"></s-reset-password>
                     </el-tab-pane>
                 </el-tabs>
             </div>
@@ -35,6 +42,7 @@ import config from "@/../config/config"
 import loginAccount from "./components/login-account.vue";
 import loginPhone from "./components/login-phone.vue";
 import register from "./components/register.vue";
+import resetPassword from "./components/reset-password.vue";
 import { defineComponent } from "vue"
 
 export default defineComponent({
@@ -42,6 +50,7 @@ export default defineComponent({
         "s-login-account": loginAccount,
         "s-login-phone": loginPhone,
         "s-register": register,
+        "s-reset-password": resetPassword,
     },
     data() {
         return {
@@ -53,6 +62,14 @@ export default defineComponent({
         //跳转注册页面
         handleJumpToRegister() {
             this.activeName = "register";
+        },
+        //跳转到重置密码
+        handleJumpToResetPassword() {
+            this.activeName = "reset";
+        },
+        //跳转到登录页面
+        handleJumpToLogin() {
+            this.activeName = "login";
         },
     },
 })

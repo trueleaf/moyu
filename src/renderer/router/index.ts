@@ -9,7 +9,7 @@ const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复�
 const routes: Array<RouteRecordRaw> = [
     {
         path: "/",
-        redirect: lastVisitPage || "/v1/apidoc/doc-list",
+        redirect: lastVisitPage || "/login",
     },
     {
         path: "/login",
@@ -32,6 +32,10 @@ const routes: Array<RouteRecordRaw> = [
             path: "/v1/apidoc/doc-list",
             name: "DocList",
             component: () => import(/* webpackChunkName: "DocList" */ "@/pages/modules/apidoc/doc-list/doc-list.vue"),
+        }, {
+            path: "/v1/apidoc/doc-view",
+            name: "DocView",
+            component: () => import(/* webpackChunkName: "DocView" */ "@/pages/modules/apidoc/doc-view/view/view.vue"),
         }, {
             path: "/v1/apidoc/doc-edit",
             name: "DocEdit",

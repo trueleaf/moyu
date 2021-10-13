@@ -3,13 +3,13 @@
 | 默认项目全局配置信息
 |--------------------------------------------------------------------------
 */
-import { Config } from "@@/config"
+import type { Config } from "@@/config"
 
-let ip = "127.0.0.1";
-if (global && global.require) {
-    const internalIp = global.require("internal-ip");
-    ip = internalIp.v4.sync()
-}
+const ip = "127.0.0.1";
+// if (window && window.require) {
+//     const internalIp = window.require("internal-ip");
+//     ip = internalIp.v4.sync()
+// }
 const isDev = process.env.NODE_ENV === "development";
 function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
@@ -26,20 +26,17 @@ function isElectron(): boolean {
 const config: Config = {
     isElectron: isElectron(),
     isDev,
-    version: "0.7.0", //当前项目版本
     //更新相关配置
     updateConfig: {
-        version: "0.7.0", //当前项目版本
+        version: "0.8.0", //当前项目版本
         server: "http://xxx.xxx.cn", //更新服务器地址
         filePath: "/electron/windows", //更新文件地址
         autoUpdate: false, //是否开启自动更新
     },
     //渲染进程配置
     renderConfig: {
-        //缓存相关
         //布局相关
         layout: {
-            title: "moyu", //项目标题
             size: "mini", //项目中组件库大小
         },
         //权限相关
@@ -83,10 +80,6 @@ const config: Config = {
         import: {
             size: 1024 * 1024 * 5, //导入文件大小
         },
-        //下载相关
-        download: {
-            gitee: "https://gitee.com/shuzhikai/moyu/attach_files/696158/download/moyu%20Setup%200.5.0.exe",
-        },
     },
     //主进程配置
     mainConfig: {
@@ -97,6 +90,13 @@ const config: Config = {
     },
     //本地部署相关配置
     localization: {
+        version: "0.8.0", //当前项目版本
+        title: isDev ? "moyu(本地)" : "moyu", //项目名称
+        consoleWelcome: true, //是否打印欢迎信息
+        download: {
+            enabled: false, //是否允许提示用户下载electron
+            url: "", //下载地址
+        },
         enableRegister: true, //是否允许注册
         enableGuest: true, //是否允许来宾用户体验
         enableDocLink: true, //是否显示文档和帮助链接

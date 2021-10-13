@@ -4,6 +4,8 @@ import { app, protocol, BrowserWindow } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
 import update from "./update";
+import config from "../config/config"
+
 const isDevelopment = process.env.NODE_ENV !== "production"
 
 // Scheme must be registered before the app is ready
@@ -30,6 +32,17 @@ async function createWindow() {
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
         if (!process.env.IS_TEST) win.webContents.openDevTools()
+    } else if (!config.mainConfig.useLocalFile) {
+        console.log(`加载远端文件`, config.mainConfig.onlineUrl)
+        //使用远端地址
+        win
+            .loadURL(config.mainConfig.onlineUrl)
+            .then((res) => {
+                console.log("success", res);
+            })
+            .catch((err) => {
+                console.log("error", err);
+            });
     } else {
         createProtocol("app")
         // Load the index.html when not in development

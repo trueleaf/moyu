@@ -6,7 +6,10 @@
 */
 <template>
     <div class="s-fieldset">
-        <div class="legend">{{ title }}</div>
+        <div class="legend">
+            <slot v-if="$slots.title" name="title"></slot>
+            <span v-else>{{ title }}</span>
+        </div>
         <div class="content" :style="{height: height, 'maxHeight': maxHeight}">
             <slot></slot>
         </div>

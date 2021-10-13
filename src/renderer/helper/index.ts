@@ -597,9 +597,9 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
  * @remark             这个方法具有强耦合性
  */
 export function apidocConvertValue(value: string): string {
-    const matchdVariable = value.match(/\{\{\s*([^} ]+)\s*\}\}/);
+    const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
     const allVariables = store.state["apidoc/baseInfo"].variables;
-    if (value.startsWith("@")) {
+    if (value.toString().startsWith("@")) {
         return Mock.mock(value);
     }
     if (matchdVariable) {
@@ -613,7 +613,6 @@ export function apidocConvertValue(value: string): string {
  * @description        生成一份apidoc默认值
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
- * @return {Apidoc}    返回字符串
  */
 export function apidocGenerateApidoc(): ApidocDetail {
     return {

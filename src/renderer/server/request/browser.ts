@@ -1,6 +1,7 @@
 
 import Axios, { Method } from "axios"
 import axios from "axios"
+import { axios as axios2 } from "@/api/api"
 import FormData from "form-data"
 import { store } from "@/store/index"
 import config from "./config"
@@ -59,8 +60,9 @@ function getRealHeaders() {
 export function sendRequest(): void {
     console.warn("当前为浏览器环境发送请求、不支持跨域请求、Cookie,user-agent,connect等请求头受浏览器限制!")
     try {
+        const useProxy = store.state["apidoc/baseInfo"].webProxy;
         store.commit("apidoc/response/changeLoading", true)
-        const { url, method, requestBody, queryParams, paths, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
+        const { url, method, requestBody, queryParams, paths, contentType = "text/plain", } = store.state["apidoc/apidoc"].apidoc.item;
         const queryString = utils.convertQueryParamsToQueryString(queryParams);
         const pathMap = utils.getPathParamsMap(paths)
         const { mode } = requestBody
@@ -96,11 +98,51 @@ export function sendRequest(): void {
                 body = requestBody.raw.data;
                 break;
             default:
+                console.warn("未匹配的contentType类型");
                 break;
             }
         }
-        //=====================================浏览器端发送请求====================================//
-        console.log(realHeaders, requestUrl, body)
+        //=====================================代理发送请求====================================//
+        if (useProxy) {
+            const params = {
+                headers: realHeaders,
+                url: requestUrl,
+                body,
+            };
+            axios2.post("/api/proxy/proxyWebApi", params).then(async (res) => {
+                const response = res.data;
+                store.commit("apidoc/response/changeResponseHeader", response.headers);
+                store.commit("apidoc/response/changeResponseCookies", response.headers["set-cookie"] || []);
+                store.commit("apidoc/response/changeResponseBaseInfo", {
+                    httpVersion: response.httpVersion,
+                    ip: response.ip,
+                    statusCode: response.statusCode,
+                    statusMessage: response.statusMessage,
+                    contentType: response.headers["content-type"],
+                });
+                store.commit("apidoc/response/changeResponseTime", response.rt);
+                store.commit("apidoc/response/changeLoading", false);
+                const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
+
+                store.commit("apidoc/response/changeResponseMime", response.contentType);
+                if (textContentType.find(type => response.contentType.match(type))) {
+                    const blobData = new Blob([new Uint8Array(response.data.data)], { type: response.contentType });
+                    store.commit("apidoc/response/changeResponseTextValue", await blobData.text());
+                } else {
+                    const blobData = new Blob([new Uint8Array(response.data.data)], { type: response.contentType });
+                    const blobUrl = URL.createObjectURL(blobData);
+                    store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
+                }
+            }).catch((err) => {
+                console.error(err);
+                store.commit("apidoc/response/changeResponseMime", "error");
+                store.commit("apidoc/response/changeResponseTextValue", err.message);
+            }).finally(() => {
+                store.commit("apidoc/response/changeLoading", false)
+            })
+            return;
+        }
+        //=========================================================================//
         delete realHeaders["user-agent"]
         delete realHeaders["accept-encoding"]
         delete realHeaders["connection"]
@@ -114,6 +156,7 @@ export function sendRequest(): void {
             headers: realHeaders,
             cancelToken: source.token
         }).then(async response => {
+            const resContentType = response.headers["content-type"];
             store.commit("apidoc/response/changeResponseHeader", response.headers);
             store.commit("apidoc/response/changeResponseBaseInfo", {
                 httpVersion: "",
@@ -127,7 +170,8 @@ export function sendRequest(): void {
             const mime = response.data.type;
             const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
             store.commit("apidoc/response/changeResponseMime", mime);
-            if (textContentType.find(type => contentType.match(type))) {
+            // console.log(textContentType, resContentType, response)
+            if (textContentType.find(type => resContentType.match(type))) {
                 store.commit("apidoc/response/changeResponseTextValue", await response.data.text());
             } else {
                 const blobData = new Blob([response.data], { type: mime });
@@ -135,6 +179,7 @@ export function sendRequest(): void {
                 store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
             }
         }).catch(error => {
+            console.error(error)
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeResponseMime", "error");
             store.commit("apidoc/response/changeResponseTextValue",error.toString());
@@ -143,7 +188,7 @@ export function sendRequest(): void {
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
         store.commit("apidoc/response/changeResponseMime", "error");
-        store.commit("apidoc/response/changeResponseTextValue",error.toString());
+        store.commit("apidoc/response/changeResponseTextValue", (error as Error).toString());
         console.error(error);
     }
 }

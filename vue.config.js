@@ -4,14 +4,19 @@
  */
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
-process.env.VUE_APP_TITLE = "moyu";
+const buildShare = process.argv.find((val) => val === "--share");
+const buildHtml = process.argv.find((val) => val === "--html");
 process.env.VUE_APP_BUILD_TIME = new Date().toLocaleString();
+process.env.VUE_APP_BUILD_SHARE = buildShare;
+process.env.VUE_APP_BUILD_HTML = buildHtml;
 
+
+console.log((buildShare || buildHtml) ? "src/renderer/pages/modules/apidoc/doc-view/main.ts" : "src/renderer/main.ts")
 
 module.exports = {
     pages: {
         index: {
-            entry: "src/renderer/main.ts", //添加了entry则不需要rendererProcessFile
+            entry: (buildShare || buildHtml) ? "src/renderer/pages/modules/apidoc/doc-view/main.ts" : "src/renderer/main.ts", //添加了entry则不需要rendererProcessFile
             template: "public/index.html",
         },
     },
@@ -90,13 +95,13 @@ module.exports = {
                     allowToChangeInstallationDirectory: true, // 允许修改安装目录
                 },
                 mac: {
-                    icon: "build/icons/icon.icns",
+                    icon: "public/icons/icon.icns",
                 },
                 win: {
-                    icon: "build/icons/icon.ico",
+                    icon: "public/icons/icon.ico",
                 },
                 linux: {
-                    icon: "build/icons",
+                    icon: "public/icons",
                 },
             },
             //参考 https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/1432
@@ -107,7 +112,7 @@ module.exports = {
                     .use("babel")
                     .loader("babel-loader")
                     .options({
-                        presets: [["@babel/preset-env", { modules: false }]],
+                        presets: [["@babel/preset-env", { modules: false, targets: { electron: "6" } }]],
                         plugins: ["@babel/plugin-proposal-class-properties"]
                     })
             }

@@ -49,7 +49,6 @@ const response = {
             type: "",
             text: "",
         },
-        globalCookies: {},
     },
     mutations: {
         //改变加载状态

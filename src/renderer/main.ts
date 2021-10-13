@@ -6,7 +6,7 @@ import App from "./App.vue"
 import { axiosPlugin } from "@/api/api"
 import * as helper from "@/helper/index"
 import "./registerServiceWorker"
-import "element-plus/lib/theme-chalk/index.css";
+import "element-plus/dist/index.css"
 import { router } from "./router"
 import { store, key } from "./store"
 import { registeGlobalComponent } from "@/components"

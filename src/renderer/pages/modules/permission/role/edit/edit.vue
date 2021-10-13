@@ -38,7 +38,7 @@
 </template>
 
 <script lang="ts">
-import { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { defineComponent } from "vue"
 import clientMenus from "./components/client-menus.vue"
 import clientRoutes from "./components/client-routes.vue"

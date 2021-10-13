@@ -54,7 +54,7 @@ const axiosPlugin = {
                             break;
                         case 2006: //输入验证码
                             break;
-                        case 2003: //ip锁定
+                        case 2003: //验证码错误
                             break;
                         case 4101: //登录有错
                             router.replace("/login");
@@ -70,6 +70,8 @@ const axiosPlugin = {
                                 router.replace("/login");
                             });
                             return Promise.reject(new Error("登陆已过期"));
+                        case 4200: //代理错误
+                            return Promise.reject(new Error(res.data.msg));
                         case 4002: //暂无权限
                             app.config.globalProperties.$message.warning(res.data.msg || "暂无权限");
                             return Promise.reject(new Error(res.data.msg || "暂无权限"));

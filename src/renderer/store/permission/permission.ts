@@ -98,6 +98,11 @@ const permission = {
                 state.menus = payload;
             }
         },
+        // 清空全部权限
+        clearAllPermission(state: PermissionState): void {
+            state.routes = [];
+            state.menus = [];
+        },
     },
     actions: {
         async getPermission(context: ActionContext<PermissionState, RootState>): Promise<ResUserInfo> {

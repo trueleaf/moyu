@@ -1,5 +1,5 @@
 import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType } from "@@/global"
+import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType, ApidocMindParam } from "@@/global"
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +26,8 @@ type PermissionState = {
 
 //文档banner state
 type ApidocBannerState = {
-    banner: ApidocBanner[]
+    banner: ApidocBanner[],
+    defaultExpandedKeys: string[],
 };
 //项目基本信息
 type ApidocProjectVariable = {
@@ -62,13 +63,7 @@ type ApidocProjectHost = {
      */
     _id: string,
 }
-//项目联想参数
-type ApidocProjectMindParam = {
-    paths: ApidocProperty[],
-    queryParams: ApidocProperty[],
-    requestBody: ApidocProperty[],
-    responseParams: ApidocProperty[],
-}
+
 //项目参数模板
 type ApidocProjectParamsTemplate = {
     /**
@@ -163,11 +158,11 @@ type ApidocProjectBaseInfoState = {
     /**
      * 联想参数
      */
-    mindParams: ApidocProjectMindParam,
+    mindParams: ApidocMindParam[],
     /**
      * 参数模板信息
      */
-    paramsTemplate: ApidocProjectParamsTemplate,
+    paramsTemplate: ApidocProjectParamsTemplate[],
     /**
      * 项目规则
      */
@@ -179,7 +174,28 @@ type ApidocProjectBaseInfoState = {
     /**
      * 布局
      */
-    layout: "vertical" | "horizontal"
+    layout: "vertical" | "horizontal",
+    /**
+     * 是否启用web端代理功能
+     */
+    webProxy: boolean,
+    /**
+     * 代理服务器信息
+     */
+    proxy: {
+        /**
+         * 代理服务器地址
+         */
+        path: string,
+        /**
+         * 是否启用代理
+         */
+        enabled: boolean
+    },
+    /**
+     * 模式，view,edit
+     */
+    mode: "view" | "edit"
 };
 //=========================================================================//
 type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"
@@ -386,5 +402,7 @@ export {
     ApidocRequestMethodRule,
     ApidocResponseState,
     ApidocCookieInfo,
+    ApidocProjectParamsTemplate,
+    ApidocProjectRules,
     State,
 }

@@ -155,8 +155,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, defineProps, defineEmits, computed, watch } from "vue"
-import type { TreeNodeOptions } from "element-plus/packages/tree/src/tree.type"
+import { ref, Ref, PropType, defineProps, computed, watch } from "vue"
+import type { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import type { ApidocProperty } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
@@ -479,7 +479,6 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
         });
     } else if (data.type === "number") {
         const couldConvertToNumber = !Number.isNaN(Number(data.value));
-        console.log(couldConvertToNumber)
         if (!couldConvertToNumber) {
             store.commit("apidoc/apidoc/changePropertyValue", {
                 data,

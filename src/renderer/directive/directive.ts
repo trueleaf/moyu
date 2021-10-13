@@ -1,9 +1,10 @@
 import { App } from "vue"
+import scssData from "@/scss/variables/_variables.scss"
+
 
 let domList: HTMLElement[] = [];
 
 function createTipDom(left: number, top: number): HTMLElement {
-    console.log(333)
     let tipDom: HTMLElement | null = null;
     tipDom = document.createElement("div");
     tipDom.style.position = "fixed";
@@ -19,11 +20,9 @@ function createTipDom(left: number, top: number): HTMLElement {
 }
 
 export default (app: App): void => {
+    //=====================================成功提示指令====================================//
     app.directive("success", {
         unmounted() {
-            // domList.forEach((dom) => {
-            //     document.body.removeChild(dom);
-            // })
             domList = [];
         },
         updated(el: Element, binding) {
@@ -40,4 +39,99 @@ export default (app: App): void => {
             }
         },
     });
+    //=====================================flex指令====================================//
+    app.directive("flex1", {
+        updated(el: HTMLElement, binding) {
+            const offsetY = el.getBoundingClientRect().y;
+            const { value } = binding;
+            el.style.height = `calc(100vh - ${offsetY + value}px)`;
+            el.style.overflowY = `auto`;
+        },
+    });
+    //=====================================拷贝指令====================================//
+    const runCopy = (e: MouseEvent, value: string) => {
+        console.log(22, value)
+        const x = e.clientX;
+        const y = e.clientY;  
+        const dom = document.createElement("textarea");
+        dom.value = value;
+        dom.style.position = "fixed";
+        dom.style.top = "-9999px";
+        dom.style.left = "-9999px";
+        document.body.appendChild(dom);
+        dom.select();
+        document.execCommand("Copy", false);
+        document.body.removeChild(dom);
+        //提示
+        const span = document.createElement("span");
+        span.innerHTML = "复制成功";
+        span.style.transition = "all .6s";
+        span.style.color = "#2c2";
+        span.style.position = "fixed";
+        span.style.left = `${x}px`;
+        span.style.top = `${y}px`;
+        span.style.whiteSpace = "nowrap";
+        span.style.zIndex = scssData.zIndexCopy;
+        span.style.transform = `translate3D(0, -1em, 0)`;
+        document.documentElement.appendChild(span);
+        requestAnimationFrame(() => {
+            span.style.transform = `translate3D(0, -2.5em, 0)`;
+        });
+        setTimeout(() => {
+            document.documentElement.removeChild(span);
+        }, 800);
+    };
+    let bindCopyFn: ((e: MouseEvent) => void) | null = null;
+    app.directive("copy", {
+        mounted(el: HTMLElement, binding) {
+            bindCopyFn = (e: MouseEvent) => {
+                runCopy(e, binding.value);
+            }
+            el.addEventListener("click", bindCopyFn)
+        },
+        unmounted(el: HTMLElement) {
+            if (bindCopyFn) {
+                el.removeEventListener("click", bindCopyFn)
+            }
+        }
+    })
+    //=====================================倒计时指令====================================//
+    const countdownTimers: number[] = [];
+    app.directive("countdown", {
+        mounted(el: HTMLElement, binding) {
+            const timer = window.setInterval(() => {
+                let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
+                if (restTime === 0) {
+                    el.innerHTML = "过期";
+                    countdownTimers.forEach(t => {
+                        clearInterval(t);
+                    })
+                    return;
+                }
+                const hasFullDay = restTime > 86400000;
+                const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
+                if (hasFullDay) {
+                    restTime = restTime % 86400000;
+                }
+                const hasFullHour = restTime > 3600000;
+                const hour = hasFullHour ? Math.floor(restTime / 3600000) : 0;
+                if (hasFullHour) {
+                    restTime = restTime % 3600000;
+                }
+                const hasFullMinute = restTime > 60000;
+                const minute = hasFullMinute ? Math.floor(restTime / 60000) : 0;
+                if (hasFullMinute) {
+                    restTime = restTime % 60000;
+                }
+                const second = Math.floor(restTime / 1000);
+                el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;
+            }, 1000)
+            countdownTimers.push(timer);
+        },
+        unmounted() {
+            countdownTimers.forEach(t => {
+                clearInterval(t);
+            })
+        }
+    })
 }

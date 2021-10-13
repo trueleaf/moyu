@@ -159,6 +159,40 @@ class ApidocCache {
             return [];
         }
     }
+    /**
+     * @description        获取是否开启代理缓存     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     * @param {string}     projectId 项目id
+     */
+    getApidocProxyState(projectId: string): boolean | null {
+        try {
+            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem("apidoc/apidocCacheState") || "{}");
+            if (localData[projectId] == null) {
+                return null;
+            }
+            return localData[projectId] === true;
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/apidocCacheState", "{}")
+            return false;
+        }
+    }
+    /**
+     * @description        设置是否开启代理服务器     
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    setApidocCacheState(cacheState: boolean, projectId: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/apidocCacheState") || "{}");
+            localData[projectId] = cacheState;
+            localStorage.setItem("apidoc/apidocCacheState", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/apidocCacheState", "{}");
+        }
+    }
 }
 
 

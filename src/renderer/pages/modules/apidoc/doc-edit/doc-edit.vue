@@ -19,7 +19,6 @@ import { defineComponent, computed, onMounted, onBeforeUnmount } from "vue"
 import banner from "./banner/banner.vue";
 import nav from "./nav/nav.vue";
 import content from "./content/content.vue";
-// import type { ApidocTab } from "@@/store"
 import { router } from "@/router/index"
 import { useStore } from "@/store/index"
 
@@ -42,8 +41,15 @@ export default defineComponent({
         const saveDocLoading = computed(() => {
             return store.state["apidoc/apidoc"].loading;
         })
+        //当前工作区状态
+        const isView = computed(() => {
+            return store.state["apidoc/baseInfo"].mode === "view"
+        })
         //=====================================绑定快捷键====================================//
         const bindShortcut = (e: KeyboardEvent) => {
+            if (isView.value) {
+                return;
+            }
             const tabs = store.state["apidoc/tabs"].tabs[projectId];
             const hasTabs = tabs && tabs.length > 0;
             const currentTabIsDoc = currentSelectTab.value?.tabType === "doc";
@@ -75,6 +81,15 @@ export default defineComponent({
         onBeforeUnmount(() => {
             window.removeEventListener("keydown", bindShortcut);
         })
+        //初始化预览模式或者编辑模式
+        const routerMode = router.currentRoute.value.query.mode as string;
+        let mode = "view";
+        if (routerMode === "view") {
+            mode = "view"
+        } else if (routerMode === "edit") {
+            mode = "edit"
+        }
+        store.commit("apidoc/baseInfo/changeMode", mode);
     }
 })
 </script>

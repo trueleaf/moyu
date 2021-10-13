@@ -122,7 +122,6 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
     result.forEach((astItem, index) => {
         astItem.line = index + 1;
     });
-    // console.log(22, result)
     return result;
 }
 

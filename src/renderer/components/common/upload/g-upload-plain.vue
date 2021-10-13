@@ -127,15 +127,9 @@ export default defineComponent({
             }
             //=========================================================================//
             if (isLtnM) {
-                this.$message({
-                    type: "warning",
-                    message: `每个文件大小限制为${this.size}M`
-                });
+                this.$message.warning(`每个文件大小限制为${this.size}M`);
             } else if (!isValidType) {
-                this.$message({
-                    type: "warning",
-                    message: `文件类型不正确`
-                });
+                this.$message.warning("文件类型不正确");
             }
             return !isLtnM && isValidType;
         },

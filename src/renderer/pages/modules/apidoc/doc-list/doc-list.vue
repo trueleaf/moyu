@@ -15,14 +15,14 @@
                     </span>
                 </template>
             </el-tab-pane>
-            <el-tab-pane name="tab-b">
+            <!-- <el-tab-pane name="tab-b">
                 <template #label>
                     <span>
                         <i class="el-icon-user"></i>
                         <span>团队管理</span>
                     </span>
                 </template>
-            </el-tab-pane>
+            </el-tab-pane> -->
         </el-tabs>
         <component :is="activeName"></component>
     </div>

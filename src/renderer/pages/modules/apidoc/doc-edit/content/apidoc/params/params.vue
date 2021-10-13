@@ -18,16 +18,20 @@
                 </div>
                 <template #dropdown>
                     <el-dropdown-menu>
-                        <el-dropdown-item @click="handleChangeLayout('vertical')">上下布局</el-dropdown-item>
-                        <el-dropdown-item @click="handleChangeLayout('horizontal')">左右布局</el-dropdown-item>
+                        <el-dropdown-item @click="handleChangeLayout('horizontal')">
+                            <span :class="{ 'theme-color': layout === 'horizontal' }">左右布局</span>
+                        </el-dropdown-item>
+                        <el-dropdown-item @click="handleChangeLayout('vertical')">
+                            <span :class="{ 'theme-color': layout === 'vertical' }">上下布局</span>
+                        </el-dropdown-item>
                     </el-dropdown-menu>
                 </template>
             </el-dropdown>
-            <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
+            <div v-if="!isView" class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
                 <span class="mr-1 f-sm iconfont iconvariable"></span>
                 <span>变量</span>
             </div>
-            <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
+            <div v-if="!isView" class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
                 <span class="mr-1 f-base el-icon-s-opportunity"></span>
                 <span>联想值</span>
             </div>
@@ -89,8 +93,9 @@ export default defineComponent({
         "s-view": view,
     },
     data() {
+        const mode = this.$route.query.mode as "edit" | "view";
         return {
-            workMode: "edit" as "edit" | "view", //是否开启预览模式
+            workMode: mode, //是否开启预览模式
             activeName: "s-params",
         };
     },
@@ -150,6 +155,10 @@ export default defineComponent({
         //apidoc
         apidoc() {
             return this.$store.state["apidoc/apidoc"].apidoc;
+        },
+        //当前工作区状态
+        isView() {
+            return this.$store.state["apidoc/baseInfo"].mode === "view"
         },
     },
     watch: {

@@ -33,6 +33,9 @@
                 <el-button size="small" class="w-100" @click="handleJumpToRegister">注册账号</el-button>
             </div>
         </el-form-item>
+        <div class="forget-pwd-wrap">
+            <el-button type="text" @click="handleJumpToResetPassword">已有账号，忘记密码?</el-button>
+        </div>
         <div v-if="config.localization.enableDocLink" class="d-flex j-around">
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
                 <svg class="svg-icon" aria-hidden="true" title="跳转github">
@@ -68,7 +71,7 @@ import { PermissionUserInfo, Response } from "@@/global"
 import config from "@/../config/config"
 
 export default defineComponent({
-    emits: ["jumpToRegister"],
+    emits: ["jumpToRegister", "jumpToResetPassword"],
     data() {
         return {
             //=====================================用户信息====================================//
@@ -134,6 +137,10 @@ export default defineComponent({
         handleJumpToRegister() {
             this.$emit("jumpToRegister");
         },
+        //重置密码
+        handleJumpToResetPassword() {
+            this.$emit("jumpToResetPassword");
+        },
         //体验账号登录
         handleGuesttLogin() {
             this.loading = true;
@@ -156,6 +163,17 @@ export default defineComponent({
         width: size(35);
         height: size(35);
         cursor: pointer;
+    }
+    .forget-pwd-wrap {
+        margin-top: size(-20);
+        display: flex;
+        justify-content: center;
+        margin-bottom: size(10);
+        .el-button {
+            margin: 0;
+            padding: 0;
+            min-height: size(20);
+        }
     }
 }
 </style>
