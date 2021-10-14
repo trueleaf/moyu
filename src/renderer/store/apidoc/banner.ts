@@ -89,6 +89,24 @@ const banner = {
                 });
             });
         },
+        /**
+         * 获取分享文档左侧导航数据
+         */
+        async getSharedDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { shareId: string, password: string }): Promise<ApidocBanner> {
+            return new Promise((resolve, reject) => {
+                const params = {
+                    shareId: payload.shareId,
+                    password: payload.password,
+                };
+                axios.get("/api/project/export/share_banner", { params }).then((res) => {
+                    const result = res.data;
+                    context.commit("changeAllDocBanner", result);
+                    resolve(result);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        },
     },
 }
 

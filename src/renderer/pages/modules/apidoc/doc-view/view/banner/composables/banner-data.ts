@@ -19,14 +19,15 @@ type ReturnData = {
 export function useBannerData(): ReturnData {
     const store = useStore();
     const route = useRoute()
-    const projectId = route.query.id;
+    const shareId = route.query.id;
+    const password = localStorage.getItem("share/password") || ""
     const loading = ref(false);
     const getBannerData = async () => {
         if (loading.value) {
             return
         }
         loading.value = true;
-        await store.dispatch("apidoc/banner/getDocBanner", { projectId });
+        await store.dispatch("apidoc/banner/getSharedDocBanner", { shareId, password });
         loading.value = false;
     }
     getBannerData();

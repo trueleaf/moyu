@@ -103,6 +103,24 @@ const baseInfo = {
                 })
             });
         },
+        /**
+         * 获取分享项目基本信息
+         */
+        async getSharedProjectBaseInfo(context: ActionContext<ApidocProjectBaseInfoState, RootState>, payload: { shareId: string, password: string }): Promise<void> {
+            return new Promise((resolve, reject) => {
+                const params = {
+                    shareId: payload.shareId,
+                    password: payload.password,
+                };
+                axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/export/share_project_info", { params }).then((res) => {
+                    context.commit("changeProjectBaseInfo", res.data)
+                    resolve()
+                }).catch((err) => {
+                    console.error(err);
+                    reject(err);
+                })
+            });
+        },
     },
 }
 

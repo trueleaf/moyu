@@ -16,10 +16,11 @@
 
 <script lang="ts">
 import { defineComponent, onMounted } from "vue"
+import { useRoute } from "vue-router"
 import banner from "./banner/banner.vue";
 import nav from "./nav/nav.vue";
 import content from "./content/content.vue";
-import { router } from "@/router/index"
+// import { router } from "@/router/index"
 import { useStore } from "@/store/index"
 
 export default defineComponent({
@@ -30,11 +31,13 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
-        const projectId = router.currentRoute.value.query.id as string;
+        const route = useRoute()
         //=====================================基本数据获取====================================//
         //获取项目基本信息
         const getProjectInfo = () => {
-            store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId });
+            const shareId = route.query.id as string;
+            const password = localStorage.getItem("share/password") || ""
+            store.dispatch("apidoc/baseInfo/getSharedProjectBaseInfo", { shareId, password });
         }
         //初始化cookie
         const initCookies = () => {
