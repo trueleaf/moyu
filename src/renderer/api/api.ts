@@ -4,6 +4,9 @@ import { App } from "vue"
 import jsCookie from "js-cookie";
 import { router } from "@/router";
 
+const buildShare = process.env.VUE_APP_BUILD_SHARE;
+const buildHtml = process.env.VUE_APP_BUILD_HTML;
+
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
@@ -17,7 +20,7 @@ const axiosPlugin = {
             const userInfoStr = localStorage.getItem("userInfo") || "{}";
             try {
                 const userInfo = JSON.parse(userInfoStr);
-                if (!userInfo.token) {
+                if (!userInfo.token && !buildShare && !buildHtml) {
                     router.push("/login");
                 }
                 reqConfig.headers.Authorization = userInfo.token
