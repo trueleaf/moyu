@@ -99,14 +99,14 @@
             </div>
         </div>
         <template #footer>
-            <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary" @click="handleGenerateLink">生成链接</el-button>
+            <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary" @click="handleEditLink">确认修改</el-button>
             <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
         </template>
     </s-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, Ref, PropType, onMounted } from "vue"
+import { ref, computed, Ref, PropType, onMounted, nextTick } from "vue"
 import { ElMessage } from "element-plus"
 import { axios } from "@/api/api"
 import { store } from "@/store/index"
@@ -154,7 +154,15 @@ const navTreeData = computed(() => {
 onMounted(() => {
     formInfo.value.shareName = props.data.shareName;
     formInfo.value.password = props.data.password;
-    formInfo.value.maxAge = props.data.expire;
+    formInfo.value.maxAge = (props.data.expire - Date.now()) > 0 ? (props.data.expire - Date.now()) : 86400000;
+    nextTick(() => {
+        if (props.data.selectedDocs.length > 0 && configShare.value) {
+            configShare.value.enabled = true;
+            nextTick(() => {
+                docTree.value?.setCheckedKeys(props.data.selectedDocs)
+            })
+        }
+    })
 })
 
 //=====================================生成链接====================================//
@@ -163,8 +171,8 @@ const configShare: Ref<{ enabled: boolean } | null> = ref(null); //配置组件�
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //生成在线链接加载
 const shareLink = ref(""); //在线链接地址
-//生成在线链接
-const handleGenerateLink = () => {
+//修改在线链接
+const handleEditLink = () => {
     const enableCustomExport = configShare.value?.enabled;
     const customExportIsEmpty = allCheckedNodes.value.length === 0;
     const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
@@ -179,13 +187,14 @@ const handleGenerateLink = () => {
     loading.value = true;
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
     const params = {
+        _id: props.data._id,
         shareName,
         projectId,
         maxAge,
         password,
         selectedDocs: selectedIds,
     };
-    axios.post("/api/project/export/online", params).then(() => {
+    axios.put("/api/project/export/online", params).then(() => {
         handleClose();
         emit("success");
     }).catch((err) => {
@@ -194,7 +203,6 @@ const handleGenerateLink = () => {
         loading.value = false;
     });
 }
-
 //=====================================其他操作====================================//
 const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
 //节点选中状态改变时候
@@ -205,7 +213,7 @@ const handleCheckChange = () => {
 }
 //格式化展示
 const formatTooltip = (val: number) => {
-    return `${val / 86400000}天后`;
+    return `${(Math.floor(val / 86400000))}天后`;
 }
 //关闭页面
 const handleClose = () => {

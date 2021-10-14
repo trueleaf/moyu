@@ -54,6 +54,7 @@ type LinkInfo = {
     password: string,
     projectName: string,
     selectedDocs: string[],
+    shareId: string,
     _id: string,
 }
 const projectId = router.currentRoute.value.query.id as string; //项目id
@@ -64,7 +65,7 @@ const dialogVisible2 = ref(false); //编辑弹窗
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-    const url = `${config.renderConfig.share.baseUrl}/#/?shareId=${linkInfo._id}&shareName=${linkInfo.shareName}&expire=${linkInfo.expire}`;
+    const url = `${config.renderConfig.share.baseUrl}/#/?id=${linkInfo.shareId}&shareName=${linkInfo.shareName}&expire=${linkInfo.expire}`;
     return `
     链接：${url}   
     密码：${linkInfo.password || "不需要密码"}
