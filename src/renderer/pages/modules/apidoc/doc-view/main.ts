@@ -10,36 +10,8 @@ import { store, key } from "@/store"
 import { registeGlobalComponent } from "@/components"
 import "@/assets/css/index.css"
 import registeDirective from "@/directive/directive";
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
-
-//=====================================路由====================================//
-const routes: Array<RouteRecordRaw> = [
-    {
-        path: "/",
-        redirect: process.env.VUE_APP_BUILD_SHARE ? "/check" : "/view",
-    },
-    {
-        path: "/view",
-        name: "View",
-        component: () => import(/* webpackChunkName: "View" */ "./view/view.vue"),
-    },
-    {
-        path: "/check",
-        name: "Check",
-        component: () => import(/* webpackChunkName: "Check" */ "./check/check.vue"),
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "404",
-        component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
-    },
-]
-const router = createRouter({
-    history: createWebHashHistory(),
-    routes
-})
+import router from "./router/index"
 //=========================================================================//
-
 const app = createApp(App, {
     mixin: [mixin]
 })

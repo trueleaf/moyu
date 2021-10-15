@@ -80,15 +80,19 @@ export default defineComponent({
             if (!this.currentSelectTab) {
                 return
             }
+            const password = localStorage.getItem("share/password") || ""
+            const shareId = this.$route.query.share_id;
             if (this.currentSelectTab.saved) { //取最新值
-                this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
+                this.$store.dispatch("apidoc/apidoc/getSharedApidocDetail", {
                     id: this.currentSelectTab?._id,
+                    password,
+                    shareId,
                     projectId: this.$route.query.id,
                 })
             } else { //取缓存值
                 const catchedApidoc = apidocCache.getApidoc(this.currentSelectTab._id);
                 if (!catchedApidoc) {
-                    this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
+                    this.$store.dispatch("apidoc/apidoc/getSharedApidocDetail", {
                         id: this.currentSelectTab?._id,
                         projectId: this.$route.query.id,
                     })
@@ -104,7 +108,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .apidoc {
     overflow-y: auto;
-    height: calc(100vh - #{size(100)});
+    height: calc(100vh - #{size(40)});
     display: flex;
     &.vertical {
         flex-direction: column;

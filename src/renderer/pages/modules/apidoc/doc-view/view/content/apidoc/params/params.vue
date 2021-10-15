@@ -358,7 +358,7 @@ export default defineComponent({
 <style lang="scss">
 .api-params {
     padding: size(0) size(0) size(10);
-    height: calc(100vh - #{size(250)});
+    height: calc(100vh - #{size(180)});
     overflow-y: auto;
     position: relative;
     &.vertical {

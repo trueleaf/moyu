@@ -99,7 +99,7 @@ export default (app: App): void => {
     const countdown = (el: HTMLElement, binding: DirectiveBinding<number>) => {
         let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
         if (restTime === 0) {
-            el.innerHTML = "过期";
+            el.innerHTML = "已过期";
             countdownTimers.forEach(t => {
                 clearInterval(t);
             })

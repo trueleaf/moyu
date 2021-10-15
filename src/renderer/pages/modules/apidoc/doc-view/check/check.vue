@@ -12,7 +12,7 @@
             </div>
             <h2 class="text-center">{{ projectName }}</h2>
             <div class="d-flex a-center mb-3">
-                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" clearable></el-input>
+                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" show-password clearable></el-input>
                 <el-button size="small" type="success" :loading="loading2" @click="handleConfirmPassword">确认密码</el-button>
             </div>
             <div class="gray-600">
@@ -28,6 +28,9 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { Response } from "@@/global"
+
+const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
+
 type LinkInfo = {
     projectName: string,
     shareName: string,
@@ -48,25 +51,38 @@ export default defineComponent({
         };
     },
     mounted() {
-        this.init()
+        if (isBuildHtml) {
+            this.$router.push({
+                path: "/view",
+            });
+        } else {
+            this.init()
+        }
     },
     methods: {
         //=====================================前后端交互====================================//
         //初始化
         init() {
+            const { share_id, id } = this.$route.query;
             if (!this.$route.query.id) {
                 this.isValidShareId = true;
                 return
             }
             this.loading = true;
             const params = {
-                shareId: this.$route.query.id,
+                shareId: this.$route.query.share_id,
             };
             this.axios.get<Response<LinkInfo>, Response<LinkInfo>>("/api/project/share_info", { params }).then((res) => {
                 this.projectName = res.data.projectName;
                 this.expire = res.data.expire;
                 if (!res.data.needPassword) {
-                    this.$router.replace("/view");
+                    this.$router.push({
+                        path: "/view",
+                        query: {
+                            id,
+                            share_id,
+                        },
+                    });
                 }
             }).catch((err) => {
                 console.error(err);
@@ -76,19 +92,20 @@ export default defineComponent({
         },
         //确认密码
         handleConfirmPassword() {
-            const { id } = this.$route.query;
+            const { share_id, id } = this.$route.query;
             this.loading2 = true;
             const params = {
-                shareId: id,
+                shareId: share_id,
                 password: this.password,
             };
             this.axios.get("/api/project/share_check", { params }).then(() => {
                 localStorage.setItem("share/password", this.password || "");
-                localStorage.setItem("share/shareId", id as string);
+                localStorage.setItem("share/shareId", share_id as string);
                 this.$router.push({
                     path: "/view",
                     query: {
                         id,
+                        share_id,
                     },
                 });
             }).catch((err) => {
@@ -113,6 +130,7 @@ export default defineComponent({
         flex-direction: column;
         left: 50%;
         top: 10vh;
+        overflow: hidden;
         transform: translate(-50%, 0%);
         background: $white;
         padding: size(50) size(100);

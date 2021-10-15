@@ -1,9 +1,9 @@
 import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
-import { ApidocBanner } from "@@/global"
+import { ApidocBanner, Response } from "@@/global"
 import { forEachForest, findNodeById } from "@/helper/index"
-
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -98,7 +98,17 @@ const banner = {
                     shareId: payload.shareId,
                     password: payload.password,
                 };
-                axios.get("/api/project/export/share_banner", { params }).then((res) => {
+                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/export/share_banner", { params }).then((res) => {
+                    if (res.code === 101005) {
+                        shareRouter.replace({
+                            path: "/check",
+                            query: {
+                                share_id: shareRouter.currentRoute.value.query.share_id,
+                                id: shareRouter.currentRoute.value.query.id,
+                            },
+                        });
+                        return;
+                    }
                     const result = res.data;
                     context.commit("changeAllDocBanner", result);
                     resolve(result);

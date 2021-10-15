@@ -65,7 +65,7 @@ const dialogVisible2 = ref(false); //编辑弹窗
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-    const url = `${config.renderConfig.share.baseUrl}/#/?id=${linkInfo.shareId}&shareName=${linkInfo.shareName}&expire=${linkInfo.expire}`;
+    const url = `${config.renderConfig.share.baseUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
     return `
     链接：${url}   
     密码：${linkInfo.password || "不需要密码"}

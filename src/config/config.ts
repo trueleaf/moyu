@@ -42,7 +42,7 @@ const config: Config = {
         //权限相关
         permission: {
             free: false,
-            whiteList: ["/", "/login", "/test"],
+            whiteList: ["/", "/login", "/test", "/check", "view"],
         },
         //http请求相关
         httpRequest: {

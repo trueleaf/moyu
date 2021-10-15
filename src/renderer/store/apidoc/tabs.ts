@@ -11,6 +11,7 @@ import { ElMessageBox } from "element-plus"
 import { apidocCache } from "@/cache/apidoc"
 import type { State as RootState, } from "@@/store"
 import { event } from "@/helper/index"
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,
@@ -103,7 +104,7 @@ const tabs = {
         //根据id改变节点属性
         changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
             const { id, field, value } = payload;
-            const projectId = router.currentRoute.value.query.id as string;
+            const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
             const tabs = state.tabs[projectId];
             const editData = findNodeById(tabs, id, {
                 idKey: "_id",

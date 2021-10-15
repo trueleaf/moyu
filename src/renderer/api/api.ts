@@ -59,6 +59,8 @@ const axiosPlugin = {
                             break;
                         case 2003: //验证码错误
                             break;
+                        case 101005: //无效的的id和密码,跳转到验证页面
+                            break;
                         case 4101: //登录有错
                             router.replace("/login");
                             app.config.globalProperties.$message.warning("暂无权限");

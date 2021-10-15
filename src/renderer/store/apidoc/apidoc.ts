@@ -7,6 +7,8 @@ import { store } from "@/store/index"
 import type { State as RootState, ApidocState, } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
+const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -76,7 +78,7 @@ function getDefaultHeaders(contentType: ApidocContentType) {
 //过滤合法的联想参数(string、number)
 function filterValidParams(arrayParams: ApidocProperty[], type: ApidocMindParam["paramsPosition"]) {
     const result: ApidocMindParam[] = [];
-    const projectId = router.currentRoute.value.query.id as string;
+    const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
     forEachForest(arrayParams, (data) => {
         const isComplex = data.type === "object" || data.type === "array";
         const copyData = cloneDeep(data) as ApidocMindParam;
@@ -357,7 +359,7 @@ const apidoc = {
          */
         saveApidoc(context: ActionContext<ApidocState, RootState>): Promise<void> {
             return new Promise((resolve, reject) => {
-                const projectId = router.currentRoute.value.query.id as string;
+                const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
                 const tabs = store.state["apidoc/tabs"].tabs[projectId];
                 const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
                 if (!currentSelectTab) {
@@ -417,7 +419,7 @@ const apidoc = {
          */
         saveMindParams(context: ActionContext<ApidocState, RootState>): void {
             const apidocDetail = context.state.apidoc;
-            const projectId = router.currentRoute.value.query.id as string;
+            const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
             const paths = filterValidParams(apidocDetail.item.paths, "paths");
             const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
             const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");
@@ -433,6 +435,64 @@ const apidoc = {
                 }
             }).catch((err) => {
                 console.error(err);
+            });
+        },
+
+        /**
+         * 获取分享项目基本信息
+         */
+        getSharedApidocDetail(context: ActionContext<ApidocState, RootState>, payload: { id: string, password: string, shareId: string, projectId: string }): Promise<void> {
+            if (cancel.length > 0) {
+                cancel.forEach((c) => {
+                    c("取消请求");
+                })
+            }
+            return new Promise((resolve, reject) => {
+                if (isBuildHtml) {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const matchedValue = (window as any).SHARE_DATA.docs.find((v: { _id: string }) => v._id === payload.id);
+                    context.commit("changeApidoc", matchedValue)
+                    context.commit("changeOriginApidoc")
+                    store.commit("apidoc/response/clearResponseInfo")
+                    resolve(matchedValue);
+                    return
+                }
+                context.commit("changeApidocLoading", true);
+                const params = {
+                    password: payload.password,
+                    shareId: payload.shareId,
+                    _id: payload.id,
+                }
+                axiosInstance.get<Response<ApidocDetail>, Response<ApidocDetail>>("/api/project/share_doc_detail", {
+                    params,
+                    cancelToken: new axios.CancelToken((c) => {
+                        cancel.push(c);
+                    }),
+                }).then((res) => {
+                    if (res.data === null) { //接口不存在提示用户删除接口
+                        confirmInvalidDoc(payload.projectId, payload.id);
+                        return;
+                    }
+                    if (res.code === 101005) {
+                        shareRouter.replace({
+                            path: "/check",
+                            query: {
+                                share_id: shareRouter.currentRoute.value.query.share_id,
+                                id: shareRouter.currentRoute.value.query.id,
+                            },
+                        });
+                        return;
+                    }
+                    context.commit("changeApidoc", res.data)
+                    context.commit("changeOriginApidoc")
+                    store.commit("apidoc/response/clearResponseInfo")
+                    resolve()
+                }).catch((err) => {
+                    console.error(err);
+                    reject(err);
+                }).finally(() => {
+                    context.commit("changeApidocLoading", false);
+                })
             });
         },
     },

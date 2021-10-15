@@ -6,8 +6,9 @@
 */
 import { ref, Ref, computed } from "vue"
 import { useStore } from "@/store/index"
-import { router } from "@/router/index"
+import shareRouter from "../../../../../router/index"
 import { sendRequest, stopRequest } from "@/server/request/request"
+
 
 type OperationReturn = {
     /**
@@ -36,7 +37,7 @@ export default (): OperationReturn => {
     const store = useStore();
     const loading2 = ref(false); //保存接口
     const loading3 = ref(false); //刷新接口
-    const projectId = router.currentRoute.value.query.id as string;
+    const projectId = shareRouter.currentRoute.value.query.id as string;
     const currentSelectTab = computed(() => {
         const tabs = store.state["apidoc/tabs"].tabs[projectId];
         const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
@@ -103,9 +104,13 @@ export default (): OperationReturn => {
     //刷新文档
     const handleFreshApidoc = () => {
         loading3.value = true;
-        store.dispatch("apidoc/apidoc/getApidocDetail", {
+        const password = localStorage.getItem("share/password") || ""
+        const shareId = shareRouter.currentRoute.value.query.share_id;
+        store.dispatch("apidoc/apidoc/getSharedApidocDetail", {
             id: currentSelectTab.value?._id,
             projectId,
+            password,
+            shareId,
         }).then(() => {
             loading3.value = false;
         })

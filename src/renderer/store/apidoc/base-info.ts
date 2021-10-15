@@ -2,6 +2,7 @@ import { ActionContext } from "vuex"
 import { axios } from "@/api/api"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
 import type { Response, ApidocMindParam } from "@@/global"
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 
 const baseInfo = {
@@ -113,6 +114,16 @@ const baseInfo = {
                     password: payload.password,
                 };
                 axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/export/share_project_info", { params }).then((res) => {
+                    if (res.code === 101005) {
+                        shareRouter.replace({
+                            path: "/check",
+                            query: {
+                                share_id: shareRouter.currentRoute.value.query.share_id,
+                                id: shareRouter.currentRoute.value.query.id,
+                            },
+                        });
+                        return;
+                    }
                     context.commit("changeProjectBaseInfo", res.data)
                     resolve()
                 }).catch((err) => {

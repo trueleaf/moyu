@@ -57,10 +57,9 @@ import { computed, ref, Ref } from "vue"
 import { useStore } from "@/store/index"
 import { useBannerData } from "./composables/banner-data"
 import sTool from "./tool/tool.vue"
-import { router } from "@/router/index"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
-
+import shareRouter from "../../router/index"
 
 //搜索数据
 type SearchData = {
@@ -83,7 +82,7 @@ type SearchData = {
 |--------------------------------------------------------------------------
 */
 const store = useStore();
-const projectId = router.currentRoute.value.query.id as string;
+const projectId = shareRouter.currentRoute.value.query.id as string;
 const docTree: Ref<TreeNodeOptions["store"] | null | TreeNodeOptions> = ref(null);
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
