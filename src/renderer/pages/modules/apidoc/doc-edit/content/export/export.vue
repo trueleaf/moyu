@@ -95,7 +95,7 @@ import { axios } from "@/api/api"
 import { router } from "@/router/index"
 
 //可导出数据类型
-const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("otherProject")
+const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
 //项目基本信息
 const projectInfo = computed(() => {
     return store.state["apidoc/baseInfo"];
