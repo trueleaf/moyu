@@ -6,6 +6,7 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 
 module.exports = {
     pages: {
@@ -48,13 +49,11 @@ module.exports = {
                 inlineSource: ".(js|css|png|jpg|woff|woff2|ttf)$", // embed all javascript and css inline
             }),
             new HtmlWebpackInlineSourcePlugin(),
+            new BundleAnalyzerPlugin()
         ],
     },
     chainWebpack: (webpackConfig) => {
         const fontsRule = webpackConfig.module.rule("fonts");
-        // clear all existing loaders.
-        // if you don't do this, the loader below will be appended to
-        // existing loaders of the rule.
         fontsRule.uses.clear();
         webpackConfig.module
             .rule("fonts")
@@ -66,6 +65,6 @@ module.exports = {
     //=====================================eslint配置====================================//
     lintOnSave: "error", //未通过eslint 禁止代码提交
     //=====================================打包上线配置====================================//
-    productionSourceMap: true, //打包时候js是否添加sourceMap
+    productionSourceMap: false, //打包时候js是否添加sourceMap
     publicPath: "/",
 };
