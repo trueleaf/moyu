@@ -1,8 +1,7 @@
 import config from "@/../config/config"
 import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { App } from "vue"
-import jsCookie from "js-cookie";
-import { router } from "@/router";
+import { ElMessage, ElMessageBox } from "element-plus"
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -13,17 +12,6 @@ const axiosPlugin = {
     install(app: App): void {
         //===============================axiosInstance请求钩子==========================================//
         axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
-            reqConfig.headers["x-csrf-token"] = jsCookie.get("csrfToken");
-            const userInfoStr = localStorage.getItem("userInfo") || "{}";
-            try {
-                const userInfo = JSON.parse(userInfoStr);
-                if (!userInfo.token) {
-                    router.push("/login");
-                }
-                reqConfig.headers.Authorization = userInfo.token
-            } catch (error) {
-                Promise.reject(error)
-            }
             return reqConfig;
         }, (err) => Promise.reject(err));
         //===============================axiosInstance响应钩子=======================================//
@@ -48,42 +36,24 @@ const axiosPlugin = {
                         // eslint-disable-next-line prefer-destructuring
                         code = res.data.code; //自定义请求状态码
                     }
-                    /*eslint-disable indent*/
                     switch (code) {
-                        case 0: //正确请求
-                            break;
-                        case 2006: //输入验证码
-                            break;
-                        case 2003: //验证码错误
-                            break;
-                        case 101005: //无效的的id和密码,跳转到验证页面
-                            break;
-                        case 4101: //登录有错
-                            router.replace("/login");
-                            app.config.globalProperties.$message.warning("暂无权限");
-                            return Promise.reject(new Error("暂无权限"));
-                        case 4100: //登录过期
-                            app.config.globalProperties.$confirm("登录已过期", "提示", {
-                                confirmButtonText: "跳转登录",
-                                cancelButtonText: "取消",
-                                type: "warning",
-                            }).then(() => {
-                                sessionStorage.clear();
-                                router.replace("/login");
-                            });
-                            return Promise.reject(new Error("登陆已过期"));
-                        case 4200: //代理错误
-                            return Promise.reject(new Error(res.data.msg));
-                        case 4002: //暂无权限
-                            app.config.globalProperties.$message.warning(res.data.msg || "暂无权限");
-                            return Promise.reject(new Error(res.data.msg || "暂无权限"));
-                        default:
-                            app.config.globalProperties.$confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
-                                confirmButtonText: "确定",
-                                showCancelButton: false,
-                                type: "warning",
-                            });
-                            return Promise.reject(new Error(res.data.msg));
+                    case 0: //正确请求
+                        break;
+                        break;
+                    case 101005: //无效的的id和密码,跳转到验证页面
+                        break;
+                    case 4200: //代理错误
+                        return Promise.reject(new Error(res.data.msg));
+                    case 4002: //暂无权限
+                        ElMessage.warning(res.data.msg || "暂无权限");
+                        return Promise.reject(new Error(res.data.msg || "暂无权限"));
+                    default:
+                        ElMessageBox.confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
+                            confirmButtonText: "确定",
+                            showCancelButton: false,
+                            type: "warning",
+                        });
+                        return Promise.reject(new Error(res.data.msg));
                     }
                     return result;
                 }
@@ -110,7 +80,7 @@ const axiosPlugin = {
                 if (err.constructor && err.constructor.name === "Cancel") {
                     return;
                 }
-                app.config.globalProperties.$message.error("系统开小差了!");
+                ElMessage.error("系统开小差了!");
                 Promise.reject(err);
             },
         );

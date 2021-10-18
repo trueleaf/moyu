@@ -3,12 +3,12 @@
  */
 
 import { computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
 import globalConfig from "@/../config/config"
 import type { ApidocProperty, ApidocPropertyType } from "@@/global"
 import type { ApidocProjectHost } from "@@/store"
-import { router } from "@/router/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
 
 /**

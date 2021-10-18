@@ -6,9 +6,9 @@ import { Ref } from "vue"
 import type { ApidocBanner, Response } from "@@/global"
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from "@/helper/index"
 import { ElMessageBox } from "element-plus"
-import { store } from "@/store/index"
-import { router } from "@/router/index"
-import { axios } from "@/api/api"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
+import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
 
 type MapId = {
     oldId: string, //历史id

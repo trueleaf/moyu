@@ -70,7 +70,6 @@
             <div v-show="rawType === 'application/json'" title="raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数" class="tip">raw模块中json数据可适用与快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数</div>
         </div>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
-        <params-template v-model="paramsTemplatedialogVisible"></params-template>
     </div>
 </template>
 
@@ -81,7 +80,6 @@ import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
 import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
 import importParams from "./dialog/import-params/import-params.vue"
-import paramsTemplate from "./dialog/params-template/params-template.vue"
 
 /*
 |--------------------------------------------------------------------------

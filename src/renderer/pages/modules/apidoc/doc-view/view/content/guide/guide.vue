@@ -7,7 +7,7 @@
 <template>
     <div class="guide">
         <div class="wrap">
-            <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo图片" class="logo">
+            <!-- <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo图片" class="logo"> -->
             <h2>当前版本{{ config.localization.version }}</h2>
             <div class="d-flex a-center f-base">
                 <div class="d-flex a-center mr-5">
@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { forEachForest } from "@/helper"
 import { ApidocBanner } from "@@/global"
 import  config from "@/../config/config"

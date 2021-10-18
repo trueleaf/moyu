@@ -92,7 +92,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import type { ApidocResponseParams } from "@@/global"
 
 

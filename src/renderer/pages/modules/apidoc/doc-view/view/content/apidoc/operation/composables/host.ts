@@ -6,11 +6,11 @@
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from "vue"
 // import { handleFormatUrl } from "./url"
-import { useStore } from "@/store/index"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import globalConfig from "@/../config/config"
 import type { ApidocProjectHost } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
-import { router } from "@/router/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
 
 
 type HostReturn = {

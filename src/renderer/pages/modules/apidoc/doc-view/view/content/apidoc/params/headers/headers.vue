@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => {

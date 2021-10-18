@@ -6,9 +6,6 @@
 */
 <template>
     <div class="request-view">
-        <!-- <s-collapse title="基本信息">
-            
-        </s-collapse> -->
         <div class="text-bold">基本信息</div>
         <div class="px-4">
             <s-label-value label="请求地址：" class="mt-2" one-line>
@@ -26,33 +23,33 @@
                 <s-label-value label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                 </s-label-value>
-                <s-label-value label="累计用时：" :title="$helper.formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
-                    <span class="text-ellipsis">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
+                <s-label-value label="累计用时：" :title="formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
+                    <span class="text-ellipsis">{{ formatMs(apidocInfo.info.spendTime) }}</span>
                 </s-label-value>
-                <s-label-value label="更新日期：" :title="$helper.formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
-                    <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.updatedAt) }}</span>
+                <s-label-value label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+                    <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
                 </s-label-value>
-                <s-label-value label="创建日期：" :title="$helper.formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
-                    <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.createdAt) }}</span>
+                <s-label-value label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+                    <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
                 </s-label-value>
             </div>
         </div>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { computed } from "vue"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
+import { formatMs, formatDate } from "@/helper"
 
-export default defineComponent({
-    computed: {
-        apidocInfo() { //接口文档信息
-            return this.$store.state["apidoc/apidoc"].apidoc
-        },
-        validRequestMethods() {
-            return this.$store.state["apidoc/baseInfo"].rules.requestMethods?.filter((val) => val.enabled);
-        },
-    },
+const apidocInfo = computed(() => {
+    return store.state["apidoc/apidoc"].apidoc
 })
+
+const validRequestMethods = computed(() => {
+    return store.state["apidoc/baseInfo"].rules.requestMethods?.filter((val) => val.enabled);
+})
+
 </script>
 
 <style lang="scss">

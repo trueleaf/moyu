@@ -106,6 +106,7 @@
 import { defineComponent } from "vue"
 import beautify from "js-beautify"
 import { ApidocProperty } from "@@/global";
+import { apidocConvertJsonDataToParams } from "@/helper/index"
 type ResponseApplyEnum = {
     index: number,
     title: string,
@@ -161,7 +162,7 @@ export default defineComponent({
         },
         //应用为响应值
         handleApplyResponse(item: ResponseApplyEnum, index: number) {
-            const convertData = this.$helper.apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
+            const convertData = apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
                 const mindData = this.$store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams");
                 const matchedData = mindData.find(v => v.key === p.key);
                 if (matchedData) {

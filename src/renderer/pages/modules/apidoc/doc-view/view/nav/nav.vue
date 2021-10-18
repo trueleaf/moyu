@@ -89,6 +89,7 @@
 import { defineComponent } from "vue"
 import draggable from "vuedraggable"
 import type { ApidocTab } from "@@/store"
+import { event } from "@/helper/index"
 
 export default defineComponent({
     components: {
@@ -134,7 +135,7 @@ export default defineComponent({
     beforeUnmount() {
         document.body.removeEventListener("click", this.bindGlobalClick);
         document.body.removeEventListener("contextmenu", this.bindGlobalClick);
-        this.$helper.event.off("apidoc/tabs/addOrDeleteTab");
+        event.off("apidoc/tabs/addOrDeleteTab");
     },
     methods: {
         //初始化active的tab
@@ -144,7 +145,7 @@ export default defineComponent({
                 const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
                 activeNode?.scrollIntoView();
             })
-            this.$helper.event.on("apidoc/tabs/addOrDeleteTab", () => {
+            event.on("apidoc/tabs/addOrDeleteTab", () => {
                 setTimeout(() => {
                     const tabWrap = (this.$refs.tabListWrap as { $el:  HTMLLIElement}).$el;
                     const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;

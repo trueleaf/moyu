@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
 import check from "../check/check.vue"
 import view from "../view/view.vue"
-import notFound from "@/pages/layout/404/404.vue"
 //=====================================路由====================================//
 const routes: Array<RouteRecordRaw> = [
     {
@@ -16,12 +15,7 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: "/check",
         name: "Check",
-        component: () => check,
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "404",
-        component: notFound,
+        component: check,
     },
 ]
 const router = createRouter({

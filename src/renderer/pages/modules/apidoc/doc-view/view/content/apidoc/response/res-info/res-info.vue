@@ -47,7 +47,7 @@
 <script lang="ts" setup>
 import { formatBytes, formatMs } from "@/helper/index"
 import { computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 //远端返回值
 const remoteResponse = computed(() => {

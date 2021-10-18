@@ -5,9 +5,8 @@
 |
 */
 import { ref, Ref, computed } from "vue"
-import { useStore } from "@/store/index"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import shareRouter from "../../../../../router/index"
-import { sendRequest, stopRequest } from "@/server/request/request"
 
 
 type OperationReturn = {
@@ -45,62 +44,12 @@ export default (): OperationReturn => {
     });
     //发送请求
     const handleSendRequest = () => {
-        sendRequest();
+        // sendRequest();
     }
     //停止请求
     const handleStopRequest = () => {
-        stopRequest();
+        // stopRequest();
     };
-    //保存文档
-    // const handleSaveApidoc = () => {
-    //     if (!currentSelectTab.value) {
-    //         console.warn("缺少tab信息");
-    //         return;
-    //     }
-    //     loading2.value = true;
-    //     const apidocDetail = store.state["apidoc/apidoc"].apidoc;
-    //     const params = {
-    //         _id: currentSelectTab.value._id,
-    //         projectId,
-    //         info: apidocDetail.info,
-    //         item: apidocDetail.item,
-    //     };
-    //     axios.post("/api/project/fill_doc", params).then(() => {
-    //         //改变tab请求方法
-    //         store.commit("apidoc/tabs/changeTabInfoById", {
-    //             id: currentSelectTab.value?._id,
-    //             field: "head",
-    //             value: {
-    //                 icon: params.item.method,
-    //                 color: "",
-    //             },
-    //         });
-    //         //改变banner请求方法
-    //         store.commit("apidoc/banner/changeBannerInfoById", {
-    //             id: currentSelectTab.value?._id,
-    //             field: "method",
-    //             value: params.item.method,
-    //         })
-    //         //改变origindoc的值
-    //         store.commit("apidoc/apidoc/changeOriginApidoc");
-    //         //改变tab未保存小圆点
-    //         store.commit("apidoc/tabs/changeTabInfoById", {
-    //             id: currentSelectTab.value?._id,
-    //             field: "saved",
-    //             value: true,
-    //         });
-    //     }).catch((err) => {
-    //         //改变tab未保存小圆点
-    //         store.commit("apidoc/tabs/changeTabInfoById", {
-    //             id: currentSelectTab.value?._id,
-    //             field: "saved",
-    //             value: false,
-    //         });
-    //         console.error(err);
-    //     }).finally(() => {
-    //         loading2.value = false;
-    //     });
-    // };
     //刷新文档
     const handleFreshApidoc = () => {
         loading3.value = true;

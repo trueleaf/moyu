@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { useStore } from "@/store/index"
+import { useStore } from "../../store/index"
 import { useBannerData } from "./composables/banner-data"
 import sTool from "./tool/tool.vue"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"

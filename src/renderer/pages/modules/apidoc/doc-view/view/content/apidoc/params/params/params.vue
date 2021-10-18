@@ -16,7 +16,7 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 //path参数
 const pathTreeData = computed(() => {

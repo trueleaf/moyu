@@ -21,7 +21,7 @@ import { useRoute } from "vue-router"
 import banner from "./banner/banner.vue";
 import nav from "./nav/nav.vue";
 import content from "./content/content.vue";
-import { useStore } from "@/store/index"
+import { useStore } from "../store/index"
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
 export default defineComponent({

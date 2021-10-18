@@ -18,7 +18,6 @@
             <div class="gray-600">
                 <span class="mr-1">过期倒计时：</span>
                 <span v-countdown="expire"></span>
-                <!-- <span v-if="expire">{{ $helper.formatDate(new Date(Number(expire))) }}</span> -->
             </div>
         </div>
     </s-loading>
@@ -27,7 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Response } from "@@/global"
+import type { Response } from "@@/global"
 
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
@@ -51,6 +50,7 @@ export default defineComponent({
         };
     },
     mounted() {
+        console.log("check", typeof isBuildHtml)
         if (isBuildHtml) {
             this.$router.push({
                 path: "/view",

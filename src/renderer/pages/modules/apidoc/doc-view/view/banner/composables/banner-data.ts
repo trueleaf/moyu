@@ -4,7 +4,7 @@
 
 import { ref, Ref } from "vue"
 import { useRoute } from "vue-router"
-import { useStore } from "@/store/index"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 type ReturnData = {
     /**

@@ -20,7 +20,6 @@
                     </template>
                 </el-popover>
             </el-radio-group>
-            <el-button v-if="!isView" type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>代理&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
@@ -75,21 +74,19 @@
             <span class="label">完整路径：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
-    <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from "vue"
 import globalConfig from "@/../config/config"
-import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handlePickPathParams } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
-import { useStore } from "@/store/index"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import type { Config } from "@@/config" 
 import { apidocCache } from "@/cache/apidoc"
-import { router } from "@/router/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();
@@ -126,7 +123,7 @@ const isProxy = computed({
 |--------------------------------------------------------------------------
 */
 const hostPart = getHostPart();
-const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
+const { mockServer, host, hostEnum, handleChangeHost } = hostPart;
 /*
 |--------------------------------------------------------------------------
 | 请求方法

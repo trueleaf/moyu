@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue"
 import config from "@/../config/config"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import sBaseInfo from "./base-info/base-info.vue"
 import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
