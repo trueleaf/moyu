@@ -49,7 +49,10 @@ module.exports = {
                 inlineSource: ".(js|css|png|jpg|woff|woff2|ttf)$", // embed all javascript and css inline
             }),
             new HtmlWebpackInlineSourcePlugin(),
-            new BundleAnalyzerPlugin()
+            new BundleAnalyzerPlugin({
+                analyzerPort: "8888",
+                openAnalyzer: false,
+            })
         ],
     },
     chainWebpack: (webpackConfig) => {
