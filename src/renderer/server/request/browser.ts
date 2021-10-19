@@ -3,11 +3,13 @@ import Axios, { Method } from "axios"
 import axios from "axios"
 import { axios as axios2 } from "@/api/api"
 import FormData from "form-data"
-import { store } from "@/store/index"
+import { store as onlineStore } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import * as utils from "./utils"
+import { store as shareStore } from "@/pages/modules/apidoc/doc-view/store/index"
 
+const buildShareOrHtml = process.env.VUE_APP_BUILD_SHARE || process.env.VUE_APP_BUILD_HTML
 
 //初始化请求
 const axiosInstance = Axios.create({
@@ -19,6 +21,7 @@ const source = CancelToken.source();
 
 //获取完整headers
 function getRealHeaders() {
+    const store = buildShareOrHtml ? shareStore : onlineStore;
     const realHeaders: Record<string, string | undefined> = {};
     const { defaultHeaders } = store.state["apidoc/apidoc"];
     const { headers } = store.state["apidoc/apidoc"].apidoc.item; 
@@ -58,6 +61,7 @@ function getRealHeaders() {
  * @param {Array<Property>}     headers - 请求头
  */
 export function sendRequest(): void {
+    const store = buildShareOrHtml ? shareStore : onlineStore;
     console.warn("当前为浏览器环境发送请求、不支持跨域请求、Cookie,user-agent,connect等请求头受浏览器限制!")
     try {
         const useProxy = store.state["apidoc/baseInfo"].webProxy;
@@ -194,6 +198,7 @@ export function sendRequest(): void {
 }
 
 export function stopRequest(): void {
+    const store = buildShareOrHtml ? shareStore : onlineStore;
     source.cancel("取消请求")
     store.commit("apidoc/response/changeLoading", false)
 }

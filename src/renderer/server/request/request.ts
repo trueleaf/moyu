@@ -2,6 +2,9 @@ import { sendRequest as browserRequest, stopRequest as stopBrowserRequest } from
 import { sendRequest as electronRequest, stopRequest as stopElectronRequest } from "./electron";
 import config from "@/../config/config"
 
+
+
+
 export function sendRequest(): void {
     if (config.isElectron) {
         electronRequest();

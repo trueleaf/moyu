@@ -77,7 +77,7 @@
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import { router } from "@/router/index"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
 import importParams from "./dialog/import-params/import-params.vue"
 

@@ -7,6 +7,7 @@
 import { ref, Ref, computed } from "vue"
 import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import shareRouter from "../../../../../router/index"
+import { sendRequest, stopRequest } from "@/server/request/request"
 
 
 type OperationReturn = {
@@ -44,11 +45,11 @@ export default (): OperationReturn => {
     });
     //发送请求
     const handleSendRequest = () => {
-        // sendRequest();
+        sendRequest();
     }
     //停止请求
     const handleStopRequest = () => {
-        // stopRequest();
+        stopRequest();
     };
     //刷新文档
     const handleFreshApidoc = () => {
