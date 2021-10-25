@@ -115,7 +115,6 @@ const permission = {
                     resolve(res.data);
                     sessionStorage.setItem("permission/userInfo", JSON.stringify(res.data));
                 }).catch((err) => {
-                    router.push("/login");
                     reject(err);
                 });
             });
