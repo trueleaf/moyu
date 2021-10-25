@@ -8,6 +8,7 @@ const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
+let isExpire = false; //是否登录过期
 
 const axiosPlugin = {
     install(app: App): void {
@@ -63,14 +64,20 @@ const axiosPlugin = {
                             app.config.globalProperties.$message.warning("暂无权限");
                             return Promise.reject(new Error("暂无权限"));
                         case 4100: //登录过期
-                            app.config.globalProperties.$confirm("登录已过期", "提示", {
-                                confirmButtonText: "跳转登录",
-                                cancelButtonText: "取消",
-                                type: "warning",
-                            }).then(() => {
-                                sessionStorage.clear();
-                                router.replace("/login");
-                            });
+                            if (!isExpire) {
+                                isExpire = true;
+                                app.config.globalProperties.$confirm("登录已过期", "提示", {
+                                    confirmButtonText: "跳转登录",
+                                    cancelButtonText: "取消",
+                                    type: "warning",
+                                }).then(() => {
+                                    isExpire = false;
+                                    sessionStorage.clear();
+                                    router.replace("/login");
+                                }).catch(() => {
+                                    isExpire = false;
+                                });
+                            }
                             return Promise.reject(new Error("登陆已过期"));
                         case 4200: //代理错误
                             return Promise.reject(new Error(res.data.msg));
