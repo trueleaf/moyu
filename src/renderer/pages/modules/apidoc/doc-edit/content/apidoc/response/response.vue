@@ -7,7 +7,7 @@
 <template>
     <s-base-info v-show="layout === 'horizontal'"></s-base-info>
     <s-res-info v-show="layout === 'horizontal'"></s-res-info>
-    <s-loading :loading="requestLoading">
+    <s-loading :loading="!isResponse">
         <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3" :class="{ vertical: layout === 'vertical' }">
             <el-tabs v-model="activeName" class="h-100">
                 <el-tab-pane label="返回值" name="s-body">
@@ -32,16 +32,25 @@
         </div>
         <el-empty v-show="!remoteResponse.data.type">
             <template #description>
-                <div v-if="config.isElectron">点击发送按钮发送请求</div>
-                <div v-else>
-                    <div>
-                        <i class="el-icon-warning orange mr-2"></i>
-                        <span>因浏览器限制，完整HTTP功能请下载Electron</span>
+                <div v-if="!loading">
+                    <div v-if="config.isElectron">点击发送按钮发送请求</div>
+                    <div v-else>
+                        <div>
+                            <i class="el-icon-warning orange mr-2"></i>
+                            <span>因浏览器限制，完整HTTP功能请下载Electron</span>
+                        </div>
+                        <div class="mb-2">跨域、、请求头(user-agent,accept-encoding)等受限</div>
+                        <div v-if="config.localization.download.enabled">
+                            <a :href="config.localization.download.url">下载Electron</a>
+                        </div>
                     </div>
-                    <div class="mb-2">跨域、、请求头(user-agent,accept-encoding)等受限</div>
-                    <div v-if="config.localization.download.enabled">
-                        <a :href="config.localization.download.url">下载Electron</a>
-                    </div>
+                </div>
+                <div v-if="loading">
+                    <span>总大小：{{ formatBytes(process.total) }}</span>
+                    <el-divider direction="vertical"></el-divider>
+                    <span>已传输：{{ formatBytes(process.transferred) }}</span>
+                    <el-divider direction="vertical"></el-divider>
+                    <span>进度：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
                 </div>
             </template>
         </el-empty>
@@ -57,6 +66,7 @@ import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
 import sHeaders from "./headers/headers.vue"
 import sBody from "./body/body.vue"
+import { formatBytes } from "@/helper/index"
 
 const activeName = ref("s-body");
 
@@ -80,9 +90,16 @@ const layout = computed(() => {
 const remoteResponse = computed(() => {
     return store.state["apidoc/response"]
 })
-const requestLoading = computed(() => {
+const loading = computed(() => { //数据是否返回
     return store.state["apidoc/response"].loading
 })
+const isResponse = computed(() => { //数据是否返回
+    return store.state["apidoc/response"].isResponse
+})
+const process = computed(() => {
+    return store.state["apidoc/response"].process
+})
+
 </script>
 
 <style lang="scss">

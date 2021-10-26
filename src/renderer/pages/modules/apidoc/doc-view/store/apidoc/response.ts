@@ -87,6 +87,9 @@ const response = {
                 file: {
                     url: "",
                     raw: "",
+                    mime: "",
+                    ext: "",
+                    name: "",
                 },
                 type: "",
                 text: "",
@@ -108,7 +111,7 @@ const response = {
             state.data.text = ""; //清空文字
         },
         //改变返回data类型
-        changeResponseMime(state: ApidocResponseState, type: string): void {
+        changeResponseContentType(state: ApidocResponseState, type: string): void {
             state.data.type = type;
         },
         //改变返回时间
