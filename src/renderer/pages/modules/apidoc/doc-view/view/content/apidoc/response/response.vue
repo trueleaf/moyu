@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue"
 import config from "@/../config/config"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import sBaseInfo from "./base-info/base-info.vue"
 import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
@@ -60,9 +60,7 @@ import sBody from "./body/body.vue"
 
 const activeName = ref("s-body");
 
-const cookies = computed(() => {
-    return store.state["apidoc/response"].cookies;
-})
+const cookies = computed(() => store.state["apidoc/response"].cookies)
 const headers = computed(() => {
     const { header } = store.state["apidoc/response"];
     const result: { key: string, value: string }[] = [];
@@ -74,15 +72,9 @@ const headers = computed(() => {
     })
     return result
 })
-const layout = computed(() => {
-    return store.state["apidoc/baseInfo"].layout;
-})
-const remoteResponse = computed(() => {
-    return store.state["apidoc/response"]
-})
-const requestLoading = computed(() => {
-    return store.state["apidoc/response"].loading
-})
+const layout = computed(() => store.state["apidoc/baseInfo"].layout)
+const remoteResponse = computed(() => store.state["apidoc/response"])
+const requestLoading = computed(() => store.state["apidoc/response"].loading)
 </script>
 
 <style lang="scss">

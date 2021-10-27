@@ -12,7 +12,7 @@
                 <!-- <i class="el-icon-close ml-1"></i> -->
             </span>
             <s-params-tree :drag="false" show-checkbox :readonly-keys="defaultHeaderKeys" :data="defaultHeaders"></s-params-tree>
-        </div> 
+        </div>
         <div v-else class="cursor-pointer no-select" @click="hideDefaultHeader = false">
             <span>{{ defaultHeaders.length }}个隐藏</span>
             <i class="el-icon-view ml-1"></i>
@@ -23,18 +23,12 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 const hideDefaultHeader = ref(true);
-const headerData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.headers;
-}) 
-const defaultHeaders = computed(() => {
-    return store.state["apidoc/apidoc"].defaultHeaders;
-}) 
-const defaultHeaderKeys = computed(() => {
-    return store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key);
-})
+const headerData = computed(() => store.state["apidoc/apidoc"].apidoc.item.headers)
+const defaultHeaders = computed(() => store.state["apidoc/apidoc"].defaultHeaders)
+const defaultHeaderKeys = computed(() => store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key))
 </script>
 
 <style lang="scss">

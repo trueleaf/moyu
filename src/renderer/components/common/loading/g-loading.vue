@@ -13,6 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { randomTip } from "@/helper/index"
 
 export default defineComponent({
     props: {
@@ -33,7 +34,7 @@ export default defineComponent({
         loading: {
             handler(val) {
                 if (val) {
-                    this.loadingText = this.$helper.randomTip();
+                    this.loadingText = randomTip();
                 }
             },
             immediate: true,

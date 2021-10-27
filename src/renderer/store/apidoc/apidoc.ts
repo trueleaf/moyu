@@ -1,12 +1,13 @@
 import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { ElMessageBox } from "element-plus"
+import type { State as RootState, ApidocState, } from "@@/store"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import type { State as RootState, ApidocState, } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -76,7 +77,7 @@ function getDefaultHeaders(contentType: ApidocContentType) {
 //过滤合法的联想参数(string、number)
 function filterValidParams(arrayParams: ApidocProperty[], type: ApidocMindParam["paramsPosition"]) {
     const result: ApidocMindParam[] = [];
-    const projectId = router.currentRoute.value.query.id as string;
+    const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
     forEachForest(arrayParams, (data) => {
         const isComplex = data.type === "object" || data.type === "array";
         const copyData = cloneDeep(data) as ApidocMindParam;
@@ -108,7 +109,7 @@ const apidoc = {
          */
         defaultHeaders: [],
         /**
-         * 是否正在加载接口
+         * 是否正在加载数据
          */
         loading: false,
         /**
@@ -220,7 +221,7 @@ const apidoc = {
         //根据index值改变response
         changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
             const { index, value } = payload
-            state.apidoc.item.responseParams[index].value.json  = value;
+            state.apidoc.item.responseParams[index].value.json = value;
         },
         //新增一个response
         addResponseParam(state: ApidocState): void {
@@ -357,7 +358,7 @@ const apidoc = {
          */
         saveApidoc(context: ActionContext<ApidocState, RootState>): Promise<void> {
             return new Promise((resolve, reject) => {
-                const projectId = router.currentRoute.value.query.id as string;
+                const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
                 const tabs = store.state["apidoc/tabs"].tabs[projectId];
                 const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
                 if (!currentSelectTab) {
@@ -417,7 +418,7 @@ const apidoc = {
          */
         saveMindParams(context: ActionContext<ApidocState, RootState>): void {
             const apidocDetail = context.state.apidoc;
-            const projectId = router.currentRoute.value.query.id as string;
+            const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
             const paths = filterValidParams(apidocDetail.item.paths, "paths");
             const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
             const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");

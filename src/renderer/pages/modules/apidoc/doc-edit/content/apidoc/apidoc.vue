@@ -11,7 +11,7 @@
             <s-params></s-params>
         </div>
         <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
-        <s-resize-y 
+        <s-resize-y
             v-show="layout === 'vertical'"
             :min="150"
             :max="550"
@@ -31,10 +31,10 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { ApidocTab } from "@@/store"
 import operation from "./operation/operation.vue"
 import params from "./params/params.vue"
 import response from "./response/response.vue"
-import type { ApidocTab } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({

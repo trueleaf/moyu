@@ -20,7 +20,6 @@
                     </template>
                 </el-popover>
             </el-radio-group>
-            <el-button v-if="!isView" type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">环境维护</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>代理&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
@@ -75,28 +74,24 @@
             <span class="label">完整路径：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
-    <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from "vue"
+import type { Config } from "@@/config"
 import globalConfig from "@/../config/config"
-import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handlePickPathParams } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
-import { useStore } from "@/store/index"
-import type { Config } from "@@/config" 
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import { apidocCache } from "@/cache/apidoc"
-import { router } from "@/router/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();
 //当前工作区状态
-const isView = computed(() => {
-    return store.state["apidoc/baseInfo"].mode === "view"
-})
+const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
 /*
 |--------------------------------------------------------------------------
 | web代理相关
@@ -126,7 +121,7 @@ const isProxy = computed({
 |--------------------------------------------------------------------------
 */
 const hostPart = getHostPart();
-const { mockServer, hostDialogVisible, host, hostEnum, handleChangeHost } = hostPart;
+const { mockServer, host, hostEnum, handleChangeHost } = hostPart;
 /*
 |--------------------------------------------------------------------------
 | 请求方法
@@ -139,17 +134,13 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
-const loading = computed(() => {
-    return store.state["apidoc/response"].loading;
-})
+const loading = computed(() => store.state["apidoc/response"].loading)
 const operationPart = getOperationPart();
-const loading2 = computed(() => {
-    return store.state["apidoc/apidoc"].saveLoading;
-})
+const loading2 = computed(() => store.state["apidoc/apidoc"].saveLoading)
 const handleSaveApidoc = () => {
     store.dispatch("apidoc/apidoc/saveApidoc");
 }
-const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc  } =  operationPart;
+const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
     get() {
@@ -158,10 +149,8 @@ const requestPath = computed<string>({
     set(path) {
         store.commit("apidoc/apidoc/changeApidocUrl", path)
     },
-}); 
-const paths = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.paths
-})
+});
+const paths = computed(() => store.state["apidoc/apidoc"].apidoc.item.paths)
 const fullUrl = computed(() => {
     const { queryParams } = store.state["apidoc/apidoc"].apidoc.item;
     let queryString = "";
@@ -170,9 +159,9 @@ const fullUrl = computed(() => {
             queryString += `${v.key}=${v.value}&`
         }
     })
-    queryString = queryString.replace(/\&$/, "");
+    queryString = queryString.replace(/&$/, "");
     if (queryString) {
-        queryString = "?" + queryString;
+        queryString = `?${queryString}`;
     }
     const pathMap: Record<string, string> = {};
     paths.value.forEach((v) => {
@@ -180,9 +169,7 @@ const fullUrl = computed(() => {
             pathMap[v.key] = v.value;
         }
     })
-    const validPath = requestPath.value.replace(/\{([^\}]+)\}/g, ($1, $2) => {
-        return pathMap[$2] || $2
-    })
+    const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
     return host.value + validPath + queryString
 })
 </script>

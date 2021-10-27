@@ -1,5 +1,4 @@
 import { Config } from "@@/config"
-// import methods from "./methods";
 import computed from "./computed";
 import props from "./props";
 import filters from "./filters";
@@ -12,5 +11,4 @@ export default {
         return data;
     },
     computed,
-    // methods,
 };

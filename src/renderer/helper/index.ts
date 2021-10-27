@@ -1,3 +1,5 @@
+/* eslint-disable no-lonely-if */
+/* eslint-disable no-continue */
 /**
  * @description        全局工具函数
  * @author             shuxiaokai
@@ -5,13 +7,13 @@
  */
 import { nanoid } from "nanoid/non-secure"
 import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail } from "@@/global"
-import tips from "./tips"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
+import tips from "./tips"
 import Mock from "@/server/mock"
 import { store } from "@/store/index"
 
@@ -83,9 +85,11 @@ export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) =>
             const currentData = forestData[i];
             hook(currentData);
             if (!currentData[childrenKey]) {
+                // eslint-disable-next-line no-continue
                 continue;
             }
             if (!Array.isArray(currentData[childrenKey])) {
+                // eslint-disable-next-line no-continue
                 continue;
             }
             if ((currentData[childrenKey] as T[]).length > 0) {
@@ -123,9 +127,8 @@ export function findParentById<T extends ForestData>(forest: T[], id: string, op
     foo(forest, 0);
     if (hasPNode) {
         return pNode;
-    } else {
-        return null;
     }
+    return null;
 }
 
 /**
@@ -214,7 +217,7 @@ type TreeNode<T> = {
 export function flatTree<T extends TreeNode<T>>(root: T): T[] {
     const result: T[] = [];
     const foo = (nodes: T[]): void => {
-        for(let i = 0; i < nodes.length; i ++) {
+        for (let i = 0; i < nodes.length; i += 1) {
             const item = nodes[i];
             const itemCopy = cloneDeep(item);
             itemCopy.children = [];
@@ -223,21 +226,20 @@ export function flatTree<T extends TreeNode<T>>(root: T): T[] {
                 foo(item.children);
             }
         }
-      
     }
     foo([root]);
     return result;
 }
 
-let canvas: HTMLCanvasElement | null;
 /**
  * 获取字符串宽度
  */
 export function getTextWidth(text: string, font: string): number {
-    canvas || (canvas = document.createElement("canvas"));
+    let canvas: HTMLCanvasElement | null = document.createElement("canvas");
     const context = canvas.getContext("2d");
     (context as CanvasRenderingContext2D).font = font;
     const metrics = (context as CanvasRenderingContext2D).measureText(text);
+    canvas = null;
     return metrics.width;
 }
 
@@ -291,7 +293,6 @@ export function getRequestMethodEnum(): ApidocHttpRequestMethod[] {
     return ["GET", "POST", "PUT", "DELETE", "TRACE", "OPTIONS", "PATCH", "HEAD"];
 }
 
-
 /**
  * 生成一条接口参数
  */
@@ -304,7 +305,7 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = "string">(
         value: "",
         required: true,
         select: true,
-        children: [],        
+        children: [],
         editor: "",
         editorId: "",
     };
@@ -313,16 +314,14 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = "string">(
 
 /*
 |--------------------------------------------------------------------------
-| 
 |--------------------------------------------------------------------------
-|
-| 
 |
 */
 type Properties = ApidocProperty<ApidocPropertyType>[]
 type PropertyValueHook = (value: ApidocProperty) => string | number | boolean;
-type JsonConvertHook = (property: ApidocProperty<ApidocPropertyType>, itemData: JSON) => void;
+// eslint-disable-next-line no-use-before-define
 type JSON = string | number | boolean | null | JsonObj | JsonArr
+type JsonConvertHook = (property: ApidocProperty<ApidocPropertyType>, itemData: JSON) => void;
 type JsonArr = JSON[]
 type JsonObj = {
     [x: string]: JSON
@@ -334,7 +333,26 @@ type ConvertToObjectOptions = {
     jumpChecked?: boolean,
     parent: ApidocProperty<ApidocPropertyType>
 }
-
+/**
+ * @description        apidoc转换value值
+ * @author             shuxiaokai
+ * @create             2021-8-26 21:56
+ * @param {string}     value - 需要转换的值
+ * @return {String}    返回转换后的字符串
+ * @remark             这个方法具有强耦合性
+ */
+export function apidocConvertValue(value: string): string {
+    const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
+    const allVariables = store.state["apidoc/baseInfo"].variables;
+    if (value.toString().startsWith("@")) {
+        return Mock.mock(value);
+    }
+    if (matchdVariable) {
+        const varInfo = allVariables.find((v) => v.name === matchdVariable[1]);
+        return varInfo?.value || value;
+    }
+    return value;
+}
 function convertToJson(properties: Properties, options: ConvertToObjectOptions): void {
     const { result, parent, jumpChecked, valueHook } = options;
     for (let i = 0; i < properties.length; i += 1) {
@@ -361,11 +379,11 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         const convertValue = valueHook ? valueHook(property) : apidocConvertValue(value);
         if (isParentArray) { //父元素为数组
             if (type === "boolean") {
-                (result as JSON[]).push(convertValue === "true" ? true : false);
+                (result as JSON[]).push(convertValue === "true");
             } else if (type === "string") {
                 (result as JSON[]).push(convertValue);
             } else if (type === "number") {
-                const isNumber = !isNaN(Number(convertValue));
+                const isNumber = !Number.isNaN(Number(convertValue));
                 if (isNumber) {
                     (result as JSON[]).push(Number(convertValue));
                 } else {
@@ -380,8 +398,8 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
                 (result as JSON[]).push(pushData);
                 convertToJson(children, {
                     result: pushData,
-                    valueHook: valueHook,
-                    jumpChecked: jumpChecked,
+                    valueHook,
+                    jumpChecked,
                     parent: property
                 })
             } else if (type === "array") {
@@ -389,18 +407,18 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
                 (result as JSON[]).push(pushData);
                 convertToJson(children, {
                     result: pushData,
-                    valueHook: valueHook,
-                    jumpChecked: jumpChecked,
+                    valueHook,
+                    jumpChecked,
                     parent: property
                 })
             }
         } else { //父元素为对象
             if (type === "boolean") {
-                (result as Record<string, JSON>)[key] = convertValue === "true" ? true : false;
+                (result as Record<string, JSON>)[key] = convertValue === "true";
             } else if (type === "string") {
                 (result as Record<string, JSON>)[key] = convertValue;
             } else if (type === "number") {
-                const isNumber = !isNaN(Number(convertValue));
+                const isNumber = !Number.isNaN(Number(convertValue));
                 if (isNumber) {
                     (result as Record<string, JSON>)[key] = Number(convertValue);
                 } else {
@@ -414,16 +432,16 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
                 (result as Record<string, JSON>)[key] = {};
                 convertToJson(children, {
                     result: (result as Record<string, JSON>)[key] as Record<string, JSON>,
-                    valueHook: valueHook,
-                    jumpChecked: jumpChecked,
+                    valueHook,
+                    jumpChecked,
                     parent: property
                 })
             } else if (type === "array") {
                 (result as Record<string, JSON>)[key] = [];
                 convertToJson(children, {
                     result: (result as Record<string, JSON>)[key] as JSON[],
-                    valueHook: valueHook,
-                    jumpChecked: jumpChecked,
+                    valueHook,
+                    jumpChecked,
                     parent: property
                 })
             }
@@ -454,6 +472,7 @@ function getJsonValueType(value: unknown): JsonValueType {
     }
     return result;
 }
+
 /**
  * 将录入参数转换为json参数
  */
@@ -466,21 +485,24 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     const rootValue = properties[0].value;
 
     if (rootType === "boolean") {
-        return rootValue === "true" ? true : false;
-    } else if (rootType === "string") {
+        return rootValue === "true";
+    }
+    if (rootType === "string") {
         return rootValue;
-    } else if (rootType === "number") {
-        const isNumber = !isNaN(Number(rootValue));
+    }
+    if (rootType === "number") {
+        const isNumber = !Number.isNaN(Number(rootValue));
         if (isNumber) {
             return Number(rootValue);
-        } else {
-            console.warn("参数无法被转换为数字类型，默认为0");
-            return 0;
         }
-    } else if (rootType === "file") {
+        console.warn("参数无法被转换为数字类型，默认为0");
+        return 0;
+    }
+    if (rootType === "file") {
         console.warn("根元素不允许为file");
         return null;
-    } else if (rootType === "object") {
+    }
+    if (rootType === "object") {
         const resultJson = {};
         const data = properties[0].children;
         if (data.every((p) => !p.key)) {
@@ -488,27 +510,27 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
         }
         convertToJson(properties[0].children, {
             result: resultJson,
-            valueHook: valueHook,
-            jumpChecked: jumpChecked,
+            valueHook,
+            jumpChecked,
             parent: properties[0]
         });
         return resultJson
-    } else if (rootType === "array") {
+    }
+    if (rootType === "array") {
         const resultJson: JSON[] = [];
         const data = properties[0].children;
-        if (data.every((p) => ((p.type === "number" && p.value === "") || (p.type === "boolean" && p.value === "") ))) {
+        if (data.every((p) => ((p.type === "number" && p.value === "") || (p.type === "boolean" && p.value === "")))) {
             return null;
         }
         convertToJson(properties[0].children, {
             result: resultJson,
-            valueHook: valueHook,
-            jumpChecked: jumpChecked,
+            valueHook,
+            jumpChecked,
             parent: properties[0]
         });
         return resultJson
-    } else {
-        return {};
     }
+    return {};
 }
 
 /**
@@ -520,6 +542,7 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
     if (rootType === "object" || rootType === "array") {
         const rootProperty = apidocGenerateProperty(rootType);
         globalResult.push(rootProperty);
+        // eslint-disable-next-line no-shadow
         const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
             if (getJsonValueType(obj) === "object") {
                 Object.keys(obj as JsonObj).forEach((key) => {
@@ -541,11 +564,12 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
                         }
                         result.push(property);
                         foo(itemValue, {
-                            result: property.children, 
+                            result: property.children,
                             deep: deep + 1,
                             hook,
                         });
                     } else if (itemType === "array") {
+                        // eslint-disable-next-line no-shadow
                         const itemValue = (obj as JsonObj)[key] as JsonArr
                         const property = apidocGenerateProperty(itemType);
                         property.key = key;
@@ -557,13 +581,13 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
                             const property2 = apidocGenerateProperty("object");
                             property.children.push(property2)
                             foo(itemValue[0], {
-                                result: property.children[0].children, 
+                                result: property.children[0].children,
                                 deep: deep + 1,
                                 hook,
                             });
                         } else {
                             foo(itemValue[0], {
-                                result: property.children, 
+                                result: property.children,
                                 deep: deep + 1,
                                 hook,
                             });
@@ -586,27 +610,6 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
         globalResult.push(rootProperty);
     }
     return globalResult;
-}
-
-/**
- * @description        apidoc转换value值
- * @author             shuxiaokai
- * @create             2021-8-26 21:56
- * @param {string}     value - 需要转换的值
- * @return {String}    返回转换后的字符串
- * @remark             这个方法具有强耦合性
- */
-export function apidocConvertValue(value: string): string {
-    const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-    const allVariables = store.state["apidoc/baseInfo"].variables;
-    if (value.toString().startsWith("@")) {
-        return Mock.mock(value);
-    }
-    if (matchdVariable) {
-        const varInfo = allVariables.find((v) => v.name === matchdVariable[1]);
-        return varInfo?.value || value;
-    }
-    return value;
 }
 
 /**

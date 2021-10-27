@@ -24,7 +24,7 @@
                 <template #default="scope">
                     <div
                         class="custom-tree-node"
-                        :class="{ 
+                        :class="{
                             'select-node': selectNodes.find(v => v._id === scope.data._id),
                             'active-node': activeNode && activeNode._id === scope.data._id,
                             'cut-node': cutNodes.find(v => v._id === scope.data._id),
@@ -45,18 +45,18 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></s-emphasize>
                                 <s-emphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url" :value="scope.data.url" :keyword="filterString"></s-emphasize>
                             </div>
-                            <input 
-                                v-else 
+                            <input
+                                v-else
                                 :value="scope.data.name"
                                 placeholder="不能为空"
-                                type="text" 
+                                type="text"
                                 class="rename-ipt"
                                 :class="{error: scope.data.name.trim() === ''}"
                                 @blur="handleChangeNodeName($event, scope.data)"
                                 @input="handleWatchNodeInput($event)"
                                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
                             >
-                            <div 
+                            <div
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
@@ -71,18 +71,18 @@
                                 <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></s-emphasize>
                                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
                             </div>
-                            <input 
-                                v-else 
+                            <input
+                                v-else
                                 :value="scope.data.name"
                                 placeholder="不能为空"
-                                type="text" 
+                                type="text"
                                 class="rename-ipt"
                                 :class="{error: scope.data.name.trim() === ''}"
                                 @blur="handleChangeNodeName($event, scope.data)"
                                 @input="handleWatchNodeInput($event)"
                                 @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
                             >
-                            <div 
+                            <div
                                 v-if="!isView"
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
@@ -123,8 +123,11 @@
 </template>
 
 <script lang="ts" setup>
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Clipboard } from "electron"
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import type { ApidocBanner } from "@@/global"
 import { ElMessage } from "element-plus"
 import sAddFileDialog from "../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../dialog/add-folder/add-folder.vue"
@@ -133,8 +136,6 @@ import { useStore } from "@/store/index"
 import { useBannerData } from "./composables/banner-data"
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
 import { router } from "@/router/index"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
-import type { ApidocBanner } from "@@/global"
 
 let clipboard: Clipboard | null = null
 if (window.require) {
@@ -158,7 +159,6 @@ type SearchData = {
     recentNumIds: string[] | null,
 };
 
-
 /*
 |--------------------------------------------------------------------------
 | 变量、函数等内容声明
@@ -172,24 +172,16 @@ const docTree: Ref<TreeNodeOptions["store"] | null | TreeNodeOptions> = ref(null
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
 const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
-const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
-const enableDrag = ref(true); //是否允许拖拽//
+const showMoreNodeInfo = ref(false); //banner是否显示更多内容
+const enableDrag = ref(true);//是否允许拖拽
 //当前工作区状态
-const isView = computed(() => {
-    return store.state["apidoc/baseInfo"].mode === "view"
-})
+const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
 const { loading, getBannerData } = useBannerData();
 //默认展开节点
-const defaultExpandedKeys = computed(() => {
-    return store.state["apidoc/banner"].defaultExpandedKeys;
-});
+const defaultExpandedKeys = computed(() => store.state["apidoc/banner"].defaultExpandedKeys);
 
-const projectInfo = computed(() => {
-    return store.state["apidoc/baseInfo"];
-});
-const activeNode = computed(() => {
-    return store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected);
-});
+const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
+const activeNode = computed(() => store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected));
 const bannerData = computed(() => {
     const originBannerData = store.state["apidoc/banner"].banner;
     return originBannerData
@@ -306,6 +298,8 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
 const handleDeleteNodes = () => {
     deleteNode.call(this, selectNodes.value);
 }
+//剪切节点
+const cutNodes: Ref<ApidocBanner[]> = ref([]);
 //复制节点
 const handleCopyNode = () => {
     cutNodes.value = [];
@@ -316,8 +310,6 @@ const handleCopyNode = () => {
 const handleForkNode = () => {
     forkNode.call(this, currentOperationalNode.value as ApidocBanner);
 }
-//剪切节点
-const cutNodes: Ref<ApidocBanner[]> = ref([]);
 const handleCutNode = () => {
     cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
     const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
@@ -325,16 +317,14 @@ const handleCutNode = () => {
 }
 //粘贴节点
 const handlePasteNode = () => {
-    if (currentOperationalNode.value && !currentOperationalNode.value.isFolder){ //只允许根元素或者文件夹粘贴
-        return
-    }
+    if (currentOperationalNode.value && !currentOperationalNode.value.isFolder) return //只允许根元素或者文件夹粘贴
     const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
     pasteValue.value = copyData ? JSON.parse(copyData) : null;
     pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
         if (cutNodes.value.length > 0) { //剪切节点
             deleteNode.call(this, cutNodes.value, true);
             cutNodes.value = [];
-        } 
+        }
         if (currentOperationalNode.value) {
             store.commit("apidoc/banner/changeExpandItems", [currentOperationalNode.value._id])
         }
@@ -396,10 +386,9 @@ const filterString = ref("");
 const handleFilterNode = (filterInfo: SearchData) => {
     (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
     filterString.value = filterInfo.iptValue;
-    
 }
 //过滤节点
-const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
+const filterNode = (filterInfo: SearchData, data: ApidocBanner): boolean => {
     if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
         const treeRef = docTree.value as TreeNodeOptions;
         Object.keys(treeRef.store.nodesMap).map((key) => {
@@ -412,7 +401,7 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
     const matchedDocName = filterInfo.iptValue ? data.name.match(filterInfo.iptValue) : false;
     const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === data._id) : false;
     showMoreNodeInfo.value = true;
-    return (matchedUrl || matchedDocName) || matchedOthers;
+    return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
 }
 
 /*
@@ -442,7 +431,7 @@ const handleNodeKeydown = (e: KeyboardEvent) => {
     }
 }
 const handleGlobalClick = () => {
-    showContextmenu.value = false;         
+    showContextmenu.value = false;
     selectNodes.value = [];
 }
 onMounted(() => {

@@ -76,11 +76,11 @@
                     </el-table-column>
                     <el-table-column label="服务器地址" align="center">
                         <template #default="scope">
-                            <s-valid-input 
+                            <s-valid-input
                                 v-if="editItem?._id === scope.row._id"
-                                v-model="scope.row.url" 
-                                :error="errorInfo.error" 
-                                :error-tip="errorInfo.message" 
+                                v-model="scope.row.url"
+                                :error="errorInfo.error"
+                                :error-tip="errorInfo.message"
                                 placeholder="服务器地址必填"
                                 @blur="handleCheckHost(scope.row.url)"
                             >
@@ -116,6 +116,7 @@ import { defineComponent } from "vue"
 import { ResponseTable } from "@@/global"
 import { ApidocProjectHost } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
+
 type HostInfo = ApidocProjectHost & {
     _originValue?: string,
     isLocal?: boolean,
@@ -125,7 +126,6 @@ type HookThis = {
     tableData: HostInfo[],
     total: number,
 }
-
 
 export default defineComponent({
     props: {

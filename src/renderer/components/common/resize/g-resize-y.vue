@@ -88,7 +88,7 @@ export default defineComponent({
                 (wrapper as HTMLElement).style.height = `${wrapperHeight}`;
                 this.realTimeHeight = parseFloat(wrapperHeight);
             } else {
-                (bar as HTMLElement).style.top =  "-3px";
+                (bar as HTMLElement).style.top = "-3px";
                 (wrapper as HTMLElement).style.height = height;
                 this.realTimeHeight = parseFloat(height);
             }
@@ -119,7 +119,7 @@ export default defineComponent({
             (bar as HTMLElement).style.top = "-3px";
             (wrapper as HTMLElement).style.height = `${moveTop + this.wrapperHeight}px`;
             if (this.remember) {
-                localStorage.setItem(`dragBar/${this.name}`, (moveTop + this.wrapperHeight).toString() + "px");
+                localStorage.setItem(`dragBar/${this.name}`, `${moveTop + this.wrapperHeight}px`);
             }
             this.realTimeHeight = moveTop + this.wrapperHeight;
         },

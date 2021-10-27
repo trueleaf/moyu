@@ -46,7 +46,7 @@ export default defineComponent({
          */
         selectEnum: {
             type: Array,
-            default: () => { return [] }
+            default: () => []
         },
         /**
          * 下拉菜单props   用于id 和 name 映射
@@ -91,13 +91,13 @@ export default defineComponent({
     data() {
         return {
             selectData: "",
-            realSelectEnum: [] as Record<string, unknown>[],
+            realSelectEnum: [] as Record<string, string | number | undefined>[],
             config,
         };
     },
     watch: {
         selectEnum: {
-            handler(val: undefined | Record<string, unknown>[]) {
+            handler(val: undefined | Record<string, string | number | undefined>[]) {
                 if (val && val.length > 0) {
                     this.realSelectEnum = val;
                 }

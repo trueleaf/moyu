@@ -121,12 +121,12 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
+import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { store } from "@/store/index"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
 import localOriginOperation from "./operations"
 import { forEachForest } from "@/helper/index"
-import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { addFileAndFolderCb } from "../composables/curd-node"
 import { router } from "@/router/index"
 
@@ -157,12 +157,9 @@ type Operation = {
     viewOnly?: boolean,
 };
 
-
 const emit = defineEmits(["fresh", "filter"])
 //当前工作区状态
-const isView = computed(() => {
-    return store.state["apidoc/baseInfo"].mode === "view"
-})
+const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
     addFileAndFolderCb.call(this, ref(null), data)
@@ -177,9 +174,7 @@ const pinOperations: Ref<Operation[]> = ref([]);
 const visible = ref(false);
 const addFileDialogVisible = ref(false);
 const addFolderDialogVisible = ref(false);
-const projectName = computed(() => {
-    return store.state["apidoc/baseInfo"].projectName;
-})
+const projectName = computed(() => store.state["apidoc/baseInfo"].projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
@@ -208,13 +203,6 @@ watch(pinOperations, (v) => {
 }, {
     deep: true
 })
-onMounted(() => {
-    document.documentElement.addEventListener("click", handleHideMoreOperation);
-    initCacheOperation();
-});
-onUnmounted(() => {
-    document.documentElement.removeEventListener("click", handleHideMoreOperation);
-})
 //=====================================工具栏操作====================================//
 //切换固定操作
 const togglePin = (element: Operation) => {
@@ -225,10 +213,17 @@ const togglePin = (element: Operation) => {
 const handleHideMoreOperation = () => {
     visible.value = false;
 }
+onMounted(() => {
+    document.documentElement.addEventListener("click", handleHideMoreOperation);
+    initCacheOperation();
+});
+onUnmounted(() => {
+    document.documentElement.removeEventListener("click", handleHideMoreOperation);
+})
 //点击操作按钮
 const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
-    if (isView.value && op !== "freshBanner" && op !== "history" ) {
+    if (isView.value && op !== "freshBanner" && op !== "history") {
         return
     }
     switch (op) {
@@ -296,6 +291,13 @@ const handleEmit = (op: ApidocOperations) => {
 | 数据过滤
 |--------------------------------------------------------------------------
 */
+const formInfo = ref({
+    iptValue: "", //u
+    startTime: null as null | number, //--起始日期
+    endTime: null as null | number, //----结束日期
+    maintainers: [] as string[], //----操作者信息
+    recentNum: 0, //-显示最近多少条
+})
 //是否存在过滤条件
 const hasFilterCondition = computed(() => {
     const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
@@ -303,14 +305,7 @@ const hasFilterCondition = computed(() => {
     const hasRecentNumCondition = formInfo.value.recentNum;
     return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
 })
-          
-const formInfo = ref({
-    iptValue: "", //u
-    startTime: null as null | number, //--起始日期
-    endTime: null as null | number, //----结束日期
-    maintainers: [] as string[], //----操作者信息
-    recentNum: null as null | number, //-显示最近多少条
-})
+
 //用户列表
 const maintainerEnum = computed(() => {
     const { banner } = store.state["apidoc/banner"];
@@ -382,7 +377,7 @@ const handleClearMaintainer = () => {
 //=====================================最近数据条数====================================//
 //清除最近新增条数条件
 const handleClearRecentNum = () => {
-    formInfo.value.recentNum = null;
+    formInfo.value.recentNum = 0;
 }
 //=====================================监听数据变化====================================//
 watch(() => formInfo.value, (formData) => {
@@ -392,7 +387,7 @@ watch(() => formInfo.value, (formData) => {
         if (!v.isFolder) {
             plainBannerData.push(v);
         }
-    }) 
+    })
     if (maintainers.length === 0 && !startTime && !recentNum) {
         emit("filter", {
             iptValue: formData.iptValue,
@@ -403,9 +398,7 @@ watch(() => formInfo.value, (formData) => {
 
     //录入人员
     if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => {
-            return maintainers.find(v2 => v2 === v.maintainer)
-        })
+        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
     }
     //录入时间
     if (startTime && endTime) {
@@ -438,7 +431,7 @@ const handleFilterBanner = () => {
         if (!v.isFolder) {
             plainBannerData.push(v);
         }
-    }) 
+    })
     if (maintainers.length === 0 && !startTime && !recentNum) {
         emit("filter", {
             iptValue: formInfo.value.iptValue,
@@ -448,9 +441,7 @@ const handleFilterBanner = () => {
     }
     //录入人员
     if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => {
-            return maintainers.find(v2 => v2 === v.maintainer)
-        })
+        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
     }
     //录入时间
     if (startTime && endTime) {

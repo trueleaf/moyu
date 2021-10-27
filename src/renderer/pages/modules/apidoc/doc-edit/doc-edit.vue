@@ -34,17 +34,13 @@ export default defineComponent({
         //当前选中的tab
         const currentSelectTab = computed(() => {
             const tabs = store.state["apidoc/tabs"].tabs[projectId];
-            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-            return currentSelectTab;
+            const selectedTab = tabs?.find((tab) => tab.selected) || null;
+            return selectedTab;
         })
         //是否正在保存数据
-        const saveDocLoading = computed(() => {
-            return store.state["apidoc/apidoc"].loading;
-        })
+        const saveDocLoading = computed(() => store.state["apidoc/apidoc"].loading)
         //当前工作区状态
-        const isView = computed(() => {
-            return store.state["apidoc/baseInfo"].mode === "view"
-        })
+        const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
         //=====================================绑定快捷键====================================//
         const bindShortcut = (e: KeyboardEvent) => {
             if (isView.value) {

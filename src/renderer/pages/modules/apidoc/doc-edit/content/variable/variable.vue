@@ -76,10 +76,10 @@
 <script lang="ts">
 import type { ApidocVariable } from "@@/global"
 import { defineComponent } from "vue"
+
 type EditApidocVariable = ApidocVariable & {
     __active?: boolean,
 }
-
 
 export default defineComponent({
     data() {

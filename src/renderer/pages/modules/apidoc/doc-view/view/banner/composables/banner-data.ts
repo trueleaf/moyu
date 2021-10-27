@@ -4,7 +4,9 @@
 
 import { ref, Ref } from "vue"
 import { useRoute } from "vue-router"
-import { useStore } from "@/store/index"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
+
+const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 type ReturnData = {
     /**
      * loading加载效果
@@ -19,17 +21,20 @@ type ReturnData = {
 export function useBannerData(): ReturnData {
     const store = useStore();
     const route = useRoute()
-    const projectId = route.query.id;
+    const shareId = route.query.share_id;
+    const password = localStorage.getItem("share/password") || ""
     const loading = ref(false);
     const getBannerData = async () => {
         if (loading.value) {
             return
         }
         loading.value = true;
-        await store.dispatch("apidoc/banner/getDocBanner", { projectId });
+        await store.dispatch("apidoc/banner/getSharedDocBanner", { shareId, password });
         loading.value = false;
     }
-    getBannerData();
+    if (!isBuildHtml) {
+        getBannerData();
+    }
     return {
         loading,
         getBannerData,

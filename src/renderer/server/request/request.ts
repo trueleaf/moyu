@@ -10,7 +10,6 @@ export function sendRequest(): void {
     }
 }
 
-
 export function stopRequest(): void {
     if (config.isElectron) {
         stopElectronRequest();

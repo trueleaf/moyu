@@ -17,7 +17,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, PropType } from "vue"
+import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 
 export default defineComponent({
     props: {
@@ -44,10 +45,8 @@ export default defineComponent({
          * application/x-zip-compressed => zip
          */
         type: {
-            type: Array,
-            default: () => {
-                return [] as string[];
-            }
+            type: Array as PropType<string[]>,
+            default: () => []
         },
         /**
          * 是否上传pdf
@@ -109,29 +108,30 @@ export default defineComponent({
                 this.$emit("finish", response);
             });
         },
-        checkFileSizeAndType(file: File) {
-            const isLtnM = file.size > 1024 * 1024 * this.size;
-            let isValidType = this.type.includes(file.type);
-            //=========================================================================//
-            if (this.pdf && file.type === "application/pdf") {
-                isValidType = true;
-            }
-            if (this.excel && (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || file.name.endsWith("xls") || file.name.endsWith("xlsx"))) {
-                isValidType = true;
-            }
-            if (this.word && (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.type === "application/msword")) {
-                isValidType = true;
-            }
-            if (this.zip && file.type === "application/x-zip-compressed") {
-                isValidType = true;
-            }
-            //=========================================================================//
-            if (isLtnM) {
-                this.$message.warning(`每个文件大小限制为${this.size}M`);
-            } else if (!isValidType) {
-                this.$message.warning("文件类型不正确");
-            }
-            return !isLtnM && isValidType;
+        checkFileSizeAndType(file: UploadFile) {
+            console.log(file)
+            // const isLtnM = file.size > 1024 * 1024 * this.size;
+            // let isValidType = this.type.includes(file.type);
+            // //=========================================================================//
+            // if (this.pdf && file.type === "application/pdf") {
+            //     isValidType = true;
+            // }
+            // if (this.excel && (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" || file.name.endsWith("xls") || file.name.endsWith("xlsx"))) {
+            //     isValidType = true;
+            // }
+            // if (this.word && (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.type === "application/msword")) {
+            //     isValidType = true;
+            // }
+            // if (this.zip && file.type === "application/x-zip-compressed") {
+            //     isValidType = true;
+            // }
+            // //=========================================================================//
+            // if (isLtnM) {
+            //     this.$message.warning(`每个文件大小限制为${this.size}M`);
+            // } else if (!isValidType) {
+            //     this.$message.warning("文件类型不正确");
+            // }
+            // return !isLtnM && isValidType;
         },
     },
 })

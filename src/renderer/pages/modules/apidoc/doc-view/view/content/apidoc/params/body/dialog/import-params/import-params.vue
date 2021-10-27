@@ -23,8 +23,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Editor} from "brace";
+import { Editor } from "brace";
 import json5 from "json5"
+import { apidocConvertJsonDataToParams } from "@/helper/index"
 
 export default defineComponent({
     props: {
@@ -65,7 +66,7 @@ export default defineComponent({
         //确定导入
         handleSubmit() {
             try {
-                const convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams));
+                const convertResult = apidocConvertJsonDataToParams(json5.parse(this.jsonParams));
                 this.$emit("success", convertResult);
                 this.handleClose();
             } catch (e) {

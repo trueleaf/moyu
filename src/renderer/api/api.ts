@@ -1,13 +1,15 @@
-import config from "@/../config/config"
-import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { App } from "vue"
 import jsCookie from "js-cookie";
+import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import config from "@/../config/config"
+// eslint-disable-next-line import/no-cycle
 import { router } from "@/router";
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
 axiosInstance.defaults.timeout = config.renderConfig.httpRequest.timeout;//超时时间
 axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地址
+let isExpire = false; //是否登录过期
 
 const axiosPlugin = {
     install(app: App): void {
@@ -56,19 +58,27 @@ const axiosPlugin = {
                             break;
                         case 2003: //验证码错误
                             break;
+                        case 101005: //无效的的id和密码,跳转到验证页面
+                            break;
                         case 4101: //登录有错
                             router.replace("/login");
                             app.config.globalProperties.$message.warning("暂无权限");
                             return Promise.reject(new Error("暂无权限"));
                         case 4100: //登录过期
-                            app.config.globalProperties.$confirm("登录已过期", "提示", {
-                                confirmButtonText: "跳转登录",
-                                cancelButtonText: "取消",
-                                type: "warning",
-                            }).then(() => {
-                                sessionStorage.clear();
-                                router.replace("/login");
-                            });
+                            if (!isExpire) {
+                                isExpire = true;
+                                app.config.globalProperties.$confirm("登录已过期", "提示", {
+                                    confirmButtonText: "跳转登录",
+                                    cancelButtonText: "取消",
+                                    type: "warning",
+                                }).then(() => {
+                                    isExpire = false;
+                                    sessionStorage.clear();
+                                    router.replace("/login");
+                                }).catch(() => {
+                                    isExpire = false;
+                                });
+                            }
                             return Promise.reject(new Error("登陆已过期"));
                         case 4200: //代理错误
                             return Promise.reject(new Error(res.data.msg));

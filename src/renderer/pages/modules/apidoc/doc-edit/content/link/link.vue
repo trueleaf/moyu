@@ -54,6 +54,7 @@ type LinkInfo = {
     password: string,
     projectName: string,
     selectedDocs: string[],
+    shareId: string,
     _id: string,
 }
 const projectId = router.currentRoute.value.query.id as string; //项目id
@@ -64,21 +65,21 @@ const dialogVisible2 = ref(false); //编辑弹窗
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-    const url = `${config.renderConfig.share.baseUrl}/#/?shareId=${linkInfo._id}&shareName=${linkInfo.shareName}&expire=${linkInfo.expire}`;
+    const url = `${config.renderConfig.share.baseUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
     return `
     链接：${url}   
     密码：${linkInfo.password || "不需要密码"}
     `
 }
 //删除某个链接
-const handleDeleteItem = (projectId: string, _id: string) => {
+const handleDeleteItem = (pid: string, _id: string) => {
     ElMessageBox.confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
     }).then(() => {
         const params = {
-            projectId,
+            projectId: pid,
             _id,
         };
         axios.delete("/api/project/export/online", { data: params }).then(() => {
@@ -106,7 +107,6 @@ const handleAddSuccess = () => {
 const handleEditSuccess = () => {
     table.value?.getData();
 }
-
 
 </script>
 

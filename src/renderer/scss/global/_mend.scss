@@ -16,6 +16,7 @@ body {
         line-height: size(24); //修复奇数高度文本错位
     }
     .el-image-viewer__close {
+        background-color: $white;
         color: $red;
     }
     .el-form--label-top .el-form-item__label {

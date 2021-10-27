@@ -60,7 +60,7 @@
                             </span>
                         </div>
                     </template>
-                </s-draggable>            
+                </s-draggable>
             </div>
             <!-- <el-scrollbar ref="scrollBar" view-style="display:inline-block;">
             </el-scrollbar> -->
@@ -89,6 +89,7 @@
 import { defineComponent } from "vue"
 import draggable from "vuedraggable"
 import type { ApidocTab } from "@@/store"
+import { event } from "@/helper/index"
 
 export default defineComponent({
     components: {
@@ -100,7 +101,7 @@ export default defineComponent({
             showContextmenu: false,
             contextmenuLeft: 0,
             contextmenuTop: 0,
-            currentOperationNode: null as ApidocTab | null, 
+            currentOperationNode: null as ApidocTab | null,
         };
     },
     computed: {
@@ -134,19 +135,19 @@ export default defineComponent({
     beforeUnmount() {
         document.body.removeEventListener("click", this.bindGlobalClick);
         document.body.removeEventListener("contextmenu", this.bindGlobalClick);
-        this.$helper.event.off("apidoc/tabs/addOrDeleteTab");
+        event.off("apidoc/tabs/addOrDeleteTab");
     },
     methods: {
         //初始化active的tab
         initViewTab() {
             setTimeout(() => {
-                const tabWrap = (this.$refs.tabListWrap as { $el:  HTMLLIElement}).$el;
+                const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
                 const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
                 activeNode?.scrollIntoView();
             })
-            this.$helper.event.on("apidoc/tabs/addOrDeleteTab", () => {
+            event.on("apidoc/tabs/addOrDeleteTab", () => {
                 setTimeout(() => {
-                    const tabWrap = (this.$refs.tabListWrap as { $el:  HTMLLIElement}).$el;
+                    const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
                     const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
                     activeNode?.scrollIntoView();
                 })
@@ -201,7 +202,7 @@ export default defineComponent({
             const projectId: string = this.$route.query.id as string;
             const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
             const delTabs: string[] = [];
-            for(let i = 0; i < tabs.length; i ++) {
+            for (let i = 0; i < tabs.length; i += 1) {
                 if (tabs[i]._id !== currentOperationNodeId) {
                     delTabs.push(tabs[i]._id);
                 } else {
@@ -220,7 +221,7 @@ export default defineComponent({
             const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
             const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
             const delTabs: string[] = [];
-            for(let i = currentNodeIndex + 1; i < tabs.length; i ++) {
+            for (let i = currentNodeIndex + 1; i < tabs.length; i += 1) {
                 delTabs.push(tabs[i]._id);
             }
             this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
@@ -238,7 +239,7 @@ export default defineComponent({
             });
         },
         //不保存关闭全部
-        handleForceCloseAllTab( ) {
+        handleForceCloseAllTab() {
             const projectId: string = this.$route.query.id as string;
             this.$store.commit("apidoc/tabs/forceDeleteAllTab", projectId);
         },

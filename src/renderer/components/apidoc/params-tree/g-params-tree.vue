@@ -59,13 +59,13 @@
                     <!-- <div v-else class="readonly-key" @mouseover="() => enableDrag = false" @mouseout="() => enableDrag = true">{{ scope.data.key }}</div> -->
                 </div>
                 <!-- 请求参数类型 -->
-                <el-select 
-                    :model-value="scope.data.type" 
+                <el-select
+                    :model-value="scope.data.type"
                     :disabled="!nest && !enableFile"
-                    :title="typeTip" 
-                    placeholder="类型" 
-                    size="mini" 
-                    class="w-15 flex0 mr-2" 
+                    :title="typeTip"
+                    placeholder="类型"
+                    size="mini"
+                    class="w-15 flex0 mr-2"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
                     <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
@@ -106,10 +106,10 @@
                     </template>
                 </el-popover>
                 <!-- 布尔值类型录入 -->
-                <el-select 
-                    v-if="scope.data.type === 'boolean'" 
+                <el-select
+                    v-if="scope.data.type === 'boolean'"
                     :model-value="scope.data.value"
-                    placeholder="请选择" 
+                    placeholder="请选择"
                     size="mini"
                     class="w-25 flex0"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
@@ -131,9 +131,9 @@
                     <input id="fileInput" ref="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
                 <!-- 参数是否必填 -->
-                <el-checkbox 
-                    :model-value="scope.data.required" 
-                    label="必有" 
+                <el-checkbox
+                    :model-value="scope.data.required"
+                    label="必有"
                     :disabled="checkRequiredDisable(scope.data)"
                     @update:modelValue="handleChangeIsRequired($event, scope.data)"
                 >
@@ -155,12 +155,18 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, defineProps, computed, watch } from "vue"
+import {
+    ref,
+    Ref,
+    PropType,
+    defineProps,
+    computed,
+    watch
+} from "vue"
 import type { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
-import type { ApidocProperty } from "@@/global"
+import type { ApidocProperty, MockItem } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
-import type { MockItem } from "@@/global"
 
 type TreeNode = {
     level: number,
@@ -249,9 +255,7 @@ const props = defineProps({
      */
     mindParams: {
         type: Array as PropType<ApidocProperty[]>,
-        default: () => {
-            return [];
-        }
+        default: () => []
     },
 });
 const emit = defineEmits(["change"])
@@ -321,7 +325,7 @@ const addNestTreeData = (data: ApidocProperty) => {
     const params = apidocGenerateProperty();
     if (data.type !== "object" && data.type !== "array") {
         store.commit("apidoc/apidoc/changePropertyValue", {
-            data: data,
+            data,
             field: "type",
             value: "object",
         });
@@ -403,7 +407,7 @@ const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
     const parentIsArray = node.parent.data.type === "array";
     const isRootObject = props.nest && node.level === 1 && isComplex;
     return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
-} 
+}
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
     const isComplex = node.data.type === "array" || node.data.type === "object";
@@ -414,7 +418,7 @@ const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
         return "父元素为数组不必填写参数名称";
     }
     return "输入参数名称"
-} 
+}
 //校验key值是否满足规范
 const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
     const parentNode = node.parent;

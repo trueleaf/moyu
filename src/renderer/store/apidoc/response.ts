@@ -22,6 +22,12 @@ type ResponseBaseInfo = {
      */
     contentType: string
 }
+type FileInfo = {
+    url: string,
+    mime: string,
+    ext: string,
+    name: string,
+}
 
 const response = {
     namespaced: true,
@@ -35,6 +41,7 @@ const response = {
         rt: 0,
         size: 0,
         loading: false,
+        isResponse: true,
         cookies: [],
         process: {
             percent: 0,
@@ -54,6 +61,10 @@ const response = {
         //改变加载状态
         changeLoading(state: ApidocResponseState, loading: boolean): void {
             state.loading = loading;
+        },
+        //数据是否返回
+        changeIsResponse(state: ApidocResponseState, isResponse: boolean): void {
+            state.isResponse = isResponse;
         },
         //改变responseHeader
         changeResponseHeader(state: ApidocResponseState, payload: Record<string, unknown>): void {
@@ -87,6 +98,9 @@ const response = {
                 file: {
                     url: "",
                     raw: "",
+                    mime: "",
+                    ext: "",
+                    name: "",
                 },
                 type: "",
                 text: "",
@@ -102,13 +116,25 @@ const response = {
             state.data.text = textValue;
             state.data.file.url = ""; //清空url
         },
+        //改变返回file类型数据相关信息
+        changeResponseFileInfo(state: ApidocResponseState, fileInfo: FileInfo): void {
+            state.data.file.url = fileInfo.url;
+            state.data.file.mime = fileInfo.mime;
+            state.data.file.ext = fileInfo.ext;
+            state.data.file.name = fileInfo.name;
+            state.data.text = ""; //清空文字
+        },
         //文件类型返回值
         changeResponseFileUrl(state: ApidocResponseState, url: string): void {
             state.data.file.url = url;
             state.data.text = ""; //清空文字
         },
+        //改变文件类型
+        changeResponseFileExt(state: ApidocResponseState, ext: string): void {
+            state.data.file.ext = ext;
+        },
         //改变返回data类型
-        changeResponseMime(state: ApidocResponseState, type: string): void {
+        changeResponseContentType(state: ApidocResponseState, type: string): void {
             state.data.type = type;
         },
         //改变返回时间

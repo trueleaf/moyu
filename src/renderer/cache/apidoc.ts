@@ -9,7 +9,6 @@ type ServerInfo = ApidocProjectHost & {
     isLocal?: boolean,
 };
 
-
 class ApidocCache {
     constructor() {
         if (!localStorage.getItem("apidoc/paramsConfig")) {
@@ -19,6 +18,7 @@ class ApidocCache {
             localStorage.setItem("apidoc/apidoc", "{}");
         }
     }
+
     /**
      * @description        获取当前选中params tab的值
      * @author             shuxiaokai
@@ -38,6 +38,7 @@ class ApidocCache {
             return null;
         }
     }
+
     /**
      * @description        设置当前选中params tab的值
      * @author             shuxiaokai
@@ -59,7 +60,7 @@ class ApidocCache {
     }
 
     /**
-     * @description        缓存接口信息     
+     * @description        缓存接口信息
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
@@ -75,8 +76,9 @@ class ApidocCache {
             localStorage.setItem("apidoc/apidoc", JSON.stringify(data));
         }
     }
+
     /**
-     * @description        获取缓存接口信息     
+     * @description        获取缓存接口信息
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      * @param {string}     id 接口id
@@ -94,8 +96,9 @@ class ApidocCache {
             return null;
         }
     }
+
     /**
-     * @description        缓存服务器地址     
+     * @description        缓存服务器地址
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
@@ -117,8 +120,9 @@ class ApidocCache {
             localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
         }
     }
+
     /**
-     * @description        删除缓存服务器地址     
+     * @description        删除缓存服务器地址
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
@@ -140,8 +144,9 @@ class ApidocCache {
             localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
         }
     }
+
     /**
-     * @description        获取缓存服务器地址     
+     * @description        获取缓存服务器地址
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      * @param {string}     projectId 项目id
@@ -159,8 +164,9 @@ class ApidocCache {
             return [];
         }
     }
+
     /**
-     * @description        获取是否开启代理缓存     
+     * @description        获取是否开启代理缓存
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      * @param {string}     projectId 项目id
@@ -178,8 +184,9 @@ class ApidocCache {
             return false;
         }
     }
+
     /**
-     * @description        设置是否开启代理服务器     
+     * @description        设置是否开启代理服务器
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
@@ -194,7 +201,5 @@ class ApidocCache {
         }
     }
 }
-
-
 
 export const apidocCache = new ApidocCache();

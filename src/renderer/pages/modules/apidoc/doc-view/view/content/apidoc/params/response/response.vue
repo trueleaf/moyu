@@ -24,7 +24,6 @@
                                 @click.stop="() => {}"
                                 @keydown.enter="handleConfirmTitle(item, index)"
                             >
-                            
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">确定</span>
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">取消</span>
                             <span v-if="!currentEditNode" title="修改名称" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
@@ -73,12 +72,12 @@
                 </div>
             </template>
             <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>
-            <div 
+            <div
                 v-show="item.value.dataType === 'text/plain' || item.value.dataType === 'text/html' || item.value.dataType === 'application/xml'"
-                class="editor-wrap" 
+                class="editor-wrap"
                 :class="{ vertical: layout === 'vertical' }"
             >
-                <s-raw-editor 
+                <s-raw-editor
                     :model-value="item.value.text"
                     :type="item.value.dataType"
                     class="editor"
@@ -92,9 +91,8 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { store } from "@/store/index"
 import type { ApidocResponseParams } from "@@/global"
-
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 /*
 |--------------------------------------------------------------------------
@@ -182,13 +180,9 @@ const handleDeleteResponse = (index: number) => {
     store.commit("apidoc/apidoc/deleteResponseByIndex", index);
 }
 //response参数值
-const responseData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.responseParams;
-}) 
+const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.responseParams)
 //布局
-const layout = computed(() => {
-    return store.state["apidoc/baseInfo"].layout;
-})
+const layout = computed(() => store.state["apidoc/baseInfo"].layout)
 </script>
 
 <style lang="scss">

@@ -5,56 +5,117 @@
     备注：
 */
 <template>
-    <div class="check-wrap">
+    <s-loading v-if="!isValidShareId" :loading="loading" class="check-wrap">
         <div class="content">
             <div class="text-center">
                 <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" alt="logo图片" class="logo">
             </div>
             <h2 class="text-center">{{ projectName }}</h2>
             <div class="d-flex a-center mb-3">
-                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" clearable></el-input>
-                <el-button size="small" type="success" :loading="loading" @click="handleConfirmPassword">确认密码</el-button>
+                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" show-password clearable></el-input>
+                <el-button size="small" type="success" :loading="loading2" @click="handleConfirmPassword">确认密码</el-button>
             </div>
             <div class="gray-600">
-                <span>过期时间</span>
-                <!-- <span v-if="expire">{{ $helper.formatDate(new Date(Number(expire))) }}</span> -->
+                <span class="mr-1">过期倒计时：</span>
+                <span v-countdown="expire"></span>
             </div>
         </div>
-    </div>
+    </s-loading>
+    <el-empty v-if="isValidShareId" description="无效的项目id"></el-empty>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { Response } from "@@/global"
+
+const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
+
+type LinkInfo = {
+    projectName: string,
+    shareName: string,
+    expire: number,
+    needPassword: boolean,
+};
 
 export default defineComponent({
     data() {
         return {
-            password: "", //密码
             projectName: "", //项目名称
+            expire: 0, //过期时间
+            password: "", //密码
             //===================================其他参数====================================//
-            loading: false, //是否加载中
+            isValidShareId: false, //文档是否存在
+            loading: false, //基础数据获取
+            loading2: false, //是否加载中
         };
+    },
+    mounted() {
+        console.log("check", typeof isBuildHtml)
+        if (isBuildHtml) {
+            this.$router.push({
+                path: "/view",
+            });
+        } else {
+            this.init()
+        }
     },
     methods: {
         //=====================================前后端交互====================================//
+        //初始化
+        init() {
+            // eslint-disable-next-line camelcase
+            const { share_id, id } = this.$route.query;
+            if (!this.$route.query.id) {
+                this.isValidShareId = true;
+                return
+            }
+            this.loading = true;
+            const params = {
+                shareId: this.$route.query.share_id,
+            };
+            this.axios.get<Response<LinkInfo>, Response<LinkInfo>>("/api/project/share_info", { params }).then((res) => {
+                this.projectName = res.data.projectName;
+                this.expire = res.data.expire;
+                if (!res.data.needPassword) {
+                    this.$router.push({
+                        path: "/view",
+                        query: {
+                            id,
+                            share_id,
+                        },
+                    });
+                }
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading = false;
+            });
+        },
         //确认密码
         handleConfirmPassword() {
-            // const { shareId = "8f8943" } = this.$route.query;
-            // this.loading = true;
-            // const params = {
-            //     shareId,
-            //     password: this.password,
-            // };
-            // this.axios.get("/api/project/share", { params }).then((res) => {
-            //     localStorage.setItem("shareData", JSON.stringify(res.data));
-            //     localStorage.setItem("password", this.password || "");
-            //     localStorage.setItem("shareId", shareId);
-            //     this.$router.push("/view");
-            // }).catch((err) => {
-            //     console.error(err);
-            // }).finally(() => {
-            //     this.loading = false;
-            // });
+            // eslint-disable-next-line camelcase
+            const { share_id, id } = this.$route.query;
+            this.loading2 = true;
+            const params = {
+                shareId: share_id,
+                password: this.password,
+            };
+            this.axios.get("/api/project/share_check", { params }).then(() => {
+                localStorage.setItem("share/password", this.password || "");
+                // eslint-disable-next-line camelcase
+                localStorage.setItem("share/shareId", share_id as string);
+                this.$router.push({
+                    path: "/view",
+                    query: {
+                        id,
+                        share_id,
+                    },
+                });
+            }).catch((err) => {
+                console.error(err);
+            }).finally(() => {
+                this.loading2 = false;
+            });
         },
     },
 })
@@ -71,8 +132,9 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         left: 50%;
-        top: 35%;
-        transform: translate(-50%, -50%);
+        top: 10vh;
+        overflow: hidden;
+        transform: translate(-50%, 0%);
         background: $white;
         padding: size(50) size(100);
         box-shadow: $box-shadow-sm;

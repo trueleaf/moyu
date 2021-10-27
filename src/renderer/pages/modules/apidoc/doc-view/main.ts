@@ -1,54 +1,88 @@
 import { createApp } from "vue"
-import ElementPlus from "element-plus";
-import mixin from "@/mixin/index"
-import { cache } from "@/cache/cache"
-import App from "./App.vue"
-import { axiosPlugin } from "@/api/api"
-import * as helper from "@/helper/index"
+import { ElCheckbox, ElCheckboxGroup, ElSwitch, ElTable, ElTableColumn, ElImage, ElDatePicker, ElEmpty, ElBadge, ElOption, ElSelect, ElDropdown, ElDropdownItem, ElButton, ElLoading, ElTooltip, ElInput, ElTree, ElDialog, ElTabs, ElPopover, ElRadio, ElRadioGroup, ElDivider, ElTabPane } from "element-plus";
 import "element-plus/dist/index.css"
-import { store, key } from "@/store"
-import { registeGlobalComponent } from "@/components"
+import "@/../../public/font/iconfont.js"
+import "@/../../public/font/iconfont.css"
+import App from "./App.vue"
+import { axiosPlugin } from "./api/api"
+import { store, key } from "./store/index"
 import "@/assets/css/index.css"
 import registeDirective from "@/directive/directive";
-import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
+import router from "./router/index"
 
-//=====================================路由====================================//
-const routes: Array<RouteRecordRaw> = [
-    {
-        path: "/",
-        redirect: process.env.VUE_APP_BUILD_SHARE ? "/check" : "/view",
-    },
-    {
-        path: "/view",
-        name: "View",
-        component: () => import(/* webpackChunkName: "View" */ "./view/view.vue"),
-    },
-    {
-        path: "/check",
-        name: "Check",
-        component: () => import(/* webpackChunkName: "Check" */ "./check/check.vue"),
-    },
-    {
-        path: "/:pathMatch(.*)*",
-        name: "404",
-        component: () => import(/* webpackChunkName: "404" */ "@/pages/layout/404/404.vue"),
-    },
-]
-const router = createRouter({
-    history: createWebHashHistory(),
-    routes
-})
+
+//=====================================内部组件按需加载====================================//
+import sLoading from "@/components/common/loading/g-loading.vue"
+import sResizeX from "@/components/common/resize/g-resize-x.vue"
+import sResizeY from "@/components/common/resize/g-resize-y.vue"
+import sEmphasizeContent from "@/components/common/emphasize/g-emphasize.vue"
+import sEllipsis from "@/components/common/ellipsis-content/g-ellipsis-content.vue"
+import sFieldset from "@/components/common/fieldset/g-fieldset.vue"
+import sValidInput from "@/components/common/valid-input/g-valid-input.vue"
+import sDownload from "@/components/common/download/g-download.vue"
+import sLabelValue from "@/components/common/label-value/g-label-value.vue"
+import sContextmenu from "@/components/common/contextmenu/g-contextmenu.vue"
+import sContextmenuItem from "@/components/common/contextmenu/g-contextmenu-item.vue"
+import sDialog from "@/components/common/dialog/g-dialog.vue"
+import sParamsTree from "@/components/apidoc/params-tree/g-params-tree.vue"
+import sParamsView from "@/components/apidoc/params-view/g-params-view.vue"
+import sRawEditor from "@/components/apidoc/raw-editor/g-raw-editor.vue"
+import sMock from "@/components/apidoc/mock/g-mock.vue"
 //=========================================================================//
+const app = createApp(App)
 
-const app = createApp(App, {
-    mixin: [mixin]
-})
+//组件注册
+app.component("SLoading", sLoading);
+app.component("SResizeX", sResizeX);
+app.component("SResizeY", sResizeY);
+app.component("SEmphasize", sEmphasizeContent);
+app.component("SFieldset", sFieldset);
+app.component("SLabelValue", sLabelValue);
+app.component("SParamsTree", sParamsTree);
+app.component("SParamsView", sParamsView);
+app.component("SRawEditor", sRawEditor);
+app.component("SEllipsisContent", sEllipsis);
+app.component("SContextmenu", sContextmenu);
+app.component("SDownload", sDownload);
+app.component("SContextmenuItem", sContextmenuItem);
+app.component("SValidInput", sValidInput);
+app.component("SMock", sMock);
+app.component("SDialog", sDialog);
+//=====================================elementui按需加载====================================//
+app.use(ElButton);
+app.use(ElLoading);
+app.use(ElTooltip);
+app.use(ElInput);
+app.use(ElTree);
+app.use(ElDialog);
+app.use(ElTabs);
+app.use(ElPopover);
+app.use(ElRadio);
+app.use(ElRadioGroup);
+app.use(ElDivider);
+app.use(ElTabPane);
+app.use(ElSwitch);
+app.use(ElCheckbox);
+app.use(ElCheckboxGroup);
+app.use(ElDatePicker);
+app.use(ElBadge);
+app.use(ElOption);
+app.use(ElSelect);
+app.use(ElDropdown);
+app.use(ElDropdownItem);
+app.use(ElEmpty);
+app.use(ElImage);
+app.use(ElTable);
+app.use(ElTableColumn);
 
-app.config.globalProperties.$helper = helper; //挂载全局辅助函数
-app.config.globalProperties.$cache = cache; //挂载全局storage方法
 
-registeGlobalComponent(app); //注册全局组件
+
+
+//=========================================================================//
 registeDirective(app); //注册全局指令
 app.use(store, key);
-app.use(axiosPlugin).use(ElementPlus).use(router);
+
+
+app.use(router);
+app.use(axiosPlugin);
 app.mount("#app")

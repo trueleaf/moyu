@@ -1,14 +1,12 @@
-
 import type { Got } from "got"
 import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
 import FormData from "form-data"
+import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
 import { store } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import * as utils from "./utils"
-import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
-
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -23,7 +21,7 @@ if (window.require) {
 //初始化请求
 function initGot() {
     if (!got) {
-        return;
+        return null;
     }
     if (gotInstance) {
         return gotInstance;
@@ -51,7 +49,7 @@ function initGot() {
 function getRealHeaders() {
     const realHeaders: Record<string, string | undefined> = {};
     const { defaultHeaders } = store.state["apidoc/apidoc"];
-    const { headers } = store.state["apidoc/apidoc"].apidoc.item; 
+    const { headers } = store.state["apidoc/apidoc"].apidoc.item;
     defaultHeaders.concat(headers).forEach((item) => {
         const itemKey = item.key.toLocaleLowerCase();
         if (item.select && itemKey) {
@@ -71,21 +69,37 @@ function getRealHeaders() {
     // }
     //删除自动携带的请求头
     delete realHeaders["content-length"]
-    delete realHeaders["host"]
+    delete realHeaders.host
     return realHeaders;
 }
 //将buffer值转换为返回参数
 async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     const typeInfo = await FileType.fromBuffer(bufferData.buffer);
-    const mime = contentType ? contentType : (typeInfo ? typeInfo.mime : ""); //优先读取contentType
+    const mimeType = typeInfo ? typeInfo.mime : ""
+    const mime = contentType || mimeType; //优先读取contentType
     const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
-    store.commit("apidoc/response/changeResponseMime", mime);
+    store.commit("apidoc/response/changeResponseContentType", mime);
     if (textContentType.find(type => contentType.match(type))) {
         store.commit("apidoc/response/changeResponseTextValue", bufferData.toString());
     } else {
         const blobData = new Blob([bufferData], { type: mime });
         const blobUrl = URL.createObjectURL(blobData);
-        store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
+        const { path } = store.state["apidoc/apidoc"].apidoc.item.url;
+        const headers = store.state["apidoc/response"].header;
+        const contentDisposition = headers["content-disposition"] as string;
+        const headerFileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
+        const matchedUrlFileName = path.match(/[^/]+.[^.]$/);
+        const urlName = matchedUrlFileName ? matchedUrlFileName[0] : ""
+        const fileName = headerFileName || urlName;
+        store.commit("apidoc/response/changeResponseFileInfo", {
+            url: blobUrl,
+            fileName,
+            mime,
+            ext: typeInfo?.ext || "",
+            name: fileName,
+        });
+        // store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
+        // store.commit("apidoc/response/changeResponseFileExt", (typeInfo ? typeInfo.ext : ""));
     }
 }
 
@@ -102,22 +116,21 @@ async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
  * @param {Array<Property>}     headers - 请求头
  */
 export function sendRequest(): void {
-    const gotInstance = initGot();
-    if (!gotInstance) {
+    const requestInstance = initGot();
+    if (!requestInstance) {
         console.warn("当前环境无法获取Got实例")
         return
     }
     try {
         store.commit("apidoc/response/changeLoading", true)
+        store.commit("apidoc/response/changeIsResponse", false)
         const { url, method, requestBody, queryParams, paths, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
         const queryString = utils.convertQueryParamsToQueryString(queryParams);
         const pathMap = utils.getPathParamsMap(paths)
         const { mode } = requestBody
-        const validPath = url.path.replace(/\{([^\}]+)\}/g, ($1, $2) => {
-            return pathMap[$2] || $2
-        })
+        const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
         const requestUrl = url.host + validPath + queryString;
-        let body: string | FormData  = "";
+        let body: string | FormData = "";
         const realHeaders = getRealHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
@@ -130,17 +143,20 @@ export function sendRequest(): void {
                 body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
                 break;
             case "multipart/form-data":
+                // eslint-disable-next-line no-case-declarations
                 const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
                 body = data
                 realHeaders["Content-Type"] = headers["content-type"]
                 break;
             case "text/plain":
                 body = requestBody.raw.data;
+                break;
             case "text/html":
                 body = requestBody.raw.data;
                 break;
             case "application/xml":
                 body = requestBody.raw.data;
+                break;
             case "text/javascript":
                 body = requestBody.raw.data;
                 break;
@@ -149,7 +165,7 @@ export function sendRequest(): void {
             }
         }
         console.log(realHeaders, requestUrl, body)
-        requestStream = gotInstance(requestUrl, {
+        requestStream = requestInstance(requestUrl, {
             isStream: true,
             method,
             body,
@@ -172,12 +188,13 @@ export function sendRequest(): void {
                 statusMessage: response.statusMessage,
                 contentType: response.headers["content-type"],
             });
+            store.commit("apidoc/response/changeIsResponse", true)
         });
         //数据获取完毕
         requestStream.on("end", async () => {
-            const { contentType } = store.state["apidoc/response"];
+            const responseContentType = store.state["apidoc/response"].contentType;
             const bufData = Buffer.concat(streamData, streamSize);
-            await formatResponseBuffer(bufData, contentType);
+            await formatResponseBuffer(bufData, responseContentType);
             const rt = (responseData?.timings as Timings).phases.total;
             store.commit("apidoc/response/changeResponseTime", rt);
             store.commit("apidoc/response/changeResponseSize", streamSize);
@@ -191,8 +208,8 @@ export function sendRequest(): void {
         //错误处理
         requestStream.on("error", (error) => {
             store.commit("apidoc/response/changeLoading", false)
-            store.commit("apidoc/response/changeResponseMime", "error");
-            store.commit("apidoc/response/changeResponseTextValue",error.toString());
+            store.commit("apidoc/response/changeResponseContentType", "error");
+            store.commit("apidoc/response/changeResponseTextValue", error.toString());
             console.error(error);
         });
         //重定向
@@ -201,12 +218,13 @@ export function sendRequest(): void {
         });
         //下载进度
         requestStream.on("downloadProgress", (process) => {
+            // console.log("process", process)
             store.commit("apidoc/response/changeResponseProgress", process)
         });
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
-        store.commit("apidoc/response/changeResponseMime", "error");
-        store.commit("apidoc/response/changeResponseTextValue",error.toString());
+        store.commit("apidoc/response/changeResponseContentType", "error");
+        store.commit("apidoc/response/changeResponseTextValue", (error as Error).toString());
         console.error(error);
     }
 }

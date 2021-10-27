@@ -1,9 +1,10 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
-import config from "@/../config/config"
-import { store } from "@/store/index";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import docEdit from "@/pages/modules/apidoc/doc-edit/doc-edit.vue"
+import config from "@/../config/config"
+import { store } from "@/store/index";
+
 const lastVisitPage = localStorage.getItem("history/lastVisitePage"); //回复上次访问的页面
 
 const routes: Array<RouteRecordRaw> = [

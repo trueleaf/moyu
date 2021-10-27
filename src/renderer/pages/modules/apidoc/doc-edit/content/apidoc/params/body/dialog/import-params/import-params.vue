@@ -23,8 +23,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Editor} from "brace";
 import json5 from "json5"
+import { Editor } from "brace";
 
 export default defineComponent({
     props: {

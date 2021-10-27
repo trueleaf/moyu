@@ -20,7 +20,7 @@
                 <template #default="scope">
                     <div
                         class="custom-tree-node"
-                        :class="{ 
+                        :class="{
                             'active-node': activeNode && activeNode._id === scope.data._id,
                         }"
                         tabindex="0"
@@ -54,13 +54,12 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { useStore } from "@/store/index"
-import { useBannerData } from "./composables/banner-data"
-import sTool from "./tool/tool.vue"
-import { router } from "@/router/index"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
-
+import { useStore } from "../../store/index"
+import { useBannerData } from "./composables/banner-data"
+import sTool from "./tool/tool.vue"
+import shareRouter from "../../router/index"
 
 //搜索数据
 type SearchData = {
@@ -74,7 +73,6 @@ type SearchData = {
     recentNumIds: string[] | null,
 };
 
-
 /*
 |--------------------------------------------------------------------------
 | 变量、函数等内容声明
@@ -83,16 +81,14 @@ type SearchData = {
 |--------------------------------------------------------------------------
 */
 const store = useStore();
-const projectId = router.currentRoute.value.query.id as string;
+const projectId = shareRouter.currentRoute.value.query.id as string;
 const docTree: Ref<TreeNodeOptions["store"] | null | TreeNodeOptions> = ref(null);
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
-const showMoreNodeInfo = ref(false);  //banner是否显示更多内容
+const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 
 const { loading } = useBannerData();
 //默认展开节点
-const defaultExpandedKeys = computed(() => {
-    return store.state["apidoc/banner"].defaultExpandedKeys;
-});
+const defaultExpandedKeys = computed(() => store.state["apidoc/banner"].defaultExpandedKeys);
 //点击节点，如果按住ctrl则可以多选
 const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
     if (!data.isFolder) {
@@ -110,12 +106,8 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         })
     }
 }
-const projectInfo = computed(() => {
-    return store.state["apidoc/baseInfo"];
-});
-const activeNode = computed(() => {
-    return store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected);
-});
+const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
+const activeNode = computed(() => store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected));
 const bannerData = computed(() => {
     const originBannerData = store.state["apidoc/banner"].banner;
     return originBannerData
@@ -138,7 +130,6 @@ const filterString = ref("");
 const handleFilterNode = (filterInfo: SearchData) => {
     (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
     filterString.value = filterInfo.iptValue;
-    
 }
 //过滤节点
 const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {

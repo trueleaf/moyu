@@ -5,8 +5,8 @@
 |
 */
 import { ComputedRef, computed, WritableComputedRef } from "vue"
-import { useStore } from "@/store/index"
 import type { ApidocRequestMethodRule } from "@@/store"
+import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 
 type MethodReturn = {
     /**
@@ -42,10 +42,7 @@ export default (): MethodReturn => {
         return "";
     }
     //请求方法枚举
-    const requestMethodEnum = computed(() => {
-        return store.state["apidoc/baseInfo"].rules.requestMethods;
-    });
-
+    const requestMethodEnum = computed(() => store.state["apidoc/baseInfo"].rules.requestMethods);
 
     return {
         requestMethod,

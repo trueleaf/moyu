@@ -16,25 +16,17 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
-import { store } from "@/store/index"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 //path参数
-const pathTreeData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.paths;
-}) 
+const pathTreeData = computed(() => store.state["apidoc/apidoc"].apidoc.item.paths)
 //path参数联想值
-const mindPathData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "paths");
-})
+const mindPathData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "paths"))
 
 //query参数
-const queryTreeData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.queryParams;
-})
+const queryTreeData = computed(() => store.state["apidoc/apidoc"].apidoc.item.queryParams)
 //query参数联想值
-const mindQueryData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "queryParams");
-})
+const mindQueryData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "queryParams"))
 //是否存在path参数
 const hasPathParams = computed(() => {
     const { paths } = store.state["apidoc/apidoc"].apidoc.item;
@@ -42,14 +34,12 @@ const hasPathParams = computed(() => {
     return hasPathsParams;
 })
 
-
 </script>
 <style lang="scss">
 .query-path-params {
     .title {
         margin-left: size(15);
         font-size: fz(14);
-        // font-weight: bolder;
     }
 }
 </style>

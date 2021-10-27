@@ -1,6 +1,5 @@
-import { App } from "vue"
+import { App, DirectiveBinding } from "vue"
 import scssData from "@/scss/variables/_variables.scss"
-
 
 let domList: HTMLElement[] = [];
 
@@ -50,9 +49,8 @@ export default (app: App): void => {
     });
     //=====================================拷贝指令====================================//
     const runCopy = (e: MouseEvent, value: string) => {
-        console.log(22, value)
         const x = e.clientX;
-        const y = e.clientY;  
+        const y = e.clientY;
         const dom = document.createElement("textarea");
         dom.value = value;
         dom.style.position = "fixed";
@@ -97,36 +95,50 @@ export default (app: App): void => {
     })
     //=====================================倒计时指令====================================//
     const countdownTimers: number[] = [];
+    const countdown = (el: HTMLElement, binding: DirectiveBinding<number>) => {
+        let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
+        if (restTime === 0) {
+            el.innerHTML = "已过期";
+            countdownTimers.forEach(t => {
+                clearInterval(t);
+            })
+            return;
+        }
+        const hasFullDay = restTime > 86400000;
+        const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
+        if (hasFullDay) {
+            restTime %= 86400000
+        }
+        const hasFullHour = restTime > 3600000;
+        const hour = hasFullHour ? Math.floor(restTime / 3600000) : 0;
+        if (hasFullHour) {
+            restTime %= 3600000;
+        }
+        const hasFullMinute = restTime > 60000;
+        const minute = hasFullMinute ? Math.floor(restTime / 60000) : 0;
+        if (hasFullMinute) {
+            restTime %= 60000;
+        }
+        const second = Math.floor(restTime / 1000);
+        el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;
+    }
+    const bindCountdown = (el: HTMLElement, binding: DirectiveBinding<number>) => {
+        countdown(el, binding);
+        const timer = window.setInterval(() => {
+            countdown(el, binding);
+        }, 1000)
+
+        countdownTimers.push(timer);
+    }
     app.directive("countdown", {
         mounted(el: HTMLElement, binding) {
-            const timer = window.setInterval(() => {
-                let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
-                if (restTime === 0) {
-                    el.innerHTML = "过期";
-                    countdownTimers.forEach(t => {
-                        clearInterval(t);
-                    })
-                    return;
-                }
-                const hasFullDay = restTime > 86400000;
-                const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
-                if (hasFullDay) {
-                    restTime = restTime % 86400000;
-                }
-                const hasFullHour = restTime > 3600000;
-                const hour = hasFullHour ? Math.floor(restTime / 3600000) : 0;
-                if (hasFullHour) {
-                    restTime = restTime % 3600000;
-                }
-                const hasFullMinute = restTime > 60000;
-                const minute = hasFullMinute ? Math.floor(restTime / 60000) : 0;
-                if (hasFullMinute) {
-                    restTime = restTime % 60000;
-                }
-                const second = Math.floor(restTime / 1000);
-                el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;
-            }, 1000)
-            countdownTimers.push(timer);
+            bindCountdown(el, binding);
+        },
+        updated(el: HTMLElement, binding) {
+            countdownTimers.forEach(t => {
+                clearInterval(t);
+            })
+            bindCountdown(el, binding);
         },
         unmounted() {
             countdownTimers.forEach(t => {

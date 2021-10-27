@@ -23,7 +23,7 @@
                             <el-checkbox label="responseParams">返回参数</el-checkbox>
                             <el-button type="text" class="ml-5" @click="handleClearType">清空</el-button>
                         </el-checkbox-group>
-                    </div>                    
+                    </div>
                 </div>
                 <div class="right">
                     <el-descriptions :column="2" size="mini" border>
@@ -84,13 +84,17 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
+import { ElMessageBox } from "element-plus"
+import type { ApidocMindParam } from "@@/global"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
-import type { ApidocMindParam } from "@@/global"
 import { axios } from "@/api/api"
-import { ElMessageBox } from "element-plus"
 
-
+//搜索条件
+const formInfo: Ref<{ key: string, type: ApidocMindParam["paramsPosition"][] }> = ref({
+    key: "",
+    type: [],
+})
 //表格参数
 const tableInfo = computed(() => {
     const allParams: ApidocMindParam[] = [];
@@ -113,11 +117,6 @@ const tableInfo = computed(() => {
         return formInfo.value.type.includes(v.paramsPosition)
     })
 });
-//搜索条件
-const formInfo: Ref<{ key: string, type: ApidocMindParam["paramsPosition"][] }> = ref({
-    key: "",
-    type: [],
-})
 //清空checkbox
 const handleClearType = () => {
     formInfo.value.type = [];

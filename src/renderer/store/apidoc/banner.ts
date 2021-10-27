@@ -1,9 +1,9 @@
 import { ActionContext } from "vuex"
-import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
-import { ApidocBanner } from "@@/global"
+import { ApidocBanner, Response } from "@@/global"
+import { axios } from "@/api/api"
 import { forEachForest, findNodeById } from "@/helper/index"
-
+import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -81,6 +81,34 @@ const banner = {
                     projectId: payload.projectId,
                 };
                 axios.get("/api/project/doc_tree_node", { params }).then((res) => {
+                    const result = res.data;
+                    context.commit("changeAllDocBanner", result);
+                    resolve(result);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        },
+        /**
+         * 获取分享文档左侧导航数据
+         */
+        async getSharedDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { shareId: string, password: string }): Promise<ApidocBanner> {
+            return new Promise((resolve, reject) => {
+                const params = {
+                    shareId: payload.shareId,
+                    password: payload.password,
+                };
+                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/export/share_banner", { params }).then((res) => {
+                    if (res.code === 101005) {
+                        shareRouter.replace({
+                            path: "/check",
+                            query: {
+                                share_id: shareRouter.currentRoute.value.query.share_id,
+                                id: shareRouter.currentRoute.value.query.id,
+                            },
+                        });
+                        return;
+                    }
                     const result = res.data;
                     context.commit("changeAllDocBanner", result);
                     resolve(result);

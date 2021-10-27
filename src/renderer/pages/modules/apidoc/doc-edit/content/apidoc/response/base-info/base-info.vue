@@ -6,9 +6,6 @@
 */
 <template>
     <div class="request-view">
-        <!-- <s-collapse title="基本信息">
-            
-        </s-collapse> -->
         <div class="text-bold">基本信息</div>
         <div class="px-4">
             <s-label-value label="请求地址：" class="mt-2" one-line>

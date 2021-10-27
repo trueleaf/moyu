@@ -38,12 +38,12 @@
 </template>
 
 <script lang="ts">
+import { defineComponent } from "vue"
 import config from "@/../config/config"
 import loginAccount from "./components/login-account.vue";
 import loginPhone from "./components/login-phone.vue";
 import register from "./components/register.vue";
 import resetPassword from "./components/reset-password.vue";
-import { defineComponent } from "vue"
 
 export default defineComponent({
     components: {

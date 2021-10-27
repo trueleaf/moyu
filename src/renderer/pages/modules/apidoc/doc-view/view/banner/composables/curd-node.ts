@@ -3,12 +3,12 @@
  */
 
 import { Ref } from "vue"
+import { ElMessageBox } from "element-plus"
 import type { ApidocBanner, Response } from "@@/global"
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from "@/helper/index"
-import { ElMessageBox } from "element-plus"
-import { store } from "@/store/index"
-import { router } from "@/router/index"
-import { axios } from "@/api/api"
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
+import router from "@/pages/modules/apidoc/doc-view/router/index"
+import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
 
 type MapId = {
     oldId: string, //历史id
@@ -31,7 +31,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
                     deleteIds.push(item._id);
                 }
             });
-        }        
+        }
     })
     const deleteTip = selectNodes.length > 1 ? `确定批量删除 ${deleteIds.length} 个节点?` : `确定删除 ${selectNodes[0].name} 节点`
     const deleteOperation = () => {
@@ -60,7 +60,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
                         deleteCount: 1,
                         opData: parentNode?.children,
                     })
-                }                    
+                }
             })
             //删除所有nav节点
             const delNodeIds: string[] = [];
@@ -75,7 +75,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
             });
         }).catch((err) => {
             console.error(err);
-        });        
+        });
     }
     if (silent) { //不提示用户删除，静默删除
         deleteOperation();
@@ -94,52 +94,6 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
         console.error(err);
     });
 }
-
-/**
- * 粘贴某个节点
- * 转换逻辑如下
- * 1. 将所有嵌套数据取出变为扁平一维数组
- * 2. 根据_id去重所有节点
- * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
- * 4. 将这些
- */
-export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pasteNodes: ApidocBanner[]): Promise<ApidocBanner[]> {
-    const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pasteNodes));
-    return new Promise((resolve, reject) => {
-        const flatNodes: ApidocBanner[] = [];
-        copyPasteNodes.forEach((pasteNode) => {
-            flatNodes.push(...flatTree(pasteNode))
-        })
-        const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
-        const params = {
-            projectId: router.currentRoute.value.query.id,
-            mountedId: currentOperationalNode.value?._id,
-            docs: uniqueFlatNodes.map((v) => ({
-                _id: v._id,
-                pid: v.pid,
-            })),
-        };
-        axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
-            const mapIds = res.data;
-            forEachForest(copyPasteNodes, (node) => {
-                const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
-                if (matchedIdInfo) {
-                    node._id = matchedIdInfo.newId;
-                    node.pid = matchedIdInfo.newPid;
-                }
-            });
-            copyPasteNodes.forEach((pasteNode) => {
-                pasteNode.pid = currentOperationalNode.value?._id || "";
-                addFileAndFolderCb(currentOperationalNode, pasteNode);
-            })
-            resolve(copyPasteNodes);
-        }).catch((err) => {
-            console.error(err);
-            reject(err);
-        });
-    })
-}
-
 /**
  * 新增文件和文件夹回调
  */
@@ -163,7 +117,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
                     opData: currentOperationalNode.value.children,
                 })
             }
-        } else{ //如果是文本
+        } else { //如果是文本
             store.commit("apidoc/banner/splice", {
                 start: currentOperationalNode.value.children.length,
                 deleteCount: 0,
@@ -172,6 +126,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
             });
         }
     } else { //插入到根节点
+        // eslint-disable-next-line no-lonely-if
         if (data.type === "folder") {
             const lastFolderIndex = banner.findIndex((node) => !node.isFolder);
             if (lastFolderIndex === -1) {
@@ -211,6 +166,50 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
         })
     }
 }
+/**
+ * 粘贴某个节点
+ * 转换逻辑如下
+ * 1. 将所有嵌套数据取出变为扁平一维数组
+ * 2. 根据_id去重所有节点
+ * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
+ * 4. 将这些
+ */
+export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBanner[]): Promise<ApidocBanner[]> {
+    const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pastedNodes));
+    return new Promise((resolve, reject) => {
+        const flatNodes: ApidocBanner[] = [];
+        copyPasteNodes.forEach((pasteNode) => {
+            flatNodes.push(...flatTree(pasteNode))
+        })
+        const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
+        const params = {
+            projectId: router.currentRoute.value.query.id,
+            mountedId: currentOperationalNode.value?._id,
+            docs: uniqueFlatNodes.map((v) => ({
+                _id: v._id,
+                pid: v.pid,
+            })),
+        };
+        axios.post<Response<MapId[]>, Response<MapId[]>>("/api/project/paste_docs", params).then((res) => {
+            const mapIds = res.data;
+            forEachForest(copyPasteNodes, (node) => {
+                const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+                if (matchedIdInfo) {
+                    node._id = matchedIdInfo.newId;
+                    node.pid = matchedIdInfo.newPid;
+                }
+            });
+            copyPasteNodes.forEach((pasteNode) => {
+                pasteNode.pid = currentOperationalNode.value?._id || "";
+                addFileAndFolderCb(currentOperationalNode, pasteNode);
+            })
+            resolve(copyPasteNodes);
+        }).catch((err) => {
+            console.error(err);
+            reject(err);
+        });
+    })
+}
 
 /**
  * 生成文件副本
@@ -241,7 +240,6 @@ export function forkNode(currentOperationalNode: ApidocBanner): void {
     }).catch((err) => {
         console.error(err);
     });
-    
 }
 
 /**
@@ -293,38 +291,37 @@ export function renameNode(e: FocusEvent | KeyboardEvent, data: ApidocBanner): v
     (e.target as HTMLInputElement).classList.remove("error");
     if (iptValue.trim() === "") {
         return;
-    } else {
-        isRename = true;
-        //改变banner中当前节点名称
+    }
+    isRename = true;
+    //改变banner中当前节点名称
+    store.commit("apidoc/banner/changeBannerInfoById", {
+        id: data._id,
+        field: "name",
+        value: iptValue,
+    });
+    //改变tabs名称
+    store.commit("apidoc/tabs/changeTabInfoById", {
+        id: data._id,
+        field: "label",
+        value: iptValue,
+    });
+    //改变apidoc名称
+    store.commit("apidoc/apidoc/changeApidocName", iptValue);
+    //=========================================================================//
+    const params = {
+        _id: data._id,
+        projectId,
+        name: iptValue,
+    };
+    axios.put("/api/project/change_doc_info", params).catch((err) => {
+        console.error(err);
         store.commit("apidoc/banner/changeBannerInfoById", {
             id: data._id,
             field: "name",
-            value: iptValue,
+            value: originValue,
         });
-        //改变tabs名称
-        store.commit("apidoc/tabs/changeTabInfoById", {
-            id: data._id,
-            field: "label",
-            value: iptValue,
-        });
-        //改变apidoc名称
-        store.commit("apidoc/apidoc/changeApidocName", iptValue);
-        //=========================================================================//
-        const params = {
-            _id: data._id,
-            projectId,
-            name: iptValue,
-        };
-        axios.put("/api/project/change_doc_info", params).catch((err) => {
-            console.error(err);
-            store.commit("apidoc/banner/changeBannerInfoById", {
-                id: data._id,
-                field: "name",
-                value: originValue,
-            });
-            store.commit("apidoc/apidoc/changeApidocName", originValue);
-        }).finally(() => {
-            isRename = false;
-        });
-    }
+        store.commit("apidoc/apidoc/changeApidocName", originValue);
+    }).finally(() => {
+        isRename = false;
+    });
 }

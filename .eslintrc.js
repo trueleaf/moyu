@@ -1,16 +1,24 @@
 module.exports = {
     root: true,
+    globals: {
+        defineProps: "readonly",
+        defineEmits: "readonly",
+        defineExpose: "readonly",
+        withDefaults: "readonly",
+    },
     env: {
-        node: true
+        node: true,
     },
     extends: [
         "plugin:vue/vue3-recommended",
-        "@vue/typescript/recommended"
+        "@vue/typescript/recommended",
+        "@vue/airbnb",
     ],
     parserOptions: {
-        ecmaVersion: 2020
+        ecmaVersion: 2020,
     },
     rules: {
+        "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
         "vue/html-indent": ["error", 4],
         "vue/max-attributes-per-line": "off",
         "vue/html-self-closing": "off",
@@ -24,8 +32,8 @@ module.exports = {
             "double",
             {
                 avoidEscape: true,
-                allowTemplateLiterals: true
-            }
+                allowTemplateLiterals: true,
+            },
         ],
         "max-len": ["error", { code: 400 }], //最大代码长度为400行
         "no-param-reassign": ["error", { props: false }], //函数参数非对象情况不允许直接改变
@@ -37,13 +45,23 @@ module.exports = {
                 //申明变量解构有限，赋值可以不必解构
                 VariableDeclarator: {
                     array: false,
-                    object: true
+                    object: true,
                 },
                 AssignmentExpression: {
                     array: false,
-                    object: true
-                }
-            }
-        ]
-    }
+                    object: true,
+                },
+            },
+        ],
+        "import/prefer-default-export": "off",
+        "class-methods-use-this": "off",
+        "no-underscore-dangle": "off",
+        "import/no-unresolved": "off",
+        "@typescript-eslint/no-unused-vars": ["error"],
+        "arrow-parens": "off",
+        "object-curly-newline": "off",
+        "import/no-cycle": "off",
+        "no-continue": "off",
+        "array-callback-return": "off",
+    },
 };

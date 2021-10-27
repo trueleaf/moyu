@@ -12,6 +12,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+
 type DownloadResponse = {
     fileName?: string,
     data: string,

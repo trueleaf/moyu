@@ -28,9 +28,7 @@ export default defineComponent({
         },
         items: {
             type: Array as PropType<ApidocProperty[]>,
-            default: () => {
-                return [];
-            }
+            default: () => []
         },
     },
     emits: ["update:modelValue"],

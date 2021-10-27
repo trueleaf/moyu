@@ -2,9 +2,43 @@
  * 将数组参数转换为json语法树
  */
 
-import { apidocConvertValue } from "@/helper/index"
 import { ApidocProperty, ApidocASTInfo } from "@@/global"
-import { uuid as getUuid } from "@/helper";
+import { apidocConvertValue, uuid as getUuid } from "@/helper/index"
+
+//生成语法树基本数据结构
+function generateAstInfo(): ApidocASTInfo {
+    return {
+        id: "",
+        indent: 4, //缩进
+        line: 0, //行号
+        path: { //键
+            value: "", //值
+            widthQuote: true, //是否存在双引号
+        },
+        value: "", //值
+        valueType: "", //值类型
+        colon: "", //冒号
+        comma: "", //逗号
+        description: "", //备注信息
+        required: true, //是否必填
+        leftCurlBrace: { //左花括号
+            pairId: "", //与之相匹配的另一个括号id
+            value: "", //值
+        },
+        rightCurlBrace: { //右花括号
+            pairId: "", //与之相匹配的另一个括号id
+            value: "", //值
+        },
+        leftBracket: { //左中括号
+            pairId: "", //与之相匹配的另一个括号id
+            value: "", //值
+        },
+        rightBracket: { //右中括号
+            pairId: "", //与之相匹配的另一个括号id
+            value: "", //值
+        },
+    };
+}
 
 export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => {
     if (!Array.isArray(data)) {
@@ -13,7 +47,7 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
     const result: ApidocASTInfo[] = [];
     const foo = (arrayData: ApidocProperty[], level: number, deepth: number, parent: null | ApidocProperty) => {
         const parentIsArray = (parent && parent.type === "array");
-        for(let i = 0; i < arrayData.length; i ++) {
+        for (let i = 0; i < arrayData.length; i += 1) {
             const item = arrayData[i];
             const itemValue = apidocConvertValue(item.value);
             const itemType = item.type;
@@ -27,6 +61,7 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
             const astInfo = generateAstInfo();
             astInfo.id = item._id;
             if (isSimpleType && !itemValue && !itemPath) {
+                // eslint-disable-next-line no-continue
                 continue;
             }
             astInfo.description = item.description;
@@ -123,39 +158,4 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
         astItem.line = index + 1;
     });
     return result;
-}
-
-//生成语法树基本数据结构
-function generateAstInfo(): ApidocASTInfo {
-    return {
-        id: "",
-        indent: 4, //缩进
-        line: 0, //行号
-        path: { //键
-            value: "", //值
-            widthQuote: true, //是否存在双引号
-        },
-        value: "", //值
-        valueType: "", //值类型
-        colon: "", //冒号
-        comma: "", //逗号
-        description: "", //备注信息
-        required: true, //是否必填
-        leftCurlBrace: { //左花括号
-            pairId: "", //与之相匹配的另一个括号id
-            value: "", //值
-        },
-        rightCurlBrace: { //右花括号
-            pairId: "", //与之相匹配的另一个括号id
-            value: "", //值
-        },
-        leftBracket: { //左中括号
-            pairId: "", //与之相匹配的另一个括号id
-            value: "", //值
-        },
-        rightBracket: { //右中括号
-            pairId: "", //与之相匹配的另一个括号id
-            value: "", //值
-        },
-    };
 }

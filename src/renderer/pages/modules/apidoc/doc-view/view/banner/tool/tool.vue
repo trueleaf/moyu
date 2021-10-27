@@ -76,12 +76,9 @@
 
 <script lang="ts" setup>
 import { ref, computed, watch } from "vue"
-import { store } from "@/store/index"
-import { forEachForest } from "@/helper/index"
 import type { ApidocBanner } from "@@/global"
-
-
-
+import { store } from "@/pages/modules/apidoc/doc-view/store/index"
+import { forEachForest } from "@/helper/index"
 
 const emit = defineEmits(["fresh", "filter"])
 //=====================================操作栏数据====================================//
@@ -89,9 +86,7 @@ const bannerData = computed(() => {
     const originBannerData = store.state["apidoc/banner"].banner;
     return originBannerData
 })
-const projectName = computed(() => {
-    return store.state["apidoc/baseInfo"].projectName;
-})
+const projectName = computed(() => store.state["apidoc/baseInfo"].projectName)
 //=====================================操作相关数据====================================//
 
 /*
@@ -99,20 +94,19 @@ const projectName = computed(() => {
 | 数据过滤
 |--------------------------------------------------------------------------
 */
+const formInfo = ref({
+    iptValue: "", //u
+    startTime: null as null | number, //--起始日期
+    endTime: null as null | number, //----结束日期
+    maintainers: [] as string[], //----操作者信息
+    recentNum: 0, //-显示最近多少条
+})
 //是否存在过滤条件
 const hasFilterCondition = computed(() => {
     const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
     const hasOperatorCondition = formInfo.value.maintainers.length > 0;
     const hasRecentNumCondition = formInfo.value.recentNum;
     return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
-})
-          
-const formInfo = ref({
-    iptValue: "", //u
-    startTime: null as null | number, //--起始日期
-    endTime: null as null | number, //----结束日期
-    maintainers: [] as string[], //----操作者信息
-    recentNum: null as null | number, //-显示最近多少条
 })
 //用户列表
 const maintainerEnum = computed(() => {
@@ -185,7 +179,7 @@ const handleClearMaintainer = () => {
 //=====================================最近数据条数====================================//
 //清除最近新增条数条件
 const handleClearRecentNum = () => {
-    formInfo.value.recentNum = null;
+    formInfo.value.recentNum = 0;
 }
 //=====================================监听数据变化====================================//
 watch(() => formInfo.value, (formData) => {
@@ -195,7 +189,7 @@ watch(() => formInfo.value, (formData) => {
         if (!v.isFolder) {
             plainBannerData.push(v);
         }
-    }) 
+    })
     if (maintainers.length === 0 && !startTime && !recentNum) {
         emit("filter", {
             iptValue: formData.iptValue,
@@ -206,9 +200,7 @@ watch(() => formInfo.value, (formData) => {
 
     //录入人员
     if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => {
-            return maintainers.find(v2 => v2 === v.maintainer)
-        })
+        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
     }
     //录入时间
     if (startTime && endTime) {
@@ -241,7 +233,7 @@ const handleFilterBanner = () => {
         if (!v.isFolder) {
             plainBannerData.push(v);
         }
-    }) 
+    })
     if (maintainers.length === 0 && !startTime && !recentNum) {
         emit("filter", {
             iptValue: formInfo.value.iptValue,
@@ -251,9 +243,7 @@ const handleFilterBanner = () => {
     }
     //录入人员
     if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => {
-            return maintainers.find(v2 => v2 === v.maintainer)
-        })
+        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
     }
     //录入时间
     if (startTime && endTime) {

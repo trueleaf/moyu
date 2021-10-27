@@ -578,7 +578,6 @@ type ApidocBanner = {
 //工具栏操作
 type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
 
-
 /*
 |--------------------------------------------------------------------------
 | 数组类型参数数据转换为json预览格式
@@ -713,7 +712,6 @@ type ApidocVariable = {
 | mock相关
 |--------------------------------------------------------------------------
 |
-| 
 |
 */
 //mock项目
@@ -722,8 +720,6 @@ type MockItem = {
     value: string,
     tags: string[],
 }
-
-
 
 export {
     Response,

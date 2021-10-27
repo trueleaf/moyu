@@ -25,7 +25,7 @@
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" :type="config.localization.enableGuest ? null : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableRegister">

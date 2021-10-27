@@ -189,9 +189,8 @@ export default defineComponent({
         disableTip(): string { //禁止提示信息
             if (this.selectData.length === 0) {
                 return "在左侧进行数据选择后方可删除数据";
-            } else {
-                return ""
             }
+            return ""
         }
     },
     mounted() {
@@ -240,9 +239,8 @@ export default defineComponent({
                             this.$emit("finish", this.responseData, this);
                         })
                     });
-                })                
+                })
             });
-
         },
         // 分页
         handleSizeChange(size: number) {
