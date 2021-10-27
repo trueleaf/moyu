@@ -20,12 +20,12 @@
                 @blur="isFocus = false"
             >
         </div>
-        <div v-if="error" class="ipt-error">{{ errorTip }}</div> 
+        <div v-if="error" class="ipt-error">{{ errorTip }}</div>
         <div v-if="isHover && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
-            <div 
-                v-for="(item, index) in realSelectData" 
+            <div
+                v-for="(item, index) in realSelectData"
                 :key="index"
-                class="select-item" 
+                class="select-item"
                 :class="{ active: currentSelectIndex === index }"
                 @mouseover="handleMouseoverItem(index)"
                 @click="handleSelectItem"
@@ -41,7 +41,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import Schema from "async-validator";
+import type Schema from "async-validator";
 import type { ApidocProperty } from "@@/global"
 
 export default defineComponent({
@@ -71,9 +71,7 @@ export default defineComponent({
         },
         selectData: {
             type: Array as PropType<ApidocProperty[]>,
-            default: () => {
-                return [];
-            }
+            default: () => []
         },
     },
     emits: ["update:modelValue", "remote-select"],
@@ -118,7 +116,7 @@ export default defineComponent({
             const exactMatchData = this.selectData.find(v => v.key === this.modelValue);
             const hasData = this.selectData.filter(v => v.key.includes(this.modelValue));
             if (hasData && !exactMatchData) {
-                this.isFocus = true; 
+                this.isFocus = true;
                 this.isHover = true;
             }
         },

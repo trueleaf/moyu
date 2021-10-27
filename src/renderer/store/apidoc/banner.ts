@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex"
-import { axios } from "@/api/api"
 import type { State as RootState, ApidocBannerState } from "@@/store"
 import { ApidocBanner, Response } from "@@/global"
+import { axios } from "@/api/api"
 import { forEachForest, findNodeById } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 

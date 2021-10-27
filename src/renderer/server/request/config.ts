@@ -1,4 +1,4 @@
 export default {
-    timeout: 60000,
+    timeout: 600000,
     proxy: "",
 }

@@ -25,10 +25,10 @@
 
 <script lang="ts" setup>
 import { computed } from "vue"
+import { ApidocBanner } from "@@/global"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { forEachForest } from "@/helper"
-import { ApidocBanner } from "@@/global"
-import  config from "@/../config/config"
+import config from "@/../config/config"
 
 //所有节点
 const allNodes = computed(() => {

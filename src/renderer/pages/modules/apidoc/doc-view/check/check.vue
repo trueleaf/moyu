@@ -63,6 +63,7 @@ export default defineComponent({
         //=====================================前后端交互====================================//
         //初始化
         init() {
+            // eslint-disable-next-line camelcase
             const { share_id, id } = this.$route.query;
             if (!this.$route.query.id) {
                 this.isValidShareId = true;
@@ -92,6 +93,7 @@ export default defineComponent({
         },
         //确认密码
         handleConfirmPassword() {
+            // eslint-disable-next-line camelcase
             const { share_id, id } = this.$route.query;
             this.loading2 = true;
             const params = {
@@ -100,6 +102,7 @@ export default defineComponent({
             };
             this.axios.get("/api/project/share_check", { params }).then(() => {
                 localStorage.setItem("share/password", this.password || "");
+                // eslint-disable-next-line camelcase
                 localStorage.setItem("share/shareId", share_id as string);
                 this.$router.push({
                     path: "/view",

@@ -1,7 +1,8 @@
-import config from "@/../config/config"
-import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { App } from "vue"
 import jsCookie from "js-cookie";
+import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import config from "@/../config/config"
+// eslint-disable-next-line import/no-cycle
 import { router } from "@/router";
 
 const axiosInstance = Axios.create();

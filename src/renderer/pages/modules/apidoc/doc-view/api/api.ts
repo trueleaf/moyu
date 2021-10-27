@@ -1,7 +1,7 @@
-import config from "@/../config/config"
 import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
 import { App } from "vue"
 import { ElMessage, ElMessageBox } from "element-plus"
+import config from "@/../config/config"
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -11,9 +11,7 @@ axiosInstance.defaults.baseURL = config.renderConfig.httpRequest.url;//请求地
 const axiosPlugin = {
     install(app: App): void {
         //===============================axiosInstance请求钩子==========================================//
-        axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
-            return reqConfig;
-        }, (err) => Promise.reject(err));
+        axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => reqConfig, (err) => Promise.reject(err));
         //===============================axiosInstance响应钩子=======================================//
         axiosInstance.interceptors.response.use(
             async (res: AxiosResponse) => {
@@ -38,7 +36,6 @@ const axiosPlugin = {
                     }
                     switch (code) {
                     case 0: //正确请求
-                        break;
                         break;
                     case 101005: //无效的的id和密码,跳转到验证页面
                         break;

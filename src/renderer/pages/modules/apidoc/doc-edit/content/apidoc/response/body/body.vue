@@ -86,7 +86,7 @@
                         type="application/json"
                     >
                     </s-raw-editor>
-                </div>    
+                </div>
                 <el-dropdown class="apply-response" trigger="click">
                     <span>
                         <span>应用为响应值</span>
@@ -100,7 +100,7 @@
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
-                </el-dropdown>        
+                </el-dropdown>
             </template>
             <!-- 未知文件 -->
             <div v-else>
@@ -136,7 +136,7 @@ type ResponseApplyEnum = {
 export default defineComponent({
     computed: {
         //远端返回数据结果
-        remoteResponse() { 
+        remoteResponse() {
             return this.$store.state["apidoc/response"]
         },
         //数据是否完全返回

@@ -5,6 +5,7 @@
  */
 import path from "path";
 import { autoUpdater } from "electron-updater";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain } from "electron";
 import config from "../config/config";
 

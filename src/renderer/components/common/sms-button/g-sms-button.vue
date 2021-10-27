@@ -78,7 +78,7 @@ export default defineComponent({
             this.$emit("click");
             this.tip = `${this.time}秒后${this.endLabel}`
             this.timer = window.setInterval(() => {
-                this.time--;
+                this.time -= 1;
                 if (this.time === 0) {
                     this.tip = this.endLabel;
                     this.disableBtn = false;

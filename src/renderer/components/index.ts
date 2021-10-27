@@ -1,4 +1,5 @@
 import { App } from "vue"
+
 export function registeGlobalComponent(app: App): void {
     const requireComponent = require.context(
         // 其组件目录的相对路径

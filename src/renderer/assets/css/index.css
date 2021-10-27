@@ -72,6 +72,7 @@ body .el-divider__text {
 body .el-table .cell {
   line-height: 24px; }
 body .el-image-viewer__close {
+    background-color: white;
   color: #f56c6c; }
 body .el-form--label-top .el-form-item__label {
   padding: 0; }

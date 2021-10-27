@@ -31,8 +31,8 @@
                             <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">维护</div>
                         </div>
                         <template v-if="bodyTemplateList.length > 0">
-                            <div 
-                                v-for="(item, index) in bodyTemplateList" 
+                            <div
+                                v-for="(item, index) in bodyTemplateList"
                                 :key="index"
                                 class="select-item"
                             >
@@ -76,10 +76,10 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
+import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
 import { router } from "@/router/index"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
-import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
 import importParams from "./dialog/import-params/import-params.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
 
@@ -117,9 +117,7 @@ const templateFilterString = ref("");
 //模板列表
 const bodyTemplateList = computed(() => {
     const templates = store.state["apidoc/baseInfo"].paramsTemplate;
-    const result = templates.filter(template => {
-        return template.presetParamsType === "bodyParams";
-    }).filter(template => {
+    const result = templates.filter(template => template.presetParamsType === "bodyParams").filter(template => {
         if (!templateFilterString.value) {
             return true;
         }
@@ -156,11 +154,6 @@ onBeforeUnmount(() => {
 })
 
 //=========================================================================//
-//改变bodytype类型
-const changeBodyType = () => {
-    checkContentType();
-}
-
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
     const type = store.state["apidoc/apidoc"].apidoc.item.requestBody.mode
@@ -190,6 +183,10 @@ const checkContentType = () => {
         store.commit("apidoc/apidoc/changeContentType", "");
     }
 }
+//改变bodytype类型
+const changeBodyType = () => {
+    checkContentType();
+}
 
 //body类型
 const bodyType = computed<ApidocBodyMode>({
@@ -201,27 +198,21 @@ const bodyType = computed<ApidocBodyMode>({
     },
 });
 //body参数联想值
-const mindBodyData = computed(() => {
-    return store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody");
-})
+const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody"))
 /*
 |--------------------------------------------------------------------------
 | json类型操作
 |--------------------------------------------------------------------------
 */
 //json格式body参数
-const jsonBodyData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
-})
+const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.json)
 
 /*
 |--------------------------------------------------------------------------
 | x-www-form-urlencoded类型操作
 |--------------------------------------------------------------------------
 */
-const urlencodedData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.requestBody.urlencoded;
-})
+const urlencodedData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.urlencoded)
 /*
 |--------------------------------------------------------------------------
 | raw类型数据处理
@@ -277,9 +268,7 @@ const handleChangeRawType = () => {
 |--------------------------------------------------------------------------
 */
 //formData格式body参数
-const formData = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc.item.requestBody.formdata;
-})
+const formData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.formdata)
 
 </script>
 

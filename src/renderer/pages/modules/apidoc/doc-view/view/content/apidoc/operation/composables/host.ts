@@ -5,13 +5,11 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from "vue"
-// import { handleFormatUrl } from "./url"
+import type { ApidocProjectHost } from "@@/store"
 import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import globalConfig from "@/../config/config"
-import type { ApidocProjectHost } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
 import router from "@/pages/modules/apidoc/doc-view/router/index"
-
 
 type HostReturn = {
     /**
@@ -36,7 +34,7 @@ type HostReturn = {
     handleChangeHost: () => void,
 }
 
-export default (): HostReturn =>  {
+export default (): HostReturn => {
     const store = useStore();
     //mock服务器地址
     const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`);
@@ -45,12 +43,11 @@ export default (): HostReturn =>  {
     //host值
     const host = computed<string>({
         get() {
-            const { host } = store.state["apidoc/apidoc"].apidoc.item.url;
             // if (!host) {
             //     store.commit("apidoc/apidoc/changeApidocHost", mockServer.value);
             //     return mockServer.value
             // }
-            return host
+            return store.state["apidoc/apidoc"].apidoc.item.url.host
         },
         set(val) {
             store.commit("apidoc/apidoc/changeApidocHost", val);
@@ -63,7 +60,7 @@ export default (): HostReturn =>  {
         set(path) {
             store.commit("apidoc/apidoc/changeApidocUrl", path)
         },
-    }); 
+    });
     //改变host的值
     const handleChangeHost = () => {
         const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;

@@ -13,27 +13,19 @@ type Api = {
 }
 
 const api: Api = {
-    "/api/project/project_list"(): Promise<Response<ApidocProjectListInfo>> {
-        return new Promise((resolve, reject) => {
-            db.transaction("rw", db.projectList, async () => {
-                const result = await db.projectList.toArray();
-                resolve({
-                    code: 0,
-                    msg: "xx",
-                    data: result[0]
-                });
-            }).catch((e) => {
-                console.error(e);
-                reject(e);
+    "/api/project/project_list": (): Promise<Response<ApidocProjectListInfo>> => new Promise((resolve, reject) => {
+        db.transaction("rw", db.projectList, async () => {
+            const result = await db.projectList.toArray();
+            resolve({
+                code: 0,
+                msg: "xx",
+                data: result[0]
             });
-            // axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>("/api/project/project_list").then((res) => {
-            //     resolve(res);
-            // }).catch((err) => {
-            //     console.error(err)
-            //     reject(err)
-            // });
-        })
-    },
+        }).catch((e) => {
+            console.error(e);
+            reject(e);
+        });
+    })
 }
 
 interface ICaceh {
@@ -44,6 +36,7 @@ interface ICaceh {
 let singleton: null | ICaceh = null;
 class Cache implements ICaceh {
     public dbBase: IDBDatabase | null = null;
+
     constructor() {
         if (!singleton) {
             singleton = this;

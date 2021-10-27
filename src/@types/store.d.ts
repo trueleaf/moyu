@@ -1,5 +1,19 @@
-import { PermissionUserInfo, PermissionMenu, ApidocBanner, ApidocPropertyType, ApidocProperty } from "./global"
-import type { ApidocParamsType, PermissionClientRoute, ApidocDetail, ApidocContentType, ApidocMindParam } from "@@/global"
+/* eslint-disable import/extensions */
+
+import type {
+    ApidocParamsType,
+    PermissionClientRoute,
+    ApidocDetail,
+    ApidocContentType,
+    ApidocMindParam,
+} from "@@/global"
+import type {
+    PermissionUserInfo,
+    PermissionMenu,
+    ApidocBanner,
+    ApidocPropertyType,
+    ApidocProperty
+} from "./global"
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +151,40 @@ type ApidocProjectRules = {
      */
     requestMethods: ApidocRequestMethodRule[],
 }
+type ApidocCookieInfo = {
+    /**
+     * cookie键
+     */
+    name: string,
+    /**
+     * cookie值
+     */
+    value: string,
+    /**
+     * 有效域
+     */
+    domin: string,
+    /**
+     * path
+     */
+    path: string,
+    /**
+     * expires
+     */
+    expires: string,
+    /**
+     * httpOnly
+     */
+    httpOnly: boolean,
+    /**
+     * secure
+     */
+    secure: boolean,
+    /**
+     * sameSite
+     */
+    sameSite: string,
+}
 //项目基本信息
 type ApidocProjectBaseInfoState = {
     /**
@@ -262,40 +310,7 @@ type ApidocState = {
     loading: boolean,
     saveLoading: boolean,
 }
-type ApidocCookieInfo = {
-    /**
-     * cookie键
-     */
-    name: string,
-    /**
-     * cookie值
-     */
-    value: string,
-    /**
-     * 有效域
-     */
-    domin: string,
-    /**
-     * path
-     */
-    path: string,
-    /**
-     * expires
-     */
-    expires: string,
-    /**
-     * httpOnly
-     */
-    httpOnly: boolean,
-    /**
-     * secure
-     */
-    secure: boolean,
-    /**
-     * sameSite
-     */
-    sameSite: string,
-}
+
 type ApidocResponseState = {
     /**
      * 返回头信息
@@ -334,6 +349,10 @@ type ApidocResponseState = {
      */
     loading: boolean,
     /**
+     * 是否已经接收到返回值
+     */
+    isResponse: boolean,
+    /**
      * cookie信息
      */
     cookies: ApidocCookieInfo[],
@@ -364,9 +383,12 @@ type ApidocResponseState = {
         file: {
             url: string,
             raw: string,
+            mime: string, //mime类型
+            ext: string, //后缀
+            name: string, //文件名称
         },
         /**
-         * 数据类型
+         * 数据类型(contentType)
          */
         type: string,
         /**

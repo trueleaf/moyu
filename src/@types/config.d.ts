@@ -46,11 +46,11 @@ type Config = {
         /**
          * 布局相关
          */
-        layout: {          
+        layout: {
             /**
              * 项目中组件库大小
              */
-            size: string,
+            size: "small" | "large" | "medium" | "mini",
         },
 
         /**

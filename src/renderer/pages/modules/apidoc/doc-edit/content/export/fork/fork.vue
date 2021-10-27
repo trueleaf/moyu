@@ -108,13 +108,13 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from "vue"
 import { ElMessage } from "element-plus";
-import { store } from "@/store/index"
-import { axios } from "@/api/api"
-import { router } from "@/router/index"
 import type { ApidocBanner, ApidocProjectEnum, Response } from "@@/global"
 import type TreeStore from "element-plus/packages/components/tree/src/model/tree-store"
 import type { DropType } from "element-plus/packages/components/tree/src/tree.type"
 import type Node from "element-plus/packages/components/tree/src/model/node"
+import { store } from "@/store/index"
+import { axios } from "@/api/api"
+import { router } from "@/router/index"
 import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from "@/helper"
 // import type { TreeComponentProps }  from "element-plus/packages/components/tree/src/tree.type"
 
@@ -136,19 +136,32 @@ type TreeInstance = DragState & TreeStore & ComponentPublicInstance
 */
 //项目id
 const projectId = router.currentRoute.value.query.id as string;
-const projectInfo = computed(() => {
-    return store.state["apidoc/baseInfo"]
-})
-onMounted(() => {
-    getProjectEnum();
-})
-
+const projectInfo = computed(() => store.state["apidoc/baseInfo"])
 /*
 |--------------------------------------------------------------------------
 | 项目列表信息
 |--------------------------------------------------------------------------
 */
-
+//目标树数据加载
+const loading = ref(false);
+//目标树数据
+const targetTreeData: Ref<ApidocBanner[]> = ref([]);
+//目标项目 项目id
+const targetProjectId = ref("");
+//根据id获取目标项目详情数据
+const handleChangeProject = (pid: string) => {
+    loading.value = true;
+    const params = {
+        projectId: pid,
+    };
+    axios.get("/api/project/doc_tree_node", { params }).then((res) => {
+        targetTreeData.value = res.data;
+    }).catch((err) => {
+        console.error(err);
+    }).finally(() => {
+        loading.value = false;
+    });
+}
 //项目列表枚举
 const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
@@ -164,36 +177,22 @@ const getProjectEnum = () => {
         }
     }).catch((err) => {
         console.error(err);
-    });    
+    });
 }
+onMounted(() => {
+    getProjectEnum();
+})
+
 /*
 |--------------------------------------------------------------------------
 | 原树和目标树 基础数据
 |--------------------------------------------------------------------------
 |
 */
-//目标项目 项目id
-const targetProjectId = ref("");
-//目标树数据加载
-const loading = ref(false);
 //目标数实例
 const targetTree: Ref<(TreeInstance) | null> = ref(null);
 //源树组件实例
 const sourceTree: Ref<(TreeInstance) | null> = ref(null);
-//根据id获取目标项目详情数据
-const handleChangeProject= (projectId: string) => {
-    loading.value = true;
-    const params = {
-        projectId,
-    };
-    axios.get("/api/project/doc_tree_node", { params }).then((res) => {
-        targetTreeData.value = res.data;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
-}
 
 //源树数据
 const sourceTreeData = computed(() => {
@@ -203,10 +202,6 @@ const sourceTreeData = computed(() => {
     });
     return copyData;
 });
-//目标树数据
-const targetTreeData: Ref<ApidocBanner[]> = ref([]);
-
-
 /*
 |--------------------------------------------------------------------------
 | 拖拽相关
@@ -218,7 +213,6 @@ const isInSource = ref(false);
 //判断目标树是否允许drop
 const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType) => {
     // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
-   
     // if (!realDragNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
     //     return type !== "prev";
     // }
@@ -241,6 +235,37 @@ const handleTargetDragStart = (event: Event, node: Node) => {
 const handleTargetNodeOver = () => {
     console.log("target over")
     isInSource.value = false;
+}
+//排序目标树
+const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
+    const params = {
+        _id: node.data._id, //当前节点id
+        pid: "", //父元素
+        sort: 0, //当前节点排序效果
+        projectId,
+        dropInfo: {
+            nodeName: node.data.name,
+            nodeId: node.data._id,
+            dropNodeName: dropNode.data.name,
+            dropNodeId: dropNode.data._id,
+            dropType: type,
+        },
+    };
+    const pData = findParentById(targetTreeData.value, node.data._id, { idKey: "_id" });
+    params.pid = pData ? pData._id : "";
+    if (type === "inner") {
+        params.sort = Date.now();
+    } else {
+        const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
+        const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
+        const previousSiblingSort = previousSibling.sort || 0;
+        const nextSiblingSort = nextSibling.sort || Date.now();
+        params.sort = (nextSiblingSort + previousSiblingSort) / 2;
+        node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
+    }
+    axios.put("/api/project/change_doc_pos", params).catch((err) => {
+        console.error(err)
+    });
 }
 //目标树drop
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
@@ -302,12 +327,11 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
     dragNode.data._isSource = false;
 }
 
-
 //拖拽开始(源)
 const handleSourceDragstart = (node: Node, event: Event) => {
     console.log("drag start", targetTree.value, event, node)
     if (targetTree.value) {
-        targetTree.value.dragState.draggingNode = { node };
+        // targetTree.value.dragState.draggingNode = { node };
     }
 }
 //拖拽中(源)
@@ -335,41 +359,6 @@ const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unkno
         }
     })
     // console.log(event, sourceTree.value, nextTick)
-}
-
-
-
-
-//排序目标树
-const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
-    const params = {
-        _id: node.data._id, //当前节点id
-        pid: "", //父元素
-        sort: 0, //当前节点排序效果
-        projectId,
-        dropInfo: {
-            nodeName: node.data.name,
-            nodeId: node.data._id,
-            dropNodeName: dropNode.data.name,
-            dropNodeId: dropNode.data._id,
-            dropType: type,
-        },
-    };
-    const pData = findParentById(targetTreeData.value, node.data._id, { idKey: "_id" });
-    params.pid = pData ? pData._id : "";
-    if (type === "inner") {
-        params.sort = Date.now();
-    } else {
-        const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
-        const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
-        const previousSiblingSort = previousSibling.sort || 0;
-        const nextSiblingSort = nextSibling.sort || Date.now();
-        params.sort = (nextSiblingSort + previousSiblingSort) / 2;
-        node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-    }
-    axios.put("/api/project/change_doc_pos", params).catch((err) => {
-        console.error(err)
-    });
 }
 
 //清除contentmenu

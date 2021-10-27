@@ -106,7 +106,7 @@
         </el-tabs>
         <div class="wrap">
             <div class="list" tabindex="-1">
-                <div 
+                <div
                     v-for="(item, index) in mockEnum"
                     :key="index"
                     class="list-item"
@@ -128,9 +128,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { MockItem } from "@@/global"
 import Mock from "@/server/mock"
 import mockEnum from "./mock-enum";
-import type { MockItem } from "@@/global"
 
 const cpMockEnum: MockItem[] = JSON.parse(JSON.stringify(mockEnum));
 

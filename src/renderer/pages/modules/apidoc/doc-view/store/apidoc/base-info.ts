@@ -1,9 +1,8 @@
 import { ActionContext } from "vuex"
-import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
-import router from "../../router/index"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
 import type { Response, ApidocMindParam } from "@@/global"
-
+import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
+import router from "../../router/index"
 
 const baseInfo = {
     namespaced: true,

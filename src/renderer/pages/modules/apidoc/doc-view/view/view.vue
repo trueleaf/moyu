@@ -22,6 +22,7 @@ import banner from "./banner/banner.vue";
 import nav from "./nav/nav.vue";
 import content from "./content/content.vue";
 import { useStore } from "../store/index"
+
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
 export default defineComponent({
@@ -51,7 +52,7 @@ export default defineComponent({
         onMounted(() => {
             if (isBuildHtml) {
                 const result = [];
-                const mapedData =  (window as any).SHARE_DATA.docs.map((val: { isFolder: any; _id: any; pid: any; sort: any; info: { name: any; type: any; maintainer: any; }; updatedAt: any; item: { method: any; url: { path: any; }; }; }) => {
+                const mapedData = (window as any).SHARE_DATA.docs.map((val: { isFolder: any; _id: any; pid: any; sort: any; info: { name: any; type: any; maintainer: any; }; updatedAt: any; item: { method: any; url: { path: any; }; }; }) => {
                     if (val.isFolder) {
                         return {
                             _id: val._id,
@@ -64,23 +65,22 @@ export default defineComponent({
                             isFolder: val.isFolder,
                             children: [],
                         };
-                    } else {
-                        return {
-                            _id: val._id,
-                            pid: val.pid,
-                            sort: val.sort,
-                            name: val.info.name,
-                            type: val.info.type,
-                            method: val.item.method,
-                            url: val.item.url ? val.item.url.path : "",
-                            maintainer: val.info.maintainer,
-                            updatedAt: val.updatedAt,
-                            isFolder: val.isFolder,
-                            children: [],
-                        };                
                     }
+                    return {
+                        _id: val._id,
+                        pid: val.pid,
+                        sort: val.sort,
+                        name: val.info.name,
+                        type: val.info.type,
+                        method: val.item.method,
+                        url: val.item.url ? val.item.url.path : "",
+                        maintainer: val.info.maintainer,
+                        updatedAt: val.updatedAt,
+                        isFolder: val.isFolder,
+                        children: [],
+                    };
                 })
-                for (let i = 0; i < mapedData.length; i++) {
+                for (let i = 0; i < mapedData.length; i += 1) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const docInfo: any = mapedData[i];
                     if (!docInfo.pid) { //根元素
@@ -88,7 +88,7 @@ export default defineComponent({
                         result.push(docInfo);
                     }
                     const id = docInfo._id.toString();
-                    for (let j = 0; j < mapedData.length; j++) {
+                    for (let j = 0; j < mapedData.length; j += 1) {
                         if (id === mapedData[j].pid) { //项目中新增的数据使用标准id
                             if (docInfo.children == null) {
                                 docInfo.children = [];

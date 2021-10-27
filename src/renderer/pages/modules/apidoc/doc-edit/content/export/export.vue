@@ -87,25 +87,21 @@
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
 import { ref, Ref, computed } from "vue"
-import sFork from "./fork/fork.vue"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { ApidocBanner } from "@@/global";
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { router } from "@/router/index"
+import sFork from "./fork/fork.vue"
 
 //可导出数据类型
 const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
 //项目基本信息
-const projectInfo = computed(() => {
-    return store.state["apidoc/baseInfo"];
-});
+const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
 //菜单数据
-const bannerData = computed(() => {
-    return store.state["apidoc/banner"].banner
-})
+const bannerData = computed(() => store.state["apidoc/banner"].banner)
 //当前选中节点
-let allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
+const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //节点选中
 const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
 const handleCheckChange = () => {
@@ -118,21 +114,6 @@ const handleCheckChange = () => {
 //数据加载状态
 const loading = ref(false);
 const config: Ref<{ enabled: boolean } | null> = ref(null)
-const handleExport = () => {
-    const enableCustomExport = config.value?.enabled;
-    const customExportIsEmpty = allCheckedNodes.value.length === 0;
-    if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
-        ElMessage.warning("请至少选择一个文档导出");
-        return;
-    }
-    if (selectedType.value === "html") {
-        handleExportAsHTML();
-    } else if (selectedType.value === "moyu") {
-        handleExportAsMoyu();
-    } else { //默认兜底导出html
-        handleExportAsHTML();
-    }
-}
 //导出为html
 const handleExportAsHTML = () => {
     const selectedIds = allCheckedNodes.value.map((val) => val._id);
@@ -171,7 +152,21 @@ const handleExportAsMoyu = () => {
         loading.value = false;
     });
 }
-
+const handleExport = () => {
+    const enableCustomExport = config.value?.enabled;
+    const customExportIsEmpty = allCheckedNodes.value.length === 0;
+    if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
+        ElMessage.warning("请至少选择一个文档导出");
+        return;
+    }
+    if (selectedType.value === "html") {
+        handleExportAsHTML();
+    } else if (selectedType.value === "moyu") {
+        handleExportAsMoyu();
+    } else { //默认兜底导出html
+        handleExportAsHTML();
+    }
+}
 </script>
 
 <style lang="scss">

@@ -1,7 +1,6 @@
 import { App, DirectiveBinding } from "vue"
 import scssData from "@/scss/variables/_variables.scss"
 
-
 let domList: HTMLElement[] = [];
 
 function createTipDom(left: number, top: number): HTMLElement {
@@ -51,7 +50,7 @@ export default (app: App): void => {
     //=====================================拷贝指令====================================//
     const runCopy = (e: MouseEvent, value: string) => {
         const x = e.clientX;
-        const y = e.clientY;  
+        const y = e.clientY;
         const dom = document.createElement("textarea");
         dom.value = value;
         dom.style.position = "fixed";
@@ -108,20 +107,20 @@ export default (app: App): void => {
         const hasFullDay = restTime > 86400000;
         const day = hasFullDay ? Math.floor(restTime / 86400000) : 0;
         if (hasFullDay) {
-            restTime = restTime % 86400000;
+            restTime %= 86400000
         }
         const hasFullHour = restTime > 3600000;
         const hour = hasFullHour ? Math.floor(restTime / 3600000) : 0;
         if (hasFullHour) {
-            restTime = restTime % 3600000;
+            restTime %= 3600000;
         }
         const hasFullMinute = restTime > 60000;
         const minute = hasFullMinute ? Math.floor(restTime / 60000) : 0;
         if (hasFullMinute) {
-            restTime = restTime % 60000;
+            restTime %= 60000;
         }
         const second = Math.floor(restTime / 1000);
-        el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;        
+        el.innerHTML = `${day}天${hour}小时${minute}分${second}秒`;
     }
     const bindCountdown = (el: HTMLElement, binding: DirectiveBinding<number>) => {
         countdown(el, binding);
@@ -129,7 +128,7 @@ export default (app: App): void => {
             countdown(el, binding);
         }, 1000)
 
-        countdownTimers.push(timer);        
+        countdownTimers.push(timer);
     }
     app.directive("countdown", {
         mounted(el: HTMLElement, binding) {

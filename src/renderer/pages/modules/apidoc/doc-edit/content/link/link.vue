@@ -72,14 +72,14 @@ const generateUrlAndPassword = (linkInfo: LinkInfo) => {
     `
 }
 //删除某个链接
-const handleDeleteItem = (projectId: string, _id: string) => {
+const handleDeleteItem = (pid: string, _id: string) => {
     ElMessageBox.confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
     }).then(() => {
         const params = {
-            projectId,
+            projectId: pid,
             _id,
         };
         axios.delete("/api/project/export/online", { data: params }).then(() => {
@@ -107,7 +107,6 @@ const handleAddSuccess = () => {
 const handleEditSuccess = () => {
     table.value?.getData();
 }
-
 
 </script>
 

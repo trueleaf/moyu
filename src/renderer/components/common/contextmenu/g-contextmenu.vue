@@ -54,10 +54,9 @@ export default defineComponent({
                     if (contextPosition === "top" && height > topVal) { //显示在上面但是contextmenu高度小于上面可用空间高度
                         contextmenuDom.style.height = `${topVal}px`;
                         contextmenuDom.style.overflowY = "auto";
-                        
                     } else if (contextPosition === "top") {
                         this.realTop = topVal - height;
-                    } else { 
+                    } else {
                         this.realTop = topVal;
                     }
                 }, 0)

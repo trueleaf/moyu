@@ -1,8 +1,6 @@
-
 import Axios, { Method } from "axios"
-import axios from "axios"
-import { axios as axios2 } from "@/api/api"
 import FormData from "form-data"
+import { axios as axios2 } from "@/api/api"
 import { store as onlineStore } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
@@ -15,16 +13,15 @@ const buildShareOrHtml = process.env.VUE_APP_BUILD_SHARE || process.env.VUE_APP_
 const axiosInstance = Axios.create({
     timeout: config.timeout || 60000, //超时时间
 });
-const { CancelToken } = axios;
+const { CancelToken } = Axios;
 const source = CancelToken.source();
-
 
 //获取完整headers
 function getRealHeaders() {
     const store = buildShareOrHtml ? shareStore : onlineStore;
     const realHeaders: Record<string, string | undefined> = {};
     const { defaultHeaders } = store.state["apidoc/apidoc"];
-    const { headers } = store.state["apidoc/apidoc"].apidoc.item; 
+    const { headers } = store.state["apidoc/apidoc"].apidoc.item;
     defaultHeaders.concat(headers).forEach((item) => {
         const itemKey = item.key.toLocaleLowerCase();
         if (item.select && itemKey) {
@@ -44,7 +41,7 @@ function getRealHeaders() {
     // }
     //删除自动携带的请求头
     delete realHeaders["content-length"]
-    delete realHeaders["host"]
+    delete realHeaders.host
     return realHeaders;
 }
 
@@ -70,11 +67,9 @@ export function sendRequest(): void {
         const queryString = utils.convertQueryParamsToQueryString(queryParams);
         const pathMap = utils.getPathParamsMap(paths)
         const { mode } = requestBody
-        const validPath = url.path.replace(/\{([^\}]+)\}/g, ($1, $2) => {
-            return pathMap[$2] || $2
-        })
+        const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
         const requestUrl = url.host + validPath + queryString;
-        let body: string | FormData  = "";
+        let body: string | FormData = "";
         const realHeaders = getRealHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
@@ -87,17 +82,20 @@ export function sendRequest(): void {
                 body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
                 break;
             case "multipart/form-data":
+                // eslint-disable-next-line no-case-declarations
                 const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
                 body = data
                 realHeaders["Content-Type"] = headers["content-type"]
                 break;
             case "text/plain":
                 body = requestBody.raw.data;
+                break;
             case "text/html":
                 body = requestBody.raw.data;
                 break;
             case "application/xml":
                 body = requestBody.raw.data;
+                break;
             case "text/javascript":
                 body = requestBody.raw.data;
                 break;
@@ -128,7 +126,7 @@ export function sendRequest(): void {
                 store.commit("apidoc/response/changeLoading", false);
                 const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
 
-                store.commit("apidoc/response/changeResponseMime", response.contentType);
+                store.commit("apidoc/response/changeResponseContentType", response.contentType);
                 if (textContentType.find(type => response.contentType.match(type))) {
                     const blobData = new Blob([new Uint8Array(response.data.data)], { type: response.contentType });
                     store.commit("apidoc/response/changeResponseTextValue", await blobData.text());
@@ -139,7 +137,7 @@ export function sendRequest(): void {
                 }
             }).catch((err) => {
                 console.error(err);
-                store.commit("apidoc/response/changeResponseMime", "error");
+                store.commit("apidoc/response/changeResponseContentType", "error");
                 store.commit("apidoc/response/changeResponseTextValue", err.message);
             }).finally(() => {
                 store.commit("apidoc/response/changeLoading", false)
@@ -149,8 +147,8 @@ export function sendRequest(): void {
         //=========================================================================//
         delete realHeaders["user-agent"]
         delete realHeaders["accept-encoding"]
-        delete realHeaders["connection"]
-        delete realHeaders["cookie"]
+        delete realHeaders.connection
+        delete realHeaders.cookie
         const startTime = Date.now();
         axiosInstance.request({
             url: requestUrl,
@@ -173,7 +171,7 @@ export function sendRequest(): void {
             store.commit("apidoc/response/changeLoading", false);
             const mime = response.data.type;
             const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
-            store.commit("apidoc/response/changeResponseMime", mime);
+            store.commit("apidoc/response/changeResponseContentType", mime);
             // console.log(textContentType, resContentType, response)
             if (textContentType.find(type => resContentType.match(type))) {
                 store.commit("apidoc/response/changeResponseTextValue", await response.data.text());
@@ -185,13 +183,13 @@ export function sendRequest(): void {
         }).catch(error => {
             console.error(error)
             store.commit("apidoc/response/changeLoading", false)
-            store.commit("apidoc/response/changeResponseMime", "error");
-            store.commit("apidoc/response/changeResponseTextValue",error.toString());
+            store.commit("apidoc/response/changeResponseContentType", "error");
+            store.commit("apidoc/response/changeResponseTextValue", error.toString());
         });
         return
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
-        store.commit("apidoc/response/changeResponseMime", "error");
+        store.commit("apidoc/response/changeResponseContentType", "error");
         store.commit("apidoc/response/changeResponseTextValue", (error as Error).toString());
         console.error(error);
     }

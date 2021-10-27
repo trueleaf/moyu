@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 import { Store } from "vuex"
 import { AxiosInstance } from "axios"
 import { State } from "@@/store"

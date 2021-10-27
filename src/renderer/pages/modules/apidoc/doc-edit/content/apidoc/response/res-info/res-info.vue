@@ -45,22 +45,16 @@
 </template>
 
 <script lang="ts" setup>
-import { formatBytes, formatMs } from "@/helper/index"
 import { computed } from "vue"
+import { formatBytes, formatMs } from "@/helper/index"
 import { store } from "@/store/index"
 
 //远端返回值
-const remoteResponse = computed(() => {
-    return store.state["apidoc/response"]
-});
+const remoteResponse = computed(() => store.state["apidoc/response"]);
 //格式化返回值大小
-const formatedBytes = computed(() => {
-    return formatBytes(remoteResponse.value.size);
-})
+const formatedBytes = computed(() => formatBytes(remoteResponse.value.size))
 //格式化返回时间
-const formatedMs = computed(() => {
-    return formatMs(remoteResponse.value.rt);
-})
+const formatedMs = computed(() => formatMs(remoteResponse.value.rt))
 </script>
 
 <style lang="scss">

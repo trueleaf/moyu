@@ -6,7 +6,7 @@
 */
 <template>
     <div class="s-ellipsis">
-        <el-tooltip effect="light" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
+        <el-tooltip :effect="Effect.LIGHT" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
             <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
         </el-tooltip>
         <!-- <span v-if="copy || isOverflow" v-copy="value" class="copy el-icon-document-copy cursor-pointer orange"></span> -->
@@ -15,6 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Effect } from "element-plus";
 
 export default defineComponent({
     props: {
@@ -42,6 +43,7 @@ export default defineComponent({
     },
     data() {
         return {
+            Effect,
             isOverflow: false,
         };
     },

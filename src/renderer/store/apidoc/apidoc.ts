@@ -1,11 +1,11 @@
 import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { ElMessageBox } from "element-plus"
+import type { State as RootState, ApidocState, } from "@@/store"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import type { State as RootState, ApidocState, } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
@@ -109,7 +109,7 @@ const apidoc = {
          */
         defaultHeaders: [],
         /**
-         * 是否正在加载接口
+         * 是否正在加载数据
          */
         loading: false,
         /**
@@ -221,7 +221,7 @@ const apidoc = {
         //根据index值改变response
         changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
             const { index, value } = payload
-            state.apidoc.item.responseParams[index].value.json  = value;
+            state.apidoc.item.responseParams[index].value.json = value;
         },
         //新增一个response
         addResponseParam(state: ApidocState): void {

@@ -3,11 +3,11 @@
  */
 
 import { computed } from "vue"
+import type { ApidocProperty, ApidocPropertyType } from "@@/global"
+import type { ApidocProjectHost } from "@@/store"
 import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
 import globalConfig from "@/../config/config"
-import type { ApidocProperty, ApidocPropertyType } from "@@/global"
-import type { ApidocProjectHost } from "@@/store"
 import { router } from "@/router/index"
 import { apidocCache } from "@/cache/apidoc"
 
@@ -62,10 +62,8 @@ export function handleFormatUrl():void {
         set(path) {
             store.commit("apidoc/apidoc/changeApidocUrl", path)
         },
-    }); 
-    const currentHost = computed<string>(() => {
-        return store.state["apidoc/apidoc"].apidoc.item.url.host
-    }); 
+    });
+    const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);
     const hostEnum = computed<ApidocProjectHost[]>(() => {
         const localData = apidocCache.getApidocServer(projectId)
         return store.state["apidoc/baseInfo"].hosts.concat(localData)

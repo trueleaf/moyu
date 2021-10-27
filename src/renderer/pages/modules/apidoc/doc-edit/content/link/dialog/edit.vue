@@ -108,12 +108,12 @@
 <script lang="ts" setup>
 import { ref, computed, Ref, PropType, onMounted, nextTick } from "vue"
 import { ElMessage } from "element-plus"
+import { ApidocBanner } from "@@/global";
+import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { axios } from "@/api/api"
 import { store } from "@/store/index"
 import config from "@/../config/config"
-import { ApidocBanner } from "@@/global";
 import { router } from "@/router"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 
 //=========================================================================//
 type EditData = {
@@ -148,9 +148,9 @@ const customMaxAge = ref(false);
 //当前选中需要分享的节点信息
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //树形数据
-const navTreeData = computed(() => {
-    return store.state["apidoc/banner"].banner;
-})
+const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
+const navTreeData = computed(() => store.state["apidoc/banner"].banner)
+const configShare: Ref<{ enabled: boolean } | null> = ref(null); //配置组件实例
 onMounted(() => {
     formInfo.value.shareName = props.data.shareName;
     formInfo.value.password = props.data.password;
@@ -164,13 +164,15 @@ onMounted(() => {
         }
     })
 })
-
 //=====================================生成链接====================================//
-const projectInfo = computed(() => store.state["apidoc/baseInfo"] ) //项目基本信息
-const configShare: Ref<{ enabled: boolean } | null> = ref(null); //配置组件实例
+const projectInfo = computed(() => store.state["apidoc/baseInfo"]) //项目基本信息
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //生成在线链接加载
 const shareLink = ref(""); //在线链接地址
+//关闭页面
+const handleClose = () => {
+    emit("update:modelValue", false);
+}
 //修改在线链接
 const handleEditLink = () => {
     const enableCustomExport = configShare.value?.enabled;
@@ -204,7 +206,6 @@ const handleEditLink = () => {
     });
 }
 //=====================================其他操作====================================//
-const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
 //节点选中状态改变时候
 const handleCheckChange = () => {
     const checkedNodes = docTree.value?.getCheckedNodes() || [];
@@ -212,13 +213,8 @@ const handleCheckChange = () => {
     allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
 }
 //格式化展示
-const formatTooltip = (val: number) => {
-    return `${(Math.floor(val / 86400000))}天后`;
-}
-//关闭页面
-const handleClose = () => {
-    emit("update:modelValue", false);
-}
+const formatTooltip = (val: number) => `${(Math.floor(val / 86400000))}天后`
+
 </script>
 
 <style lang="scss">

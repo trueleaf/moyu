@@ -9,6 +9,7 @@ import { ApidocProjectListInfo } from "@@/global"
 
 class MoyuDataBase extends Dexie {
     public projectList: Dexie.Table<ApidocProjectListInfo, number>
+
     public constructor() {
         super("MoyuDataBase");
         this.version(1).stores({

@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Editor} from "brace";
+import { Editor } from "brace";
 import json5 from "json5"
 import { apidocConvertJsonDataToParams } from "@/helper/index"
 

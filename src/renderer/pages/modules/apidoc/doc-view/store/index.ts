@@ -1,11 +1,11 @@
 import { InjectionKey } from "vue"
 import { createStore, Store, useStore as baseUseStore } from "vuex"
+import { State } from "@@/store"
 import { banner } from "./apidoc/banner";
 import { baseInfo } from "./apidoc/base-info";
 import { tabs } from "./apidoc/tabs";
 import { apidoc } from "./apidoc/apidoc";
 import { response } from "./apidoc/response";
-import { State } from "@@/store"
 
 export const key: InjectionKey<Store<State>> = Symbol("")
 

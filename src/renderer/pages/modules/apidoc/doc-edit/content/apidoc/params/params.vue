@@ -61,10 +61,10 @@
                     </template>
                 </el-tab-pane>
                 <el-tab-pane label="备注信息" name="s-f"></el-tab-pane>
-            </el-tabs>    
+            </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
-            </keep-alive>        
+            </keep-alive>
         </div>
         <div v-show="workMode === 'view'">
             <s-view></s-view>
@@ -74,15 +74,15 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { ApidocTab } from "@@/store"
+import type { ApidocDetail, ApidocProperty } from "@@/global"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
 import view from "./view/view.vue"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
-import type { ApidocTab } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
-import type { ApidocDetail, ApidocProperty } from "@@/global"
 
 export default defineComponent({
     components: {
@@ -114,20 +114,20 @@ export default defineComponent({
         },
         //返回参数个数
         responseNum() {
-            const { responseParams } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const resParams = this.$store.state["apidoc/apidoc"].apidoc.item.responseParams;
             let resNum = 0;
-            responseParams.forEach(response => {
+            resParams.forEach(response => {
                 const resValue = response.value;
                 const { dataType } = resValue;
                 if (dataType === "application/json") {
                     const converJsonData = apidocConvertParamsToJsonData(resValue.json);
                     const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
                     if (hasJsonData) {
-                        resNum ++;
+                        resNum += 1;
                     }
                 } else if (dataType === "text/javascript" || dataType === "text/plain" || dataType === "text/html" || dataType === "application/xml") {
                     if (resValue.text.length > 0) {
-                        resNum ++;
+                        resNum += 1;
                     }
                 } else {
                     console.warn(`未实现的返回类型${dataType}`);
@@ -223,23 +223,22 @@ export default defineComponent({
             if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
                 return false;
             }
-            const { requestBody } = cpApidoc.item;
-            if (requestBody.mode === "json") {
+            if (cpApidoc.item.requestBody.mode === "json") {
                 const jsonBodyIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.json, cpOriginApidoc.item.requestBody.json);
                 if (!jsonBodyIsEqual) {
                     return false;
                 }
-            } else if (requestBody.mode === "formdata") {
+            } else if (cpApidoc.item.requestBody.mode === "formdata") {
                 const formDataIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.formdata, cpOriginApidoc.item.requestBody.formdata);
                 if (!formDataIsEqual) {
                     return false;
                 }
-            } else if (requestBody.mode === "urlencoded") {
+            } else if (cpApidoc.item.requestBody.mode === "urlencoded") {
                 const urlencodedIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.urlencoded, cpOriginApidoc.item.requestBody.urlencoded);
                 if (!urlencodedIsEqual) {
                     return false;
                 }
-            } else if (requestBody.mode === "raw") {
+            } else if (cpApidoc.item.requestBody.mode === "raw") {
                 const rawDataIsEqual = cpApidoc.item.requestBody.raw.data === cpOriginApidoc.item.requestBody.raw.data
                 const rawTypeIsEqual = cpApidoc.item.requestBody.raw.dataType === cpOriginApidoc.item.requestBody.raw.dataType
                 if (!rawTypeIsEqual) {
@@ -263,12 +262,10 @@ export default defineComponent({
             const originPath = originApidoc.item.url.path;
             return apidocHost === originHost && apidocPath === originPath;
         },
-        //检查ApidocProperty[]类型数据是否相同 
+        //检查ApidocProperty[]类型数据是否相同
         checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]) {
-            if (value.length !== originValue.length){
-                return false;
-            }
-            for(let i = 0; i < value.length; i ++) {
+            if (value.length !== originValue.length) return false;
+            for (let i = 0; i < value.length; i += 1) {
                 const item = value[i];
                 const { _id } = item;
                 const matchedOriginItem = originValue.find(v => v._id === _id);
@@ -282,7 +279,7 @@ export default defineComponent({
             return true;
         },
         //检查每个ApidocProperty是否一致
-        checkIsSameProperty(prop: ApidocProperty, prop2: ApidocProperty) {
+        checkIsSameProperty(p: ApidocProperty, p2: ApidocProperty) {
             let isSame = true;
             const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
                 if (prop.key !== prop2.key) {
@@ -314,12 +311,12 @@ export default defineComponent({
                     return;
                 }
                 if (prop.children.length > 0) { //prop2长度肯定也大于0
-                    for(let i = 0; i < prop.children.length; i ++) {
+                    for (let i = 0; i < prop.children.length; i += 1) {
                         checkProperty(prop.children[i], prop2.children[i]);
                     }
                 }
             }
-            checkProperty(prop, prop2);
+            checkProperty(p, p2);
             return isSame
         },
         //=========================================================================//

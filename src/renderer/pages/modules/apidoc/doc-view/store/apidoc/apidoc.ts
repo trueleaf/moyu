@@ -1,12 +1,13 @@
 import { ActionContext } from "vuex"
 import axios, { Canceler } from "axios"
 import { ElMessageBox } from "element-plus"
+import type { State as RootState, ApidocState, } from "@@/store"
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
 import { axios as axiosInstance } from "../../api/api"
 import router from "../../router/index"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import type { State as RootState, ApidocState, } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
-import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep,  } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep } from "@/helper/index"
+
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -203,7 +204,7 @@ const apidoc = {
         //根据index值改变response
         changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
             const { index, value } = payload
-            state.apidoc.item.responseParams[index].value.json  = value;
+            state.apidoc.item.responseParams[index].value.json = value;
         },
         //新增一个response
         addResponseParam(state: ApidocState): void {

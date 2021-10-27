@@ -55,11 +55,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { useStore } from "@/store/index";
 import { useRouter } from "vue-router"
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { IpcRenderer } from "electron"
-import config from "@/../config/config"
 import { PermissionMenu, PermissionUserInfo } from "@@/global"
+import { useStore } from "@/store/index";
+import config from "@/../config/config"
 
 let ipcRenderer: IpcRenderer;
 if (window.require) {

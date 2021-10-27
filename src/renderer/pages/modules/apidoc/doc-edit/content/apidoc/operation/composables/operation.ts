@@ -39,8 +39,8 @@ export default (): OperationReturn => {
     const projectId = router.currentRoute.value.query.id as string;
     const currentSelectTab = computed(() => {
         const tabs = store.state["apidoc/tabs"].tabs[projectId];
-        const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-        return currentSelectTab;
+        const currentTab = tabs?.find((tab) => tab.selected) || null;
+        return currentTab;
     });
     //发送请求
     const handleSendRequest = () => {

@@ -1,5 +1,4 @@
-"use strict"
-
+/* eslint-disable */ 
 import { app, protocol, BrowserWindow } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer"
@@ -29,7 +28,6 @@ async function createWindow() {
     })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
-        // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
         if (!process.env.IS_TEST) win.webContents.openDevTools()
     } else if (!config.mainConfig.useLocalFile) {
@@ -74,7 +72,7 @@ app.on("ready", async () => {
         try {
             await installExtension(VUEJS_DEVTOOLS)
         } catch (e) {
-            console.error("Vue Devtools failed to install:", e.toString())
+            console.error("Vue Devtools failed to install:", (e as Error).toString())
         }
     }
     createWindow()

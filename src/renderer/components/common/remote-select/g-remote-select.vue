@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
+
 type DebounceFn = (query: string) => void;
 
 export default defineComponent({

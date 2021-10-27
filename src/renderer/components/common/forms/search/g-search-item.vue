@@ -50,7 +50,7 @@ export default defineComponent({
          * 绑定参数的字段名称
          */
         prop: {
-            type: [String, Number],
+            type: [String],
             default: "",
         },
     },
@@ -58,7 +58,7 @@ export default defineComponent({
     setup() {
         const formInfo = inject<Record<string, unknown>>("formInfo", {})
         return {
-            formInfo: formInfo,
+            formInfo,
         }
     },
     data() {

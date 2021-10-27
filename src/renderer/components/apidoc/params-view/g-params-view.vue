@@ -37,7 +37,7 @@
                         <span v-if="item.colon" class="colon">{{ item.colon }}</span>
                         <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                         <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                        <el-tooltip v-if="item.valueType === 'string'" effect="light" :open-delay="1500" :content="item.value" placement="bottom-start">
+                        <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :open-delay="1500" :content="item.value" placement="bottom-start">
                             <s-emphasize class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
                         </el-tooltip>
                         <span>
@@ -51,7 +51,7 @@
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                         <span class="comma">{{ item.comma }}</span>
                         <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
-                        <el-tooltip v-if="item.description" effect="light" :open-delay="1500" :content="item.description" placement="bottom-start">
+                        <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :open-delay="1500" :content="item.description" placement="bottom-start">
                             <span class="description ml-1">
                                 //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
                             </span>
@@ -65,9 +65,13 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, PropType, watch, ref, Ref } from "vue"
+import {
+    defineProps, PropType, watch, ref, Ref
+} from "vue"
+import { Effect } from "element-plus";
 import { ApidocProperty, ApidocASTInfo } from "@@/global"
 import { astJson } from "./composables/astJson"
+
 const props = defineProps({
     /**
      * 参数数据

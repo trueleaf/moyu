@@ -107,6 +107,7 @@ import { defineComponent } from "vue"
 import beautify from "js-beautify"
 import { ApidocProperty } from "@@/global";
 import { apidocConvertJsonDataToParams } from "@/helper/index"
+
 type ResponseApplyEnum = {
     index: number,
     title: string,
@@ -120,7 +121,7 @@ export default defineComponent({
     },
     computed: {
         //远端返回数据结果
-        remoteResponse() { 
+        remoteResponse() {
             return this.$store.state["apidoc/response"]
         },
         //发送请求状态

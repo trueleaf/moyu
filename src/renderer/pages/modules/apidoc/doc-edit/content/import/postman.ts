@@ -3,13 +3,15 @@
 | 转换postman格式数据
 |--------------------------------------------------------------------------
 */
-import { uuid } from "@/helper/index"
-import { apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
+import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
 
 class PostmanTranslator {
     public projectId: string;
+
     public variables: { key: string, value: string }[];
+
     public postmanData: any;
+
     constructor(projectId: string, data) {
         this.projectId = projectId; //项目id
         this.variables = [];

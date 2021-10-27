@@ -139,7 +139,7 @@ export default defineComponent({
             }
             (wrapper as HTMLElement).style.width = `${moveLeft + this.wrapperWidth}px`;
             if (this.remember) {
-                localStorage.setItem(`dragBar/${this.name}`, (moveLeft + this.wrapperWidth).toString() + "px");
+                localStorage.setItem(`dragBar/${this.name}`, `${moveLeft + this.wrapperWidth}px`);
             }
             this.realTimeWidth = moveLeft + this.wrapperWidth;
         },

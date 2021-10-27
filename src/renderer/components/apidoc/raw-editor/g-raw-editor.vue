@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, WatchStopHandle } from "vue"
-import ace, { Editor} from "brace";
+import ace, { Editor } from "brace";
 import "brace/mode/json";
 import "brace/mode/javascript";
 import "brace/mode/html";

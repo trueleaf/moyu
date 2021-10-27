@@ -1,10 +1,10 @@
 import { ActionContext } from "vuex"
-import { axios } from "@/api/api"
-import { uniqueByKey } from "@/helper/index"
-import { router, routes } from "@/router/index"
 import { RouteRecordRaw } from "vue-router"
 import type { State as RootState, PermissionState } from "@@/store"
 import { Response, PermissionUserInfo, PermissionClientMenu, PermissionClientRoute } from "@@/global"
+import { axios } from "@/api/api"
+import { uniqueByKey } from "@/helper/index"
+import { router, routes } from "@/router/index"
 import config from "@/../config/config"
 import layout from "@/pages/layout/layout.vue";
 
@@ -70,10 +70,9 @@ const permission = {
          * 改变用户可访问路由
          */
         changeRoutes(state: PermissionState, payload: PermissionClientRoute[]): void {
-            const routes = payload;
             const localRoutesStr = sessionStorage.getItem("permission/routes") || "[]";
             const localRoutes = JSON.parse(localRoutesStr) as PermissionClientRoute[];
-            const storeRoutes = uniqueByKey(localRoutes.concat(routes), "path");
+            const storeRoutes = uniqueByKey(localRoutes.concat(payload), "path");
             sessionStorage.setItem("permission/routes", JSON.stringify(storeRoutes));
             state.routes = storeRoutes;
         },

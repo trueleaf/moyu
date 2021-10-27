@@ -8,12 +8,10 @@
 |
 */
 
-import { uuid } from "@/helper/index"
-import { apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
 import jsontoxml from "jsontoxml"
 import type { OpenAPIV3 } from "openapi-types";
-import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global" 
-
+import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
+import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
 
 //=====================================项目信息====================================//
 type ProjectInfo = {
@@ -75,16 +73,16 @@ type ConvertResponse = {
 const HTTP_METHOD = ["get", "put", "post", "delete", "options", "head", "patch", "trace"]
 // const VALID_CONTENT_TYPE: ApidocContentType[] = ["application/json", "application/x-www-form-urlencoded", "text/javascript", "multipart/form-data", "text/plain", "application/xml", "text/html"]
 
-
-
-
 class OpenApiTranslator {
     public projectId: string;
+
     public openApiData: OpenAPIV3.Document;
+
     constructor(projectId: string, data: OpenAPIV3.Document) {
         this.projectId = projectId; //项目id
         this.openApiData = data; //openapi数据
     }
+
     /**
      * 获取openapi版本信息
      */
@@ -95,6 +93,7 @@ class OpenApiTranslator {
         }
         return this.openApiData.openapi
     }
+
     /**
      * 获取项目信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#infoObject
      */
@@ -108,6 +107,7 @@ class OpenApiTranslator {
             version: openApiInfo?.version || "",
         };
     }
+
     /**
      * 获取服务器信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#serverObject
      */
@@ -146,6 +146,7 @@ class OpenApiTranslator {
         })
         return result;
     }
+
     /**
      * 获取文档信息 https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md#pathItemObject
      */
@@ -183,7 +184,7 @@ class OpenApiTranslator {
                 moyuDoc._id = uuid();
                 moyuDoc.projectId = this.projectId;
                 const matchedMethodKey = HTTP_METHOD.find(v => v === pathKey); //属性是否为http请求方法
-                if (matchedMethodKey) { 
+                if (matchedMethodKey) {
                     const pathItemObject = pathObjectInfo[matchedMethodKey as HttpMethod];
                     if (!pathItemObject) {
                         console.warn(`paths参数中存在方法${matchedMethodKey}但是所匹配数据为空`);
@@ -231,7 +232,6 @@ class OpenApiTranslator {
                         parameters： ${pathObjectInfo.parameters}
                     `)
                 }
-
             });
         })
         //默认为按照tag为文件名
@@ -261,6 +261,7 @@ class OpenApiTranslator {
         }
         return docsResult;
     }
+
     /**
      * 解析parameter参数
      */
@@ -274,7 +275,7 @@ class OpenApiTranslator {
         if (!parameters) {
             return result;
         }
-        for(let i = 0; i < parameters.length; i ++) {
+        for (let i = 0; i < parameters.length; i += 1) {
             const apidocProperty = apidocGenerateProperty<"string">();
             const parameter = parameters[i];
             // const ref = (parameter as OpenAPIV3.ReferenceObject).$ref;
@@ -322,7 +323,6 @@ class OpenApiTranslator {
         const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
         apidocProperty.description = description || "";
         apidocProperty.required = required || true;
-        
         // if (ref) { //参数为引用
         //     const schemaObject = this.getRefSchema(ref);
         //     if (schemaObject) {
@@ -477,28 +477,28 @@ class OpenApiTranslator {
         }
         return apidocProperty;
     }
+
     /**
      * 获取ref对应的Schema
      */
-    getRefSchema(ref: string): OpenAPIV3.SchemaObject | null  {
+    getRefSchema(ref: string): OpenAPIV3.SchemaObject | null {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let copiedOpenApiData: any = JSON.parse(JSON.stringify(this.openApiData));
         if (!ref.startsWith("#")) {
             console.warn(`当前ref路径为${ref}, 路径应该以#开头`);
             return null;
-        } else {
-            const refPath = ref.replace("#/", "").split("/");
-            let schemaResult: OpenAPIV3.SchemaObject | null = null;
-            for(let i = 0; i < refPath.length; i ++) {
-                if (!copiedOpenApiData[refPath[i]]) {
-                    console.warn(`无法找到${ref}对应的schema`)
-                    return null;
-                }
-                copiedOpenApiData = copiedOpenApiData[refPath[i]]
-            }
-            schemaResult = copiedOpenApiData;
-            return schemaResult;
         }
+        const refPath = ref.replace("#/", "").split("/");
+        let schemaResult: OpenAPIV3.SchemaObject | null = null;
+        for (let i = 0; i < refPath.length; i += 1) {
+            if (!copiedOpenApiData[refPath[i]]) {
+                console.warn(`无法找到${ref}对应的schema`)
+                return null;
+            }
+            copiedOpenApiData = copiedOpenApiData[refPath[i]]
+        }
+        schemaResult = copiedOpenApiData;
+        return schemaResult;
     }
 }
 

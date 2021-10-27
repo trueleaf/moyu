@@ -1,9 +1,8 @@
 import { ActionContext } from "vuex"
-import { axios } from "@/api/api"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
 import type { Response, ApidocMindParam } from "@@/global"
+import { axios } from "@/api/api"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
-
 
 const baseInfo = {
     namespaced: true,

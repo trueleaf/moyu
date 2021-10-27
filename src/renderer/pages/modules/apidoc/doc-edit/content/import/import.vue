@@ -137,16 +137,16 @@
 <script lang="ts" setup>
 import { ref, Ref, computed } from "vue"
 import jsyaml from "js-yaml"
+import type { OpenAPIV3 } from "openapi-types";
 import { ElMessage, ElMessageBox } from "element-plus";
+import type { ApidocDetail } from "@@/global"
+import type { ApidocProjectRules } from "@@/store"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import OpenApiTranslator from "./openapi";
 import config from "@/../config/config"
 import { store } from "@/store/index";
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
-import type { OpenAPIV3 } from "openapi-types";
-import type { ApidocDetail } from "@@/global"
-import type { ApidocProjectRules } from "@@/store"
 // import type Node from "element-plus/packages/components/tree/src/model/node"
 type FormInfo = {
     moyuData: {
@@ -196,9 +196,7 @@ const loading = ref(false);
 //目标节点菜单
 const loading2 = ref(false);
 //项目基本信息
-const projectInfo = computed(() => {
-    return store.state["apidoc/baseInfo"];
-});
+const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
 //openapi文件夹格式
 const openapiFolderNamedType: Ref<"tag" | "url" | "none"> = ref("tag");
 const formInfo: Ref<FormInfo> = ref({
@@ -242,19 +240,6 @@ const handleBeforeUpload = (file: File) => {
     }
     return true;
 }
-//上传成功读取文件内容
-const requestHook = (e: { file: File }) => {
-    e.file.text().then((fileStr) => {
-        if (fileType.value === "yaml" || fileType.value === "application/x-yaml") {
-            jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
-        } else {
-            jsonText.value = JSON.parse(fileStr)
-        }
-        getImportFileInfo();
-    }).catch((err) => {
-        console.error(err);
-    });
-}
 //获取导入文件信息
 const getImportFileInfo = () => {
     const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
@@ -270,7 +255,6 @@ const getImportFileInfo = () => {
         formInfo.value.type = "openapi";
         formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     }
-    
     // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
     // yapiTranslatorInstance = new YAPITranslator($route.query.id);
     // const isArray = Array.isArray(jsonText);
@@ -303,6 +287,19 @@ const getImportFileInfo = () => {
     //     importTypeInfo.name = "未知类型";
     // }
     // projectName = formInfo.moyuData?.info?.projectName;
+}
+//上传成功读取文件内容
+const requestHook = (e: { file: File }) => {
+    e.file.text().then((fileStr) => {
+        if (fileType.value === "yaml" || fileType.value === "application/x-yaml") {
+            jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
+        } else {
+            jsonText.value = JSON.parse(fileStr)
+        }
+        getImportFileInfo();
+    }).catch((err) => {
+        console.error(err);
+    });
 }
 //导入数据预览
 const previewNavTreeData = computed(() => {

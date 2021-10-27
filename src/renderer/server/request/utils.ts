@@ -1,4 +1,3 @@
-
 import type { ApidocProperty } from "@@/global"
 import FormData from "form-data"
 import fs from "fs"
@@ -13,9 +12,9 @@ export function convertQueryParamsToQueryString(queryParams: ApidocProperty<"str
             queryString += `${v.key}=${apidocConvertValue(v.value)}&`
         }
     })
-    queryString = queryString.replace(/\&$/, "");
+    queryString = queryString.replace(/&$/, "");
     if (queryString) {
-        queryString = "?" + queryString;
+        queryString = `?${queryString}`;
     }
     return queryString;
 }
@@ -29,7 +28,7 @@ export function convertUrlencodedToBodyString(urlencoded: ApidocProperty<"string
             result += `${v.key}=${apidocConvertValue(v.value)}&`
         }
     })
-    result = result.replace(/\&$/, "");
+    result = result.replace(/&$/, "");
     return result;
 }
 
@@ -50,9 +49,10 @@ export function getPathParamsMap(pathParams: ApidocProperty<"string">[]): Record
  */
 export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string" | "file">[]): { data: FormData, headers: FormData.Headers } {
     const formData = new FormData();
-    for(let i = 0; i < bodyFormData.length; i ++) {
+    for (let i = 0; i < bodyFormData.length; i += 1) {
         const item = bodyFormData[i];
         if (!item.select || !item.key) {
+            // eslint-disable-next-line no-continue
             continue;
         }
         if (item.type === "string") { //字符串类型

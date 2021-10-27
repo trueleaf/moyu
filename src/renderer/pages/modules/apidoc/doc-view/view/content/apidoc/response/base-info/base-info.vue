@@ -42,13 +42,9 @@ import { computed } from "vue"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { formatMs, formatDate } from "@/helper"
 
-const apidocInfo = computed(() => {
-    return store.state["apidoc/apidoc"].apidoc
-})
+const apidocInfo = computed(() => store.state["apidoc/apidoc"].apidoc)
 
-const validRequestMethods = computed(() => {
-    return store.state["apidoc/baseInfo"].rules.requestMethods?.filter((val) => val.enabled);
-})
+const validRequestMethods = computed(() => store.state["apidoc/baseInfo"].rules.requestMethods?.filter((val) => val.enabled))
 
 </script>
 

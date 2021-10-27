@@ -9,7 +9,6 @@ import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import shareRouter from "../../../../../router/index"
 import { sendRequest, stopRequest } from "@/server/request/request"
 
-
 type OperationReturn = {
     /**
      * 保存接口
@@ -40,8 +39,8 @@ export default (): OperationReturn => {
     const projectId = shareRouter.currentRoute.value.query.id as string;
     const currentSelectTab = computed(() => {
         const tabs = store.state["apidoc/tabs"].tabs[projectId];
-        const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-        return currentSelectTab;
+        const selectedTab = tabs?.find((tab) => tab.selected) || null;
+        return selectedTab;
     });
     //发送请求
     const handleSendRequest = () => {

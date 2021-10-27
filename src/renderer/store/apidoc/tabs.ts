@@ -2,15 +2,13 @@
  * tabs导航
  */
 import type { ActionContext } from "vuex"
+import { ElMessageBox } from "element-plus"
+import type { State as RootState, ApidocTabsState, ApidocTab } from "@@/store"
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
-import { findNodeById } from "@/helper/index"
-import type { ApidocTabsState, ApidocTab } from "@@/store"
+import { findNodeById, event } from "@/helper/index"
 import { router } from "@/router/index"
-import { ElMessageBox } from "element-plus"
 import { apidocCache } from "@/cache/apidoc"
-import type { State as RootState, } from "@@/store"
-import { event } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 
 type EditTabPayload<K extends keyof ApidocTab> = {
@@ -19,7 +17,7 @@ type EditTabPayload<K extends keyof ApidocTab> = {
     value: ApidocTab[K],
 };
 
-const tabs = {
+const storeTabs = {
     namespaced: true,
     state: {
         tabs: {},
@@ -30,8 +28,8 @@ const tabs = {
         initLocalTabs(state: ApidocTabsState, payload: { projectId: string }): void {
             const { projectId } = payload;
             const localEditTabs = localStorage.getItem("apidoc/editTabs");
-            const tabs: ApidocTabsState["tabs"]  = localEditTabs ? JSON.parse(localEditTabs) : {};
-            const selectedTab =  tabs[projectId]?.find((val) => val.selected);
+            const tabs: ApidocTabsState["tabs"] = localEditTabs ? JSON.parse(localEditTabs) : {};
+            const selectedTab = tabs[projectId]?.find((val) => val.selected);
             if (selectedTab) {
                 store.commit("apidoc/banner/changeExpandItems", [selectedTab._id]);
             }
@@ -51,7 +49,8 @@ const tabs = {
             if (!isInProject) {
                 state.tabs[projectId] = [];
             }
-            const selectedTabIndex =  state.tabs[projectId].findIndex((val) => val.selected); //获取之前选中节点index
+            const selectedTabIndex = state.tabs[projectId].findIndex((val) => val.selected); //获取之前选中节点index
+            // eslint-disable-next-line no-return-assign
             state.tabs[projectId].forEach((tab) => tab.selected = false); //选中状态全部清空
             const hasTab = state.tabs[projectId].find((val) => val._id === _id);
             const unFixedTab = state.tabs[projectId].find((val) => !val.fixed);
@@ -125,6 +124,7 @@ const tabs = {
     actions: {
         //根据id删除tab
         async deleteTabByIds(context: ActionContext<ApidocTabsState, RootState>, payload: { ids: string[], projectId: string }): Promise<void> {
+            const { ids, projectId } = payload;
             const checkSeletedTab = () => {
                 const selectTab = context.state.tabs[projectId].find((tab) => tab.selected);
                 const hasTab = context.state.tabs[projectId].length > 0;
@@ -144,12 +144,11 @@ const tabs = {
                 }
             }
             //=========================================================================//
-            const { ids, projectId } = payload;
             if (!context.state.tabs[projectId]) {
                 return;
             }
             const unsavedTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
-            for(let i = 0; i < unsavedTabs.length; i ++) {
+            for (let i = 0; i < unsavedTabs.length; i += 1) {
                 //预览模式直接删除
                 if (store.state["apidoc/baseInfo"].mode === "view") {
                     const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === unsavedTabs[i]._id);
@@ -158,9 +157,10 @@ const tabs = {
                         deleteIndex,
                     });
                     continue;
-                } 
+                }
                 const unsavedTab = unsavedTabs[i];
                 try {
+                    // eslint-disable-next-line no-await-in-loop
                     await ElMessageBox.confirm(`是否要保存对 ${unsavedTab.label} 接口的修改`, "提示", {
                         confirmButtonText: "保存",
                         cancelButtonText: "不保存",
@@ -215,4 +215,4 @@ const tabs = {
     },
 }
 
-export { tabs }
+export { storeTabs as tabs }

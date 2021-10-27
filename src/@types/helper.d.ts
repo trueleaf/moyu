@@ -1,16 +1,16 @@
-import { 
-    forEachForest, 
-    getTextWidth, 
-    uuid, 
-    getType, 
-    randomTip, 
-    debounce, 
-    formatDate, 
+import {
+    forEachForest,
+    getTextWidth,
+    uuid,
+    getType,
+    randomTip,
+    debounce,
+    formatDate,
     findNodeById,
-    findParentById, 
-    uniqueByKey, 
-    event, 
-    getRequestMethodEnum, 
+    findParentById,
+    uniqueByKey,
+    event,
+    getRequestMethodEnum,
     cloneDeep,
     flatTree,
     findPreviousSiblingById,
@@ -20,13 +20,14 @@ import {
     apidocConvertJsonDataToParams,
     formatBytes,
     formatMs,
+    isEqual,
 } from "@/helper/index"
 
 type Helper = {
     /**
      * 两个变量是否相等
      */
-    isEqual: IsEqual,
+    isEqual: typeof isEqual,
     /**
      * 深拷贝
      */
@@ -86,10 +87,10 @@ type Helper = {
     /**
      * 全局事件
      */
-     event: typeof event,
-     /**
-      * 获取方法枚举信息
-      */
+    event: typeof event,
+    /**
+     * 获取方法枚举信息
+     */
     getRequestMethodEnum: typeof getRequestMethodEnum,
     /**
      * apidoc生成一个请求参数
