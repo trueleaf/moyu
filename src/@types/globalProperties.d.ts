@@ -1,13 +1,14 @@
 /* eslint-disable */
 import { Store } from "vuex"
+import { ElMessageBoxShortcutMethod } from "element-plus"
 import { AxiosInstance } from "axios"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
-import { ElMessageBoxShortcutMethod } from "element-plus"
 // import { MessagePartial } from "element-plus/packages/message/src/message"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
 import { ICaceh } from "@/cache/cache"
+
 
 type Data = Record<string, unknown>;
 type Message = {
@@ -53,5 +54,6 @@ declare module "@vue/runtime-core" {
         axios: AxiosInstance,
         $helper: Helper,
         $cache: ICaceh,
+        $t: (str: string) => string,
     }
 }

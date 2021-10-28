@@ -7,16 +7,16 @@
 <template>
     <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="phone">
-            <el-input v-model="userInfo.phone" prefix-icon="el-icon-user" name="phone" type="text" placeholder="请输入手机号..."></el-input>
+            <el-input v-model="userInfo.phone" prefix-icon="el-icon-user" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
             <div class="d-flex">
-                <el-input v-model="userInfo.smsCode" name="smsCode" type="text" placeholder="验证码"></el-input>
+                <el-input v-model="userInfo.smsCode" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
         </el-form-item>
         <el-form-item>
-            <el-button :loading="loading" type="primary" native-type="submit" size="small" class="w-100">登录</el-button>
+            <el-button :loading="loading" type="primary" native-type="submit" size="small" class="w-100">{{ $t("登录") }}</el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -35,8 +35,8 @@ export default defineComponent({
             },
             //=====================================表单验证====================================//
             rules: {
-                phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
-                smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+                phone: [{ required: true, message: `${this.$t("请输入手机号")}`, trigger: "blur" }],
+                smsCode: [{ required: true, message: `${this.$t("请输入验证码")}`, trigger: "blur" }],
             },
             //=====================================其他参数====================================//
             loading: false,
@@ -46,7 +46,7 @@ export default defineComponent({
         //校验手机号码
         smsCodeHook(): boolean {
             if (this.userInfo.phone.length !== 11) {
-                this.$message.warning("请填写正确手机号");
+                this.$message.warning(this.$t("请填写正确手机号"));
                 return false;
             }
             return true;

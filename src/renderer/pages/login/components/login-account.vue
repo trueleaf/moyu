@@ -7,59 +7,59 @@
 <template>
     <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="loginName">
-            <el-input v-model="userInfo.loginName" prefix-icon="el-icon-user" name="loginName" type="text" placeholder="请输入用户名..."></el-input>
+            <el-input v-model="userInfo.loginName" prefix-icon="el-icon-user" name="loginName" type="text" :placeholder="`${$t('请输入用户名')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-            <el-input v-model="userInfo.password" prefix-icon="el-icon-lock" name="password" type="password" placeholder="请输入密码..."></el-input>
+            <el-input v-model="userInfo.password" prefix-icon="el-icon-lock" name="password" type="password" :placeholder="`${$t('请输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item v-if="isShowCapture" prop="captcha">
             <div class="captcha">
-                <el-input v-model="userInfo.captcha" name="captcha" type="text" placeholder="验证码"></el-input>
+                <el-input v-model="userInfo.captcha" name="captcha" type="text" :placeholder="$t('验证码')"></el-input>
                 <img :src="captchaUrl" @click="freshCapchaUrl" />
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableGuest" class="mb-1">
             <div>
-                <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">直接登录(体验账号，数据不会被保存)</el-button>
+                <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)") }}</el-button>
             </div>
         </el-form-item>
         <el-form-item class="mb-1">
             <div>
-                <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" size="small" class="w-100">登录</el-button>
+                <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" size="small" class="w-100">{{ $t("登录") }}</el-button>
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableRegister">
             <div>
-                <el-button size="small" class="w-100" @click="handleJumpToRegister">注册账号</el-button>
+                <el-button size="small" class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
             </div>
         </el-form-item>
         <div class="forget-pwd-wrap">
-            <el-button type="text" @click="handleJumpToResetPassword">已有账号，忘记密码?</el-button>
+            <el-button type="text" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
         </div>
         <div v-if="config.localization.enableDocLink" class="d-flex j-around">
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">
-                <svg class="svg-icon" aria-hidden="true" title="跳转github">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('跳转github')">
                     <use xlink:href="#icongithub"></use>
                 </svg>
                 <div class="mt-1">GitHub</div>
             </a>
             <a href="https://gitee.com/shuzhikai/moyu" target="_blank" class="d-flex flex-column j-center a-center">
-                <svg class="svg-icon" aria-hidden="true" title="跳转码云">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('跳转码云')">
                     <use xlink:href="#icongitee"></use>
                 </svg>
                 <div class="mt-1">码云</div>
             </a>
             <a href="https://www.yuque.com/happymoyu/as0gig/fayyy6" target="_blank" class="d-flex flex-column j-center a-center">
-                <svg class="svg-icon" aria-hidden="true" title="跳转介绍文档">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('跳转产品文档')">
                     <use xlink:href="#iconyuque"></use>
                 </svg>
-                <div class="mt-1">产品文档</div>
+                <div class="mt-1">{{ $t("产品文档") }}</div>
             </a>
             <a href="https://www.yuque.com/happymoyu/as0gig/vapwmq" target="_blank" class="d-flex flex-column j-center a-center">
-                <svg class="svg-icon" aria-hidden="true" title="跳转部署文档">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('跳转部署文档')">
                     <use xlink:href="#iconbushu"></use>
                 </svg>
-                <div class="mt-1">部署文档</div>
+                <div class="mt-1">{{ $t("部署文档") }}</div>
             </a>
         </div>
     </el-form>
@@ -82,9 +82,9 @@ export default defineComponent({
             },
             //=====================================表单验证规则====================================//
             rules: {
-                loginName: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-                password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-                captcha: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+                loginName: [{ required: true, message: `${this.$t("请输入用户名")}`, trigger: "blur" }],
+                password: [{ required: true, message: `${this.$t("请输入密码")}`, trigger: "blur" }],
+                captcha: [{ required: true, message: `${this.$t("请输入验证码")}`, trigger: "blur" }],
             },
             //=====================================其他参数====================================//
             config, //-----------------------配置信息

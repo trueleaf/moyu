@@ -16,19 +16,19 @@
                 </h2>
                 <el-tabs v-model="activeName" class="w-100">
                     <!-- 账号登录 -->
-                    <el-tab-pane label="账号登录" name="loginAccount">
+                    <el-tab-pane :label="$t('账号登录')" name="loginAccount">
                         <s-login-account @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></s-login-account>
                     </el-tab-pane>
                     <!-- 手机号登录 -->
-                    <el-tab-pane label="手机登录" name="loginPassword">
+                    <el-tab-pane :label="$t('手机登录')" name="loginPassword">
                         <s-login-phone></s-login-phone>
                     </el-tab-pane>
                     <!-- 注册 -->
-                    <el-tab-pane v-if="config.localization.enableRegister" label="账号注册" name="register">
+                    <el-tab-pane v-if="config.localization.enableRegister" :label="$t('账号注册')" name="register">
                         <s-register></s-register>
                     </el-tab-pane>
                     <!-- 忘记密码 -->
-                    <el-tab-pane label="忘记密码" name="reset">
+                    <el-tab-pane :label="$t('忘记密码')" name="reset">
                         <s-reset-password @jumpToLogin="handleJumpToLogin"></s-reset-password>
                     </el-tab-pane>
                 </el-tabs>

@@ -79,7 +79,7 @@ const axiosPlugin = {
                                     isExpire = false;
                                 });
                             }
-                            return Promise.reject(new Error("登陆已过期"));
+                            return Promise.reject(new Error("登录已过期"));
                         case 4200: //代理错误
                             return Promise.reject(new Error(res.data.msg));
                         case 4002: //暂无权限

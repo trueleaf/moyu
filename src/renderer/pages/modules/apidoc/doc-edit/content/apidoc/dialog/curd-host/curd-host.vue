@@ -5,16 +5,16 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="70%" title="域名、服务器地址、环境维护" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" width="70%" :title="$t('域名、服务器地址、环境维护')" @close="handleClose">
         <div class="host-wrap">
             <!-- 左侧新增数据 -->
             <s-resize-x :min="400" :max="600" :width="400" name="curd-host" tabindex="1" class="add-host">
-                <s-fieldset title="符合规范的服务器地址">
+                <s-fieldset :title="$t('符合规范的服务器地址')">
                     <ul>
                         <li class="mb-2">
-                            <div class="mb-1">ip地址+路径(可选)</div>
+                            <div class="mb-1">{{ $t("ip地址+路径(可选)") }}</div>
                             <div class="gray-600">
-                                <span>例如:</span>
+                                <span>{{ $t("例如") }}:</span>
                                 <span class="ml-1">http://127.0.0.199:81</span>
                                 <el-divider direction="vertical"></el-divider>
                                 <span>http://127.0.0.199:81/api</span>
@@ -23,7 +23,7 @@
                         <li>
                             <div class="mb-1">域名+路径(可选)</div>
                             <div class="gray-600">
-                                <span>例如:</span>
+                                <span>{{ $t("例如") }}:</span>
                                 <span class="ml-1">www.demo.com</span>
                                 <el-divider direction="vertical"></el-divider>
                                 <span>www.demo.com/api</span>
@@ -32,11 +32,11 @@
                     </ul>
                 </s-fieldset>
                 <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
-                    <el-form-item label="服务器名称：" prop="name">
+                    <el-form-item :label="`${$t('服务器名称')}：`" prop="name">
                         <el-input v-model="formInfo.name" size="mini" placeholder="例如：张三本地" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
-                    <el-form-item label="服务器地址：" prop="server">
-                        <el-input v-model="formInfo.server" name="name" size="mini" placeholder="服务器地址+请求地址" class="w-100" maxlength="100" clearable>
+                    <el-form-item :label="`${$t('服务器地址')}：`" prop="server">
+                        <el-input v-model="formInfo.server" name="name" size="mini" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
                             <template #prepend>
                                 <el-select v-model="formInfo.protocol" class="w-100px" size="mini">
                                     <el-option value="http://" label="http://"></el-option>
@@ -45,10 +45,10 @@
                             </template>
                         </el-input>
                     </el-form-item>
-                    <el-form-item label="是否共享：" prop="name">
+                    <el-form-item :label="`${$t('是否共享')}：`" prop="name">
                         <el-radio-group v-model="formInfo.isLocal">
-                            <el-radio :label="true">仅本地</el-radio>
-                            <el-radio :label="false">可共享</el-radio>
+                            <el-radio :label="true">{{ $t("仅本地") }}</el-radio>
+                            <el-radio :label="false">{{ $t("可共享") }}</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ formInfo.protocol + formInfo.server }}</div>
@@ -68,13 +68,13 @@
                     :res-hook="handleHookResponse"
                     @deleteMany="getTableData"
                 >
-                    <el-table-column label="服务器名称" align="center">
+                    <el-table-column :label="$t('服务器名称')" align="center">
                         <template #default="scope">
                             <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="服务器地址" align="center">
+                    <el-table-column :label="$t('服务器地址')" align="center">
                         <template #default="scope">
                             <s-valid-input
                                 v-if="editItem?._id === scope.row._id"
@@ -88,25 +88,25 @@
                             <div v-else class="url-wrap">{{ scope.row.url }}</div>
                         </template>
                     </el-table-column>
-                    <el-table-column label="是否共享" align="center">
+                    <el-table-column :label="$t('是否共享')" align="center">
                         <template #default="scope">
-                            <span v-if="scope.row.isLocal" class="orange">仅本地</span>
-                            <span v-else class="green">共享</span>
+                            <span v-if="scope.row.isLocal" class="orange">{{ $t("仅本地") }}</span>
+                            <span v-else class="green">{{ $t("可共享") }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作" align="center">
+                    <el-table-column :label="$t('操作')" align="center">
                         <template #default="scope">
-                            <el-button v-if="!editItem" type="text" size="mini" @click="handleChangeEditNode(scope.row)">编辑</el-button>
-                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleSubmitEdit(scope.row)">确认</el-button>
-                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleCancelEdit(scope.row)">取消</el-button>
-                            <el-button type="text" size="mini" @click="handleDeleteHost(scope.row)">删除</el-button>
+                            <el-button v-if="!editItem" type="text" size="mini" @click="handleChangeEditNode(scope.row)">{{ $t("编辑") }}</el-button>
+                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
+                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
+                            <el-button type="text" size="mini" @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
                         </template>
                     </el-table-column>
                 </s-table>
             </div>
         </div>
         <template #footer>
-            <el-button size="mini" type="warning" @click="handleClose">关闭</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("关闭") }}</el-button>
         </template>
     </s-dialog>
 </template>
@@ -140,9 +140,9 @@ export default defineComponent({
             const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})(:\d{2,5})?(\/.+)?$/; //ip+端口(端口不必填)
             const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
             if (value === "") {
-                callback(new Error("不能为空"));
+                callback(new Error(this.$t("不能为空")));
             } else if (!value.match(ipReg) && !value.match(dominReg)) {
-                callback(new Error("服务器地址不符合规范"))
+                callback(new Error(this.$t("服务器地址不符合规范")))
             } else {
                 callback();
             }
@@ -156,7 +156,7 @@ export default defineComponent({
                 isLocal: true, //是否为本地
             },
             rules: {
-                name: [{ required: true, message: "请输入服务器名称", trigger: "blur" }],
+                name: [{ required: true, message: this.$t("请输入服务器名称"), trigger: "blur" }],
                 server: [
                     { required: true, validator: validateHost, trigger: "blur" },
                 ],
@@ -193,7 +193,7 @@ export default defineComponent({
         handleAddHost() {
             const { total } = this.$refs.table;
             if (this.dominLimit <= total) {
-                this.$message.warning(`限制可维护域名数不超过${this.dominLimit}个`);
+                this.$message.warning(`${this.$t("限制可维护域名数不超过")} ${this.dominLimit}${this.$t("个")}`);
                 return
             }
             this.$refs.form.validate((valid) => {
@@ -260,7 +260,7 @@ export default defineComponent({
                     url: row.url,
                 };
                 this.axios.put("api/project/doc_service", params).then(() => {
-                    this.$message.success("修改成功");
+                    this.$message.success(this.$t("修改成功"));
                     this.editItem = null;
                 }).catch((err) => {
                     console.error(err);
@@ -277,9 +277,9 @@ export default defineComponent({
             const params = {
                 ids: [row._id]
             };
-            this.$confirm("此操作将永久删除该域名, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning",
             }).then(() => {
                 if (row.isLocal) {
@@ -307,10 +307,10 @@ export default defineComponent({
             const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
             if (url.trim() === "") {
                 this.errorInfo.error = true;
-                this.errorInfo.message = "服务器地址不能为空";
+                this.errorInfo.message = this.$t("服务器地址不能为空");
             } else if (!url.match(ipReg) && !url.match(dominReg)) {
                 this.errorInfo.error = true;
-                this.errorInfo.message = "服务器地址不符合规范";
+                this.errorInfo.message = this.$t("服务器地址不符合规范");
             } else {
                 this.errorInfo.error = false;
             }

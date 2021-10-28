@@ -17,18 +17,18 @@
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
             <div v-show="bodyType === 'json'" class="operation">
-                <div class="active cursor-pointer" @click="handleOpenImportParams">导入参数</div>
+                <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
                 <el-divider direction="vertical"></el-divider>
                 <div class="p-relative no-select">
-                    <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">应用模板</span>
+                    <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                     <div v-if="showTemplate" class="template-wrap">
                         <div class="header">
-                            <el-input v-model="templateFilterString" size="mini" placeholder="过滤模板" class="w-100" maxlength="100" clearable>
+                            <el-input v-model="templateFilterString" size="mini" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
                                 <template #prefix>
                                     <i class="el-icon-search el-input__icon"></i>
                                 </template>
                             </el-input>
-                            <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">维护</div>
+                            <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
                         </div>
                         <template v-if="bodyTemplateList.length > 0">
                             <div
@@ -42,11 +42,11 @@
                                 <span class="tail">{{ item.creatorName }}</span>
                             </div>
                         </template>
-                        <div v-else class="select-item d-flex j-center gray-500">暂无数据</div>
+                        <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
                     </div>
                 </div>
                 <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer" @click="handleOpenTemplateDialog">保存为模板 </div>
+                <div class="cursor-pointer" @click="handleOpenTemplateDialog">{{ $t("保存为模板") }} </div>
                 <!-- <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">预览参数 </div> -->
             </div>
@@ -67,7 +67,7 @@
                     <el-option label="json" value="application/json"></el-option>
                 </el-select>
             </div>
-            <div v-show="rawType === 'application/json'" title="raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数" class="tip">raw模块中json数据可适用与快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数</div>
+            <div v-show="rawType === 'application/json'" :title="$t('raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数')" class="tip">{{ $t("raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数") }}</div>
         </div>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
         <params-template v-model="paramsTemplatedialogVisible"></params-template>
