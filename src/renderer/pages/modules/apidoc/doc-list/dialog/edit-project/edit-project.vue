@@ -5,15 +5,15 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="修改项目" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" :title="$t('修改项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
-            <el-form-item label="项目名称：" prop="projectName">
-                <el-input v-model="formInfo.projectName" size="mini" placeholder="请输入项目名称"></el-input>
+            <el-form-item :label="`${$t('项目名称')}`" prop="projectName">
+                <el-input v-model="formInfo.projectName" size="mini" :placeholder="$t('请输入项目名称')"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleEditProject">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleEditProject">{{ $t("确定") }}</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>
@@ -50,7 +50,7 @@ export default defineComponent({
                 projectName: "", //-------------------------项目名称
             },
             rules: { //-------------------------------------修改项目校验规则
-                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
+                projectName: [{ required: true, trigger: "blur", message: this.$t("请填写项目名称") }],
             },
             //=====================================其他参数====================================//
             loading: false, //------------------------------成员数据加载状态
@@ -92,7 +92,7 @@ export default defineComponent({
                             input.focus();
                         }
                     });
-                    this.$message.warning("请完善必填信息");
+                    this.$message.warning(this.$t("请完善必填信息"));
                     this.loading = false;
                 }
             });
@@ -104,7 +104,3 @@ export default defineComponent({
     },
 })
 </script>
-
-<style lang="scss">
-
-</style>

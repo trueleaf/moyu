@@ -8,20 +8,20 @@
     <s-loading v-if="!isValidShareId" :loading="loading" class="check-wrap">
         <div class="content">
             <div class="text-center">
-                <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" alt="logo图片" class="logo">
+                <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" class="logo">
             </div>
             <h2 class="text-center">{{ projectName }}</h2>
             <div class="d-flex a-center mb-3">
-                <el-input v-model="password" type="password" placeholder="请输入密码" size="small" class="w-200px" show-password clearable></el-input>
-                <el-button size="small" type="success" :loading="loading2" @click="handleConfirmPassword">确认密码</el-button>
+                <el-input v-model="password" type="password" :placeholder="$t('请输入密码')" size="small" class="w-200px" show-password clearable></el-input>
+                <el-button size="small" type="success" :loading="loading2" @click="handleConfirmPassword">{{ $t("确认密码") }}</el-button>
             </div>
             <div class="gray-600">
-                <span class="mr-1">过期倒计时：</span>
+                <span class="mr-1">{{ $t("过期倒计时") }}：</span>
                 <span v-countdown="expire"></span>
             </div>
         </div>
     </s-loading>
-    <el-empty v-if="isValidShareId" description="无效的项目id"></el-empty>
+    <el-empty v-if="isValidShareId" :description="$t('无效的项目id')"></el-empty>
 </template>
 
 <script lang="ts">
