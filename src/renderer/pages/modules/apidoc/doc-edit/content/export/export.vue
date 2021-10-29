@@ -6,7 +6,7 @@
 */
 <template>
     <div class="doc-export">
-        <s-fieldset title="导出类型">
+        <s-fieldset :title="$t('导出类型')">
             <div class="download-wrap">
                 <div class="item" :class="{active: selectedType === 'html'}" @click="selectedType = 'html'">
                     <svg class="svg-icon" aria-hidden="true">
@@ -16,28 +16,28 @@
                 </div>
                 <div class="item" :class="{active: selectedType === 'moyu'}" @click="selectedType = 'moyu'">
                     <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
-                    <div class="mt-1">JSON文档</div>
+                    <div class="mt-1">{{ $t('JSON文档') }}</div>
                 </div>
                 <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
                     <svg class="svg-icon" aria-hidden="true">
                         <use xlink:href="#icondaochu1"></use>
                     </svg>
-                    <div class="mt-1">导出到其他项目</div>
+                    <div class="mt-1">{{ $t("导出到其他项目") }}</div>
                 </div>
             </div>
         </s-fieldset>
-        <s-fieldset v-if="selectedType !== 'otherProject'" title="额外配置">
-            <s-config ref="config" label="选择导出" description="开启后可以自由选择需要导出的文档">
+        <s-fieldset v-if="selectedType !== 'otherProject'" :title="$t('额外配置')">
+            <s-config ref="config" label="选择导出" :description="$t('开启后可以自由选择需要导出的文档')">
                 <template #default="prop">
                     <div v-if="prop.enabled" class="doc-nav">
                         <div>
-                            <span>总数：</span>
+                            <span>{{ $t("总数") }}：</span>
                             <span>{{ allCheckedNodes.length }}</span>
                             <el-divider direction="vertical"></el-divider>
-                            <span>文件夹数量：</span>
+                            <span>{{ $t("文件夹数量") }}：</span>
                             <span>{{ allCheckedNodes.filter(node => node.isFolder).length }}</span>
                             <el-divider direction="vertical"></el-divider>
-                            <span>文档数量：</span>
+                            <span>{{ $t("文档数量") }}：</span>
                             <span>{{ allCheckedNodes.filter(node => !node.isFolder).length }}</span>
                         </div>
                         <el-divider></el-divider>
@@ -77,7 +77,7 @@
                 </template>
             </s-config>
             <div class="d-flex j-center mt-2">
-                <el-button :loading="loading" size="mini" type="primary" @click="handleExport">确定导出</el-button>
+                <el-button :loading="loading" size="mini" type="primary" @click="handleExport">{{ $t("确定导出") }}</el-button>
             </div>
         </s-fieldset>
         <s-fork v-else></s-fork>
@@ -93,6 +93,7 @@ import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { router } from "@/router/index"
 import sFork from "./fork/fork.vue"
+import { $t } from "@/i18n/i18n"
 
 //可导出数据类型
 const selectedType: Ref<"html" | "moyu" | "otherProject"> = ref("html")
@@ -156,7 +157,7 @@ const handleExport = () => {
     const enableCustomExport = config.value?.enabled;
     const customExportIsEmpty = allCheckedNodes.value.length === 0;
     if (enableCustomExport && customExportIsEmpty) { //允许自定义导出并且数据为空
-        ElMessage.warning("请至少选择一个文档导出");
+        ElMessage.warning($t("请至少选择一个文档导出"));
         return;
     }
     if (selectedType.value === "html") {

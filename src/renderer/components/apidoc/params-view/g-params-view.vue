@@ -66,7 +66,7 @@
 
 <script lang="ts" setup>
 import {
-    defineProps, PropType, watch, ref, Ref
+    PropType, watch, ref, Ref
 } from "vue"
 import { Effect } from "element-plus";
 import { ApidocProperty, ApidocASTInfo } from "@@/global"

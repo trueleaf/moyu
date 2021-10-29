@@ -11,7 +11,7 @@
                 <template #label>
                     <span>
                         <i class="el-icon-tickets"></i>
-                        <span>项目列表</span>
+                        <span>{{ $t("项目列表") }}</span>
                     </span>
                 </template>
             </el-tab-pane>

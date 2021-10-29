@@ -40,10 +40,10 @@
 <script lang="ts">
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { defineComponent } from "vue"
+import { Response } from "@@/global"
 import clientMenus from "./components/client-menus.vue"
 import clientRoutes from "./components/client-routes.vue"
 import serverRoutes from "./components/server-routes.vue"
-import { Response } from "@@/global"
 
 type RoleInfo = {
     remark: string,

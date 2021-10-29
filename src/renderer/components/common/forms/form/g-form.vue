@@ -101,6 +101,7 @@ export default defineComponent({
             const labelDom = formDom.querySelector(".el-form-item__label") || document.body;
             const styleList = window.getComputedStyle(labelDom);
             const { font } = styleList;
+            // eslint-disable-next-line prefer-spread
             const maxLabelWidth = Math.max.apply(Math, formItems.map((val) => {
                 const { props } = val;
                 const label: string = props ? (props.label || "") : "";

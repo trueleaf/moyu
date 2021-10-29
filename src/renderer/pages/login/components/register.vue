@@ -7,25 +7,25 @@
 <template>
     <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
         <el-form-item prop="loginName">
-            <el-input v-model="registerInfo.loginName" name="loginName" type="text" placeholder="请输入登录名称..."></el-input>
+            <el-input v-model="registerInfo.loginName" name="loginName" type="text" :placeholder="`${$t('请输入登录名称')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-            <el-input v-model="registerInfo.password" show-password name="password" type="text" placeholder="请输入密码..."></el-input>
+            <el-input v-model="registerInfo.password" show-password name="password" type="text" :placeholder="`${$t('请输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password2">
-            <el-input v-model="registerInfo.password2" show-password name="password2" type="text" placeholder="请再次输入密码..."></el-input>
+            <el-input v-model="registerInfo.password2" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="phone">
-            <el-input v-model="registerInfo.phone" name="phone" type="text" placeholder="请输入手机号..."></el-input>
+            <el-input v-model="registerInfo.phone" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
             <div class="d-flex">
-                <el-input v-model="registerInfo.smsCode" name="smsCode" type="text" placeholder="验证码"></el-input>
+                <el-input v-model="registerInfo.smsCode" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
         </el-form-item>
         <el-form-item>
-            <el-button :loading="loading" type="primary" size="small" native-type="submit" class="w-100">注册并登录</el-button>
+            <el-button :loading="loading" type="primary" size="small" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -46,17 +46,17 @@ export default defineComponent({
             },
             //=====================================校验规则====================================//
             rules: {
-                loginName: [{ required: true, message: "请输入登录名称", trigger: "blur" }],
+                loginName: [{ required: true, message: this.$t("请输入登录名称"), trigger: "blur" }],
                 password: [
-                    { required: true, message: "请输入密码", trigger: "blur" },
+                    { required: true, message: this.$t("请输入密码"), trigger: "blur" },
                     { validator: this.validatePassword, trigger: "blur" },
                 ],
                 password2: [
-                    { required: true, message: "请再次输入密码", trigger: "blur" },
+                    { required: true, message: this.$t("请再次输入密码"), trigger: "blur" },
                     { validator: this.validatePassword2, trigger: "blur" },
                 ],
-                phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
-                smsCode: [{ required: true, message: "请输入验证码", trigger: "blur" }],
+                phone: [{ required: true, message: this.$t("请输入手机号"), trigger: "blur" }],
+                smsCode: [{ required: true, message: this.$t("请输入验证码"), trigger: "blur" }],
             },
             //=====================================其他参数====================================//
             loading: false,
@@ -68,11 +68,11 @@ export default defineComponent({
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;
             if (value.trim() === "") {
-                callback(new Error("请输入密码"));
+                callback(new Error(this.$t("请输入密码")));
             } else if (value.match(inValidKey)) {
-                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
+                callback(new Error(this.$t("只允许 数字  字符串 ! @ # 不允许其他字符串")));
             } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-                callback(new Error("数字+字符串，并且大于8位"));
+                callback(new Error(this.$t("数字+字符串，并且大于8位")));
             } else {
                 if (this.registerInfo.password2 !== "") {
                     this.$refs.form.validateField("password2");
@@ -85,13 +85,13 @@ export default defineComponent({
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;
             if (value === "") {
-                callback(new Error("请再次输入密码"));
+                callback(new Error(this.$t("请再次输入密码")));
             } else if (value.match(inValidKey)) {
-                callback(new Error("只允许 数字  字符串 ! @ # 不允许其他字符串"));
+                callback(new Error(this.$t("只允许 数字  字符串 ! @ # 不允许其他字符串")));
             } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-                callback(new Error("数字+字符串，并且大于8位"));
+                callback(new Error(this.$t("数字+字符串，并且大于8位")));
             } else if (value !== this.registerInfo.password) {
-                callback(new Error("两次输入密码不一致!"));
+                callback(new Error(this.$t("两次输入密码不一致!")));
             } else {
                 callback();
             }
@@ -99,7 +99,7 @@ export default defineComponent({
         //校验手机号码
         smsCodeHook() {
             if (this.registerInfo.phone.length !== 11) {
-                this.$message.warning("请填写正确手机号");
+                this.$message.warning(this.$t("请填写正确手机号"));
                 return false;
             }
             return true;
@@ -142,7 +142,7 @@ export default defineComponent({
                             (input as HTMLElement).focus();
                         }
                     });
-                    this.$message.warning("请完善必填信息");
+                    this.$message.warning(this.$t("请完善必填信息"));
                     this.loading = false;
                 }
             });

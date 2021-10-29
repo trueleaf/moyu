@@ -33,9 +33,7 @@ export default defineComponent({
         },
         data: {
             type: Object as PropType<PermissionClientMenu | null>,
-            default: () => {
-                return null;
-            },
+            default: () => null,
         },
     },
     emits: ["update:modelValue", "success"],

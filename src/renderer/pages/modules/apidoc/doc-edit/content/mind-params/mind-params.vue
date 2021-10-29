@@ -7,21 +7,21 @@
 <template>
     <div class="s-mind-params">
         <!-- 搜索条件 -->
-        <s-fieldset title="过滤条件">
+        <s-fieldset :title="$t('过滤条件')">
             <div class="d-flex">
                 <div class="left">
                     <div class="op-item">
-                        <div class="label">字段名：</div>
-                        <el-input v-model="formInfo.key" size="mini" placeholder="参数字段名称" maxlength="100" class="w-65" clearable></el-input>
+                        <div class="label">{{ $t("字段名") }}：</div>
+                        <el-input v-model="formInfo.key" size="mini" :placeholder="$t('参数字段名称')" maxlength="100" class="w-65" clearable></el-input>
                     </div>
                     <div class="op-item">
-                        <div class="label">类型：</div>
+                        <div class="label">{{ $t("类型") }}：</div>
                         <el-checkbox-group v-model="formInfo.type">
-                            <el-checkbox label="paths">Path参数</el-checkbox>
-                            <el-checkbox label="queryParams">Query参数</el-checkbox>
-                            <el-checkbox label="requestBody">Body参数</el-checkbox>
-                            <el-checkbox label="responseParams">返回参数</el-checkbox>
-                            <el-button type="text" class="ml-5" @click="handleClearType">清空</el-button>
+                            <el-checkbox label="paths">{{ $t("Path参数") }}</el-checkbox>
+                            <el-checkbox label="queryParams">{{ $t("Query参数") }}</el-checkbox>
+                            <el-checkbox label="requestBody">{{ $t("Body参数") }}</el-checkbox>
+                            <el-checkbox label="responseParams">{{ $t("返回参数") }}</el-checkbox>
+                            <el-button type="text" class="ml-5" @click="handleClearType">{{ $t("清空") }}</el-button>
                         </el-checkbox-group>
                     </div>
                 </div>
@@ -29,28 +29,28 @@
                     <el-descriptions :column="2" size="mini" border>
                         <el-descriptions-item>
                             <template #label>
-                                <span>Path参数个数</span>
+                                <span>{{ $t("Path参数个数") }}</span>
                             </template>
                             <span>{{ tableInfo.filter(v => v.paramsPosition === 'paths').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
-                                <span>Query参数个数</span>
+                                <span>{{ $t("Query参数个数") }}</span>
                             </template>
                             <span>{{ tableInfo.filter(v => v.paramsPosition === 'queryParams').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
-                                <span>Body参数个数</span>
+                                <span>{{ $t("Body参数个数") }}</span>
                             </template>
                             <span>{{ tableInfo.filter(v => v.paramsPosition === 'requestBody').length }}</span>
                             <span>&nbsp;个</span>
                         </el-descriptions-item>
                         <el-descriptions-item>
                             <template #label>
-                                <span>Response参数个数</span>
+                                <span>{{ $t("Response参数个数") }}</span>
                             </template>
                             <span>{{ tableInfo.filter(v => v.paramsPosition === 'responseParams').length }}</span>
                             <span>&nbsp;个</span>
@@ -59,22 +59,22 @@
                 </div>
             </div>
         </s-fieldset>
-        <s-fieldset :title="`联想参数(${tableInfo.length})`" class="mt-3">
-            <el-button type="danger" size="small" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">批量删除</el-button>
+        <s-fieldset :title="`${$t('联想参数')}(${tableInfo.length})`" class="mt-3">
+            <el-button type="danger" size="small" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">{{ $t("批量删除") }}</el-button>
             <el-table :data="tableInfo" stripe border size="mini" height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="key" label="参数名称" align="center">
+                <el-table-column prop="key" :label="$t('参数名称')" align="center">
                     <template #default="scope">
                         <s-emphasize :value="scope.row.key" :keyword="formInfo.key"></s-emphasize>
                     </template>
                 </el-table-column>
-                <el-table-column prop="description" label="备注" align="center"></el-table-column>
-                <el-table-column prop="value" label="参数值" align="center"></el-table-column>
-                <el-table-column prop="type" label="参数类型" align="center"></el-table-column>
-                <el-table-column label="操作" align="center">
+                <el-table-column prop="description" :label="$t('备注')" align="center"></el-table-column>
+                <el-table-column prop="value" :label="$t('参数值')" align="center"></el-table-column>
+                <el-table-column prop="type" :label="$t('参数类型')" align="center"></el-table-column>
+                <el-table-column :label="$t('操作')" align="center">
                     <template #default="scope">
                         <!-- <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
-                        <el-button size="mini" type="text" @click="handleDeleteParams(scope.row)">删除</el-button>
+                        <el-button size="mini" type="text" @click="handleDeleteParams(scope.row)">{{ $t("删除") }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -89,6 +89,7 @@ import type { ApidocMindParam } from "@@/global"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
+import { $t } from "@/i18n/i18n"
 
 //搜索条件
 const formInfo: Ref<{ key: string, type: ApidocMindParam["paramsPosition"][] }> = ref({
@@ -133,9 +134,9 @@ const handleSelectionChange = (data: ApidocMindParam[]) => {
 // }
 //删除某个参数
 const handleDeleteParams = (row: ApidocMindParam) => {
-    ElMessageBox.confirm("是否删除当前参数", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+    ElMessageBox.confirm($t("是否删除当前参数"), $t("提示"), {
+        confirmButtonText: $t("确定"),
+        cancelButtonText: $t("取消"),
         type: "warning",
     }).then(() => {
         const projectId = router.currentRoute.value.query.id as string;
@@ -157,9 +158,9 @@ const handleDeleteParams = (row: ApidocMindParam) => {
 }
 //批量删除
 const handleDeleteManyParams = () => {
-    ElMessageBox.confirm("确定批量删除当前选中节点", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+    ElMessageBox.confirm($t("确定批量删除当前选中节点"), $t("提示"), {
+        confirmButtonText: $t("确定"),
+        cancelButtonText: $t("取消"),
         type: "warning",
     }).then(() => {
         const projectId = router.currentRoute.value.query.id as string;

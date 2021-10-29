@@ -35,10 +35,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Response, PermissionClientRoute } from "@@/global"
 import addClientRoute from "./add/add.vue"
 import editClientRoute from "./edit/edit.vue"
 import multiEditClientRoute from "./edit/edit2.vue"
-import { Response, PermissionClientRoute } from "@@/global"
+
 type HookThis = {
     tableData: PermissionClientRoute[],
     total: number,
@@ -83,7 +84,9 @@ export default defineComponent({
             _this.total = res.data.length;
             const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
             this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
-                return (a.name.charCodeAt(0) - b.name.charCodeAt(0));
+                const unicodeOfA = a.name.charCodeAt(0);
+                const unicodeOfB = b.name.charCodeAt(0)
+                return unicodeOfA - unicodeOfB;
             })
         },
         //=========================================================================//

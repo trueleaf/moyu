@@ -22,34 +22,34 @@
             <!-- 视频类型 -->
             <!-- 强制下载类型 -->
             <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')" class="d-flex flex-column a-center">
-                <svg class="svg-icon" aria-hidden="true" title="下载">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">下载文件</el-button>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
-                <svg class="svg-icon" aria-hidden="true" title="下载">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">下载文件</el-button>
+                <el-button type="text">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- excel -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')">
-                <svg class="svg-icon" aria-hidden="true" title="下载">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">下载文件</el-button>
+                <el-button type="text">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- word -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')">
-                <svg class="svg-icon" aria-hidden="true" title="下载">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">下载文件</el-button>
+                <el-button type="text">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- pdf -->
             <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
@@ -89,13 +89,13 @@
                 </div>
                 <el-dropdown class="apply-response" trigger="click">
                     <span>
-                        <span>应用为响应值</span>
+                        <span>{{ $t("应用为响应值") }}</span>
                         <i class="el-icon-arrow-down el-icon--right"></i>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
-                                <span class="mr-1">应用为</span>
+                                <span class="mr-1">{{ $t("应用为") }}</span>
                                 <span>{{ item.title }}</span>
                             </el-dropdown-item>
                         </el-dropdown-menu>
@@ -104,19 +104,19 @@
             </template>
             <!-- 未知文件 -->
             <div v-else>
-                <svg class="svg-icon" aria-hidden="true" title="下载">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">下载文件</el-button>
+                <el-button type="text">{{ $t("下载文件") }}</el-button>
             </div>
         </template>
         <div v-show="showProcess" class="d-flex j-center w-100">
-            <span>总大小：{{ $helper.formatBytes(process.total) }}</span>
+            <span>{{ $t("总大小") }}：{{ $helper.formatBytes(process.total) }}</span>
             <el-divider direction="vertical"></el-divider>
-            <span>已传输：{{ $helper.formatBytes(process.transferred) }}</span>
+            <span>{{ $t("已传输") }}：{{ $helper.formatBytes(process.transferred) }}</span>
             <el-divider direction="vertical"></el-divider>
-            <span>进度：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
+            <span>{{ $t("进度") }}：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
         </div>
         <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
     </div>
@@ -210,7 +210,7 @@ export default defineComponent({
             const fileInfo = this.remoteResponse.data.file
             const downloadElement = document.createElement("a");
             downloadElement.href = fileInfo.url;
-            downloadElement.download = fileInfo.name || "未命名"; //下载后文件名
+            downloadElement.download = fileInfo.name || this.$t("未命名"); //下载后文件名
             document.body.appendChild(downloadElement);
             downloadElement.click(); //点击下载
             document.body.removeChild(downloadElement); //下载完成移除元素
