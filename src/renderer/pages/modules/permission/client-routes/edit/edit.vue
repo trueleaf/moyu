@@ -30,9 +30,7 @@ export default defineComponent({
         },
         editData: {
             type: Object as PropType<PermissionClientRoute>,
-            default: () => {
-                return {}
-            }
+            default: () => ({})
         },
     },
     emits: ["update:modelValue", "success"],

@@ -10,7 +10,7 @@
             <s-loading :loading="loading">
                 <s-card title="菜单列表" class="menu-tree">
                     <template #operation>
-                        <el-button size="mini" type="text" @click="handleOpenAddDialog">新增</el-button>
+                        <el-button size="mini" type="text" @click="handleOpenAddDialog()">新增</el-button>
                         <el-button size="mini" type="text" @click="getData">刷新</el-button>
                     </template>
                     <el-tree

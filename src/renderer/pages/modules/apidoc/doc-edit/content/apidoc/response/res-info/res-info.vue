@@ -7,39 +7,39 @@
 <template>
     <div class="d-flex a-center px-3 text-ellipsis">
         <div class="flex0">
-            <span>状态码：</span>
+            <span>{{ $t("状态码") }}：</span>
             <template v-if="remoteResponse.statusCode">
                 <span v-show="remoteResponse.statusCode >= 100 && remoteResponse.statusCode < 300" class="green">{{ remoteResponse.statusCode }}</span>
                 <span v-show="remoteResponse.statusCode >= 300 && remoteResponse.statusCode < 400" class="orange">{{ remoteResponse.statusCode }}</span>
                 <span v-show="remoteResponse.statusCode >= 400" class="red">{{ remoteResponse.statusCode }}</span>
             </template>
-            <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0">
-            <span>时长：</span>
+            <span>{{ $t("时长") }}：</span>
             <template v-if="remoteResponse.rt">
                 <span v-show="remoteResponse.rt >= 0 && remoteResponse.rt < 2000" class="green">{{ formatedMs }}</span>
                 <span v-show="remoteResponse.rt >= 2000 && remoteResponse.rt < 5000" class="orange">{{ formatedMs }}</span>
                 <span v-show="remoteResponse.rt >= 5000" class="red">{{ formatedMs }}</span>
             </template>
-            <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0">
-            <span>大小：</span>
+            <span>{{ $t("大小") }}：</span>
             <template v-if="remoteResponse.size">
                 <span v-show="remoteResponse.size >= 0 && remoteResponse.size < 10000" class="green">{{ formatedBytes }}</span>
                 <span v-show="remoteResponse.size >= 10000 && remoteResponse.size < 15000" class="orange">{{ formatedBytes }}</span>
                 <span v-show="remoteResponse.size >= 15000" class="red">{{ formatedBytes }}</span>
             </template>
-            <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0 d-flex a-center j-center">
-            <span>格式：</span>
+            <span>{{ $t("格式") }}：</span>
             <s-ellipsis-content v-if="remoteResponse.data.type" :value="remoteResponse.data.type" max-width="200px" class="orange"></s-ellipsis-content>
-            <span v-else title="未请求数据" class="el-icon-question gray-500"></span>
+            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
         </div>
     </div>
 </template>

@@ -102,7 +102,7 @@ export default defineComponent({
         checkServerRoutesIsIndeterminate(item: RouteInfo) {
             const hasOne = this.selectedData.find((val) => item.values.find(i => i._id === val));
             const hasAll = item.values.every((val) => this.selectedData.find(i => i === val._id));
-            return hasOne && !hasAll
+            return !!hasOne && !hasAll
         },
     },
 })

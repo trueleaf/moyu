@@ -9,41 +9,41 @@
         <s-resize-x v-if="0" :min="500" :max="900" :width="500" name="paramsTemplate" class="left">
             <el-tabs v-model="activeName">
                 <!-- 新增模板 -->
-                <el-tab-pane label="新增模板" name="s-add">
+                <el-tab-pane :label="$t('新增模板')" name="s-add">
                     <el-form ref="form" inline :model="addData" :rules="rules" label-width="120px">
-                        <el-form-item label="参数名称：" prop="name">
-                            <el-input v-model="addData.name" size="mini" placeholder="例如：默认返回值" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                        <el-form-item :label="`${$t('参数名称')}：`" prop="name">
+                            <el-input v-model="addData.name" size="mini" :placeholder="$t('例如：默认返回值')" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                         </el-form-item>
-                        <el-form-item label="参数类型：" prop="presetParamsType">
-                            <el-select v-model="addData.presetParamsType" placeholder="请选择参数类型" size="mini" class="w-100">
-                                <el-option label="请求参数(Params)" value="queryParams"></el-option>
-                                <el-option label="请求参数(Body)" value="requestBody"></el-option>
-                                <el-option label="返回参数" value="responseParams"></el-option>
+                        <el-form-item :label="`${$t('参数类型')}：`" prop="presetParamsType">
+                            <el-select v-model="addData.presetParamsType" :placeholder="$t('请选择参数类型')" size="mini" class="w-100">
+                                <el-option :label="$t('请求参数(Params)')" value="queryParams"></el-option>
+                                <el-option :label="$t('请求参数(Body)')" value="requestBody"></el-option>
+                                <el-option :label="$t('返回参数')" value="responseParams"></el-option>
                             </el-select>
                         </el-form-item>
                         <div class="scroll-y-450">
                             <s-params-tree nest :data="addData.items"></s-params-tree>
                         </div>
                         <div class="d-flex j-end">
-                            <el-button :loading="loading2" type="success" size="mini" @click="handleAddTemplate">确认新增</el-button>
+                            <el-button :loading="loading2" type="success" size="mini" @click="handleAddTemplate">{{ $t("确认新增") }}</el-button>
                         </div>
                     </el-form>
                 </el-tab-pane>
                 <!-- 修改模板 -->
-                <el-tab-pane label="修改模板" name="s-edit">
+                <el-tab-pane :label="$t('修改模板')" name="s-edit">
                     <s-loading :loading="loading">
                         <el-form v-if="editData._id" ref="form" :model="editData" :rules="rules" label-width="120px">
-                            <el-form-item label="参数名称：" prop="name">
-                                <el-input v-model="editData.name" size="mini" placeholder="例如：默认返回值" class="w-80" maxlength="8" clearable show-word-limit></el-input>
+                            <el-form-item :label="`${$t('参数名称')}：`" prop="name">
+                                <el-input v-model="editData.name" size="mini" :placeholder="$t('例如：默认返回值')" class="w-80" maxlength="8" clearable show-word-limit></el-input>
                             </el-form-item>
-                            <el-form-item label="参数类型：" prop="type">
-                                <el-select v-model="editData.presetParamsType" placeholder="请选择参数类型" size="mini">
-                                    <el-option label="请求参数" value="request"></el-option>
-                                    <el-option label="返回参数" value="response"></el-option>
+                            <el-form-item :label="`${$t('参数类型')}：`" prop="type">
+                                <el-select v-model="editData.presetParamsType" :placeholder="$t('请选择参数类型')" size="mini">
+                                    <el-option :label="$t('请求参数')" value="request"></el-option>
+                                    <el-option :label="$t('返回参数')" value="response"></el-option>
                                 </el-select>
                             </el-form-item>
                             <div class="scroll-y-450">
-                                <s-collapse-card title="参数模板">
+                                <s-collapse-card :title="$t('参数模板')">
                                     bbbb
                                 </s-collapse-card>
                             </div>
@@ -63,13 +63,13 @@
             delete-key="ids"
             class="w-100"
         >
-            <el-table-column label="模板名称" align="center">
+            <el-table-column :label="$t('模板名称')" align="center">
                 <template #default="scope">
                     <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                     <span v-else>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>
-            <el-table-column label="创建者名称" prop="creatorName" align="center"></el-table-column>
+            <el-table-column :label="$t('创建者名称')" prop="creatorName" align="center"></el-table-column>
             <!-- <el-table-column label="模板类型" prop="presetParamsType" align="center">
                 <template #default="scope">
                     <el-tag v-if="scope.row.presetParamsType === 'queryParams'" size="mini" type="success">请求参数(Params)</el-tag>
@@ -77,10 +77,10 @@
                     <el-tag v-if="scope.row.presetParamsType === 'responseParams'" size="mini" type="warning">返回参数</el-tag>
                 </template>
             </el-table-column> -->
-            <el-table-column label="操作" align="center">
+            <el-table-column :label="$t('操作')" align="center">
                 <template #default="scope">
                     <!-- <el-button type="text" size="mini" @click="handleChangeOpToEdit(scope.row)">编辑</el-button> -->
-                    <el-button type="text" size="mini" @click="handleDelete(scope.row._id)">删除</el-button>
+                    <el-button type="text" size="mini" @click="handleDelete(scope.row._id)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </s-table>
@@ -115,8 +115,8 @@ export default defineComponent({
             },
             //===================================枚举参数====================================//
             rules: {
-                name: [{ required: true, message: "请输入模板名称", trigger: "blur" }],
-                presetParamsType: [{ required: true, message: "请选择模板类型", trigger: "change" }],
+                name: [{ required: true, message: this.$t("请输入模板名称"), trigger: "blur" }],
+                presetParamsType: [{ required: true, message: this.$t("请选择模板类型"), trigger: "change" }],
             },
             //===================================业务参数====================================//
 
@@ -187,7 +187,7 @@ export default defineComponent({
         },
         //删除模板
         handleDelete(id: string) {
-            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
+            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), "提示", {
                 confirmButtonText: "确定",
                 cancelButtonText: "取消",
                 type: "warning",
