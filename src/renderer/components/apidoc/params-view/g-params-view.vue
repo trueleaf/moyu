@@ -50,7 +50,7 @@
                         <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                         <span class="comma">{{ item.comma }}</span>
-                        <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : "(可选)" }}</span>
+                        <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : `(${$t('可选')})` }}</span>
                         <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :open-delay="1500" :content="item.description" placement="bottom-start">
                             <span class="description ml-1">
                                 //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>

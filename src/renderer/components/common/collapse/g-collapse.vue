@@ -19,12 +19,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { $t } from "@/i18n/i18n"
 
 export default defineComponent({
     props: {
         title: {
             type: String,
-            default: "请输入标题",
+            default: $t("请输入标题"),
         },
         active: {
             type: Boolean,

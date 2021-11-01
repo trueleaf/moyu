@@ -7,6 +7,7 @@
 import { ComputedRef, computed, WritableComputedRef } from "vue"
 import type { ApidocRequestMethodRule } from "@@/store"
 import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
+import { $t } from "@/i18n/i18n"
 
 type MethodReturn = {
     /**
@@ -37,7 +38,7 @@ export default (): MethodReturn => {
     //禁用请求方法后提示信息
     const disabledTip = (item: ApidocRequestMethodRule) => {
         if (!item.enabled) {
-            return "当前请求方法被禁止，可以在全局配置中进行相关配置";
+            return $t("当前请求方法被禁止，可以在全局配置中进行相关配置");
         }
         return "";
     }

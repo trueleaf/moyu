@@ -9,6 +9,7 @@ import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, fin
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import router from "@/pages/modules/apidoc/doc-view/router/index"
 import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
+import { $t } from "@/i18n/i18n"
 
 type MapId = {
     oldId: string, //历史id
@@ -33,7 +34,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
             });
         }
     })
-    const deleteTip = selectNodes.length > 1 ? `确定批量删除 ${deleteIds.length} 个节点?` : `确定删除 ${selectNodes[0].name} 节点`
+    const deleteTip = selectNodes.length > 1 ? $t("确定批量删除个节点?", { msg: deleteIds.length.toString() }) : $t("确定删除节点?", { msg: selectNodes[0].name })
     const deleteOperation = () => {
         const params = {
             data: {
@@ -81,9 +82,9 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
         deleteOperation();
         return;
     }
-    ElMessageBox.confirm(deleteTip, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
+    ElMessageBox.confirm(deleteTip, $t("提示"), {
+        confirmButtonText: $t("确定"),
+        cancelButtonText: $t("取消"),
         type: "warning",
     }).then(() => {
         deleteOperation();

@@ -6,21 +6,21 @@
 */
 <template>
     <s-table ref="table" url="/api/security/role_list">
-        <el-table-column prop="roleName" label="角色名称" align="center"></el-table-column>
-        <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-        <el-table-column label="创建时间" align="center">
+        <el-table-column prop="roleName" :label="$t('角色名称')" align="center"></el-table-column>
+        <el-table-column prop="remark" :label="$t('备注')" align="center"></el-table-column>
+        <el-table-column :label="$t('创建时间')" align="center">
             <template #default="scope">
                 {{ $helper.formatDate(scope.row.createdAt) }}
             </template>
         </el-table-column>
-        <el-table-column label="操作" align="center">
+        <el-table-column :label="$t('操作')" align="center">
             <template #default="scope">
-                <el-button type="text" @click="handleOpenEditRole(scope.row._id)">修改</el-button>
-                <el-button type="text" @click="handleDeleteRole(scope.row._id)">删除</el-button>
+                <el-button type="text" @click="handleOpenEditRole(scope.row._id)">{{ $t("修改") }}</el-button>
+                <el-button type="text" @click="handleDeleteRole(scope.row._id)">{{ $t("删除") }}</el-button>
             </template>
         </el-table-column>
         <template #operation>
-            <el-button size="mini" type="success" @click="addRoleDialog = true">新增角色</el-button>
+            <el-button size="mini" type="success" @click="addRoleDialog = true">{{ $t("新增角色") }}</el-button>
         </template>
     </s-table>
     <s-add-role v-if="addRoleDialog" v-model="addRoleDialog" @success="getData"></s-add-role>
@@ -56,9 +56,9 @@ export default defineComponent({
         },
         //删除角色
         handleDeleteRole(_id: string) {
-            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning",
             }).then(() => {
                 const params = {

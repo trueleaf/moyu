@@ -10,7 +10,7 @@
         <div v-if="isDragging" class="indicator">
             <div class="top"></div>
             <div class="ct">
-                <div>{{ realTimeHeight }}px(双击还原)</div>
+                <div>{{ realTimeHeight }}px({{ $t("双击还原") }})</div>
                 <!-- <div></div> -->
             </div>
             <div class="bottom"></div>

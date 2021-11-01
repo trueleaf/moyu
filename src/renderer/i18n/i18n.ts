@@ -14,6 +14,9 @@ if (!localLanguage) {
 const languageType: Ref<Language> = ref(localLanguage);
 //=========================================================================//
 function replaceVariable(rawStr: string, replacement?: Record<string, string>): string {
+    if (!rawStr) {
+        return ""
+    }
     const hasSlot = rawStr.match(/\{[^}]+\}/g);
     let result = ""
     if (hasSlot && replacement) {
@@ -24,21 +27,30 @@ function replaceVariable(rawStr: string, replacement?: Record<string, string>): 
     } else {
         return rawStr;
     }
-    return `${result}xxxx`;
+    return `${result}`;
 }
 
 export const $t = (str: string, replacement?: Record<string, string>): string => {
     const cnValue = (zhCn as Record<string, string>)[str];
     if (languageType.value === "zh-cn") {
-        const mapedStr = (zhCn as Record<string, string>)[str];
+        const mapedStr = (zhCn as Record<string, string>)[str] || "";
+        if (!mapedStr) {
+            console.warn("未匹配到当前字段的翻译信息", str)
+        }
         return replaceVariable(mapedStr, replacement);
     }
     if (languageType.value === "zh-tw") {
         const mapedStr = (zhTw as Record<string, string>)[str] || (zhCn as Record<string, string>)[str];
+        if (!mapedStr) {
+            console.warn("未匹配到當前字段的翻譯信息", str)
+        }
         return replaceVariable(mapedStr, replacement);
     }
     if (languageType.value === "en") {
         const mapedStr = (en as Record<string, string>)[str] || (zhCn as Record<string, string>)[str];
+        if (!mapedStr) {
+            console.warn("translation error", str)
+        }
         return replaceVariable(mapedStr, replacement);
     }
     return cnValue;

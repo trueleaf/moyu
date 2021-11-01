@@ -82,6 +82,7 @@ import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { store } from "@/store/index"
 import importParams from "./dialog/import-params/import-params.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
+import { $t } from "@/i18n/i18n"
 
 /*
 |--------------------------------------------------------------------------
@@ -132,7 +133,7 @@ const handleOpenTempateTab = () => {
         _id: "paramsTemplate",
         projectId,
         tabType: "paramsTemplate",
-        label: "模板维护",
+        label: $t("模板维护"),
         head: {
             icon: "iconvariable",
             color: ""
@@ -258,7 +259,7 @@ const handleChangeRawType = () => {
     } else if (rawType.value === "application/json") {
         store.commit("apidoc/apidoc/changeContentType", "application/json");
     } else {
-        console.warn("未知请求类型");
+        console.warn($t("未知请求类型"));
     }
 }
 
