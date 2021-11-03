@@ -282,6 +282,21 @@ const handleEmit = (op: ApidocOperations) => {
             selected: true,
         });
         break;
+    case "recycler": //回收站
+        store.commit("apidoc/tabs/addTab", {
+            _id: "recycler",
+            projectId,
+            tabType: "recycler",
+            label: $t("回收站"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
     default:
         break;
     }
