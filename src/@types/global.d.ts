@@ -322,6 +322,7 @@ type ApidocMindParam = ApidocProperty & {
 //=========================================================================//
 //=========================================================================//
 //文档基础信息
+type ApidocType = "folder" | "api" | "markdown"
 type ApidocBaseInfo = {
     /**
      * 文档名称
@@ -338,7 +339,7 @@ type ApidocBaseInfo = {
     /**
      * 文档类型
      */
-    type: "folder" | "api" | "markdown",
+    type: ApidocType,
     /**
      * 文档标签
      */
@@ -755,6 +756,7 @@ export {
     ApidocResponseParams,
     ApidocASTInfo,
     ApidocVariable,
+    ApidocType,
     MockItem,
     Language
 }
