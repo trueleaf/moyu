@@ -6,7 +6,7 @@
 */
 <template>
     <div class="params-view px-3">
-        <s-fieldset title="请求参数" class="mb-5">
+        <s-fieldset :title="$t('请求参数')" class="mb-5">
             <template v-if="hasQueryParams">
                 <div class="title">{{ $t("Query参数") }}</div>
                 <s-params-view :data="apidocInfo.queryParams" plain class="mb-3"></s-params-view>
@@ -51,7 +51,12 @@
                 </div>
             </div>
         </s-fieldset>
-        <s-fieldset :title="$t('请求头')"></s-fieldset>
+        <s-fieldset :title="$t('请求头')">
+            <template v-if="hasHeaders">
+                <s-params-view :data="apidocInfo.headers" plain class="mb-3"></s-params-view>
+            </template>
+            <div v-else>{{ $t("暂无数据") }}</div>
+        </s-fieldset>
     </div>
 </template>
 
@@ -100,37 +105,11 @@ export default defineComponent({
             const { mode, raw } = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody;
             return mode === "raw" && raw.data;
         },
-        //返回参数个数
-        // responseNum() {
-        //     const { responseParams } = this.$store.state["apidoc/apidoc"].apidoc.item;
-        //     let resNum = 0;
-        //     responseParams.forEach(response => {
-        //         const resValue = response.value;
-        //         const { dataType } = resValue;
-        //         if (dataType === "application/json") {
-        //             const converJsonData = apidocConvertParamsToJsonData(resValue.json);
-        //             const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
-        //             if (hasJsonData) {
-        //                 resNum ++;
-        //             }
-        //         } else if (dataType === "text/javascript" || dataType === "text/plain" || dataType === "text/html" || dataType === "application/xml") {
-        //             if (resValue.text.length > 0) {
-        //                 resNum ++;
-        //             }
-        //         } else {
-        //             console.warn(`未实现的返回类型${dataType}`);
-        //         }
-        //     });
-        //     return resNum;
-        // },
         //是否存在headers
         hasHeaders() {
             const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            const hasHeaders = headers.filter(p => p.select).some((data) => data.key);
-            return hasHeaders;
+            return headers.filter(p => p.select).some((data) => data.key);
         },
-    },
-    methods: {
     },
 })
 </script>
