@@ -109,6 +109,9 @@ const storeTabs = {
             const editData = findNodeById(tabs, id, {
                 idKey: "_id",
             }) as ApidocTab;
+            if (!editData) { //folder不需要修改，没找到节点也不需要修改
+                return
+            }
             editData[field] = value;
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
