@@ -11,7 +11,6 @@ process.env.VUE_APP_BUILD_HTML = buildHtml || "";
 
 let vueConfig = null;
 
-
 if (buildHtml) {
     vueConfig = htmlBuildConfig
 } else if (buildShare) {
@@ -20,5 +19,4 @@ if (buildHtml) {
     vueConfig = defaultBuildConfig
 }
 
-
-module.exports = vueConfig
+module.exports = vueConfig;
