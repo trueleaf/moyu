@@ -7,9 +7,9 @@
 <template>
     <div>
         <s-search @change="handleChange">
-            <s-search-item label="登录名称" prop="loginName"></s-search-item>
-            <s-search-item label="真实姓名" prop="realName"></s-search-item>
-            <s-search-item label="手机号" prop="phone"></s-search-item>
+            <s-search-item :label="$t('登录名称')" prop="loginName"></s-search-item>
+            <s-search-item :label="$t('真实姓名')" prop="realName"></s-search-item>
+            <s-search-item :label="$t('手机号')" prop="phone"></s-search-item>
             <template #operation>
                 <el-button size="mini" type="success" @click="addUserDialog = true">新增用户</el-button>
                 <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
@@ -22,36 +22,36 @@
         </s-search>
         <!-- 表格展示 -->
         <s-table ref="table" url="/api/security/user_list" class="mt-5">
-            <el-table-column prop="loginName" label="登录名称" align="center"></el-table-column>
-            <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
-            <el-table-column prop="phone" label="手机号" align="center"></el-table-column>
-            <el-table-column label="创建日期" align="center" width="200px">
+            <el-table-column prop="loginName" :label="$t('登录名称')" align="center"></el-table-column>
+            <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
+            <el-table-column prop="phone" :label="$t('手机号')" align="center"></el-table-column>
+            <el-table-column :label="$t('创建日期')" align="center" width="200px">
                 <template #default="scope">
                     {{ $helper.formatDate(scope.row.createdAt) }}
                 </template>
             </el-table-column>
-            <el-table-column label="上次登录" align="center" width="200px">
+            <el-table-column :label="$t('上次登录')" align="center" width="200px">
                 <template #default="scope">
                     {{ $helper.formatDate(scope.row.lastLogin) }}
                 </template>
             </el-table-column>
-            <el-table-column label="登录次数" align="center" prop="loginTimes"></el-table-column>
-            <el-table-column label="角色信息" align="center" width="200px">
+            <el-table-column :label="$t('登录次数')" align="center" prop="loginTimes"></el-table-column>
+            <el-table-column :label="$t('角色信息')" align="center" width="200px">
                 <template #default="scope">
                     <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-block mb-1">{{ item }}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column label="状态" align="center" width="80px">
+            <el-table-column :label="$t('状态')" align="center" width="80px">
                 <template #default="scope">
-                    <el-tag v-if="scope.row.enable" type="success" size="mini">启用</el-tag>
-                    <el-tag v-else type="warning" size="mini">禁用</el-tag>
+                    <el-tag v-if="scope.row.enable" type="success" size="mini">{{ $t("启用") }}</el-tag>
+                    <el-tag v-else type="warning" size="mini">{{ $t("禁用") }}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" width="200px">
+            <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button type="text" @click="handleOpenEditUser(scope.row)">修改用户信息</el-button>
+                    <el-button type="text" @click="handleOpenEditUser(scope.row)">{{ $t('修改用户信息') }}</el-button>
                     <el-button type="text" @click="handleForbidRole(scope.row._id, scope.row.enable)">
-                        {{ scope.row.enable ? "禁用" : "启用" }}
+                        {{ scope.row.enable ? $t("禁用") : $t("启用") }}
                     </el-button>
                 </template>
             </el-table-column>
@@ -91,10 +91,10 @@ export default defineComponent({
         },
         //禁用角色
         handleForbidRole(_id: string, enable: boolean) {
-            const tipLabel = enable ? "禁用" : "启用";
-            this.$confirm(`确实要${tipLabel}该用户吗?`, "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            const tipLabel = enable ? this.$t("禁用") : this.$t("启用");
+            this.$confirm(this.$t("确实要该用户吗", { msg: tipLabel }), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning",
             }).then(() => {
                 const params = {

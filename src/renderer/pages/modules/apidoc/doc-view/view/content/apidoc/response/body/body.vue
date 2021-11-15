@@ -24,13 +24,13 @@
             <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')">
                 <i class="iconicon_weizhiwenjian"></i>
                 <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">下载</span>
+                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
                 </s-download>
             </div>
             <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
                 <i class="iconicon_weizhiwenjian"></i>
                 <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">下载</span>
+                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
                 </s-download>
             </div>
             <!-- excel -->
@@ -39,7 +39,7 @@
                     <use xlink:href="#iconexcel"></use>
                 </svg>
                 <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">下载</span>
+                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
                 </s-download>
             </div>
             <!-- word -->
@@ -48,7 +48,7 @@
                     <use xlink:href="#iconWORD"></use>
                 </svg>
                 <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">下载</span>
+                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
                 </s-download>
             </div>
             <!-- pdf -->
@@ -86,13 +86,13 @@
         </div>
         <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
             <span>
-                <span>应用为响应值</span>
+                <span>{{ $t("应用为响应值") }}</span>
                 <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <template #dropdown>
                 <el-dropdown-menu>
                     <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
-                        <span class="mr-1">应用为</span>
+                        <span class="mr-1">{{ $t("应用为") }}</span>
                         <span>{{ item.title }}</span>
                     </el-dropdown-item>
                 </el-dropdown-menu>

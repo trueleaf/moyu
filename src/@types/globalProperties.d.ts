@@ -8,7 +8,7 @@ import { Helper } from "@@/helper"
 import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
 import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
 import { ICaceh } from "@/cache/cache"
-
+import { $t } from "@/i18n/i18n"
 
 type Data = Record<string, unknown>;
 type Message = {
@@ -54,6 +54,6 @@ declare module "@vue/runtime-core" {
         axios: AxiosInstance,
         $helper: Helper,
         $cache: ICaceh,
-        $t: (str: string) => string,
+        $t: typeof $t,
     }
 }

@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="新增项目" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
-            <el-form-item label="项目名称：" prop="projectName">
-                <el-input v-model="formInfo.projectName" size="mini" placeholder="请输入项目名称"></el-input>
+            <el-form-item :label="`${$t('项目名称')}：`" prop="projectName">
+                <el-input v-model="formInfo.projectName" size="mini" :placeholder="$t('请输入项目名称')"></el-input>
             </el-form-item>
-            <el-form-item label="选择成员：">
-                <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" placeholder="输入用户名或真实姓名查找用户">
+            <el-form-item :label="`${$t('选择成员')}：`">
+                <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="$t('输入用户名或真实姓名查找用户')">
                     <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
                         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
                             <span>{{ item.loginName }}</span>
@@ -23,35 +23,35 @@
         </el-form>
         <!-- 成员信息 -->
         <el-table :data="selectUserData" stripe border size="mini" max-height="200px">
-            <el-table-column prop="loginName" label="用户名" align="center"></el-table-column>
-            <el-table-column prop="realName" label="真实姓名" align="center"></el-table-column>
-            <el-table-column label="角色(权限)" align="center">
+            <el-table-column prop="loginName" :label="$t('用户名')" align="center"></el-table-column>
+            <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
+            <el-table-column :label="$t('角色(权限)')" align="center">
                 <template #default="scope">
                     <el-select v-model="scope.row.permission" size="mini">
-                        <el-option label="只读" value="readOnly">
-                            <span>只读</span>
-                            <span class="gray-500">(仅查看项目)</span>
+                        <el-option :label="$t('只读')" value="readOnly">
+                            <span>{{ $t("只读") }}</span>
+                            <span class="gray-500">({{ $t("仅查看项目") }})</span>
                         </el-option>
-                        <el-option label="读写" value="readAndWrite">
-                            <span>读写</span>
-                            <span class="gray-500">(新增和编辑文档)</span>
+                        <el-option :label="$t('读写')" value="readAndWrite">
+                            <span>{{ $t("读写") }}</span>
+                            <span class="gray-500">({{ $t("新增和编辑文档") }})</span>
                         </el-option>
-                        <el-option label="管理员" value="admin">
-                            <span>管理员</span>
-                            <span class="gray-500">(添加新成员)</span>
+                        <el-option :label="$t('管理员')" value="admin">
+                            <span>{{ $t("管理员") }}</span>
+                            <span class="gray-500">({{ $t("添加新成员") }})</span>
                         </el-option>
                     </el-select>
                 </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" width="200px">
+            <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button type="text" size="mini" @click="handleDeleteMember(scope.$index)">删除</el-button>
+                    <el-button type="text" size="mini" @click="handleDeleteMember(scope.$index)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </el-table>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleAddProject">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleAddProject">{{ $t("确定") }}</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>
@@ -76,7 +76,7 @@ export default defineComponent({
                 remark: "", //------------------------------项目备注
             },
             rules: { //-------------------------------------新增项目校验规则
-                projectName: [{ required: true, trigger: "blur", message: "请填写项目名称" }],
+                projectName: [{ required: true, trigger: "blur", message: this.$t("请填写项目名称") }],
             },
             remoteMembers: [] as PermissionUserBaseInfo[], //------远程用户列表
             selectUserData: [] as ApidocProjectMemberInfo[], //-----已选中的用户
@@ -141,7 +141,7 @@ export default defineComponent({
             this.remoteQueryName = "";
             const hasUser = this.selectUserData.find((val) => val.userId === item.userId);
             if (hasUser) {
-                this.$message.warning("请勿重复添加");
+                this.$message.warning(this.$t("请勿重复添加"));
                 return;
             }
             const userInfo: ApidocProjectMemberInfo = {

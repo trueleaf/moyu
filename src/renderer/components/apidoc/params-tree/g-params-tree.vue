@@ -36,7 +36,7 @@
                     v-if="!disableDelete"
                     class="mr-2"
                     :disabled="checkDeleteDisable(scope)"
-                    :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? '此项不允许删除' : '删除当前行'}`"
+                    :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? $t('此项不允许删除') : $t('删除当前行')}`"
                     type="text"
                     icon="el-icon-close"
                     @click="handleDeleteParams(scope)"
@@ -63,7 +63,7 @@
                     :model-value="scope.data.type"
                     :disabled="!nest && !enableFile"
                     :title="typeTip"
-                    placeholder="类型"
+                    :placeholder="$t('类型')"
                     size="mini"
                     class="w-15 flex0 mr-2"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
@@ -73,7 +73,7 @@
                     <el-option :disabled="!nest || (scope.data.children && scope.data.children.length > 0)" label="Boolean" value="boolean"></el-option>
                     <el-option :disabled="!nest" label="Object" value="object"></el-option>
                     <el-option :disabled="!nest" label="List | Array" value="array"></el-option>
-                    <el-option :disabled="!enableFile" title="传输数据类型为formData才能使用file类型" label="File" value="file"></el-option>
+                    <el-option :disabled="!enableFile" :title="$t('传输数据类型为formData才能使用file类型')" label="File" value="file"></el-option>
                 </el-select>
                 <!-- 参数值录入 -->
                 <el-popover
@@ -94,7 +94,7 @@
                         <el-input
                             :model-value="scope.data.value"
                             :disabled="checkDisableValue(scope.data)"
-                            title="对象和数组不必填写参数值"
+                            :title="$t('对象和数组不必填写参数值')"
                             size="mini"
                             class="w-25 flex0"
                             :placeholder="getValuePlaceholder(scope.data)"
@@ -109,7 +109,7 @@
                 <el-select
                     v-if="scope.data.type === 'boolean'"
                     :model-value="scope.data.value"
-                    placeholder="请选择"
+                    :placeholder="$t('请选择')"
                     size="mini"
                     class="w-25 flex0"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
@@ -120,7 +120,7 @@
                 <!-- 文件类型参数录入 -->
                 <div v-if="scope.data.type === 'file'" class="flex0 w-25">
                     <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
-                        <label v-show="!scope.data.value" for="fileInput" class="label">选择文件</label>
+                        <label v-show="!scope.data.value" for="fileInput" class="label">{{ $t("选择文件") }}</label>
                         <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
                         <!-- <el-popover v-show="scope.data.value" placement="top-start" trigger="hover" :content="scope.data.value" :open-delay="200">
                             <template #reference>
@@ -133,7 +133,7 @@
                 <!-- 参数是否必填 -->
                 <el-checkbox
                     :model-value="scope.data.required"
-                    label="必有"
+                    :label="$t('必有')"
                     :disabled="checkRequiredDisable(scope.data)"
                     @update:modelValue="handleChangeIsRequired($event, scope.data)"
                 >
@@ -143,7 +143,7 @@
                     :model-value="scope.data.description"
                     :disabled="checkDescriptionDisable(scope)"
                     class="w-40 ml-2"
-                    placeholder="参数描述与备注"
+                    :placeholder="$t('参数描述与备注')"
                     @focus="enableDrag = false"
                     @blur="handleDescriptionBlur"
                     @update:modelValue="handleChangeDescription($event, scope.data)"
@@ -167,6 +167,7 @@ import type { TreeNodeOptions } from "element-plus/packages/components/tree/src/
 import type { ApidocProperty, MockItem } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
+import { $t } from "@/i18n/i18n"
 
 type TreeNode = {
     level: number,
@@ -316,9 +317,9 @@ const handleNodeDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: "inner
 //新增按钮title提示信息
 const addNestTip = computed(() => {
     if (!props.nest) {
-        return "参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据";
+        return $t("参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据");
     }
-    return "添加一条嵌套数据";
+    return $t("添加一条嵌套数据");
 })
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
@@ -412,12 +413,12 @@ const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
     const isComplex = node.data.type === "array" || node.data.type === "object";
     if (node.level === 1 && isComplex) {
-        return "根元素";
+        return $t("根元素");
     }
     if (node.parent.data.type === "array") {
-        return "父元素为数组不必填写参数名称";
+        return $t("父元素为数组不必填写参数名称");
     }
-    return "输入参数名称"
+    return $t("输入参数名称");
 }
 //校验key值是否满足规范
 const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
@@ -458,7 +459,7 @@ const handleRemoteSelectKey = (item: ApidocProperty, data: ApidocProperty) => {
 // 禁用参数类型提示
 const typeTip = computed(() => {
     if (!props.nest) {
-        return "参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string"
+        return $t("参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string")
     }
     return "";
 })
@@ -523,12 +524,12 @@ const currentOpData: Ref<ApidocProperty | null> = ref(null);
 //value值placeholder处理
 const getValuePlaceholder = (data: ApidocProperty) => {
     if (data.type === "object") {
-        return "对象类型不必填写"
+        return $t("对象类型不必填写")
     }
     if (data.type === "array") {
-        return "填写数字代表mock数据条数"
+        return $t("填写数字代表mock数据条数")
     }
-    return "参数值、@开头代表mock数据"
+    return $t("参数值、@开头代表mock数据")
 }
 //改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {

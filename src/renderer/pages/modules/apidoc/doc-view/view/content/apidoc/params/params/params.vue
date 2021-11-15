@@ -7,9 +7,9 @@
 <template>
     <div class="query-path-params">
         <!-- <pre>{{ hasPathParams }}</pre> -->
-        <div class="title">Query&nbsp;参数</div>
+        <div class="title">Query&nbsp;{{ $t("参数") }}</div>
         <s-params-tree show-checkbox :data="queryTreeData" :mind-params="mindQueryData"></s-params-tree>
-        <div v-show="hasPathParams" class="title">Path&nbsp;参数</div>
+        <div v-show="hasPathParams" class="title">Path&nbsp;{{ $t("参数") }}</div>
         <s-params-tree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData" :mind-params="mindPathData"></s-params-tree>
     </div>
 </template>

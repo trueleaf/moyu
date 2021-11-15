@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { $t } from "@/i18n/i18n"
 
 export default defineComponent({
     props: {
@@ -18,21 +19,21 @@ export default defineComponent({
          */
         startLabel: {
             type: String,
-            default: "获取验证码",
+            default: $t("获取验证码"),
         },
         /**
          * 发送中文案，最终文案 数字+秒+后+发送
          */
         waitLabel: {
             type: String,
-            default: "重新发送"
+            default: $t("重新发送")
         },
         /**
          * 发送完成后
          */
         endLabel: {
             type: String,
-            default: "重新获取"
+            default: $t("重新获取")
         },
         /**
          * 点击按钮前钩子

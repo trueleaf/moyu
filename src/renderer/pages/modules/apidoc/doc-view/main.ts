@@ -1,7 +1,7 @@
 import { createApp } from "vue"
 import { ElCheckbox, ElCheckboxGroup, ElSwitch, ElTable, ElTableColumn, ElImage, ElDatePicker, ElEmpty, ElBadge, ElOption, ElSelect, ElDropdown, ElDropdownItem, ElButton, ElLoading, ElTooltip, ElInput, ElTree, ElDialog, ElTabs, ElPopover, ElRadio, ElRadioGroup, ElDivider, ElTabPane } from "element-plus";
 import "element-plus/dist/index.css"
-import "@/../../public/font/iconfont.js"
+import "@/../../public/font/iconfont"
 import "@/../../public/font/iconfont.css"
 import App from "./App.vue"
 import { axiosPlugin } from "./api/api"
@@ -9,7 +9,6 @@ import { store, key } from "./store/index"
 import "@/assets/css/index.css"
 import registeDirective from "@/directive/directive";
 import router from "./router/index"
-
 
 //=====================================内部组件按需加载====================================//
 import sLoading from "@/components/common/loading/g-loading.vue"
@@ -75,13 +74,9 @@ app.use(ElImage);
 app.use(ElTable);
 app.use(ElTableColumn);
 
-
-
-
 //=========================================================================//
 registeDirective(app); //注册全局指令
 app.use(store, key);
-
 
 app.use(router);
 app.use(axiosPlugin);

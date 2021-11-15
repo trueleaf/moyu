@@ -5,16 +5,16 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="新增服务端路由" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增服务端路由')" @close="handleClose">
         <s-form ref="form" :edit-data="formInfo">
-            <s-form-item label="名称" prop="name" required one-line></s-form-item>
-            <s-form-item label="请求方法" prop="method" type="select" :select-enum="requestMethodEnum" required one-line></s-form-item>
-            <s-form-item label="路径" prop="path" required one-line></s-form-item>
-            <s-form-item label="分组名称" prop="groupName" required one-line></s-form-item>
+            <s-form-item :label="$t('名称')" prop="name" required one-line></s-form-item>
+            <s-form-item :label="$t('请求方法')" prop="method" type="select" :select-enum="requestMethodEnum" required one-line></s-form-item>
+            <s-form-item :label="$t('路径')" prop="path" required one-line></s-form-item>
+            <s-form-item :label="$t('分组名称')" prop="groupName" required one-line></s-form-item>
         </s-form>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleSaveServerRoute">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleSaveServerRoute">{{ $t("确定") }}</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>

@@ -5,21 +5,21 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" title="新增用户(默认密码111111)" @close="handleClose">
+    <s-dialog :model-value="modelValue" :title="$t('新增用户(默认密码111111)')" @close="handleClose">
         <el-divider content-position="left">基础信息</el-divider>
         <s-form ref="form">
-            <s-form-item label="登录名称" prop="loginName" required half-line></s-form-item>
-            <s-form-item label="真实姓名" prop="realName" required half-line></s-form-item>
-            <s-form-item label="手机号" prop="phone" half-line phone required></s-form-item>
+            <s-form-item :label="$t('登录名称')" prop="loginName" required half-line></s-form-item>
+            <s-form-item :label="$t('真实姓名')" prop="realName" required half-line></s-form-item>
+            <s-form-item :label="$t('手机号')" prop="phone" half-line phone required></s-form-item>
         </s-form>
-        <el-divider content-position="left">角色选择</el-divider>
+        <el-divider content-position="left">{{ $t("角色选择") }}</el-divider>
         <el-checkbox-group v-model="roleIds">
             <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
         </el-checkbox-group>
         <template #footer>
             <div>
-                <el-button :loading="loading" size="mini" type="primary" @click="handleAddUser">确定</el-button>
-                <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+                <el-button :loading="loading" size="mini" type="primary" @click="handleAddUser">{{ $t("确定") }}</el-button>
+                <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
             </div>
         </template>
     </s-dialog>
@@ -83,7 +83,7 @@ export default defineComponent({
                     });
                 } else {
                     this.$nextTick(() => (document.querySelector(".el-form-item.is-error input") as HTMLInputElement)?.focus());
-                    this.$message.warning("请完善必填信息");
+                    this.$message.warning(this.$t("请完善必填信息"));
                     this.loading = false;
                 }
             });
@@ -97,9 +97,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-// .add-user {
-//     .el-dialog__body {
-//         padding-top: 0;
-//     }
-// }
+
 </style>

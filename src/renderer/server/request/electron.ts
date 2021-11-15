@@ -146,7 +146,7 @@ export function sendRequest(): void {
                 // eslint-disable-next-line no-case-declarations
                 const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
                 body = data
-                realHeaders["Content-Type"] = headers["content-type"]
+                Object.assign(realHeaders, headers)
                 break;
             case "text/plain":
                 body = requestBody.raw.data;
@@ -164,7 +164,9 @@ export function sendRequest(): void {
                 break;
             }
         }
-        console.log(realHeaders, requestUrl, body)
+        console.log("url", requestUrl)
+        console.log("header", realHeaders)
+        console.log("body", body)
         requestStream = requestInstance(requestUrl, {
             isStream: true,
             method,
