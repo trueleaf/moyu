@@ -57,13 +57,14 @@ const permission = {
                         }
                     });
                 });
-                router.addRoute({
-                    path: "/v1",
-                    component: layout,
-                    children: [
-                        ...matchedRoutes,
-                    ],
-                });
+                // console.log(state.routes, matchedRoutes, 222)
+                // router.addRoute({
+                //     path: "/v1",
+                //     component: layout,
+                //     children: [
+                //         ...matchedRoutes,
+                //     ],
+                // });
             }
         },
         /**
