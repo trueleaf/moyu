@@ -87,7 +87,7 @@ export default defineComponent({
         //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
         const goBack = () => router.back()
         const goForward = () => router.forward();
-        const freshPage = () => ipcRenderer && ipcRenderer.send("vue-fresh-content");
+        const freshPage = () => window.location.reload();
         //个人中心
         const jumpToHome = () => router.push("/v1/apidoc/doc-list");
         const jumpToUserSetting = () => router.push("/v1/settings/user");

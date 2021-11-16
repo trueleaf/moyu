@@ -1,6 +1,6 @@
 import type { ApidocProperty } from "@@/global"
 import FormData from "form-data"
-import fs from "fs"
+import fs from "fs-extra"
 import { apidocConvertValue } from "@/helper/index"
 /**
  * 将queryParams转换成字符串查询字符串
@@ -62,6 +62,7 @@ export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"st
                 fs.accessSync(item.value);
                 formData.append(item.key, fs.createReadStream(item.value));
             } catch (error) {
+                console.error(error);
                 console.log("文件不存在");
             }
         }
