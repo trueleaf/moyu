@@ -404,13 +404,14 @@ type ApidocResponseState = {
 | mock相关
 |--------------------------------------------------------------------------
 */
+type ApidocMockMapInfo = {
+    id: string, //接口id
+    projectId: string, //项目id
+    url: string, //请求地址
+    method: ApidocHttpRequestMethod, //请求方法
+}
 type ApidocMockState = {
-    urlMap: {
-        id: string, //接口id
-        projectId: string, //项目id
-        url: string, //请求地址
-        method: ApidocHttpRequestMethod, //请求方法
-    }[]
+    urlMap: ApidocMockMapInfo[]
 };
 
 /*
@@ -443,5 +444,6 @@ export {
     ApidocProjectParamsTemplate,
     ApidocProjectRules,
     ApidocMockState,
+    ApidocMockMapInfo,
     State,
 }

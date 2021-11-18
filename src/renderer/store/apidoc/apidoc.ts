@@ -398,6 +398,13 @@ const apidoc = {
                         field: "saved",
                         value: true,
                     });
+                    //新增一个mock映射
+                    store.commit("apidoc/mock/addMockUrl", {
+                        id: currentSelectTab._id,
+                        projectId,
+                        url: apidocDetail.item.url.path,
+                        method: apidocDetail.item.method,
+                    })
                     resolve();
                 }).catch((err) => {
                     //改变tab未保存小圆点
@@ -423,7 +430,6 @@ const apidoc = {
             const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
             const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");
             const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams");
-            console.log(paths, queryParams, requestBody, responseParams)
             const params = {
                 projectId,
                 mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
