@@ -1,6 +1,6 @@
 import type { ApidocProperty } from "@@/global"
 import FormData from "form-data"
-import fs from "fs-extra"
+import fs from "fs"
 import { apidocConvertValue } from "@/helper/index"
 /**
  * 将queryParams转换成字符串查询字符串

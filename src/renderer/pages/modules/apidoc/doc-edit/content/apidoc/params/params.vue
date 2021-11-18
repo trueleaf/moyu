@@ -174,6 +174,10 @@ export default defineComponent({
             handler(apidoc: ApidocDetail) {
                 const { originApidoc } = this.$store.state["apidoc/apidoc"];
                 const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
+                this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
+                    id: this.currentSelectTab?._id,
+                    apidoc,
+                })
                 if (!isEqual) {
                     this.$store.commit("apidoc/tabs/changeTabInfoById", {
                         id: this.currentSelectTab?._id,

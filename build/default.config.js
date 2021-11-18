@@ -70,7 +70,6 @@ module.exports = {
                 "ssh2",
                 "koa",
                 "internal-ip",
-                "fs-extra"
             ],
             mainProcessFile: "src/main/background.ts",
             mainProcessWatch: ["src/main/background.ts"],

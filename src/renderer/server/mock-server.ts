@@ -24,19 +24,31 @@ export const mockServer = (): void => {
                     projectId: matchedReuqest.projectId,
                     _id: matchedReuqest.id,
                 };
-                const result = await axios.get("/api/project/doc_detail", { params });
-                const rawBody = result.data.item.responseParams[0]?.value.json;
-                const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                    if (property.value.startsWith("@")) {
-                        if (property.value.startsWith("@/") && property.value.endsWith("/")) {
-                            const replacedValue = property.value.replace(/(^@\/|\/$)/g, "")
-                            return Mock.mock(new RegExp(replacedValue));
-                        }
-                        return Mock.mock(property.value);
+                try {
+                    const localApis = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
+                    const localApi = localApis[matchedReuqest.id]
+                    let result = null;
+                    if (localApi) {
+                        result = { data: localApi }
+                    } else {
+                        result = await axios.get("/api/project/doc_detail", { params });
                     }
-                    return property.value;
-                })
-                ctx.body = convertBody;
+                    const rawBody = result.data.item.responseParams[0]?.value.json;
+                    const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
+                        if (property.value.startsWith("@")) {
+                            if (property.value.startsWith("@/") && property.value.endsWith("/")) {
+                                const replacedValue = property.value.replace(/(^@\/|\/$)/g, "")
+                                return Mock.mock(new RegExp(replacedValue));
+                            }
+                            return Mock.mock(property.value);
+                        }
+                        return property.value;
+                    })
+                    ctx.body = convertBody || "";
+                } catch (error) {
+                    console.error(error)
+                    ctx.body = "";
+                }
             } else {
                 ctx.body = {
                     code: -1,
