@@ -108,9 +108,9 @@ class ApidocCache {
             if (!localData[projectId]) {
                 localData[projectId] = [];
             }
-            if (localData[projectId].find((v: ServerInfo) => v.url === serverInfo.url)) {
-                return
-            }
+            // if (localData[projectId].find((v: ServerInfo) => v.url === serverInfo.url)) {
+            //     return
+            // }
             localData[projectId].push(serverInfo);
             localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
         } catch (error) {
