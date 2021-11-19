@@ -332,8 +332,8 @@ const handlePasteNode = () => {
     })
 }
 //判断是否允许拖拽节点
-const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: "inner" | "prev") => {
-    if (!draggingNode.data.isFolder && dropNode.nextSibling?.data.isFolder) { //不允许文件后面是文件夹
+const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: "inner" | "prev" | "next") => {
+    if (!draggingNode.data.isFolder && dropNode.nextSibling?.data.isFolder && (type === "prev" || type === "next")) { //不允许文件后面是文件夹
         return false;
     }
     if (!draggingNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
@@ -443,7 +443,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .banner {
     flex: 0 0 auto;
     height: 100%;
@@ -458,7 +458,9 @@ onUnmounted(() => {
     }
     //拖拽指示器样式
     .el-tree-node.is-drop-inner {
-        background: mix($theme-color, $white, 70%);
+        > .el-tree-node__content {
+            background: mix($theme-color, $white, 20%);
+        }
         .custom-tree-node.select-node {
             background-color: mix($theme-color, $white, 70%);
         }
