@@ -22,7 +22,7 @@
         </el-table>
         <div v-if="!plain" class="d-flex j-end mt-1">
             <slot name="operation" />
-            <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">刷新</el-button>
+            <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">{{ $t("刷新") }}</el-button>
             <el-button
                 v-if="deleteMany"
                 :loading="loading2"
@@ -33,7 +33,7 @@
                 :size="config.renderConfig.layout.size"
                 @click="deleteData"
             >
-                批量删除
+                {{ $t("批量删除") }}
             </el-button>
             <el-pagination
                 v-model:currentPage="formInfo.pageNum"
@@ -273,9 +273,9 @@ export default defineComponent({
         },
         //批量删除
         deleteData() {
-            this.$confirm(`此操作将删除${this.selectData.length}条记录, 是否继续?`, "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("此操作将删除条记录, 是否继续?", { msg: this.selectData.length.toString() }), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning"
             }).then(() => {
                 const params = {} as Record<string, unknown>;

@@ -8,17 +8,17 @@
     <s-left-right :left-width="500">
         <template #left>
             <s-loading :loading="loading">
-                <s-card title="菜单列表" class="menu-tree">
+                <s-card :title="$t('菜单列表')" class="menu-tree">
                     <template #operation>
-                        <el-button size="mini" type="text" @click="handleOpenAddDialog()">新增</el-button>
-                        <el-button size="mini" type="text" @click="getData">刷新</el-button>
+                        <el-button size="mini" type="text" @click="handleOpenAddDialog()">{{ $t("新增") }}</el-button>
+                        <el-button size="mini" type="text" @click="getData">{{ $t("刷新") }}</el-button>
                     </template>
                     <el-tree
                         ref="tree"
                         :data="treeData"
                         node-key="id"
                         :draggable="true"
-                        empty-text="暂无数据"
+                        :empty-text="$t('暂无数据')"
                         :expand-on-click-node="false"
                         :default-expanded-keys="defaultExpandKeys"
                         @node-drop="handleNodeDropSuccess"
@@ -35,11 +35,11 @@
                                     <span>{{ data.name }}</span>
                                 </div>
                                 <div class="ml-auto mr-2">
-                                    <el-button size="mini" type="text" @click.stop="handleOpenAddDialog(data)">新增子菜单</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleOpenAddDialog(data)">{{ $t("新增子菜单") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click.stop="handleOpenEditDialog(data)">编辑</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleOpenEditDialog(data)">{{ $t("编辑") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click.stop="handleDeleteCurrentNode(data)">删除</el-button>
+                                    <el-button size="mini" type="text" @click.stop="handleDeleteCurrentNode(data)">{{ $t("删除") }}</el-button>
                                 </div>
                             </div>
                         </template>
@@ -49,16 +49,16 @@
         </template>
         <template #right>
             <ul>
-                <li>支持鼠标右键新增和编辑菜单</li>
-                <li>菜单可以进行拖拽排序</li>
+                <li>{{ $t("支持鼠标右键新增和编辑菜单") }}</li>
+                <li>{{ $t("菜单可以进行拖拽排序") }}</li>
             </ul>
         </template>
     </s-left-right>
     <teleport to="body">
         <div v-if="currentCtxNode" ref="contextmenu" class="contextmenu" :style="{left: ctxLeft + 'px', top: ctxTop + 'px'}">
-            <div class="item-list" @click="handleOpenAddDialog(currentCtxNode)">新增子菜单</div>
-            <div class="item-list" @click="handleOpenEditDialog(currentCtxNode)">编辑</div>
-            <div class="item-list" @click="handleDeleteCurrentNode(currentCtxNode)">删除</div>
+            <div class="item-list" @click="handleOpenAddDialog(currentCtxNode)">{{ $t("新增子菜单") }}</div>
+            <div class="item-list" @click="handleOpenEditDialog(currentCtxNode)">{{ $t("编辑") }}</div>
+            <div class="item-list" @click="handleDeleteCurrentNode(currentCtxNode)">{{ $t("删除") }}</div>
         </div>
     </teleport>
     <s-add-menu-dialog v-if="addMenuDialogVisible" v-model="addMenuDialogVisible" :pid="parentId" @success="handleAddSuccess"></s-add-menu-dialog>
@@ -125,7 +125,7 @@ export default defineComponent({
         //打开修改弹窗
         handleOpenEditDialog(data: PermissionClientMenu | null) {
             if (data === null) {
-                this.$message.warning("参数值不能为null");
+                this.$message.warning(this.$t("参数值不能为null"));
                 return
             }
             this.editMenuDialogVisible = true;
@@ -139,7 +139,7 @@ export default defineComponent({
         //删除节点
         handleDeleteCurrentNode(data: PermissionClientMenu | null) {
             if (data === null) {
-                this.$message.warning("参数值不能为null");
+                this.$message.warning(this.$t("参数值不能为null"));
                 return
             }
             const cpData = JSON.parse(JSON.stringify(data));
@@ -147,9 +147,9 @@ export default defineComponent({
             this.$helper.forEachForest(cpData.children || [], (val) => {
                 ids.push(val._id);
             })
-            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning",
             }).then(() => {
                 const params = {

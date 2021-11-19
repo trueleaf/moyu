@@ -174,6 +174,10 @@ export default defineComponent({
             handler(apidoc: ApidocDetail) {
                 const { originApidoc } = this.$store.state["apidoc/apidoc"];
                 const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
+                this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
+                    id: this.currentSelectTab?._id,
+                    apidoc,
+                })
                 if (!isEqual) {
                     this.$store.commit("apidoc/tabs/changeTabInfoById", {
                         id: this.currentSelectTab?._id,
@@ -195,6 +199,11 @@ export default defineComponent({
     },
     created() {
         this.initTabCache();
+        // console.log(this.currentSelectTab, this.$store.state["apidoc/apidoc"].apidoc)
+        this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
+            id: this.currentSelectTab?._id,
+            apidoc: this.$store.state["apidoc/apidoc"].apidoc,
+        })
     },
     methods: {
         //初始化tab缓存

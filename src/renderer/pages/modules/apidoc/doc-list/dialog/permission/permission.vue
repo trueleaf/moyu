@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="成员管理" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" :title="$t('成员管理')" @close="handleClose">
         <s-user :id="projectId" @leave="handleLeave"></s-user>
         <!-- <template #footer>
             <el-button :loading="loading" size="mini" type="primary" @click="handleChangePermission">确定</el-button>

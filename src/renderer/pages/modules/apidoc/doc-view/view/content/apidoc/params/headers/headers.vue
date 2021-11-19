@@ -8,13 +8,13 @@
     <div>
         <div v-if="!hideDefaultHeader">
             <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
-                <span>点击隐藏默认</span>
+                <span>{{ $t("点击隐藏默认") }}</span>
                 <!-- <i class="el-icon-close ml-1"></i> -->
             </span>
             <s-params-tree :drag="false" show-checkbox :readonly-keys="defaultHeaderKeys" :data="defaultHeaders"></s-params-tree>
         </div>
         <div v-else class="cursor-pointer no-select" @click="hideDefaultHeader = false">
-            <span>{{ defaultHeaders.length }}个隐藏</span>
+            <span>{{ $t("个隐藏", { msg: defaultHeaders.length.toString()}) }}</span>
             <i class="el-icon-view ml-1"></i>
         </div>
         <s-params-tree :drag="false" show-checkbox :data="headerData"></s-params-tree>

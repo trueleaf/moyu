@@ -58,7 +58,7 @@
             <!-- javascript -->
             <pre v-else-if="remoteResponse.data.type.includes('application/javascript')">{{ remoteResponse.data.text }}</pre>
             <!-- 请求错误 -->
-            <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
+            <div v-else-if="remoteResponse.data.type.includes('error')" class="red">{{ remoteResponse.data.text }}</div>
             <!-- html -->
             <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap">
                 <s-raw-editor

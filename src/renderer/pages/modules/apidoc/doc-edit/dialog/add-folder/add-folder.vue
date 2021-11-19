@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="40%" title="新增文件夹" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="$t('新增文件夹')" @close="handleClose">
         <s-form ref="form" @submit.prevent="handleAddFolder">
-            <s-form-item label="文件夹名称" prop="name" focus one-line></s-form-item>
+            <s-form-item :label="$t('文件夹名称')" prop="name" focus one-line></s-form-item>
         </s-form>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleAddFolder">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleAddFolder">{{ $t("确定") }}</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>
@@ -61,7 +61,7 @@ export default defineComponent({
                         this.loading = false;
                     });
                 } else {
-                    this.$message.warning("请完善必填信息");
+                    this.$message.warning(this.$t("请完善必填信息"));
                     this.loading = false;
                 }
             });

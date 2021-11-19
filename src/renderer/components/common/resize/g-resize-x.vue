@@ -10,7 +10,7 @@
         <div v-show="isDragging" class="indicator">
             <div class="left"></div>
             <div class="ct">
-                <div>{{ realTimeWidth.toFixed(0) }}px(双击还原)</div>
+                <div>{{ realTimeWidth.toFixed(0) }}px({{ $t("双击还原") }})</div>
                 <!-- <div></div> -->
             </div>
             <div class="right"></div>

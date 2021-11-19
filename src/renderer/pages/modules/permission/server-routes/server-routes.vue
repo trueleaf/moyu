@@ -8,16 +8,16 @@
     <div>
         <!-- 搜索条件 -->
         <s-search auto-request @change="handleChange">
-            <s-search-item label="名称&地址" prop="name"></s-search-item>
-            <s-search-item label="分组名称" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
+            <s-search-item :label="$t('名称&地址')" prop="name"></s-search-item>
+            <s-search-item :label="$t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
             <template #operation>
-                <el-button type="success" size="mini" @click="handleOpenAddRouteDialog">新增路由</el-button>
-                <el-button :disabled="selectedData.length === 0" type="success" size="mini" @click="handleOpenMultiEditTypeDialog">批量修改类型</el-button>
+                <el-button type="success" size="mini" @click="handleOpenAddRouteDialog">{{ $t("新增路由") }}</el-button>
+                <el-button :disabled="selectedData.length === 0" type="success" size="mini" @click="handleOpenMultiEditTypeDialog">{{ $t("批量修改类型") }}</el-button>
             </template>
         </s-search>
         <!-- 表格展示 -->
         <s-table ref="table" url="/api/security/server_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
-            <el-table-column label="请求方法" align="center">
+            <el-table-column :label="$t('请求方法')" align="center">
                 <template #default="scope">
                     <span v-if="scope.row.method === 'get'" class="green">GET</span>
                     <span v-else-if="scope.row.method === 'post'" class="orange">POST</span>
@@ -26,13 +26,13 @@
                     <span v-else>{{ scope.row.method }}</span>
                 </template>
             </el-table-column>
-            <el-table-column prop="name" label="路由名称" align="center"></el-table-column>
-            <el-table-column prop="path" label="路由地址" align="center"></el-table-column>
-            <el-table-column prop="groupName" label="分组名称" align="center"></el-table-column>
-            <el-table-column label="操作" align="center">
+            <el-table-column prop="name" :label="$t('路由名称')" align="center"></el-table-column>
+            <el-table-column prop="path" :label="$t('路由地址')" align="center"></el-table-column>
+            <el-table-column prop="groupName" :label="$t('分组名称')" align="center"></el-table-column>
+            <el-table-column :label="$t('操作')" align="center">
                 <template #default="scope">
-                    <el-button type="text" @click.stop="handleOpenServerEditDialog(scope.row)">修改</el-button>
-                    <el-button type="text" @click.stop="handleDeleteServerRoute(scope.row)">删除</el-button>
+                    <el-button type="text" @click.stop="handleOpenServerEditDialog(scope.row)">{{ $t("修改") }}</el-button>
+                    <el-button type="text" @click.stop="handleDeleteServerRoute(scope.row)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </s-table>
@@ -104,9 +104,9 @@ export default defineComponent({
         },
         //删除前端路由组件
         handleDeleteServerRoute(row: PermissionServerRoute) {
-            this.$confirm("此操作将永久删除此条记录, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
+            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), this.$t("提示"), {
+                confirmButtonText: this.$t("确定"),
+                cancelButtonText: this.$t("取消"),
                 type: "warning",
             }).then(() => {
                 const params = { ids: [row._id] };

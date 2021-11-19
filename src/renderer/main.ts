@@ -5,7 +5,7 @@ import { cache } from "./cache/cache"
 import App from "./App.vue"
 import { axiosPlugin } from "@/api/api"
 import * as helper from "@/helper/index"
-import "./registerServiceWorker"
+// import "./registerServiceWorker"
 import "element-plus/dist/index.css"
 import "@/../../public/font/iconfont"
 import "@/../../public/font/iconfont.css"
@@ -15,7 +15,9 @@ import { registeGlobalComponent } from "@/components"
 import "@/assets/css/index.css"
 import registeDirective from "./directive/directive";
 import i18n from "@/i18n/i18n"
+import { mockServer } from "@/server/mock-server"
 
+mockServer();
 const app = createApp(App, {
     mixin: [mixin]
 })

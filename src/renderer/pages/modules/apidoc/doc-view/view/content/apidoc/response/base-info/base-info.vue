@@ -6,30 +6,30 @@
 */
 <template>
     <div class="request-view">
-        <div class="text-bold">基本信息</div>
+        <div class="text-bold">{{ $t("基本信息") }}</div>
         <div class="px-4">
-            <s-label-value label="请求地址：" class="mt-2" one-line>
+            <s-label-value :label="`${$t('请求地址')}：`" class="mt-2" one-line>
                 <span class="text-ellipsis">{{ apidocInfo.item.url.host + apidocInfo.item.url.path }}</span>
             </s-label-value>
-            <s-label-value label="请求方式：" one-line>
+            <s-label-value :label="`${$t('请求方式')}：`" one-line>
                 <template v-for="(req) in validRequestMethods">
                     <span v-if="apidocInfo.item.method === req.value.toUpperCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                 </template>
             </s-label-value>
             <div class="base-info">
-                <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                <s-label-value :label="`${$t('维护人员：')}：`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                 </s-label-value>
-                <s-label-value label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+                <s-label-value :label="`${$t('创建人员：')}：`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                 </s-label-value>
-                <s-label-value label="累计用时：" :title="formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
+                <s-label-value :label="`${$t('累计用时：')}：`" :title="formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ formatMs(apidocInfo.info.spendTime) }}</span>
                 </s-label-value>
-                <s-label-value label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+                <s-label-value :label="`${$t('更新日期：')}：`" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
                     <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
                 </s-label-value>
-                <s-label-value label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+                <s-label-value :label="`${$t('创建日期：')}：`" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
                     <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
                 </s-label-value>
             </div>

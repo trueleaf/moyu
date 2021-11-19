@@ -14,6 +14,7 @@
         <s-export v-else-if="currentSelectTab.tabType === 'exportDoc'"></s-export>
         <s-import-doc v-else-if="currentSelectTab.tabType === 'importDoc'"></s-import-doc>
         <s-online-link v-else-if="currentSelectTab.tabType === 'onlineLink'"></s-online-link>
+        <s-recycler v-else-if="currentSelectTab.tabType === 'recycler'"></s-recycler>
     </keep-alive>
 </template>
 
@@ -28,6 +29,7 @@ import paramsTemplate from "./params-template/params-template.vue";
 import exportDoc from "./export/export.vue";
 import importDoc from "./import/import.vue"
 import onlineLink from "./link/link.vue"
+import recycler from "./recycler/recycler.vue"
 
 export default defineComponent({
     components: {
@@ -39,6 +41,7 @@ export default defineComponent({
         "s-export": exportDoc,
         "s-import-doc": importDoc,
         "s-online-link": onlineLink,
+        "s-recycler": recycler,
     },
     data() {
         return {

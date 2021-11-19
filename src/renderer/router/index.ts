@@ -41,6 +41,10 @@ const routes: Array<RouteRecordRaw> = [
             path: "/v1/apidoc/doc-edit",
             name: "DocEdit",
             component: docEdit,
+        }, {
+            path: "/v1/settings/user",
+            name: "UserSettings",
+            component: () => import(/* webpackChunkName: "UserSettings" */ "@/pages/modules/settings/user/user.vue"),
         }],
     },
     {

@@ -1,9 +1,10 @@
 import { ActionContext } from "vuex"
-import type { State as RootState, ApidocBannerState } from "@@/store"
+import type { State as RootState, ApidocBannerState, ApidocMockState } from "@@/store"
 import { ApidocBanner, Response } from "@@/global"
 import { axios } from "@/api/api"
 import { forEachForest, findNodeById } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
+import { store } from "../index"
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -83,6 +84,18 @@ const banner = {
                 axios.get("/api/project/doc_tree_node", { params }).then((res) => {
                     const result = res.data;
                     context.commit("changeAllDocBanner", result);
+                    const urlMap: ApidocMockState["urlMap"] = [];
+                    forEachForest(res.data, (data) => {
+                        if (!data.isFolder) {
+                            urlMap.push({
+                                url: data.url,
+                                projectId: payload.projectId,
+                                method: data.method,
+                                id: data._id,
+                            });
+                        }
+                    })
+                    store.commit("apidoc/mock/changeMockUrlMap", urlMap);
                     resolve(result);
                 }).catch((err) => {
                     reject(err);

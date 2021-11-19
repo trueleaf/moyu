@@ -8,6 +8,7 @@ import { ref, Ref, computed } from "vue"
 import { useStore } from "@/store/index"
 import { router } from "@/router/index"
 import { sendRequest, stopRequest } from "@/server/request/request"
+import { apidocCache } from "@/cache/apidoc"
 
 type OperationReturn = {
     /**
@@ -103,6 +104,10 @@ export default (): OperationReturn => {
     //刷新文档
     const handleFreshApidoc = () => {
         loading3.value = true;
+        store.commit("apidoc/response/clearResponseInfo")
+        if (currentSelectTab.value) {
+            apidocCache.deleteResponse(currentSelectTab.value._id);
+        }
         store.dispatch("apidoc/apidoc/getApidocDetail", {
             id: currentSelectTab.value?._id,
             projectId,

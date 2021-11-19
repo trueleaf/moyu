@@ -110,25 +110,20 @@ export function findParentById<T extends ForestData>(forest: T[], id: string, op
     const childrenKey = options?.childrenKey || "children";
     const idKey = options?.idKey || "id";
     let pNode: T | null = null;
-    let hasPNode = false;
-    const foo = (forestData: ForestData, deep: number) => {
+    const foo = (forestData: ForestData, p: T | null) => {
         for (let i = 0; i < forestData.length; i += 1) {
             const currentData = forestData[i];
-            if (currentData[idKey] === id && deep !== 0) {
-                hasPNode = true;
-                break;
+            if (currentData[idKey] === id) {
+                pNode = p;
+                return;
             }
             if (currentData[childrenKey] && currentData[childrenKey].length > 0) {
-                pNode = currentData;
-                foo(currentData[childrenKey], deep + 1);
+                foo(currentData[childrenKey], currentData);
             }
         }
     };
-    foo(forest, 0);
-    if (hasPNode) {
-        return pNode;
-    }
-    return null;
+    foo(forest, null);
+    return pNode;
 }
 
 /**

@@ -191,11 +191,11 @@ export default defineComponent({
         },
         //确认添加host
         handleAddHost() {
-            const { total } = this.$refs.table;
-            if (this.dominLimit <= total) {
-                this.$message.warning(`${this.$t("限制可维护域名数不超过")} ${this.dominLimit}${this.$t("个")}`);
-                return
-            }
+            // const { total } = this.$refs.table;
+            // if (this.dominLimit <= total) {
+            //     this.$message.warning(`${this.$t("限制可维护域名数不超过")} ${this.dominLimit}${this.$t("个")}`);
+            //     return
+            // }
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const url = this.formInfo.protocol + this.formInfo.server;
@@ -213,6 +213,7 @@ export default defineComponent({
                             this.isSuccess = false;
                         }, 300)
                         apidocCache.addApidocServer(serverInfo, projectId);
+                        this.getTableData();
                         return;
                     }
                     this.loading = true;

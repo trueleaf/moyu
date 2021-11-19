@@ -62,6 +62,7 @@ export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"st
                 fs.accessSync(item.value);
                 formData.append(item.key, fs.createReadStream(item.value));
             } catch (error) {
+                console.error(error);
                 console.log("文件不存在");
             }
         }

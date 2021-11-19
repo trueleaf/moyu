@@ -11,7 +11,7 @@
             <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                     <template #reference>
-                        <el-radio :label="mockServer" border>Mock服务器</el-radio>
+                        <el-radio :label="mockServer" border>{{ $t("Mock服务器") }}</el-radio>
                     </template>
                 </el-popover>
                 <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
@@ -21,7 +21,7 @@
                 </el-popover>
             </el-radio-group>
             <div v-if="!config.isElectron" class="proxy-wrap">
-                <span>代理&nbsp;&nbsp;</span>
+                <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
             </div>
         </div>
@@ -29,7 +29,7 @@
         <div class="op-wrap">
             <el-input
                 v-model="requestPath"
-                placeholder="输入请求url"
+                :placeholder="$t('输入请求url')"
                 size="small"
                 @input="handlePickPathParams"
                 @blur="handleFormatUrl"
@@ -54,16 +54,16 @@
             <el-button
                 v-if="!loading"
                 :loading="loading"
-                :title="config.isElectron ? '' : '由于浏览器限制，非electron环境无法模拟发送请求'"
+                :title="config.isElectron ? '' : $t('由于浏览器限制，非electron环境无法模拟发送请求')"
                 type="success"
                 size="small"
                 @click="handleSendRequest"
             >
-                发送请求
+                {{ $t("发送请求") }}
             </el-button>
-            <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">取消请求</el-button>
-            <el-button v-if="!isView" :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">保存接口</el-button>
-            <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">刷新</el-button>
+            <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
+            <el-button v-if="!isView" :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
+            <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
             <!-- <el-dropdown trigger="click">
                 <el-button type="primary" size="small">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
@@ -71,7 +71,7 @@
             </el-dropdown> -->
         </div>
         <pre class="pre-url">
-            <span class="label">完整路径：</span><span>{{ fullUrl }}</span>
+            <span class="label">{{ $t("完整路径") }}：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
 </template>
@@ -111,7 +111,7 @@ const isProxy = computed({
         return store.state["apidoc/baseInfo"].webProxy;
     },
     set(v: boolean) {
-        apidocCache.setApidocCacheState(v, projectId);
+        apidocCache.setApidocProxyState(v, projectId);
         store.commit("apidoc/baseInfo/changeWebProxy", v);
     },
 });

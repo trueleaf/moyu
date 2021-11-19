@@ -5,34 +5,34 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="修改角色" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" :title="$t('修改角色')" @close="handleClose">
         <div class="g-role">
-            <s-fieldset title="基本信息">
+            <s-fieldset :title="$t('基本信息')">
                 <s-form ref="form" :edit-data="formInfo">
-                    <s-form-item label="角色名称" prop="roleName" required one-line></s-form-item>
-                    <s-form-item label="备注" prop="remark" required one-line></s-form-item>
+                    <s-form-item :label="$t('角色名称')" prop="roleName" required one-line></s-form-item>
+                    <s-form-item :label="$t('备注')" prop="remark" required one-line></s-form-item>
                 </s-form>
             </s-fieldset>
-            <s-fieldset title="权限选择">
+            <s-fieldset :title="$t('权限选择')">
                 <el-tabs v-model="activeName">
                     <!-- 前端路由 -->
-                    <el-tab-pane name="clientRoute" label="前端路由">
+                    <el-tab-pane name="clientRoute" :label="$t('前端路由')">
                         <s-client-routes ref="clientRoute" @change="handleChangeClientRoutes"></s-client-routes>
                     </el-tab-pane>
                     <!-- 后端路由 -->
-                    <el-tab-pane name="serverRoute" label="后端路由">
+                    <el-tab-pane name="serverRoute" :label="$t('后端路由')">
                         <s-server-routes ref="serverRoute" @change="handleChangeServerRoutes"></s-server-routes>
                     </el-tab-pane>
                     <!-- 前端菜单 -->
-                    <el-tab-pane name="clientMenu" label="前端菜单">
+                    <el-tab-pane name="clientMenu" :label="$t('前端菜单')">
                         <s-client-menus ref="clientMenu" @change="handleChangeClientMenus"></s-client-menus>
                     </el-tab-pane>
                 </el-tabs>
             </s-fieldset>
         </div>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleEditRole">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" size="mini" type="primary" @click="handleEditRole">{{ $t("确定") }}</el-button>
+            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>
