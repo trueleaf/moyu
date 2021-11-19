@@ -3,7 +3,7 @@
  */
 
 import { ApidocDetail } from "@@/global";
-import type { ApidocProjectHost } from "@@/store"
+import type { ApidocProjectHost, ApidocResponseState } from "@@/store"
 
 type ServerInfo = ApidocProjectHost & {
     isLocal?: boolean,
@@ -190,7 +190,7 @@ class ApidocCache {
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
      */
-    setApidocCacheState(cacheState: boolean, projectId: string) {
+    setApidocProxyState(cacheState: boolean, projectId: string) {
         try {
             const localData = JSON.parse(localStorage.getItem("apidoc/apidocCacheState") || "{}");
             localData[projectId] = cacheState;
@@ -198,6 +198,58 @@ class ApidocCache {
         } catch (error) {
             console.error(error);
             localStorage.setItem("apidoc/apidocCacheState", "{}");
+        }
+    }
+
+    /**
+         * @description        缓存返回值
+         * @author             shuxiaokai
+         * @create             2021-09-09 21:37
+         */
+    setResponse(id: string, response: ApidocResponseState) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            localData[id] = response;
+            localStorage.setItem("apidoc/response", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/response", "{}");
+        }
+    }
+
+    /**
+     * @description        获取已缓存得返回值
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     * @param {string}     id 文档id
+     */
+    getResponse(id: string): ApidocResponseState | null {
+        try {
+            const localData: Record<string, ApidocResponseState> = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            if (localData[id] == null) {
+                return null;
+            }
+            return localData[id];
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/response", "{}")
+            return null;
+        }
+    }
+
+    /**
+     * @description        删除response缓存
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    deleteResponse(id: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            delete localData[id]
+            localStorage.setItem("apidoc/response", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/response", "{}");
         }
     }
 }

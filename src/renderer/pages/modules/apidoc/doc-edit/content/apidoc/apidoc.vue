@@ -96,6 +96,13 @@ export default defineComponent({
                     this.$store.commit("apidoc/apidoc/changeApidoc", catchedApidoc);
                 }
             }
+            //=====================================获取缓存的返回参数====================================//
+            const localResponse = apidocCache.getResponse(this.currentSelectTab._id);
+            this.$store.commit("apidoc/response/clearResponseInfo")
+            if (localResponse) {
+                this.$store.commit("apidoc/response/changeAll", localResponse);
+            }
+            // console.log(localResponse)
         },
     },
 })

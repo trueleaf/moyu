@@ -114,7 +114,7 @@ const isProxy = computed({
         return store.state["apidoc/baseInfo"].webProxy;
     },
     set(v: boolean) {
-        apidocCache.setApidocCacheState(v, projectId);
+        apidocCache.setApidocProxyState(v, projectId);
         store.commit("apidoc/baseInfo/changeWebProxy", v);
     },
 });

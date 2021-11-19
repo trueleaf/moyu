@@ -199,6 +199,11 @@ export default defineComponent({
     },
     created() {
         this.initTabCache();
+        // console.log(this.currentSelectTab, this.$store.state["apidoc/apidoc"].apidoc)
+        this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
+            id: this.currentSelectTab?._id,
+            apidoc: this.$store.state["apidoc/apidoc"].apidoc,
+        })
     },
     methods: {
         //初始化tab缓存
