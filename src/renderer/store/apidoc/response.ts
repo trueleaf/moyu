@@ -2,6 +2,8 @@ import type { ApidocResponseState, ApidocCookieInfo } from "@@/store"
 import setCookieParser from "set-cookie-parser"
 import { formatDate } from "@/helper/index"
 import { store } from "@/store/index"
+import { apidocCache } from "@/cache/apidoc"
+import { router } from "@/router/index"
 
 type ResponseBaseInfo = {
     httpVersion: string,
@@ -58,9 +60,21 @@ const response = {
         },
     },
     mutations: {
-        //改变加载状态
+        //改变所有数据
+        changeAll(state: ApidocResponseState, payload: ApidocResponseState): void {
+            Object.assign(state, payload)
+        },
+        //改变加载状态，loading代表数据是否完全加载完
         changeLoading(state: ApidocResponseState, loading: boolean): void {
             state.loading = loading;
+            if (loading === false) {
+                const projectId = router.currentRoute.value.query.id as string;
+                const tabs = store.state["apidoc/tabs"].tabs[projectId];
+                const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+                if (currentSelectTab) {
+                    apidocCache.setResponse(currentSelectTab._id, state);
+                }
+            }
         },
         //数据是否返回
         changeIsResponse(state: ApidocResponseState, isResponse: boolean): void {

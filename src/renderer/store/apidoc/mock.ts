@@ -1,5 +1,6 @@
 import { ApidocDetail } from "@@/global";
 import { ApidocMockState, ApidocMockMapInfo } from "@@/store"
+import { uniqueByKey } from "@/helper/index"
 
 const mock = {
     namespaced: true,
@@ -9,7 +10,7 @@ const mock = {
     mutations: {
         //改变mock映射
         changeMockUrlMap(state: ApidocMockState, payload: ApidocMockMapInfo[]): void {
-            state.urlMap = payload
+            state.urlMap = uniqueByKey(state.urlMap.concat(payload), "id")
         },
         //新增一条mock映射
         addMockUrl(state: ApidocMockState, payload: ApidocMockMapInfo): void {
@@ -25,6 +26,13 @@ const mock = {
                     url: payload.apidoc.item.url.path,
                     method: payload.apidoc.item.method
                 }
+            } else {
+                state.urlMap.push({
+                    id: payload.apidoc._id,
+                    projectId: payload.apidoc.projectId,
+                    url: payload.apidoc.item.url.path,
+                    method: payload.apidoc.item.method
+                });
             }
         },
     },

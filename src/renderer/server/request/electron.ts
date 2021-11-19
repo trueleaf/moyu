@@ -7,6 +7,7 @@ import { store } from "@/store/index"
 import config from "./config"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import * as utils from "./utils"
+import { $t } from "@/i18n/i18n"
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -164,9 +165,14 @@ export function sendRequest(): void {
                 break;
             }
         }
-        console.log("url", requestUrl)
-        console.log("header", realHeaders)
-        console.log("body", body)
+        console.log("请求参数", requestUrl, realHeaders, body)
+        if (!requestUrl) { //请求url不存在
+            store.commit("apidoc/response/changeLoading", false)
+            store.commit("apidoc/response/changeIsResponse", true)
+            store.commit("apidoc/response/changeResponseContentType", "error");
+            store.commit("apidoc/response/changeResponseTextValue", $t("请求url不能为空"));
+            return;
+        }
         requestStream = requestInstance(requestUrl, {
             isStream: true,
             method,
@@ -210,6 +216,7 @@ export function sendRequest(): void {
         //错误处理
         requestStream.on("error", (error) => {
             store.commit("apidoc/response/changeLoading", false)
+            store.commit("apidoc/response/changeIsResponse", true)
             store.commit("apidoc/response/changeResponseContentType", "error");
             store.commit("apidoc/response/changeResponseTextValue", error.toString());
             console.error(error);

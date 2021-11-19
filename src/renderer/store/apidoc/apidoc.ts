@@ -343,7 +343,7 @@ const apidoc = {
                     }
                     context.commit("changeApidoc", res.data)
                     context.commit("changeOriginApidoc")
-                    store.commit("apidoc/response/clearResponseInfo")
+                    // store.commit("apidoc/response/clearResponseInfo")
                     resolve()
                 }).catch((err) => {
                     console.error(err);
