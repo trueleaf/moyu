@@ -32,7 +32,7 @@
 [在线体验](https://online.jobtool.cn/)(由于浏览器限制，完整版功能需要下载客户端)
 
 
-[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/626980/download/moyu%20Setup%200.2.2.exe)
+[客户端下载](https://gitee.com/shuzhikai/moyu/releases)
 
 
 [客户端GitHub地址](https://github.com/trueleaf/moyu) | [服务端GitHub地址](https://github.com/trueleaf/moyu-server) | [客户端Gitee地址](https://gitee.com/shuzhikai/moyu) | [服务端Gitee地址](https://gitee.com/shuzhikai/moyu-server)
