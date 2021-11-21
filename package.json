@@ -52,7 +52,6 @@
     "nanoid": "^3.1.23",
     "nprogress": "^0.2.0",
     "proxy-agent": "^5.0.0",
-    "register-service-worker": "^1.7.1",
     "set-cookie-parser": "^2.4.8",
     "vue": "^3.1.12",
     "vue-router": "4",
@@ -70,7 +69,6 @@
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-e2e-cypress": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-pwa": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-typescript": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
@@ -80,7 +78,7 @@
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^7.0.0",
     "base64-inline-loader": "^2.0.1",
-    "electron": "^11.0.0",
+    "electron": "^13.0.0",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^7.29.0",
     "eslint-plugin-import": "^2.20.2",
@@ -95,7 +93,7 @@
     "sass": "~1.32.6",
     "sass-loader": "^8.0.2",
     "typescript": "~4.1.5",
-    "vue-cli-plugin-electron-builder": "~2.0.0",
+    "vue-cli-plugin-electron-builder": "~2.1.1",
     "webpack-bundle-analyzer": "^4.5.0"
   },
   "__npminstall_done": false
