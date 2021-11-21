@@ -71,7 +71,7 @@
                     <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
             </template>
-            <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>
+            <s-params-tree v-if="item.value.dataType === 'application/json'" nest :mind-params="mindResponseParams" :data="item.value.json"></s-params-tree>
             <div
                 v-show="item.value.dataType === 'text/plain' || item.value.dataType === 'text/html' || item.value.dataType === 'application/xml'"
                 class="editor-wrap"
@@ -180,7 +180,9 @@ const handleDeleteResponse = (index: number) => {
     store.commit("apidoc/apidoc/deleteResponseByIndex", index);
 }
 //response参数值
-const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.responseParams)
+const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.responseParams);
+//body参数联想值
+const mindResponseParams = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams"))
 //布局
 const layout = computed(() => store.state["apidoc/baseInfo"].layout)
 </script>

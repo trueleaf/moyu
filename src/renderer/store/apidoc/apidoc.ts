@@ -427,9 +427,9 @@ const apidoc = {
             const apidocDetail = context.state.apidoc;
             const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
             const paths = filterValidParams(apidocDetail.item.paths, "paths");
-            const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams");
-            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody");
-            const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams");
+            const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams").filter(v => v.description && v.value);
+            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody").filter(v => v.description && v.value);
+            const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams").filter(v => v.description && v.value);
             const params = {
                 projectId,
                 mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
