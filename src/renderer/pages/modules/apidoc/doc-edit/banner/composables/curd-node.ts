@@ -266,6 +266,7 @@ export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: "
     params.pid = pData ? pData._id : "";
     if (type === "inner") {
         params.sort = Date.now();
+        dragData.pid = dropData._id;
     } else {
         const nextSibling = findNextSiblingById<ApidocBanner>(banner, dragData._id, { idKey: "_id" });
         const previousSibling = findPreviousSiblingById<ApidocBanner>(banner, dragData._id, { idKey: "_id" });
