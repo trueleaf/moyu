@@ -264,6 +264,9 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
 }
 //双击节点固定这个节点
 const handleDbclickNode = (data: ApidocBanner) => {
+    if (data.isFolder) {
+        return;
+    }
     store.commit("apidoc/tabs/fixedTab", {
         _id: data._id,
         projectId,
@@ -443,7 +446,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .banner {
     flex: 0 0 auto;
     height: 100%;
