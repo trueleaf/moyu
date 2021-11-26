@@ -252,6 +252,43 @@ class ApidocCache {
             localStorage.setItem("apidoc/response", "{}");
         }
     }
+
+    /**
+     * @description        缓存上一次选择的server
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     * @param {string}     projectId 项目id
+     */
+    setPreviousServer(projectId: string, server: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/previousServer") || "{}");
+            localData[projectId] = server;
+            localStorage.setItem("apidoc/previousServer", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/previousServer", "{}");
+        }
+    }
+
+    /**
+     * @description        获取上一次选择的server
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     * @param {string}     projectId 项目id
+     */
+    getPreviousServer(projectId: string): string | null {
+        try {
+            const localData: Record<string, string> = JSON.parse(localStorage.getItem("apidoc/previousServer") || "{}");
+            if (localData[projectId] == null) {
+                return null;
+            }
+            return localData[projectId];
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/previousServer", "{}")
+            return null;
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();
