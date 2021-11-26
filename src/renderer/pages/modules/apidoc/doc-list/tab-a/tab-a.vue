@@ -143,6 +143,7 @@ export default defineComponent({
             currentEditProjectId: "", //-----------------------------------项目id用于编辑
             currentEditProjectName: "", //---------------------------------项目名称用于编辑
             //=====================================其他参数====================================//
+            searchFn: null as (null | (() => void)), //---------------------------------------------搜索函数
             isFold: false, //----------------------------------------------是否折叠
             loading: false, //---------------------------------------------项目数据加载
             starLoading: false, //-----------------------------------------是否正在收藏
@@ -341,7 +342,14 @@ export default defineComponent({
         },
         //搜索项目
         handleSearchProject() {
-            console.log(this.projectName)
+            if (!this.searchFn) {
+                this.searchFn = this.$helper.debounce(() => {
+                    console.log(2222)
+                }, 1000)
+            } else {
+                this.searchFn();
+            }
+            // console.log(this.projectName)
         },
     },
 })
