@@ -8,6 +8,7 @@ import { router } from "@/router/index"
 import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
+import { apidocCache } from "@/cache/apidoc"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -342,8 +343,9 @@ const apidoc = {
                         return;
                     }
                     context.commit("changeApidoc", res.data)
-                    context.commit("changeOriginApidoc")
-                    // store.commit("apidoc/response/clearResponseInfo")
+                    context.commit("changeOriginApidoc");
+                    const cachedServer = apidocCache.getPreviousServer(payload.projectId)
+                    store.commit("apidoc/apidoc/changeApidocHost", cachedServer)
                     resolve()
                 }).catch((err) => {
                     console.error(err);
