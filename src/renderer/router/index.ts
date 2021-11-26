@@ -72,6 +72,7 @@ router.beforeEach((to, from, next) => {
         store.dispatch("permission/getPermission").then(() => {
             next();
         }).catch((err) => {
+            router.push("/login");
             console.error(err);
         }).finally(() => {
             NProgress.done();

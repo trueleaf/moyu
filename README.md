@@ -30,9 +30,8 @@
 
 [在线体验](https://online.jobtool.cn/)(由于浏览器限制，完整版功能需要下载客户端)
 
-[客户端下载](https://gitee.com/shuzhikai/moyu/attach_files/696158/download/moyu%20Setup%200.5.0.exe)
+[客户端下载](https://gitee.com/shuzhikai/moyu/releases)
 
-[客户端 GitHub 地址](https://github.com/trueleaf/moyu) | [服务端 GitHub 地址](https://github.com/trueleaf/moyu-server) | [客户端 Gitee 地址](https://gitee.com/shuzhikai/moyu) | [服务端 Gitee 地址](https://gitee.com/shuzhikai/moyu-server)
 
 ## 主要技术栈
 

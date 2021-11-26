@@ -128,7 +128,9 @@ const handleDbclickNode = (data: ApidocBanner) => {
 const filterString = ref("");
 //调用过滤方法
 const handleFilterNode = (filterInfo: SearchData) => {
-    (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
+    if (docTree.value) {
+        (docTree.value as TreeNodeOptions["store"]).filter(filterInfo)
+    }
     filterString.value = filterInfo.iptValue;
 }
 //过滤节点
@@ -149,7 +151,7 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .banner {
     flex: 0 0 auto;
     height: 100%;
@@ -270,6 +272,7 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
         height: auto;
         display: flex;
         align-items: center;
+        height: 35px;
     }
     .el-tree-node__content>.el-tree-node__expand-icon {
         transition: none; //去除所有动画

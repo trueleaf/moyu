@@ -8,6 +8,30 @@
     <div class="login-container d-flex a-center j-center">
         <div class="login-box d-flex">
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
+                <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
+                <el-carousel trigger="click" height="340px" :autoplay="false">
+                    <el-carousel-item v-for="item in 4" :key="item">
+                        <!-- <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340"> -->
+                    </el-carousel-item>
+                </el-carousel>
+                <div class="w-100 d-flex j-center">
+                    <div class="download-wrap">
+                        <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+                            <i class="iconfont iconwindows theme-color"></i>
+                            <div class="mt-1">Windows下载</div>
+                        </a>
+                        <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+                            <svg class="svg-icon" aria-hidden="true">
+                                <use xlink:href="#iconlinux1"></use>
+                            </svg>
+                            <div class="mt-1">Linux下载</div>
+                        </a>
+                        <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+                            <i class="iconfont iconmac gray-600"></i>
+                            <div class="mt-1">Mac下载</div>
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="right">
                 <h2 class="text-center">
@@ -88,20 +112,33 @@ export default defineComponent({
         border-radius: $border-radius-base;
         .left {
             flex: 0 0 50%;
-            .carousel {
-                height: size(550);
-            }
-            .el-carousel__container {
-                height: size(550);
-            }
-            .item-wrap {
-                padding: size(20);
-                ul {
-                    font-size: fz(15);
-                    li {
-                        margin-bottom: size(10);
-                    }
+            position: relative;
+            .download-wrap {
+                width: 70%;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                .iconfont {
+                    font-size: fz(30);
                 }
+                .svg-icon {
+                    width: size(32);
+                    height: size(32);
+                }
+                a {
+                    text-decoration: none;
+                }
+            }
+            .featrue {
+                margin-top: size(25);
+                margin-left: 10%;
+                &>li {
+                    margin-bottom: size(10);
+                    font-size: fz(15);
+                }
+            }
+            .el-carousel__item,.item-wrap {
+                height: size(340);
             }
         }
         .right {
@@ -109,6 +146,7 @@ export default defineComponent({
             display: flex;
             flex-direction: column;
             padding: 0 size(40);
+            position: relative;
             height: 100%;
             &>h2 {
                 margin-top: size(20);
