@@ -265,11 +265,11 @@ export default defineComponent({
         },
         //检查请求url是否发生改变
         checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            const apidocHost = apidoc.item.url.host;
+            // const apidocHost = apidoc.item.url.host;
             const apidocPath = apidoc.item.url.path;
-            const originHost = originApidoc.item.url.host;
+            // const originHost = originApidoc.item.url.host;
             const originPath = originApidoc.item.url.path;
-            return apidocHost === originHost && apidocPath === originPath;
+            return apidocPath === originPath;
         },
         //检查ApidocProperty[]类型数据是否相同
         checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]) {
