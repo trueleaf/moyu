@@ -26,6 +26,7 @@ module.exports = {
         "vue/html-self-closing": "off",
         "vue/singleline-html-element-content-newline": "off",
         "space-before-function-paren": "off",
+        "no-unused-expressions": "off",
         indent: [2, 4], //强制为4格缩进
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",

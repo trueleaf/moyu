@@ -12,10 +12,15 @@ export const mockServer = (): void => {
         if (!app && window.require) {
             const Server = window.require("koa")
             app = new Server();
-            app?.use(cors());
-            app?.listen(config.renderConfig.mock.port);
+            if (app) {
+                app.use(cors());
+                app.listen(config.renderConfig.mock.port);
+            }
         }
-        app?.use(async (ctx) => {
+        if (!app) {
+            return;
+        }
+        app.use(async (ctx) => {
             const url = ctx.request.url.replace(/(?<=)\?.*/, "");
             const method = ctx.request.method.toLowerCase();
             const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));

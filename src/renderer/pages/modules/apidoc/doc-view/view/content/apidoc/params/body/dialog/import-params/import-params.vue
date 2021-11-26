@@ -47,7 +47,9 @@ export default defineComponent({
             this.editorInstance.on("paste", () => {
                 try {
                     setTimeout(() => {
-                        this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, "\t"));
+                        if (this.editorInstance) {
+                            this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, "\t"));
+                        }
                     })
                 } catch (e) {
                     console.error(e);
@@ -57,7 +59,9 @@ export default defineComponent({
         //格式化json
         formatJSON() {
             try {
-                this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, "\t"));
+                if (this.editorInstance) {
+                    this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, "\t"));
+                }
             } catch (e) {
                 console.error(e);
                 this.$message.error("无法解析该字符串");

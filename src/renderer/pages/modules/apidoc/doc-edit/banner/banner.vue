@@ -308,7 +308,9 @@ const cutNodes: Ref<ApidocBanner[]> = ref([]);
 const handleCopyNode = () => {
     cutNodes.value = [];
     const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
-    clipboard?.writeBuffer("moyu-apidoc-node", buffer)
+    if (clipboard) {
+        clipboard.writeBuffer("moyu-apidoc-node", buffer)
+    }
 }
 //针对文件生成一份拷贝
 const handleForkNode = () => {
@@ -317,7 +319,9 @@ const handleForkNode = () => {
 const handleCutNode = () => {
     cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
     const buffer = Buffer.from(JSON.stringify(selectNodes.value), "utf8")
-    clipboard?.writeBuffer("moyu-apidoc-node", buffer)
+    if (clipboard) {
+        clipboard.writeBuffer("moyu-apidoc-node", buffer)
+    }
 }
 //粘贴节点
 const handlePasteNode = () => {
@@ -388,7 +392,9 @@ const handleWatchNodeInput = (e: Event) => {
 const filterString = ref("");
 //调用过滤方法
 const handleFilterNode = (filterInfo: SearchData) => {
-    (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
+    if (docTree.value) {
+        (docTree.value as TreeNodeOptions["store"]).filter(filterInfo)
+    }
     filterString.value = filterInfo.iptValue;
 }
 //过滤节点

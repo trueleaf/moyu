@@ -128,7 +128,9 @@ const handleDbclickNode = (data: ApidocBanner) => {
 const filterString = ref("");
 //调用过滤方法
 const handleFilterNode = (filterInfo: SearchData) => {
-    (docTree.value as TreeNodeOptions["store"] | null)?.filter(filterInfo)
+    if (docTree.value) {
+        (docTree.value as TreeNodeOptions["store"]).filter(filterInfo)
+    }
     filterString.value = filterInfo.iptValue;
 }
 //过滤节点
