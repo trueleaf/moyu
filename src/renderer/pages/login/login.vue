@@ -11,6 +11,7 @@
                 <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
                 <el-carousel trigger="click" height="340px" :autoplay="false">
                     <el-carousel-item v-for="item in 4" :key="item">
+                        <div class="d-flex a-center j-center h-300px">项目特色功能视频演示</div>
                         <!-- <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340"> -->
                     </el-carousel-item>
                 </el-carousel>
