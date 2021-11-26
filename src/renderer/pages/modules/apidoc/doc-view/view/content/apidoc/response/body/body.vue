@@ -7,11 +7,9 @@
 <template>
     <s-loading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
         <template v-if="remoteResponse.data.type">
-            <!-- svg图片 -->
-            <div v-if="remoteResponse.data.type.includes('image/svg+xml')">svg</div>
-            <!-- 其他图片类型 -->
+            <!-- 图片类型 -->
             <el-image
-                v-else-if="remoteResponse.data.type.includes('image/')"
+                v-if="remoteResponse.data.type.includes('image/')"
                 class="img-view"
                 :src="remoteResponse.data.file.url"
                 :preview-src-list="[remoteResponse.data.file.url]"
