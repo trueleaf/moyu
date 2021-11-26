@@ -32,6 +32,8 @@
 
 [客户端下载](https://gitee.com/shuzhikai/moyu/releases)
 
+[客户端 GitHub 地址](https://github.com/trueleaf/moyu) | [服务端 GitHub 地址](https://github.com/trueleaf/moyu-server) | [客户端 Gitee 地址](https://gitee.com/shuzhikai/moyu) | 
+[服务端 Gitee 地址](https://gitee.com/shuzhikai/moyu-server)
 
 ## 主要技术栈
 
