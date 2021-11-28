@@ -8,14 +8,14 @@
     <div class="login-container d-flex a-center j-center">
         <div class="login-box d-flex">
             <div ref="left" tabindex="-1" class="left hidden-md-and-down">
-                <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
+                <!-- <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
                 <el-carousel trigger="click" height="340px" :autoplay="false">
                     <el-carousel-item v-for="item in 4" :key="item">
                         <div class="d-flex a-center j-center h-300px">项目特色功能视频演示</div>
-                        <!-- <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340"> -->
+                        <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340">
                     </el-carousel-item>
-                </el-carousel>
-                <div class="w-100 d-flex j-center">
+                </el-carousel> -->
+                <!-- <div class="w-100 d-flex j-center">
                     <div class="download-wrap">
                         <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
                             <i class="iconfont iconwindows theme-color"></i>
@@ -32,7 +32,7 @@
                             <div class="mt-1">Mac下载</div>
                         </a>
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="right">
                 <h2 class="text-center">
