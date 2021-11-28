@@ -297,6 +297,21 @@ const handleEmit = (op: ApidocOperations) => {
             selected: true,
         });
         break;
+    case "history": //回收站
+        store.commit("apidoc/tabs/addTab", {
+            _id: "history",
+            projectId,
+            tabType: "history",
+            label: $t("历史记录"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
     default:
         break;
     }
