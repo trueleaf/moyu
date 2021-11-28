@@ -191,11 +191,6 @@ export default defineComponent({
         },
         //确认添加host
         handleAddHost() {
-            // const { total } = this.$refs.table;
-            // if (this.dominLimit <= total) {
-            //     this.$message.warning(`${this.$t("限制可维护域名数不超过")} ${this.dominLimit}${this.$t("个")}`);
-            //     return
-            // }
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const url = this.formInfo.protocol + this.formInfo.server;
@@ -243,6 +238,8 @@ export default defineComponent({
         //提交编辑
         handleSubmitEdit(row: HostInfo) {
             if (!this.errorInfo.error) {
+                const originHost = this.$store.state["apidoc/apidoc"].apidoc.item.url.host;
+                const isEditCurrenSelectedHost = originHost === row._originValue;
                 if (row.isLocal) {
                     const serverInfo = {
                         url: row.url,
@@ -253,6 +250,9 @@ export default defineComponent({
                     apidocCache.deleteApidocServer(row._originValue as string, this.$route.query.id as string);
                     apidocCache.addApidocServer(serverInfo, this.$route.query.id as string);
                     this.editItem = null;
+                    if (isEditCurrenSelectedHost) { //同时修改本地server
+                        this.$store.commit("apidoc/apidoc/changeApidocHost", row.url)
+                    }
                     return;
                 }
                 const params = {
@@ -262,6 +262,10 @@ export default defineComponent({
                 };
                 this.axios.put("api/project/doc_service", params).then(() => {
                     this.$message.success(this.$t("修改成功"));
+                    this.$store.commit("apidoc/baseInfo/updateHostById", params);
+                    if (isEditCurrenSelectedHost) { //同时修改本地server
+                        this.$store.commit("apidoc/apidoc/changeApidocHost", row.url)
+                    }
                     this.editItem = null;
                 }).catch((err) => {
                     console.error(err);

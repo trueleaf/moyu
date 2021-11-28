@@ -47,6 +47,14 @@ const baseInfo = {
         changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
             state.hosts = payload;
         },
+        //根据id改变host治
+        updateHostById(state: ApidocProjectBaseInfoState, payload: { _id: string, url: string, name: string }): void {
+            const matchedHost = state.hosts.find(v => v._id === payload._id);
+            if (matchedHost) {
+                matchedHost.url = payload.url;
+                matchedHost.name = payload.name;
+            }
+        },
         //初始化cookie值
         initCookies(state: ApidocProjectBaseInfoState): void {
             const localCookies = localStorage.getItem("apidoc/globalCookies") || "{}";

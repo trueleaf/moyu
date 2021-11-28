@@ -146,6 +146,27 @@ class ApidocCache {
     }
 
     /**
+     * @description        更新缓存服务器地址
+     * @author             shuxiaokai
+     * @create             2021-09-09 21:37
+     */
+    // updateApidocServer(serverInfo: ServerInfo, projectId: string) {
+    //     try {
+    //         const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+    //         if (!localData[projectId]) {
+    //             localData[projectId] = [];
+    //         }
+    //         localData[projectId].push(serverInfo);
+    //         localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
+    //     } catch (error) {
+    //         console.error(error);
+    //         const data: Record<string, ServerInfo[]> = {};
+    //         data[projectId] = [serverInfo];
+    //         localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
+    //     }
+    // }
+
+    /**
      * @description        获取缓存服务器地址
      * @author             shuxiaokai
      * @create             2021-09-09 21:37
