@@ -62,7 +62,8 @@ const response = {
     mutations: {
         //改变所有数据
         changeAll(state: ApidocResponseState, payload: ApidocResponseState): void {
-            Object.assign(state, payload)
+            payload.isResponse = true; //fix: isResponse默认设置为true
+            Object.assign(state, payload);
         },
         //改变加载状态，loading代表数据是否完全加载完
         changeLoading(state: ApidocResponseState, loading: boolean): void {

@@ -233,6 +233,7 @@ export function sendRequest(): void {
     } catch (error) {
         store.commit("apidoc/response/changeLoading", false)
         store.commit("apidoc/response/changeResponseContentType", "error");
+        store.commit("apidoc/response/changeIsResponse", true)
         store.commit("apidoc/response/changeResponseTextValue", (error as Error).toString());
         console.error(error);
     }
@@ -240,6 +241,7 @@ export function sendRequest(): void {
 
 export function stopRequest(): void {
     // console.log("stoprequest", requestStream)
+    store.commit("apidoc/response/changeIsResponse", true)
     store.commit("apidoc/response/changeLoading", false)
     if (requestStream) {
         requestStream.destroy();

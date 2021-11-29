@@ -9,6 +9,7 @@ import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
+import config from "@/../config/config"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -126,6 +127,7 @@ const apidoc = {
         */
         //改变host值
         changeApidocHost(state: ApidocState, host: string): void {
+            console.log("change", host)
             state.apidoc.item.url.host = host;
         },
         //改变url值
@@ -288,6 +290,10 @@ const apidoc = {
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
             }
+            //如果host为空则默认为mockserver
+            if (!payload.item.url.host) {
+                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`
+            }
             state.apidoc = payload;
         },
         //改变apidoc原始缓存值
@@ -315,6 +321,10 @@ const apidoc = {
             const { data, field, value } = payload;
             data[field] = value;
         },
+        //改变json类型requestBody
+        changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
+            state.apidoc.item.requestBody.json = payload;
+        }
     },
     actions: {
         /**
@@ -345,7 +355,9 @@ const apidoc = {
                     context.commit("changeApidoc", res.data)
                     context.commit("changeOriginApidoc");
                     const cachedServer = apidocCache.getPreviousServer(payload.projectId)
-                    store.commit("apidoc/apidoc/changeApidocHost", cachedServer)
+                    if (cachedServer) {
+                        store.commit("apidoc/apidoc/changeApidocHost", cachedServer)
+                    }
                     resolve()
                 }).catch((err) => {
                     console.error(err);
