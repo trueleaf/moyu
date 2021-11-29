@@ -17,11 +17,11 @@
                 :placeholder="placeholder"
                 @input="handleInput"
                 @focus="handleFocus"
-                @blur="isFocus = false"
+                @blur="isFocus = false;isHover = false;isInput = false;"
             >
         </div>
         <div v-if="error" class="ipt-error">{{ errorTip }}</div>
-        <div v-if="isHover && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
+        <div v-if="isInput && isHover && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
             <div
                 v-for="(item, index) in realSelectData"
                 :key="index"
@@ -81,6 +81,7 @@ export default defineComponent({
             focusY: 0,
             isFocus: false, //是否focus
             isHover: false, //鼠标是否在整个输入框内
+            isInput: false, //是否输入了数据
             currentSelectIndex: 0,
             validator: null as Schema | null,
         };
@@ -106,6 +107,7 @@ export default defineComponent({
             const iptValue = (e.target as HTMLInputElement).value;
             this.$emit("update:modelValue", iptValue);
             this.isHover = true;
+            this.isInput = true;
         },
         //处理focus
         handleFocus(e: FocusEvent) {
