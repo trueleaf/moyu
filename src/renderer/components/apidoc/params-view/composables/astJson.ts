@@ -134,6 +134,9 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
                     astInfo.path.value = itemPath;
                     astInfo.colon = ":";
                 }
+                if (parentIsArray) {
+                    astInfo.colon = ""; //父元素为array，则不显示：
+                }
                 const uuid = getUuid();
                 const currentLevel = indent * level;
                 const rightBracketInfo = generateAstInfo();
