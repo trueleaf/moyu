@@ -36,6 +36,7 @@ export const $t = (str: string, replacement?: Record<string, string>): string =>
         const mapedStr = (zhCn as Record<string, string>)[str] || "";
         if (!mapedStr) {
             console.warn("未匹配到当前字段的翻译信息", str)
+            return str
         }
         return replaceVariable(mapedStr, replacement);
     }
