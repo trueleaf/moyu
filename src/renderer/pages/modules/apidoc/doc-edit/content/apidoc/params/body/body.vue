@@ -78,9 +78,9 @@
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
 import { router } from "@/router/index"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
+import { apidocConvertParamsToJsonData, forEachForest } from "@/helper/index"
 import { store } from "@/store/index"
-import importParams from "./dialog/import-params/import-params.vue"
+import importParams from "../../dialog/import-params/import-params.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
 import { $t } from "@/i18n/i18n"
 
@@ -97,12 +97,16 @@ const handleOpenImportParams = () => {
 }
 //处理导入成功回调
 const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-    const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
-    store.commit("apidoc/apidoc/changePropertyValue", {
-        data: jsonData[0],
-        field: "children",
-        value: result[0].children,
-    });
+    const bodyMindParams = store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody")
+    forEachForest(result, (data) => {
+        const matchedData = bodyMindParams.find(v => v.key === data.key)
+        if (matchedData && (data.value == null || data.value === "")) {
+            data.value = matchedData.value;
+        } else if (matchedData && (data.description == null || data.description === "")) {
+            data.description = matchedData.description;
+        }
+    })
+    store.commit("apidoc/apidoc/changeRequestJsonBody", result);
 }
 const paramsTemplatedialogVisible = ref(false);
 //打开保存参数模板弹窗

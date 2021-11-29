@@ -102,7 +102,6 @@ export default defineComponent({
             if (localResponse) {
                 this.$store.commit("apidoc/response/changeAll", localResponse);
             }
-            // console.log(localResponse)
         },
     },
 })

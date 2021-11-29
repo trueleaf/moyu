@@ -67,6 +67,7 @@
             </template>
             <template #tail>
                 <div class="d-flex">
+                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer mr-2" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
                     <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">{{ $t("新增") }}</div>
                     <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
@@ -86,13 +87,16 @@
                 </s-raw-editor>
             </div>
         </s-collapse-card>
+        <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import type { ApidocResponseParams } from "@@/global"
+import type { ApidocResponseParams, ApidocProperty, ApidocPropertyType } from "@@/global"
 import { store } from "@/store/index"
+import importParams from "../../dialog/import-params/import-params.vue"
+import { forEachForest } from "@/helper";
 
 /*
 |--------------------------------------------------------------------------
@@ -184,7 +188,38 @@ const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.res
 //body参数联想值
 const mindResponseParams = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams"))
 //布局
-const layout = computed(() => store.state["apidoc/baseInfo"].layout)
+const layout = computed(() => store.state["apidoc/baseInfo"].layout);
+/*
+|--------------------------------------------------------------------------
+| 导入参数
+|--------------------------------------------------------------------------
+*/
+const importParamsdialogVisible = ref(false); //导入参数弹窗
+const currentEditResponseIndex = ref(0);
+//打开导入参数弹窗
+const handleOpenImportParams = (index: number) => {
+    currentEditResponseIndex.value = index;
+    importParamsdialogVisible.value = true;
+}
+//处理导入成功回调
+const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
+    const responseMindParams = store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams")
+    forEachForest(result, (data) => {
+        const matchedData = responseMindParams.find(v => v.key === data.key);
+        const isSimple = data.type === "string" || data.type === "boolean" || data.type === "number"
+        if (matchedData && isSimple && (data.value == null || data.value === "")) {
+            data.value = matchedData.value;
+        }
+        if (matchedData && (data.description == null || data.description === "")) {
+            data.description = matchedData.description;
+        }
+    })
+    store.commit("apidoc/apidoc/changeResponseByIndex", {
+        index: currentEditResponseIndex.value,
+        value: result,
+    });
+}
+
 </script>
 
 <style lang="scss">

@@ -68,9 +68,10 @@
                         <s-emphasize :value="scope.row.key" :keyword="formInfo.key"></s-emphasize>
                     </template>
                 </el-table-column>
-                <el-table-column prop="description" :label="$t('备注')" align="center"></el-table-column>
-                <el-table-column prop="value" :label="$t('参数值')" align="center"></el-table-column>
                 <el-table-column prop="type" :label="$t('参数类型')" align="center"></el-table-column>
+                <el-table-column prop="value" :label="$t('参数值')" align="center"></el-table-column>
+                <el-table-column prop="description" :label="$t('备注')" align="center"></el-table-column>
+                <el-table-column prop="paramsPosition" :label="$t('参数位置')" align="center"></el-table-column>
                 <el-table-column :label="$t('操作')" align="center">
                     <template #default="scope">
                         <!-- <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
