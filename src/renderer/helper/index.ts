@@ -602,6 +602,7 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
         });
     } else {
         const rootProperty = apidocGenerateProperty(rootType);
+        rootProperty.value = jsonData?.toString() || "";
         globalResult.push(rootProperty);
     }
     return globalResult;
