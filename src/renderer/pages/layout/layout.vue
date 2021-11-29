@@ -51,6 +51,7 @@
                             <el-dropdown-item @click="jumpToUserSetting">{{ $t('个人中心') }}</el-dropdown-item>
                             <el-dropdown-item v-if="config.isElectron" :disabled="downloading" @click="handleCheckUpdate(true)">{{ $t('检查更新') }}</el-dropdown-item>
                             <el-dropdown-item>{{ $t('版本') }}{{ config.localization.version }}</el-dropdown-item>
+                            <el-dropdown-item @click="clearAllCache">{{ $t('清除所有缓存') }}</el-dropdown-item>
                             <el-dropdown-item @click="logout">{{ $t('退出登录') }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -185,6 +186,35 @@ export default defineComponent({
             if (config.isElectron) {
                 ipcRenderer.send("vue-check-update");
             }
+        },
+        //清空缓存
+        clearAllCache() {
+            this.$confirm("此操作将清空所有本地缓存, 是否继续?", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                //移除serviceworker
+                if ("serviceWorker" in navigator) {
+                    navigator.serviceWorker.getRegistrations().then((registrations) => {
+                        registrations.forEach(registration => {
+                            console.log(registration.unregister())
+                        })
+                    })
+                }
+                //移除本地存储
+                localStorage.clear();
+                sessionStorage.clear();
+                //清空indexedDB
+                indexedDB.deleteDatabase(this.config.renderConfig.indexedDB.dbName)
+                //刷新页面
+                this.$router.replace("/login")
+            }).catch((err: Error | "cancel" | "close") => {
+                if (err === "cancel" || err === "close") {
+                    return;
+                }
+                console.error(err);
+            });
         },
     },
 })
