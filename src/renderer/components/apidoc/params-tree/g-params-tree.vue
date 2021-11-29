@@ -493,19 +493,19 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
         }
     } else if (data.type === "object" || data.type === "array") {
         if (data.type === "array" && data.children && data.children.length > 0) { //清空子元素所有参数名称
-            forEachForest(data.children, (_data) => {
+            data.children.forEach(_data => {
                 store.commit("apidoc/apidoc/changePropertyValue", {
                     data: _data,
                     field: "key",
                     value: "",
                 });
-            },)
+            })
         }
-        store.commit("apidoc/apidoc/changePropertyValue", {
-            data,
-            field: "key",
-            value: "",
-        });
+        // store.commit("apidoc/apidoc/changePropertyValue", {
+        //     data,
+        //     field: "key",
+        //     value: "",
+        // });
         store.commit("apidoc/apidoc/changePropertyValue", {
             data,
             field: "value",
