@@ -9,6 +9,7 @@ import { store, key } from "./store/index"
 import "@/assets/css/index.css"
 import registeDirective from "@/directive/directive";
 import router from "./router/index"
+import i18n from "@/i18n/i18n"
 
 //=====================================内部组件按需加载====================================//
 import sLoading from "@/components/common/loading/g-loading.vue"
@@ -80,4 +81,5 @@ app.use(store, key);
 
 app.use(router);
 app.use(axiosPlugin);
+app.use(i18n)
 app.mount("#app")
