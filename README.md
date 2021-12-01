@@ -35,6 +35,18 @@
 [客户端 GitHub 地址](https://github.com/trueleaf/moyu) | [服务端 GitHub 地址](https://github.com/trueleaf/moyu-server) | [客户端 Gitee 地址](https://gitee.com/shuzhikai/moyu) | 
 [服务端 Gitee 地址](https://gitee.com/shuzhikai/moyu-server)
 
+
+## 客户端部署
+* Node.js 14.x 或 以上
+
+```
+git clone https://github.com/trueleaf/moyu   //国内建议：git clone https://gitee.com/shuzhikai/moyu
+cd moyu
+npm install  //安装依赖，推荐使用yarn
+npm run electron:build   //打包并且生成相应系统安装包(Mac、Linux、Windows)
+```
+> 默认情况下你不需要部署服务端就能体验客户端完整功能，我们默认将打包后程序服务端地址指向了体验服务器。如果你希望程序访问自己的服务器，可以访问 [完整部署文档](https://www.yuque.com/happymoyu/as0gig/vapwmq)
+
 ## 主要技术栈
 
 -   Vue
