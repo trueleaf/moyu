@@ -122,7 +122,7 @@ const apidoc = {
     mutations: {
         /*
         |--------------------------------------------------------------------------
-        | url、host、method、name
+        | url、host、method、name、description
         |--------------------------------------------------------------------------
         */
         //改变host值
@@ -141,6 +141,10 @@ const apidoc = {
         //改变接口名称
         changeApidocName(state: ApidocState, name: string): void {
             state.apidoc.info.name = name;
+        },
+        //改变接口描述
+        changeDescription(state: ApidocState, description: string): void {
+            state.apidoc.info.description = description;
         },
         /*
         |--------------------------------------------------------------------------

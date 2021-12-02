@@ -185,7 +185,7 @@ const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.res
 const layout = computed(() => store.state["apidoc/baseInfo"].layout)
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .response-params {
     .info-wrap {
         display: flex;
@@ -198,7 +198,7 @@ const layout = computed(() => store.state["apidoc/baseInfo"].layout)
             width: size(140);
         }
         .content-type {
-            width: size(200);
+            flex: 1;
         }
         .edit-title {
             border: 1px solid transparent;

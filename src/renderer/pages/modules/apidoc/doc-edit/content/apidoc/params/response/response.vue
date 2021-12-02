@@ -7,6 +7,7 @@
 <template>
     <div class="response-params">
         <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="index !== 0">
+            <!-- 操作区域 -->
             <template #head>
                 <div class="info-wrap">
                     <div class="label">
@@ -29,38 +30,42 @@
                             <span v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
                         </div>
                     </div>
+                    <!-- 状态码 -->
                     <el-divider direction="vertical"></el-divider>
                     <div class="status-code">
                         <div class="d-flex a-center j-center">
                             <span class="flex0">{{ $t("状态码") }}：</span>
-                            <el-dropdown trigger="click">
-                                <span class="cursor-pointer">
-                                    <span>{{ item.statusCode }}</span>
-                                    <i class="el-icon-arrow-down el-icon--right"></i>
-                                </span>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item v-for="(code) in statusCode" :key="code" @click="handleSelectStatusCode(code, index)">{{ code }}</el-dropdown-item>
-                                    </el-dropdown-menu>
+                            <el-popover v-model:visible="statusVisible" width="500px" placement="bottom" trigger="manual">
+                                <template #reference>
+                                    <span class="cursor-pointer" @click.stop="statusVisible = !statusVisible">
+                                        <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
+                                        <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
+                                        <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
+                                        <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
+                                        <span v-else class="red">{{ item.statusCode }}</span>
+                                        <i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>
                                 </template>
-                            </el-dropdown>
+                                <s-status @close="statusVisible = false;" @select="handleSelectStatusCode($event, index)"></s-status>
+                            </el-popover>
                         </div>
                     </div>
+                    <!-- content-type -->
                     <el-divider direction="vertical"></el-divider>
                     <div class="content-type">
                         <div class="d-flex a-center j-center">
                             <span class="flex0">{{ $t("返回格式") }}：</span>
-                            <el-dropdown trigger="click">
-                                <span class="cursor-pointer">
-                                    <span>{{ item.value.dataType }}</span>
-                                    <i class="el-icon-arrow-down el-icon--right"></i>
-                                </span>
-                                <template #dropdown>
-                                    <el-dropdown-menu>
-                                        <el-dropdown-item v-for="(type) in contentType" :key="type" @click="handleSelectContentType(type, index)">{{ type }}</el-dropdown-item>
-                                    </el-dropdown-menu>
+                            <el-popover v-model:visible="mimeVisible" width="500px" placement="bottom" trigger="manual">
+                                <template #reference>
+                                    <span class="d-flex a-center cursor-pointer" @click.stop="mimeVisible = !mimeVisible">
+                                        <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
+                                            <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
+                                        </el-tooltip>
+                                        <i class="el-icon-arrow-down el-icon--right"></i>
+                                    </span>
                                 </template>
-                            </el-dropdown>
+                                <s-mime @close="mimeVisible = false;" @select="handleSelectContentType($event, index)"></s-mime>
+                            </el-popover>
                         </div>
                     </div>
                 </div>
@@ -72,12 +77,10 @@
                     <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
             </template>
-            <s-params-tree v-if="item.value.dataType === 'application/json'" nest :mind-params="mindResponseParams" :data="item.value.json"></s-params-tree>
-            <div
-                v-show="item.value.dataType === 'text/plain' || item.value.dataType === 'text/html' || item.value.dataType === 'application/xml'"
-                class="editor-wrap"
-                :class="{ vertical: layout === 'vertical' }"
-            >
+            <!-- 内容展示 -->
+            <s-params-tree v-if="checkDisplayType(item.value.dataType) === 'json'" nest :mind-params="mindResponseParams" :data="item.value.json"></s-params-tree>
+            <!-- 文本类型 -->
+            <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
                 <s-raw-editor
                     :model-value="item.value.text"
                     :type="item.value.dataType"
@@ -86,16 +89,20 @@
                 >
                 </s-raw-editor>
             </div>
+            <!-- <input type="file" :accept="item.value.dataType"> -->
         </s-collapse-card>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref } from "vue"
-import type { ApidocResponseParams, ApidocProperty, ApidocPropertyType } from "@@/global"
+import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
+import { Effect } from "element-plus";
+import type { ApidocResponseParams, ApidocProperty, ApidocPropertyType, ApidocResponseContentType } from "@@/global"
 import { store } from "@/store/index"
 import importParams from "../../dialog/import-params/import-params.vue"
+import sStatus from "./children/status.vue"
+import sMime from "./children/mime.vue"
 import { forEachForest } from "@/helper";
 
 /*
@@ -108,10 +115,6 @@ import { forEachForest } from "@/helper";
 const currentEditNode: Ref<null | { title: string, _title: string, index: number }> = ref(null);
 //所有输入框
 const inputRefs: unknown[] = [];
-//常用状态码
-const statusCode = ref([200, 201, 202, 204, 400, 401, 403, 404, 410, 422, 500, 502, 503, 504]);
-//常用contentType值
-const contentType = ref(["application/json", "application/xml", "text/plain", "text/html"])
 
 //ref绑定
 const bindRef = (el: unknown) => {
@@ -160,21 +163,6 @@ const handleChangeTextValeu = (value: string, index: number) => {
 |--------------------------------------------------------------------------
 |
 */
-
-//选择一个statusCode
-const handleSelectStatusCode = (code: number, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseParamsCodeByIndex", {
-        index,
-        code,
-    });
-}
-//选择一个contentType
-const handleSelectContentType = (type: string, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseParamsDataTypeByIndex", {
-        index,
-        type,
-    });
-}
 //新增一个response
 const handleAddResponse = () => {
     store.commit("apidoc/apidoc/addResponseParam");
@@ -219,10 +207,84 @@ const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
         value: result,
     });
 }
+/*
+|--------------------------------------------------------------------------
+| 状态码和返回类型相关
+|--------------------------------------------------------------------------
+*/
+//是否显示状态码弹窗
+const statusVisible = ref(false);
+const mimeVisible = ref(false);
+const closeStatusPopover = () => {
+    statusVisible.value = false;
+}
+const closeMimePopover = () => {
+    mimeVisible.value = false;
+}
+//选择一个statusCode
+const handleSelectStatusCode = (code: number, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseParamsCodeByIndex", {
+        index,
+        code,
+    });
+}
+//选择一个contentType
+const handleSelectContentType = (type: string, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseParamsDataTypeByIndex", {
+        index,
+        type,
+    });
+}
+onMounted(() => {
+    document.documentElement.addEventListener("click", closeStatusPopover)
+    document.documentElement.addEventListener("click", closeMimePopover)
+})
+onUnmounted(() => {
+    document.documentElement.removeEventListener("click", closeStatusPopover)
+    document.documentElement.removeEventListener("click", closeMimePopover)
+})
+
+/*
+|--------------------------------------------------------------------------
+| 不同类型数据展示
+|--------------------------------------------------------------------------
+*/
+const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" | "audio" | "video" | "image" | "pdf" | "download" | "unknown" => {
+    // 文本展示
+    if (mimeType === "text/csv" || mimeType === "text/plain" || mimeType === "text/html" || mimeType === "application/xml" || mimeType === "text/css" || mimeType === "text/javascript") {
+        return "text";
+    }
+    // 图片展示
+    if (mimeType === "image/gif" || mimeType === "image/jpeg" || mimeType === "image/png" || mimeType === "image/svg+xml") {
+        return "image";
+    }
+    // 音频文件
+    if (mimeType === "audio/webm" || mimeType === "audio/ogg") {
+        return "audio";
+    }
+    // 视频文件
+    if (mimeType === "video/webm" || mimeType === "video/ogg" || mimeType === "application/ogg") {
+        return "video";
+    }
+    // 下载类型
+    if (mimeType === "application/octet-stream" || mimeType === "application/msword" || mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mimeType === "application/vnd.ms-excel" || mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+        return "download";
+    }
+    //=====================================特殊格式====================================//
+    // PDF文件
+    if (mimeType === "application/pdf") {
+        return "pdf";
+    }
+    //json格式
+    if (mimeType === "application/json") {
+        return "json";
+    }
+    return "unknown"
+}
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .response-params {
     .info-wrap {
         display: flex;
@@ -235,7 +297,13 @@ const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
             width: size(140);
         }
         .content-type {
-            width: size(200);
+            max-width: size(300);
+            .type-text {
+                max-width: size(200);
+                // overflow: hidden;
+                // white-space: nowrap;
+                // text-emphasis: ellipsis;
+            }
         }
         .edit-title {
             border: 1px solid transparent;
