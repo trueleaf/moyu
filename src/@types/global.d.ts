@@ -367,7 +367,8 @@ type ApidocBaseInfo = {
 }
 //api文档ContentType
 type ApidocContentType = "" | "application/json" | "application/x-www-form-urlencoded" | "text/javascript" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
-// type ApidocResponseContentType = "application/json"
+// eslint-disable-next-line max-len
+type ApidocResponseContentType = ApidocContentType | "application/xml" | "application/json" | "image/svg+xml" | "text/html" | "text/csv" | "image/gif" | "image/jpeg" | "image/png" | "application/pdf" | "application/octet-stream" | "text/plain" | "application/msword" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document" | "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | "text/plain" | "text/css" | "text/html" | "text/javascript" | "image/gif" | "image/jpeg" | "image/png" | "image/svg+xml" | "audio/webm" | "video/webm" | "audio/ogg" | "video/ogg" | "application/ogg";
 type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
 type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html" | "application/json"
 //api文档请求body
@@ -420,7 +421,7 @@ type ApidocResponseParams = {
         /**
          * 返回参数类型
          */
-        dataType: ApidocContentType,
+        dataType: ApidocResponseContentType,
         /**
          * json返回类型数据
          */
@@ -751,6 +752,7 @@ export {
     ApidocOperations,
     ApidocDetail,
     ApidocContentType,
+    ApidocResponseContentType,
     ApidocBodyMode,
     ApidocBodyRawType,
     ApidocResponseParams,
