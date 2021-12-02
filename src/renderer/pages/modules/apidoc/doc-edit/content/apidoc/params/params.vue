@@ -60,7 +60,7 @@
                         <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
                     </template>
                 </el-tab-pane>
-                <el-tab-pane :label="$t('备注信息')" name="s-f"></el-tab-pane>
+                <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
@@ -80,6 +80,7 @@ import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
+import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { apidocCache } from "@/cache/apidoc"
@@ -91,6 +92,7 @@ export default defineComponent({
         "s-request-headers": requestHeaders,
         "s-response-params": responseParams,
         "s-view": view,
+        "s-remarks": remarks,
     },
     data() {
         const mode = this.$route.query.mode as "edit" | "view";
@@ -226,6 +228,7 @@ export default defineComponent({
             const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
             const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
             const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
+            //=====================================Request====================================//
             if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual) {
                 return false;
             }
@@ -256,6 +259,10 @@ export default defineComponent({
                 if (!rawDataIsEqual) {
                     return false;
                 }
+            }
+            //=====================================Response====================================//
+            if (cpApidoc.item.responseParams.length !== cpOriginApidoc.item.responseParams.length) { //返回参数长度不相等
+
             }
             return true;
         },

@@ -40,7 +40,11 @@
                     <span>{{ item.title }}</span>
                     <el-divider direction="vertical"></el-divider>
                     <span>{{ $t("状态码") }}：</span>
-                    <span>{{ item.statusCode }}</span>
+                    <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
+                    <span v-else class="red">{{ item.statusCode }}</span>
                     <el-divider direction="vertical"></el-divider>
                     <span>{{ $t("返回格式") }}：</span>
                     <span>{{ item.value.dataType }}</span>
@@ -57,6 +61,10 @@
             </template>
             <div v-else>{{ $t("暂无数据") }}</div>
         </s-fieldset>
+        <s-fieldset :title="$t('备注')">
+            <div v-if="desciption">{{ desciption }}</div>
+            <div v-else>{{ $t("暂无数据") }}</div>
+        </s-fieldset>
     </div>
 </template>
 
@@ -69,6 +77,9 @@ export default defineComponent({
         };
     },
     computed: {
+        desciption() {
+            return this.$store.state["apidoc/apidoc"].apidoc.info.description
+        },
         apidocInfo() {
             return this.$store.state["apidoc/apidoc"].apidoc.item
         },
