@@ -39,13 +39,21 @@ export const mockServer = (): void => {
                         result = await axios.get("/api/project/doc_detail", { params });
                     }
                     const rawBody = result.data.item.responseParams[0]?.value.json;
+                    // console.log(rawBody)
                     const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                        if (property.value.startsWith("@")) {
-                            if (property.value.startsWith("@/") && property.value.endsWith("/")) {
-                                const replacedValue = property.value.replace(/(^@\/|\/$)/g, "")
-                                return Mock.mock(new RegExp(replacedValue));
+                        // console.log(property)
+                        // const isArray = property.type === "array";
+                        // const loop = isArray ? property.value : 0;
+                        if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
+                            const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
+                            return Mock.mock(new RegExp(replacedValue));
+                        }
+                        if (property.value.startsWith("@")) { //普通mock
+                            const mockValue = Mock.mock(property.value)
+                            if (property.type === "string") {
+                                return mockValue.toString();
                             }
-                            return Mock.mock(property.value);
+                            return mockValue;
                         }
                         return property.value;
                     })
