@@ -16,11 +16,13 @@ import "brace/mode/javascript";
 import "brace/mode/html";
 import "brace/mode/xml";
 import "brace/mode/text";
+import "brace/mode/css";
 import "brace/theme/github";
 import type { ApidocBodyRawType } from "@@/global"
 
 const TYPE_MAP = {
     "text/plain": "text",
+    "text/css": "css",
     "text/html": "html",
     "application/xml": "xml",
     "application/json": "json",
@@ -53,7 +55,11 @@ export default defineComponent({
         type: {
             handler(type: ApidocBodyRawType) {
                 if (this.editorInstance) {
-                    this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[type]}`);
+                    if (TYPE_MAP[type]) {
+                        this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[type]}`);
+                    } else {
+                        this.editorInstance.getSession().setMode(`ace/mode/text}`);
+                    }
                 }
             },
             immediate: true,
