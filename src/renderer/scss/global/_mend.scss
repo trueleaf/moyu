@@ -1,5 +1,8 @@
 @charset "utf-8";
 body {
+    .el-popper {
+        font-size: fz(14);
+    }
     .el-dropdown-menu {
         max-height: size(300);
         overflow-y: auto;

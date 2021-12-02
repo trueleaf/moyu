@@ -58,6 +58,9 @@ pre {
   -webkit-text-stroke-width: 0.2px;
   -moz-osx-font-smoothing: grayscale; }
 
+body .el-popper {
+    font-size: 14px;
+}
 body .el-dropdown-menu {
   max-height: 300px;
   overflow-y: auto;
