@@ -262,7 +262,30 @@ export default defineComponent({
             }
             //=====================================Response====================================//
             if (cpApidoc.item.responseParams.length !== cpOriginApidoc.item.responseParams.length) { //返回参数长度不相等
-
+                return false;
+            }
+            for (let i = 0; i < cpApidoc.item.responseParams.length; i += 1) {
+                const item = cpApidoc.item.responseParams[i];
+                const originItem = cpOriginApidoc.item.responseParams[i];
+                const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
+                if (!jsonResponseIsEqual) {
+                    return false;
+                }
+                if (item.statusCode !== originItem.statusCode) { //状态码不相同
+                    return false;
+                }
+                if (item.title !== originItem.title) { //描述不相同
+                    return false;
+                }
+                if (item.value.dataType !== originItem.value.dataType) { //数据类型不相同
+                    return false;
+                }
+                if (item.value.file.url !== originItem.value.file.url || item.value.file.raw !== originItem.value.file.raw) { //文件类型url不相同
+                    return false;
+                }
+                if (item.value.text !== originItem.value.text) { //文件类型url不相同
+                    return false;
+                }
             }
             return true;
         },
