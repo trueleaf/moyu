@@ -25,6 +25,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        index: {
+            type: Number,
+            default: 0,
+        },
     },
     emits: ["update:modelValue"],
     data() {
@@ -38,12 +42,15 @@ export default defineComponent({
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const { formInfo } = this.$refs.form;
-                    const bodyParams = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody.json
+                    const responseParam = this.$store.state["apidoc/apidoc"].apidoc.item.responseParams[this.index];
+                    if (!responseParam) {
+                        return
+                    }
                     const params = {
                         name: formInfo.name,
-                        presetParamsType: "bodyParams",
+                        presetParamsType: "responseParams",
                         projectId: this.$route.query.id,
-                        items: bodyParams,
+                        items: responseParam.value.json,
                     };
                     this.loading = true;
                     this.axios.post("/api/project/doc_preset_params", params).then((res) => {

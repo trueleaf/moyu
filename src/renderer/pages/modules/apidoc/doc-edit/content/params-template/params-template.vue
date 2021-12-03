@@ -62,6 +62,7 @@
             delete-url="/api/project/doc_preset_params"
             delete-key="ids"
             class="w-100"
+            @deleteMany="handleDeleteSuccess"
         >
             <el-table-column :label="$t('模板名称')" align="center">
                 <template #default="scope">
@@ -209,6 +210,10 @@ export default defineComponent({
                 }
                 console.error(err);
             });
+        },
+        //删除成功
+        handleDeleteSuccess() {
+            this.$refs.table.getData();
         },
     },
 })
