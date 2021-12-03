@@ -127,7 +127,6 @@ const apidoc = {
         */
         //改变host值
         changeApidocHost(state: ApidocState, host: string): void {
-            console.log("change", host)
             state.apidoc.item.url.host = host;
         },
         //改变url值

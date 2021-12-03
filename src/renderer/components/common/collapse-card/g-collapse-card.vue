@@ -94,7 +94,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .collapse-card {
     width: 100%;
     background: $white;

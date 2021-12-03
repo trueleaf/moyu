@@ -35,6 +35,7 @@
                                 v-for="(item, index) in bodyTemplateList"
                                 :key="index"
                                 class="select-item"
+                                @click="handleSelectTemplate(item)"
                             >
                                 <span class="head">
                                     <s-emphasize :value="item.name" :keyword="templateFilterString"></s-emphasize>
@@ -77,6 +78,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
+import { ApidocProjectParamsTemplate } from "@@/store"
 import { router } from "@/router/index"
 import { apidocConvertParamsToJsonData, forEachForest } from "@/helper/index"
 import { store } from "@/store/index"
@@ -130,6 +132,11 @@ const bodyTemplateList = computed(() => {
     })
     return result;
 })
+//选择模板
+const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
+    console.log(templateInfo.items)
+    handleConvertSuccess(templateInfo.items)
+}
 //打开模板维护tab页面
 const projectId = router.currentRoute.value.query.id as string;
 const handleOpenTempateTab = () => {

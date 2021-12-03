@@ -73,6 +73,35 @@
             <template #tail>
                 <div class="d-flex">
                     <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer mr-2" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
+                    <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
+                    <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select">
+                        <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
+                        <div v-if="showTemplate" class="template-wrap">
+                            <div class="header">
+                                <el-input v-model="templateFilterString" size="mini" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
+                                    <template #prefix>
+                                        <i class="el-icon-search el-input__icon"></i>
+                                    </template>
+                                </el-input>
+                                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
+                            </div>
+                            <template v-if="jsonTemplateList.length > 0">
+                                <div
+                                    v-for="(item2, index2) in jsonTemplateList"
+                                    :key="index2"
+                                    class="select-item"
+                                >
+                                    <span class="head">
+                                        <s-emphasize :value="item2.name" :keyword="templateFilterString"></s-emphasize>
+                                    </span>
+                                    <span class="tail">{{ item2.creatorName }}</span>
+                                </div>
+                            </template>
+                            <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
+                        </div>
+                    </div>
+                    <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
+                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
                     <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">{{ $t("新增") }}</div>
                     <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
@@ -92,18 +121,21 @@
             <!-- <input type="file" :accept="item.value.dataType"> -->
         </s-collapse-card>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
+        <params-template v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></params-template>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
 import { Effect } from "element-plus";
-import type { ApidocResponseParams, ApidocProperty, ApidocPropertyType, ApidocResponseContentType } from "@@/global"
+import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
 import { store } from "@/store/index"
 import importParams from "../../dialog/import-params/import-params.vue"
 import sStatus from "./children/status.vue"
 import sMime from "./children/mime.vue"
-import { forEachForest } from "@/helper";
+import paramsTemplate from "./dialog/params-template/params-template.vue"
+import useImportParams from "./compsables/import-params" //导入参数
+import useParamsTemplate from "./compsables/params-template" //参数模板
 
 /*
 |--------------------------------------------------------------------------
@@ -182,31 +214,8 @@ const layout = computed(() => store.state["apidoc/baseInfo"].layout);
 | 导入参数
 |--------------------------------------------------------------------------
 */
-const importParamsdialogVisible = ref(false); //导入参数弹窗
-const currentEditResponseIndex = ref(0);
-//打开导入参数弹窗
-const handleOpenImportParams = (index: number) => {
-    currentEditResponseIndex.value = index;
-    importParamsdialogVisible.value = true;
-}
-//处理导入成功回调
-const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-    const responseMindParams = store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams")
-    forEachForest(result, (data) => {
-        const matchedData = responseMindParams.find(v => v.key === data.key);
-        const isSimple = data.type === "string" || data.type === "boolean" || data.type === "number"
-        if (matchedData && isSimple && (data.value == null || data.value === "")) {
-            data.value = matchedData.value;
-        }
-        if (matchedData && (data.description == null || data.description === "")) {
-            data.description = matchedData.description;
-        }
-    })
-    store.commit("apidoc/apidoc/changeResponseByIndex", {
-        index: currentEditResponseIndex.value,
-        value: result,
-    });
-}
+const { importParamsdialogVisible, handleOpenImportParams, handleConvertSuccess } = useImportParams();
+
 /*
 |--------------------------------------------------------------------------
 | 状态码和返回类型相关
@@ -281,10 +290,15 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
     }
     return "unknown"
 }
-
+/*
+|--------------------------------------------------------------------------
+| 模板相关操作
+|--------------------------------------------------------------------------
+*/
+const { showTemplate, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .response-params {
     .info-wrap {
         display: flex;
@@ -340,6 +354,53 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
             height: size(350);
         }
     }
-
+    .template-wrap {
+        top: size(30);
+        left: size(-200);
+        background: $white;
+        z-index: $zIndex-contextmenu;
+        position: absolute;
+        min-width: size(250);
+        border: 1px solid $gray-200;
+        box-shadow: rgb(0 0 0 / 10%) 0px 2px 8px 0px; //墨刀弹窗样式
+        max-height: size(220);
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: size(5);
+        }
+        &::-webkit-scrollbar-thumb {
+            background: $gray-400;
+        }
+        .header {
+            border-bottom: 1px solid $gray-300;
+            display: flex;
+            align-items: center;
+            padding: size(3) size(20) size(3) size(5);
+        }
+        .el-input__inner {
+            border: none;
+        }
+        .select-item {
+            line-height: 1.8em;
+            padding: size(5) size(25);
+            cursor: pointer;
+            display: flex;
+            &:hover {
+                background: $theme-color;
+                color: $white;
+            }
+            &.active {
+                background: $theme-color;
+                color: $white;
+            }
+            .head {
+                margin-right: size(10);
+            }
+            .tail {
+                margin-left: auto;
+                // color: $gray-500;
+            }
+        }
+    }
 }
 </style>
