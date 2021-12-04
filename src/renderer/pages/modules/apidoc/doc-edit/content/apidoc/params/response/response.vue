@@ -71,10 +71,10 @@
                 </div>
             </template>
             <template #tail>
-                <div class="d-flex">
-                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer mr-2" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
+                <div class="d-flex a-center">
+                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
                     <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
-                    <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select">
+                    <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select flex0">
                         <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplate" class="template-wrap">
                             <div class="header">
@@ -90,6 +90,7 @@
                                     v-for="(item2, index2) in jsonTemplateList"
                                     :key="index2"
                                     class="select-item"
+                                    @click="handleSelectTemplate(item2)"
                                 >
                                     <span class="head">
                                         <s-emphasize :value="item2.name" :keyword="templateFilterString"></s-emphasize>
@@ -101,8 +102,8 @@
                         </div>
                     </div>
                     <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
-                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
-                    <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">{{ $t("新增") }}</div>
+                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
+                    <div v-if="index === 0" class="green cursor-pointer mr-2 flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
                     <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
             </template>
@@ -129,6 +130,7 @@
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
 import { Effect } from "element-plus";
 import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
+import { ApidocProjectParamsTemplate } from "@@/store";
 import { store } from "@/store/index"
 import importParams from "../../dialog/import-params/import-params.vue"
 import sStatus from "./children/status.vue"
@@ -296,6 +298,10 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
 |--------------------------------------------------------------------------
 */
 const { showTemplate, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
+//选择模板
+const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
+    handleConvertSuccess(templateInfo.items)
+}
 </script>
 
 <style lang="scss">
