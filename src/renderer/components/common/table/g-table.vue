@@ -283,8 +283,7 @@ export default defineComponent({
                 Object.assign(params, this.deleteParams);
                 this.loading2 = true;
                 this.axios.delete(this.deleteUrl, { data: params }).then(() => {
-                    this.$emit("deleteMany");
-                    // this.getData();
+                    this.$emit("deleteMany", params.ids);
                 }).catch((err) => {
                     console.error(err);
                 }).finally(() => {
