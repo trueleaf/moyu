@@ -71,13 +71,12 @@
                 </template>
             </el-table-column>
             <el-table-column :label="$t('创建者名称')" prop="creatorName" align="center"></el-table-column>
-            <!-- <el-table-column label="模板类型" prop="presetParamsType" align="center">
+            <el-table-column label="模板类型" prop="presetParamsType" align="center">
                 <template #default="scope">
-                    <el-tag v-if="scope.row.presetParamsType === 'queryParams'" size="mini" type="success">请求参数(Params)</el-tag>
-                    <el-tag v-if="scope.row.presetParamsType === 'requestBody'" size="mini" type="primary">请求参数(Body)</el-tag>
-                    <el-tag v-if="scope.row.presetParamsType === 'responseParams'" size="mini" type="warning">返回参数</el-tag>
+                    <el-tag v-if="scope.row.presetParamsType === 'bodyParams'" size="mini">请求参数(Body)</el-tag>
+                    <el-tag v-if="scope.row.presetParamsType === 'responseParams'" size="mini">返回参数</el-tag>
                 </template>
-            </el-table-column> -->
+            </el-table-column>
             <el-table-column :label="$t('操作')" align="center">
                 <template #default="scope">
                     <!-- <el-button type="text" size="mini" @click="handleChangeOpToEdit(scope.row)">编辑</el-button> -->
@@ -90,7 +89,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { ApidocProjectParamsTemplate } from "@@/store"
+import type { ApidocProjectParamsTemplate, ApidocTab } from "@@/store"
 import type { Response, ApidocProperty } from "@@/global"
 
 type EditInfo = {
@@ -127,6 +126,26 @@ export default defineComponent({
             loading2: false, //---------------------添加按钮加载效果
             loading3: false, //---------------------修改按钮加载效果
         };
+    },
+    computed: {
+        currentSelectTab() {
+            const projectId = this.$route.query.id as string;
+            if (this.$store.state["apidoc/tabs"].tabs[projectId]) {
+                return this.$store.state["apidoc/tabs"].tabs[projectId].find(v => v.selected)
+            }
+            return null;
+        },
+    },
+    watch: {
+        currentSelectTab: {
+            handler(val: ApidocTab | null) {
+                if (val && val.tabType === "paramsTemplate") {
+                    console.log(val)
+                    this.$refs.table.getData();
+                }
+            },
+            deep: true,
+        },
     },
     mounted() {
         this.init();
@@ -199,6 +218,9 @@ export default defineComponent({
                 };
                 this.axios.delete("/api/project/doc_preset_params", { data: params }).then(() => {
                     this.$refs.table.getData();
+                    const allTemplate = this.$store.state["apidoc/baseInfo"].paramsTemplate;
+                    const delIndex = allTemplate.findIndex(v => v._id === id);
+                    this.$store.commit("apidoc/baseInfo/deleteParamsTemplate", delIndex)
                 }).catch((err) => {
                     console.error(err);
                 }).finally(() => {
@@ -211,9 +233,14 @@ export default defineComponent({
                 console.error(err);
             });
         },
-        //删除成功
-        handleDeleteSuccess() {
+        //批量删除成功
+        handleDeleteSuccess(ids: string[]) {
             this.$refs.table.getData();
+            ids.forEach(id => {
+                const allTemplate = this.$store.state["apidoc/baseInfo"].paramsTemplate;
+                const delIndex = allTemplate.findIndex(v => v._id === id);
+                this.$store.commit("apidoc/baseInfo/deleteParamsTemplate", delIndex)
+            })
         },
     },
 })

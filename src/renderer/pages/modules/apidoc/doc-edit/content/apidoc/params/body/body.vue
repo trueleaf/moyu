@@ -134,7 +134,6 @@ const bodyTemplateList = computed(() => {
 })
 //选择模板
 const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
-    console.log(templateInfo.items)
     handleConvertSuccess(templateInfo.items)
 }
 //打开模板维护tab页面

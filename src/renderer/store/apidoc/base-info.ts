@@ -84,6 +84,10 @@ const baseInfo = {
         addParamsTemplate(state: ApidocProjectBaseInfoState, payload: ApidocProjectParamsTemplate): void {
             state.paramsTemplate.push(payload);
         },
+        //删除一个模板
+        deleteParamsTemplate(state: ApidocProjectBaseInfoState, index: number): void {
+            state.paramsTemplate.splice(index, 1)
+        },
         //改变web代理
         changeWebProxy(state: ApidocProjectBaseInfoState, isProxy: boolean): void {
             state.webProxy = isProxy;
