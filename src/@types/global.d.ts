@@ -407,6 +407,10 @@ type ApidocBodyParams = {
 //api文档返回参数
 type ApidocResponseParams = {
     /**
+     * id
+     */
+    _id: string,
+    /**
      * 返回参数表述
      */
     title: string,

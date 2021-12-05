@@ -58,6 +58,7 @@ type ConvertRequestBody = {
 }
 //=====================================解析response返回值====================================//
 type ConvertResponse = {
+    _id: string,
     title: string,
     statusCode: number,
     value: {
@@ -374,6 +375,7 @@ class OpenApiTranslator {
         Object.keys(response).forEach(code => {
             const resItem = response[code] as OpenAPIV3.ResponseObject;
             const result = {
+                _id: uuid(),
                 title: "",
                 statusCode: 200,
                 value: {

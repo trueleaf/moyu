@@ -657,6 +657,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
                 },
             },
             responseParams: [{
+                _id: uuid(),
                 title: "成功返回",
                 statusCode: 200,
                 value: {
