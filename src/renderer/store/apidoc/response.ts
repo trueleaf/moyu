@@ -92,6 +92,7 @@ const response = {
             state.statusCode = payload.statusCode;
             state.statusMessage = payload.statusMessage;
             state.contentType = payload.contentType;
+            state.data.type = payload.contentType;
         },
         //清空response值
         clearResponseInfo(state: ApidocResponseState): void {

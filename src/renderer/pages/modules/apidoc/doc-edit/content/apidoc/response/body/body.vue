@@ -26,28 +26,28 @@
                 <div>{{ remoteResponse.data.type }}</div>
                 <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
-            <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
+            <div v-else-if="remoteResponse.data.type.includes('application/force-download')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">{{ $t("下载文件") }}</el-button>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- excel -->
-            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')">
+            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">{{ $t("下载文件") }}</el-button>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- word -->
-            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')">
+            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">{{ $t("下载文件") }}</el-button>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- pdf -->
             <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
@@ -106,7 +106,7 @@
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text">{{ $t("下载文件") }}</el-button>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
         </template>
         <div v-show="showProcess" class="d-flex j-center w-100">
@@ -152,10 +152,10 @@ export default defineComponent({
             const isError = dataType.includes("error");
             const isText = dataType.includes("text");
             const isJson = dataType.includes("application/json");
-            const isPdf = dataType.includes("application/pdf");
+            // const isPdf = dataType.includes("application/pdf");
             const isXml = dataType.includes("application/xml");
             const isJavascript = dataType.includes("application/javascript");
-            return !isError && !isText && !isJson && !isPdf && !isXml && !isJavascript;
+            return !isError && !isText && !isJson && !isXml && !isJavascript;
         },
         //布局
         layout() {
@@ -178,7 +178,7 @@ export default defineComponent({
         },
         //返回值类型
         responseApplyEnum() {
-            return this.$store.state["apidoc/apidoc"].apidoc.item.responseParams.map((v, index) => ({
+            return this.$store.state["apidoc/apidoc"].apidoc.item.responseParams.filter(v => v.value.dataType === "application/json").map((v, index) => ({
                 index,
                 title: v.title,
                 contentType: v.value.dataType
