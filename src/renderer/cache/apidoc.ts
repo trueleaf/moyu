@@ -310,6 +310,40 @@ class ApidocCache {
             return null;
         }
     }
+
+    /**
+     * @description        获取返回参数状态
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     * @remark             true代表显示 false代表折叠
+     */
+    getAllResponseCollapseState(): Record<string, boolean> {
+        try {
+            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem("apidoc/responseCollapse") || "{}");
+            return localData;
+        } catch (error) {
+            console.error(error);
+            return {};
+        }
+    }
+
+    /**
+     * @description        设置返回参数状态
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     * @param {string}     id 项目id
+     * @param {string}     isShow 是否展示
+     */
+    setResponseCollapseState(id: string, isShow: boolean) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/responseCollapse") || "{}");
+            localData[id] = isShow;
+            localStorage.setItem("apidoc/responseCollapse", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/responseCollapse", "{}");
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();
