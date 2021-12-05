@@ -403,16 +403,16 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
 }
 //检查key输入框是否被禁用
 const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
-    const isComplex = node.data.type === "object" || node.data.type === "array"
+    // const isComplex = node.data.type === "object" || node.data.type === "array"
     const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
     const parentIsArray = node.parent.data.type === "array";
-    const isRootObject = props.nest && node.level === 1 && isComplex;
+    const isRootObject = props.nest && node.level === 1;
     return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
 }
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
-    const isComplex = node.data.type === "array" || node.data.type === "object";
-    if (node.level === 1 && isComplex) {
+    // const isComplex = node.data.type === "array" || node.data.type === "object";
+    if (node.level === 1) {
         return $t("根元素");
     }
     if (node.parent.data.type === "array") {

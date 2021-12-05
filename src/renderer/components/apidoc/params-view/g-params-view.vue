@@ -34,7 +34,7 @@
                         <span class="path">
                             <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
                         </span>
-                        <span v-if="item.colon" class="colon">{{ item.colon }}</span>
+                        <span v-if="item.colon && item.path.value" class="colon">{{ item.colon }}</span>
                         <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                         <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
                         <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :open-delay="1500" :content="item.value" placement="bottom-start">
