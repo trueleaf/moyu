@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from "../../api/api"
 import router from "../../router/index"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, uuid } from "@/helper/index"
 import { $t } from "@/i18n/i18n"
 
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
@@ -212,6 +212,7 @@ const apidoc = {
             const objectParams = apidocGenerateProperty("object");
             objectParams.children[0] = apidocGenerateProperty();
             state.apidoc.item.responseParams.push({
+                _id: uuid(),
                 title: $t("返回参数名称"),
                 statusCode: 200,
                 value: {

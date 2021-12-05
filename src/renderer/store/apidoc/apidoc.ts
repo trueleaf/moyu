@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest, uuid } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import config from "@/../config/config"
@@ -234,6 +234,7 @@ const apidoc = {
             const objectParams = apidocGenerateProperty("object");
             objectParams.children[0] = apidocGenerateProperty();
             state.apidoc.item.responseParams.push({
+                _id: uuid(),
                 title: "返回参数名称",
                 statusCode: 200,
                 value: {

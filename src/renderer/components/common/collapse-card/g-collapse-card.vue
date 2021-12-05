@@ -8,7 +8,7 @@
     <div class="collapse-card" :class="{shadow: shadow}" :style="{ width: width }">
         <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
             <div class="head">
-                <div class="control" @click="showContent = !showContent">
+                <div class="control" @click="toggleCollapse">
                     <template v-if="!disabled">
                         <span v-if="!showContent" class="el-icon-caret-right"></span>
                         <span v-else class="el-icon-caret-bottom"></span>
@@ -73,6 +73,7 @@ export default defineComponent({
             default: "",
         },
     },
+    emits: ["change"],
     data() {
         return {
             showContent: true,
@@ -90,6 +91,10 @@ export default defineComponent({
         expand() {
             this.showContent = true;
         },
+        toggleCollapse() {
+            this.showContent = !this.showContent
+            this.$emit("change", this.showContent);
+        }
     },
 })
 </script>

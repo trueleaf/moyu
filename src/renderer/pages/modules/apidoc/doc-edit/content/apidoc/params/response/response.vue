@@ -6,7 +6,7 @@
 */
 <template>
     <div class="response-params">
-        <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="index !== 0">
+        <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id] === false" @change="handleChangeCollapseState($event, item)">
             <!-- 操作区域 -->
             <template #head>
                 <div class="info-wrap">
@@ -35,9 +35,9 @@
                     <div class="status-code">
                         <div class="d-flex a-center j-center">
                             <span class="flex0">{{ $t("状态码") }}：</span>
-                            <el-popover v-model:visible="statusVisible" width="500px" placement="bottom" trigger="manual">
+                            <el-popover v-model:visible="statusVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                                 <template #reference>
-                                    <span class="cursor-pointer" @click.stop="statusVisible = !statusVisible">
+                                    <span class="cursor-pointer" @click.stop="toggleStatusModel(item)">
                                         <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
                                         <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
                                         <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
@@ -46,7 +46,7 @@
                                         <i class="el-icon-arrow-down el-icon--right"></i>
                                     </span>
                                 </template>
-                                <s-status @close="statusVisible = false;" @select="handleSelectStatusCode($event, index)"></s-status>
+                                <s-status @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)"></s-status>
                             </el-popover>
                         </div>
                     </div>
@@ -55,16 +55,16 @@
                     <div class="content-type">
                         <div class="d-flex a-center j-center">
                             <span class="flex0">{{ $t("返回格式") }}：</span>
-                            <el-popover v-model:visible="mimeVisible" width="500px" placement="bottom" trigger="manual">
+                            <el-popover v-model:visible="mimeVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                                 <template #reference>
-                                    <span class="d-flex a-center cursor-pointer" @click.stop="mimeVisible = !mimeVisible">
+                                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
                                         <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
                                             <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
                                         </el-tooltip>
                                         <i class="el-icon-arrow-down el-icon--right"></i>
                                     </span>
                                 </template>
-                                <s-mime @close="mimeVisible = false;" @select="handleSelectContentType($event, index)"></s-mime>
+                                <s-mime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></s-mime>
                             </el-popover>
                         </div>
                     </div>
@@ -138,6 +138,7 @@ import sMime from "./children/mime.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
 import useImportParams from "./compsables/import-params" //导入参数
 import useParamsTemplate from "./compsables/params-template" //参数模板
+import { apidocCache } from "@/cache/apidoc"
 
 /*
 |--------------------------------------------------------------------------
@@ -224,13 +225,25 @@ const { importParamsdialogVisible, handleOpenImportParams, handleConvertSuccess 
 |--------------------------------------------------------------------------
 */
 //是否显示状态码弹窗
-const statusVisible = ref(false);
-const mimeVisible = ref(false);
+const statusVisibleMap: Ref<Record<string, boolean>> = ref({});
+const mimeVisibleMap: Ref<Record<string, boolean>> = ref({});
 const closeStatusPopover = () => {
-    statusVisible.value = false;
+    Object.keys(mimeVisibleMap.value).forEach(key => {
+        mimeVisibleMap.value[key] = false;
+    })
 }
 const closeMimePopover = () => {
-    mimeVisible.value = false;
+    Object.keys(statusVisibleMap.value).forEach(key => {
+        statusVisibleMap.value[key] = false;
+    })
+}
+//打开和关闭status弹窗
+const toggleStatusModel = (item: ApidocResponseParams) => {
+    statusVisibleMap.value[item._id] = !statusVisibleMap.value[item._id];
+}
+//关闭status弹窗
+const handleCloseStatusModel = (item: ApidocResponseParams) => {
+    statusVisibleMap.value[item._id] = false;
 }
 //选择一个statusCode
 const handleSelectStatusCode = (code: number, index: number) => {
@@ -238,6 +251,14 @@ const handleSelectStatusCode = (code: number, index: number) => {
         index,
         code,
     });
+}
+//打开和关闭contentType弹窗
+const toggleMimeModel = (item: ApidocResponseParams) => {
+    mimeVisibleMap.value[item._id] = !mimeVisibleMap.value[item._id];
+}
+//关闭contentType弹窗
+const handleCloseMimeModel = (item: ApidocResponseParams) => {
+    mimeVisibleMap.value[item._id] = false;
 }
 //选择一个contentType
 const handleSelectContentType = (type: string, index: number) => {
@@ -302,6 +323,18 @@ const { showTemplate, templateFilterString, jsonTemplateList, paramsTemplatedial
 const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
     handleConvertSuccess(templateInfo.items)
 }
+/*
+|--------------------------------------------------------------------------
+| 其他操作
+|--------------------------------------------------------------------------
+*/
+const collapseState: Ref<Record<string, boolean>> = ref({});
+const handleChangeCollapseState = (isShow: boolean, item: ApidocResponseParams) => {
+    apidocCache.setResponseCollapseState(item._id, isShow);
+}
+onMounted(() => {
+    collapseState.value = apidocCache.getAllResponseCollapseState();
+})
 </script>
 
 <style lang="scss">
