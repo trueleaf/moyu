@@ -7,7 +7,7 @@
 <template>
     <s-base-info v-show="layout === 'horizontal'"></s-base-info>
     <s-res-info v-show="layout === 'horizontal'"></s-res-info>
-    <s-loading :loading="!isResponse" class="h-100">
+    <s-loading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }">
         <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3" :class="{ vertical: layout === 'vertical' }">
             <el-tabs v-model="activeName" class="h-100">
                 <el-tab-pane :label="$t('返回值')" name="s-body">
