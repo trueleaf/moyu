@@ -103,8 +103,8 @@
                     </div>
                     <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
                     <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
-                    <div v-if="index === 0" class="green cursor-pointer mr-2 flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
-                    <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
+                    <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
+                    <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
             </template>
             <!-- 内容展示 -->
