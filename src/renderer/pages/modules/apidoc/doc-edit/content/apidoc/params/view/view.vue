@@ -51,7 +51,7 @@
                 </div>
                 <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view>
                 <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'" class="h-150px">
-                    <s-raw-editor :model-value="item.value.text" :type="item.value.dataType" readonly></s-raw-editor>
+                    <pre>{{ item.value.text }}</pre>
                 </div>
             </div>
         </s-fieldset>
