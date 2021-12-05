@@ -358,8 +358,9 @@ const apidoc = {
                     }
                     context.commit("changeApidoc", res.data)
                     context.commit("changeOriginApidoc");
-                    const cachedServer = apidocCache.getPreviousServer(payload.projectId)
-                    if (cachedServer) {
+                    const cachedServer = apidocCache.getPreviousServer(payload.projectId);
+                    const { path } = context.state.apidoc.item.url
+                    if (cachedServer && !path.startsWith("http") && !path.startsWith("https")) {
                         store.commit("apidoc/apidoc/changeApidocHost", cachedServer)
                     }
                     resolve()
