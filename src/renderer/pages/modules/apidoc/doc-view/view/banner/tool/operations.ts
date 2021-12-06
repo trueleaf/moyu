@@ -44,7 +44,7 @@ export default [{
     shortcut: ["Ctrl", "I"],
     pin: false,
 }, {
-    name: $t("历史记录"),
+    name: $t("操作审计"),
     icon: "#iconlishi",
     op: "history",
     shortcut: ["Ctrl", "H"],
