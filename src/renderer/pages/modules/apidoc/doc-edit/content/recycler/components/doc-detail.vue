@@ -11,7 +11,7 @@
             <s-fieldset v-if="apidocInfo?.item.url" :title="$t('基本信息')">
                 <s-label-value label="请求方式：" class="w-50">
                     <template v-for="(req) in validRequestMethods">
-                        <span v-if="apidocInfo?.item.method === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
+                        <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
                     </template>
                 </s-label-value>
                 <s-label-value label="请求地址：" class="w-50 mt-2">

@@ -715,6 +715,113 @@ type ApidocVariable = {
 
 /*
 |--------------------------------------------------------------------------
+| api文档操作记录
+|--------------------------------------------------------------------------
+*/
+type ApidocOperationDeleteInfo = {
+    /**
+     * 节点名称
+     */
+    nodeName: string,
+    /**
+     * 节点id
+     */
+    nodeId: string,
+    /**
+     * 是否为文件夹
+     */
+    isFolder: boolean,
+    /**
+     * 请求方法
+     */
+    method: ApidocHttpRequestMethod,
+    /**
+     * 请求url
+     */
+    url: string,
+};
+type ApidocOperationRecord = {
+    /**
+     * 项目id
+     */
+    projectId: string,
+    /**
+     * 变量类型
+     */
+    recordInfo: {
+        /**
+         * 节点id
+         */
+        nodeId?: string,
+        /**
+         * 节点名称
+         */
+        nodeName?: string,
+        /**
+         * 请求方法
+         */
+        method?: ApidocHttpRequestMethod,
+        /**
+         * 请求url
+         */
+        url?: string,
+        /**
+         * 节点快照
+         */
+        nodeSnapshot?: ApidocDetail["item"],
+        /**
+         * 拖拽到的节点id
+         */
+        dropNodeId?: string,
+        /**
+         * 拖拽到的节点名称
+         */
+        dropNodeName?: "before" | "after" | "inner",
+        /**
+         * 拖拽方式
+         */
+        dropType?: string,
+        /**
+         * 原始节点名称
+         */
+        orginNodeName?: string
+        /**
+         * 被删除节点信息
+         */
+        deleteNodes: ApidocOperationDeleteInfo[],
+        /**
+         * 导出类型
+         */
+        exportType?: string,
+        /**
+         * 导入文档数量
+         */
+        importNum?: string,
+        /**
+         * 是否是覆盖导入
+         */
+        importIsCover?: string,
+    },
+    /**
+     * 操作类型
+     */
+    operation: "addFolder" | "addDoc" | "copyDoc" | "copyFolder" | "deleteFolder" | "deleteDoc" | "deleteMany" | "editDoc" | "position" | "rename" | "import" | "export" | "addServer" | "deleteServer" | "editServer",
+    /**
+     * 操作者
+     */
+    operator: string,
+    /**
+     * 操作者id
+     */
+    operatorId: string,
+    /**
+     * 创建日期
+     */
+    createdAt: string,
+}
+
+/*
+|--------------------------------------------------------------------------
 | mock相关
 |--------------------------------------------------------------------------
 */
@@ -760,6 +867,7 @@ export {
     ApidocBodyMode,
     ApidocBodyRawType,
     ApidocResponseParams,
+    ApidocOperationRecord,
     ApidocASTInfo,
     ApidocVariable,
     ApidocType,

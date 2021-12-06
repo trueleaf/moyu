@@ -15,6 +15,7 @@
         <s-import-doc v-else-if="currentSelectTab.tabType === 'importDoc'"></s-import-doc>
         <s-online-link v-else-if="currentSelectTab.tabType === 'onlineLink'"></s-online-link>
         <s-recycler v-else-if="currentSelectTab.tabType === 'recycler'"></s-recycler>
+        <s-history v-else-if="currentSelectTab.tabType === 'history'"></s-history>
     </keep-alive>
 </template>
 
@@ -30,6 +31,7 @@ import exportDoc from "./export/export.vue";
 import importDoc from "./import/import.vue"
 import onlineLink from "./link/link.vue"
 import recycler from "./recycler/recycler.vue"
+import history from "./history/history.vue"
 
 export default defineComponent({
     components: {
@@ -42,6 +44,7 @@ export default defineComponent({
         "s-import-doc": importDoc,
         "s-online-link": onlineLink,
         "s-recycler": recycler,
+        "s-history": history,
     },
     data() {
         return {
