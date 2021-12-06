@@ -56,6 +56,7 @@
                 </div>
                 <div>
                     <el-button size="mini" type="info" @click="clearAll">全部清空</el-button>
+                    <el-button :loading="loading" size="mini" type="success" @click="getData">刷新</el-button>
                 </div>
             </div>
         </s-fieldset>
