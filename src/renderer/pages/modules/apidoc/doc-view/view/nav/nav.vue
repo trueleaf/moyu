@@ -40,7 +40,7 @@
                                 <span v-if="element.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
                                 <!-- 导入文档 -->
                                 <span v-if="element.tabType === 'importDoc'" class="el-icon-download red f-base mr-2"></span>
-                                <!-- 历史记录 -->
+                                <!-- 操作审计 -->
                                 <span v-if="element.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
                                 <!-- 全局变量配置 -->
                                 <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
