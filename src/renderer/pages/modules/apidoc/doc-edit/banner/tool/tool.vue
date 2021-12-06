@@ -302,7 +302,7 @@ const handleEmit = (op: ApidocOperations) => {
             _id: "history",
             projectId,
             tabType: "history",
-            label: $t("历史记录"),
+            label: $t("操作审计"),
             head: {
                 icon: "",
                 color: ""
