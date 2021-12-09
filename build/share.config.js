@@ -74,7 +74,7 @@ module.exports = {
             mainProcessFile: "src/main/background.ts",
             mainProcessWatch: ["src/main/background.ts"],
             builderOptions: {
-                productName: "快乐摸鱼",
+                productName: "moyu",
                 appId: "com.example.yourapp",
                 publish: [
                     {
