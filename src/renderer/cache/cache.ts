@@ -1,58 +1,46 @@
 /**
- * web存储，提供接口文档离线使用能力
+ * apidoc文档缓存
  */
-// import { axios } from "@/api/api"
-import { Response, ApidocProjectListInfo } from "@@/global";
-import db from "./database"
 
-type Api = {
-    /**
-     * 获取项目列表数据
-     */
-    "/api/project/project_list": () => Promise<Response<ApidocProjectListInfo>>,
-}
+import { GlobalConfig } from "@@/global";
 
-const api: Api = {
-    "/api/project/project_list": (): Promise<Response<ApidocProjectListInfo>> => new Promise((resolve, reject) => {
-        db.transaction("rw", db.projectList, async () => {
-            const result = await db.projectList.toArray();
-            resolve({
-                code: 0,
-                msg: "xx",
-                data: result[0]
-            });
-        }).catch((e) => {
-            console.error(e);
-            reject(e);
-        });
-    })
-}
-
-interface ICaceh {
-    dbBase: IDBDatabase | null;
-    get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]>;
-}
-
-let singleton: null | ICaceh = null;
-class Cache implements ICaceh {
-    public dbBase: IDBDatabase | null = null;
-
+class GlobalCache {
     constructor() {
-        if (!singleton) {
-            singleton = this;
-        } else {
-            return singleton;
+        if (!localStorage.getItem("cache/globalConfig")) {
+            localStorage.setItem("cache/globalConfig", "{}");
         }
     }
 
     /**
-     * 获取数据信息
+     * @description        获取全局配置信息
+     * @author             shuxiaokai
+     * @create             2021-09-06 21:50
      */
-    public get<URL extends keyof Api>(url: URL): ReturnType<Api[URL]> {
-        const apiFn = api[url];
-        return apiFn() as ReturnType<Api[URL]>;
+    getGlobalConfig(): Partial<GlobalConfig> {
+        try {
+            const localData: Partial<GlobalConfig> = JSON.parse(localStorage.getItem("cache/globalConfig") || "{}");
+            return localData;
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("cache/globalConfig", "{}")
+            return {};
+        }
+    }
+
+    /**
+     * @description        重置全局配置
+     * @author             shuxiaokai
+     * @create             2021-09-06 21:50
+     * @param {GlobalConfig}     config - 全局配置信息
+     */
+    changeGlobalConfig(config: GlobalConfig): void {
+        try {
+            localStorage.setItem("cache/globalConfig", JSON.stringify(config));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("cache/globalConfig", "{}");
+        }
     }
 }
-const cache = new Cache();
 
-export { cache, ICaceh };
+export const globalCache = new GlobalCache();

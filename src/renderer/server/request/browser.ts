@@ -113,25 +113,30 @@ export function sendRequest(): void {
             };
             axios2.post("/api/proxy/proxyWebApi", params).then(async (res) => {
                 const response = res.data;
-                store.commit("apidoc/response/changeResponseHeader", response.headers);
-                store.commit("apidoc/response/changeResponseCookies", response.headers["set-cookie"] || []);
+                if (response.code === 4200) {
+                    store.commit("apidoc/response/changeResponseContentType", "error");
+                    store.commit("apidoc/response/changeResponseTextValue", response.msg);
+                    return
+                }
+                store.commit("apidoc/response/changeResponseHeader", response.data.headers);
+                store.commit("apidoc/response/changeResponseCookies", response.data.headers["set-cookie"] || []);
                 store.commit("apidoc/response/changeResponseBaseInfo", {
-                    httpVersion: response.httpVersion,
-                    ip: response.ip,
-                    statusCode: response.statusCode,
-                    statusMessage: response.statusMessage,
-                    contentType: response.headers["content-type"],
+                    httpVersion: response.data.httpVersion,
+                    ip: response.data.ip,
+                    statusCode: response.data.statusCode,
+                    statusMessage: response.data.statusMessage,
+                    contentType: response.data.headers["content-type"],
                 });
-                store.commit("apidoc/response/changeResponseTime", response.rt);
+                store.commit("apidoc/response/changeResponseTime", response.data.rt);
                 store.commit("apidoc/response/changeLoading", false);
                 const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
 
-                store.commit("apidoc/response/changeResponseContentType", response.contentType);
-                if (textContentType.find(type => response.contentType.match(type))) {
-                    const blobData = new Blob([new Uint8Array(response.data.data)], { type: response.contentType });
+                store.commit("apidoc/response/changeResponseContentType", response.data.contentType);
+                if (textContentType.find(type => response.data.contentType.match(type))) {
+                    const blobData = new Blob([new Uint8Array(response.data.data.data)], { type: response.data.contentType });
                     store.commit("apidoc/response/changeResponseTextValue", await blobData.text());
                 } else {
-                    const blobData = new Blob([new Uint8Array(response.data.data)], { type: response.contentType });
+                    const blobData = new Blob([new Uint8Array(response.data.data.data)], { type: response.data.contentType });
                     const blobUrl = URL.createObjectURL(blobData);
                     store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
                 }

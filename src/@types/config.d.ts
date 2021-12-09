@@ -19,19 +19,9 @@ type Config = {
      */
     updateConfig: {
         /**
-         * 当前项目版本
-         */
-        version: string,
-
-        /**
          * 更新服务器地址
          */
-        server: string,
-
-        /**
-         * 更新文件地址  server + filePath等于完整下载路径
-         */
-        filePath: string,
+        url: string,
 
         /**
          * 是否开启自动更新
@@ -151,15 +141,6 @@ type Config = {
              * indexedDB数据库版本
              */
             version: number,
-        },
-        /**
-         * 导出文档相关配置
-         */
-        share: {
-            /**
-             * 文档分享链接
-             */
-            baseUrl: string,
         },
         /**
          * 导入文档相关配置

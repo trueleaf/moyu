@@ -10,8 +10,7 @@ import { BrowserWindow, ipcMain } from "electron";
 import config from "../config/config";
 
 function update(): void {
-    const { server } = config.updateConfig;
-    const url = `${server}${config.updateConfig.filePath}`;
+    const { url } = config.updateConfig;
     const winId = BrowserWindow.getFocusedWindow()?.id;
     const win = BrowserWindow.fromId(winId as number);
     if (process.env.NODE_ENV === "development") {
@@ -25,7 +24,6 @@ function update(): void {
         autoUpdater.quitAndInstall();
     });
     //=====================================参数设置====================================//
-    // autoUpdater.currentVersion = config.updateConfig.version;
     autoUpdater.setFeedURL(url);
     //=====================================反馈更新事件给render进程====================================//
     //存在可用更新

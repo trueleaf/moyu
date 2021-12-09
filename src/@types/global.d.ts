@@ -831,7 +831,50 @@ type MockItem = {
     value: string,
     tags: string[],
 }
-
+/*
+|--------------------------------------------------------------------------
+| 全局配置信息
+|--------------------------------------------------------------------------
+*/
+//全局配置信息
+type GlobalConfig = {
+    /**
+     * 工具标题
+     */
+    title: string,
+    /**
+     * 版本信息
+     */
+    version: string,
+    /**
+     * 是否打印欢迎信息
+     */
+    consoleWelcome: boolean,
+    /**
+     * 是否允许用户注册
+     */
+    enableRegister: boolean,
+    /**
+     * 是否允许来宾用户访问
+     */
+    enableGuest: boolean,
+    /**
+     * 是否允许显示文档链接
+     */
+    enableDocLink: boolean,
+    /**
+     * 分享url
+     */
+    shareUrl: string,
+    /**
+     * 是否开启自动更新
+     */
+    autoUpdate: boolean,
+    /**
+     * 客户端更新地址
+     */
+    updateUrl: string,
+}
 /*
 |--------------------------------------------------------------------------
 | i18n相关
@@ -872,5 +915,6 @@ export {
     ApidocVariable,
     ApidocType,
     MockItem,
-    Language
+    Language,
+    GlobalConfig
 }

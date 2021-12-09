@@ -193,7 +193,6 @@ export default defineComponent({
          */
         getProjectList() {
             this.loading = true;
-            // this.$cache.get("/api/project/project_list");
             this.axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>("/api/project/project_list").then((res) => {
                 this.recentVisitProjectIds = res.data.recentVisitProjects;
                 this.starProjectIds = res.data.starProjects;

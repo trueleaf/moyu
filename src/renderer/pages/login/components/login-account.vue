@@ -61,7 +61,7 @@
                 </svg>
                 <div class="mt-1">{{ $t("部署文档") }}</div>
             </a> -->
-            <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
+            <a :href="config.localization.download.url" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('客户端下载')">
                     <use xlink:href="#iconkehuduan"></use>
                 </svg>

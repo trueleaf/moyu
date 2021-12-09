@@ -7,6 +7,7 @@ import type {
     ApidocContentType,
     ApidocMindParam,
     ApidocHttpRequestMethod,
+    GlobalConfig,
 } from "@@/global"
 import type {
     PermissionUserInfo,
@@ -29,6 +30,7 @@ type PermissionState = {
     menus: PermissionMenu[],
     routes: PermissionClientRoute[],
     loadingBanner: boolean,
+    globalConfig: GlobalConfig
 }
 /*
 |--------------------------------------------------------------------------
