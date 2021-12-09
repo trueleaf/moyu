@@ -255,6 +255,12 @@ const getImportFileInfo = () => {
         importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
         formInfo.value.type = "openapi";
         formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } else if ((jsonText.value as any).swagger) {
+        importTypeInfo.value.name = "swagger";
+        importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
+        formInfo.value.type = "swagger";
+        formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     }
     // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
     // yapiTranslatorInstance = new YAPITranslator($route.query.id);
