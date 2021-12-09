@@ -1,7 +1,6 @@
 import { createApp } from "vue"
 import ElementPlus from "element-plus";
 import mixin from "@/mixin/index"
-import { cache } from "./cache/cache"
 import App from "./App.vue"
 import { axiosPlugin } from "@/api/api"
 import * as helper from "@/helper/index"
@@ -22,7 +21,6 @@ const app = createApp(App, {
 })
 
 app.config.globalProperties.$helper = helper; //挂载全局辅助函数
-app.config.globalProperties.$cache = cache; //挂载全局storage方法
 
 registeGlobalComponent(app); //注册全局组件
 registeDirective(app); //注册全局指令

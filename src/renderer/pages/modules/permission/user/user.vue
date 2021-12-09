@@ -15,7 +15,7 @@
                 <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
                     <el-button :loading="loading" size="mini" type="primary" icon="el-icon-upload" @click="loading = true">下载模板</el-button>
                 </s-download>
-                <s-upload-plain url="/api/security/add_user_by_excel" excel @success="getData" @upload="loading2 = true" @finish="loading2 = false">
+                <s-upload-plain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
                     <el-button :loading="loading2" size="mini" type="primary" icon="el-icon-upload">导入用户</el-button>
                 </s-upload-plain>
             </template>
@@ -82,7 +82,7 @@ export default defineComponent({
     },
     methods: {
         //获取用户基本信息
-        getData(params: Record<string, unknown>) {
+        getData(params?: Record<string, unknown>) {
             this.$refs.table.getData(params);
         },
         //搜索用户
@@ -116,6 +116,16 @@ export default defineComponent({
         handleOpenEditUser(row: { _id: string }) {
             this.editUserId = row._id;
             this.editUserDialog = true;
+        },
+        //导入成功弹窗
+        handleImportSuccess(data: { total: number, success: number }) {
+            this.getData();
+            this.$alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
+                confirmButtonText: "确定",
+                type: "warning"
+            }).then(() => {
+                console.log(222)
+            });
         },
     },
 })
