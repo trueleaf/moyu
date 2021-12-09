@@ -44,8 +44,9 @@ import { ElMessageBox } from "element-plus"
 import sAddDialog from "./dialog/add.vue"
 import sEditDialog from "./dialog/edit.vue"
 import { axios } from "@/api/api"
-import config from "@/../config/config"
+// import config from "@/../config/config"
 import { router } from "@/router"
+import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
 
 type LinkInfo = {
@@ -66,7 +67,7 @@ const dialogVisible2 = ref(false); //编辑弹窗
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-    const url = `${config.renderConfig.share.baseUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
+    const url = `${store.state.permission.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
     return `
     ${$t("链接")}：${url}   
     ${$t("密码")}：${linkInfo.password || `${$t("不需要密码")}`}
