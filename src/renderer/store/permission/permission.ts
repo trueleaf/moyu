@@ -1,16 +1,18 @@
 import { ActionContext } from "vuex"
 import { RouteRecordRaw } from "vue-router"
 import type { State as RootState, PermissionState } from "@@/store"
-import { Response, PermissionUserInfo, PermissionClientMenu, PermissionClientRoute } from "@@/global"
+import { Response, PermissionUserInfo, PermissionClientMenu, PermissionClientRoute, GlobalConfig } from "@@/global"
 import { axios } from "@/api/api"
 import { uniqueByKey } from "@/helper/index"
 import { router, routes } from "@/router/index"
 import config from "@/../config/config"
 import layout from "@/pages/layout/layout.vue";
+import { globalCache } from "@/cache/cache"
 
 type ResUserInfo = PermissionUserInfo & {
     clientBanner: PermissionClientMenu[],
     clientRoutes: PermissionClientRoute[],
+    globalConfig: GlobalConfig
 }
 
 const permission = {
@@ -19,6 +21,7 @@ const permission = {
         userInfo: {}, //-----------用户信息
         routes: [], //-------------路由
         menus: [], //--------------用户菜单
+        globalConfig: {}, //-------全局配置
         loadingBanner: false, //---是否加载banner中
     },
     mutations: {
@@ -98,6 +101,13 @@ const permission = {
                 state.menus = payload;
             }
         },
+        /**
+         * 改变全局配置信息
+         */
+        changeGlobalConfig(state: PermissionState, payload: GlobalConfig): void {
+            state.globalConfig = payload;
+            globalCache.changeGlobalConfig(payload);
+        },
         // 清空全部权限
         clearAllPermission(state: PermissionState): void {
             state.routes = [];
@@ -111,6 +121,7 @@ const permission = {
                     context.commit("changeUserInfo", res.data);
                     context.commit("changeMenus", res.data.clientBanner);
                     context.commit("changeRoutes", res.data.clientRoutes);
+                    context.commit("changeGlobalConfig", res.data.globalConfig);
                     context.commit("generateRoutes");
                     resolve(res.data);
                     sessionStorage.setItem("permission/userInfo", JSON.stringify(res.data));

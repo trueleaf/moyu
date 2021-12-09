@@ -8,7 +8,10 @@
     <div class="s-content">
         <div class="s-header">
             <div class="ml-5 header-left">
-                <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">{{ config.localization.title }}</span>
+                <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">
+                    <span>{{ $store.state.permission.globalConfig.title }}</span>
+                    <span v-if="config.isDev">(本地)</span>
+                </span>
                 <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
                     <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
                         {{ $t(item.name) }}
@@ -50,7 +53,7 @@
                         <el-dropdown-menu>
                             <el-dropdown-item @click="jumpToUserSetting">{{ $t('个人中心') }}</el-dropdown-item>
                             <el-dropdown-item v-if="config.isElectron" :disabled="downloading" @click="handleCheckUpdate(true)">{{ $t('检查更新') }}</el-dropdown-item>
-                            <el-dropdown-item>{{ $t('版本') }}{{ config.localization.version }}</el-dropdown-item>
+                            <el-dropdown-item>{{ $t('版本') }}{{ $store.state.permission.globalConfig.version }}</el-dropdown-item>
                             <el-dropdown-item @click="clearAllCache">{{ $t('清除所有缓存') }}</el-dropdown-item>
                             <el-dropdown-item @click="logout">{{ $t('退出登录') }}</el-dropdown-item>
                         </el-dropdown-menu>

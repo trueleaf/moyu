@@ -28,9 +28,7 @@ const config: Config = {
     isDev,
     //更新相关配置
     updateConfig: {
-        version: "0.8.0", //当前项目版本
-        server: "http://xxx.xxx.cn", //更新服务器地址
-        filePath: "/electron/windows", //更新文件地址
+        url: "http://xxx.xxx.cn/electron/windows", //更新服务器地址
         autoUpdate: false, //是否开启自动更新
     },
     //渲染进程配置
@@ -46,7 +44,7 @@ const config: Config = {
         },
         //http请求相关
         httpRequest: {
-            url: isDev ? "https://online.jobtool.cn" : "https://online.jobtool.cn",
+            url: isDev ? "http://127.0.0.1:7004" : "https://online.jobtool.cn",
             imgUrl: isDev ? "http://happymoyu.oss-cn-beijing.aliyuncs.com" : "http://happymoyu.oss-cn-beijing.aliyuncs.com",
             timeout: 20000,
             withCredentials: true,
@@ -72,10 +70,6 @@ const config: Config = {
             dbName: "moyu", //indexedDB名称
             version: 1, //indexedDB版本信息
         },
-        //导出文档相关配置
-        share: {
-            baseUrl: "https://share.jobtool.cn",
-        },
         //导入文档相关配置
         import: {
             size: 1024 * 1024 * 5, //导入文件大小
@@ -91,11 +85,11 @@ const config: Config = {
     //本地部署相关配置
     localization: {
         version: "0.8.0", //当前项目版本
-        title: isDev ? "moyu(本地)" : "moyu", //项目名称
+        title: "快乐摸鱼", //项目名称
         consoleWelcome: true, //是否打印欢迎信息
         download: {
             enabled: false, //是否允许提示用户下载electron
-            url: "", //下载地址
+            url: "https://gitee.com/shuzhikai/moyu/releases", //下载地址
         },
         enableRegister: true, //是否允许注册
         enableGuest: true, //是否允许来宾用户体验

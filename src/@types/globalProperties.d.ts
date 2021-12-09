@@ -49,11 +49,11 @@ declare module "@vue/runtime-core" {
         },
         $store: Store<State>,
         $confirm: typeof ElMessageBoxShortcutMethod,
+        $alert: typeof ElMessageBoxShortcutMethod,
         $message: Message,
         $nextTick: (fn: () => void) => void,
         axios: AxiosInstance,
         $helper: Helper,
-        $cache: ICaceh,
         $t: typeof $t,
     }
 }

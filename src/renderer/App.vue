@@ -48,7 +48,7 @@ export default defineComponent({
         if (!config.localization.consoleWelcome) {
             console.log(process.env.VUE_APP_BUILD_TIME);
         }
-        document.title = config.localization.title;
+        document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
     },
 })
 </script>
