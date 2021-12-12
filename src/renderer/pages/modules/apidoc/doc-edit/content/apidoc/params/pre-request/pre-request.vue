@@ -26,6 +26,8 @@ export default defineComponent({
 <style lang="scss">
 .editor-wrap {
     width: size(300px);
-    height: calc(100vh - #{size(340)});
+    height: calc(100vh - #{size(320)});
+    border-bottom: 1px solid $gray-400;
+    padding: 0;
 }
 </style>
