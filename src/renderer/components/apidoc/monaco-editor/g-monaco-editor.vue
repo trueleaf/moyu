@@ -11,19 +11,38 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import createDependencyProposals from "./proposale"
 import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
-const monacoInstance: Ref<monaco.editor.IStandaloneCodeEditor | null> = ref(null)
+let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null
 onMounted(() => {
-    monacoInstance.value = monaco.editor.create(monacoDom.value as HTMLElement, {
-        value: `console.log("hello,world")`,
+    monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
+        value: "",
         language: "javascript",
         automaticLayout: true,
         minimap: {
             enabled: false,
         },
     })
+    monaco.languages.registerCompletionItemProvider("javascript", {
+        provideCompletionItems(model, position) {
+            const word = model.getWordUntilPosition(position);
+            const range = {
+                startLineNumber: position.lineNumber,
+                endLineNumber: position.lineNumber,
+                startColumn: word.startColumn,
+                endColumn: word.endColumn
+            };
+            return {
+                suggestions: createDependencyProposals(range)
+            };
+        }
+    })
+    console.log(monacoInstance)
+    // monacoInstance.onDidChangeModelContent(() => {
+    //     console.log(monacoInstance?.getValue())
+    // })
 })
 
 </script>

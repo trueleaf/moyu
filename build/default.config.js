@@ -4,6 +4,7 @@
  * @author             shuxiaokai
  */
 const path = require("path");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 module.exports = {
     pages: {
@@ -38,6 +39,9 @@ module.exports = {
             },
         },
         target: "web",
+        plugins: [
+            new MonacoWebpackPlugin(),
+        ],
     },
     pluginOptions: {
         electronBuilder: {
