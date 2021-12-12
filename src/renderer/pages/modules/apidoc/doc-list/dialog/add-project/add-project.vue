@@ -8,7 +8,7 @@
     <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
             <el-form-item :label="`${$t('项目名称')}：`" prop="projectName">
-                <el-input v-model="formInfo.projectName" size="mini" :placeholder="$t('请输入项目名称')"></el-input>
+                <el-input v-model="formInfo.projectName" v-focus-select size="mini" :placeholder="$t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
             </el-form-item>
             <el-form-item :label="`${$t('选择成员')}：`">
                 <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="$t('输入用户名或真实姓名查找用户')">

@@ -5,7 +5,9 @@
     备注：
 */
 <template>
-    <div>前置请求</div>
+    <div class="editor-wrap">
+        <s-monaco-editor></s-monaco-editor>
+    </div>
 </template>
 
 <script lang="ts">
@@ -22,5 +24,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-
+.editor-wrap {
+    width: size(300px);
+    height: calc(100vh - #{size(340)});
+}
 </style>

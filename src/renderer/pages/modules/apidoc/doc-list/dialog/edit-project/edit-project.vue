@@ -8,7 +8,7 @@
     <s-dialog :model-value="modelValue" top="10vh" :title="$t('修改项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
             <el-form-item :label="`${$t('项目名称')}`" prop="projectName">
-                <el-input v-model="formInfo.projectName" size="mini" :placeholder="$t('请输入项目名称')"></el-input>
+                <el-input v-model="formInfo.projectName" v-focus-select size="mini" :placeholder="$t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>

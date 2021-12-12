@@ -61,6 +61,7 @@
                     </template>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
+                <!-- <el-tab-pane :label="$t('前置脚本')" name="s-pre-request"></el-tab-pane> -->
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
@@ -80,6 +81,7 @@ import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
+import preRequest from "./pre-request/pre-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
@@ -93,6 +95,7 @@ export default defineComponent({
         "s-response-params": responseParams,
         "s-view": view,
         "s-remarks": remarks,
+        "s-pre-request": preRequest,
     },
     data() {
         const mode = this.$route.query.mode as "edit" | "view";
