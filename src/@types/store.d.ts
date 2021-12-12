@@ -413,6 +413,10 @@ type ApidocMockMapInfo = {
     method: ApidocHttpRequestMethod, //请求方法
 }
 type ApidocMockState = {
+    /**
+     * mock服务器监听端口
+     */
+    mockServerPort: number,
     urlMap: ApidocMockMapInfo[]
 };
 

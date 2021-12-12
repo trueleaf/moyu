@@ -61,7 +61,7 @@
                     </template>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
-                <!-- <el-tab-pane :label="$t('前置脚本')" name="s-pre-request"></el-tab-pane> -->
+                <el-tab-pane :label="$t('前置脚本')" name="s-pre-request"></el-tab-pane>
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
@@ -405,7 +405,7 @@ export default defineComponent({
 <style lang="scss">
 .api-params {
     padding: size(0) size(0) size(10);
-    height: calc(100vh - #{size(250)});
+    height: calc(100vh - #{size(220)});
     overflow-y: auto;
     position: relative;
     &.vertical {

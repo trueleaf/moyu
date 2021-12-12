@@ -10,11 +10,20 @@ export const mockServer = (): void => {
     let app: Koa | null = null;
     if (config.renderConfig.mock.enabled) {
         if (!app && window.require) {
+            let serverPort = config.renderConfig.mock.port;
             const Server = window.require("koa")
             app = new Server();
             if (app) {
                 app.use(cors());
-                app.listen(config.renderConfig.mock.port);
+                const appInstance = app.listen(serverPort)
+                store.commit("apidoc/mock/changeMockServerPort", serverPort)
+                appInstance.on("error", (err: { code: string }) => {
+                    if (err.code === "EADDRINUSE") {
+                        serverPort += 1;
+                        app?.listen(serverPort);
+                        store.commit("apidoc/mock/changeMockServerPort", serverPort)
+                    }
+                });
             }
         }
         if (!app) {

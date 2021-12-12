@@ -38,7 +38,7 @@ type HostReturn = {
 export default (): HostReturn => {
     const store = useStore();
     //mock服务器地址
-    const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`);
+    const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
     //host弹窗
     const hostDialogVisible = ref(false);
     //host值

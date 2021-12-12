@@ -296,7 +296,7 @@ const apidoc = {
             }
             //如果host为空则默认为mockserver
             if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
-                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`
+                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
             }
             state.apidoc = payload;
         },
