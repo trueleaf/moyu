@@ -9,40 +9,43 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted } from "vue"
+import { ref, Ref, onMounted, onBeforeMount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import createDependencyProposals from "./proposale"
+import { useCompletionItem } from "./registerCompletionItem"
 import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
 
+const props = defineProps({
+    modelValue: {
+        type: String,
+        default: ""
+    },
+});
+const emits = defineEmits(["update:modelValue"])
+
 const monacoDom: Ref<HTMLElement | null> = ref(null);
-let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null
+let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
+watch(() => props.modelValue, (newValue) => {
+    const value = monacoInstance?.getValue();
+    if (newValue !== value) {
+        monacoInstance?.setValue(props.modelValue)
+    }
+})
 onMounted(() => {
     monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
-        value: "",
+        value: props.modelValue,
         language: "javascript",
         automaticLayout: true,
         minimap: {
             enabled: false,
         },
     })
-    monaco.languages.registerCompletionItemProvider("javascript", {
-        provideCompletionItems(model, position) {
-            const word = model.getWordUntilPosition(position);
-            const range = {
-                startLineNumber: position.lineNumber,
-                endLineNumber: position.lineNumber,
-                startColumn: word.startColumn,
-                endColumn: word.endColumn
-            };
-            return {
-                suggestions: createDependencyProposals(range)
-            };
-        }
+    useCompletionItem();
+    monacoInstance.onDidChangeModelContent(() => {
+        emits("update:modelValue", monacoInstance?.getValue())
     })
-    console.log(monacoInstance)
-    // monacoInstance.onDidChangeModelContent(() => {
-    //     console.log(monacoInstance?.getValue())
-    // })
+})
+onBeforeMount(() => {
+    monacoInstance?.dispose();
 })
 
 </script>
