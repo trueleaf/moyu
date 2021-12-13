@@ -96,6 +96,10 @@ const baseInfo = {
         changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
             state.mode = mode;
         },
+        //改变变量信息
+        changeVariables(state: ApidocProjectBaseInfoState, variables: ApidocProjectBaseInfoState["variables"]): void {
+            state.variables = variables;
+        },
     },
     actions: {
         /**

@@ -328,7 +328,15 @@ const apidoc = {
         //改变json类型requestBody
         changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
             state.apidoc.item.requestBody.json = payload;
-        }
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | 预请求脚本
+        |--------------------------------------------------------------------------
+        */
+        changePreRequest(state: ApidocState, preRequest: string): void {
+            state.apidoc.preRequest.raw = preRequest;
+        },
     },
     actions: {
         /**
@@ -392,6 +400,7 @@ const apidoc = {
                     projectId,
                     info: apidocDetail.info,
                     item: apidocDetail.item,
+                    preRequest: apidocDetail.preRequest,
                 };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法

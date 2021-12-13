@@ -522,6 +522,12 @@ type ApidocDetail = {
         contentType: ApidocContentType,
     },
     /**
+     * 预请求脚本
+     */
+    preRequest: {
+        raw: string,
+    },
+    /**
      * 创建时间
      */
     createdAt?: string,

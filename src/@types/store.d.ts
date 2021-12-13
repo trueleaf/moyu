@@ -57,13 +57,17 @@ type ApidocProjectVariable = {
      */
     name: string,
     /**
-     * 变量类型
+     * 变量值类型
      */
     type: ApidocPropertyType,
     /**
      * 变量值
      */
     value: string,
+    /**
+     * 变量类型,
+     */
+    kind: "collection" | "environment"
 }
 //项目host信息
 type ApidocProjectHost = {

@@ -635,6 +635,9 @@ export function apidocGenerateApidoc(): ApidocDetail {
             deletePerson: "",
             spendTime: 0,
         },
+        preRequest: {
+            raw: ""
+        },
         item: {
             method: "GET",
             url: {
