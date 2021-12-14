@@ -226,13 +226,14 @@ export default defineComponent({
         checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
             const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
             const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+            const preRequestIsEqual = this.checkPreRequest(cpApidoc, cpOriginApidoc);
             const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
             const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
             const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
             const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
             const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
             //=====================================Request====================================//
-            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual) {
+            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual) {
                 return false;
             }
             if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
@@ -295,6 +296,10 @@ export default defineComponent({
         //检查请求方法是否发生改变
         checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
             return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
+        },
+        //检查preRequest是否发送改变
+        checkPreRequest(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            return apidoc.preRequest.raw === originApidoc.preRequest.raw;
         },
         //检查请求url是否发生改变
         checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
