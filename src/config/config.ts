@@ -85,7 +85,7 @@ const config: Config = {
     //本地部署相关配置
     localization: {
         version: "0.8.0", //当前项目版本
-        title: "快乐摸鱼", //项目名称
+        title: "moyu", //项目名称
         consoleWelcome: true, //是否打印欢迎信息
         download: {
             enabled: false, //是否允许提示用户下载electron
