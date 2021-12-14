@@ -10,6 +10,7 @@ const baseInfo = {
         _id: "",
         projectName: "",
         variables: [],
+        tempVariables: [],
         mindParams: [],
         paramsTemplate: [],
         rules: {},
@@ -99,6 +100,14 @@ const baseInfo = {
         //改变变量信息
         changeVariables(state: ApidocProjectBaseInfoState, variables: ApidocProjectBaseInfoState["variables"]): void {
             state.variables = variables;
+        },
+        //清空临时变量
+        clearTempVariables(state: ApidocProjectBaseInfoState): void {
+            state.tempVariables = [];
+        },
+        //改版临时变量的值
+        changeTempVariables(state: ApidocProjectBaseInfoState, tempVariables: ApidocProjectBaseInfoState["tempVariables"]): void {
+            state.tempVariables = tempVariables;
         },
     },
     actions: {

@@ -64,10 +64,6 @@ type ApidocProjectVariable = {
      * 变量值
      */
     value: string,
-    /**
-     * 变量类型,
-     */
-    kind: "collection" | "environment"
 }
 //项目host信息
 type ApidocProjectHost = {
@@ -206,6 +202,10 @@ type ApidocProjectBaseInfoState = {
      * 项目变量信息
      */
     variables: ApidocProjectVariable[],
+    /**
+     * 临时变量，主要用于脚本中
+     */
+    tempVariables: Omit<ApidocProjectVariable, "_id">[],
     /**
      * 项目host信息
      */

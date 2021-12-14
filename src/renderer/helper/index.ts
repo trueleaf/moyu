@@ -338,12 +338,13 @@ type ConvertToObjectOptions = {
  */
 export function apidocConvertValue(value: string): string {
     const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-    const allVariables = store.state["apidoc/baseInfo"].variables;
+    const globalVariables = store.state["apidoc/baseInfo"].variables.map(v => ({ name: v.name, value: v.value }));
+    const scriptVariables = store.state["apidoc/baseInfo"].tempVariables;
     if (value.toString().startsWith("@")) {
         return Mock.mock(value);
     }
     if (matchdVariable) {
-        const varInfo = allVariables.find((v) => v.name === matchdVariable[1]);
+        const varInfo = globalVariables.concat(scriptVariables).find((v) => v.name === matchdVariable[1]);
         return varInfo?.value || value;
     }
     return value;
