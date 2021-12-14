@@ -2,6 +2,7 @@ import type { ApidocProperty } from "@@/global"
 import FormData from "form-data"
 import fs from "fs"
 import { apidocConvertValue } from "@/helper/index"
+import { store } from "@/store/index"
 /**
  * 将queryParams转换成字符串查询字符串
  */
@@ -70,5 +71,27 @@ export function convertFormDataToFormDataString(bodyFormData: ApidocProperty<"st
     return {
         data: formData,
         headers: formData.getHeaders(),
+    }
+}
+/**
+ * 获取url信息
+ */
+type UrlInfo = {
+    host: string,
+    path: string,
+    url: string,
+    fullUrl: string
+}
+export function getUrlInfo(): UrlInfo {
+    const { url, queryParams, paths, } = store.state["apidoc/apidoc"].apidoc.item;
+    const queryString = convertQueryParamsToQueryString(queryParams);
+    const pathMap = getPathParamsMap(paths)
+    const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2);
+    const fullUrl = url.host + validPath + queryString;
+    return {
+        host: url.host,
+        path: url.path,
+        url: url.host + validPath,
+        fullUrl,
     }
 }

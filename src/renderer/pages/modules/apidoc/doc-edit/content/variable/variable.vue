@@ -23,7 +23,7 @@
                     </el-select>
                 </el-form-item>
                 <div class="d-flex j-end">
-                    <el-button :loading="loading" type="primary" size="mini" @click="handleAddHost">{{ $t("确认添加") }}</el-button>
+                    <el-button :loading="loading" type="primary" size="mini" @click="handleAddVariable">{{ $t("确认添加") }}</el-button>
                 </div>
             </el-form>
         </s-fieldset>
@@ -104,13 +104,15 @@ export default defineComponent({
     },
     methods: {
         getData() {
-            this.$refs.table.getData();
+            this.$refs.table.getData().then((res) => {
+                this.$store.commit("apidoc/baseInfo/changeVariables", (res as { data: { rows: ApidocVariable[] } }).data.rows);
+            });
             // this.$store.dispatch("apidoc/getDocVariable", {
             //     projectId: this.$route.query.id,
             // });
         },
         //新增表格数据
-        handleAddHost() {
+        handleAddVariable() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;

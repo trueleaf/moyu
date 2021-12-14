@@ -6,21 +6,24 @@
 */
 <template>
     <div class="editor-wrap">
-        <s-monaco-editor></s-monaco-editor>
+        <s-monaco-editor v-model="preRequest"></s-monaco-editor>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { computed } from "vue"
+import { store } from "@/store/index"
 
-export default defineComponent({
-    data() {
-        return {
-        };
+const preRequest = computed({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.preRequest.raw;
     },
-    methods: {
+    set(val) {
+        store.commit("apidoc/apidoc/changePreRequest", val);
     },
 })
+// const tempVariables = computed(() => store.state["apidoc/baseInfo"].tempVariables)
+
 </script>
 
 <style lang="scss">
