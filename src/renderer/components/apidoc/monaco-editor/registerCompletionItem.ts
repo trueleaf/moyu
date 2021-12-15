@@ -1,25 +1,42 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
 const suggestions = [{
-    label: "pm",
+    label: {
+        label: "pm",
+        description: "全局对象"
+    },
     kind: monaco.languages.CompletionItemKind.Function,
-    detail: "全局对象",
     insertText: "pm",
     trigger: ["p"],
-    documentation: "xxxxxxx"
 }, {
-    label: "pm.variables",
-    kind: monaco.languages.CompletionItemKind.Method,
-    detail: "全局变量",
+    label: {
+        label: "variables",
+        description: "临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
     insertText: "variables",
-    documentation: "documentation",
     trigger: ["pm."]
+}, {
+    label: {
+        label: "request",
+        description: "全局请求"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: "request",
+    trigger: ["pm."]
+}, {
+    label: {
+        label: "get",
+        description: "获取临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "get",
+    trigger: ["pm.variables."]
 }]
 
 export function useCompletionItem(): void {
-    // monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true });
     monaco.languages.registerCompletionItemProvider("javascript", {
-        triggerCharacters: ["."],
+        triggerCharacters: [".", "("],
         provideCompletionItems(model, position) {
             const currentLineStr = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -41,9 +58,7 @@ export function useCompletionItem(): void {
                 const data = {
                     label: v.label,
                     kind: v.kind,
-                    detail: v.detail,
                     insertText: v.insertText,
-                    documentation: v.documentation || "",
                     range,
                     preselect: true
                 }
