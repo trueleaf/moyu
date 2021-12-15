@@ -28,7 +28,8 @@ const preRequest = computed({
 
 <style lang="scss">
 .editor-wrap {
-    width: size(300px);
+    position: relative;
+    width: 100%;
     height: calc(100vh - #{size(320)});
     border-bottom: 1px solid $gray-400;
     padding: 0;
