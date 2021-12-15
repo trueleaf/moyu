@@ -12,6 +12,7 @@
 import { ref, Ref, onMounted, onBeforeMount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { useCompletionItem } from "./registerCompletionItem"
+import { useHoverProvider } from "./registerHoverProvider"
 import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
 
 const props = defineProps({
@@ -31,15 +32,24 @@ watch(() => props.modelValue, (newValue) => {
     }
 })
 onMounted(() => {
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
     monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
         value: props.modelValue,
         language: "javascript",
         automaticLayout: true,
+        parameterHints: {
+            enabled: true
+        },
         minimap: {
             enabled: false,
         },
+        hover: {
+            enabled: true,
+            above: false,
+        },
     })
     useCompletionItem();
+    useHoverProvider();
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
     })
@@ -54,6 +64,5 @@ onBeforeMount(() => {
 .s-monaco-editor {
     width: 100%;
     height: 100%;
-    position: relative;
 }
 </style>
