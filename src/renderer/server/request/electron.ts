@@ -9,6 +9,10 @@ import { apidocConvertParamsToJsonData } from "@/helper/index"
 import * as utils from "./utils"
 import { $t } from "@/i18n/i18n"
 
+type RequestInfo = {
+    fullUrl: string
+}
+
 let got: Got | null = null;
 let gotInstance: Got | null = null;
 let requestStream: Request | null = null;
@@ -100,7 +104,7 @@ async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     }
 }
 //electron发送请求
-function electronRequest() {
+function electronRequest(requestInfo: RequestInfo) {
     const requestInstance = initGot();
     if (!requestInstance) {
         console.warn("当前环境无法获取Got实例")
@@ -109,7 +113,7 @@ function electronRequest() {
     try {
         const { method, requestBody, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
         const { mode } = requestBody
-        const requestUrl = utils.getUrlInfo().fullUrl;
+        const requestUrl = requestInfo.fullUrl;
         let body: string | FormData = "";
         const realHeaders = getRealHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
@@ -262,11 +266,16 @@ export function sendRequest(): void {
             return
         }
         if (res.data.type === "worker-response") { //脚本执行完
-            electronRequest();
+            electronRequest({
+                fullUrl: urlInfo.fullUrl
+            });
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
             store.commit("apidoc/baseInfo/changeTempVariables", res.data.value);
             Object.assign(urlInfo, utils.getUrlInfo());
+        }
+        if (res.data.type === "change-full-url") { //改变完整url
+            urlInfo.fullUrl = res.data.value
         }
     })
 }
