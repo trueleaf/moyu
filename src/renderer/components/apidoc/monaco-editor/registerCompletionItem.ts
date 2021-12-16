@@ -11,11 +11,87 @@ const suggestions = [{
 }, {
     label: {
         label: "variables",
-        description: "临时变量"
+        description: "临时变量对象"
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "variables",
     trigger: ["pm."]
+}, {
+    label: {
+        label: "get",
+        description: "获取单个临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `get("变量名称")`,
+    sortText: "1",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "set",
+        description: "设置临时变量值"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `set("变量名称", "变量值")`,
+    sortText: "2",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "update",
+        description: "更新临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `update("变量名称", "变量值")`,
+    sortText: "3",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "upsert",
+        description: "更新临时变量(不存在则新增)"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `upsert("变量名称", "变量值")`,
+    sortText: "4",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "getAll",
+        description: "获取所有临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "getAll",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "has",
+        description: "判断临时变量是否存在"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "has(变量名称)",
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "unset",
+        description: "删除临时变量值(同delete)"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `unset("变量名称")`,
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "delete",
+        description: "删除临时变量值(同unset)"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: `delete("变量名称")`,
+    trigger: ["pm.variables."]
+}, {
+    label: {
+        label: "toObject",
+        description: "以对象形式输出临时变量"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "toObject",
+    trigger: ["pm.variables."]
 }, {
     label: {
         label: "request",
@@ -26,16 +102,51 @@ const suggestions = [{
     trigger: ["pm."]
 }, {
     label: {
-        label: "get",
-        description: "获取临时变量"
+        label: "url",
+        description: "请求url"
     },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "get",
-    trigger: ["pm.variables."]
+    sortText: "1",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "url",
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "fullUrl",
+        description: "完整请求url"
+    },
+    sortText: "2",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "fullUrl",
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "method",
+        description: "请求方法(GET|POST|PUT...)"
+    },
+    sortText: "3",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "method",
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "rawUrl",
+        description: "原始url(变量未被替换)"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "rawUrl",
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "replaceUrl",
+        description: "替换url(最终发送替换后的url)"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
+    trigger: ["pm.request."]
 }]
 
-export function useCompletionItem(): void {
-    monaco.languages.registerCompletionItemProvider("javascript", {
+export function useCompletionItem(): monaco.IDisposable {
+    return monaco.languages.registerCompletionItemProvider("javascript", {
         triggerCharacters: [".", "("],
         provideCompletionItems(model, position) {
             const currentLineStr = model.getValueInRange({
@@ -60,6 +171,7 @@ export function useCompletionItem(): void {
                     kind: v.kind,
                     insertText: v.insertText,
                     range,
+                    sortText: v.sortText || v.label.label,
                     preselect: true
                 }
                 return data;
