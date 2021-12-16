@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, onBeforeMount, watch } from "vue"
+import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { useCompletionItem } from "./registerCompletionItem"
 import { useHoverProvider } from "./registerHoverProvider"
@@ -25,6 +25,9 @@ const emits = defineEmits(["update:modelValue"])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
+let monacoCompletionItem: monaco.IDisposable | null = null;
+let monacoHoverProvider: monaco.IDisposable | null = null;
+
 watch(() => props.modelValue, (newValue) => {
     const value = monacoInstance?.getValue();
     if (newValue !== value) {
@@ -48,14 +51,16 @@ onMounted(() => {
             above: false,
         },
     })
-    useCompletionItem();
-    useHoverProvider();
+    monacoCompletionItem = useCompletionItem();
+    monacoHoverProvider = useHoverProvider();
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
     })
 })
-onBeforeMount(() => {
+onBeforeUnmount(() => {
     monacoInstance?.dispose();
+    monacoCompletionItem?.dispose()
+    monacoHoverProvider?.dispose()
 })
 
 </script>
