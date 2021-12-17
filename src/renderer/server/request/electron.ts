@@ -3,15 +3,11 @@ import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
 import FormData from "form-data"
 import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
+import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import config from "./config"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import * as utils from "./utils"
 import { $t } from "@/i18n/i18n"
-
-type RequestInfo = {
-    fullUrl: string
-}
+import apidocConverter from "./utils"
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -49,30 +45,7 @@ function initGot() {
     gotInstance = got.extend(initGotConfig);
     return gotInstance;
 }
-//获取完整headers
-function getRealHeaders() {
-    const realHeaders: Record<string, string | undefined> = {};
-    const { defaultHeaders } = store.state["apidoc/apidoc"];
-    const { headers } = store.state["apidoc/apidoc"].apidoc.item;
-    defaultHeaders.concat(headers).forEach((item) => {
-        const itemKey = item.key.toLocaleLowerCase();
-        if (item.select && itemKey) {
-            if (itemKey === "user-agent") {
-                realHeaders[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
-            } else if (itemKey === "accept-encoding") {
-                realHeaders[itemKey] = "gzip, deflate, br";
-            } else if (itemKey === "connection") {
-                realHeaders[itemKey] = "keep-alive";
-            } else {
-                realHeaders[itemKey] = item.value;
-            }
-        }
-    })
-    //删除自动携带的请求头
-    delete realHeaders["content-length"]
-    delete realHeaders.host
-    return realHeaders;
-}
+
 //将buffer值转换为返回参数
 async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     const typeInfo = await FileType.fromBuffer(bufferData.buffer);
@@ -104,51 +77,23 @@ async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     }
 }
 //electron发送请求
-function electronRequest(requestInfo: RequestInfo) {
+function electronRequest() {
     const requestInstance = initGot();
     if (!requestInstance) {
         console.warn("当前环境无法获取Got实例")
         return
     }
     try {
-        const { method, requestBody, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
-        const { mode } = requestBody
-        const requestUrl = requestInfo.fullUrl;
+        const requestUrl = apidocConverter.getUrlInfo().fullUrl;
+        const method = apidocConverter.getMethod();
         let body: string | FormData = "";
-        const realHeaders = getRealHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
-            switch (contentType) {
-            case "application/json":
-                body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
-                break;
-            case "application/x-www-form-urlencoded":
-                body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
-                break;
-            case "multipart/form-data":
-                // eslint-disable-next-line no-case-declarations
-                const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
-                body = data
-                Object.assign(realHeaders, headers)
-                break;
-            case "text/plain":
-                body = requestBody.raw.data;
-                break;
-            case "text/html":
-                body = requestBody.raw.data;
-                break;
-            case "application/xml":
-                body = requestBody.raw.data;
-                break;
-            case "text/javascript":
-                body = requestBody.raw.data;
-                break;
-            default:
-                break;
-            }
+            body = apidocConverter.getRequestBody();
         }
-        console.log("请求参数", requestUrl, realHeaders, body)
+        const headers = apidocConverter.getHeaders();
+        console.log("请求参数", requestUrl, headers)
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeIsResponse", true)
@@ -160,7 +105,7 @@ function electronRequest(requestInfo: RequestInfo) {
             isStream: true,
             method,
             body,
-            headers: realHeaders,
+            headers,
         });
         //=====================================数据处理====================================//
         const streamData: Buffer[] = [];
@@ -227,10 +172,13 @@ function electronRequest(requestInfo: RequestInfo) {
 |--------------------------------------------------------------------------
 */
 export function sendRequest(): void {
-    store.commit("apidoc/response/changeIsResponse", false)
-    store.commit("apidoc/baseInfo/clearTempVariables")
-    store.commit("apidoc/response/changeLoading", true)
-    const urlInfo = utils.getUrlInfo(); //获取完整的url信息
+    store.commit("apidoc/response/changeIsResponse", false);
+    store.commit("apidoc/baseInfo/clearTempVariables");
+    store.commit("apidoc/response/changeLoading", true);
+    const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc))
+    apidocConverter.setData(cpApidoc as ApidocDetail);
+    electronRequest();
+    const urlInfo = apidocConverter.getUrlInfo(); //获取完整的url信息
     const worker = new Worker("worker.js");
     //初始化变量
     worker.postMessage(JSON.parse(JSON.stringify({
@@ -245,7 +193,7 @@ export function sendRequest(): void {
     //初始化默认apidoc信息
     worker.postMessage(JSON.parse(JSON.stringify({
         type: "changeApidoc",
-        value: store.state["apidoc/apidoc"].apidoc,
+        value: JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc)),
     })));
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
@@ -266,13 +214,11 @@ export function sendRequest(): void {
             return
         }
         if (res.data.type === "worker-response") { //脚本执行完
-            electronRequest({
-                fullUrl: urlInfo.fullUrl
-            });
+            electronRequest();
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
             store.commit("apidoc/baseInfo/changeTempVariables", res.data.value);
-            Object.assign(urlInfo, utils.getUrlInfo());
+            Object.assign(urlInfo, apidocConverter.getUrlInfo());
         }
         if (res.data.type === "change-full-url") { //改变完整url
             urlInfo.fullUrl = res.data.value
