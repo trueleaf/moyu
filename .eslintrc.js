@@ -6,7 +6,6 @@ module.exports = {
         defineExpose: "readonly",
         withDefaults: "readonly",
         $t: "readonly",
-        xxx: "readonly"
     },
     env: {
         node: true,
@@ -27,6 +26,10 @@ module.exports = {
         "vue/singleline-html-element-content-newline": "off",
         "space-before-function-paren": "off",
         "no-unused-expressions": "off",
+        "import/no-extraneous-dependencies": [
+            "off",
+            { packageDir: "./build/" },
+        ],
         indent: [2, 4], //强制为4格缩进
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",
