@@ -40,26 +40,26 @@ module.exports = {
         },
         target: "web",
         plugins: [new MonacoWebpackPlugin()],
-        module: {
-            rules: [
-                {
-                    test: /\.worker\.ts$/,
-                    loader: "worker-loader",
-                    options: {
-                        filename: "sandbox.[hash].js",
-                    },
-                },
-                {
-                    test: /\.worker\.ts$/,
-                    use: ["ts-loader"],
-                    exclude: /node_modules/,
-                },
-            ],
-        },
+        // module: {
+        //     rules: [
+        //         {
+        //             test: /\.worker\.ts$/,
+        //             loader: "worker-loader",
+        //             options: {
+        //                 filename: "sandbox.[hash].js",
+        //             },
+        //         },
+        //         {
+        //             test: /\.worker\.ts$/,
+        //             use: ["ts-loader"],
+        //             exclude: /node_modules/,
+        //         },
+        //     ],
+        // },
     },
-    chainWebpack: (config) => {
-        config.module.rule("ts").exclude.add(/\.worker\.ts$/)
-    },
+    // chainWebpack: (config) => {
+    //     config.module.rule("ts").exclude.add(/\.worker\.ts$/)
+    // },
     pluginOptions: {
         electronBuilder: {
             // contextIsolation: false,
