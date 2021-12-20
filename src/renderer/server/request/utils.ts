@@ -13,11 +13,59 @@ type UrlInfo = {
 }
 
 class ApidocConverter {
-    /**
-     * apidoc文档详情
-     */
-    private apidoc: ApidocDetail = apidocGenerateApidoc();
+    private apidoc: ApidocDetail = apidocGenerateApidoc(); //apidoc文档详情
 
+    private tempVariables: Record<string, unknown> = {}; //临时变量
+
+    private collectionVariables: Record<string, unknown> = {}; //集合内变量
+
+    /*
+    |--------------------------------------------------------------------------
+    | 变量相关
+    |--------------------------------------------------------------------------
+    */
+    /**
+    * 改变临时变量值
+    */
+    changeTempVariables(variables: Record<string, unknown>) {
+        this.tempVariables = variables;
+    }
+
+    /**
+    * 获取所有临时变量值
+    */
+    getTempVariables() {
+        return this.tempVariables;
+    }
+
+    /**
+     * 删除所有临时变量
+     */
+    clearTempVariables() {
+        Object.keys(this.tempVariables).forEach(key => {
+            delete this.tempVariables[key];
+        })
+    }
+
+    /**
+     * 改变全局变量值
+     */
+    changeCollectionVariables(variables: Record<string, unknown>) {
+        this.collectionVariables = variables;
+    }
+
+    /**
+     * 获取所有全局变量
+     */
+    getCollectionVariables() {
+        return this.collectionVariables;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 内部转换方法
+    |--------------------------------------------------------------------------
+    */
     /**
      * 将queryParams转换成字符串查询字符串
      */
@@ -155,7 +203,6 @@ class ApidocConverter {
                 }
             }
         })
-        console.log("headers", realHeaders)
         return realHeaders;
     }
 

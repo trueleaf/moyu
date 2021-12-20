@@ -175,26 +175,17 @@ export function sendRequest(): void {
     store.commit("apidoc/response/changeIsResponse", false);
     store.commit("apidoc/baseInfo/clearTempVariables");
     store.commit("apidoc/response/changeLoading", true);
-    const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc))
+    const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
+    const cpApidoc2 = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
     apidocConverter.setData(cpApidoc as ApidocDetail);
-    electronRequest();
+    apidocConverter.clearTempVariables()
     const urlInfo = apidocConverter.getUrlInfo(); //获取完整的url信息
-    const worker = new Worker("worker.js");
-    //初始化变量
-    worker.postMessage(JSON.parse(JSON.stringify({
-        type: "changeEnvironmentVariables",
-        value: store.state["apidoc/baseInfo"].variables
-    })));
-    //初始化请求url
-    worker.postMessage(JSON.parse(JSON.stringify({
-        type: "changeUrlInfo",
-        value: urlInfo
-    })));
+    const worker = new Worker("/sandbox/worker.js");
     //初始化默认apidoc信息
-    worker.postMessage(JSON.parse(JSON.stringify({
-        type: "changeApidoc",
-        value: JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc)),
-    })));
+    worker.postMessage({
+        type: "init",
+        value: cpApidoc2
+    });
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
         type: "request",
@@ -217,8 +208,10 @@ export function sendRequest(): void {
             electronRequest();
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
-            store.commit("apidoc/baseInfo/changeTempVariables", res.data.value);
-            Object.assign(urlInfo, apidocConverter.getUrlInfo());
+            apidocConverter.changeTempVariables(res.data.value);
+        }
+        if (res.data.type === "change-collection-variables") { //改版集合内变量
+            apidocConverter.changeCollectionVariables(res.data.value);
         }
         if (res.data.type === "change-full-url") { //改变完整url
             urlInfo.fullUrl = res.data.value
