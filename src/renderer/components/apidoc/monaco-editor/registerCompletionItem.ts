@@ -1,6 +1,17 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
-const variableSuggestion = [{
+type Suggestions = {
+    label: {
+        label: string,
+        description: string
+    },
+    kind: monaco.languages.CompletionItemKind,
+    insertText: string,
+    trigger: string[],
+    sortText?: string
+}[]
+
+const variableSuggestions = [{
     label: {
         label: "variables",
         description: "临时变量"
@@ -78,7 +89,7 @@ const variableSuggestion = [{
     insertText: "toObject",
     trigger: ["pm.variables."]
 }]
-const collectionVariableSuggestion = [{
+const collectionVariableSuggestions = [{
     label: {
         label: "collectionVariables",
         description: "集合内变量(跨接口使用)"
@@ -90,7 +101,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "get",
-        description: "获取单个集合内变量"
+        description: "获取单个变量"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `get("变量名称")`,
@@ -99,7 +110,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "set",
-        description: "设置集合内变量值"
+        description: "设置变量值"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `set("变量名称", "变量值")`,
@@ -108,7 +119,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "update",
-        description: "更新集合内变量"
+        description: "更新变量"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `update("变量名称", "变量值")`,
@@ -117,7 +128,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "upsert",
-        description: "更新集合内变量(不存在则新增)"
+        description: "更新变量(不存在则新增)"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `upsert("变量名称", "变量值")`,
@@ -126,7 +137,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "has",
-        description: "判断集合内变量是否存在"
+        description: "判断变量是否存在"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `has("变量名称")`,
@@ -134,7 +145,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "unset",
-        description: "删除集合内变量值(同delete)"
+        description: "删除变量值(同delete)"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `unset("变量名称")`,
@@ -142,7 +153,7 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "delete",
-        description: "删除集合内变量值(同unset)"
+        description: "删除变量值(同unset)"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `delete("变量名称")`,
@@ -150,22 +161,13 @@ const collectionVariableSuggestion = [{
 }, {
     label: {
         label: "toObject",
-        description: "以对象形式输出集合内变量"
+        description: "以对象形式输出变量"
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "toObject",
     trigger: ["pm.collectionVariables."]
 }]
-
-const suggestions = [{
-    label: {
-        label: "pm",
-        description: "全局对象"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "pm",
-    trigger: ["p"],
-}, ...variableSuggestion, ...collectionVariableSuggestion, {
+const requestSuggestions = [{
     label: {
         label: "request",
         description: "全局请求"
@@ -203,11 +205,21 @@ const suggestions = [{
     trigger: ["pm.request."]
 }, {
     label: {
-        label: "rawUrl",
-        description: "原始url(变量未被替换)"
+        label: "host",
+        description: "请求host"
     },
+    sortText: "4",
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "rawUrl",
+    insertText: "host",
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "path",
+        description: "请求path"
+    },
+    sortText: "5",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "path",
     trigger: ["pm.request."]
 }, {
     label: {
@@ -217,7 +229,68 @@ const suggestions = [{
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
     trigger: ["pm.request."]
+}, {
+    label: {
+        label: "headers",
+        description: "请求头"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `headers`,
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "add",
+        description: "新增请求头"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `add("名称", "值")`,
+    trigger: ["pm.request.headers."]
+}, {
+    label: {
+        label: "delete",
+        description: "删除请求头"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `delete("名称")`,
+    trigger: ["pm.request.headers."]
+}, {
+    label: {
+        label: "remove",
+        description: "删除请求头"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `remove("名称")`,
+    trigger: ["pm.request.headers."]
+}, {
+    label: {
+        label: "update",
+        description: "更新请求头"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `update("名称", "值")`,
+    trigger: ["pm.request.headers."]
+}, {
+    label: {
+        label: "upsert",
+        description: "更新请求头，如果没有则新增"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `remove("名称", "值")`,
+    trigger: ["pm.request.headers."]
 }]
+
+const suggestions: Suggestions = [{
+    label: {
+        label: "pm",
+        description: "全局对象"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "pm",
+    trigger: ["p"],
+},
+...variableSuggestions,
+...collectionVariableSuggestions,
+...requestSuggestions]
 
 export function useCompletionItem(): monaco.IDisposable {
     return monaco.languages.registerCompletionItemProvider("javascript", {
