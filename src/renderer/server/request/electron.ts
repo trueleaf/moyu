@@ -1,7 +1,7 @@
 import type { Got } from "got"
 import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
-import FormData from "form-data"
+import type FormData from "form-data"
 import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
@@ -90,7 +90,7 @@ function electronRequest() {
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
-            body = apidocConverter.getRequestBody();
+            body = apidocConverter.getRequestBody() as (string | FormData);
         }
         const headers = apidocConverter.getHeaders();
         console.log("请求参数", requestUrl, headers)
@@ -178,8 +178,8 @@ export function sendRequest(): void {
     const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
     const cpApidoc2 = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
     apidocConverter.setData(cpApidoc as ApidocDetail);
+    apidocConverter.replaceUrl("");
     apidocConverter.clearTempVariables()
-    const urlInfo = apidocConverter.getUrlInfo(); //获取完整的url信息
     const worker = new Worker("/sandbox/worker.js");
     //初始化默认apidoc信息
     worker.postMessage({
@@ -213,8 +213,11 @@ export function sendRequest(): void {
         if (res.data.type === "change-collection-variables") { //改版集合内变量
             apidocConverter.changeCollectionVariables(res.data.value);
         }
-        if (res.data.type === "change-full-url") { //改变完整url
-            urlInfo.fullUrl = res.data.value
+        if (res.data.type === "replace-url") { //改变完整url
+            apidocConverter.replaceUrl(res.data.value);
+        }
+        if (res.data.type === "change-headers") { //改变请求头
+            apidocConverter.changeHeaders(res.data.value);
         }
     })
 }

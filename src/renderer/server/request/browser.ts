@@ -1,5 +1,5 @@
 import Axios, { Method } from "axios"
-import FormData from "form-data"
+import type FormData from "form-data"
 import { axios as axios2 } from "@/api/api"
 import { store as onlineStore } from "@/store/index"
 import config from "./config"
@@ -40,7 +40,7 @@ export function sendRequest(): void {
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
-            body = apidocConverter.getRequestBody();
+            body = apidocConverter.getRequestBody() as (string | FormData);
         }
         //=====================================代理发送请求====================================//
         if (useProxy) {

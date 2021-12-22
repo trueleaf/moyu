@@ -1,7 +1,14 @@
 import type { ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
-import FormData from "form-data"
-import { apidocConvertValue, apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
-
+import type IFromData from "form-data"
+import { apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let FormData: any = null;
+// eslint-disable-next-line prefer-destructuring
+FormData = window.FormData;
+if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
+    FormData = window.require("form-data");
+}
 /**
  * 获取url信息
  */
@@ -18,6 +25,8 @@ class ApidocConverter {
     private tempVariables: Record<string, unknown> = {}; //临时变量
 
     private collectionVariables: Record<string, unknown> = {}; //集合内变量
+
+    private replacedUrl = ""; //替换后url
 
     /*
     |--------------------------------------------------------------------------
@@ -61,6 +70,22 @@ class ApidocConverter {
         return this.collectionVariables;
     }
 
+    private convertPlaceholder(value: string) {
+        const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
+        const allVariables = {
+            ...JSON.parse(JSON.stringify(this.collectionVariables)),
+            ...JSON.parse(JSON.stringify(this.tempVariables)),
+        };
+        let convertValue = value;
+        if (matchdVariable) {
+            const realValue = allVariables[matchdVariable[1]];
+            if (realValue != null) {
+                convertValue = realValue
+            }
+        }
+        return convertValue;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | 内部转换方法
@@ -73,7 +98,7 @@ class ApidocConverter {
         let queryString = "";
         queryParams.forEach((v) => {
             if (v.key && v.select) {
-                queryString += `${v.key}=${apidocConvertValue(v.value)}&`
+                queryString += `${v.key}=${this.convertPlaceholder(v.value)}&`
             }
         })
         queryString = queryString.replace(/&$/, "");
@@ -86,8 +111,9 @@ class ApidocConverter {
     /**
      * 将formData转换为formData字符串
      */
-    private convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string" | "file">[]): { data: FormData, headers: FormData.Headers } {
+    private convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string" | "file">[]): { data: FormData, headers: IFromData.Headers } {
         const formData = new FormData();
+        console.log("formData", formData)
         let fs = null;
         if (window.require) {
             // eslint-disable-next-line prefer-destructuring
@@ -101,7 +127,7 @@ class ApidocConverter {
                 continue;
             }
             if (item.type === "string") { //字符串类型
-                formData.append(item.key, apidocConvertValue(item.value));
+                formData.append(item.key, this.convertPlaceholder(item.value));
             } else if (item.type === "file") { //文件处理
                 try {
                     fs.accessSync(item.value);
@@ -125,7 +151,7 @@ class ApidocConverter {
         let result = "";
         urlencoded.forEach((v) => {
             if (v.key && v.select) {
-                result += `${v.key}=${apidocConvertValue(v.value)}&`
+                result += `${v.key}=${this.convertPlaceholder(v.value)}&`
             }
         })
         result = result.replace(/&$/, "");
@@ -139,7 +165,7 @@ class ApidocConverter {
         const pathMap: Record<string, string> = {};
         pathParams.forEach((v) => {
             if (v.key) {
-                pathMap[v.key] = apidocConvertValue(v.value);
+                pathMap[v.key] = this.convertPlaceholder(v.value);
             }
         })
         return pathMap;
@@ -165,8 +191,15 @@ class ApidocConverter {
             host: url.host,
             path: url.path,
             url: url.host + validPath,
-            fullUrl,
+            fullUrl: this.replacedUrl ? this.replacedUrl : fullUrl,
         }
+    }
+
+    /**
+     * 替换url
+     */
+    replaceUrl(url: string) {
+        this.replacedUrl = url;
     }
 
     /**
@@ -192,17 +225,12 @@ class ApidocConverter {
         headers.forEach((item) => {
             const itemKey = item.key.toLocaleLowerCase();
             if (item.select && itemKey) {
-                if (itemKey === "user-agent") {
-                    realHeaders[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
-                } else if (itemKey === "accept-encoding") {
-                    realHeaders[itemKey] = "gzip, deflate, br";
-                } else if (itemKey === "connection") {
-                    realHeaders[itemKey] = "keep-alive";
-                } else {
-                    realHeaders[itemKey] = item.value;
-                }
+                realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
+        realHeaders["user-agent"] = "moyu(https://github.com/trueleaf/moyu)";
+        realHeaders["accept-encoding"] = "gzip, deflate, br";
+        realHeaders.connection = "keep-alive";
         return realHeaders;
     }
 
@@ -219,6 +247,20 @@ class ApidocConverter {
         } else {
             this.apidoc.item.headers.push(property)
         }
+    }
+
+    /**
+     * 改变请求头
+     */
+    changeHeaders(headers: Record<string, string>) {
+        const result: ApidocProperty<"string">[] = [];
+        Object.keys(headers).forEach(key => {
+            const property = apidocGenerateProperty();
+            property.key = key;
+            property.value = headers[key];
+            result.push(property);
+        })
+        this.apidoc.item.headers = result;
     }
 
     /**
