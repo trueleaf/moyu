@@ -1,5 +1,5 @@
 /* eslint-disable */ 
-import { app, protocol, BrowserWindow } from "electron"
+import { app, shell, protocol, BrowserWindow } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
 // import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer"
 import update from "./update";
@@ -63,20 +63,17 @@ app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
-    // if (isDevelopment && !process.env.IS_TEST) {
-    //     try {
-    //         await installExtension(VUEJS3_DEVTOOLS)
-    //     } catch (e) {
-    //         console.error("Vue Devtools failed to install:", (e as Error).toString())
-    //     }
-    // }
     createWindow()
     update();
 })
+
+app.on("web-contents-created", (e, webContents) => {
+    webContents.addListener("new-window", (e, url) => {
+        e.preventDefault();
+        shell.openExternal(url);
+    })
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
