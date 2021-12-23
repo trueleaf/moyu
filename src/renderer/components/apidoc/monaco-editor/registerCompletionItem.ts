@@ -277,6 +277,46 @@ const requestSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `remove("名称", "值")`,
     trigger: ["pm.request.headers."]
+}, {
+    label: {
+        label: "body",
+        description: "请求body参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: `body`,
+    trigger: ["pm.request."]
+}, {
+    label: {
+        label: "json",
+        description: "json参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `json`,
+    trigger: ["pm.request.body."]
+}, {
+    label: {
+        label: "urlencoded",
+        description: "urlencoded参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `urlencoded`,
+    trigger: ["pm.request.body."]
+}, {
+    label: {
+        label: "formdata",
+        description: "formdata参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `formdata`,
+    trigger: ["pm.request.body."]
+}, {
+    label: {
+        label: "raw",
+        description: "raw参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `raw`,
+    trigger: ["pm.request.body."]
 }]
 
 const suggestions: Suggestions = [{
