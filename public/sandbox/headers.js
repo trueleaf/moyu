@@ -14,25 +14,41 @@ Object.setPrototypeOf(headers, {
      */
     add(key, value) {
         headers[key] = value;
+        self.postMessage({
+            type: "change-headers",
+            value: headers
+        })
     },
     /**
      * 删除header
      */
-    delete() {
+    delete(key) {
         delete headers[key];
+        self.postMessage({
+            type: "change-headers",
+            value: headers
+        })
     },
     /**
      * 删除header
      */
-    remove() {
+    remove(key) {
         delete headers[key];
+        self.postMessage({
+            type: "change-headers",
+            value: headers
+        })
     },
     /**
      * 更新一个请求头
      */
     update(key, value) {
-        if (headers[key] == null) {
+        if (!headers[key] == null) {
             headers[key] = value;
+            self.postMessage({
+                type: "change-headers",
+                value: headers
+            })
         }
     },
     /**
@@ -40,5 +56,9 @@ Object.setPrototypeOf(headers, {
      */
     upsert(key, value) {
         headers[key] = value;
+        self.postMessage({
+            type: "change-headers",
+            value: headers
+        })
     },
 });

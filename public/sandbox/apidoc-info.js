@@ -31,17 +31,28 @@ Object.setPrototypeOf(apidocInfo, {
         rawHeaders.forEach((item) => {
             const itemKey = item.key.toLocaleLowerCase();
             if (item.select && itemKey) {
-                if (itemKey === "user-agent") {
-                    headers[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
-                } else if (itemKey === "accept-encoding") {
-                    headers[itemKey] = "gzip, deflate, br";
-                } else if (itemKey === "connection") {
-                    headers[itemKey] = "keep-alive";
-                } else {
-                    headers[itemKey] = convertPlaceholder(item.value);
-                }
+                headers[itemKey] = convertPlaceholder(item.value);
             }
         })
-
+        headers["user-agent"] = "moyu(https://github.com/trueleaf/moyu)";
+        headers["accept-encoding"] = "gzip, deflate, br";
+        headers.connection = "keep-alive";
+    },
+    /**
+     * 初始化请求body
+     */
+    initBody() {
+        const { requestBody } = apidocInfo.item;
+        const arrFormdata = requestBody.formdata.filter(v => v.key.trim() !== "").map(v => ({ key: v.key, value: v.value }));
+        const objFormData = {};
+        arrFormdata.forEach(data => {
+            if (data.type === "string") {
+                objFormData[data.key] = data.value
+            }
+        })
+        body.urlencoded = requestBody.urlencoded.filter(v => v.key.trim() !== "").map(v => ({ key: v.key, value: v.value }));
+        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json));
+        Object.assign(formdataBody, objFormData)
+        body.raw = requestBody.raw;
     },
 })
