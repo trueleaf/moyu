@@ -385,7 +385,7 @@ type ApidocBodyParams = {
     /**
      * formData类型参数
      */
-    formdata: ApidocProperty<"string">[],
+    formdata: ApidocProperty<"string" | "file">[],
     /**
      * urlencoded类型参数
      */
