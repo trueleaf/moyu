@@ -1,6 +1,7 @@
 import type { ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
 import { apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
+import { store } from "@/store";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line prefer-destructuring
@@ -228,6 +229,7 @@ class ApidocConverter {
                 realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
+        realHeaders["content-type"] = realHeaders["content-type"] ? realHeaders["content-type"] : store.state["apidoc/apidoc"].apidoc.item.contentType;
         realHeaders["user-agent"] = "moyu(https://github.com/trueleaf/moyu)";
         realHeaders["accept-encoding"] = "gzip, deflate, br";
         realHeaders.connection = "keep-alive";
@@ -261,6 +263,31 @@ class ApidocConverter {
             result.push(property);
         })
         this.apidoc.item.headers = result;
+    }
+
+    /**
+     * 改变json body信息
+     */
+    changeJsonBody(jsonData: ApidocProperty[]) {
+        this.apidoc.item.requestBody.json = jsonData;
+    }
+
+    /**
+     * 改变formdata body信息
+     */
+    changeFormdataBody(objFormdata: Record<string, string>) {
+        const fileData = this.apidoc.item.requestBody.formdata.filter(v => v.type === "file");
+        const stringData: ApidocProperty<"string">[] = [];
+        Object.keys(objFormdata).forEach((key) => {
+            if (!fileData.find(v => v.key === key)) {
+                const property = apidocGenerateProperty();
+                property.key = key;
+                property.value = objFormdata[key];
+                stringData.push(property);
+            }
+        })
+        // console.log(333, fileData.concat(stringData))
+        this.apidoc.item.requestBody.formdata = fileData.concat(stringData)
     }
 
     /**
