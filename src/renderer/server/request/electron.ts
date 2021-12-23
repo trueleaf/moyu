@@ -8,6 +8,7 @@ import { store } from "@/store/index"
 import config from "./config"
 import { $t } from "@/i18n/i18n"
 import apidocConverter from "./utils"
+import { apidocConvertJsonDataToParams } from "@/helper/index"
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -93,7 +94,9 @@ function electronRequest() {
             body = apidocConverter.getRequestBody() as (string | FormData);
         }
         const headers = apidocConverter.getHeaders();
-        console.log("请求参数", requestUrl, headers)
+        console.log("请求url", requestUrl);
+        console.log("请求header", headers);
+        console.log("请求body", body);
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeIsResponse", true)
@@ -218,6 +221,13 @@ export function sendRequest(): void {
         }
         if (res.data.type === "change-headers") { //改变请求头
             apidocConverter.changeHeaders(res.data.value);
+        }
+        if (res.data.type === "change-json-body") { //改变请求body
+            const moyuJson = apidocConvertJsonDataToParams(res.data.value);
+            apidocConverter.changeJsonBody(moyuJson);
+        }
+        if (res.data.type === "change-formdata-body") { //改变请求formdata body
+            apidocConverter.changeFormdataBody(res.data.value);
         }
     })
 }

@@ -16,7 +16,7 @@ import { store } from "@/store/index"
 
 const preRequest = computed({
     get() {
-        return store.state["apidoc/apidoc"].apidoc.preRequest.raw;
+        return store.state["apidoc/apidoc"].apidoc?.preRequest.raw;
     },
     set(val) {
         store.commit("apidoc/apidoc/changePreRequest", val);
