@@ -51,7 +51,7 @@ Object.setPrototypeOf(apidocInfo, {
             }
         })
         body.urlencoded = requestBody.urlencoded.filter(v => v.key.trim() !== "").map(v => ({ key: v.key, value: v.value }));
-        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json));
+        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json) || {});
         Object.assign(formdataBody, objFormData)
         body.raw = requestBody.raw;
     },

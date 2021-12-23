@@ -1,4 +1,4 @@
-import type { ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
+import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
 import { apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
 import { store } from "@/store";
@@ -114,7 +114,6 @@ class ApidocConverter {
      */
     private convertFormDataToFormDataString(bodyFormData: ApidocProperty<"string" | "file">[]): { data: FormData, headers: IFromData.Headers } {
         const formData = new FormData();
-        console.log("formData", formData)
         let fs = null;
         if (window.require) {
             // eslint-disable-next-line prefer-destructuring
@@ -229,6 +228,7 @@ class ApidocConverter {
                 realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
+        console.log(JSON.stringify(headers), 9)
         realHeaders["content-type"] = realHeaders["content-type"] ? realHeaders["content-type"] : store.state["apidoc/apidoc"].apidoc.item.contentType;
         realHeaders["user-agent"] = "moyu(https://github.com/trueleaf/moyu)";
         realHeaders["accept-encoding"] = "gzip, deflate, br";
@@ -257,6 +257,9 @@ class ApidocConverter {
     changeHeaders(headers: Record<string, string>) {
         const result: ApidocProperty<"string">[] = [];
         Object.keys(headers).forEach(key => {
+            if (key.toLocaleLowerCase() === "content-type" || key.toLocaleLowerCase() === "contenttype") {
+                this.apidoc.item.contentType = headers[key] as ApidocContentType
+            }
             const property = apidocGenerateProperty();
             property.key = key;
             property.value = headers[key];
@@ -269,6 +272,18 @@ class ApidocConverter {
      * 改变json body信息
      */
     changeJsonBody(jsonData: ApidocProperty[]) {
+        const { requestBody } = this.apidoc.item
+        const { mode } = requestBody;
+        const matchedContentTypeHeader = this.apidoc.item.headers.find(v => v.key.toLocaleLowerCase() === "content-type" || v.key.toLocaleLowerCase() === "contenttype")
+        if (mode === "json") {
+            this.apidoc.item.contentType = "application/json";
+            if (!matchedContentTypeHeader) {
+                const property = apidocGenerateProperty();
+                property.key = "content-type";
+                property.value = "application/json";
+                this.apidoc.item.headers.push(property)
+            }
+        }
         this.apidoc.item.requestBody.json = jsonData;
     }
 
@@ -286,7 +301,6 @@ class ApidocConverter {
                 stringData.push(property);
             }
         })
-        // console.log(333, fileData.concat(stringData))
         this.apidoc.item.requestBody.formdata = fileData.concat(stringData)
     }
 
