@@ -73,6 +73,10 @@ export default defineComponent({
             immediate: true,
         })
     },
+    beforeUnmount() {
+        this.editorInstance?.destroy()
+        // console.log("leave", this.editorInstance?.destroy)
+    },
     methods: {
         initEditor() {
             this.editorInstance = ace.edit(this.$el);
@@ -93,7 +97,7 @@ export default defineComponent({
                 }
                 const content = this.editorInstance?.getValue();
                 this.$emit("update:modelValue", content);
-                // this.$emit("change", content);
+                this.$emit("change", content);
             });
             this.$emit("ready", this.editorInstance);
         },
