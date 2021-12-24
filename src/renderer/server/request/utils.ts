@@ -1,7 +1,6 @@
 import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
 import { apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
-import { store } from "@/store";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line prefer-destructuring
@@ -28,6 +27,8 @@ class ApidocConverter {
     private collectionVariables: Record<string, unknown> = {}; //集合内变量
 
     private replacedUrl = ""; //替换后url
+
+    private multipartHeaders = ""; //multipart格式请求头
 
     /*
     |--------------------------------------------------------------------------
@@ -221,34 +222,23 @@ class ApidocConverter {
      */
     getHeaders() {
         const realHeaders: Record<string, string | undefined> = {};
-        const { headers } = this.apidoc.item;
+        const { headers, requestBody, contentType } = this.apidoc.item;
+        const { mode } = requestBody;
         headers.forEach((item) => {
             const itemKey = item.key.toLocaleLowerCase();
             if (item.select && itemKey) {
                 realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
-        console.log(JSON.stringify(headers), 9)
-        realHeaders["content-type"] = realHeaders["content-type"] ? realHeaders["content-type"] : store.state["apidoc/apidoc"].apidoc.item.contentType;
-        realHeaders["user-agent"] = "moyu(https://github.com/trueleaf/moyu)";
-        realHeaders["accept-encoding"] = "gzip, deflate, br";
-        realHeaders.connection = "keep-alive";
-        return realHeaders;
-    }
-
-    /**
-     * upsert请求头
-     */
-    upsertHeader(key: string, value: string) {
-        const property = apidocGenerateProperty();
-        property.key = key;
-        property.value = value;
-        const matchedHeaderItem = this.apidoc.item.headers.find(v => v.key === key);
-        if (matchedHeaderItem) {
-            matchedHeaderItem.value = value;
+        if (mode === "formdata") {
+            realHeaders["content-type"] = this.multipartHeaders;
         } else {
-            this.apidoc.item.headers.push(property)
+            realHeaders["content-type"] = contentType
         }
+        if (!contentType) {
+            delete realHeaders["content-type"]
+        }
+        return realHeaders;
     }
 
     /**
@@ -305,6 +295,27 @@ class ApidocConverter {
     }
 
     /**
+     * 改变urlencoded
+     */
+    changeUrlencodedBody(objUrlencoded: Record<string, string>) {
+        const result: ApidocProperty<"string">[] = [];
+        Object.keys(objUrlencoded).forEach((key) => {
+            const property = apidocGenerateProperty();
+            property.key = key;
+            property.value = objUrlencoded[key];
+            result.push(property);
+        })
+        this.apidoc.item.requestBody.urlencoded = result
+    }
+
+    /**
+     * 改变raw body信息
+     */
+    changeRawBody(rawData: string) {
+        this.apidoc.item.requestBody.raw.data = rawData
+    }
+
+    /**
      * 获取body信息
      */
     getRequestBody() {
@@ -321,8 +332,8 @@ class ApidocConverter {
         case "multipart/form-data":
             // eslint-disable-next-line no-case-declarations
             const { data, headers } = this.convertFormDataToFormDataString(requestBody.formdata);
+            this.multipartHeaders = headers["content-type"];
             body = data
-            this.upsertHeader("content-type", headers["content-type"]);
             break;
         case "text/plain":
             body = requestBody.raw.data;
