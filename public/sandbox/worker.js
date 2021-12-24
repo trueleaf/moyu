@@ -44,7 +44,14 @@ const jsonBodyValidator = {
             value: JSON.parse(JSON.stringify(jsonBody))
         })
         return true;
-    }
+    },
+    deleteProperty(target, prop) {
+        delete target[prop];
+        self.postMessage({
+            type: "change-json-body",
+            value: JSON.parse(JSON.stringify(jsonBody))
+        })
+    },
 }
 const formdataBodyValidator = {
     get(target, key) {
@@ -64,10 +71,66 @@ const formdataBodyValidator = {
             value: JSON.parse(JSON.stringify(formdataBody))
         })
         return true;
-    }
+    },
+    deleteProperty(target, prop) {
+        delete target[prop];
+        self.postMessage({
+            type: "change-formdata-body",
+            value: JSON.parse(JSON.stringify(formdataBody))
+        })
+    },
 }
+const urlencodedValidator = {
+    get(target, key) {
+        if (typeof target[key] === "object") {
+            throw Error(`urlencoded数据不支持嵌套`);
+        } else {
+            return target[key];
+        }
+    },
+    set(obj, prop, value) {
+        if (typeof value !== "string") {
+            throw TypeError(`给 ${prop} 赋值时出错，urlencoded数据值类型只能为字符串`);
+        }
+        obj[prop] = value;
+        self.postMessage({
+            type: "change-urlencoded-body",
+            value: JSON.parse(JSON.stringify(urlencodedBody))
+        })
+        return true;
+    },
+    deleteProperty(target, prop) {
+        delete target[prop];
+        self.postMessage({
+            type: "change-urlencoded-body",
+            value: JSON.parse(JSON.stringify(urlencodedBody))
+        })
+    },
+}
+// const rawValidator = {
+//     get(target, key) {
+//         if (typeof target[key] === "object") {
+//             throw Error(`urlencoded数据不支持嵌套`);
+//         } else {
+//             return target[key];
+//         }
+//     },
+//     set(obj, prop, value) {
+//         if (typeof value !== "string") {
+//             throw TypeError(`给 ${prop} 赋值时出错，urlencoded数据值类型只能为字符串`);
+//         }
+//         obj[prop] = value;
+//         self.postMessage({
+//             type: "change-urlencoded-body",
+//             value: JSON.parse(JSON.stringify(urlencodedBody))
+//         })
+//         return true;
+//     },
+// }
 const jsonBody = new Proxy({}, jsonBodyValidator); //json类型的body参数
 const formdataBody = new Proxy({}, formdataBodyValidator); //formdata类型body参数
+const urlencodedBody = new Proxy({}, urlencodedValidator); //urlencoded类型body参数
+// const rawBody = new Proxy({}, rawValidator)
 const body = new Proxy({}, {
     get(obj, prop) {
         if (prop === "json") {
@@ -76,7 +139,23 @@ const body = new Proxy({}, {
         if (prop === "formdata") {
             return formdataBody
         }
+        if (prop === "urlencoded") {
+            return urlencodedBody;
+        }
+        if (prop === "raw") {
+            return apidocInfo.getRaw();
+        }
     },
+    set(obj, prop, value) {
+        if (prop === "raw") {
+            obj[prop] = value;
+            self.postMessage({
+                type: "change-raw-body",
+                value
+            })
+        }
+        return true;
+    }
 });
 //request参数
 let replacedUrl = "";
@@ -125,7 +204,6 @@ importScripts("./collection-variables.js")
 importScripts("./apidoc-info.js")
 importScripts("./url.js")
 importScripts("./headers.js")
-importScripts("./json-body.js")
 
 //pm对象
 const pm = new Proxy({}, {
