@@ -229,6 +229,12 @@ export function sendRequest(): void {
         if (res.data.type === "change-formdata-body") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);
         }
+        if (res.data.type === "change-urlencoded-body") { //改变请求urlencoded body
+            apidocConverter.changeUrlencodedBody(res.data.value);
+        }
+        if (res.data.type === "change-raw-body") { //改变raw body
+            apidocConverter.changeRawBody(res.data.value);
+        }
     })
 }
 
