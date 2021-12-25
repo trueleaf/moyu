@@ -343,7 +343,7 @@ export default defineComponent({
         handleSearchProject() {
             if (!this.searchFn) {
                 this.searchFn = this.$helper.debounce(() => {
-                    console.log(2222)
+                    //console.log(2222)
                 }, 1000)
             } else {
                 this.searchFn();
