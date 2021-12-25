@@ -96,18 +96,18 @@
                 </div>
                 <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
                     <template #item="{ element }">
-                        <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
-                            <svg class="svg-icon mr-2" aria-hidden="true" @click="handleEmit(element.op)">
+                        <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }" @click="handleEmit(element.op)">
+                            <svg class="svg-icon mr-2" aria-hidden="true">
                                 <use :xlink:href="element.icon"></use>
                             </svg>
-                            <div class="label" @click="handleEmit(element.op)">{{ element.name }}</div>
+                            <div class="label">{{ element.name }}</div>
                             <div class="shortcut">
                                 <span v-for="(item, index) in element.shortcut" :key="item">
                                     <span>{{ item }}</span>
                                     <span v-if="index !== element.shortcut.length - 1">+</span>
                                 </span>
                             </div>
-                            <div class="pin iconfont iconpin" :class="{ active: element.pin }" @click="togglePin(element)"></div>
+                            <div class="pin iconfont iconpin" :class="{ active: element.pin }" @click.stop="togglePin(element)"></div>
                         </div>
                     </template>
                 </s-draggable>
@@ -297,12 +297,27 @@ const handleEmit = (op: ApidocOperations) => {
             selected: true,
         });
         break;
-    case "history": //回收站
+    case "history": //操作审计
         store.commit("apidoc/tabs/addTab", {
             _id: "history",
             projectId,
             tabType: "history",
             label: $t("操作审计"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
+    case "config": //全局设置
+        store.commit("apidoc/tabs/addTab", {
+            _id: "config",
+            projectId,
+            tabType: "config",
+            label: $t("全局设置"),
             head: {
                 icon: "",
                 color: ""
