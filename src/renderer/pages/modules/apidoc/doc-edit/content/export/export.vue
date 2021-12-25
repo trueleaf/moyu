@@ -20,6 +20,12 @@
                     </svg>
                     <div class="mt-1">PDF</div>
                 </div> -->
+                <div class="item" :class="{active: selectedType === 'word'}" @click="selectedType = 'word'">
+                    <svg class="svg-icon" aria-hidden="true">
+                        <use xlink:href="#iconWORD"></use>
+                    </svg>
+                    <div class="mt-1">WORD</div>
+                </div>
                 <div class="item" :class="{active: selectedType === 'moyu'}" @click="selectedType = 'moyu'">
                     <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
                     <div class="mt-1">{{ $t('JSON文档') }}</div>
@@ -102,7 +108,7 @@ import sFork from "./fork/fork.vue"
 import { $t } from "@/i18n/i18n"
 
 //可导出数据类型
-const selectedType: Ref<"html" | "pdf" | "moyu" | "otherProject"> = ref("html")
+const selectedType: Ref<"html" | "pdf" | "word" | "moyu" | "otherProject"> = ref("html")
 //项目基本信息
 const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
 //菜单数据
@@ -178,6 +184,25 @@ const handleExportAsPdf = () => {
         loading.value = false;
     });
 }
+//导出为word
+const handleExportAsWord = () => {
+    const selectedIds = allCheckedNodes.value.map((val) => val._id);
+    loading.value = true;
+    const params = {
+        projectId: router.currentRoute.value.query.id,
+        selectedNodes: selectedIds,
+    };
+    axios.request({
+        method: "post",
+        url: "/api/project/export/word",
+        responseType: "blob",
+        data: params,
+    }).catch((err) => {
+        console.error(err);
+    }).finally(() => {
+        loading.value = false;
+    });
+}
 const handleExport = () => {
     const enableCustomExport = config.value?.enabled;
     const customExportIsEmpty = allCheckedNodes.value.length === 0;
@@ -191,6 +216,8 @@ const handleExport = () => {
         handleExportAsMoyu();
     } else if (selectedType.value === "pdf") {
         handleExportAsPdf();
+    } else if (selectedType.value === "word") {
+        handleExportAsWord();
     } else { //默认兜底导出html
         handleExportAsHTML();
     }
