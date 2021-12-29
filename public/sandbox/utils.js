@@ -1,3 +1,26 @@
+//遍历树结构数据
+function forEachForest(forest, fn, options = { }) {
+    if (!Array.isArray(forest)) {
+        throw new Error("第一个参数必须为数组类型");
+    }
+    const childrenKey = options?.childrenKey || "children";
+    const foo = (forestData, hook) => {
+        for (let i = 0; i < forestData.length; i += 1) {
+            const currentData = forestData[i];
+            hook(currentData);
+            if (!currentData[childrenKey]) {
+                continue;
+            }
+            if (!Array.isArray(currentData[childrenKey])) {
+                continue;
+            }
+            if (currentData[childrenKey].length > 0) {
+                foo(currentData[childrenKey], hook);
+            }
+        }
+    };
+    foo(forest, fn);
+}
 // 转换queryString
 function convertQueryParamsToQueryString(queryParams) {
     let queryString = "";
@@ -44,8 +67,18 @@ function convertToJson(properties, options = {}) {
         const isParentArray = (parent && parent.type === "array");
         const isComplex = (type === "object" || type === "array" || type === "file");
         const keyValIsEmpty = key === "" && value === ""
-        if (jumpChecked && !property.select) { //过滤掉_select属性为false的值
+        if (!isComplex && jumpChecked && !property.select) { //过滤掉_select属性为false的值
             continue;
+        }  else if (isComplex && jumpChecked && !property.select) { //复杂类型，子元素全部为空
+            let halfChecked = false;
+            forEachForest(property.children, (p) => {
+                if (p.select) {
+                    halfChecked = true;
+                }
+            })
+            if (!halfChecked) {
+                continue;
+            }
         }
         if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
             continue

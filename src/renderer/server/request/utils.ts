@@ -324,7 +324,7 @@ class ApidocConverter {
         let body: string | FormData = "";
         switch (contentType) {
         case "application/json":
-            body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
+            body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json, true));
             break;
         case "application/x-www-form-urlencoded":
             body = this.convertUrlencodedToBodyString(requestBody.urlencoded);

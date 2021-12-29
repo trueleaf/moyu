@@ -54,7 +54,7 @@ Object.setPrototypeOf(apidocInfo, {
                 objUrlencodedData[data.key] = data.value
             }
         })
-        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json) || {});
+        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json, true) || {});
         Object.assign(formdataBody, objFormData)
         Object.assign(urlencodedBody, objUrlencodedData)
         body.raw = requestBody.raw.data;
