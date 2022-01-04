@@ -157,6 +157,17 @@ const body = new Proxy({}, {
         return true;
     }
 });
+//发送请求
+let isSendRequest = false;
+let requestCb = null;
+const sendRequest = (url, cb) => {
+    isSendRequest = true;
+    requestCb = cb;
+    self.postMessage({
+        type: "send-request",
+        value: url
+    })
+}
 //request参数
 let replacedUrl = "";
 const request = new Proxy({}, {
@@ -217,6 +228,9 @@ const pm = new Proxy({}, {
         if (prop === "request") { //request对象
             return request;
         }
+        if (prop === "sendRequest") {
+            return sendRequest;
+        }
     },
 })
 
@@ -228,13 +242,29 @@ self.addEventListener("message", (e) => {
         apidocInfo.initBody();
         replacedUrl = "";
     } 
+    // 请求成功
+    if (e.data && e.data.type === "request-success") {
+        requestCb(null, e.data.value);
+        self.postMessage({
+            type: "worker-response",
+        })
+    } 
+    // 请求失败
+    if (e.data && e.data.type === "request-error") {
+        requestCb(e.data.value, null);
+        self.postMessage({
+            type: "worker-response",
+        })
+    } 
     //发送请求
     if (e.data && e.data.type === "request") {
         eval(`(function(pm) { 
             ${e.data.value}
         })(pm)`);
-        self.postMessage({
-            type: "worker-response",
-        })
+        if (!isSendRequest) { //如果为发送请求，则不回复response
+            self.postMessage({
+                type: "worker-response",
+            })
+        }
     }
 });
