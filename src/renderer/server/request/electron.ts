@@ -207,6 +207,26 @@ export function sendRequest(): void {
         if (typeof res.data !== "object") {
             return
         }
+        if (res.data.type === "send-request") { //发送ajax请求
+            (got as Got)(res.data.value).then(response => {
+                console.log(response)
+                worker.postMessage({
+                    type: "request-success",
+                    value: {
+                        headers: JSON.parse(JSON.stringify(response.headers)),
+                        status: response.statusMessage,
+                        code: response.statusCode,
+                        responseTime: response.timings.phases.total,
+                        body: response.body,
+                    }
+                });
+            }).catch(err => {
+                worker.postMessage({
+                    type: "request-error",
+                    value: err
+                });
+            })
+        }
         if (res.data.type === "worker-response") { //脚本执行完
             electronRequest();
         }
