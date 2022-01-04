@@ -347,6 +347,9 @@ class ApidocConverter {
         case "text/javascript":
             body = requestBody.raw.data;
             break;
+        case "":
+            body = requestBody.raw.data;
+            break;
         default:
             console.warn(`未知的mime类型${contentType}`)
             body = requestBody.raw.data;
