@@ -259,6 +259,20 @@ class ApidocConverter {
     }
 
     /**
+     * 改变queryparams
+     */
+    changeQueryParams(objQueryParams: Record<string, string>) {
+        const result: ApidocProperty<"string">[] = [];
+        Object.keys(objQueryParams).forEach((key) => {
+            const property = apidocGenerateProperty();
+            property.key = key;
+            property.value = objQueryParams[key];
+            result.push(property);
+        })
+        this.apidoc.item.queryParams = result
+    }
+
+    /**
      * 改变json body信息
      */
     changeJsonBody(jsonData: ApidocProperty[]) {
