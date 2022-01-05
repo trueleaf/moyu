@@ -29,6 +29,33 @@ const collectionVariables = new Proxy({}, {
 */
 const url = {}; //url相关信息
 const headers = {}; //headers相关信息
+const queryParamsValidator = {
+    get(target, key) {
+        if (typeof target[key] === "object") {
+            throw Error(`query参数不支持嵌套`);
+        } else {
+            return target[key];
+        }
+    },
+    set(obj, prop, value) {
+        if (typeof value !== "string") {
+            throw TypeError(`给 ${prop} 赋值时出错，query参数类型只能为字符串`);
+        }
+        obj[prop] = value;
+        self.postMessage({
+            type: "change-query-params",
+            value: JSON.parse(JSON.stringify(queryParams))
+        })
+        return true;
+    },
+    deleteProperty(target, prop) {
+        delete target[prop];
+        self.postMessage({
+            type: "change-query-params",
+            value: JSON.parse(JSON.stringify(queryParams))
+        })
+    },
+}
 const jsonBodyValidator = {
     get(target, key) {
         if (typeof target[key] === "object" && target[key] !== null) {
@@ -127,6 +154,7 @@ const urlencodedValidator = {
 //         return true;
 //     },
 // }
+const queryParams = new Proxy({}, queryParamsValidator)
 const jsonBody = new Proxy({}, jsonBodyValidator); //json类型的body参数
 const formdataBody = new Proxy({}, formdataBodyValidator); //formdata类型body参数
 const urlencodedBody = new Proxy({}, urlencodedValidator); //urlencoded类型body参数
@@ -206,6 +234,9 @@ const request = new Proxy({}, {
         if (prop === "body") {
             return body;
         }
+        if (prop === "queryParams") {
+            return queryParams;
+        }
     }
 });
 
@@ -240,6 +271,7 @@ self.addEventListener("message", (e) => {
         Object.assign(apidocInfo, e.data.value);
         apidocInfo.initHeaders();
         apidocInfo.initBody();
+        apidocInfo.initParams();
         replacedUrl = "";
     } 
     // 请求成功
