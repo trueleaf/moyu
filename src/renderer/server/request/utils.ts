@@ -259,6 +259,20 @@ class ApidocConverter {
     }
 
     /**
+     * 改变queryparams
+     */
+    changeQueryParams(objQueryParams: Record<string, string>) {
+        const result: ApidocProperty<"string">[] = [];
+        Object.keys(objQueryParams).forEach((key) => {
+            const property = apidocGenerateProperty();
+            property.key = key;
+            property.value = objQueryParams[key];
+            result.push(property);
+        })
+        this.apidoc.item.queryParams = result
+    }
+
+    /**
      * 改变json body信息
      */
     changeJsonBody(jsonData: ApidocProperty[]) {
@@ -324,7 +338,7 @@ class ApidocConverter {
         let body: string | FormData = "";
         switch (contentType) {
         case "application/json":
-            body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
+            body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json, true));
             break;
         case "application/x-www-form-urlencoded":
             body = this.convertUrlencodedToBodyString(requestBody.urlencoded);
@@ -345,6 +359,9 @@ class ApidocConverter {
             body = requestBody.raw.data;
             break;
         case "text/javascript":
+            body = requestBody.raw.data;
+            break;
+        case "":
             body = requestBody.raw.data;
             break;
         default:

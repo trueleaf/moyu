@@ -24,6 +24,20 @@ Object.setPrototypeOf(apidocInfo, {
         return apidocInfo.item.method;
     },
     /**
+     * 初始化params参数
+     */
+    initParams() {
+        const arrQueryParams = apidocInfo.item.queryParams.filter(v => v.key.trim() !== "").map(v => ({ key: v.key, value: v.value, type: v.type }));
+        const objQueryParams = {};
+        
+        arrQueryParams.forEach(data => {
+            if (data.type === "string") {
+                objQueryParams[data.key] = data.value
+            }
+        })
+        Object.assign(queryParams, objQueryParams)
+    },
+    /**
      * 初始化请求头
      */
     initHeaders() {
@@ -54,7 +68,7 @@ Object.setPrototypeOf(apidocInfo, {
                 objUrlencodedData[data.key] = data.value
             }
         })
-        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json) || {});
+        Object.assign(jsonBody, apidocConvertParamsToJsonData(requestBody.json, true) || {});
         Object.assign(formdataBody, objFormData)
         Object.assign(urlencodedBody, objUrlencodedData)
         body.raw = requestBody.raw.data;

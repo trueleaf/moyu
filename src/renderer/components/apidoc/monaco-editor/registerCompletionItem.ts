@@ -7,7 +7,7 @@ type Suggestions = {
     },
     kind: monaco.languages.CompletionItemKind,
     insertText: string,
-    trigger: string[],
+    keyword: string,
     sortText?: string
 }[]
 
@@ -19,7 +19,7 @@ const variableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "variables",
     sortText: "1",
-    trigger: ["pm."]
+    keyword: "pm.variables",
 }, {
     label: {
         label: "get",
@@ -28,7 +28,7 @@ const variableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `get("变量名称")`,
     sortText: "1",
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.get",
 }, {
     label: {
         label: "set",
@@ -37,7 +37,7 @@ const variableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `set("变量名称", "变量值")`,
     sortText: "2",
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.set",
 }, {
     label: {
         label: "update",
@@ -46,7 +46,7 @@ const variableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `update("变量名称", "变量值")`,
     sortText: "3",
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.update",
 }, {
     label: {
         label: "upsert",
@@ -55,7 +55,7 @@ const variableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `upsert("变量名称", "变量值")`,
     sortText: "4",
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.upsert",
 }, {
     label: {
         label: "has",
@@ -63,7 +63,7 @@ const variableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `has("变量名称")`,
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.has",
 }, {
     label: {
         label: "unset",
@@ -71,7 +71,7 @@ const variableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `unset("变量名称")`,
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.unset",
 }, {
     label: {
         label: "delete",
@@ -79,7 +79,7 @@ const variableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `delete("变量名称")`,
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.delete",
 }, {
     label: {
         label: "toObject",
@@ -87,7 +87,7 @@ const variableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "toObject",
-    trigger: ["pm.variables."]
+    keyword: "pm.variables.toObject",
 }]
 const collectionVariableSuggestions = [{
     label: {
@@ -97,7 +97,7 @@ const collectionVariableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "collectionVariables",
     sortText: "2",
-    trigger: ["pm."]
+    keyword: "pm.collectionVariables",
 }, {
     label: {
         label: "get",
@@ -106,7 +106,7 @@ const collectionVariableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `get("变量名称")`,
     sortText: "1",
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.get",
 }, {
     label: {
         label: "set",
@@ -115,7 +115,7 @@ const collectionVariableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `set("变量名称", "变量值")`,
     sortText: "2",
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.set",
 }, {
     label: {
         label: "update",
@@ -124,7 +124,7 @@ const collectionVariableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `update("变量名称", "变量值")`,
     sortText: "3",
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.update",
 }, {
     label: {
         label: "upsert",
@@ -133,7 +133,7 @@ const collectionVariableSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `upsert("变量名称", "变量值")`,
     sortText: "4",
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.upsert",
 }, {
     label: {
         label: "has",
@@ -141,7 +141,7 @@ const collectionVariableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `has("变量名称")`,
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.has",
 }, {
     label: {
         label: "unset",
@@ -149,7 +149,7 @@ const collectionVariableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `unset("变量名称")`,
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.unset",
 }, {
     label: {
         label: "delete",
@@ -157,7 +157,7 @@ const collectionVariableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: `delete("变量名称")`,
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.delete",
 }, {
     label: {
         label: "toObject",
@@ -165,7 +165,7 @@ const collectionVariableSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "toObject",
-    trigger: ["pm.collectionVariables."]
+    keyword: "pm.collectionVariables.toObject",
 }]
 const requestSuggestions = [{
     label: {
@@ -175,7 +175,16 @@ const requestSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: "request",
     sortText: "3",
-    trigger: ["pm."]
+    keyword: "pm.request",
+}, {
+    label: {
+        label: "sendRequest",
+        description: "发送请求"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `sendRequest("请求url", (err, response) => {})`,
+    sortText: "4",
+    keyword: "pm.sendRequest",
 }, {
     label: {
         label: "url",
@@ -184,7 +193,7 @@ const requestSuggestions = [{
     sortText: "1",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "url",
-    trigger: ["pm.request."]
+    keyword: "pm.request.url",
 }, {
     label: {
         label: "fullUrl",
@@ -193,7 +202,7 @@ const requestSuggestions = [{
     sortText: "2",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "fullUrl",
-    trigger: ["pm.request."]
+    keyword: "pm.request.fullUrl",
 }, {
     label: {
         label: "method",
@@ -202,7 +211,7 @@ const requestSuggestions = [{
     sortText: "3",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "method",
-    trigger: ["pm.request."]
+    keyword: "pm.request.method",
 }, {
     label: {
         label: "host",
@@ -211,7 +220,7 @@ const requestSuggestions = [{
     sortText: "4",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "host",
-    trigger: ["pm.request."]
+    keyword: "pm.request.host",
 }, {
     label: {
         label: "path",
@@ -220,7 +229,7 @@ const requestSuggestions = [{
     sortText: "5",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: "path",
-    trigger: ["pm.request."]
+    keyword: "pm.request.path",
 }, {
     label: {
         label: "replaceUrl",
@@ -228,7 +237,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
-    trigger: ["pm.request."]
+    keyword: "pm.request.replaceUrl",
 }, {
     label: {
         label: "headers",
@@ -236,7 +245,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `headers`,
-    trigger: ["pm.request."]
+    keyword: "pm.request.headers",
 }, {
     label: {
         label: "add",
@@ -244,7 +253,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `add("名称", "值")`,
-    trigger: ["pm.request.headers."]
+    keyword: "pm.request.headers.add",
 }, {
     label: {
         label: "delete",
@@ -252,7 +261,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `delete("名称")`,
-    trigger: ["pm.request.headers."]
+    keyword: "pm.request.headers.delete",
 }, {
     label: {
         label: "remove",
@@ -260,7 +269,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `remove("名称")`,
-    trigger: ["pm.request.headers."]
+    keyword: "pm.request.headers.remove",
 }, {
     label: {
         label: "update",
@@ -268,7 +277,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `update("名称", "值")`,
-    trigger: ["pm.request.headers."]
+    keyword: "pm.request.headers.update",
 }, {
     label: {
         label: "upsert",
@@ -276,7 +285,15 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `remove("名称", "值")`,
-    trigger: ["pm.request.headers."]
+    keyword: "pm.request.headers.upsert",
+}, {
+    label: {
+        label: "queryParams",
+        description: "请求query参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: `queryParams`,
+    keyword: "pm.request.queryParams",
 }, {
     label: {
         label: "body",
@@ -284,7 +301,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Module,
     insertText: `body`,
-    trigger: ["pm.request."]
+    keyword: "pm.request.body",
 }, {
     label: {
         label: "json",
@@ -292,7 +309,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `json`,
-    trigger: ["pm.request.body."]
+    keyword: "pm.request.body.json",
 }, {
     label: {
         label: "urlencoded",
@@ -300,7 +317,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `urlencoded`,
-    trigger: ["pm.request.body."]
+    keyword: "pm.request.body.urlencoded",
 }, {
     label: {
         label: "formdata",
@@ -308,7 +325,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `formdata`,
-    trigger: ["pm.request.body."]
+    keyword: "pm.request.body.formdata",
 }, {
     label: {
         label: "raw",
@@ -316,7 +333,7 @@ const requestSuggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `raw`,
-    trigger: ["pm.request.body."]
+    keyword: "pm.request.body.raw",
 }]
 
 const suggestions: Suggestions = [{
@@ -326,7 +343,7 @@ const suggestions: Suggestions = [{
     },
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "pm",
-    trigger: ["p"],
+    keyword: "pm",
 },
 ...variableSuggestions,
 ...collectionVariableSuggestions,
@@ -344,7 +361,19 @@ export function useCompletionItem(): monaco.IDisposable {
             });
             const lineStrArr = currentLineStr.replace("\t", "").split(" ");
             const activeStr = lineStrArr[lineStrArr.length - 1];
-            const matchedSuggestions = suggestions.filter(v => v.trigger.includes(activeStr));
+            const matchedSuggestions = suggestions.filter(v => {
+                const activeStrArr = activeStr.split(".");
+                const keywordArr = v.keyword.split(".");
+                for (let i = 0; i < activeStrArr.length - 1; i += 1) {
+                    if (activeStrArr[i] !== keywordArr[i]) {
+                        return false;
+                    }
+                }
+                if (activeStrArr.length < keywordArr.length) return false;
+                // console.log(v.keyword, activeStr)
+                const matchedTrigger = v.keyword.includes(activeStr);
+                return matchedTrigger
+            });
             const word = model.getWordUntilPosition(position);
             const range = {
                 startLineNumber: position.lineNumber,

@@ -94,9 +94,9 @@ function electronRequest() {
             body = apidocConverter.getRequestBody() as (string | FormData);
         }
         const headers = apidocConverter.getHeaders();
-        console.log("请求url", requestUrl);
-        console.log("请求header", headers);
-        console.log("请求body", body);
+        // console.log("请求url", requestUrl);
+        // console.log("请求header", headers);
+        // console.log("请求body", body);
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeIsResponse", true)
@@ -207,6 +207,25 @@ export function sendRequest(): void {
         if (typeof res.data !== "object") {
             return
         }
+        if (res.data.type === "send-request") { //发送ajax请求
+            (got as Got)(res.data.value).then(response => {
+                worker.postMessage({
+                    type: "request-success",
+                    value: {
+                        headers: JSON.parse(JSON.stringify(response.headers)),
+                        status: response.statusMessage,
+                        code: response.statusCode,
+                        responseTime: response.timings.phases.total,
+                        body: response.body,
+                    }
+                });
+            }).catch(err => {
+                worker.postMessage({
+                    type: "request-error",
+                    value: err
+                });
+            })
+        }
         if (res.data.type === "worker-response") { //脚本执行完
             electronRequest();
         }
@@ -221,6 +240,9 @@ export function sendRequest(): void {
         }
         if (res.data.type === "change-headers") { //改变请求头
             apidocConverter.changeHeaders(res.data.value);
+        }
+        if (res.data.type === "change-query-params") { //改变 queryparams
+            apidocConverter.changeQueryParams(res.data.value);
         }
         if (res.data.type === "change-json-body") { //改变请求body
             const moyuJson = apidocConvertJsonDataToParams(res.data.value);
@@ -239,7 +261,6 @@ export function sendRequest(): void {
 }
 
 export function stopRequest(): void {
-    // console.log("stoprequest", requestStream)
     store.commit("apidoc/response/changeIsResponse", true)
     store.commit("apidoc/response/changeLoading", false)
     if (requestStream) {

@@ -65,7 +65,7 @@ export default defineComponent({
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     this.loading = true;
-                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>("/api/security/login_phone", this.userInfo).then((res: Response<PermissionUserInfo>) => {
+                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>("/api/security/login_phone", this.userInfo).then((res) => {
                         if (res.code === 2006 || res.code === 2003) {
                             this.$message.warning(res.msg);
                         } else {

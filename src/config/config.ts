@@ -6,10 +6,6 @@
 import type { Config } from "@@/config"
 
 const ip = "127.0.0.1";
-// if (window && window.require) {
-//     const internalIp = window.require("internal-ip");
-//     ip = internalIp.v4.sync()
-// }
 const isDev = process.env.NODE_ENV === "development";
 function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {

@@ -357,8 +357,18 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         const isParentArray = (parent && parent.type === "array");
         const isComplex = (type === "object" || type === "array" || type === "file");
         const keyValIsEmpty = key === "" && value === ""
-        if (jumpChecked && !property.select) { //过滤掉_select属性为false的值
+        if (!isComplex && jumpChecked && !property.select) { //不是复杂类型直接过滤掉select属性为false的值
             continue;
+        } else if (isComplex && jumpChecked && !property.select) { //复杂类型，子元素全部为空
+            let halfChecked = false;
+            forEachForest(property.children, (p) => {
+                if (p.select) {
+                    halfChecked = true;
+                }
+            })
+            if (!halfChecked) {
+                continue;
+            }
         }
         if (!isParentArray && !isComplex && (key === "")) { //父元素不为数组并且也不是复杂数据类型
             continue
