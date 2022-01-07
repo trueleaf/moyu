@@ -9,6 +9,7 @@
     "build": "vue-cli-service build",
     "build:share": "vue-cli-service build --share",
     "build:html": "vue-cli-service build --html",
+    "build:electron": "vue-cli-service electron:build",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
