@@ -45,7 +45,7 @@
                                     :range-separator="$t('至')"
                                     value-format="x"
                                     :start-placeholder="$t('开始日期')"
-                                    size="mini"
+                                    size="medium"
                                     class="mr-1"
                                     :end-placeholder="$t('结束日期')"
                                 >
@@ -123,13 +123,13 @@ import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { store } from "@/store/index"
+import { forEachForest } from "@/helper/index"
+import { router } from "@/router/index"
+import { $t } from "@/i18n/i18n"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
 import localOriginOperation from "./operations"
-import { forEachForest } from "@/helper/index"
 import { addFileAndFolderCb } from "../composables/curd-node"
-import { router } from "@/router/index"
-import { $t } from "@/i18n/i18n"
 
 type Operation = {
     /**

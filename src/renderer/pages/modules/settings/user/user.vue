@@ -30,19 +30,19 @@
         <s-dialog v-model="dialogVisible" title="修改密码">
             <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
                 <el-form-item label="原始密码" prop="oldPassword">
-                    <el-input v-model="formInfo.oldPassword" show-password size="mini" placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.oldPassword" show-password placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>
                 </el-form-item>
                 <el-form-item label="新密码" prop="newPassword">
-                    <el-input v-model="formInfo.newPassword" show-password size="mini" placeholder="请输入新密码,至少6位，必须至少包含 数字 和 字母 " class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.newPassword" show-password placeholder="请输入新密码,至少6位，必须至少包含 数字 和 字母 " class="w-100" maxlength="100"></el-input>
                 </el-form-item>
                 <el-form-item label="确认密码" prop="newPassword2">
-                    <el-input v-model="formInfo.newPassword2" show-password size="mini" placeholder="请再次输入新密码" class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.newPassword2" show-password placeholder="请再次输入新密码" class="w-100" maxlength="100"></el-input>
                 </el-form-item>
             </el-form>
             <template #footer>
                 <div>
-                    <el-button :loading="loading2" size="mini" type="primary" @click="handleChangePassword">确定</el-button>
-                    <el-button size="mini" type="warning" @click="dialogVisible = false">取消</el-button>
+                    <el-button :loading="loading2" type="primary" @click="handleChangePassword">确定</el-button>
+                    <el-button type="warning" @click="dialogVisible = false">取消</el-button>
                 </div>
             </template>
         </s-dialog>

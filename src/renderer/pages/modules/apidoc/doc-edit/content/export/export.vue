@@ -89,7 +89,7 @@
                 </template>
             </s-config>
             <div class="d-flex j-center mt-2">
-                <el-button :loading="loading" size="mini" type="primary" @click="handleExport">{{ $t("确定导出") }}</el-button>
+                <el-button :loading="loading" type="primary" @click="handleExport">{{ $t("确定导出") }}</el-button>
             </div>
         </s-fieldset>
         <s-fork v-else></s-fork>
@@ -99,13 +99,13 @@
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
 import { ref, Ref, computed } from "vue"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import { ApidocBanner } from "@@/global";
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { router } from "@/router/index"
-import sFork from "./fork/fork.vue"
 import { $t } from "@/i18n/i18n"
+import sFork from "./fork/fork.vue"
 
 //可导出数据类型
 const selectedType: Ref<"html" | "pdf" | "word" | "moyu" | "otherProject"> = ref("html")

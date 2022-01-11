@@ -16,11 +16,11 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount } from "vue"
+import { router } from "@/router/index"
+import { useStore } from "@/store/index"
 import sBanner from "./banner/banner.vue";
 import sNav from "./nav/nav.vue";
 import sContent from "./content/content.vue";
-import { router } from "@/router/index"
-import { useStore } from "@/store/index"
 
 const store = useStore();
 const projectId = router.currentRoute.value.query.id as string;

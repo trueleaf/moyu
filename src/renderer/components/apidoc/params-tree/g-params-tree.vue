@@ -64,7 +64,7 @@
                     :disabled="!nest && !enableFile"
                     :title="typeTip"
                     :placeholder="$t('类型')"
-                    size="mini"
+                    size="medium"
                     class="w-15 flex0 mr-2"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
@@ -95,7 +95,7 @@
                             :model-value="scope.data.value"
                             :disabled="checkDisableValue(scope.data)"
                             :title="$t('对象和数组不必填写参数值')"
-                            size="mini"
+                            size="medium"
                             class="w-25 flex0"
                             :placeholder="getValuePlaceholder(scope.data)"
                             @update:modelValue="handleChangeValue($event, scope.data)"
@@ -110,7 +110,7 @@
                     v-if="scope.data.type === 'boolean'"
                     :model-value="scope.data.value"
                     :placeholder="$t('请选择')"
-                    size="mini"
+                    size="medium"
                     class="w-25 flex0"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
@@ -162,7 +162,7 @@ import {
     computed,
     watch
 } from "vue"
-import type { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import type { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocProperty, MockItem } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
@@ -722,7 +722,8 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
 .el-tree__drop-indicator {
     height: size(3);
 }
-.collapse-transition {
-    transition: none;
+// 禁用动画提高性能
+.el-collapse-transition-enter-active, .el-collapse-transition-leave-active {
+    transition: none !important;
 }
 </style>

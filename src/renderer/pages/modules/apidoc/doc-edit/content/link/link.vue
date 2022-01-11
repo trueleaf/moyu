@@ -25,9 +25,9 @@
                     </el-table-column>
                     <el-table-column :label="$t('操作')" align="center">
                         <template #default="scope">
-                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text" size="mini">{{ $t("复制") }}</el-button>
-                            <el-button type="text" size="mini" @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
-                            <el-button type="text" size="mini" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
+                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text" size="medium">{{ $t("复制") }}</el-button>
+                            <el-button type="text" @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
+                            <el-button type="text" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
                         </template>
                     </el-table-column>
                 </s-table>
@@ -41,13 +41,13 @@
 <script lang="ts" setup>
 import { ref, Ref } from "vue"
 import { ElMessageBox } from "element-plus"
-import sAddDialog from "./dialog/add.vue"
-import sEditDialog from "./dialog/edit.vue"
 import { axios } from "@/api/api"
 // import config from "@/../config/config"
 import { router } from "@/router"
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
+import sAddDialog from "./dialog/add.vue"
+import sEditDialog from "./dialog/edit.vue"
 
 type LinkInfo = {
     expire: number,

@@ -3,11 +3,11 @@ import axios, { Canceler } from "axios"
 import { ElMessageBox } from "element-plus"
 import type { State as RootState, ApidocState, } from "@@/store"
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from "@@/global"
-import { axios as axiosInstance } from "../../api/api"
-import router from "../../router/index"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, uuid } from "@/helper/index"
 import { $t } from "@/i18n/i18n"
+import { axios as axiosInstance } from "../../api/api"
+import router from "../../router/index"
 
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 

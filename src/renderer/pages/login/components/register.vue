@@ -19,13 +19,13 @@
             <el-input v-model="registerInfo.phone" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
-            <div class="d-flex">
+            <div class="d-flex w-100">
                 <el-input v-model="registerInfo.smsCode" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
         </el-form-item>
         <el-form-item>
-            <el-button :loading="loading" type="primary" size="small" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
+            <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
         </el-form-item>
     </el-form>
 </template>

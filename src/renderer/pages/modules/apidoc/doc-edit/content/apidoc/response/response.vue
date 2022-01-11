@@ -61,12 +61,12 @@
 import { computed, ref } from "vue"
 import config from "@/../config/config"
 import { store } from "@/store/index"
+import { formatBytes } from "@/helper/index"
 import sBaseInfo from "./base-info/base-info.vue"
 import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
 import sHeaders from "./headers/headers.vue"
 import sBody from "./body/body.vue"
-import { formatBytes } from "@/helper/index"
 
 const activeName = ref("s-body");
 

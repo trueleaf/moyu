@@ -1,10 +1,10 @@
 import Axios, { Method } from "axios"
 import type FormData from "form-data"
 import { axios as axios2 } from "@/api/api"
+import { store as shareStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import { store as onlineStore } from "@/store/index"
 import config from "./config"
 import apidocConverter from "./utils"
-import { store as shareStore } from "@/pages/modules/apidoc/doc-view/store/index"
 
 const buildShareOrHtml = process.env.VUE_APP_BUILD_SHARE || process.env.VUE_APP_BUILD_HTML
 

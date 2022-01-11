@@ -10,7 +10,7 @@
             <el-input v-model="userInfo.phone" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
-            <div class="d-flex">
+            <div class="d-flex w-100">
                 <el-input v-model="userInfo.smsCode" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
@@ -22,7 +22,7 @@
             <el-input v-model="userInfo.password2" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item>
-            <el-button :loading="loading" type="primary" size="small" native-type="submit" class="w-100">重置密码</el-button>
+            <el-button :loading="loading" type="primary" native-type="submit" class="w-100">重置密码</el-button>
         </el-form-item>
     </el-form>
 </template>

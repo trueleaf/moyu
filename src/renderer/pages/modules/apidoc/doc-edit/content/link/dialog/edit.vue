@@ -100,7 +100,7 @@
         </div>
         <template #footer>
             <el-button :size="config.renderConfig.layout.size" :loading="loading" type="primary" @click="handleEditLink">确认修改</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button type="warning" @click="handleClose">取消</el-button>
         </template>
     </s-dialog>
 </template>
@@ -109,7 +109,7 @@
 import { ref, computed, Ref, PropType, onMounted, nextTick } from "vue"
 import { ElMessage } from "element-plus"
 import { ApidocBanner } from "@@/global";
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import { axios } from "@/api/api"
 import { store } from "@/store/index"
 import config from "@/../config/config"

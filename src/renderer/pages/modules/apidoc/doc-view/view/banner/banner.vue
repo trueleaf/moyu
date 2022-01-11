@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
 import { useStore } from "../../store/index"
 import { useBannerData } from "./composables/banner-data"
@@ -250,7 +250,7 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
         }
     }
     // 禁用动画提高性能
-    .collapse-transition {
+    .el-collapse-transition {
         transition: none;
     }
     // 节点展示更多信息

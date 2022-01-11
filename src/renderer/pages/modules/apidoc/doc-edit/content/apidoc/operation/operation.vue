@@ -8,7 +8,7 @@
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
         <div class="d-flex a-center">
-            <el-radio-group v-model="host" size="mini" @change="handleChangeHost">
+            <el-radio-group v-model="host" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                     <template #reference>
                         <el-radio :label="mockServer" border>{{ $t("Mock服务器") }}</el-radio>
@@ -20,7 +20,7 @@
                     </template>
                 </el-popover>
             </el-radio-group>
-            <el-button v-if="!isView" type="text" size="small" class="ml-3" @click="hostDialogVisible = true;">{{ $t("环境维护") }}</el-button>
+            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("环境维护") }}</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
@@ -31,7 +31,7 @@
             <el-input
                 v-model="requestPath"
                 :placeholder="$t('输入请求url')"
-                size="small"
+                size="medium"
                 @input="handlePickPathParams"
                 @blur="handleFormatUrl"
                 @keyup.enter.stop="handleFormatUrl"
@@ -57,16 +57,16 @@
                 :loading="loading"
                 :title="config.isElectron ? '' : `${$t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
                 type="success"
-                size="small"
+                size="medium"
                 @click="handleSendRequest"
             >
                 {{ $t("发送请求") }}
             </el-button>
-            <el-button v-if="loading" type="danger" size="small" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
-            <el-button v-if="!isView" :loading="loading2" type="primary" size="small" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
-            <el-button :loading="loading3" type="primary" size="small" icon="el-icon-refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
+            <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
+            <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
+            <el-button :loading="loading3" type="primary" icon="el-icon-refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
             <!-- <el-dropdown trigger="click">
-                <el-button type="primary" size="small">
+                <el-button type="primary" size="medium">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
             </el-dropdown> -->
@@ -82,14 +82,14 @@
 import { ref, Ref, computed, onMounted } from "vue"
 import type { Config } from "@@/config"
 import globalConfig from "@/../config/config"
+import { useStore } from "@/store/index"
+import { apidocCache } from "@/cache/apidoc"
+import { router } from "@/router/index"
 import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handlePickPathParams } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
-import { useStore } from "@/store/index"
-import { apidocCache } from "@/cache/apidoc"
-import { router } from "@/router/index"
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();

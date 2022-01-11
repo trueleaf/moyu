@@ -23,7 +23,7 @@
                     <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                     <div v-if="showTemplate" class="template-wrap">
                         <div class="header">
-                            <el-input v-model="templateFilterString" size="mini" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
+                            <el-input v-model="templateFilterString" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
                                 <template #prefix>
                                     <i class="el-icon-search el-input__icon"></i>
                                 </template>
@@ -60,7 +60,7 @@
         <div v-show="bodyType === 'raw'" class="raw">
             <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
             <div class="raw-type">
-                <el-select v-model="rawType" size="mini" class="w-100" @change="handleChangeRawType">
+                <el-select v-model="rawType" class="w-100" @change="handleChangeRawType">
                     <el-option label="text" value="text/plain"></el-option>
                     <el-option label="html" value="text/html"></el-option>
                     <el-option label="xml" value="application/xml"></el-option>
@@ -82,9 +82,9 @@ import { ApidocProjectParamsTemplate } from "@@/store"
 import { router } from "@/router/index"
 import { apidocConvertParamsToJsonData, forEachForest } from "@/helper/index"
 import { store } from "@/store/index"
+import { $t } from "@/i18n/i18n"
 import importParams from "../../dialog/import-params/import-params.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
-import { $t } from "@/i18n/i18n"
 
 /*
 |--------------------------------------------------------------------------

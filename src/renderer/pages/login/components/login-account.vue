@@ -19,19 +19,13 @@
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableGuest" class="mb-1">
-            <div>
-                <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)") }}</el-button>
-            </div>
+            <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)") }}</el-button>
         </el-form-item>
         <el-form-item class="mb-1">
-            <div>
-                <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" size="small" class="w-100">{{ $t("登录") }}</el-button>
-            </div>
+            <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" class="w-100">{{ $t("登录") }}</el-button>
         </el-form-item>
         <el-form-item v-if="config.localization.enableRegister" class="mb-1">
-            <div>
-                <el-button size="small" class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
-            </div>
+            <el-button class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
         </el-form-item>
         <div class="forget-pwd-wrap">
             <el-button type="text" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>

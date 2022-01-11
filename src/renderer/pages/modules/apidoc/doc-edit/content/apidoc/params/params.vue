@@ -81,6 +81,8 @@
 import { defineComponent } from "vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
+import { apidocCache } from "@/cache/apidoc"
+import { apidocConvertParamsToJsonData } from "@/helper/index"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
@@ -88,8 +90,6 @@ import responseParams from "./response/response.vue";
 import preRequestParams from "./pre-request/pre-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({
     components: {

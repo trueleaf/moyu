@@ -78,7 +78,7 @@
                         <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplate" class="template-wrap">
                             <div class="header">
-                                <el-input v-model="templateFilterString" size="mini" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
+                                <el-input v-model="templateFilterString" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
                                     <template #prefix>
                                         <i class="el-icon-search el-input__icon"></i>
                                     </template>
@@ -132,13 +132,13 @@ import { Effect } from "element-plus";
 import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
 import { ApidocProjectParamsTemplate } from "@@/store";
 import { store } from "@/store/index"
+import { apidocCache } from "@/cache/apidoc"
 import importParams from "../../dialog/import-params/import-params.vue"
 import sStatus from "./children/status.vue"
 import sMime from "./children/mime.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
 import useImportParams from "./compsables/import-params" //导入参数
 import useParamsTemplate from "./compsables/params-template" //参数模板
-import { apidocCache } from "@/cache/apidoc"
 
 /*
 |--------------------------------------------------------------------------
