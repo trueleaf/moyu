@@ -19,9 +19,6 @@
             <div class="op-item">
                 <div class="flex0">
                     <span>日期范围&nbsp;</span>
-                    <!-- <el-popover placement="top-start" width="350" trigger="hover" content="多少天内代表：当前时间-天数*每天毫秒数">
-                        <i slot="reference" class="el-icon-info"></i>
-                    </el-popover> -->
                     <span>：</span>
                 </div>
                 <el-radio-group v-model="dateRange">

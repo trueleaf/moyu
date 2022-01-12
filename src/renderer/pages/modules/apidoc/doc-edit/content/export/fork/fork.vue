@@ -10,7 +10,6 @@
         <div class="fork-wrap">
             <div v-flex1="30" class="left">
                 <span class="orange">
-                    <span class="el-icon-info mr-1"></span>
                     <span>{{ $t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
                 </span>
                 <el-divider></el-divider>
@@ -51,7 +50,6 @@
             <div ref="target" v-flex1="30" class="right">
                 <div>
                     <div class="orange">
-                        <span class="el-icon-info mr-1"></span>
                         <span>{{ $t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
                     </div>
                     <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
@@ -109,9 +107,9 @@
 import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from "vue"
 import { ElMessage } from "element-plus";
 import type { ApidocBanner, ApidocProjectEnum, Response } from "@@/global"
-import type TreeStore from "element-plus/packages/components/tree/src/model/tree-store"
+import type TreeStore from "element-plus/lib/components/tree/src/model/tree-store"
 import type { DropType } from "element-plus/lib/components/tree/src/tree.type"
-import type Node from "element-plus/packages/components/tree/src/model/node"
+import type Node from "element-plus/lib/components/tree/src/model/node"
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { router } from "@/router/index"
@@ -150,7 +148,7 @@ const targetTreeData: Ref<ApidocBanner[]> = ref([]);
 //目标项目 项目id
 const targetProjectId = ref("");
 //根据id获取目标项目详情数据
-const handleChangeProject = (pid: string) => {
+const handleChangeProject = (pid: string | number | boolean) => {
     loading.value = true;
     const params = {
         projectId: pid,
