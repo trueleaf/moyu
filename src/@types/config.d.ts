@@ -40,7 +40,7 @@ type Config = {
             /**
              * 项目中组件库大小
              */
-            size: "small" | "large" | "medium" | "mini",
+            size: "" | "small" | "default" | "large",
         },
 
         /**
