@@ -7,7 +7,7 @@
 <template>
     <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="phone">
-            <el-input v-model="userInfo.phone" prefix-icon="el-icon-user" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
+            <el-input v-model="userInfo.phone" :prefix-icon="iconUser" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
             <div class="d-flex w-100">
@@ -24,6 +24,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { PermissionUserInfo, Response } from "@@/global";
+import { User } from "@element-plus/icons-vue"
 
 export default defineComponent({
     data() {
@@ -39,6 +40,7 @@ export default defineComponent({
                 smsCode: [{ required: true, message: `${this.$t("请输入验证码")}`, trigger: "blur" }],
             },
             //=====================================其他参数====================================//
+            iconUser: User,
             loading: false,
         };
     },

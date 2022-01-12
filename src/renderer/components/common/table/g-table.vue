@@ -22,14 +22,14 @@
         </el-table>
         <div v-if="!plain" class="d-flex j-end mt-1">
             <slot name="operation" />
-            <el-button :loading="loading" type="primary" icon="el-icon-refresh" :size="config.renderConfig.layout.size" @click="getData">{{ $t("刷新") }}</el-button>
+            <el-button :loading="loading" type="primary" :icon="refreshIcon" :size="config.renderConfig.layout.size" @click="getData">{{ $t("刷新") }}</el-button>
             <el-button
                 v-if="deleteMany"
                 :loading="loading2"
                 :disabled="selectData.length === 0"
                 :title="disableTip"
                 type="danger"
-                icon="el-icon-delete"
+                :icon="deleteIcon"
                 :size="config.renderConfig.layout.size"
                 @click="deleteData"
             >
@@ -53,6 +53,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Delete, Refresh } from "@element-plus/icons-vue"
 import config from "@/../config/config"
 
 export default defineComponent({
@@ -177,6 +178,8 @@ export default defineComponent({
             total: 0, //-------------------------------------------------------------数据总数
             responseData: null, //---------------------------------------------------表格返回数据
             //=====================================其他参数====================================//
+            deleteIcon: Delete,
+            refreshIcon: Refresh,
             loading: false, //-------------------------------------------------------获取数据加载效果
             loading2: false, //------------------------------------------------------批量删除加载效果
             config,

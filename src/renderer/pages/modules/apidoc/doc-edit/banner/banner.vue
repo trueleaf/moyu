@@ -60,7 +60,9 @@
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                                    <more-filled />
+                                </el-icon>
                             </div>
                         </template>
                         <!-- 文件夹渲染 -->
@@ -87,7 +89,9 @@
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                                    <more-filled />
+                                </el-icon>
                             </div>
                         </template>
                     </div>
@@ -126,6 +130,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Clipboard } from "electron"
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
+import { MoreFilled } from "@element-plus/icons-vue"
 import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
 import { useStore } from "@/store/index"

@@ -31,8 +31,10 @@
                 <span class="mr-1 f-sm iconfont iconvariable"></span>
                 <span>{{ $t("变量") }}</span>
             </div>
-            <div v-if="!isView" class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
-                <span class="mr-1 f-base el-icon-s-opportunity"></span>
+            <div v-if="!isView" class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
+                <el-icon :size="16" class="mr-1">
+                    <icon-opportunity></icon-opportunity>
+                </el-icon>
                 <span>{{ $t("联想值") }}</span>
             </div>
         </div>
@@ -51,8 +53,6 @@
                 <el-tab-pane :label="$t('返回参数')" name="s-response-params">
                     <template #label>
                         <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
-                        <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
-                        <el-badge v-else>返回参数</el-badge> -->
                     </template>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('请求头')" name="s-request-headers">
@@ -79,6 +79,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Opportunity } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
 import { apidocCache } from "@/cache/apidoc"
@@ -100,6 +101,7 @@ export default defineComponent({
         "s-view": view,
         "s-remarks": remarks,
         "s-pre-request": preRequestParams,
+        "icon-opportunity": Opportunity
     },
     data() {
         const mode = this.$route.query.mode as "edit" | "view";

@@ -21,13 +21,19 @@
             <div class="header-right mr-5 ml-auto">
                 <div class="operation">
                     <div :title="$t('刷新')" class="op_item" @click="freshPage">
-                        <span class="el-icon-refresh-right"></span>
+                        <el-icon :size="20">
+                            <RefreshRight />
+                        </el-icon>
                     </div>
                     <div :title="$t('后退')" class="op_item" @click="goBack">
-                        <span class="el-icon-back"></span>
+                        <el-icon :size="20">
+                            <Back />
+                        </el-icon>
                     </div>
-                    <div class="op_item" @click="goForward">
-                        <span :title="$t('前进')" class="el-icon-right"></span>
+                    <div :title="$t('前进')" class="op_item" @click="goForward">
+                        <el-icon :size="20">
+                            <Right />
+                        </el-icon>
                     </div>
                     <el-dropdown>
                         <i class="iconfont iconyuyan language"></i>
@@ -44,18 +50,20 @@
                     <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
                     <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ $t('安装') }}</span>
                 </div>
-                <el-dropdown>
-                    <span class="cursor-pointer">
+                <el-dropdown @command="handleClickDropdown">
+                    <span class="d-flex a-center cursor-pointer">
                         <span>{{ userInfo.realName || userInfo.loginName }}</span>
-                        <i class="el-icon-arrow-down el-icon--right"></i>
+                        <el-icon :size="16" class="ml-1">
+                            <ArrowDown />
+                        </el-icon>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="jumpToUserSetting">{{ $t('个人中心') }}</el-dropdown-item>
-                            <el-dropdown-item v-if="config.isElectron" :disabled="downloading" @click="handleCheckUpdate(true)">{{ $t('检查更新') }}</el-dropdown-item>
-                            <el-dropdown-item>{{ $t('版本') }}{{ $store.state.permission.globalConfig.version }}</el-dropdown-item>
-                            <el-dropdown-item @click="clearAllCache">{{ $t('清除所有缓存') }}</el-dropdown-item>
-                            <el-dropdown-item @click="logout">{{ $t('退出登录') }}</el-dropdown-item>
+                            <el-dropdown-item command="user-setting">{{ $t('个人中心') }}</el-dropdown-item>
+                            <el-dropdown-item v-if="config.isElectron" :disabled="downloading" command="update">{{ $t('检查更新') }}</el-dropdown-item>
+                            <el-dropdown-item command="version">{{ $t('版本') }}{{ $store.state.permission.globalConfig.version }}</el-dropdown-item>
+                            <el-dropdown-item command="clear-cache">{{ $t('清除所有缓存') }}</el-dropdown-item>
+                            <el-dropdown-item command="logout">{{ $t('退出登录') }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -72,6 +80,7 @@
 import { IpcRenderer } from "electron"
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router"
+import { RefreshRight, Back, Right, ArrowDown } from "@element-plus/icons-vue"
 import { PermissionMenu, PermissionUserInfo } from "@@/global"
 import type { Language } from "@@/global"
 import { changeLanguage } from "@/i18n/i18n"
@@ -85,6 +94,12 @@ if (window.require) {
 }
 
 export default defineComponent({
+    components: {
+        RefreshRight,
+        Back,
+        Right,
+        ArrowDown,
+    },
     setup() {
         const router = useRouter();
         const store = useStore();
@@ -141,6 +156,24 @@ export default defineComponent({
         }
     },
     methods: {
+        handleClickDropdown(command: string) {
+            switch (command) {
+            case "logout":
+                this.logout();
+                break;
+            case "user-setting":
+                this.jumpToUserSetting();
+                break;
+            case "update":
+                this.handleCheckUpdate(true);
+                break;
+            case "clear-cache":
+                this.clearAllCache();
+                break;
+            default:
+                break;
+            }
+        },
         //初始化自动更新相关事件
         initUploadEvent() {
             if (config.isElectron) {

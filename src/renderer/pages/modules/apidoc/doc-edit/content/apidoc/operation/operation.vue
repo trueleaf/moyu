@@ -31,7 +31,6 @@
             <el-input
                 v-model="requestPath"
                 :placeholder="$t('输入请求url')"
-                size="medium"
                 @input="handlePickPathParams"
                 @blur="handleFormatUrl"
                 @keyup.enter.stop="handleFormatUrl"
@@ -57,19 +56,13 @@
                 :loading="loading"
                 :title="config.isElectron ? '' : `${$t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
                 type="success"
-                size="medium"
                 @click="handleSendRequest"
             >
                 {{ $t("发送请求") }}
             </el-button>
             <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
             <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
-            <el-button :loading="loading3" type="primary" icon="el-icon-refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
-            <!-- <el-dropdown trigger="click">
-                <el-button type="primary" size="medium">
-                    其他操作<i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-            </el-dropdown> -->
+            <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
         </div>
         <pre class="pre-url">
             <span class="label">{{ $t("完整路径") }}：</span><span>{{ fullUrl }}</span>
@@ -80,6 +73,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from "vue"
+import { Refresh } from "@element-plus/icons-vue"
 import type { Config } from "@@/config"
 import globalConfig from "@/../config/config"
 import { useStore } from "@/store/index"

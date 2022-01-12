@@ -36,7 +36,6 @@
                         range-separator="至"
                         value-format="x"
                         start-placeholder="开始日期"
-                        size="medium"
                         class="mr-1"
                         end-placeholder="结束日期"
                     >

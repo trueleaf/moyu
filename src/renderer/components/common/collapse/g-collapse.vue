@@ -7,7 +7,14 @@
 <template>
     <div class="s-collaps mb-1">
         <div class="header" @click="toggleCollapse">
-            <span v-if="!disabled" class="gray-700" :class="{'el-icon-arrow-down': isActive, 'el-icon-arrow-right': !isActive}"></span>
+            <span v-if="!disabled" class="gray-700">
+                <el-icon v-if="isActive" :size="16">
+                    <arrow-down />
+                </el-icon>
+                <el-icon v-else :size="16">
+                    <arrow-right />
+                </el-icon>
+            </span>
             <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
             <slot v-else name="title" />
         </div>
@@ -17,47 +24,38 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { ref, watch } from "vue"
+import { ArrowDown, ArrowRight } from "@element-plus/icons-vue"
 import { $t } from "@/i18n/i18n"
 
-export default defineComponent({
-    props: {
-        title: {
-            type: String,
-            default: $t("请输入标题"),
-        },
-        active: {
-            type: Boolean,
-            default: true,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+const props = defineProps({
+    title: {
+        type: String,
+        default: $t("请输入标题"),
     },
-    data() {
-        return {
-            isActive: false,
-        };
+    active: {
+        type: Boolean,
+        default: true,
     },
-    watch: {
-        active: {
-            handler() {
-                this.isActive = this.active;
-            },
-            immediate: true,
-        },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
-    methods: {
-        toggleCollapse() {
-            if (this.disabled) {
-                return;
-            }
-            this.isActive = !this.isActive
-        },
-    },
+});
+const isActive = ref(false);
+watch(() => isActive.value, () => {
+    isActive.value = props.active
+}, {
+    immediate: true,
 })
+
+const toggleCollapse = () => {
+    if (props.disabled) {
+        return;
+    }
+    isActive.value = !isActive.value
+}
 </script>
 
 <style lang="scss">

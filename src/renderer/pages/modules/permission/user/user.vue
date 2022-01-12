@@ -43,8 +43,8 @@
             </el-table-column>
             <el-table-column :label="$t('状态')" align="center" width="80px">
                 <template #default="scope">
-                    <el-tag v-if="scope.row.enable" type="success" size="medium">{{ $t("启用") }}</el-tag>
-                    <el-tag v-else type="warning" size="medium">{{ $t("禁用") }}</el-tag>
+                    <el-tag v-if="scope.row.enable" type="success">{{ $t("启用") }}</el-tag>
+                    <el-tag v-else type="warning">{{ $t("禁用") }}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">

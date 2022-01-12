@@ -27,7 +27,7 @@
             <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
             <el-table-column :label="$t('角色(权限)')" align="center">
                 <template #default="scope">
-                    <el-select v-model="scope.row.permission" size="medium">
+                    <el-select v-model="scope.row.permission">
                         <el-option :label="$t('只读')" value="readOnly">
                             <span>{{ $t("只读") }}</span>
                             <span class="gray-500">({{ $t("仅查看项目") }})</span>

@@ -7,10 +7,10 @@
 <template>
     <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="loginName">
-            <el-input v-model="userInfo.loginName" prefix-icon="el-icon-user" name="loginName" type="text" :placeholder="`${$t('请输入用户名')}...`"></el-input>
+            <el-input v-model="userInfo.loginName" :prefix-icon="iconUser" name="loginName" type="text" :placeholder="`${$t('请输入用户名')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-            <el-input v-model="userInfo.password" prefix-icon="el-icon-lock" name="password" type="password" :placeholder="`${$t('请输入密码')}...`"></el-input>
+            <el-input v-model="userInfo.password" :prefix-icon="iconLock" name="password" type="password" :placeholder="`${$t('请输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item v-if="isShowCapture" prop="captcha">
             <div class="captcha">
@@ -69,6 +69,7 @@
 import { defineComponent } from "vue"
 import { PermissionUserInfo, Response } from "@@/global"
 import config from "@/../config/config"
+import { User, Lock } from "@element-plus/icons-vue"
 
 export default defineComponent({
     emits: ["jumpToRegister", "jumpToResetPassword"],
@@ -87,6 +88,8 @@ export default defineComponent({
                 captcha: [{ required: true, message: `${this.$t("请输入验证码")}`, trigger: "blur" }],
             },
             //=====================================其他参数====================================//
+            iconUser: User,
+            iconLock: Lock,
             config, //-----------------------配置信息
             random: Math.random(), //--------验证码随机参数
             isShowCapture: false, //---------是否展示验证码

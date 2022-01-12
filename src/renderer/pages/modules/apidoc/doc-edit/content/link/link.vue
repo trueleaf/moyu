@@ -25,7 +25,7 @@
                     </el-table-column>
                     <el-table-column :label="$t('操作')" align="center">
                         <template #default="scope">
-                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text" size="medium">{{ $t("复制") }}</el-button>
+                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text">{{ $t("复制") }}</el-button>
                             <el-button type="text" @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
                             <el-button type="text" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
                         </template>

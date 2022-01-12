@@ -37,7 +37,7 @@
                                 <el-input v-model="editData.name" :placeholder="$t('例如：默认返回值')" class="w-80" maxlength="8" clearable show-word-limit></el-input>
                             </el-form-item>
                             <el-form-item :label="`${$t('参数类型')}：`" prop="type">
-                                <el-select v-model="editData.presetParamsType" :placeholder="$t('请选择参数类型')" size="medium">
+                                <el-select v-model="editData.presetParamsType" :placeholder="$t('请选择参数类型')">
                                     <el-option :label="$t('请求参数')" value="request"></el-option>
                                     <el-option :label="$t('返回参数')" value="response"></el-option>
                                 </el-select>
@@ -73,8 +73,8 @@
             <el-table-column :label="$t('创建者名称')" prop="creatorName" align="center"></el-table-column>
             <el-table-column label="模板类型" prop="presetParamsType" align="center">
                 <template #default="scope">
-                    <el-tag v-if="scope.row.presetParamsType === 'bodyParams'" size="medium">请求参数(Body)</el-tag>
-                    <el-tag v-if="scope.row.presetParamsType === 'responseParams'" size="medium">返回参数</el-tag>
+                    <el-tag v-if="scope.row.presetParamsType === 'bodyParams'">请求参数(Body)</el-tag>
+                    <el-tag v-if="scope.row.presetParamsType === 'responseParams'">返回参数</el-tag>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center">

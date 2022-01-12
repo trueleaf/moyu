@@ -45,7 +45,6 @@
                                     :range-separator="$t('至')"
                                     value-format="x"
                                     :start-placeholder="$t('开始日期')"
-                                    size="medium"
                                     class="mr-1"
                                     :end-placeholder="$t('结束日期')"
                                 >
@@ -86,13 +85,17 @@
             <!-- 全部工具栏操作 -->
             <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
-                    <div class="more" @click.stop="visible = true">
-                        <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                    <div class="more" @click.stop="visible = !visible">
+                        <el-icon :size="16" :title="$t('更多操作')" class="more-op">
+                            <MoreFilled />
+                        </el-icon>
                     </div>
                 </template>
                 <div class="border-bottom-gray-300 py-2 px-2">{{ $t("快捷操作") }}</div>
                 <div class="toolbar-close" @click="visible = false">
-                    <i class="el-icon-close"></i>
+                    <el-icon :size="18" class="more-op">
+                        <Close />
+                    </el-icon>
                 </div>
                 <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
                     <template #item="{ element }">
@@ -121,6 +124,7 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
+import { MoreFilled, Close } from "@element-plus/icons-vue"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { store } from "@/store/index"
 import { forEachForest } from "@/helper/index"

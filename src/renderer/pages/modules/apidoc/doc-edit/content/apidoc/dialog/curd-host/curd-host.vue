@@ -38,7 +38,7 @@
                     <el-form-item :label="`${$t('服务器地址')}：`" prop="server">
                         <el-input v-model="formInfo.server" name="name" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
                             <template #prepend>
-                                <el-select v-model="formInfo.protocol" class="w-100px" size="medium">
+                                <el-select v-model="formInfo.protocol" class="w-100px">
                                     <el-option value="http://" label="http://"></el-option>
                                     <el-option value="https://" label="https://"></el-option>
                                 </el-select>

@@ -15,7 +15,7 @@ import { defineComponent } from "vue"
 
 type DownloadResponse = {
     fileName?: string,
-    data: string,
+    data: string | Blob,
 }
 
 export default defineComponent({
@@ -53,7 +53,7 @@ export default defineComponent({
                 params: this.params,
             }).then((res) => {
                 let blobUrl = "";
-                blobUrl = URL.createObjectURL(res.data);
+                blobUrl = URL.createObjectURL(res.data as Blob);
                 const downloadElement = document.createElement("a");
                 downloadElement.href = blobUrl;
                 downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : this.$t("未命名"); //下载后文件名

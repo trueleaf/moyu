@@ -26,7 +26,7 @@
                     v-if="!disableAdd"
                     type="text"
                     :title="addNestTip"
-                    icon="el-icon-plus"
+                    :icon="Plus"
                     :disabled="!nest"
                     @click="addNestTreeData(scope.data)"
                 >
@@ -38,7 +38,7 @@
                     :disabled="checkDeleteDisable(scope)"
                     :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? $t('此项不允许删除') : $t('删除当前行')}`"
                     type="text"
-                    icon="el-icon-close"
+                    :icon="Close"
                     @click="handleDeleteParams(scope)"
                 >
                 </el-button>
@@ -64,7 +64,6 @@
                     :disabled="!nest && !enableFile"
                     :title="typeTip"
                     :placeholder="$t('类型')"
-                    size="medium"
                     class="w-15 flex0 mr-2"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
@@ -95,7 +94,6 @@
                             :model-value="scope.data.value"
                             :disabled="checkDisableValue(scope.data)"
                             :title="$t('对象和数组不必填写参数值')"
-                            size="medium"
                             class="w-25 flex0"
                             :placeholder="getValuePlaceholder(scope.data)"
                             @update:modelValue="handleChangeValue($event, scope.data)"
@@ -110,7 +108,6 @@
                     v-if="scope.data.type === 'boolean'"
                     :model-value="scope.data.value"
                     :placeholder="$t('请选择')"
-                    size="medium"
                     class="w-25 flex0"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
@@ -122,11 +119,9 @@
                     <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
                         <label v-show="!scope.data.value" for="fileInput" class="label">{{ $t("选择文件") }}</label>
                         <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
-                        <!-- <el-popover v-show="scope.data.value" placement="top-start" trigger="hover" :content="scope.data.value" :open-delay="200">
-                            <template #reference>
-                            </template>
-                        </el-popover> -->
-                        <span v-if="scope.data.value" class="close el-icon-close" @click="handleClearSelectType(scope.data)"></span>
+                        <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
+                            <close />
+                        </el-icon>
                     </div>
                     <input id="fileInput" ref="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
@@ -162,6 +157,7 @@ import {
     computed,
     watch
 } from "vue"
+import { Plus, Close } from "@element-plus/icons-vue"
 import type { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocProperty, MockItem } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"

@@ -30,7 +30,6 @@
             <el-input
                 v-model="requestPath"
                 :placeholder="$t('输入请求url')"
-                size="medium"
                 @input="handlePickPathParams"
                 @blur="handleFormatUrl"
                 @keyup.enter.stop="handleFormatUrl"
@@ -56,7 +55,6 @@
                 :loading="loading"
                 :title="config.isElectron ? '' : $t('由于浏览器限制，非electron环境无法模拟发送请求')"
                 type="success"
-                size="medium"
                 @click="handleSendRequest"
             >
                 {{ $t("发送请求") }}
@@ -65,7 +63,7 @@
             <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
             <el-button :loading="loading3" type="primary" icon="el-icon-refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
             <!-- <el-dropdown trigger="click">
-                <el-button type="primary" size="medium">
+                <el-button type="primary">
                     其他操作<i class="el-icon-arrow-down el-icon--right"></i>
                 </el-button>
             </el-dropdown> -->
