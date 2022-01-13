@@ -2,6 +2,7 @@
 import { Store } from "vuex"
 import { ElMessageBoxShortcutMethod } from "element-plus"
 import { AxiosInstance } from "axios"
+import type { Config } from "./config"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
 // import { MessagePartial } from "element-plus/lib/message/src/message"
@@ -55,5 +56,6 @@ declare module "@vue/runtime-core" {
         axios: AxiosInstance,
         $helper: Helper,
         $t: typeof $t,
+        config: Config
     }
 }

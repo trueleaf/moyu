@@ -1,8 +1,11 @@
+import { componentSize } from "element-plus/es/utils/props";
+
 /*
 |--------------------------------------------------------------------------
 | Electron更新相关配置
 |--------------------------------------------------------------------------
 */
+
 type Config = {
     /**
      * 是否为electron环境
@@ -40,7 +43,7 @@ type Config = {
             /**
              * 项目中组件库大小
              */
-            size: "" | "small" | "default" | "large",
+            size: componentSize,
         },
 
         /**

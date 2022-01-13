@@ -5,6 +5,7 @@ module.exports = {
         defineEmits: "readonly",
         defineExpose: "readonly",
         withDefaults: "readonly",
+        config: "readonly",
         $t: "readonly",
     },
     env: {
