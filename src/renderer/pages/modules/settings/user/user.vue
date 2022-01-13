@@ -6,8 +6,10 @@
 */
 <template>
     <div class="user-setting">
-        <div class="back f-base my-5 hover-theme-color cursor-pointer" @click="handleBack">
-            <span class="el-icon-back"></span>
+        <div class="d-flex a-centetr back f-base my-5 hover-theme-color cursor-pointer" @click="handleBack">
+            <el-icon :size="18">
+                <icon-back />
+            </el-icon>
             <span>返回上级</span>
         </div>
         <s-card v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" shadow>
@@ -30,13 +32,13 @@
         <s-dialog v-model="dialogVisible" title="修改密码">
             <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
                 <el-form-item label="原始密码" prop="oldPassword">
-                    <el-input v-model="formInfo.oldPassword" show-password placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.oldPassword" :size="config.renderConfig.layout.size" show-password placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>
                 </el-form-item>
                 <el-form-item label="新密码" prop="newPassword">
-                    <el-input v-model="formInfo.newPassword" show-password placeholder="请输入新密码,至少6位，必须至少包含 数字 和 字母 " class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.newPassword" :size="config.renderConfig.layout.size" show-password placeholder="请输入新密码,至少6位，必须至少包含 数字 和 字母 " class="w-100" maxlength="100"></el-input>
                 </el-form-item>
                 <el-form-item label="确认密码" prop="newPassword2">
-                    <el-input v-model="formInfo.newPassword2" show-password placeholder="请再次输入新密码" class="w-100" maxlength="100"></el-input>
+                    <el-input v-model="formInfo.newPassword2" :size="config.renderConfig.layout.size" show-password placeholder="请再次输入新密码" class="w-100" maxlength="100"></el-input>
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -51,6 +53,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Back } from "@element-plus/icons-vue"
 import type { Response } from "@@/global"
 
 type UserInfo = {
@@ -61,6 +64,9 @@ type UserInfo = {
 }
 
 export default defineComponent({
+    components: {
+        "icon-back": Back,
+    },
     data() {
         return {
             //=========================================================================//

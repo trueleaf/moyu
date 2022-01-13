@@ -84,7 +84,7 @@
                         <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplate" class="template-wrap">
                             <div class="header">
-                                <el-input v-model="templateFilterString" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
+                                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
                                 <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
                             </div>
                             <template v-if="jsonTemplateList.length > 0">

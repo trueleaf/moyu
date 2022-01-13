@@ -85,7 +85,6 @@
         <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
             <span>
                 <span>{{ $t("应用为响应值") }}</span>
-                <i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <template #dropdown>
                 <el-dropdown-menu>

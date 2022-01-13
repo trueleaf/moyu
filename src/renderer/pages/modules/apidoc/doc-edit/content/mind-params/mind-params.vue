@@ -12,7 +12,7 @@
                 <div class="left">
                     <div class="op-item">
                         <div class="label">{{ $t("字段名") }}：</div>
-                        <el-input v-model="formInfo.key" :placeholder="$t('参数字段名称')" maxlength="100" class="w-65" clearable></el-input>
+                        <el-input v-model="formInfo.key" :size="config.renderConfig.layout.size" :placeholder="$t('参数字段名称')" maxlength="100" class="w-65" clearable></el-input>
                     </div>
                     <div class="op-item">
                         <div class="label">{{ $t("类型") }}：</div>

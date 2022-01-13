@@ -8,9 +8,9 @@
     <div class="tab-a">
         <!-- 搜索条件 -->
         <div class="search-item d-flex a-center mb-3">
-            <el-input v-model="projectName" :placeholder="$t('项目名称或者接口URL')" prefix-icon="el-icon-search" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
-            <el-button type="success" icon="el-icon-plus" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
-            <el-button type="success" icon="el-icon-download" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
+            <el-input v-model="projectName" :placeholder="$t('项目名称或者接口URL')" :prefix-icon="iconSearch" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
+            <el-button type="success" :icon="iconPlus" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
+            <el-button type="success" :icon="iconDownload" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
         </div>
         <!-- 项目列表 -->
         <s-loading :loading="loading">
@@ -77,8 +77,12 @@
                 </div>
             </div>
             <h2 class="cursor-pointer" @click="toggleCollapse">
-                <span v-if="!isFold" class="el-icon-caret-bottom"></span>
-                <span v-else class="el-icon-caret-right"></span>
+                <el-icon v-if="!isFold" class="mr-1" :size="16">
+                    <caret-bottom-icon />
+                </el-icon>
+                <el-icon v-if="isFold" class="mr-1" :size="16">
+                    <caret-right-icon />
+                </el-icon>
                 <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
             </h2>
             <!-- 项目列表 -->
@@ -151,7 +155,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Edit, User, Loading, Star, StarFilled, Delete } from "@element-plus/icons-vue"
+import { Edit, User, Loading, Star, StarFilled, Delete, Plus, Download, Search, CaretBottom, CaretRight } from "@element-plus/icons-vue"
 import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from "@@/global";
 import addProject from "../dialog/add-project/add-project.vue"
 import editProject from "../dialog/edit-project/edit-project.vue"
@@ -164,6 +168,8 @@ export default defineComponent({
         "s-edit-permission-dialog": editPermissionProject,
         "edit-icon": Edit,
         "user-icon": User,
+        "caret-bottom-icon": CaretBottom,
+        "caret-right-icon": CaretRight,
         "loading-icon": Loading,
         "star-icon": Star,
         "star-filled-icon": StarFilled,
@@ -178,6 +184,9 @@ export default defineComponent({
             currentEditProjectId: "", //-----------------------------------项目id用于编辑
             currentEditProjectName: "", //---------------------------------项目名称用于编辑
             //=====================================其他参数====================================//
+            iconPlus: Plus,
+            iconDownload: Download,
+            iconSearch: Search,
             searchFn: null as (null | (() => void)), //---------------------------------------------搜索函数
             isFold: false, //----------------------------------------------是否折叠
             loading: false, //---------------------------------------------项目数据加载

@@ -17,7 +17,9 @@
                 :before-upload="handleBeforeUpload"
                 :http-request="requestHook"
             >
-                <i class="el-icon-upload"></i>
+                <el-icon :size="20">
+                    <Upload />
+                </el-icon>
                 <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
                 <template #tip>
                     <div class="mt-2">
@@ -139,6 +141,7 @@ import { ref, Ref, computed } from "vue"
 import jsyaml from "js-yaml"
 import type { OpenAPIV3 } from "openapi-types";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Upload } from "@element-plus/icons-vue"
 import type { ApidocDetail } from "@@/global"
 import type { ApidocProjectRules } from "@@/store"
 import config from "@/../config/config"
@@ -148,7 +151,7 @@ import { axios } from "@/api/api"
 import { $t } from "@/i18n/i18n"
 import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import OpenApiTranslator from "./openapi";
-// import type Node from "element-plus/packages/components/tree/src/model/node"
+
 type FormInfo = {
     moyuData: {
         hosts?: {
@@ -434,6 +437,9 @@ const handleSubmit = () => {
         width: 100%;
     }
     .el-upload-dragger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
     }
     .custom-tree-node {

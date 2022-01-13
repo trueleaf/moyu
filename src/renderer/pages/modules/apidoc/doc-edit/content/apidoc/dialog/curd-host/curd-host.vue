@@ -33,12 +33,12 @@
                 </s-fieldset>
                 <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
                     <el-form-item :label="`${$t('服务器名称')}：`" prop="name">
-                        <el-input v-model="formInfo.name" placeholder="例如：张三本地" class="w-100" maxlength="15" clearable show-word-limit></el-input>
+                        <el-input v-model="formInfo.name" placeholder="例如：张三本地" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item :label="`${$t('服务器地址')}：`" prop="server">
-                        <el-input v-model="formInfo.server" name="name" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
+                        <el-input v-model="formInfo.server" name="name" :size="config.renderConfig.layout.size" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
                             <template #prepend>
-                                <el-select v-model="formInfo.protocol" class="w-100px">
+                                <el-select v-model="formInfo.protocol" :size="config.renderConfig.layout.size" class="w-100px">
                                     <el-option value="http://" label="http://"></el-option>
                                     <el-option value="https://" label="https://"></el-option>
                                 </el-select>
@@ -70,7 +70,7 @@
                 >
                     <el-table-column :label="$t('服务器名称')" align="center">
                         <template #default="scope">
-                            <el-input v-if="scope.row.__active" v-model="scope.row.name" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                            <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>

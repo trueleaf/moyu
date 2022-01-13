@@ -26,7 +26,9 @@
                             >
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
-                            <span v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
+                            <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
+                                <Edit />
+                            </el-icon>
                         </div>
                     </div>
                     <el-divider direction="vertical"></el-divider>
@@ -34,9 +36,11 @@
                         <div class="d-flex a-center j-center">
                             <span class="flex0">{{ $t("状态码") }}：</span>
                             <el-dropdown trigger="click">
-                                <span class="cursor-pointer">
+                                <span class="d-flex a-center cursor-pointer">
                                     <span>{{ item.statusCode }}</span>
-                                    <i class="el-icon-arrow-down el-icon--right"></i>
+                                    <el-icon class="ml-1">
+                                        <arrow-down />
+                                    </el-icon>
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -53,7 +57,9 @@
                             <el-dropdown trigger="click">
                                 <span class="cursor-pointer">
                                     <span>{{ item.value.dataType }}</span>
-                                    <i class="el-icon-arrow-down el-icon--right"></i>
+                                    <el-icon class="ml-1">
+                                        <arrow-down />
+                                    </el-icon>
                                 </span>
                                 <template #dropdown>
                                     <el-dropdown-menu>
@@ -91,6 +97,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
+import { ArrowDown, Edit } from "@element-plus/icons-vue"
 import type { ApidocResponseParams } from "@@/global"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 

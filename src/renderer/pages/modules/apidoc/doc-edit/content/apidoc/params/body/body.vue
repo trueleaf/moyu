@@ -23,7 +23,7 @@
                     <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                     <div v-if="showTemplate" class="template-wrap">
                         <div class="header">
-                            <el-input v-model="templateFilterString" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
+                            <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
                             <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
                         </div>
                         <template v-if="bodyTemplateList.length > 0">
@@ -56,7 +56,7 @@
         <div v-show="bodyType === 'raw'" class="raw">
             <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
             <div class="raw-type">
-                <el-select v-model="rawType" class="w-100" @change="handleChangeRawType">
+                <el-select v-model="rawType" :size="config.renderConfig.layout.size" class="w-100" @change="handleChangeRawType">
                     <el-option label="text" value="text/plain"></el-option>
                     <el-option label="html" value="text/html"></el-option>
                     <el-option label="xml" value="application/xml"></el-option>

@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item v-if="isShowCapture" prop="captcha">
             <div class="captcha">
-                <el-input v-model="userInfo.captcha" name="captcha" type="text" :placeholder="$t('验证码')"></el-input>
+                <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text" :placeholder="$t('验证码')"></el-input>
                 <img :src="captchaUrl" @click="freshCapchaUrl" />
             </div>
         </el-form-item>

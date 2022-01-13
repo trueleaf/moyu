@@ -10,13 +10,13 @@
         <s-fieldset :title="$t('新增变量')" class="left">
             <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px">
                 <el-form-item :label="`${$t('变量名称')}：`" prop="name">
-                    <el-input v-model="formInfo.name" :placeholder="$t('请输入变量名称')" class="w-100" maxlength="100" clearable></el-input>
+                    <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" :placeholder="$t('请输入变量名称')" class="w-100" maxlength="100" clearable></el-input>
                 </el-form-item>
                 <el-form-item :label="`${$t('变量值')}：`" prop="value">
-                    <el-input v-model="formInfo.value" :placeholder="$t('请输入变量值')" class="w-100" maxlength="999" clearable></el-input>
+                    <el-input v-model="formInfo.value" :size="config.renderConfig.layout.size" :placeholder="$t('请输入变量值')" class="w-100" maxlength="999" clearable></el-input>
                 </el-form-item>
                 <el-form-item :label="`${$t('值类型')}：`" prop="type">
-                    <el-select v-model="formInfo.type" class="w-100">
+                    <el-select v-model="formInfo.type" :size="config.renderConfig.layout.size" class="w-100">
                         <el-option value="string" label="string"></el-option>
                         <el-option value="number" label="number"></el-option>
                         <el-option value="boolean" label="boolean"></el-option>
@@ -39,19 +39,19 @@
             >
                 <el-table-column :label="$t('变量名称')" align="center">
                     <template #default="scope">
-                        <el-input v-if="scope.row.__active" v-model="scope.row.name" class="w-100" maxlength="100" clearable></el-input>
+                        <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size" class="w-100" maxlength="100" clearable></el-input>
                         <span v-else>{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column :label="$t('变量值')" align="center" show-overflow-tooltip>
                     <template #default="scope">
-                        <el-input v-if="scope.row.__active" v-model="scope.row.value" class="w-100" maxlength="999" clearable></el-input>
+                        <el-input v-if="scope.row.__active" v-model="scope.row.value" :size="config.renderConfig.layout.size" class="w-100" maxlength="999" clearable></el-input>
                         <span v-else>{{ scope.row.value }}</span>
                     </template>
                 </el-table-column>
                 <el-table-column :label="$t('变量类型')" align="center">
                     <template #default="scope">
-                        <el-select v-if="scope.row.__active" v-model="scope.row.type" class="w-100">
+                        <el-select v-if="scope.row.__active" v-model="scope.row.type" :size="config.renderConfig.layout.size" class="w-100">
                             <el-option value="string" label="string"></el-option>
                             <el-option value="number" label="number"></el-option>
                             <el-option value="boolean" label="boolean"></el-option>

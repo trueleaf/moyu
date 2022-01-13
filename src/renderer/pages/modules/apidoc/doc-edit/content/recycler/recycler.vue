@@ -47,11 +47,11 @@
             <div class="op-item">
                 <div class="d-flex a-center mr-5">
                     <div class="flex0">接口名称：</div>
-                    <el-input v-model="formInfo.docName" placeholder="通过接口名称匹配" maxlength="100" clearable></el-input>
+                    <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" placeholder="通过接口名称匹配" maxlength="100" clearable></el-input>
                 </div>
                 <div class="d-flex a-center mr-5">
                     <div class="flex0">接口url：</div>
-                    <el-input v-model="formInfo.url" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
+                    <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
                 </div>
                 <div>
                     <el-button type="info" @click="clearAll">全部清空</el-button>

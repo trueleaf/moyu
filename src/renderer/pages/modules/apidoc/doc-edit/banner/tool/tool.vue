@@ -9,7 +9,7 @@
         <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
         <div class="p-relative">
-            <el-input v-model="formInfo.iptValue" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
+            <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
             <el-badge :is-dot="hasFilterCondition" class="badge">
                 <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
                     <template #reference>

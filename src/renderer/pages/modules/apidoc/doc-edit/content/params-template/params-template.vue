@@ -12,10 +12,10 @@
                 <el-tab-pane :label="$t('新增模板')" name="s-add">
                     <el-form ref="form" inline :model="addData" :rules="rules" label-width="120px">
                         <el-form-item :label="`${$t('参数名称')}：`" prop="name">
-                            <el-input v-model="addData.name" :placeholder="$t('例如：默认返回值')" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                            <el-input v-model="addData.name" :size="config.renderConfig.layout.size" :placeholder="$t('例如：默认返回值')" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                         </el-form-item>
                         <el-form-item :label="`${$t('参数类型')}：`" prop="presetParamsType">
-                            <el-select v-model="addData.presetParamsType" :placeholder="$t('请选择参数类型')" class="w-100">
+                            <el-select v-model="addData.presetParamsType" :size="config.renderConfig.layout.size" :placeholder="$t('请选择参数类型')" class="w-100">
                                 <el-option :label="$t('请求参数(Params)')" value="queryParams"></el-option>
                                 <el-option :label="$t('请求参数(Body)')" value="requestBody"></el-option>
                                 <el-option :label="$t('返回参数')" value="responseParams"></el-option>
@@ -34,10 +34,10 @@
                     <s-loading :loading="loading">
                         <el-form v-if="editData._id" ref="form" :model="editData" :rules="rules" label-width="120px">
                             <el-form-item :label="`${$t('参数名称')}：`" prop="name">
-                                <el-input v-model="editData.name" :placeholder="$t('例如：默认返回值')" class="w-80" maxlength="8" clearable show-word-limit></el-input>
+                                <el-input v-model="editData.name" :size="config.renderConfig.layout.size" :placeholder="$t('例如：默认返回值')" class="w-80" maxlength="8" clearable show-word-limit></el-input>
                             </el-form-item>
                             <el-form-item :label="`${$t('参数类型')}：`" prop="type">
-                                <el-select v-model="editData.presetParamsType" :placeholder="$t('请选择参数类型')">
+                                <el-select v-model="editData.presetParamsType" :size="config.renderConfig.layout.size" :placeholder="$t('请选择参数类型')">
                                     <el-option :label="$t('请求参数')" value="request"></el-option>
                                     <el-option :label="$t('返回参数')" value="response"></el-option>
                                 </el-select>
@@ -66,7 +66,7 @@
         >
             <el-table-column :label="$t('模板名称')" align="center">
                 <template #default="scope">
-                    <el-input v-if="scope.row.__active" v-model="scope.row.name" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                    <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                     <span v-else>{{ scope.row.name }}</span>
                 </template>
             </el-table-column>

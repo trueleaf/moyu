@@ -6,7 +6,9 @@
 */
 <template>
     <s-loading :loading="loading" class="doc-detail">
-        <div class="close el-icon-close" @click="handleClose"></div>
+        <el-icon :size="18" class="close" @click="handleClose">
+            <Close />
+        </el-icon>
         <div class="params-view">
             <s-fieldset v-if="apidocInfo?.item.url" :title="$t('基本信息')">
                 <s-label-value label="请求方式：" class="w-50">
@@ -97,6 +99,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from "vue"
+import { Close } from "@element-plus/icons-vue"
 import { ApidocDetail, Response } from "@@/global";
 import { router } from "@/router/index"
 import { axios } from "@/api/api"

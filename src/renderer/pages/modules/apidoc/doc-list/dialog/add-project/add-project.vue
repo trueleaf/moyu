@@ -8,7 +8,7 @@
     <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
             <el-form-item :label="`${$t('项目名称')}：`" prop="projectName">
-                <el-input v-model="formInfo.projectName" v-focus-select :placeholder="$t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
+                <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="$t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
             </el-form-item>
             <el-form-item :label="`${$t('选择成员')}：`">
                 <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="$t('输入用户名或真实姓名查找用户')">
@@ -27,7 +27,7 @@
             <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
             <el-table-column :label="$t('角色(权限)')" align="center">
                 <template #default="scope">
-                    <el-select v-model="scope.row.permission">
+                    <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size">
                         <el-option :label="$t('只读')" value="readOnly">
                             <span>{{ $t("只读") }}</span>
                             <span class="gray-500">({{ $t("仅查看项目") }})</span>

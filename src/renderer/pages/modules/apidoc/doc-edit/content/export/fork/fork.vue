@@ -55,7 +55,7 @@
                     <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
                         <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
                     </el-radio-group>
-                    <el-select v-else v-model="targetProjectId" class="mt-2" filterable @change="handleChangeProject">
+                    <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable @change="handleChangeProject">
                         <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
                     </el-select>
                     <el-divider></el-divider>

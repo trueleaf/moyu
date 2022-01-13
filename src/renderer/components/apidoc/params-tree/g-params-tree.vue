@@ -65,6 +65,7 @@
                     :title="typeTip"
                     :placeholder="$t('类型')"
                     class="w-15 flex0 mr-2"
+                    :size="config.renderConfig.layout.size"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
                     <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
@@ -95,6 +96,7 @@
                             :disabled="checkDisableValue(scope.data)"
                             :title="$t('对象和数组不必填写参数值')"
                             class="w-25 flex0"
+                            :size="config.renderConfig.layout.size"
                             :placeholder="getValuePlaceholder(scope.data)"
                             @update:modelValue="handleChangeValue($event, scope.data)"
                             @focus="handleFocusValue(scope.data)"
@@ -109,6 +111,7 @@
                     :model-value="scope.data.value"
                     :placeholder="$t('请选择')"
                     class="w-25 flex0"
+                    :size="config.renderConfig.layout.size"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
                     <el-option label="true" value="true"></el-option>
@@ -669,6 +672,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .valid-input .ipt-wrap .ipt-inner {
         border: none;
         border-radius: 0;
+        border-color: $gray-400;
         border-bottom: 1px solid $gray-400;
         &:focus {
             border-bottom: 2px solid $theme-color;

@@ -13,10 +13,10 @@
             <template #operation>
                 <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
                 <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
-                    <el-button :loading="loading" type="primary" icon="el-icon-upload" @click="loading = true">下载模板</el-button>
+                    <el-button :loading="loading" type="primary" @click="loading = true">下载模板</el-button>
                 </s-download>
                 <s-upload-plain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
-                    <el-button :loading="loading2" type="primary" icon="el-icon-upload">导入用户</el-button>
+                    <el-button :loading="loading2" type="primary">导入用户</el-button>
                 </s-upload-plain>
             </template>
         </s-search>

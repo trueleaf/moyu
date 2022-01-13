@@ -10,8 +10,10 @@
             <s-fieldset>
                 <template #title>
                     <span>{{ $t("在线链接") }}</span>
-                    <span class="orange f-sm ml-2 text-normal cursor-pointer" @click="dialogVisible = true">
-                        <i class="el-icon-circle-plus-outline"></i>
+                    <span class="orange f-sm ml-2 text-normal cursor-pointer d-inline-flex a-center" @click="dialogVisible = true">
+                        <el-icon :size="16">
+                            <circle-plus />
+                        </el-icon>
                         <span>{{ $t("生成链接") }}</span>
                     </span>
                 </template>
@@ -43,6 +45,7 @@ import { ref, Ref } from "vue"
 import { ElMessageBox } from "element-plus"
 import { axios } from "@/api/api"
 // import config from "@/../config/config"
+import { CirclePlus } from "@element-plus/icons-vue"
 import { router } from "@/router"
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
