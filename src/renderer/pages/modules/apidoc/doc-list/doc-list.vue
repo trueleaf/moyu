@@ -9,8 +9,10 @@
         <el-tabs v-model="activeName">
             <el-tab-pane name="tab-a">
                 <template #label>
-                    <span>
-                        <i class="el-icon-tickets"></i>
+                    <span class="d-flex a-center">
+                        <el-icon :size="16" class="mr-1">
+                            <Tickets />
+                        </el-icon>
                         <span>{{ $t("项目列表") }}</span>
                     </span>
                 </template>
@@ -18,32 +20,25 @@
             <!-- <el-tab-pane name="tab-b">
                 <template #label>
                     <span>
-                        <i class="el-icon-user"></i>
+                        <el-icon :size="16" class="mr-1">
+                            <Tickets />
+                        </el-icon>
                         <span>团队管理</span>
                     </span>
                 </template>
             </el-tab-pane> -->
         </el-tabs>
-        <component :is="activeName"></component>
+        <component :is="activeName === 'tab-a' ? tabA : tabA"></component>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { ref } from "vue"
+import { Tickets } from "@element-plus/icons-vue"
 import tabA from "./tab-a/tab-a.vue"
 
-export default defineComponent({
-    components: {
-        "tab-a": tabA,
-    },
-    data() {
-        return {
-            activeName: "tab-a", //当前激活选项卡
-        };
-    },
-    methods: {
-    },
-})
+const activeName = ref("tab-a"); //当前激活选项卡
+
 </script>
 
 <style lang="scss">

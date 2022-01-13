@@ -11,8 +11,8 @@
             <s-form-item :label="$t('路径')" prop="path" one-line required></s-form-item>
         </s-form>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleEditMenu">{{ $t('确定') }}</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">{{ $t('取消') }}</el-button>
+            <el-button :loading="loading" type="primary" @click="handleEditMenu">{{ $t('确定') }}</el-button>
+            <el-button type="warning" @click="handleClose">{{ $t('取消') }}</el-button>
         </template>
     </s-dialog>
 </template>

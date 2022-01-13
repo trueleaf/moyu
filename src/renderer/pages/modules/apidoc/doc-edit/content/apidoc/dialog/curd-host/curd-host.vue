@@ -33,12 +33,12 @@
                 </s-fieldset>
                 <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
                     <el-form-item :label="`${$t('服务器名称')}：`" prop="name">
-                        <el-input v-model="formInfo.name" size="mini" placeholder="例如：张三本地" class="w-100" maxlength="15" clearable show-word-limit></el-input>
+                        <el-input v-model="formInfo.name" placeholder="例如：张三本地" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item :label="`${$t('服务器地址')}：`" prop="server">
-                        <el-input v-model="formInfo.server" name="name" size="mini" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
+                        <el-input v-model="formInfo.server" name="name" :size="config.renderConfig.layout.size" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
                             <template #prepend>
-                                <el-select v-model="formInfo.protocol" class="w-100px" size="mini">
+                                <el-select v-model="formInfo.protocol" :size="config.renderConfig.layout.size" class="w-100px">
                                     <el-option value="http://" label="http://"></el-option>
                                     <el-option value="https://" label="https://"></el-option>
                                 </el-select>
@@ -53,7 +53,7 @@
                     </el-form-item>
                     <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ formInfo.protocol + formInfo.server }}</div>
                     <div class="d-flex j-end">
-                        <el-button v-success="isSuccess" :loading="loading" type="primary" size="mini" @click="handleAddHost">确认添加</el-button>
+                        <el-button v-success="isSuccess" :loading="loading" type="primary" @click="handleAddHost">确认添加</el-button>
                     </div>
                 </el-form>
             </s-resize-x>
@@ -70,7 +70,7 @@
                 >
                     <el-table-column :label="$t('服务器名称')" align="center">
                         <template #default="scope">
-                            <el-input v-if="scope.row.__active" v-model="scope.row.name" size="mini" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                            <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size" class="w-100" maxlength="8" clearable show-word-limit></el-input>
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
@@ -96,17 +96,17 @@
                     </el-table-column>
                     <el-table-column :label="$t('操作')" align="center">
                         <template #default="scope">
-                            <el-button v-if="!editItem" type="text" size="mini" @click="handleChangeEditNode(scope.row)">{{ $t("编辑") }}</el-button>
-                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
-                            <el-button v-if="editItem?._id === scope.row._id" type="text" size="mini" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
-                            <el-button type="text" size="mini" @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
+                            <el-button v-if="!editItem" type="text" @click="handleChangeEditNode(scope.row)">{{ $t("编辑") }}</el-button>
+                            <el-button v-if="editItem?._id === scope.row._id" type="text" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
+                            <el-button v-if="editItem?._id === scope.row._id" type="text" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
+                            <el-button type="text" @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
                         </template>
                     </el-table-column>
                 </s-table>
             </div>
         </div>
         <template #footer>
-            <el-button size="mini" type="warning" @click="handleClose">{{ $t("关闭") }}</el-button>
+            <el-button type="warning" @click="handleClose">{{ $t("关闭") }}</el-button>
         </template>
     </s-dialog>
 </template>

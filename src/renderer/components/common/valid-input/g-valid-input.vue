@@ -222,17 +222,16 @@ export default defineComponent({
             border: 1px solid $gray-400;
             border-radius: size(4);
             padding: 0 size(10);
-            font-size: fz(12);
+            // font-size: fz(12);
              &.disabled {
                 cursor: not-allowed;
                 //保持与elementui样式统一
                 background-color: var(--el-disabled-fill-base);
-                border-color: var(--el-disabled-border-base);
+                border-color: $gray-400;
                 color: var(--el-disabled-color-base);
             }
             &::placeholder {
                 color: $gray-400;
-                font-size: fz(12);
             }
             &.error {
                 border: 1px solid $red;

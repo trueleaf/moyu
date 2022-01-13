@@ -15,13 +15,16 @@
             </div>
         </template>
         <div class="close" @click="emit('close')">
-            <i class="el-icon-close"></i>
+            <el-icon>
+                <Close />
+            </el-icon>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { Effect } from "element-plus";
+import { Close } from "@element-plus/icons-vue"
 import mimeTypes from "./mime"
 
 const emit = defineEmits(["close", "select"]);

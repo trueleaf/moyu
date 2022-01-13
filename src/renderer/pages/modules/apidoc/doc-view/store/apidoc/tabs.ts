@@ -5,11 +5,11 @@ import type { ActionContext } from "vuex"
 import { ElMessageBox } from "element-plus"
 import type { State as RootState, ApidocTabsState, ApidocTab } from "@@/store"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import { axios } from "../../api/api"
 import { findNodeById, event } from "@/helper/index"
-import router from "../../router/index"
-import { apidocCache } from "@/cache/apidoc"
 import { $t } from "@/i18n/i18n"
+import { apidocCache } from "@/cache/apidoc"
+import { axios } from "../../api/api"
+import router from "../../router/index"
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,

@@ -6,7 +6,7 @@
 */
 <template>
     <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
-        <el-table :data="cookies" stripe border size="mini" height="100%">
+        <el-table :data="cookies" stripe border height="100%">
             <el-table-column align="center" prop="name" label="Name"></el-table-column>
             <el-table-column align="center" prop="value" label="Value"></el-table-column>
             <el-table-column align="center" prop="domin" label="Domin"></el-table-column>

@@ -1,19 +1,20 @@
 import { createApp } from "vue"
 import ElementPlus from "element-plus";
+import config from "@/../config/config"
 import mixin from "@/mixin/index"
-import App from "./App.vue"
 import { axiosPlugin } from "@/api/api"
 import * as helper from "@/helper/index"
 import "element-plus/dist/index.css"
+import { mockServer } from "@/server/mock-server"
 import "@/../../public/font/iconfont"
 import "@/../../public/font/iconfont.css"
-import { router } from "./router"
-import { store, key } from "./store"
 import { registeGlobalComponent } from "@/components"
 import "@/assets/css/index.css"
-import registeDirective from "./directive/directive";
 import i18n from "@/i18n/i18n"
-import { mockServer } from "@/server/mock-server"
+import App from "./App.vue"
+import { router } from "./router"
+import registeDirective from "./directive/directive";
+import { store, key } from "./store"
 
 mockServer();
 const app = createApp(App, {
@@ -21,6 +22,7 @@ const app = createApp(App, {
 })
 
 app.config.globalProperties.$helper = helper; //挂载全局辅助函数
+app.config.globalProperties.config = config; //挂载全局辅助函数
 
 registeGlobalComponent(app); //注册全局组件
 registeDirective(app); //注册全局指令

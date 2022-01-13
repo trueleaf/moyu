@@ -17,7 +17,9 @@
                 :before-upload="handleBeforeUpload"
                 :http-request="requestHook"
             >
-                <i class="el-icon-upload"></i>
+                <el-icon :size="20">
+                    <Upload />
+                </el-icon>
                 <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
                 <template #tip>
                     <div class="mt-2">
@@ -76,14 +78,14 @@
                     :label="$t('文件夹命名方式')"
                     :description="$t('none代表不存在文件夹，所有节点扁平放置')"
                 >
-                    <el-radio-group v-model="openapiFolderNamedType" size="mini" @change="handleChangeNamedType">
+                    <el-radio-group v-model="openapiFolderNamedType" @change="handleChangeNamedType">
                         <el-radio label="tag">Tag</el-radio>
                         <el-radio label="url">Url</el-radio>
                         <el-radio label="none">none</el-radio>
                     </el-radio-group>
                 </s-config>
                 <s-config :has-check="false" label="导入方式" :description="$t('请谨慎选择导入方式')">
-                    <el-radio-group v-model="formInfo.cover" size="mini" @change="handleChangeIsCover">
+                    <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
                         <el-radio :label="false">{{ $t("追加方式") }}</el-radio>
                         <el-radio :label="true">{{ $t("覆盖方式") }}</el-radio>
                     </el-radio-group>
@@ -118,17 +120,17 @@
                 </s-config>
             </div>
             <div class="d-flex j-center mt-2">
-                <el-button :loading="loading" size="mini" type="primary" @click="handleSubmit">{{ $t("确定导入") }}</el-button>
+                <el-button :loading="loading" type="primary" @click="handleSubmit">{{ $t("确定导入") }}</el-button>
             </div>
         </s-fieldset>
         <!-- <template v-if="importAsProject">
             <el-form ref="form" :model="formInfo" label-width="80px" class="mt-3">
                 <el-form-item label="项目名称">
-                    <el-input v-model="projectName" name="name" size="mini" placeholder="请输入项目名称" class="w-100" maxlength="100" clearable></el-input>
+                    <el-input v-model="projectName" name="name" placeholder="请输入项目名称" class="w-100" maxlength="100" clearable></el-input>
                 </el-form-item>
             </el-form>
             <div class="d-flex j-center mt-2">
-                <el-button :loading="loading" size="mini" type="primary" @click="handleSubmitAsProject">确定导入</el-button>
+                <el-button :loading="loading" type="primary" @click="handleSubmitAsProject">确定导入</el-button>
             </div>
         </template> -->
     </div>
@@ -139,16 +141,17 @@ import { ref, Ref, computed } from "vue"
 import jsyaml from "js-yaml"
 import type { OpenAPIV3 } from "openapi-types";
 import { ElMessage, ElMessageBox } from "element-plus";
+import { Upload } from "@element-plus/icons-vue"
 import type { ApidocDetail } from "@@/global"
 import type { ApidocProjectRules } from "@@/store"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
-import OpenApiTranslator from "./openapi";
 import config from "@/../config/config"
 import { store } from "@/store/index";
 import { router } from "@/router/index"
 import { axios } from "@/api/api"
 import { $t } from "@/i18n/i18n"
-// import type Node from "element-plus/packages/components/tree/src/model/node"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
+import OpenApiTranslator from "./openapi";
+
 type FormInfo = {
     moyuData: {
         hosts?: {
@@ -434,6 +437,9 @@ const handleSubmit = () => {
         width: 100%;
     }
     .el-upload-dragger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 100%;
     }
     .custom-tree-node {

@@ -36,7 +36,6 @@
                         range-separator="至"
                         value-format="x"
                         start-placeholder="开始日期"
-                        size="mini"
                         class="mr-1"
                         end-placeholder="结束日期"
                     >
@@ -48,15 +47,15 @@
             <div class="op-item">
                 <div class="d-flex a-center mr-5">
                     <div class="flex0">接口名称：</div>
-                    <el-input v-model="formInfo.docName" size="mini" placeholder="通过接口名称匹配" maxlength="100" clearable></el-input>
+                    <el-input v-model="formInfo.docName" :size="config.renderConfig.layout.size" placeholder="通过接口名称匹配" maxlength="100" clearable></el-input>
                 </div>
                 <div class="d-flex a-center mr-5">
                     <div class="flex0">接口url：</div>
-                    <el-input v-model="formInfo.url" size="mini" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
+                    <el-input v-model="formInfo.url" :size="config.renderConfig.layout.size" placeholder="通过接口url匹配" maxlength="100" clearable></el-input>
                 </div>
                 <div>
-                    <el-button size="mini" type="info" @click="clearAll">全部清空</el-button>
-                    <el-button :loading="loading" size="mini" type="success" @click="getData">刷新</el-button>
+                    <el-button type="info" @click="clearAll">全部清空</el-button>
+                    <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
                 </div>
             </div>
         </s-fieldset>

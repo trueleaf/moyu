@@ -7,31 +7,25 @@
 <template>
     <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
         <el-form-item prop="loginName">
-            <el-input v-model="userInfo.loginName" prefix-icon="el-icon-user" name="loginName" type="text" :placeholder="`${$t('请输入用户名')}...`"></el-input>
+            <el-input v-model="userInfo.loginName" :prefix-icon="iconUser" name="loginName" type="text" :placeholder="`${$t('请输入用户名')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-            <el-input v-model="userInfo.password" prefix-icon="el-icon-lock" name="password" type="password" :placeholder="`${$t('请输入密码')}...`"></el-input>
+            <el-input v-model="userInfo.password" :prefix-icon="iconLock" name="password" type="password" :placeholder="`${$t('请输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item v-if="isShowCapture" prop="captcha">
             <div class="captcha">
-                <el-input v-model="userInfo.captcha" name="captcha" type="text" :placeholder="$t('验证码')"></el-input>
+                <el-input v-model="userInfo.captcha" :size="config.renderConfig.layout.size" name="captcha" type="text" :placeholder="$t('验证码')"></el-input>
                 <img :src="captchaUrl" @click="freshCapchaUrl" />
             </div>
         </el-form-item>
         <el-form-item v-if="config.localization.enableGuest" class="mb-1">
-            <div>
-                <el-button :loading="loading" size="small" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)") }}</el-button>
-            </div>
+            <el-button :loading="loading" class="w-100" type="primary" @click="handleGuesttLogin">{{ $t("直接登录(体验账号，数据不会被保存)") }}</el-button>
         </el-form-item>
         <el-form-item class="mb-1">
-            <div>
-                <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" size="small" class="w-100">{{ $t("登录") }}</el-button>
-            </div>
+            <el-button :loading="loading" :type="config.localization.enableGuest ? '' : 'primary'" native-type="submit" class="w-100">{{ $t("登录") }}</el-button>
         </el-form-item>
         <el-form-item v-if="config.localization.enableRegister" class="mb-1">
-            <div>
-                <el-button size="small" class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
-            </div>
+            <el-button class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
         </el-form-item>
         <div class="forget-pwd-wrap">
             <el-button type="text" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
@@ -75,6 +69,7 @@
 import { defineComponent } from "vue"
 import { PermissionUserInfo, Response } from "@@/global"
 import config from "@/../config/config"
+import { User, Lock } from "@element-plus/icons-vue"
 
 export default defineComponent({
     emits: ["jumpToRegister", "jumpToResetPassword"],
@@ -93,6 +88,8 @@ export default defineComponent({
                 captcha: [{ required: true, message: `${this.$t("请输入验证码")}`, trigger: "blur" }],
             },
             //=====================================其他参数====================================//
+            iconUser: User,
+            iconLock: Lock,
             config, //-----------------------配置信息
             random: Math.random(), //--------验证码随机参数
             isShowCapture: false, //---------是否展示验证码

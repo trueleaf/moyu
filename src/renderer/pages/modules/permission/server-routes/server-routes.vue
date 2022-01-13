@@ -11,8 +11,8 @@
             <s-search-item :label="$t('名称&地址')" prop="name"></s-search-item>
             <s-search-item :label="$t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
             <template #operation>
-                <el-button type="success" size="mini" @click="handleOpenAddRouteDialog">{{ $t("新增路由") }}</el-button>
-                <el-button :disabled="selectedData.length === 0" type="success" size="mini" @click="handleOpenMultiEditTypeDialog">{{ $t("批量修改类型") }}</el-button>
+                <el-button type="success" @click="handleOpenAddRouteDialog">{{ $t("新增路由") }}</el-button>
+                <el-button :disabled="selectedData.length === 0" type="success" @click="handleOpenMultiEditTypeDialog">{{ $t("批量修改类型") }}</el-button>
             </template>
         </s-search>
         <!-- 表格展示 -->

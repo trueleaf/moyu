@@ -8,8 +8,8 @@
     <s-dialog :model-value="modelValue" top="10vh" :title="$t('成员管理')" @close="handleClose">
         <s-user :id="projectId" @leave="handleLeave"></s-user>
         <!-- <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleChangePermission">确定</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button :loading="loading" type="primary" @click="handleChangePermission">确定</el-button>
+            <el-button type="warning" @click="handleClose">取消</el-button>
         </template> -->
     </s-dialog>
 </template>

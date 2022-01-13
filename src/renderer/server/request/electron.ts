@@ -5,10 +5,10 @@ import type FormData from "form-data"
 import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
-import config from "./config"
 import { $t } from "@/i18n/i18n"
-import apidocConverter from "./utils"
 import { apidocConvertJsonDataToParams } from "@/helper/index"
+import config from "./config"
+import apidocConverter from "./utils"
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;

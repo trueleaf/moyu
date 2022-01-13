@@ -10,8 +10,12 @@
             <div class="head">
                 <div class="control" @click="toggleCollapse">
                     <template v-if="!disabled">
-                        <span v-if="!showContent" class="el-icon-caret-right"></span>
-                        <span v-else class="el-icon-caret-bottom"></span>
+                        <el-icon v-if="!showContent">
+                            <icon-care-right></icon-care-right>
+                        </el-icon>
+                        <el-icon v-else>
+                            <icon-care-bottom></icon-care-bottom>
+                        </el-icon>
                     </template>
                     <template v-else>
                         <svg class="disabled-icon" aria-hidden="true">
@@ -37,8 +41,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { CaretRight, CaretBottom } from "@element-plus/icons-vue"
 
 export default defineComponent({
+    components: {
+        "icon-care-right": CaretRight,
+        "icon-care-bottom": CaretBottom,
+    },
     props: {
         title: { // card头部标题
             type: String,

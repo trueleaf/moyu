@@ -36,7 +36,9 @@
                     <div v-if="config.isElectron">{{ $t("点击发送按钮发送请求") }}</div>
                     <div v-else>
                         <div>
-                            <i class="el-icon-warning orange mr-2"></i>
+                            <el-icon :size="18" class="orange mr-2">
+                                <Warning />
+                            </el-icon>
                             <span>{{ $t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
                         </div>
                         <div class="mb-2">{{ $t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>
@@ -59,14 +61,15 @@
 
 <script lang="ts" setup>
 import { computed, ref } from "vue"
+import { Warning } from "@element-plus/icons-vue"
 import config from "@/../config/config"
 import { store } from "@/store/index"
+import { formatBytes } from "@/helper/index"
 import sBaseInfo from "./base-info/base-info.vue"
 import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
 import sHeaders from "./headers/headers.vue"
 import sBody from "./body/body.vue"
-import { formatBytes } from "@/helper/index"
 
 const activeName = ref("s-body");
 

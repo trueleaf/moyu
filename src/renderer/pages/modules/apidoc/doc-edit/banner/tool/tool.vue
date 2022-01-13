@@ -9,7 +9,7 @@
         <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
         <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
         <div class="p-relative">
-            <el-input v-model="formInfo.iptValue" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
+            <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
             <el-badge :is-dot="hasFilterCondition" class="badge">
                 <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
                     <template #reference>
@@ -45,7 +45,6 @@
                                     :range-separator="$t('至')"
                                     value-format="x"
                                     :start-placeholder="$t('开始日期')"
-                                    size="mini"
                                     class="mr-1"
                                     :end-placeholder="$t('结束日期')"
                                 >
@@ -86,13 +85,17 @@
             <!-- 全部工具栏操作 -->
             <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
                 <template #reference>
-                    <div class="more" @click.stop="visible = true">
-                        <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                    <div class="more" @click.stop="visible = !visible">
+                        <el-icon :size="16" :title="$t('更多操作')" class="more-op">
+                            <MoreFilled />
+                        </el-icon>
                     </div>
                 </template>
                 <div class="border-bottom-gray-300 py-2 px-2">{{ $t("快捷操作") }}</div>
                 <div class="toolbar-close" @click="visible = false">
-                    <i class="el-icon-close"></i>
+                    <el-icon :size="18" class="more-op">
+                        <Close />
+                    </el-icon>
                 </div>
                 <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
                     <template #item="{ element }">
@@ -121,15 +124,16 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
+import { MoreFilled, Close } from "@element-plus/icons-vue"
 import type { ApidocBanner, ApidocOperations } from "@@/global"
 import { store } from "@/store/index"
+import { forEachForest } from "@/helper/index"
+import { router } from "@/router/index"
+import { $t } from "@/i18n/i18n"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
 import localOriginOperation from "./operations"
-import { forEachForest } from "@/helper/index"
 import { addFileAndFolderCb } from "../composables/curd-node"
-import { router } from "@/router/index"
-import { $t } from "@/i18n/i18n"
 
 type Operation = {
     /**

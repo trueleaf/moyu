@@ -35,7 +35,6 @@
                 <div v-if="config.isElectron">{{ $t("点击发送按钮发送请求") }}</div>
                 <div v-else>
                     <div>
-                        <i class="el-icon-warning orange mr-2"></i>
                         <span>{{ $t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
                     </div>
                     <div class="mb-2">{{ $t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>

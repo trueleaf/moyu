@@ -60,7 +60,9 @@
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                                    <more-filled />
+                                </el-icon>
                             </div>
                         </template>
                         <!-- 文件夹渲染 -->
@@ -87,7 +89,9 @@
                                 class="more"
                                 @click.stop="handleShowContextmenu($event, scope.data)"
                             >
-                                <i class="more-op el-icon-more" :title="$t('更多操作')"></i>
+                                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                                    <more-filled />
+                                </el-icon>
                             </div>
                         </template>
                     </div>
@@ -126,17 +130,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Clipboard } from "electron"
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { MoreFilled } from "@element-plus/icons-vue"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
+import { useStore } from "@/store/index"
+import { router } from "@/router/index"
+import { $t } from "@/i18n/i18n"
 import { ElMessage } from "element-plus"
 import sAddFileDialog from "../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../dialog/add-folder/add-folder.vue"
 import sTool from "./tool/tool.vue"
-import { useStore } from "@/store/index"
 import { useBannerData } from "./composables/banner-data"
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from "./composables/curd-node"
-import { router } from "@/router/index"
-import { $t } from "@/i18n/i18n"
 
 let clipboard: Clipboard | null = null
 if (window.require) {
@@ -553,8 +558,8 @@ onUnmounted(() => {
         }
     }
     // 禁用动画提高性能
-    .collapse-transition {
-        transition: none;
+    .el-collapse-transition-enter-active, .el-collapse-transition-leave-active {
+        transition: none !important;
     }
     // 节点展示更多信息
     .show-more {

@@ -13,9 +13,9 @@ import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
-import tips from "./tips"
 import Mock from "@/server/mock"
 import { store } from "@/store/index"
+import tips from "./tips"
 
 type Data = Record<string, unknown>
 

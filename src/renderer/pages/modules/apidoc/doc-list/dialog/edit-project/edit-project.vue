@@ -8,12 +8,12 @@
     <s-dialog :model-value="modelValue" top="10vh" :title="$t('修改项目')" @close="handleClose">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
             <el-form-item :label="`${$t('项目名称')}`" prop="projectName">
-                <el-input v-model="formInfo.projectName" v-focus-select size="mini" :placeholder="$t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
+                <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="$t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
             </el-form-item>
         </el-form>
         <template #footer>
-            <el-button :loading="loading" size="mini" type="primary" @click="handleEditProject">{{ $t("确定") }}</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+            <el-button :loading="loading" type="primary" @click="handleEditProject">{{ $t("确定") }}</el-button>
+            <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
 </template>
