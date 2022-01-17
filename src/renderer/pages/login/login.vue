@@ -45,7 +45,7 @@
                         <s-login-account @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></s-login-account>
                     </el-tab-pane>
                     <!-- 手机号登录 -->
-                    <el-tab-pane :label="$t('手机登录')" name="loginPassword">
+                    <el-tab-pane v-if="0" :label="$t('手机登录')" name="loginPassword">
                         <s-login-phone></s-login-phone>
                     </el-tab-pane>
                     <!-- 注册 -->
