@@ -366,7 +366,7 @@ export default defineComponent({
                 white-space: nowrap;
                 // font-size: fz(12);
                 &.unfixed {
-                    font-style: oblique 40deg;
+                    font-style: oblique;
                 }
             }
             background: rgb(222, 225, 230);
