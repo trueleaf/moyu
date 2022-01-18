@@ -57,9 +57,6 @@ const config: Config = {
                 pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
                 pageSize: 20, //每页默认显示数量
             },
-            richText: {
-                useOss: false,
-            },
         },
         //本地数据库配置
         indexedDB: {
@@ -76,7 +73,7 @@ const config: Config = {
         width: 1440,
         height: 768,
         useLocalFile: false, //使用本地文件作为主进程加载内容
-        onlineUrl: "https://online.jobtool.cn", //线上地址
+        onlineUrl: "https://online.jobtool.cn", //若useLocalFile为false则使用当前地址作为electron加载地址
     },
     //本地部署相关配置
     localization: {
@@ -87,7 +84,7 @@ const config: Config = {
             enabled: false, //是否允许提示用户下载electron
             url: "https://gitee.com/shuzhikai/moyu/releases", //下载地址
         },
-        enableRegister: true, //是否允许注册
+        enableRegister: true, //是否允许用户自主注册账号
         enableGuest: true, //是否允许来宾用户体验
         enableDocLink: true, //是否显示文档和帮助链接
     },
