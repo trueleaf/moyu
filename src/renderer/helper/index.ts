@@ -13,7 +13,7 @@ import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
-import Mock from "@/server/mock"
+import Mock from "@/server/mock/mock"
 import { store } from "@/store/index"
 import tips from "./tips"
 

@@ -130,11 +130,10 @@ export default defineComponent({
     },
     data() {
         return {
-            moveLeft: 0,
-            showContextmenu: false,
-            contextmenuLeft: 0,
-            contextmenuTop: 0,
-            currentOperationNode: null as ApidocTab | null,
+            showContextmenu: false, //是否显示contextmenu
+            contextmenuLeft: 0, //鼠标右键x值
+            contextmenuTop: 0, //鼠标右键y值
+            currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
         };
     },
     computed: {
