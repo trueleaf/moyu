@@ -409,7 +409,7 @@ export default defineComponent({
         flex-wrap: wrap;
         align-items: center;
         margin-bottom: size(20);
-        @media only screen and (max-width: 1199px) {
+        @media only screen and (max-width: 720px) {
             justify-content: center;
         }
     }
@@ -422,7 +422,7 @@ export default defineComponent({
         margin-bottom: size(20);
         padding: 10px;
         position: relative;
-        @media only screen and (max-width: 1199px) {
+        @media only screen and (max-width: 720px) {
             margin-right: 0;
             width: 100%;
         }
