@@ -38,7 +38,7 @@
             <el-table-column :label="$t('登录次数')" align="center" prop="loginTimes"></el-table-column>
             <el-table-column :label="$t('角色信息')" align="center" width="200px">
                 <template #default="scope">
-                    <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-block mb-1">{{ item }}</el-tag>
+                    <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-flex a-center j-center mb-1">{{ item }}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('状态')" align="center" width="80px">

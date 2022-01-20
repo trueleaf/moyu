@@ -13,7 +13,7 @@ import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
 import dayjs from "dayjs";
 import mitt from "mitt"
-import Mock from "@/server/mock"
+import Mock from "@/server/mock/mock"
 import { store } from "@/store/index"
 import tips from "./tips"
 
@@ -68,7 +68,7 @@ type ForestData = {
 }
 
 /**
- * @description        遍历森林(深度优先)
+ * @description        遍历森林
  * @author             shuxiaokai
  * @create             2020-03-02 10:17
  * @param {array}      arrData 数组数据
@@ -103,7 +103,7 @@ export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) =>
 /**
  * 根据id查询父元素
  */
-export function findParentById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+export function findParentById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }
@@ -129,7 +129,7 @@ export function findParentById<T extends ForestData>(forest: T[], id: string, op
 /**
  * 根据id查询下一个兄弟节点
  */
-export function findNextSiblingById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+export function findNextSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }
@@ -154,7 +154,7 @@ export function findNextSiblingById<T extends ForestData>(forest: T[], id: strin
 /**
  * 根据id查询上一个兄弟节点
  */
-export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }
@@ -180,7 +180,7 @@ export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: s
 /**
  * 根据id查询元素
  */
-export function findNodeById<T extends ForestData>(forest: T[], id: string, options?: { childrenKey?: string, idKey?: string }): T | null {
+export function findNodeById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
         throw new Error("第一个参数必须为数组类型");
     }

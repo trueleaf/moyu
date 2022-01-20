@@ -4,7 +4,7 @@ import config from "@/../config/config"
 import { store } from "@/store/index"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
 import { axios } from "@/api/api"
-import Mock from "@/server/mock"
+import Mock from "@/server/mock/mock"
 
 export const mockServer = (): void => {
     let app: Koa | null = null;

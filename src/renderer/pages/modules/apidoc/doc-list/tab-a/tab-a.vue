@@ -10,7 +10,7 @@
         <div class="search-item d-flex a-center mb-3">
             <el-input v-model="projectName" :placeholder="$t('项目名称或者接口URL')" :prefix-icon="iconSearch" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
             <el-button type="success" :icon="iconPlus" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
-            <el-button type="success" :icon="iconDownload" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
+            <el-button v-if="0" type="success" :icon="iconDownload" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
         </div>
         <!-- 项目列表 -->
         <s-loading :loading="loading">
@@ -175,6 +175,13 @@ export default defineComponent({
         "star-filled-icon": StarFilled,
         "delete-icon": Delete,
     },
+    setup() {
+        return {
+            iconPlus: Plus,
+            iconDownload: Download,
+            iconSearch: Search,
+        }
+    },
     data() {
         return {
             projectName: "", //--------------------------------------------项目名称
@@ -184,9 +191,6 @@ export default defineComponent({
             currentEditProjectId: "", //-----------------------------------项目id用于编辑
             currentEditProjectName: "", //---------------------------------项目名称用于编辑
             //=====================================其他参数====================================//
-            iconPlus: Plus,
-            iconDownload: Download,
-            iconSearch: Search,
             searchFn: null as (null | (() => void)), //---------------------------------------------搜索函数
             isFold: false, //----------------------------------------------是否折叠
             loading: false, //---------------------------------------------项目数据加载
@@ -405,7 +409,7 @@ export default defineComponent({
         flex-wrap: wrap;
         align-items: center;
         margin-bottom: size(20);
-        @media only screen and (max-width: 1199px) {
+        @media only screen and (max-width: 720px) {
             justify-content: center;
         }
     }
@@ -418,7 +422,7 @@ export default defineComponent({
         margin-bottom: size(20);
         padding: 10px;
         position: relative;
-        @media only screen and (max-width: 1199px) {
+        @media only screen and (max-width: 720px) {
             margin-right: 0;
             width: 100%;
         }

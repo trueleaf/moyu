@@ -74,7 +74,7 @@ type Config = {
             imgUrl: string,
 
             /**
-             * 超时实践
+             * 超时时间
              */
             timeout: number,
 
@@ -119,16 +119,6 @@ type Config = {
                  * 每页默认显示数量
                  */
                 pageSize: number,
-            },
-
-            /**
-             * 富文本配置
-             */
-            richText: {
-                /**
-                 * 是否使用oss
-                 */
-                useOss: boolean,
             },
         },
         /**
@@ -175,7 +165,7 @@ type Config = {
         useLocalFile: boolean,
 
         /**
-         * 线上地址
+         * 若useLocalFile为false则使用当前地址作为electron加载地址
          */
         onlineUrl: string,
     },
@@ -209,7 +199,7 @@ type Config = {
             enabled: boolean,
         },
         /**
-         * 是否允许注册
+         * 是否允许用户自主注册账号
          */
         enableRegister: boolean,
 

@@ -166,7 +166,9 @@ function convertToJson(properties, options = {}) {
 }
 function apidocConvertParamsToJsonData(properties, jumpChecked, valueHook) {
     if (properties.length === 0) {
-        console.warn("无任何参数值")
+        if (process.env.NODE_ENV === "development") {
+            console.warn("无任何参数值")
+        }
         return null;
     }
     const rootType = properties[0].type;

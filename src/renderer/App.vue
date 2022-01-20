@@ -5,26 +5,14 @@
     备注：
 */
 <template>
-    <el-config-provider :locale="locale">
-        <router-view></router-view>
-    </el-config-provider>
+    <router-view></router-view>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ElConfigProvider } from "element-plus"
-import zhCn from "element-plus/lib/locale/lang/zh-cn"
 import config from "@/../config/config"
 
 export default defineComponent({
-    components: {
-        [ElConfigProvider.name]: ElConfigProvider,
-    },
-    data() {
-        return {
-            locale: zhCn,
-        };
-    },
     created() {
         if (!config.isDev && config.localization.consoleWelcome) {
             console.log(`
