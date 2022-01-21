@@ -371,6 +371,8 @@ type ApidocContentType = "" | "application/json" | "application/x-www-form-urlen
 type ApidocResponseContentType = ApidocContentType | "application/xml" | "application/json" | "image/svg+xml" | "text/html" | "text/csv" | "image/gif" | "image/jpeg" | "image/png" | "application/pdf" | "application/octet-stream" | "text/plain" | "application/msword" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document" | "application/vnd.ms-excel" | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" | "text/plain" | "text/css" | "text/html" | "text/javascript" | "image/gif" | "image/jpeg" | "image/png" | "image/svg+xml" | "audio/webm" | "video/webm" | "audio/ogg" | "video/ogg" | "application/ogg";
 type ApidocBodyMode = "json" | "raw" | "formdata" | "urlencoded" | "binary" | "none";
 type ApidocBodyRawType = "application/xml" | "text/javascript" | "text/plain" | "text/html" | "application/json"
+//文档请求允许传参方式
+type ApidocRequestParamTypes = ("path" | "params" | "json" | "x-www-form-urlencoded" | "formData" | "text/javascript" | "text/plain" | "text/html" | "application/xml")[]
 //api文档请求body
 type ApidocBodyParams = {
     /**
@@ -906,6 +908,7 @@ export {
     ApidocProjectPermission,
     ApidocProperty,
     ApidocPropertyType,
+    ApidocRequestParamTypes,
     ApidocMindParam,
     ApidocParamsType,
     ApidocBanner,

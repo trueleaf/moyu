@@ -4,8 +4,8 @@ import type {
     ApidocParamsType,
     PermissionClientRoute,
     ApidocDetail,
-    ApidocContentType,
     ApidocMindParam,
+    ApidocRequestParamTypes,
     ApidocHttpRequestMethod,
     GlobalConfig,
 } from "@@/global"
@@ -109,7 +109,7 @@ type ApidocRequestMethodRule = {
     /**
      * 允许请求参数类型
      */
-    enabledContenTypes: ApidocContentType[],
+    enabledContenTypes: ApidocRequestParamTypes,
     /**
      * 方法名称
      */
