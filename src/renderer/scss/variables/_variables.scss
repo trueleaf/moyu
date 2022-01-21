@@ -112,7 +112,7 @@ $font-size-base-px: 16;
 $font-size-base: fz($font-size-base-px) !default; 
 $font-size-sm: fz($font-size-base-px * 0.875) !default;
 $font-size-xs: fz($font-size-base-px * .75) !default;
-$font-size-bg: fz($font-size-base-px * 1.125) !default;
+$font-size-bg: fz($font-size-base-px * 1.25) !default;
 $font-size-lg: fz($font-size-base-px * 1.35) !default;
 $font-size-ex: fz($font-size-base-px * 2) !default;
 
@@ -232,7 +232,6 @@ $cursors: (
 $zIndex-fieldset: 2!default; //fieldset组件zIndex
 $zIndex-header: 1995!default;
 $zIndex-tabs: 1995!default;
-$zIndex-bread: 1995!default;
 $zIndex-panel: 1996!default; //下拉面板层级
 $zIndex-editor: 1994!default; //富文本编辑器
 $zIndex-request-info-wrap: 1995!default; //请求操作区域

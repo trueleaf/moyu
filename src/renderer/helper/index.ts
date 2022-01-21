@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail } from "@@/global"
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes } from "@@/global"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
@@ -688,6 +688,14 @@ export function apidocGenerateApidoc(): ApidocDetail {
             contentType: "",
         },
     }
+}
+/**
+ * @description        生成一份参数类型数组
+ * @author             shuxiaokai
+ * @create             2022-01-20 22:35
+ */
+export function apidocGenerateRequestParamTypes(): ApidocRequestParamTypes {
+    return ["path", "params", "json", "x-www-form-urlencoded", "formData", "text/javascript", "text/plain", "text/html", "application/xml"];
 }
 
 /**
