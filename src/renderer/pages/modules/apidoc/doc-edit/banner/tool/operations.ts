@@ -20,10 +20,10 @@ export default [{
     pin: true,
     viewOnly: true,
 }, {
-    name: $t("在线链接"),
-    icon: "#iconlink",
-    op: "generateLink",
-    shortcut: ["Ctrl", "L"],
+    name: $t("全局设置"),
+    icon: "#iconshezhi",
+    op: "config",
+    shortcut: ["Ctrl", ","],
     pin: true,
 }, {
     name: $t("回收站"),
@@ -31,6 +31,12 @@ export default [{
     op: "recycler",
     shortcut: ["Ctrl", "Alt", "R"],
     pin: true,
+}, {
+    name: $t("在线链接"),
+    icon: "#iconlink",
+    op: "generateLink",
+    shortcut: ["Ctrl", "L"],
+    pin: false,
 }, {
     name: $t("导出文档"),
     icon: "#icondaochu1",
@@ -50,10 +56,4 @@ export default [{
     shortcut: ["Ctrl", "H"],
     pin: false,
     viewOnly: true,
-}, {
-    name: $t("全局设置"),
-    icon: "#iconshezhi",
-    op: "config",
-    shortcut: ["Ctrl", ","],
-    pin: false,
 }];

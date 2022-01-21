@@ -216,19 +216,20 @@ export default defineComponent({
         width: 100%;
         .ipt-inner {
             width: 100%;
-            height: size(28);
+            height: size(32);
             display: flex;
             align-items: center;
             border: 1px solid $gray-400;
             border-radius: size(4);
             padding: 0 size(10);
-            // font-size: fz(12);
+            font-size: fz(14);
+            color: var(--el-input-text-color,var(--el-text-color-regular));
              &.disabled {
                 cursor: not-allowed;
                 //保持与elementui样式统一
-                background-color: var(--el-disabled-fill-base);
-                border-color: $gray-400;
-                color: var(--el-disabled-color-base);
+                background-color: var(--el-disabled-bg-color);
+                border-color: var(--el-disabled-border-color);
+                color: var(--el-disabled-text-color);
             }
             &::placeholder {
                 color: $gray-400;
