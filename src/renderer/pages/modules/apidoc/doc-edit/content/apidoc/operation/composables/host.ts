@@ -72,8 +72,9 @@ export default (): HostReturn => {
     //host枚举值
     const hostEnum = computed<ApidocProjectHost[]>(() => {
         const projectId = router.currentRoute.value.query.id as string;
-        const localData = apidocCache.getApidocServer(projectId)
-        return store.state["apidoc/baseInfo"].hosts.concat(localData)
+        const localData: Ref<ApidocProjectHost[]> = ref([])
+        localData.value = apidocCache.getApidocServer(projectId)
+        return store.state["apidoc/baseInfo"].hosts.concat(localData.value)
     })
     return {
         mockServer,

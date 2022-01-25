@@ -159,7 +159,9 @@ export default defineComponent({
                 })
             } else if (e.key === "Enter") {
                 e.preventDefault();
-                this.handleSelectItem();
+                if (this.realSelectData && this.realSelectData.length > 0) {
+                    this.handleSelectItem();
+                }
             }
             if (e.ctrlKey && (e.key === "v" || e.key === "V")) {
                 setTimeout(() => {
