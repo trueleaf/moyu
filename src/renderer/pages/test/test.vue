@@ -5,7 +5,10 @@
     备注：
 */
 <template>
-    <div>test</div>
+    <div class="wrap">
+        <s-json-editor v-model="data"></s-json-editor>
+        <pre class="w-200px">{{ data }}</pre>
+    </div>
 </template>
 
 <script lang="ts">
@@ -14,6 +17,7 @@ import { defineComponent } from "vue"
 export default defineComponent({
     data() {
         return {
+            data: ""
         };
     },
     methods: {
@@ -22,5 +26,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-
+.wrap {
+    display: flex;
+    width: 80vw;
+    height: calc(100vh - 100px);
+    border: 1px solid $gray-400;
+}
 </style>
