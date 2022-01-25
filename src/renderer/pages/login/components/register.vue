@@ -32,6 +32,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { InternalRuleItem } from "async-validator/dist-types/interface"
 
 export default defineComponent({
     data() {
@@ -63,7 +64,7 @@ export default defineComponent({
         };
     },
     methods: {
-        validatePassword(rule: unknown, value: string, callback: (err?: Error) => void) {
+        validatePassword(rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) {
             const matchString = /[a-zA-Z]/;
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;
@@ -80,7 +81,7 @@ export default defineComponent({
                 callback();
             }
         },
-        validatePassword2(rule: unknown, value: string, callback: (err?: Error) => void) {
+        validatePassword2(rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) {
             const matchString = /[a-zA-Z]/;
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;
