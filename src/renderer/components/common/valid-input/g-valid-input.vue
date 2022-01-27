@@ -17,18 +17,18 @@
                 :placeholder="placeholder"
                 @input="handleInput"
                 @focus="handleFocus"
-                @blur="isFocus = false;isHover = false;isInput = false;"
+                @blur="isFocus = false;"
             >
         </div>
         <div v-if="error" class="ipt-error">{{ errorTip }}</div>
-        <div v-if="isInput && isHover && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
+        <div v-if="isInput && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
             <div
                 v-for="(item, index) in realSelectData"
                 :key="index"
                 class="select-item"
                 :class="{ active: currentSelectIndex === index }"
                 @mouseover="handleMouseoverItem(index)"
-                @click="handleSelectItem"
+                @click.stop="handleSelectItem"
             >
                 <span class="head">
                     <s-emphasize :value="item.key" :keyword="modelValue"></s-emphasize>
@@ -80,7 +80,6 @@ export default defineComponent({
             focusX: 0,
             focusY: 0,
             isFocus: false, //是否focus
-            isHover: false, //鼠标是否在整个输入框内
             isInput: false, //是否输入了数据
             currentSelectIndex: 0,
             validator: null as Schema | null,
@@ -91,7 +90,7 @@ export default defineComponent({
             if (!this.modelValue) {
                 return [];
             }
-            return this.selectData.filter(v => v.key.includes(this.modelValue))
+            return this.selectData.filter(v => v.key.toLowerCase().includes(this.modelValue.toLowerCase()))
         },
     },
     mounted() {
@@ -106,7 +105,6 @@ export default defineComponent({
         handleInput(e: Event) {
             const iptValue = (e.target as HTMLInputElement).value;
             this.$emit("update:modelValue", iptValue);
-            this.isHover = true;
             this.isInput = true;
         },
         //处理focus
@@ -119,7 +117,6 @@ export default defineComponent({
             const hasData = this.selectData.filter(v => v.key.includes(this.modelValue));
             if (hasData && !exactMatchData) {
                 this.isFocus = true;
-                this.isHover = true;
             }
         },
         //处理blur
@@ -168,7 +165,6 @@ export default defineComponent({
                     const exactMatchData = this.selectData.find(v => v.key === this.modelValue);
                     if (exactMatchData) {
                         this.$emit("remote-select", exactMatchData);
-                        this.isHover = false;
                     }
                 })
             }
@@ -177,28 +173,27 @@ export default defineComponent({
         handleSelectItem() {
             const selectData = this.realSelectData[this.currentSelectIndex];
             this.$emit("update:modelValue", selectData.key || "");
-            this.isHover = false;
             this.$emit("remote-select", selectData);
+            this.isInput = false;
         },
         //鼠标移入选项默认选中当前选项
         handleMouseoverItem(index: number) {
             this.currentSelectIndex = index;
-            this.$nextTick(() => {
-                const inputWrap = this.$refs.inputWrap as HTMLElement | null;
-                if (inputWrap) {
-                    inputWrap.focus();
-                }
-            })
+            // this.$nextTick(() => {
+            //     const inputWrap = this.$refs.inputWrap as HTMLElement | null;
+            //     if (inputWrap) {
+            //         inputWrap.focus();
+            //     }
+            // })
         },
         //鼠标移入整个输入框
         handleMouseoverWrap() {
             if (this.isFocus) { //只有focus了移动鼠标才会变为true
-                this.isHover = true;
             }
         },
         //全局点击取消选择面板
         bindClick() {
-            this.isHover = false;
+            this.isInput = false;
             this.isFocus = false;
         },
     },
