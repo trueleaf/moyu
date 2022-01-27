@@ -90,6 +90,7 @@
                 </el-icon>
             </div>
         </div>
+        <div class="d-flex a-center ml-1">{{ config.ip }}</div>
     </div>
     <teleport to="body">
         <!-- 单个节点操作 -->
