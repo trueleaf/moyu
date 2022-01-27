@@ -224,7 +224,7 @@ export default defineComponent({
             border: 1px solid $gray-400;
             border-radius: size(4);
             padding: 0 size(10);
-            font-size: fz(14);
+            font-size: fz(12);
             color: var(--el-input-text-color,var(--el-text-color-regular));
              &.disabled {
                 cursor: not-allowed;

@@ -664,6 +664,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-radius: 0;
         border: none;
         border-bottom: 1px solid $gray-400;
+        font-size: fz(12);
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
@@ -674,6 +675,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-radius: 0;
         border-color: $gray-400;
         border-bottom: 1px solid $gray-400;
+        font-size: fz(12);
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
