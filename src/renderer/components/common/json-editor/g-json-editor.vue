@@ -22,7 +22,6 @@ const emits = defineEmits(["update:modelValue"])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
-let model: monaco.editor.ITextModel | null = null;
 
 watch(() => props.modelValue, (newValue) => {
     const value = monacoInstance?.getValue();
@@ -31,31 +30,13 @@ watch(() => props.modelValue, (newValue) => {
     }
 })
 onMounted(() => {
-    const modelUri = monaco.Uri.parse("json://demo");
-    model = monaco.editor.createModel(props.modelValue, "json", modelUri)
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         allowComments: true,
         validate: true,
         trailingCommas: "ignore",
-        schemas: [{
-            uri: "json",
-            fileMatch: [modelUri.toString()],
-            schema: {
-                type: "object",
-                properties: {
-                    p1: {
-                        enum: ["v1", "v2"],
-                    },
-                    p2: {
-                        type: "string",
-                    },
-                },
-                required: ["p1", "p2"],
-            },
-        }]
     })
     monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
-        model,
+        value: props.modelValue,
         language: "json",
         automaticLayout: true,
         parameterHints: {
@@ -64,20 +45,33 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
+        wrappingStrategy: "advanced",
+        scrollBeyondLastLine: false,
+        overviewRulerLanes: 0,
         hover: {
             enabled: true,
             above: false,
         },
+        renderLineHighlight: "none",
+        fontSize: 13,
+        readOnly: true,
     })
-    // monacoCompletionItem = useCompletionItem();
-    // monacoHoverProvider = useHoverProvider();
+    const container = document.querySelector(".s-json-editor")
+    const updateHeight = () => {
+        const contentHeight = monacoInstance?.getContentHeight() || 300;
+        const containerWidth = container?.getBoundingClientRect().width || 1000;
+        (container as HTMLElement).style.height = `${contentHeight}px`;
+        monacoInstance?.layout({ width: containerWidth, height: contentHeight });
+    };
+    monacoInstance.onDidContentSizeChange(updateHeight);
+    updateHeight()
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
     })
 })
 onBeforeUnmount(() => {
     monacoInstance?.dispose();
-    model?.dispose();
+    // model?.dispose();
     // monacoCompletionItem?.dispose()
     // monacoHoverProvider?.dispose()
 })
@@ -85,8 +79,4 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="scss">
-.s-json-editor {
-    width: 100%;
-    height: 100%;
-}
 </style>
