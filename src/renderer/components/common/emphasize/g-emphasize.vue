@@ -60,7 +60,7 @@ export default defineComponent({
     },
     computed: {
         isMatched(): boolean {
-            return !!(this.keyword && this.value.match(this.keyword))
+            return !!(this.keyword && this.value.toLowerCase().match(this.keyword.toLowerCase()))
         },
     },
     watch: {
@@ -79,7 +79,7 @@ export default defineComponent({
     },
     methods: {
         spliceStr() {
-            const index = this.value.toLowerCase().indexOf(this.keyword); //匹配位置
+            const index = this.value.toLowerCase().indexOf(this.keyword.toLowerCase()); //匹配位置
             const offset = this.keyword.length; //偏移位置
             if (index === -1 || this.keyword.trim() === "") {
                 this.leftStr = this.value;
