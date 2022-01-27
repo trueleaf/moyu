@@ -46,10 +46,14 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
+        wrappingStrategy: "advanced",
+        scrollBeyondLastLine: false,
+        overviewRulerLanes: 0,
         hover: {
             enabled: true,
             above: false,
         },
+        renderLineHighlight: "none",
     })
     monacoCompletionItem = useCompletionItem();
     monacoHoverProvider = useHoverProvider();
@@ -69,5 +73,6 @@ onBeforeUnmount(() => {
 .s-monaco-editor {
     width: 100%;
     height: 100%;
+    border: 1px solid $gray-300;
 }
 </style>
