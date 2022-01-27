@@ -77,13 +77,14 @@
             </div>
             <!-- json -->
             <template v-else-if="remoteResponse.data.type.includes('application/json')">
-                <div class="text-wrap">
-                    <s-raw-editor
+                <div class="json-wrap">
+                    <s-json-editor :model-value="jsonResponse"></s-json-editor>
+                    <!-- <s-raw-editor
                         :model-value="jsonResponse"
                         readonly
                         type="application/json"
                     >
-                    </s-raw-editor>
+                    </s-raw-editor> -->
                 </div>
                 <el-dropdown class="apply-response" trigger="click">
                     <span class="d-flex a-center">
@@ -203,7 +204,7 @@ export default defineComponent({
                 const matchedData = mindData.find(v => v.key === p.key);
                 if (matchedData) {
                     p.description = matchedData.description;
-                    p.value = matchedData.value;
+                    // p.value = matchedData.value;
                 }
                 return "";
             });
