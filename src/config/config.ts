@@ -37,7 +37,7 @@ const config: Config = {
     renderConfig: {
         //布局相关
         layout: {
-            size: "", //项目中组件库大小
+            size: "default", //项目中组件库大小
         },
         //权限相关
         permission: {
