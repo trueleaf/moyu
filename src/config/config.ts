@@ -5,7 +5,12 @@
 */
 import type { Config } from "@@/config"
 
-const ip = "127.0.0.1";
+let ip = "127.0.0.1";
+if (typeof window !== "undefined" && window.require) {
+    const ipFn = window.require("ip");
+    ip = ipFn.address();
+}
+
 const isDev = process.env.NODE_ENV === "development";
 function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
@@ -20,6 +25,7 @@ function isElectron(): boolean {
     return false;
 }
 const config: Config = {
+    ip,
     isElectron: isElectron(),
     isDev,
     //更新相关配置
@@ -31,7 +37,7 @@ const config: Config = {
     renderConfig: {
         //布局相关
         layout: {
-            size: "", //项目中组件库大小
+            size: "default", //项目中组件库大小
         },
         //权限相关
         permission: {

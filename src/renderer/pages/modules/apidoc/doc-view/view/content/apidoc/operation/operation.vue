@@ -187,6 +187,9 @@ const fullUrl = computed(() => {
     .op-wrap {
         display: flex;
         margin-top: size(10);
+        .el-input__inner {
+            font-size: fz(13);
+        }
         .request-method {
             display: flex;
             align-items: center;

@@ -8,7 +8,7 @@
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
         <div class="d-flex a-center">
-            <el-radio-group v-model="host" @change="handleChangeHost">
+            <el-radio-group v-model="host" size="small" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                     <template #reference>
                         <el-radio :label="mockServer" border>{{ $t("Mock服务器") }}</el-radio>
@@ -189,6 +189,9 @@ const fullUrl = computed(() => {
     .op-wrap {
         display: flex;
         margin-top: size(10);
+        .el-input__inner {
+            font-size: fz(13);
+        }
         .request-method {
             display: flex;
             align-items: center;

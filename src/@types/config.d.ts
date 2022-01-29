@@ -8,6 +8,10 @@ import { componentSize } from "element-plus/es/utils/props";
 
 type Config = {
     /**
+     * 内网ip地址
+     */
+    ip: string,
+    /**
      * 是否为electron环境
      */
     isElectron: boolean,

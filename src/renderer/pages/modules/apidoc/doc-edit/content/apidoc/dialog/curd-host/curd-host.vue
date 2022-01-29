@@ -35,14 +35,45 @@
                     <el-form-item :label="`${$t('服务器名称')}：`" prop="name">
                         <el-input v-model="formInfo.name" placeholder="例如：张三本地" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
-                    <el-form-item :label="`${$t('服务器地址')}：`" prop="server">
-                        <el-input v-model="formInfo.server" name="name" :size="config.renderConfig.layout.size" :placeholder="$t('服务器地址+请求地址')" class="w-100" maxlength="100" clearable>
-                            <template #prepend>
-                                <el-select v-model="formInfo.protocol" :size="config.renderConfig.layout.size" class="w-100px">
-                                    <el-option value="http://" label="http://"></el-option>
-                                    <el-option value="https://" label="https://"></el-option>
-                                </el-select>
-                            </template>
+                    <el-form-item :label="`${$t('协议')}：`" prop="protocol">
+                        <el-radio-group v-model="formInfo.protocol" :size="config.renderConfig.layout.size">
+                            <el-radio label="http://">http://</el-radio>
+                            <el-radio label="https://">https://</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item :label="`${$t('ip或域名')}：`" prop="server">
+                        <el-input
+                            v-model="formInfo.server"
+                            name="name"
+                            :size="config.renderConfig.layout.size"
+                            placeholder="192.168.0.11 | www.demo.com"
+                            class="w-100"
+                            maxlength="100"
+                            clearable
+                        >
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item :label="`${$t('端口')}：`" prop="port">
+                        <el-input-number
+                            v-model="formInfo.port"
+                            :min="1"
+                            :max="65535"
+                            name="name"
+                            :placeholder="$t('不填则默认80')"
+                            class="w-100"
+                        >
+                        </el-input-number>
+                    </el-form-item>
+                    <el-form-item :label="`${$t('接口前缀')}：`">
+                        <el-input
+                            v-model="formInfo.prefix"
+                            name="name"
+                            :size="config.renderConfig.layout.size"
+                            :placeholder="$t('没有则不填')"
+                            class="w-100"
+                            maxlength="100"
+                            clearable
+                        >
                         </el-input>
                     </el-form-item>
                     <el-form-item :label="`${$t('是否共享')}：`" prop="name">
@@ -51,7 +82,9 @@
                             <el-radio :label="false">{{ $t("可共享") }}</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <div class="mb-2 bg-gray-200 h-30px d-flex a-center">{{ formInfo.protocol + formInfo.server }}</div>
+                    <div class="mb-2 bg-gray-200 h-30px d-flex a-center">
+                        {{ fullAddress }}
+                    </div>
                     <div class="d-flex j-end">
                         <el-button v-success="isSuccess" :loading="loading" type="primary" @click="handleAddHost">确认添加</el-button>
                     </div>
@@ -74,7 +107,7 @@
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="$t('服务器地址')" align="center">
+                    <el-table-column :label="$t('服务器地址')" align="center" width="300px">
                         <template #default="scope">
                             <s-valid-input
                                 v-if="editItem?._id === scope.row._id"
@@ -113,6 +146,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { InternalRuleItem } from "async-validator/dist-types/interface"
 import { ResponseTable } from "@@/global"
 import { ApidocProjectHost } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
@@ -136,13 +170,13 @@ export default defineComponent({
     },
     emits: ["update:modelValue"],
     data() {
-        const validateHost = (rule: string, value: string, callback: (err?: Error) => void) => {
-            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})(:\d{2,5})?(\/.+)?$/; //ip+端口(端口不必填)
-            const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
+        const validateServer = (rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) => {
+            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})?$/; //ip+端口(端口不必填)
+            const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+?$/;
             if (value === "") {
                 callback(new Error(this.$t("不能为空")));
             } else if (!value.match(ipReg) && !value.match(dominReg)) {
-                callback(new Error(this.$t("服务器地址不符合规范")))
+                callback(new Error("192.168.0.11 | www.demo.com"))
             } else {
                 callback();
             }
@@ -152,13 +186,16 @@ export default defineComponent({
             formInfo: {
                 name: "", //-------------------服务器名称
                 protocol: "http://", //--------协议
-                server: "", //-----------------服务器url
-                isLocal: true, //是否为本地
+                server: this.config.ip, //-----服务器url
+                prefix: "", //-----------------前缀
+                port: 80, //-------------------端口
+                isLocal: true, //--------------是否为本地
             },
             rules: {
+                protocol: [{ required: true, message: this.$t("请选择协议"), trigger: "blur" }],
                 name: [{ required: true, message: this.$t("请输入服务器名称"), trigger: "blur" }],
                 server: [
-                    { required: true, validator: validateHost, trigger: "blur" },
+                    { required: true, validator: validateServer, trigger: "blur" },
                 ],
             },
             //=====================================其他参数====================================//
@@ -172,6 +209,22 @@ export default defineComponent({
         };
     },
     computed: {
+        fullAddress() {
+            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})?$/; //ip+端口(端口不必填)
+            const { protocol, server, port, prefix } = this.formInfo;
+            const isIp = server.match(ipReg);
+            let realPort = "";
+            if (!isIp && port === 80) { //域名80端口默认不显示
+                realPort = "";
+            } else {
+                realPort = `:${port}`;
+            }
+            let realPrefix = prefix.replace(/^\/+/, "");
+            if (realPrefix) {
+                realPrefix = `/${realPrefix}`
+            }
+            return `${protocol}${server}${realPort}${realPrefix}`
+        },
         dominLimit() {
             return this.$store.state["apidoc/baseInfo"].rules.dominLimit;
         },
@@ -193,7 +246,7 @@ export default defineComponent({
         handleAddHost() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
-                    const url = this.formInfo.protocol + this.formInfo.server;
+                    const url = this.fullAddress;
                     const projectId = this.$route.query.id as string;
                     //保存为本地
                     if (this.formInfo.isLocal) {
@@ -253,6 +306,7 @@ export default defineComponent({
                     if (isEditCurrenSelectedHost) { //同时修改本地server
                         this.$store.commit("apidoc/apidoc/changeApidocHost", row.url)
                     }
+                    this.getTableData()
                     return;
                 }
                 const params = {
