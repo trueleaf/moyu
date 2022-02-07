@@ -66,10 +66,16 @@
                         <el-badge :is-dot="hasPreRequest">{{ $t("前置脚本") }}</el-badge>
                     </template>
                 </el-tab-pane>
+                <el-tab-pane name="s-after-request">
+                    <template #label>
+                        <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
+                    </template>
+                </el-tab-pane>
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
             </keep-alive>
+            <!-- <component :is="activeName" v-if="activeName === 's-pre-request' || activeName === 's-after-request'" class="workbench"></component> -->
         </div>
         <div v-show="workMode === 'view'">
             <s-view></s-view>
@@ -89,6 +95,7 @@ import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
 import preRequestParams from "./pre-request/pre-request.vue";
+import afterRequestParams from "./after-request/after-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
 
@@ -101,6 +108,7 @@ export default defineComponent({
         "s-view": view,
         "s-remarks": remarks,
         "s-pre-request": preRequestParams,
+        "s-after-request": afterRequestParams,
         "icon-opportunity": Opportunity
     },
     data() {
@@ -127,6 +135,11 @@ export default defineComponent({
         hasPreRequest() {
             const preRequest = this.$store.state["apidoc/apidoc"].apidoc.preRequest.raw;
             return !!preRequest;
+        },
+        //是否存在后请求脚本
+        hasAfterRequest() {
+            const afterRequest = this.$store.state["apidoc/apidoc"].apidoc.afterRequest.raw;
+            return !!afterRequest;
         },
         //返回参数个数
         responseNum() {

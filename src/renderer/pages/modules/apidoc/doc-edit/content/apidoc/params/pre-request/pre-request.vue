@@ -6,15 +6,16 @@
 */
 <template>
     <div class="editor-wrap">
-        <s-monaco-editor v-model="preRequest"></s-monaco-editor>
+        <pre-editor v-model="preRequest"></pre-editor>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue"
 import { store } from "@/store/index"
+import preEditor from "./editor/pre-editor.vue"
 
-const preRequest = computed({
+const preRequest = computed<string>({
     get() {
         return store.state["apidoc/apidoc"].apidoc?.preRequest.raw;
     },

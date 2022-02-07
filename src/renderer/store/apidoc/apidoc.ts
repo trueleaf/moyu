@@ -337,6 +337,9 @@ const apidoc = {
         changePreRequest(state: ApidocState, preRequest: string): void {
             state.apidoc.preRequest.raw = preRequest;
         },
+        changeAfterRequest(state: ApidocState, afterRequest: string): void {
+            state.apidoc.afterRequest.raw = afterRequest;
+        },
     },
     actions: {
         /**
