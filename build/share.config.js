@@ -69,6 +69,7 @@ module.exports = {
                 "shelljs",
                 "ssh2",
                 "koa",
+                "ip",
             ],
             mainProcessFile: "src/main/background.ts",
             mainProcessWatch: ["src/main/background.ts"],

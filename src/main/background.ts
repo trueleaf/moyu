@@ -1,7 +1,5 @@
-/* eslint-disable */ 
 import { app, shell, protocol, BrowserWindow } from "electron"
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib"
-// import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer"
 import update from "./update";
 import config from "../config/config"
 
@@ -68,7 +66,7 @@ app.on("ready", async () => {
     update();
 })
 
-app.on("web-contents-created", (e, webContents) => {
+app.on("web-contents-created", (event, webContents) => {
     webContents.addListener("new-window", (e, url) => {
         e.preventDefault();
         shell.openExternal(url);

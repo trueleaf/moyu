@@ -18,19 +18,22 @@
                 <View />
             </el-icon>
         </div>
-        <s-params-tree :drag="false" show-checkbox :data="headerData"></s-params-tree>
+        <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue"
+import { ref, computed, Ref } from "vue"
 import { store } from "@/store/index"
 import { View } from "@element-plus/icons-vue"
+import { ApidocProperty } from "@@/global";
+import mindHeaders from "./mind-headers"
 
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => store.state["apidoc/apidoc"].apidoc.item.headers)
 const defaultHeaders = computed(() => store.state["apidoc/apidoc"].defaultHeaders)
-const defaultHeaderKeys = computed(() => store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key))
+const defaultHeaderKeys = computed(() => store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key));
+const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 </script>
 
 <style lang="scss">

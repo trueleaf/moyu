@@ -32,7 +32,5 @@ const preRequest = computed<string>({
     position: relative;
     width: 100%;
     height: calc(100vh - #{size(320)});
-    border-bottom: 1px solid $gray-400;
-    padding: 0;
 }
 </style>

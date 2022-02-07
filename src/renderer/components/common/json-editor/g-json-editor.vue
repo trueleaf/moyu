@@ -1,20 +1,16 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-12-12 12:27
-    模块名称：monaco-editor
+    模块名称：json-editor
     备注：
 */
 <template>
-    <div ref="preEditor" class="s-monaco-editor"></div>
+    <div ref="monacoDom" class="s-json-editor"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { event } from "@/helper/index"
-import { useCompletionItem } from "./registerCompletionItem"
-import { useHoverProvider } from "./registerHoverProvider"
-import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
 
 const props = defineProps({
     modelValue: {
@@ -24,10 +20,8 @@ const props = defineProps({
 });
 const emits = defineEmits(["update:modelValue"])
 
-const preEditor: Ref<HTMLElement | null> = ref(null);
+const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
-let monacoCompletionItem: monaco.IDisposable | null = null;
-let monacoHoverProvider: monaco.IDisposable | null = null;
 
 watch(() => props.modelValue, (newValue) => {
     const value = monacoInstance?.getValue();
@@ -36,11 +30,14 @@ watch(() => props.modelValue, (newValue) => {
     }
 })
 onMounted(() => {
-    event.emit("apidoc/editor/removeAfterEditor");
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
-    monacoInstance = monaco.editor.create(preEditor.value as HTMLElement, {
+    monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
+        allowComments: true,
+        validate: true,
+        trailingCommas: "ignore",
+    })
+    monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
         value: props.modelValue,
-        language: "javascript",
+        language: "json",
         automaticLayout: true,
         parameterHints: {
             enabled: true
@@ -56,28 +53,30 @@ onMounted(() => {
             above: false,
         },
         renderLineHighlight: "none",
+        fontSize: 13,
+        readOnly: true,
     })
-    monacoCompletionItem = useCompletionItem();
-    monacoHoverProvider = useHoverProvider();
+    const container = document.querySelector(".s-json-editor")
+    const updateHeight = () => {
+        const contentHeight = monacoInstance?.getContentHeight() || 300;
+        const containerWidth = container?.getBoundingClientRect().width || 1000;
+        (container as HTMLElement).style.height = `${contentHeight}px`;
+        monacoInstance?.layout({ width: containerWidth, height: contentHeight });
+    };
+    monacoInstance.onDidContentSizeChange(updateHeight);
+    updateHeight()
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
     })
 })
-event.on("apidoc/editor/removeAfterEditor", () => {
-    monacoCompletionItem?.dispose()
-    monacoHoverProvider?.dispose()
-});
 onBeforeUnmount(() => {
     monacoInstance?.dispose();
-    monacoCompletionItem?.dispose()
-    monacoHoverProvider?.dispose()
+    // model?.dispose();
+    // monacoCompletionItem?.dispose()
+    // monacoHoverProvider?.dispose()
 })
+
 </script>
 
 <style lang="scss">
-.s-monaco-editor {
-    width: 100%;
-    height: 100%;
-    border: 1px solid $gray-300;
-}
 </style>
