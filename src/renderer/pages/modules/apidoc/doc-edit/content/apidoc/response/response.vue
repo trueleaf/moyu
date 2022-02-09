@@ -13,13 +13,8 @@
                 <el-tab-pane :label="$t('返回值')" name="s-body">
                     <s-body class="h-100"></s-body>
                 </el-tab-pane>
-                <el-tab-pane name="s-cookie">
-                    <template #label>
-                        <span>Cookie&nbsp;</span>
-                        <span v-if="cookies.length > 0" class="orange">({{ cookies.length }})</span>
-                    </template>
-                    <!-- fix: 文字隐藏组件获取dom宽度失败 -->
-                    <s-cookie v-if="activeName === 's-cookie'"></s-cookie>
+                <el-tab-pane :label="$t('请求信息')" name="s-request">
+                    <s-request class="h-100"></s-request>
                 </el-tab-pane>
                 <el-tab-pane name="s-headers">
                     <template #label>
@@ -27,6 +22,14 @@
                         <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
                     </template>
                     <s-headers></s-headers>
+                </el-tab-pane>
+                <el-tab-pane name="s-cookie">
+                    <template #label>
+                        <span>Cookie&nbsp;</span>
+                        <span v-if="cookies.length > 0" class="orange">({{ cookies.length }})</span>
+                    </template>
+                    <!-- fix: 文字隐藏组件获取dom宽度失败 -->
+                    <s-cookie v-if="activeName === 's-cookie'"></s-cookie>
                 </el-tab-pane>
             </el-tabs>
         </div>
@@ -70,6 +73,7 @@ import sResInfo from "./res-info/res-info.vue"
 import sCookie from "./cookie/cookie.vue"
 import sHeaders from "./headers/headers.vue"
 import sBody from "./body/body.vue"
+import sRequest from "./request/request.vue"
 
 const activeName = ref("s-body");
 

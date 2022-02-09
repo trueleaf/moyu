@@ -75,7 +75,6 @@
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
             </keep-alive>
-            <!-- <component :is="activeName" v-if="activeName === 's-pre-request' || activeName === 's-after-request'" class="workbench"></component> -->
         </div>
         <div v-show="workMode === 'view'">
             <s-view></s-view>

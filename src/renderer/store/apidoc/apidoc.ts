@@ -404,6 +404,7 @@ const apidoc = {
                     info: apidocDetail.info,
                     item: apidocDetail.item,
                     preRequest: apidocDetail.preRequest,
+                    afterRequest: apidocDetail.afterRequest,
                 };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法

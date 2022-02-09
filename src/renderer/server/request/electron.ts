@@ -1,4 +1,4 @@
-import type { Got } from "got"
+import type { Got, NormalizedOptions } from "got"
 import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
 import type FormData from "form-data"
@@ -36,6 +36,24 @@ function initGot() {
         followRedirect: true,
         allowGetBody: true,
         agent: {},
+        headers: {
+            "user-agent": "https://github.com/trueleaf/moyu"
+        },
+        hooks: {
+            beforeRequest: [(options: NormalizedOptions) => {
+                const realHeaders: Record<string, string> = {
+                    host: options.url.host,
+                    ...options.headers,
+                    connection: "close",
+                };
+                store.commit("apidoc/request/changeFinalRequestInfo", {
+                    url: options.url.href,
+                    headers: realHeaders,
+                    method: options.method,
+                    body: options.body,
+                })
+            }]
+        },
     }
     if (enabledProxy) {
         initGotConfig.agent = {

@@ -1,5 +1,5 @@
 /* eslint-disable import/extensions */
-
+import type FormData from "form-data"
 import type {
     ApidocParamsType,
     PermissionClientRoute,
@@ -423,6 +423,17 @@ type ApidocMockState = {
     mockServerPort: number,
     urlMap: ApidocMockMapInfo[]
 };
+/*
+|--------------------------------------------------------------------------
+| 最终请求参数
+|--------------------------------------------------------------------------
+*/
+type ApidocRequest = {
+    url: string, //请求url
+    headers: Record<string, string>, //请求头
+    method: ApidocHttpRequestMethod, //请求方法
+    body: string | FormData, //请求body
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -439,6 +450,7 @@ type State = {
     "apidoc/apidoc": ApidocState,
     "apidoc/response": ApidocResponseState,
     "apidoc/mock": ApidocMockState,
+    "apidoc/request": ApidocRequest
 }
 export {
     PermissionState,
@@ -455,5 +467,6 @@ export {
     ApidocProjectRules,
     ApidocMockState,
     ApidocMockMapInfo,
+    ApidocRequest,
     State,
 }
