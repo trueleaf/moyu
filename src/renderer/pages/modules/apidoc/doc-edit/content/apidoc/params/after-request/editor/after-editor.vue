@@ -5,12 +5,13 @@
     备注：
 */
 <template>
-    <div ref="monacoDom" class="s-monaco-editor"></div>
+    <div ref="afterEditor" class="s-monaco-editor"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { event } from "@/helper/index"
 import { useCompletionItem } from "./registerCompletionItem"
 import { useHoverProvider } from "./registerHoverProvider"
 import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
@@ -23,7 +24,7 @@ const props = defineProps({
 });
 const emits = defineEmits(["update:modelValue"])
 
-const monacoDom: Ref<HTMLElement | null> = ref(null);
+const afterEditor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 let monacoCompletionItem: monaco.IDisposable | null = null;
 let monacoHoverProvider: monaco.IDisposable | null = null;
@@ -35,8 +36,9 @@ watch(() => props.modelValue, (newValue) => {
     }
 })
 onMounted(() => {
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
-    monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
+    event.emit("apidoc/editor/removePreEditor");
+    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
+    monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
         value: props.modelValue,
         language: "javascript",
         automaticLayout: true,
@@ -61,6 +63,11 @@ onMounted(() => {
         emits("update:modelValue", monacoInstance?.getValue())
     })
 })
+
+event.on("apidoc/editor/removeAfterEditor", () => {
+    monacoCompletionItem?.dispose()
+    monacoHoverProvider?.dispose()
+});
 onBeforeUnmount(() => {
     monacoInstance?.dispose();
     monacoCompletionItem?.dispose()
@@ -73,6 +80,5 @@ onBeforeUnmount(() => {
 .s-monaco-editor {
     width: 100%;
     height: 100%;
-    border: 1px solid $gray-300;
 }
 </style>

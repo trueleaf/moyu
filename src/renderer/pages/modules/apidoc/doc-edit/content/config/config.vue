@@ -27,12 +27,12 @@
                         <el-radio :label="false">非必填</el-radio>
                     </el-radio-group>
                 </s-config>
-                <s-config label="是否开启折叠动画" :has-check="false" description="开启后将会对性能产生一定的影响">
+                <!-- <s-config label="是否开启折叠动画" :has-check="false" description="开启后将会对性能产生一定的影响">
                     <el-radio-group v-model="copyApiRules.enableCollapseAnimation">
                         <el-radio :label="true">开启</el-radio>
                         <el-radio :label="false">关闭</el-radio>
                     </el-radio-group>
-                </s-config>
+                </s-config> -->
             </s-fieldset>
             <!-- 请求方式 -->
             <s-fieldset title="请求方式配置">
@@ -84,12 +84,12 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from "vue"
+import { ApidocRequestParamTypes } from "@@/global"
+import { ApidocProjectRules, ApidocProjectBaseInfoState } from "@@/store";
 import { axios } from "@/api/api"
 import { store } from "@/store/index"
 import { router } from "@/router/index"
 import { event, apidocGenerateRequestParamTypes } from "@/helper/index"
-import { ApidocRequestParamTypes } from "@@/global"
-import { ApidocProjectRules, ApidocProjectBaseInfoState } from "@@/store";
 
 const copyApiRules: Ref<ApidocProjectRules> = ref({
     requireValue: true,

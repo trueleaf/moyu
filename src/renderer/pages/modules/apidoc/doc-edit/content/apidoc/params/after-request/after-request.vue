@@ -6,21 +6,21 @@
 */
 <template>
     <div class="editor-wrap">
-        <pre-editor v-model="preRequest"></pre-editor>
+        <after-editor v-model="afterRequest"></after-editor>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue"
 import { store } from "@/store/index"
-import preEditor from "./editor/pre-editor.vue"
+import afterEditor from "./editor/after-editor.vue"
 
-const preRequest = computed<string>({
+const afterRequest = computed<string>({
     get() {
-        return store.state["apidoc/apidoc"].apidoc?.preRequest.raw;
+        return store.state["apidoc/apidoc"].apidoc?.afterRequest.raw;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changePreRequest", val);
+        store.commit("apidoc/apidoc/changeAfterRequest", val);
     },
 })
 
@@ -31,5 +31,7 @@ const preRequest = computed<string>({
     position: relative;
     width: 100%;
     height: calc(100vh - #{size(320)});
+    border-bottom: 1px solid $gray-400;
+    padding: 0;
 }
 </style>

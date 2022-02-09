@@ -649,6 +649,9 @@ export function apidocGenerateApidoc(): ApidocDetail {
         preRequest: {
             raw: ""
         },
+        afterRequest: {
+            raw: ""
+        },
         item: {
             method: "GET",
             url: {

@@ -337,6 +337,9 @@ const apidoc = {
         changePreRequest(state: ApidocState, preRequest: string): void {
             state.apidoc.preRequest.raw = preRequest;
         },
+        changeAfterRequest(state: ApidocState, afterRequest: string): void {
+            state.apidoc.afterRequest.raw = afterRequest;
+        },
     },
     actions: {
         /**
@@ -401,6 +404,7 @@ const apidoc = {
                     info: apidocDetail.info,
                     item: apidocDetail.item,
                     preRequest: apidocDetail.preRequest,
+                    afterRequest: apidocDetail.afterRequest,
                 };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法
