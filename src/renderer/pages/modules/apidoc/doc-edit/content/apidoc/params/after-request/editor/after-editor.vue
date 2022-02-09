@@ -48,10 +48,14 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
+        wrappingStrategy: "advanced",
+        scrollBeyondLastLine: false,
+        overviewRulerLanes: 0,
         hover: {
             enabled: true,
             above: false,
         },
+        renderLineHighlight: "none",
     })
     monacoCompletionItem = useCompletionItem();
     monacoHoverProvider = useHoverProvider();
