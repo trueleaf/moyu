@@ -23,7 +23,6 @@ const preRequest = computed<string>({
         store.commit("apidoc/apidoc/changePreRequest", val);
     },
 })
-// const tempVariables = computed(() => store.state["apidoc/baseInfo"].tempVariables)
 
 </script>
 
