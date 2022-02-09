@@ -6,7 +6,7 @@
 */
 <template>
     <div class="s-collaps mb-1">
-        <div class="header" @click="toggleCollapse">
+        <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
             <span v-if="!disabled" class="gray-700">
                 <el-icon v-if="isActive" :size="16">
                     <arrow-down />
@@ -34,6 +34,10 @@ const props = defineProps({
         type: String,
         default: $t("请输入标题"),
     },
+    bold: {
+        type: Boolean,
+        default: false,
+    },
     active: {
         type: Boolean,
         default: true,
@@ -44,8 +48,8 @@ const props = defineProps({
     },
 });
 const isActive = ref(false);
-watch(() => isActive.value, () => {
-    isActive.value = props.active
+const cancelWatch = watch(() => isActive.value, () => {
+    isActive.value = props.active;
 }, {
     immediate: true,
 })
@@ -53,6 +57,9 @@ watch(() => isActive.value, () => {
 const toggleCollapse = () => {
     if (props.disabled) {
         return;
+    }
+    if (cancelWatch) {
+        cancelWatch();
     }
     isActive.value = !isActive.value
 }
@@ -67,6 +74,10 @@ const toggleCollapse = () => {
         align-items: center;;
         user-select: none;
         color: $gray-800;
+        font-size: fz(14);
+        &.bold {
+            font-weight: bold;
+        }
         &:hover {
             background: mix($theme-color, $white, 25%);
         }
