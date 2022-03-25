@@ -32,10 +32,10 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import type { ApidocTab } from "@@/store"
+import { apidocCache } from "@/cache/apidoc"
 import operation from "./operation/operation.vue"
 import params from "./params/params.vue"
 import response from "./response/response.vue"
-import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({
     components: {

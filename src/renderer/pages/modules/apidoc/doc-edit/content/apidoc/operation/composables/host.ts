@@ -32,13 +32,13 @@ type HostReturn = {
     /**
      * 改变host值
      */
-    handleChangeHost: (host: string) => void,
+    handleChangeHost: (host: string | number | boolean) => void,
 }
 
 export default (): HostReturn => {
     const store = useStore();
     //mock服务器地址
-    const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`);
+    const mockServer = ref(`http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
     //host弹窗
     const hostDialogVisible = ref(false);
     //host值
@@ -59,7 +59,7 @@ export default (): HostReturn => {
         },
     });
     //改变host的值
-    const handleChangeHost = (server: string) => {
+    const handleChangeHost = (server: string | number | boolean) => {
         const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
         const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
         const dominReg = /^(https?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
@@ -67,13 +67,14 @@ export default (): HostReturn => {
         requestPath.value = requestPath.value.replace(ipReg, "");
         requestPath.value = requestPath.value.replace(dominReg, "");
         const projectId = router.currentRoute.value.query.id as string;
-        apidocCache.setPreviousServer(projectId, server);
+        apidocCache.setPreviousServer(projectId, server as string);
     }
     //host枚举值
     const hostEnum = computed<ApidocProjectHost[]>(() => {
         const projectId = router.currentRoute.value.query.id as string;
-        const localData = apidocCache.getApidocServer(projectId)
-        return store.state["apidoc/baseInfo"].hosts.concat(localData)
+        const localData: Ref<ApidocProjectHost[]> = ref([])
+        localData.value = apidocCache.getApidocServer(projectId)
+        return store.state["apidoc/baseInfo"].hosts.concat(localData.value)
     })
     return {
         mockServer,

@@ -129,7 +129,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import type { MockItem } from "@@/global"
-import Mock from "@/server/mock"
+import Mock from "@/server/mock/mock"
 import mockEnum from "./mock-enum";
 
 const cpMockEnum: MockItem[] = JSON.parse(JSON.stringify(mockEnum));

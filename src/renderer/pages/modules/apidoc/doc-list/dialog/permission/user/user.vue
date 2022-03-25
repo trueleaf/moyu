@@ -18,12 +18,12 @@
     </div>
     <!-- 表格展示 -->
     <s-loading :loading="loading">
-        <el-table :data="selectedUserData" stripe border size="mini" max-height="300px">
+        <el-table :data="selectedUserData" stripe border max-height="300px">
             <el-table-column prop="loginName" :label="$t('用户名')" align="center"></el-table-column>
             <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
             <el-table-column label="角色(权限)" align="center">
                 <template #default="scope">
-                    <el-select v-model="scope.row.permission" size="mini" @change="handleChangePermission(scope.row)">
+                    <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size" @change="handleChangePermission(scope.row)">
                         <el-option :label="$t('只读')" value="readOnly">
                             <span>{{ $t("只读") }}</span>
                             <span class="gray-500">({{ $t("仅查看项目") }})</span>
@@ -41,8 +41,8 @@
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button v-if="selfLoginName === scope.row.loginName" type="text" size="mini" @click="handleLeaveGroup(scope.row, scope.$index)">{{ $t("退出") }}</el-button>
-                    <el-button v-else type="text" size="mini" @click="handleDeleteMember(scope.row, scope.$index)">{{ $t("删除") }}</el-button>
+                    <el-button v-if="selfLoginName === scope.row.loginName" type="text" @click="handleLeaveGroup(scope.row, scope.$index)">{{ $t("退出") }}</el-button>
+                    <el-button v-else type="text" @click="handleDeleteMember(scope.row, scope.$index)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </el-table>

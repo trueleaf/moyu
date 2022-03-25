@@ -1,13 +1,14 @@
-import type { Got } from "got"
+import type { Got, NormalizedOptions } from "got"
 import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
-import FormData from "form-data"
+import type FormData from "form-data"
 import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer";
+import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
-import config from "./config"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import * as utils from "./utils"
 import { $t } from "@/i18n/i18n"
+import { apidocConvertJsonDataToParams } from "@/helper/index"
+import config from "./config"
+import apidocConverter from "./utils"
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -18,7 +19,6 @@ if (window.require) {
     got = window.require("got");
     ProxyAgent = window.require("proxy-agent");
 }
-// const INVALID_HEADER_KEYS = ["content-type", "Content-type", "content-Type", "ContentType", "contentType", "host", "HOST", "Host", "user-agent", "userAgent", "UserAgent"];
 //初始化请求
 function initGot() {
     if (!got) {
@@ -36,6 +36,24 @@ function initGot() {
         followRedirect: true,
         allowGetBody: true,
         agent: {},
+        headers: {
+            "user-agent": "https://github.com/trueleaf/moyu"
+        },
+        hooks: {
+            beforeRequest: [(options: NormalizedOptions) => {
+                const realHeaders: Record<string, string> = {
+                    host: options.url.host,
+                    ...options.headers,
+                    connection: "close",
+                };
+                store.commit("apidoc/request/changeFinalRequestInfo", {
+                    url: options.url.href,
+                    headers: realHeaders,
+                    method: options.method,
+                    body: options.body,
+                })
+            }]
+        },
     }
     if (enabledProxy) {
         initGotConfig.agent = {
@@ -46,33 +64,7 @@ function initGot() {
     gotInstance = got.extend(initGotConfig);
     return gotInstance;
 }
-//获取完整headers
-function getRealHeaders() {
-    const realHeaders: Record<string, string | undefined> = {};
-    const { defaultHeaders } = store.state["apidoc/apidoc"];
-    const { headers } = store.state["apidoc/apidoc"].apidoc.item;
-    defaultHeaders.concat(headers).forEach((item) => {
-        const itemKey = item.key.toLocaleLowerCase();
-        if (item.select && itemKey) {
-            if (itemKey === "user-agent") {
-                realHeaders[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
-            } else if (itemKey === "accept-encoding") {
-                realHeaders[itemKey] = "gzip, deflate, br";
-            } else if (itemKey === "connection") {
-                realHeaders[itemKey] = "keep-alive";
-            } else {
-                realHeaders[itemKey] = item.value;
-            }
-        }
-    })
-    // if (contentType) {
-    //     realHeaders["content-type"] = contentType;
-    // }
-    //删除自动携带的请求头
-    delete realHeaders["content-length"]
-    delete realHeaders.host
-    return realHeaders;
-}
+
 //将buffer值转换为返回参数
 async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
     const typeInfo = await FileType.fromBuffer(bufferData.buffer);
@@ -103,69 +95,26 @@ async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
         // store.commit("apidoc/response/changeResponseFileExt", (typeInfo ? typeInfo.ext : ""));
     }
 }
-
-/**
- * @description                 发送请求
- * @author                      shuxiaokai
- * @create                      2020-12-11 14:59
- * @param {url}                 url - 请求url
- * @param {string}              method - 请求方法
- * @param {string}              contentType - 参数类型
- * @param {Array<Property>}     paths - 路径参数
- * @param {Array<Property>}     queryParams - 请求参数
- * @param {Array<Property>}     requestBody - 请求body
- * @param {Array<Property>}     headers - 请求头
- */
-export function sendRequest(): void {
+//electron发送请求
+function electronRequest() {
     const requestInstance = initGot();
     if (!requestInstance) {
         console.warn("当前环境无法获取Got实例")
         return
     }
     try {
-        store.commit("apidoc/response/changeLoading", true)
-        store.commit("apidoc/response/changeIsResponse", false)
-        const { url, method, requestBody, queryParams, paths, contentType, } = store.state["apidoc/apidoc"].apidoc.item;
-        const queryString = utils.convertQueryParamsToQueryString(queryParams);
-        const pathMap = utils.getPathParamsMap(paths)
-        const { mode } = requestBody
-        const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
-        const requestUrl = url.host + validPath + queryString;
+        const requestUrl = apidocConverter.getUrlInfo().fullUrl;
+        const method = apidocConverter.getMethod();
         let body: string | FormData = "";
-        const realHeaders = getRealHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
-            switch (contentType) {
-            case "application/json":
-                body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
-                break;
-            case "application/x-www-form-urlencoded":
-                body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
-                break;
-            case "multipart/form-data":
-                // eslint-disable-next-line no-case-declarations
-                const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
-                body = data
-                Object.assign(realHeaders, headers)
-                break;
-            case "text/plain":
-                body = requestBody.raw.data;
-                break;
-            case "text/html":
-                body = requestBody.raw.data;
-                break;
-            case "application/xml":
-                body = requestBody.raw.data;
-                break;
-            case "text/javascript":
-                body = requestBody.raw.data;
-                break;
-            default:
-                break;
-            }
+            body = apidocConverter.getRequestBody() as (string | FormData);
         }
-        console.log("请求参数", requestUrl, realHeaders, body)
+        const headers = apidocConverter.getHeaders();
+        // console.log("请求url", requestUrl);
+        // console.log("请求header", headers);
+        // console.log("请求body", body);
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeIsResponse", true)
@@ -177,7 +126,7 @@ export function sendRequest(): void {
             isStream: true,
             method,
             body,
-            headers: realHeaders,
+            headers,
         });
         //=====================================数据处理====================================//
         const streamData: Buffer[] = [];
@@ -185,7 +134,7 @@ export function sendRequest(): void {
         let streamSize = 0;
         //收到返回
         requestStream.on("response", (response: IncomingMessageWithTimings & { ip: string }) => {
-            console.log("response", response)
+            // console.log("response", response)
             responseData = response;
             store.commit("apidoc/response/changeResponseHeader", response.headers);
             store.commit("apidoc/response/changeResponseCookies", response.headers["set-cookie"] || []);
@@ -227,7 +176,6 @@ export function sendRequest(): void {
         });
         //下载进度
         requestStream.on("downloadProgress", (process) => {
-            // console.log("process", process)
             store.commit("apidoc/response/changeResponseProgress", process)
         });
     } catch (error) {
@@ -239,8 +187,98 @@ export function sendRequest(): void {
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| 发送请求
+|--------------------------------------------------------------------------
+*/
+export function sendRequest(): void {
+    store.commit("apidoc/response/changeIsResponse", false);
+    store.commit("apidoc/baseInfo/clearTempVariables");
+    store.commit("apidoc/response/changeLoading", true);
+    const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
+    const cpApidoc2 = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
+    apidocConverter.setData(cpApidoc as ApidocDetail);
+    apidocConverter.replaceUrl("");
+    apidocConverter.clearTempVariables()
+    const worker = new Worker("/sandbox/worker.js");
+    //初始化默认apidoc信息
+    worker.postMessage({
+        type: "init",
+        value: cpApidoc2
+    });
+    //发送请求
+    worker.postMessage(JSON.parse(JSON.stringify({
+        type: "request",
+        value: store.state["apidoc/apidoc"].apidoc.preRequest.raw
+    })));
+    //错误处理
+    worker.addEventListener("error", (error) => {
+        store.commit("apidoc/response/changeLoading", false);
+        store.commit("apidoc/response/changeResponseContentType", "error");
+        store.commit("apidoc/response/changeIsResponse", true);
+        store.commit("apidoc/response/changeResponseTextValue", error.message);
+        console.error(error);
+    });
+    //信息处理
+    worker.addEventListener("message", (res) => {
+        if (typeof res.data !== "object") {
+            return
+        }
+        if (res.data.type === "send-request") { //发送ajax请求
+            (got as Got)(res.data.value).then(response => {
+                worker.postMessage({
+                    type: "request-success",
+                    value: {
+                        headers: JSON.parse(JSON.stringify(response.headers)),
+                        status: response.statusMessage,
+                        code: response.statusCode,
+                        responseTime: response.timings.phases.total,
+                        body: response.body,
+                    }
+                });
+            }).catch(err => {
+                worker.postMessage({
+                    type: "request-error",
+                    value: err
+                });
+            })
+        }
+        if (res.data.type === "worker-response") { //脚本执行完
+            electronRequest();
+        }
+        if (res.data.type === "change-temp-variables") { //改版临时变量
+            apidocConverter.changeTempVariables(res.data.value);
+        }
+        if (res.data.type === "change-collection-variables") { //改版集合内变量
+            apidocConverter.changeCollectionVariables(res.data.value);
+        }
+        if (res.data.type === "replace-url") { //改变完整url
+            apidocConverter.replaceUrl(res.data.value);
+        }
+        if (res.data.type === "change-headers") { //改变请求头
+            apidocConverter.changeHeaders(res.data.value);
+        }
+        if (res.data.type === "change-query-params") { //改变 queryparams
+            apidocConverter.changeQueryParams(res.data.value);
+        }
+        if (res.data.type === "change-json-body") { //改变请求body
+            const moyuJson = apidocConvertJsonDataToParams(res.data.value);
+            apidocConverter.changeJsonBody(moyuJson);
+        }
+        if (res.data.type === "change-formdata-body") { //改变请求formdata body
+            apidocConverter.changeFormdataBody(res.data.value);
+        }
+        if (res.data.type === "change-urlencoded-body") { //改变请求urlencoded body
+            apidocConverter.changeUrlencodedBody(res.data.value);
+        }
+        if (res.data.type === "change-raw-body") { //改变raw body
+            apidocConverter.changeRawBody(res.data.value);
+        }
+    })
+}
+
 export function stopRequest(): void {
-    // console.log("stoprequest", requestStream)
     store.commit("apidoc/response/changeIsResponse", true)
     store.commit("apidoc/response/changeLoading", false)
     if (requestStream) {

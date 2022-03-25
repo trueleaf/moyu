@@ -6,8 +6,15 @@
 */
 <template>
     <div class="s-collaps mb-1">
-        <div class="header" @click="toggleCollapse">
-            <span v-if="!disabled" class="gray-700" :class="{'el-icon-arrow-down': isActive, 'el-icon-arrow-right': !isActive}"></span>
+        <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
+            <span v-if="!disabled" class="gray-700">
+                <el-icon v-if="isActive" :size="16">
+                    <arrow-down />
+                </el-icon>
+                <el-icon v-else :size="16">
+                    <arrow-right />
+                </el-icon>
+            </span>
             <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
             <slot v-else name="title" />
         </div>
@@ -17,47 +24,45 @@
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { ref, watch } from "vue"
+import { ArrowDown, ArrowRight } from "@element-plus/icons-vue"
 import { $t } from "@/i18n/i18n"
 
-export default defineComponent({
-    props: {
-        title: {
-            type: String,
-            default: $t("请输入标题"),
-        },
-        active: {
-            type: Boolean,
-            default: true,
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+const props = defineProps({
+    title: {
+        type: String,
+        default: $t("请输入标题"),
     },
-    data() {
-        return {
-            isActive: false,
-        };
+    bold: {
+        type: Boolean,
+        default: false,
     },
-    watch: {
-        active: {
-            handler() {
-                this.isActive = this.active;
-            },
-            immediate: true,
-        },
+    active: {
+        type: Boolean,
+        default: true,
     },
-    methods: {
-        toggleCollapse() {
-            if (this.disabled) {
-                return;
-            }
-            this.isActive = !this.isActive
-        },
+    disabled: {
+        type: Boolean,
+        default: false,
     },
+});
+const isActive = ref(false);
+const cancelWatch = watch(() => isActive.value, () => {
+    isActive.value = props.active;
+}, {
+    immediate: true,
 })
+
+const toggleCollapse = () => {
+    if (props.disabled) {
+        return;
+    }
+    if (cancelWatch) {
+        cancelWatch();
+    }
+    isActive.value = !isActive.value
+}
 </script>
 
 <style lang="scss">
@@ -69,6 +74,10 @@ export default defineComponent({
         align-items: center;;
         user-select: none;
         color: $gray-800;
+        font-size: fz(14);
+        &.bold {
+            font-weight: bold;
+        }
         &:hover {
             background: mix($theme-color, $white, 25%);
         }

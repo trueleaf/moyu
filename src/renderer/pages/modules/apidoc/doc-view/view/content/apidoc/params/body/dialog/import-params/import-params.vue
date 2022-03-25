@@ -15,8 +15,8 @@
             </div>
         </div>
         <template #footer>
-            <el-button size="mini" type="primary" @click="handleSubmit">确认导入</el-button>
-            <el-button size="mini" type="warning" @click="handleClose">取消</el-button>
+            <el-button type="primary" @click="handleSubmit">确认导入</el-button>
+            <el-button type="warning" @click="handleClose">取消</el-button>
         </template>
     </s-dialog>
 </template>

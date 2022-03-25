@@ -13,7 +13,9 @@
                 <span v-show="remoteResponse.statusCode >= 300 && remoteResponse.statusCode < 400" class="orange">{{ remoteResponse.statusCode }}</span>
                 <span v-show="remoteResponse.statusCode >= 400" class="red">{{ remoteResponse.statusCode }}</span>
             </template>
-            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
+            <el-icon v-else :title="$t('未请求数据')" :size="16" class="gray-500">
+                <question-filled />
+            </el-icon>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0">
@@ -23,7 +25,9 @@
                 <span v-show="remoteResponse.rt >= 2000 && remoteResponse.rt < 5000" class="orange">{{ formatedMs }}</span>
                 <span v-show="remoteResponse.rt >= 5000" class="red">{{ formatedMs }}</span>
             </template>
-            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
+            <el-icon v-else :title="$t('未请求数据')" :size="16" class="gray-500">
+                <question-filled />
+            </el-icon>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0">
@@ -33,19 +37,24 @@
                 <span v-show="remoteResponse.size >= 10000 && remoteResponse.size < 15000" class="orange">{{ formatedBytes }}</span>
                 <span v-show="remoteResponse.size >= 15000" class="red">{{ formatedBytes }}</span>
             </template>
-            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
+            <el-icon v-else :title="$t('未请求数据')" :size="16" class="gray-500">
+                <question-filled />
+            </el-icon>
         </div>
         <el-divider direction="vertical"></el-divider>
         <div class="flex0 d-flex a-center j-center">
             <span>{{ $t("格式") }}：</span>
             <s-ellipsis-content v-if="remoteResponse.data.type" :value="remoteResponse.data.type" max-width="200px" class="orange"></s-ellipsis-content>
-            <span v-else :title="$t('未请求数据')" class="el-icon-question gray-500"></span>
+            <el-icon v-else :title="$t('未请求数据')" :size="16" class="gray-500">
+                <question-filled />
+            </el-icon>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue"
+import { QuestionFilled } from "@element-plus/icons-vue"
 import { formatBytes, formatMs } from "@/helper/index"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 

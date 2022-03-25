@@ -11,12 +11,12 @@
             <s-search-item :label="$t('真实姓名')" prop="realName"></s-search-item>
             <s-search-item :label="$t('手机号')" prop="phone"></s-search-item>
             <template #operation>
-                <el-button size="mini" type="success" @click="addUserDialog = true">新增用户</el-button>
+                <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
                 <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
-                    <el-button :loading="loading" size="mini" type="primary" icon="el-icon-upload" @click="loading = true">下载模板</el-button>
+                    <el-button :loading="loading" type="primary" @click="loading = true">下载模板</el-button>
                 </s-download>
                 <s-upload-plain url="/api/security/add_user_by_excel" excel @success="handleImportSuccess" @upload="loading2 = true" @finish="loading2 = false">
-                    <el-button :loading="loading2" size="mini" type="primary" icon="el-icon-upload">导入用户</el-button>
+                    <el-button :loading="loading2" type="primary">导入用户</el-button>
                 </s-upload-plain>
             </template>
         </s-search>
@@ -38,13 +38,13 @@
             <el-table-column :label="$t('登录次数')" align="center" prop="loginTimes"></el-table-column>
             <el-table-column :label="$t('角色信息')" align="center" width="200px">
                 <template #default="scope">
-                    <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-block mb-1">{{ item }}</el-tag>
+                    <el-tag v-for="(item, index) in scope.row.roleNames" :key="index" class="d-flex a-center j-center mb-1">{{ item }}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('状态')" align="center" width="80px">
                 <template #default="scope">
-                    <el-tag v-if="scope.row.enable" type="success" size="mini">{{ $t("启用") }}</el-tag>
-                    <el-tag v-else type="warning" size="mini">{{ $t("禁用") }}</el-tag>
+                    <el-tag v-if="scope.row.enable" type="success">{{ $t("启用") }}</el-tag>
+                    <el-tag v-else type="warning">{{ $t("禁用") }}</el-tag>
                 </template>
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">
@@ -124,7 +124,7 @@ export default defineComponent({
                 confirmButtonText: "确定",
                 type: "warning"
             }).then(() => {
-                console.log(222)
+                //console.log(222)
             });
         },
     },

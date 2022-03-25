@@ -31,8 +31,10 @@
                 <span class="mr-1 f-sm iconfont iconvariable"></span>
                 <span>{{ $t("变量") }}</span>
             </div>
-            <div v-if="!isView" class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
-                <span class="mr-1 f-base el-icon-s-opportunity"></span>
+            <div v-if="!isView" class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
+                <el-icon :size="16" class="mr-1">
+                    <icon-opportunity></icon-opportunity>
+                </el-icon>
                 <span>{{ $t("联想值") }}</span>
             </div>
         </div>
@@ -51,8 +53,6 @@
                 <el-tab-pane :label="$t('返回参数')" name="s-response-params">
                     <template #label>
                         <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
-                        <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
-                        <el-badge v-else>返回参数</el-badge> -->
                     </template>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('请求头')" name="s-request-headers">
@@ -61,7 +61,16 @@
                     </template>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
-                <!-- <el-tab-pane :label="$t('前置脚本')" name="s-pre-request"></el-tab-pane> -->
+                <el-tab-pane name="s-pre-request">
+                    <template #label>
+                        <el-badge :is-dot="hasPreRequest">{{ $t("前置脚本") }}</el-badge>
+                    </template>
+                </el-tab-pane>
+                <el-tab-pane name="s-after-request">
+                    <template #label>
+                        <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
+                    </template>
+                </el-tab-pane>
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
@@ -75,17 +84,19 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { Opportunity } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
+import { apidocCache } from "@/cache/apidoc"
+import { apidocConvertParamsToJsonData } from "@/helper/index"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
 import responseParams from "./response/response.vue";
-import preRequest from "./pre-request/pre-request.vue";
+import preRequestParams from "./pre-request/pre-request.vue";
+import afterRequestParams from "./after-request/after-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import { apidocCache } from "@/cache/apidoc"
 
 export default defineComponent({
     components: {
@@ -95,7 +106,9 @@ export default defineComponent({
         "s-response-params": responseParams,
         "s-view": view,
         "s-remarks": remarks,
-        "s-pre-request": preRequest,
+        "s-pre-request": preRequestParams,
+        "s-after-request": afterRequestParams,
+        "icon-opportunity": Opportunity
     },
     data() {
         const mode = this.$route.query.mode as "edit" | "view";
@@ -116,6 +129,16 @@ export default defineComponent({
         hasBodyParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
             return !!contentType;
+        },
+        //是否存在预请求脚本
+        hasPreRequest() {
+            const preRequest = this.$store.state["apidoc/apidoc"].apidoc.preRequest.raw;
+            return !!preRequest;
+        },
+        //是否存在后请求脚本
+        hasAfterRequest() {
+            const afterRequest = this.$store.state["apidoc/apidoc"].apidoc.afterRequest.raw;
+            return !!afterRequest;
         },
         //返回参数个数
         responseNum() {
@@ -226,13 +249,14 @@ export default defineComponent({
         checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
             const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
             const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+            const preRequestIsEqual = this.checkPreRequest(cpApidoc, cpOriginApidoc);
             const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
             const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
             const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
             const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
             const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
             //=====================================Request====================================//
-            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual) {
+            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual) {
                 return false;
             }
             if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
@@ -295,6 +319,10 @@ export default defineComponent({
         //检查请求方法是否发生改变
         checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
             return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
+        },
+        //检查preRequest是否发送改变
+        checkPreRequest(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            return apidoc.preRequest.raw === originApidoc.preRequest.raw;
         },
         //检查请求url是否发生改变
         checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
@@ -405,7 +433,7 @@ export default defineComponent({
 <style lang="scss">
 .api-params {
     padding: size(0) size(0) size(10);
-    height: calc(100vh - #{size(250)});
+    height: calc(100vh - #{size(220)});
     overflow-y: auto;
     position: relative;
     &.vertical {

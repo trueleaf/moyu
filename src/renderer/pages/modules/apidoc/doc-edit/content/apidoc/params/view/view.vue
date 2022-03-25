@@ -106,7 +106,7 @@ export default defineComponent({
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
             return contentType === "multipart/form-data";
         },
-        //是否存在formData参数
+        //是否存在x-www-form-urlencoded参数
         hasUrlEncodedParams() {
             const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
             return contentType === "application/x-www-form-urlencoded";

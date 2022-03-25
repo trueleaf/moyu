@@ -2,11 +2,12 @@
 import { Store } from "vuex"
 import { ElMessageBoxShortcutMethod } from "element-plus"
 import { AxiosInstance } from "axios"
+import type { Config } from "./config"
 import { State } from "@@/store"
 import { Helper } from "@@/helper"
-// import { MessagePartial } from "element-plus/packages/message/src/message"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
-import { IElDropdownInstance } from "element-plus/packages/dropdown/src/dropdown"
+// import { MessagePartial } from "element-plus/lib/message/src/message"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
+import { IElDropdownInstance } from "element-plus/lib/dropdown/src/dropdown"
 import { ICaceh } from "@/cache/cache"
 import { $t } from "@/i18n/i18n"
 
@@ -55,5 +56,6 @@ declare module "@vue/runtime-core" {
         axios: AxiosInstance,
         $helper: Helper,
         $t: typeof $t,
+        config: Config
     }
 }

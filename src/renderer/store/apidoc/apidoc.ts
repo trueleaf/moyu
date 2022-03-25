@@ -296,7 +296,7 @@ const apidoc = {
             }
             //如果host为空则默认为mockserver
             if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
-                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${config.renderConfig.mock.port}`
+                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
             }
             state.apidoc = payload;
         },
@@ -328,7 +328,18 @@ const apidoc = {
         //改变json类型requestBody
         changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
             state.apidoc.item.requestBody.json = payload;
-        }
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | 预请求脚本
+        |--------------------------------------------------------------------------
+        */
+        changePreRequest(state: ApidocState, preRequest: string): void {
+            state.apidoc.preRequest.raw = preRequest;
+        },
+        changeAfterRequest(state: ApidocState, afterRequest: string): void {
+            state.apidoc.afterRequest.raw = afterRequest;
+        },
     },
     actions: {
         /**
@@ -392,6 +403,8 @@ const apidoc = {
                     projectId,
                     info: apidocDetail.info,
                     item: apidocDetail.item,
+                    preRequest: apidocDetail.preRequest,
+                    afterRequest: apidocDetail.afterRequest,
                 };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法

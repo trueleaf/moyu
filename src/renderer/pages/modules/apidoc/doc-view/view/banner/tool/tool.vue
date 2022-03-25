@@ -45,7 +45,6 @@
                                     :range-separator="$t('至')"
                                     value-format="x"
                                     :start-placeholder="$t('开始日期')"
-                                    size="mini"
                                     class="mr-1"
                                     :end-placeholder="$t('结束日期')"
                                 >

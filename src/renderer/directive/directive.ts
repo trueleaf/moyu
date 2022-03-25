@@ -40,6 +40,12 @@ export default (app: App): void => {
     });
     //=====================================flex指令====================================//
     app.directive("flex1", {
+        mounted(el: HTMLElement, binding) {
+            const offsetY = el.getBoundingClientRect().y;
+            const { value } = binding;
+            el.style.height = `calc(100vh - ${offsetY + value}px)`;
+            el.style.overflowY = `auto`;
+        },
         updated(el: HTMLElement, binding) {
             const offsetY = el.getBoundingClientRect().y;
             const { value } = binding;
@@ -147,18 +153,6 @@ export default (app: App): void => {
         }
     })
     //=====================================focus指令====================================//
-    app.directive("focus", { //如果当前元素不是input则递归查找
-        mounted(el: HTMLElement) {
-            if (el.tagName === "INPUT") {
-                el.focus();
-            } else {
-                const ipt = el.querySelector("input");
-                setTimeout(() => {
-                    ipt?.focus()
-                });
-            }
-        },
-    })
     app.directive("focus-select", { //如果当前元素不是input则递归查找
         mounted(el: HTMLElement) {
             if (el.tagName === "INPUT") {

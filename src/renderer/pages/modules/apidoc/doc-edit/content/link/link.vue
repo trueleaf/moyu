@@ -10,8 +10,10 @@
             <s-fieldset>
                 <template #title>
                     <span>{{ $t("在线链接") }}</span>
-                    <span class="orange f-sm ml-2 text-normal cursor-pointer" @click="dialogVisible = true">
-                        <i class="el-icon-circle-plus-outline"></i>
+                    <span class="orange f-sm ml-2 text-normal cursor-pointer d-inline-flex a-center" @click="dialogVisible = true">
+                        <el-icon :size="16">
+                            <circle-plus />
+                        </el-icon>
                         <span>{{ $t("生成链接") }}</span>
                     </span>
                 </template>
@@ -25,9 +27,9 @@
                     </el-table-column>
                     <el-table-column :label="$t('操作')" align="center">
                         <template #default="scope">
-                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text" size="mini">{{ $t("复制") }}</el-button>
-                            <el-button type="text" size="mini" @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
-                            <el-button type="text" size="mini" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
+                            <el-button v-copy="generateUrlAndPassword(scope.row)" type="text">{{ $t("复制") }}</el-button>
+                            <el-button type="text" @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
+                            <el-button type="text" @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
                         </template>
                     </el-table-column>
                 </s-table>
@@ -41,13 +43,14 @@
 <script lang="ts" setup>
 import { ref, Ref } from "vue"
 import { ElMessageBox } from "element-plus"
-import sAddDialog from "./dialog/add.vue"
-import sEditDialog from "./dialog/edit.vue"
 import { axios } from "@/api/api"
 // import config from "@/../config/config"
+import { CirclePlus } from "@element-plus/icons-vue"
 import { router } from "@/router"
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
+import sAddDialog from "./dialog/add.vue"
+import sEditDialog from "./dialog/edit.vue"
 
 type LinkInfo = {
     expire: number,

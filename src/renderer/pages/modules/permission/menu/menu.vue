@@ -10,8 +10,8 @@
             <s-loading :loading="loading">
                 <s-card :title="$t('菜单列表')" class="menu-tree">
                     <template #operation>
-                        <el-button size="mini" type="text" @click="handleOpenAddDialog()">{{ $t("新增") }}</el-button>
-                        <el-button size="mini" type="text" @click="getData">{{ $t("刷新") }}</el-button>
+                        <el-button type="text" @click="handleOpenAddDialog()">{{ $t("新增") }}</el-button>
+                        <el-button type="text" @click="getData">{{ $t("刷新") }}</el-button>
                     </template>
                     <el-tree
                         ref="tree"
@@ -35,11 +35,11 @@
                                     <span>{{ data.name }}</span>
                                 </div>
                                 <div class="ml-auto mr-2">
-                                    <el-button size="mini" type="text" @click.stop="handleOpenAddDialog(data)">{{ $t("新增子菜单") }}</el-button>
+                                    <el-button type="text" @click.stop="handleOpenAddDialog(data)">{{ $t("新增子菜单") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click.stop="handleOpenEditDialog(data)">{{ $t("编辑") }}</el-button>
+                                    <el-button type="text" @click.stop="handleOpenEditDialog(data)">{{ $t("编辑") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button size="mini" type="text" @click.stop="handleDeleteCurrentNode(data)">{{ $t("删除") }}</el-button>
+                                    <el-button type="text" @click.stop="handleDeleteCurrentNode(data)">{{ $t("删除") }}</el-button>
                                 </div>
                             </div>
                         </template>
@@ -68,7 +68,7 @@
 <script lang="ts">
 import type { Response, PermissionClientMenu } from "@@/global"
 import { defineComponent } from "vue"
-import Node from "element-plus/packages/components/tree/src/model/node"
+import Node from "element-plus/lib/components/tree/src/model/node"
 import addMenuDialog from "./add/add.vue"
 import editMenuDialog from "./edit/edit.vue"
 

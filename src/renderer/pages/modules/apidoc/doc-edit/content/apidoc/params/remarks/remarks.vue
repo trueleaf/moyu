@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <el-input v-model="description" rows="4" type="textarea" show-word-limit name="name" size="mini" placeholder="在此处输入备注信息" class="w-100" maxlength="255" clearable></el-input>
+    <el-input v-model="description" :size="config.renderConfig.layout.size" rows="4" type="textarea" show-word-limit name="name" placeholder="在此处输入备注信息" class="w-100" maxlength="255" clearable></el-input>
 </template>
 
 <script lang="ts" setup>

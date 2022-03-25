@@ -7,31 +7,32 @@
 <template>
     <el-form ref="form" :model="registerInfo" :rules="rules" @submit.stop.prevent="handleRegister">
         <el-form-item prop="loginName">
-            <el-input v-model="registerInfo.loginName" name="loginName" type="text" :placeholder="`${$t('请输入登录名称')}...`"></el-input>
+            <el-input v-model="registerInfo.loginName" :size="config.renderConfig.layout.size" name="loginName" type="text" :placeholder="`${$t('请输入登录名称')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-            <el-input v-model="registerInfo.password" show-password name="password" type="text" :placeholder="`${$t('请输入密码')}...`"></el-input>
+            <el-input v-model="registerInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="`${$t('请输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="password2">
-            <el-input v-model="registerInfo.password2" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
+            <el-input v-model="registerInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="phone">
-            <el-input v-model="registerInfo.phone" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
+            <el-input v-model="registerInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
         </el-form-item>
         <el-form-item prop="smsCode">
-            <div class="d-flex">
-                <el-input v-model="registerInfo.smsCode" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
+            <div class="d-flex w-100">
+                <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
         </el-form-item>
         <el-form-item>
-            <el-button :loading="loading" type="primary" size="small" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
+            <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ $t("注册并登录") }}</el-button>
         </el-form-item>
     </el-form>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import type { InternalRuleItem } from "async-validator/dist-types/interface"
 
 export default defineComponent({
     data() {
@@ -63,7 +64,7 @@ export default defineComponent({
         };
     },
     methods: {
-        validatePassword(rule: unknown, value: string, callback: (err?: Error) => void) {
+        validatePassword(rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) {
             const matchString = /[a-zA-Z]/;
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;
@@ -80,7 +81,7 @@ export default defineComponent({
                 callback();
             }
         },
-        validatePassword2(rule: unknown, value: string, callback: (err?: Error) => void) {
+        validatePassword2(rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) {
             const matchString = /[a-zA-Z]/;
             const matchNumber = /\d/;
             const inValidKey = /[^\w\d!@#]/;

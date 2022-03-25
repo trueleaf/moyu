@@ -1,10 +1,15 @@
 import { ApidocDetail } from "@@/global";
 import { ApidocMockState, ApidocMockMapInfo } from "@@/store"
 import { uniqueByKey } from "@/helper/index"
+import config from "@/../config/config"
+import { store } from "../index";
+// import { apidocCache } from "@/cache/apidoc";
+// import { router } from "@/router/index"
 
 const mock = {
     namespaced: true,
     state: {
+        mockServerPort: config.renderConfig.mock.port,
         urlMap: [],
     },
     mutations: {
@@ -34,6 +39,13 @@ const mock = {
                     method: payload.apidoc.item.method
                 });
             }
+        },
+        //改变mock端口
+        changeMockServerPort(state: ApidocMockState, port: number): void {
+            store.commit("apidoc/apidoc/changeApidocHost", `http://${config.renderConfig.mock.ip}:${port}`);
+            // console.log(router.currentRoute.value)
+            // apidocCache.setPreviousServer(router.currentRoute.value.query.id as string, `http://${config.renderConfig.mock.ip}:${port}`);
+            state.mockServerPort = port;
         },
     },
 }

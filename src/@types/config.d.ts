@@ -1,9 +1,16 @@
+import { componentSize } from "element-plus/es/utils/props";
+
 /*
 |--------------------------------------------------------------------------
 | Electron更新相关配置
 |--------------------------------------------------------------------------
 */
+
 type Config = {
+    /**
+     * 内网ip地址
+     */
+    ip: string,
     /**
      * 是否为electron环境
      */
@@ -40,7 +47,7 @@ type Config = {
             /**
              * 项目中组件库大小
              */
-            size: "small" | "large" | "medium" | "mini",
+            size: componentSize,
         },
 
         /**
@@ -71,7 +78,7 @@ type Config = {
             imgUrl: string,
 
             /**
-             * 超时实践
+             * 超时时间
              */
             timeout: number,
 
@@ -116,16 +123,6 @@ type Config = {
                  * 每页默认显示数量
                  */
                 pageSize: number,
-            },
-
-            /**
-             * 富文本配置
-             */
-            richText: {
-                /**
-                 * 是否使用oss
-                 */
-                useOss: boolean,
             },
         },
         /**
@@ -172,7 +169,7 @@ type Config = {
         useLocalFile: boolean,
 
         /**
-         * 线上地址
+         * 若useLocalFile为false则使用当前地址作为electron加载地址
          */
         onlineUrl: string,
     },
@@ -206,7 +203,7 @@ type Config = {
             enabled: boolean,
         },
         /**
-         * 是否允许注册
+         * 是否允许用户自主注册账号
          */
         enableRegister: boolean,
 

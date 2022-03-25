@@ -6,8 +6,8 @@
 */
 import { ref, Ref, computed } from "vue"
 import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
-import shareRouter from "../../../../../router/index"
 import { sendRequest, stopRequest } from "@/server/request/request"
+import shareRouter from "../../../../../router/index"
 
 type OperationReturn = {
     /**

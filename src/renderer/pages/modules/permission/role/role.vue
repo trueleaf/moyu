@@ -20,7 +20,7 @@
             </template>
         </el-table-column>
         <template #operation>
-            <el-button size="mini" type="success" @click="addRoleDialog = true">{{ $t("新增角色") }}</el-button>
+            <el-button type="success" @click="addRoleDialog = true">{{ $t("新增角色") }}</el-button>
         </template>
     </s-table>
     <s-add-role v-if="addRoleDialog" v-model="addRoleDialog" @success="getData"></s-add-role>

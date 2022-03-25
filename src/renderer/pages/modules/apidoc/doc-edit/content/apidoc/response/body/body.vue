@@ -77,18 +77,21 @@
             </div>
             <!-- json -->
             <template v-else-if="remoteResponse.data.type.includes('application/json')">
-                <div class="text-wrap">
-                    <s-raw-editor
+                <div class="json-wrap">
+                    <s-json-editor :model-value="jsonResponse"></s-json-editor>
+                    <!-- <s-raw-editor
                         :model-value="jsonResponse"
                         readonly
                         type="application/json"
                     >
-                    </s-raw-editor>
+                    </s-raw-editor> -->
                 </div>
                 <el-dropdown class="apply-response" trigger="click">
-                    <span>
+                    <span class="d-flex a-center">
                         <span>{{ $t("应用为响应值") }}</span>
-                        <i class="el-icon-arrow-down el-icon--right"></i>
+                        <el-icon :size="16" class="ml-1">
+                            <icon-arrow-down />
+                        </el-icon>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -122,6 +125,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { ArrowDown } from "@element-plus/icons-vue"
 import beautify from "js-beautify"
 import { ApidocProperty } from "@@/global";
 
@@ -132,6 +136,9 @@ type ResponseApplyEnum = {
 }
 
 export default defineComponent({
+    components: {
+        "icon-arrow-down": ArrowDown
+    },
     computed: {
         //远端返回数据结果
         remoteResponse() {
@@ -197,7 +204,7 @@ export default defineComponent({
                 const matchedData = mindData.find(v => v.key === p.key);
                 if (matchedData) {
                     p.description = matchedData.description;
-                    p.value = matchedData.value;
+                    // p.value = matchedData.value;
                 }
                 return "";
             });

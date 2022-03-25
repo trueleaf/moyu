@@ -1,11 +1,11 @@
 /* eslint-disable import/extensions */
-
+import type FormData from "form-data"
 import type {
     ApidocParamsType,
     PermissionClientRoute,
     ApidocDetail,
-    ApidocContentType,
     ApidocMindParam,
+    ApidocRequestParamTypes,
     ApidocHttpRequestMethod,
     GlobalConfig,
 } from "@@/global"
@@ -57,7 +57,7 @@ type ApidocProjectVariable = {
      */
     name: string,
     /**
-     * 变量类型
+     * 变量值类型
      */
     type: ApidocPropertyType,
     /**
@@ -109,7 +109,7 @@ type ApidocRequestMethodRule = {
     /**
      * 允许请求参数类型
      */
-    enabledContenTypes: ApidocContentType[],
+    enabledContenTypes: ApidocRequestParamTypes,
     /**
      * 方法名称
      */
@@ -202,6 +202,10 @@ type ApidocProjectBaseInfoState = {
      * 项目变量信息
      */
     variables: ApidocProjectVariable[],
+    /**
+     * 临时变量，主要用于脚本中
+     */
+    tempVariables: Omit<ApidocProjectVariable, "_id">[],
     /**
      * 项目host信息
      */
@@ -413,7 +417,22 @@ type ApidocMockMapInfo = {
     method: ApidocHttpRequestMethod, //请求方法
 }
 type ApidocMockState = {
+    /**
+     * mock服务器监听端口
+     */
+    mockServerPort: number,
     urlMap: ApidocMockMapInfo[]
+};
+/*
+|--------------------------------------------------------------------------
+| 最终请求参数
+|--------------------------------------------------------------------------
+*/
+type ApidocRequest = {
+    url: string, //请求url
+    headers: Record<string, string>, //请求头
+    method: ApidocHttpRequestMethod, //请求方法
+    body: string | FormData, //请求body
 };
 
 /*
@@ -431,6 +450,7 @@ type State = {
     "apidoc/apidoc": ApidocState,
     "apidoc/response": ApidocResponseState,
     "apidoc/mock": ApidocMockState,
+    "apidoc/request": ApidocRequest
 }
 export {
     PermissionState,
@@ -447,5 +467,6 @@ export {
     ApidocProjectRules,
     ApidocMockState,
     ApidocMockMapInfo,
+    ApidocRequest,
     State,
 }

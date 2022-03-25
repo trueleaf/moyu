@@ -27,7 +27,9 @@
                             >
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
                             <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
-                            <span v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon el-icon-edit" @click.stop="handleChangeEditNode(item, index)"></span>
+                            <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
+                                <Edit />
+                            </el-icon>
                         </div>
                     </div>
                     <!-- 状态码 -->
@@ -37,13 +39,15 @@
                             <span class="flex0">{{ $t("状态码") }}：</span>
                             <el-popover v-model:visible="statusVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                                 <template #reference>
-                                    <span class="cursor-pointer" @click.stop="toggleStatusModel(item)">
+                                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
                                         <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
                                         <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
                                         <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
                                         <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
                                         <span v-else class="red">{{ item.statusCode }}</span>
-                                        <i class="el-icon-arrow-down el-icon--right"></i>
+                                        <el-icon :size="16" class="ml-1">
+                                            <arrow-down />
+                                        </el-icon>
                                     </span>
                                 </template>
                                 <s-status @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)"></s-status>
@@ -61,7 +65,9 @@
                                         <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
                                             <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
                                         </el-tooltip>
-                                        <i class="el-icon-arrow-down el-icon--right"></i>
+                                        <el-icon :size="16" class="ml-1">
+                                            <arrow-down />
+                                        </el-icon>
                                     </span>
                                 </template>
                                 <s-mime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></s-mime>
@@ -78,11 +84,7 @@
                         <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplate" class="template-wrap">
                             <div class="header">
-                                <el-input v-model="templateFilterString" size="mini" :placeholder="$t('过滤模板')" class="w-100" maxlength="100" clearable>
-                                    <template #prefix>
-                                        <i class="el-icon-search el-input__icon"></i>
-                                    </template>
-                                </el-input>
+                                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
                                 <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
                             </div>
                             <template v-if="jsonTemplateList.length > 0">
@@ -119,7 +121,6 @@
                 >
                 </s-raw-editor>
             </div>
-            <!-- <input type="file" :accept="item.value.dataType"> -->
         </s-collapse-card>
         <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
         <params-template v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></params-template>
@@ -129,16 +130,17 @@
 <script lang="ts" setup>
 import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
 import { Effect } from "element-plus";
+import { Search, ArrowDown, Edit } from "@element-plus/icons-vue"
 import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
 import { ApidocProjectParamsTemplate } from "@@/store";
 import { store } from "@/store/index"
+import { apidocCache } from "@/cache/apidoc"
 import importParams from "../../dialog/import-params/import-params.vue"
 import sStatus from "./children/status.vue"
 import sMime from "./children/mime.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
 import useImportParams from "./compsables/import-params" //导入参数
 import useParamsTemplate from "./compsables/params-template" //参数模板
-import { apidocCache } from "@/cache/apidoc"
 
 /*
 |--------------------------------------------------------------------------

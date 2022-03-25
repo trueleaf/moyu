@@ -1,8 +1,9 @@
 import { ActionContext } from "vuex"
-import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
+import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate, ApidocProjectRules } from "@@/store"
 import type { Response, ApidocMindParam } from "@@/global"
 import { axios } from "@/api/api"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
+import { event } from "@/helper/index"
 
 const baseInfo = {
     namespaced: true,
@@ -10,6 +11,7 @@ const baseInfo = {
         _id: "",
         projectName: "",
         variables: [],
+        tempVariables: [],
         mindParams: [],
         paramsTemplate: [],
         rules: {},
@@ -33,6 +35,10 @@ const baseInfo = {
             state.paramsTemplate = payload.paramsTemplate;
             state.rules = payload.rules;
             state.hosts = payload.hosts;
+        },
+        //改变rules
+        changeProjectRules(state: ApidocProjectBaseInfoState, payload: ApidocProjectRules): void {
+            state.rules = payload;
         },
         //改变联想参数信息
         changeMindParams(state: ApidocProjectBaseInfoState, payload: ApidocMindParam[]): void {
@@ -96,6 +102,18 @@ const baseInfo = {
         changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
             state.mode = mode;
         },
+        //改变变量信息
+        changeVariables(state: ApidocProjectBaseInfoState, variables: ApidocProjectBaseInfoState["variables"]): void {
+            state.variables = variables;
+        },
+        //清空临时变量
+        clearTempVariables(state: ApidocProjectBaseInfoState): void {
+            state.tempVariables = [];
+        },
+        //改版临时变量的值
+        changeTempVariables(state: ApidocProjectBaseInfoState, tempVariables: ApidocProjectBaseInfoState["tempVariables"]): void {
+            state.tempVariables = tempVariables;
+        },
     },
     actions: {
         /**
@@ -107,7 +125,8 @@ const baseInfo = {
                     _id: payload.projectId,
                 }
                 axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/project_full_info", { params }).then((res) => {
-                    context.commit("changeProjectBaseInfo", res.data)
+                    context.commit("changeProjectBaseInfo", res.data);
+                    event.emit("apidoc/getBaseInfo", res.data);
                     resolve()
                 }).catch((err) => {
                     console.error(err);

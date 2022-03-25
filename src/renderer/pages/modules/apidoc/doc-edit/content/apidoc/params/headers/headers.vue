@@ -9,26 +9,31 @@
         <div v-if="!hideDefaultHeader">
             <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
                 <span>{{ $t("点击隐藏默认") }}</span>
-                <!-- <i class="el-icon-close ml-1"></i> -->
             </span>
             <s-params-tree :drag="false" show-checkbox :readonly-keys="defaultHeaderKeys" :data="defaultHeaders"></s-params-tree>
         </div>
-        <div v-else class="cursor-pointer no-select" @click="hideDefaultHeader = false">
+        <div v-else class="cursor-pointer no-select d-flex a-center" @click="hideDefaultHeader = false">
             <span>{{ $t("个隐藏", { msg: defaultHeaders.length.toString()}) }}</span>
-            <i class="el-icon-view ml-1"></i>
+            <el-icon :size="16" class="ml-1">
+                <View />
+            </el-icon>
         </div>
-        <s-params-tree :drag="false" show-checkbox :data="headerData"></s-params-tree>
+        <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue"
+import { ref, computed, Ref } from "vue"
 import { store } from "@/store/index"
+import { View } from "@element-plus/icons-vue"
+import { ApidocProperty } from "@@/global";
+import mindHeaders from "./mind-headers"
 
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => store.state["apidoc/apidoc"].apidoc.item.headers)
 const defaultHeaders = computed(() => store.state["apidoc/apidoc"].defaultHeaders)
-const defaultHeaderKeys = computed(() => store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key))
+const defaultHeaderKeys = computed(() => store.state["apidoc/apidoc"].defaultHeaders.map(v => v.key));
+const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 </script>
 
 <style lang="scss">

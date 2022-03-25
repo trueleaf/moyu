@@ -1,11 +1,10 @@
 import Axios, { Method } from "axios"
-import FormData from "form-data"
+import type FormData from "form-data"
 import { axios as axios2 } from "@/api/api"
+import { store as shareStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import { store as onlineStore } from "@/store/index"
 import config from "./config"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import * as utils from "./utils"
-import { store as shareStore } from "@/pages/modules/apidoc/doc-view/store/index"
+import apidocConverter from "./utils"
 
 const buildShareOrHtml = process.env.VUE_APP_BUILD_SHARE || process.env.VUE_APP_BUILD_HTML
 
@@ -15,35 +14,6 @@ const axiosInstance = Axios.create({
 });
 const { CancelToken } = Axios;
 const source = CancelToken.source();
-
-//获取完整headers
-function getRealHeaders() {
-    const store = buildShareOrHtml ? shareStore : onlineStore;
-    const realHeaders: Record<string, string | undefined> = {};
-    const { defaultHeaders } = store.state["apidoc/apidoc"];
-    const { headers } = store.state["apidoc/apidoc"].apidoc.item;
-    defaultHeaders.concat(headers).forEach((item) => {
-        const itemKey = item.key.toLocaleLowerCase();
-        if (item.select && itemKey) {
-            if (itemKey === "user-agent") {
-                realHeaders[itemKey] = "moyu(https://github.com/trueleaf/moyu)";
-            } else if (itemKey === "accept-encoding") {
-                realHeaders[itemKey] = "gzip, deflate, br";
-            } else if (itemKey === "connection") {
-                realHeaders[itemKey] = "keep-alive";
-            } else {
-                realHeaders[itemKey] = item.value;
-            }
-        }
-    })
-    // if (contentType) {
-    //     realHeaders["content-type"] = contentType;
-    // }
-    //删除自动携带的请求头
-    delete realHeaders["content-length"]
-    delete realHeaders.host
-    return realHeaders;
-}
 
 /**
  * @description                 发送请求
@@ -63,51 +33,19 @@ export function sendRequest(): void {
     try {
         const useProxy = store.state["apidoc/baseInfo"].webProxy;
         store.commit("apidoc/response/changeLoading", true)
-        const { url, method, requestBody, queryParams, paths, contentType = "text/plain", } = store.state["apidoc/apidoc"].apidoc.item;
-        const queryString = utils.convertQueryParamsToQueryString(queryParams);
-        const pathMap = utils.getPathParamsMap(paths)
-        const { mode } = requestBody
-        const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
-        const requestUrl = url.host + validPath + queryString;
+        const requestUrl = apidocConverter.getUrlInfo().fullUrl;
+        const method = apidocConverter.getMethod();
         let body: string | FormData = "";
-        const realHeaders = getRealHeaders();
+        const headers = apidocConverter.getHeaders();
         if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
             body = "";
         } else {
-            switch (contentType) {
-            case "application/json":
-                body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json));
-                break;
-            case "application/x-www-form-urlencoded":
-                body = utils.convertUrlencodedToBodyString(requestBody.urlencoded);
-                break;
-            case "multipart/form-data":
-                // eslint-disable-next-line no-case-declarations
-                const { data, headers } = utils.convertFormDataToFormDataString(requestBody.formdata);
-                body = data
-                realHeaders["Content-Type"] = headers["content-type"]
-                break;
-            case "text/plain":
-                body = requestBody.raw.data;
-                break;
-            case "text/html":
-                body = requestBody.raw.data;
-                break;
-            case "application/xml":
-                body = requestBody.raw.data;
-                break;
-            case "text/javascript":
-                body = requestBody.raw.data;
-                break;
-            default:
-                console.warn("未匹配的contentType类型");
-                break;
-            }
+            body = apidocConverter.getRequestBody() as (string | FormData);
         }
         //=====================================代理发送请求====================================//
         if (useProxy) {
             const params = {
-                headers: realHeaders,
+                headers,
                 url: requestUrl,
                 body,
             };
@@ -150,17 +88,17 @@ export function sendRequest(): void {
             return;
         }
         //=========================================================================//
-        delete realHeaders["user-agent"]
-        delete realHeaders["accept-encoding"]
-        delete realHeaders.connection
-        delete realHeaders.cookie
+        delete headers["user-agent"]
+        delete headers["accept-encoding"]
+        delete headers.connection
+        delete headers.cookie
         const startTime = Date.now();
         axiosInstance.request({
             url: requestUrl,
             method: method as Method,
             data: body,
             responseType: "blob",
-            headers: realHeaders,
+            headers,
             cancelToken: source.token
         }).then(async response => {
             const resContentType = response.headers["content-type"];

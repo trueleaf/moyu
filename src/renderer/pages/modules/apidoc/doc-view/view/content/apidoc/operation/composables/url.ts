@@ -85,7 +85,7 @@ export function handleFormatUrl():void {
     const matchedDomin = requestPath.value.match(dominReg);
     let formatPath = requestPath.value;
     if (!matchedIp && !matchedDomin && !matchedIpWithPort) {
-        const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${globalConfig.renderConfig.mock.port}`;
+        const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
         const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
         //路径处理
         const matchedPath = formatPath.match(pathReg);

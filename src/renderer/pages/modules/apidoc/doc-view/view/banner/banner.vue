@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from "vue"
-import { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocBanner } from "@@/global"
 import { useStore } from "../../store/index"
 import { useBannerData } from "./composables/banner-data"
@@ -134,7 +134,7 @@ const handleFilterNode = (filterInfo: SearchData) => {
     filterString.value = filterInfo.iptValue;
 }
 //过滤节点
-const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
+const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): boolean => {
     if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
         const treeRef = docTree.value as TreeNodeOptions;
         Object.keys(treeRef.store.nodesMap).map((key) => {
@@ -143,11 +143,11 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
         showMoreNodeInfo.value = false;
         return true;
     }
-    const matchedUrl = filterInfo.iptValue ? data.url?.match(filterInfo.iptValue) : false;
-    const matchedDocName = filterInfo.iptValue ? data.name.match(filterInfo.iptValue) : false;
-    const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === data._id) : false;
+    const matchedUrl = filterInfo.iptValue ? (data as ApidocBanner).url?.match(filterInfo.iptValue) : false;
+    const matchedDocName = filterInfo.iptValue ? (data as ApidocBanner).name.match(filterInfo.iptValue) : false;
+    const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === (data as ApidocBanner)._id) : false;
     showMoreNodeInfo.value = true;
-    return (matchedUrl || matchedDocName) || matchedOthers;
+    return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
 }
 </script>
 
@@ -250,7 +250,7 @@ const filterNode = (filterInfo: SearchData, data: ApidocBanner) => {
         }
     }
     // 禁用动画提高性能
-    .collapse-transition {
+    .el-collapse-transition {
         transition: none;
     }
     // 节点展示更多信息

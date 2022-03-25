@@ -5,11 +5,12 @@
 */
 import type { Config } from "@@/config"
 
-const ip = "127.0.0.1";
-// if (window && window.require) {
-//     const internalIp = window.require("internal-ip");
-//     ip = internalIp.v4.sync()
-// }
+let ip = "127.0.0.1";
+if (typeof window !== "undefined" && window.require) {
+    const ipFn = window.require("ip");
+    ip = ipFn.address();
+}
+
 const isDev = process.env.NODE_ENV === "development";
 function isElectron(): boolean {
     if (typeof window !== "undefined" && typeof window.process === "object" && window.process.type === "renderer") {
@@ -24,6 +25,7 @@ function isElectron(): boolean {
     return false;
 }
 const config: Config = {
+    ip,
     isElectron: isElectron(),
     isDev,
     //更新相关配置
@@ -35,7 +37,7 @@ const config: Config = {
     renderConfig: {
         //布局相关
         layout: {
-            size: "mini", //项目中组件库大小
+            size: "default", //项目中组件库大小
         },
         //权限相关
         permission: {
@@ -61,9 +63,6 @@ const config: Config = {
                 pageSizes: [10, 20, 30, 50, 70, 100], //每页条数
                 pageSize: 20, //每页默认显示数量
             },
-            richText: {
-                useOss: false,
-            },
         },
         //本地数据库配置
         indexedDB: {
@@ -80,18 +79,18 @@ const config: Config = {
         width: 1440,
         height: 768,
         useLocalFile: false, //使用本地文件作为主进程加载内容
-        onlineUrl: "https://online.jobtool.cn", //线上地址
+        onlineUrl: "https://online.jobtool.cn", //若useLocalFile为false则使用当前地址作为electron加载地址
     },
     //本地部署相关配置
     localization: {
         version: "0.8.0", //当前项目版本
-        title: "快乐摸鱼", //项目名称
+        title: "moyu", //项目名称
         consoleWelcome: true, //是否打印欢迎信息
         download: {
             enabled: false, //是否允许提示用户下载electron
             url: "https://gitee.com/shuzhikai/moyu/releases", //下载地址
         },
-        enableRegister: true, //是否允许注册
+        enableRegister: true, //是否允许用户自主注册账号
         enableGuest: true, //是否允许来宾用户体验
         enableDocLink: true, //是否显示文档和帮助链接
     },

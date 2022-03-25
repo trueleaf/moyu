@@ -4,6 +4,7 @@
  * @author             shuxiaokai
  */
 const path = require("path");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
 module.exports = {
     pages: {
@@ -38,6 +39,7 @@ module.exports = {
             },
         },
         target: "web",
+        plugins: [new MonacoWebpackPlugin()],
     },
     pluginOptions: {
         electronBuilder: {
@@ -69,7 +71,8 @@ module.exports = {
                 "shelljs",
                 "ssh2",
                 "koa",
-                "internal-ip",
+                "fs-extra",
+                "ip",
             ],
             mainProcessFile: "src/main/background.ts",
             mainProcessWatch: ["src/main/background.ts"],

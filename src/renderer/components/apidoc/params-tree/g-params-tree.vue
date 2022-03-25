@@ -26,7 +26,7 @@
                     v-if="!disableAdd"
                     type="text"
                     :title="addNestTip"
-                    icon="el-icon-plus"
+                    :icon="Plus"
                     :disabled="!nest"
                     @click="addNestTreeData(scope.data)"
                 >
@@ -38,7 +38,7 @@
                     :disabled="checkDeleteDisable(scope)"
                     :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? $t('此项不允许删除') : $t('删除当前行')}`"
                     type="text"
-                    icon="el-icon-close"
+                    :icon="Close"
                     @click="handleDeleteParams(scope)"
                 >
                 </el-button>
@@ -64,8 +64,8 @@
                     :disabled="!nest && !enableFile"
                     :title="typeTip"
                     :placeholder="$t('类型')"
-                    size="mini"
                     class="w-15 flex0 mr-2"
+                    :size="config.renderConfig.layout.size"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
                     <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
@@ -95,8 +95,8 @@
                             :model-value="scope.data.value"
                             :disabled="checkDisableValue(scope.data)"
                             :title="$t('对象和数组不必填写参数值')"
-                            size="mini"
                             class="w-25 flex0"
+                            :size="config.renderConfig.layout.size"
                             :placeholder="getValuePlaceholder(scope.data)"
                             @update:modelValue="handleChangeValue($event, scope.data)"
                             @focus="handleFocusValue(scope.data)"
@@ -110,8 +110,8 @@
                     v-if="scope.data.type === 'boolean'"
                     :model-value="scope.data.value"
                     :placeholder="$t('请选择')"
-                    size="mini"
                     class="w-25 flex0"
+                    :size="config.renderConfig.layout.size"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
                     <el-option label="true" value="true"></el-option>
@@ -122,11 +122,9 @@
                     <div class="fake-input" :class="{active: scope.data.value}" @mouseenter="() => enableDrag = false" @mouseleave="() => enableDrag = true">
                         <label v-show="!scope.data.value" for="fileInput" class="label">{{ $t("选择文件") }}</label>
                         <s-ellipsis-content :value="scope.data.value" max-width="100%"></s-ellipsis-content>
-                        <!-- <el-popover v-show="scope.data.value" placement="top-start" trigger="hover" :content="scope.data.value" :open-delay="200">
-                            <template #reference>
-                            </template>
-                        </el-popover> -->
-                        <span v-if="scope.data.value" class="close el-icon-close" @click="handleClearSelectType(scope.data)"></span>
+                        <el-icon v-if="scope.data.value" class="close" :size="16" @click="handleClearSelectType(scope.data)">
+                            <close />
+                        </el-icon>
                     </div>
                     <input id="fileInput" ref="fileInput" class="d-none" type="file" @change="handleSelectFile($event, scope.data)">
                 </div>
@@ -162,7 +160,8 @@ import {
     computed,
     watch
 } from "vue"
-import type { TreeNodeOptions } from "element-plus/packages/components/tree/src/tree.type"
+import { Plus, Close } from "@element-plus/icons-vue"
+import type { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import type { ApidocProperty, MockItem } from "@@/global"
 import { apidocGenerateProperty, forEachForest } from "@/helper/index"
 import { store } from "@/store"
@@ -665,6 +664,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-radius: 0;
         border: none;
         border-bottom: 1px solid $gray-400;
+        font-size: fz(12);
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
@@ -673,7 +673,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     .valid-input .ipt-wrap .ipt-inner {
         border: none;
         border-radius: 0;
+        border-color: $gray-400;
         border-bottom: 1px solid $gray-400;
+        font-size: fz(12);
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
@@ -722,7 +724,8 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
 .el-tree__drop-indicator {
     height: size(3);
 }
-.collapse-transition {
-    transition: none;
+// 禁用动画提高性能
+.el-collapse-transition-enter-active, .el-collapse-transition-leave-active {
+    transition: none !important;
 }
 </style>

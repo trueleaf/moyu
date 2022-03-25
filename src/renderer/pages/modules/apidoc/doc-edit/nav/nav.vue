@@ -8,7 +8,9 @@
     <div class="nav">
         <div class="tab-wrap">
             <div class="btn left" @click="handleMoveLeft">
-                <i class="el-icon-arrow-left"></i>
+                <el-icon :size="16">
+                    <icon-arrow-left />
+                </el-icon>
             </div>
             <!-- https://github.com/element-plus/element-plus/issues/2293 -->
             <div ref="tabList" class="tab-list">
@@ -31,43 +33,64 @@
                             <!-- 其他 -->
                             <template v-else>
                                 <!-- 配置 -->
-                                <span v-if="element.tabType === 'config'" class="el-icon-setting f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'config'" class="mr-2" :size="16">
+                                    <icon-setting />
+                                </el-icon>
                                 <!-- 参数模板 -->
-                                <span v-if="element.tabType === 'paramsTemplate'" class="el-icon-setting f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'paramsTemplate'" class="mr-2" :size="16">
+                                    <icon-setting />
+                                </el-icon>
                                 <!-- 链接 -->
-                                <span v-if="element.tabType === 'onlineLink'" class="el-icon-link orange f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'onlineLink'" class="orange mr-2" :size="16">
+                                    <icon-link />
+                                </el-icon>
                                 <!-- 导出文档 -->
-                                <span v-if="element.tabType === 'exportDoc'" class="el-icon-share green f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'exportDoc'" class="green mr-2" :size="16">
+                                    <icon-share />
+                                </el-icon>
                                 <!-- 导入文档 -->
-                                <span v-if="element.tabType === 'importDoc'" class="el-icon-download red f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'importDoc'" class="red mr-2" :size="16">
+                                    <icon-download />
+                                </el-icon>
                                 <!-- 操作审计 -->
-                                <span v-if="element.tabType === 'history'" class="el-icon-time blue f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'history'" class="blue mr-2" :size="16">
+                                    <icon-timer />
+                                </el-icon>
                                 <!-- 全局变量配置 -->
                                 <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
                                 <!-- mock管理 -->
-                                <span v-if="element.tabType === 'mock'" class="el-icon-coffee-cup teal f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'mock'" class="teal mr-2" :size="16">
+                                    <icon-coffee-cup />
+                                </el-icon>
                                 <!-- 回收站管理 -->
-                                <span v-if="element.tabType === 'recycler'" class="el-icon-delete-solid red f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
+                                    <icon-delete-filled />
+                                </el-icon>
                                 <!-- 联想参数 -->
-                                <span v-if="element.tabType === 'mindParams'" class="el-icon-s-opportunity blue f-base mr-2"></span>
+                                <el-icon v-if="element.tabType === 'mindParams'" class="blue mr-2" :size="16">
+                                    <icon-opportunity />
+                                </el-icon>
                             </template>
                             <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
                             <span class="operaion">
                                 <span v-show="!element.saved" class="has-change">
                                     <span class="dot"></span>
                                 </span>
-                                <i v-show="element.saved" class="el-icon-close close" @click.stop="handleCloseCurrentTab(element)"></i>
+                                <el-icon v-show="element.saved" class="close" :size="16" @click.stop="handleCloseCurrentTab(element)">
+                                    <icon-close />
+                                </el-icon>
                             </span>
                         </div>
                     </template>
                 </s-draggable>
             </div>
-            <!-- <el-scrollbar ref="scrollBar" view-style="display:inline-block;">
-            </el-scrollbar> -->
             <div class="btn right" @click="handleMoveRight">
-                <i class="el-icon-arrow-right"></i>
+                <el-icon :size="16">
+                    <icon-arrow-right />
+                </el-icon>
             </div>
         </div>
+        <div class="d-flex a-center ml-1">{{ config.ip }}</div>
     </div>
     <teleport to="body">
         <!-- 单个节点操作 -->
@@ -88,19 +111,30 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import draggable from "vuedraggable"
+import { Setting, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 
 export default defineComponent({
     components: {
         "s-draggable": draggable,
+        "icon-setting": Setting,
+        "icon-link": Link,
+        "icon-share": Share,
+        "icon-download": Download,
+        "icon-timer": Timer,
+        "icon-coffee-cup": CoffeeCup,
+        "icon-delete-filled": DeleteFilled,
+        "icon-opportunity": Opportunity,
+        "icon-close": Close,
+        "icon-arrow-right": ArrowRight,
+        "icon-arrow-left": ArrowLeft,
     },
     data() {
         return {
-            moveLeft: 0,
-            showContextmenu: false,
-            contextmenuLeft: 0,
-            contextmenuTop: 0,
-            currentOperationNode: null as ApidocTab | null,
+            showContextmenu: false, //是否显示contextmenu
+            contextmenuLeft: 0, //鼠标右键x值
+            contextmenuTop: 0, //鼠标右键y值
+            currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
         };
     },
     computed: {
@@ -332,7 +366,7 @@ export default defineComponent({
                 white-space: nowrap;
                 // font-size: fz(12);
                 &.unfixed {
-                    font-style: oblique 40deg;
+                    font-style: oblique;
                 }
             }
             background: rgb(222, 225, 230);

@@ -17,13 +17,14 @@
                 <template v-for="(item, index) in astData">
                     <div v-if="!item._hidden" :key="index" class="banner-wrap">
                         <span class="number-line">{{ item.line }}</span>
-                        <span
+                        <el-icon
                             v-if="item.leftCurlBrace.value || item.leftBracket.value"
-                            class="collapse el-icon-arrow-down"
+                            class="collapse"
                             :class="{close: item._close}"
                             @click="toggleCollapse(item, index)"
                         >
-                        </span>
+                            <arrow-down />
+                        </el-icon>
                     </div>
                 </template>
             </div>
@@ -37,7 +38,7 @@
                         <span v-if="item.colon && item.path.value" class="colon">{{ item.colon }}</span>
                         <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
                         <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                        <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :open-delay="1500" :content="item.value" placement="bottom-start">
+                        <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :show-after="1500" :content="item.value" placement="bottom-start">
                             <s-emphasize class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
                         </el-tooltip>
                         <span>
@@ -51,7 +52,7 @@
                         <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
                         <span class="comma">{{ item.comma }}</span>
                         <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : `(${$t('可选')})` }}</span>
-                        <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :open-delay="1500" :content="item.description" placement="bottom-start">
+                        <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :show-after="1500" :content="item.description" placement="bottom-start">
                             <span class="description ml-1">
                                 //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
                             </span>
@@ -68,6 +69,7 @@
 import {
     PropType, watch, ref, Ref
 } from "vue"
+import { ArrowDown } from "@element-plus/icons-vue"
 import { Effect } from "element-plus";
 import { ApidocProperty, ApidocASTInfo } from "@@/global"
 import { astJson } from "./composables/astJson"

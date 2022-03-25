@@ -12,7 +12,7 @@
                 <div class="left">
                     <div class="op-item">
                         <div class="label">{{ $t("字段名") }}：</div>
-                        <el-input v-model="formInfo.key" size="mini" :placeholder="$t('参数字段名称')" maxlength="100" class="w-65" clearable></el-input>
+                        <el-input v-model="formInfo.key" :size="config.renderConfig.layout.size" :placeholder="$t('参数字段名称')" maxlength="100" class="w-65" clearable></el-input>
                     </div>
                     <div class="op-item">
                         <div class="label">{{ $t("类型") }}：</div>
@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="right">
-                    <el-descriptions :column="2" size="mini" border>
+                    <el-descriptions :column="2" border>
                         <el-descriptions-item>
                             <template #label>
                                 <span>{{ $t("Path参数个数") }}</span>
@@ -60,8 +60,8 @@
             </div>
         </s-fieldset>
         <s-fieldset :title="`${$t('联想参数')}(${tableInfo.length})`" class="mt-3">
-            <el-button type="danger" size="small" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">{{ $t("批量删除") }}</el-button>
-            <el-table :data="tableInfo" stripe border size="mini" height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
+            <el-button type="danger" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">{{ $t("批量删除") }}</el-button>
+            <el-table :data="tableInfo" stripe border height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="key" :label="$t('参数名称')" align="center">
                     <template #default="scope">
@@ -74,8 +74,8 @@
                 <el-table-column prop="paramsPosition" :label="$t('参数位置')" align="center"></el-table-column>
                 <el-table-column :label="$t('操作')" align="center">
                     <template #default="scope">
-                        <!-- <el-button size="mini" type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
-                        <el-button size="mini" type="text" @click="handleDeleteParams(scope.row)">{{ $t("删除") }}</el-button>
+                        <!-- <el-button type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
+                        <el-button type="text" @click="handleDeleteParams(scope.row)">{{ $t("删除") }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>

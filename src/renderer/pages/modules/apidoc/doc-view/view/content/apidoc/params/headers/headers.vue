@@ -9,13 +9,14 @@
         <div v-if="!hideDefaultHeader">
             <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
                 <span>{{ $t("点击隐藏默认") }}</span>
-                <!-- <i class="el-icon-close ml-1"></i> -->
             </span>
             <s-params-tree :drag="false" show-checkbox :readonly-keys="defaultHeaderKeys" :data="defaultHeaders"></s-params-tree>
         </div>
         <div v-else class="cursor-pointer no-select" @click="hideDefaultHeader = false">
             <span>{{ $t("个隐藏", { msg: defaultHeaders.length.toString()}) }}</span>
-            <i class="el-icon-view ml-1"></i>
+            <el-icon class="ml-1" :size="16">
+                <View />
+            </el-icon>
         </div>
         <s-params-tree :drag="false" show-checkbox :data="headerData"></s-params-tree>
     </div>
@@ -23,6 +24,7 @@
 
 <script lang="ts" setup>
 import { ref, computed } from "vue"
+import { View } from "@element-plus/icons-vue"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 
 const hideDefaultHeader = ref(true);

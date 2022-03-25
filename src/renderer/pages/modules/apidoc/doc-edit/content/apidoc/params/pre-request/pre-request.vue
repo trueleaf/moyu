@@ -6,26 +6,30 @@
 */
 <template>
     <div class="editor-wrap">
-        <s-monaco-editor></s-monaco-editor>
+        <pre-editor v-model="preRequest"></pre-editor>
     </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import { computed } from "vue"
+import { store } from "@/store/index"
+import preEditor from "./editor/pre-editor.vue"
 
-export default defineComponent({
-    data() {
-        return {
-        };
+const preRequest = computed<string>({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc?.preRequest.raw;
     },
-    methods: {
+    set(val) {
+        store.commit("apidoc/apidoc/changePreRequest", val);
     },
 })
+
 </script>
 
 <style lang="scss">
 .editor-wrap {
-    width: size(300px);
-    height: calc(100vh - #{size(340)});
+    position: relative;
+    width: 100%;
+    height: calc(100vh - #{size(320)});
 }
 </style>

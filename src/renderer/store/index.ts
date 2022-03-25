@@ -8,6 +8,7 @@ import { tabs } from "./apidoc/tabs";
 import { apidoc } from "./apidoc/apidoc";
 import { response } from "./apidoc/response";
 import { mock } from "./apidoc/mock";
+import { request } from "./apidoc/request";
 
 export const key: InjectionKey<Store<State>> = Symbol("")
 
@@ -21,6 +22,7 @@ export const store = createStore<State>({
         "apidoc/apidoc": apidoc,
         "apidoc/response": response,
         "apidoc/mock": mock,
+        "apidoc/request": request,
     }
 });
 export const useStore = (): Store<State> => baseUseStore(key);
