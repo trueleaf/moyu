@@ -454,13 +454,7 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         }
     }
 }
-/**
- * @description        获取property字段类型
- * @author             shuxiaokai
- * @create             2021-8-29 13:38
- * @param {any}        value - 任意类型变量
- * @return {string}    返回参数类型
- */
+// 获取property字段类型
 function getJsonValueType(value: unknown): JsonValueType {
     let result: JsonValueType = "string";
     if (typeof value === "string") {
@@ -543,79 +537,95 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
  * 将json类型数据转换为moyu类型参数
  */
 export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyValueHook): Properties {
-    const globalResult = [];
-    const rootType = getJsonValueType(jsonData);
-    if (rootType === "object" || rootType === "array") {
-        const rootProperty = apidocGenerateProperty(rootType);
-        globalResult.push(rootProperty);
-        // eslint-disable-next-line no-shadow
-        const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
-            if (getJsonValueType(obj) === "object") {
-                Object.keys(obj as JsonObj).forEach((key) => {
-                    const itemValue = (obj as JsonObj)[key];
-                    const itemType = getJsonValueType(itemValue);
-                    if (itemType === "string" || itemType === "number" || itemType === "boolean") {
-                        const property = apidocGenerateProperty(itemType);
-                        property.key = key;
-                        property.value = itemValue == null ? "null" : itemValue.toString();
-                        if (hook) {
-                            hook(property, itemValue);
-                        }
-                        result.push(property);
-                    } else if (itemType === "object") {
-                        const property = apidocGenerateProperty(itemType);
-                        property.key = key;
-                        if (hook) {
-                            hook(property, itemValue);
-                        }
-                        result.push(property);
-                        foo(itemValue, {
+    const globalResult: ApidocProperty[] = [];
+    // const rootType = getJsonValueType(jsonData);
+    // if (rootType === "object" || rootType === "array") {
+    //     const rootProperty = apidocGenerateProperty(rootType);
+    //     globalResult.push(rootProperty);
+
+    // } else {
+    //     const rootProperty = apidocGenerateProperty(rootType);
+    //     rootProperty.value = jsonData?.toString() || "";
+    //     globalResult.push(rootProperty);
+    // }
+    // eslint-disable-next-line no-shadow
+    const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
+        if (getJsonValueType(obj) === "object") {
+            const objProperty = apidocGenerateProperty("object");
+            result.push(objProperty);
+            Object.keys(obj as JsonObj).forEach((key) => {
+                const itemValue = (obj as JsonObj)[key];
+                const itemType = getJsonValueType(itemValue);
+                if (itemType === "string" || itemType === "number" || itemType === "boolean") {
+                    const property = apidocGenerateProperty(itemType);
+                    property.key = key;
+                    property.value = itemValue == null ? "null" : itemValue.toString();
+                    if (hook) {
+                        hook(property, itemValue);
+                    }
+                    objProperty.children.push(property);
+                } else if (itemType === "object") {
+                    const property = apidocGenerateProperty(itemType);
+                    property.key = key;
+                    if (hook) {
+                        hook(property, itemValue);
+                    }
+                    objProperty.children.push(property);
+                    foo(itemValue, {
+                        result: property.children,
+                        deep: deep + 1,
+                        hook,
+                    });
+                } else if (itemType === "array") {
+                    // eslint-disable-next-line no-shadow
+                    const itemValue = (obj as JsonObj)[key] as JsonArr
+                    const property = apidocGenerateProperty(itemType);
+                    property.key = key;
+                    if (hook) {
+                        hook(property, itemValue);
+                    }
+                    objProperty.children.push(property);
+                    if (getJsonValueType(itemValue[0]) === "object") {
+                        const property2 = apidocGenerateProperty("object");
+                        property.children.push(property2)
+                        foo(itemValue[0], {
+                            result: property.children[0].children,
+                            deep: deep + 1,
+                            hook,
+                        });
+                    } else {
+                        foo(itemValue[0], {
                             result: property.children,
                             deep: deep + 1,
                             hook,
                         });
-                    } else if (itemType === "array") {
-                        // eslint-disable-next-line no-shadow
-                        const itemValue = (obj as JsonObj)[key] as JsonArr
-                        const property = apidocGenerateProperty(itemType);
-                        property.key = key;
-                        if (hook) {
-                            hook(property, itemValue);
-                        }
-                        result.push(property);
-                        if (getJsonValueType(itemValue[0]) === "object") {
-                            const property2 = apidocGenerateProperty("object");
-                            property.children.push(property2)
-                            foo(itemValue[0], {
-                                result: property.children[0].children,
-                                deep: deep + 1,
-                                hook,
-                            });
-                        } else {
-                            foo(itemValue[0], {
-                                result: property.children,
-                                deep: deep + 1,
-                                hook,
-                            });
-                        }
                     }
+                }
+            });
+        } else if (getJsonValueType(obj) === "array") {
+            const valueType = getJsonValueType(obj);
+            const property = apidocGenerateProperty(valueType);
+            result.push(property)
+            for (let i = 0; i < (obj as JsonArr).length; i += 1) {
+                foo((obj as JsonArr)[i], {
+                    result: property.children,
+                    deep: deep + 1,
+                    hook,
                 });
-            } else {
-                const valueType = getJsonValueType(obj);
-                const property = apidocGenerateProperty(valueType);
-                result.push(property)
             }
+        } else {
+            const valueType = getJsonValueType(obj);
+            const property = apidocGenerateProperty(valueType);
+            property.value = (obj as string).toString();
+            result.push(property)
         }
-        foo(jsonData, {
-            result: rootProperty.children,
-            deep: 1,
-            hook,
-        });
-    } else {
-        const rootProperty = apidocGenerateProperty(rootType);
-        rootProperty.value = jsonData?.toString() || "";
-        globalResult.push(rootProperty);
     }
+    foo(jsonData, {
+        result: globalResult,
+        deep: 1,
+        hook,
+    });
+    console.log(globalResult)
     return globalResult;
 }
 
