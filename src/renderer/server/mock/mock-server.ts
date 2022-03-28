@@ -32,7 +32,14 @@ export const mockServer = (): void => {
         app.use(async (ctx) => {
             const url = ctx.request.url.replace(/(?<=)\?.*/, "");
             const method = ctx.request.method.toLowerCase();
-            const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
+            const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => {
+                const localMethod = data.method.toLocaleLowerCase();
+                const hasPathParams = data.url.match(/\{[^}]+\}/);
+                const localUrl = hasPathParams ? data.url.replace(/\/[^/]+$/, "") : data.url;
+                console.log(data.url, url)
+                return (localUrl === url && localMethod === method.toLocaleLowerCase());
+            });
+            console.log(22, url, store.state["apidoc/mock"].urlMap)
             if (matchedReuqest) {
                 const params = {
                     projectId: matchedReuqest.projectId,

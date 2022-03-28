@@ -625,7 +625,6 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
         deep: 1,
         hook,
     });
-    console.log(globalResult)
     return globalResult;
 }
 
