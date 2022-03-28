@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
+import type { UploadRequestOptions } from "element-plus/es/components/upload/src/upload"
 
 export default defineComponent({
     props: {
@@ -91,7 +91,7 @@ export default defineComponent({
     },
     methods: {
         //上传文件
-        upload(file: { file: File }) {
+        upload(file: UploadRequestOptions) {
             this.$emit("start");
             const formData = new FormData();
             formData.append("file", file.file);
@@ -99,16 +99,20 @@ export default defineComponent({
                 formData.append(key, this.params[key]);
             })
             let response: string;
-            this.axios.post<{ data: string }, { data: string }>(this.url, formData).then((res) => {
-                response = res.data;
-                this.$emit("success", response);
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.$emit("finish", response);
-            });
+            return new Promise((resolve, reject) => {
+                this.axios.post<{ data: string }, { data: string }>(this.url, formData).then((res) => {
+                    response = res.data;
+                    this.$emit("success", response);
+                    resolve(response);
+                }).catch((err) => {
+                    console.error(err);
+                    reject(err);
+                }).finally(() => {
+                    this.$emit("finish", response);
+                });
+            })
         },
-        checkFileSizeAndType(file: UploadFile) {
+        checkFileSizeAndType(file: File) {
             console.log(file)
             // const isLtnM = file.size > 1024 * 1024 * this.size;
             // let isValidType = this.type.includes(file.type);
