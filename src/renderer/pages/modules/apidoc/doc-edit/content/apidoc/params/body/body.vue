@@ -20,8 +20,8 @@
                 <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
                 <el-divider direction="vertical"></el-divider>
                 <div class="p-relative no-select">
-                    <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
-                    <div v-if="showTemplate" class="template-wrap">
+                    <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
+                    <div v-if="showTemplateIndex" class="template-wrap">
                         <div class="header">
                             <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
                             <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
@@ -115,7 +115,7 @@ const handleOpenTemplateDialog = () => {
 
 //=====================================模板相关操作====================================//
 //是否显示模板
-const showTemplate = ref(false);
+const showTemplateIndex = ref(-1);
 //模板过滤参数
 const templateFilterString = ref("");
 //模板列表
@@ -152,7 +152,7 @@ const handleOpenTempateTab = () => {
 }
 //处理模板点击空白区域关闭
 const bindClick = () => {
-    showTemplate.value = false;
+    showTemplateIndex.value = -1;
 }
 onMounted(() => {
     document.documentElement.addEventListener("click", bindClick)
