@@ -212,6 +212,11 @@ export default defineComponent({
                         field: "saved",
                         value: false,
                     })
+                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                        id: this.currentSelectTab?._id,
+                        field: "fixed",
+                        value: true,
+                    })
                 } else {
                     this.$store.commit("apidoc/tabs/changeTabInfoById", {
                         id: this.currentSelectTab?._id,
