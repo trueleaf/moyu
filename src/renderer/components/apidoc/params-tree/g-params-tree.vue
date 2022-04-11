@@ -657,6 +657,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     width: 100%;
     display: flex;
     align-items: center;
+    .el-button.is-disabled, .el-button.is-disabled:focus, .el-button.is-disabled:hover {
+        background-color: transparent;
+    }
     .el-input-number .el-input__inner {
         text-align: left;
     }
@@ -665,6 +668,7 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border: none;
         border-bottom: 1px solid $gray-400;
         font-size: fz(12);
+        box-shadow: none;
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
