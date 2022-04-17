@@ -284,7 +284,7 @@ const requestSuggestions = [{
         description: "更新请求头，如果没有则新增"
     },
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `remove("名称", "值")`,
+    insertText: `upsert("名称", "值")`,
     keyword: "pm.request.headers.upsert",
 }, {
     label: {
