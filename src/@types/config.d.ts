@@ -1,4 +1,4 @@
-import { componentSize } from "element-plus/es/utils/props";
+// import { componentSize } from "element-plus/es/utils/props";
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +47,7 @@ type Config = {
             /**
              * 项目中组件库大小
              */
-            size: componentSize,
+            size: string,
         },
 
         /**
