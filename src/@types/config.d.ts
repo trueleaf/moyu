@@ -148,6 +148,10 @@ type Config = {
              */
             size: number,
         },
+        /**
+         * 在线链接地址
+         */
+        shareUrl: string
     },
     /**
      * 主进程配置

@@ -73,6 +73,7 @@ const config: Config = {
         import: {
             size: 1024 * 1024 * 5, //导入文件大小
         },
+        shareUrl: "https://share.jobtool.cn"
     },
     //主进程配置
     mainConfig: {
