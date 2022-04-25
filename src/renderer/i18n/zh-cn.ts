@@ -235,7 +235,7 @@ export default {
     当前版本: "当前版本",
     今日新增: "今日新增",
     接口总数: "接口总数",
-    "支持：摸鱼文档、Swagger/OpenApi 3.0": "支持：摸鱼文档、Swagger/OpenApi 3.0",
+    "支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1": "支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1",
     "将文件拖到此处，或": "将文件拖到此处，或",
     点击上传: "点击上传",
     文档类型: "文档类型",

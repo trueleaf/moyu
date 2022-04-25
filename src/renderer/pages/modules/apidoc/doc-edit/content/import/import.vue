@@ -8,7 +8,7 @@
     <div class="doc-import">
         <!-- 文件选择 -->
         <!-- <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
-        <s-fieldset :title="$t('支持：摸鱼文档、Swagger/OpenApi 3.0')">
+        <s-fieldset :title="$t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
             <el-upload
                 class="w-100"
                 drag
@@ -151,6 +151,7 @@ import { axios } from "@/api/api"
 import { $t } from "@/i18n/i18n"
 import { TreeNodeOptions } from "element-plus/lib/components/tree/src/tree.type"
 import OpenApiTranslator from "./openapi";
+import PostmanTranslator from "./postman";
 
 type FormInfo = {
     moyuData: {
@@ -247,7 +248,6 @@ const handleBeforeUpload = (file: File) => {
 //获取导入文件信息
 const getImportFileInfo = () => {
     const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-    console.log(jsonText.value)
     if ((jsonText.value as MoyuInfo).type === "moyu") {
         importTypeInfo.value.name = "moyu";
         formInfo.value.type = "moyu";
@@ -264,6 +264,15 @@ const getImportFileInfo = () => {
         importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
         formInfo.value.type = "swagger";
         formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } else if ((jsonText.value as any)?.info?._postman_id) {
+        const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
+        const docsInfo = postmanTranslatorInstance.getDocsInfo();
+        importTypeInfo.value.name = "postman";
+        formInfo.value.type = "postman";
+        formInfo.value.moyuData.docs = (docsInfo as MoyuInfo).docs;
+        formInfo.value.moyuData.hosts = (docsInfo as MoyuInfo).hosts;
+        // console.log("docs", docs)
     }
     // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
     // yapiTranslatorInstance = new YAPITranslator($route.query.id);

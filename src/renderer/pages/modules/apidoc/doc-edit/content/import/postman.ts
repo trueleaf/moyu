@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
 |--------------------------------------------------------------------------
 | 转换postman格式数据
 |--------------------------------------------------------------------------
 */
-import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
+import { uuid, apidocGenerateApidoc, apidocGenerateProperty } from "@/helper/index"
 
 class PostmanTranslator {
     public projectId: string;
@@ -12,10 +14,92 @@ class PostmanTranslator {
 
     public postmanData: any;
 
-    constructor(projectId: string, data) {
+    constructor(projectId: string, data: any) {
         this.projectId = projectId; //项目id
         this.variables = [];
         this.postmanData = data; //openapi数据
+    }
+
+    getDocsInfo() {
+        const moyuDoc = {
+            info: {
+                projectName: this.postmanData?.info?.name,
+            },
+            rules: {},
+            docs: [] as any,
+            hosts: [],
+        };
+        const foo = (items: any, pid = "") => {
+            for (let i = 0; i < items.length; i += 1) {
+                const doc = apidocGenerateApidoc();
+                const id = uuid();
+                doc._id = id;
+                doc.pid = pid;
+                const item = items[i];
+                const isFolder = !items[i].request;
+                doc.info.name = item.name;
+                moyuDoc.docs.push(doc);
+                if (isFolder) { //文件夹
+                    doc.info.type = "folder";
+                    doc.isFolder = true;
+                    foo(item.item, id);
+                } else {
+                    doc.info.type = "api";
+                    doc.item.method = item.request.method.toUpperCase();
+                    doc.item.url.path = item.request.url?.path?.join("/");
+                    if (item.request.url?.host?.length > 0) {
+                        doc.item.url.host = `${item.request.url?.protocol ? `${item.request.url?.protocol}://` : ""}${item.request.url?.host?.join("/")}`;
+                    }
+                    doc.item.queryParams = item.request.url.query?.map((v: any) => ({
+                        ...apidocGenerateProperty(),
+                        key: v.key,
+                        value: this.convertVariable(v.value),
+                    })) || [];
+                    doc.item.headers = item.request.header.filter((v: any) => v.value)?.map((v: any) => ({
+                        ...apidocGenerateProperty(),
+                        key: v.key,
+                        value: this.convertVariable(v.value),
+                    })) || [];
+                    if (item.request?.body?.mode === "formdata") { //formdata数据
+                        doc.item.contentType = "multipart/form-data"
+                        doc.item.requestBody.formdata = item.request?.body?.formdata.map((v: any) => ({
+                            ...apidocGenerateProperty(),
+                            key: v.key,
+                            value: this.convertVariable(v.value),
+                        })) || [];
+                    }
+                    if (item.request?.body?.mode === "urlencoded") { //urlencoded数据
+                        doc.item.contentType = "application/x-www-form-urlencoded"
+                        doc.item.requestBody.urlencoded = item.request?.body?.urlencoded.map((v: any) => ({
+                            ...apidocGenerateProperty(),
+                            key: v.key,
+                            value: this.convertVariable(v.value),
+                        })) || [];
+                    }
+                    if (item.request?.body?.mode === "raw") { //json数据
+                        doc.item.contentType = "application/json"
+                        doc.item.requestBody.mode = "json";
+                        doc.item.requestBody.rawJson = item.request?.body?.raw || ""
+                    } else if (item.request?.body?.mode === "raw" && item.request?.body?.options.rawOptions.language !== "json") {
+                        doc.item.requestBody.mode = "raw";
+                        doc.item.requestBody.raw.data = item.request?.body?.raw || ""
+                        doc.item.requestBody.raw.dataType = "text/plain"
+                    }
+                    const preScriptList = item.event?.find((v: any) => v.listen === "prerequest");
+                    const afterScriptList = item.event?.find((v: any) => v.listen === "test");
+                    doc.preRequest.raw = preScriptList?.script?.exec.join("") || "";
+                    doc.afterRequest.raw = afterScriptList?.script?.exec.join("") || "";
+
+                    doc.item.headers = item.request.header.filter((v: any) => v.value)?.map((v: any) => ({
+                        ...apidocGenerateProperty(),
+                        key: v.key,
+                        value: this.convertVariable(v.value),
+                    })) || [];
+                }
+            }
+        }
+        foo(this.postmanData.item);
+        return moyuDoc;
     }
 
     //转换变量
@@ -26,127 +110,12 @@ class PostmanTranslator {
         const matchedData = val.toString().match(/{{\s*(\w+)\s*}}/);
         if (val && matchedData) {
             const varInfo = this.variables.find((v) => v.key === matchedData[1]);
-            console.log(varInfo, this.variables, matchedData[1])
             if (varInfo) {
                 return val.replace(/{{\s*(\w+)\s*}}/, varInfo.value);
             }
             return val;
         }
         return val;
-    }
-
-    //转换postman
-    convertPostmanData(postmanData) {
-        this.getVariables(postmanData);
-        const moyuDoc = {
-            info: {
-                projectName: postmanData.info.name,
-            },
-            rules: {},
-            docs: [],
-            hosts: [],
-        };
-        const foo = (data, pid = "") => {
-            for (let i = 0; i < data.length; i += 1) {
-                const element = data[i];
-                const { request, response } = element;
-                if (element.item && element.item.length > 0) { //文件夹
-                    const doc = this.generateDoc();
-                    const id = uuid();
-                    doc._id = id;
-                    delete doc.item;
-                    doc.isFolder = true;
-                    doc.info.name = element.name;
-                    doc.info.type = "folder";
-                    doc.pid = pid;
-                    moyuDoc.docs.push(doc);
-                    foo(element.item, id);
-                } else { //文档
-                    const doc = this.generateDoc();
-                    const id = uuid();
-                    const query = request.url.query || [];
-                    const header = request.header || [];
-                    const host = request.url.host ? request.url.host[0] : ""; //只取第一个
-                    doc._id = id;
-                    doc.isFolder = false;
-                    doc.info.name = element.name;
-                    doc.info.type = "api";
-                    doc.pid = pid;
-                    doc.item.method = request.method.toLowerCase();
-                    doc.item.url.host = this.convertVariable(host);
-                    doc.item.url.path = request?.url?.path?.join("/");
-                    if (request.method.toLowerCase() !== "get") { //get请求不存在body
-                        if (request.body && request.body.mode === "raw") {
-                            const language = request.body?.options?.raw?.language;
-                            if (language === "json") {
-                                doc.item.requestBody = mixin.methods.convertTreeDataToPlainParams(JSON.parse(request.body.raw));
-                            } else {
-                                console.warn(`暂时无法解析${language}`);
-                                continue;
-                            }
-                            doc.item.contentType = "application/json";
-                        } else if (request.body && request.body.mode === "formdata") {
-                            doc.item.requestBody = request.body.formdata.map((val) => {
-                                const singleProperty = mixin.methods.generateProperty();
-                                delete singleProperty._id;
-                                singleProperty.key = val.key;
-                                singleProperty.type = val.type === "text" ? "string" : "file";
-                                singleProperty.value = val.value;
-                                return singleProperty;
-                            });
-                            doc.item.contentType = "multipart/form-data";
-                        }
-                    }
-                    if (query && query.length > 0) { //query参数
-                        doc.item.queryParams = query.map((val) => {
-                            const singleProperty = mixin.methods.generateProperty();
-                            delete singleProperty._id;
-                            singleProperty.key = val.key;
-                            singleProperty.value = val.value;
-                            singleProperty.description = val.description;
-                            return singleProperty;
-                        });
-                    }
-                    if (header && header.length > 0) { //header参数
-                        doc.item.headers = query.map((val) => {
-                            const singleProperty = mixin.methods.generateProperty();
-                            delete singleProperty._id;
-                            singleProperty.key = val.key;
-                            singleProperty.value = val.value;
-                            singleProperty.description = val.description;
-                            return singleProperty;
-                        });
-                    }
-                    // if (response && response.length > 0) { //返回参数
-                    //     doc.item.responseParams = response.map((val) => {
-                    //         const singleProperty = mixin.methods.generateProperty();
-                    //         delete singleProperty._id;
-                    //         singleProperty.key = val.key;
-                    //         singleProperty.value = val.value;
-                    //         singleProperty.description = val.description;
-                    //         return {
-                    //             title: val.name,
-                    //             values: [],
-                    //         };
-                    //     });
-                    // }
-                    console.log(response)
-                    moyuDoc.docs.push(doc);
-                }
-            }
-        }
-        foo(postmanData.item);
-        return moyuDoc;
-    }
-
-    //获取所有变量信息
-    getVariables(postmanData) {
-        const { variable } = postmanData;
-        variable?.forEach((v) => {
-            this.variables.push({
-                ...v,
-            })
-        })
     }
 }
 
