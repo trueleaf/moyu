@@ -400,6 +400,10 @@ type ApidocBodyParams = {
         dataType: ApidocBodyRawType
     },
     /**
+     * 带备注的json数据
+     */
+    rawJson: string,
+    /**
      * file类型参数
      */
     file: {

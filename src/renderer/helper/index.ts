@@ -678,6 +678,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
                     data: "",
                     dataType: "text/plain"
                 },
+                rawJson: "",
                 file: {
                     src: "",
                 },
