@@ -3,12 +3,8 @@ import { ElCheckbox, ElCheckboxGroup, ElSwitch, ElTable, ElTableColumn, ElImage,
 import "element-plus/dist/index.css"
 import "@/../../public/font/iconfont"
 import "@/../../public/font/iconfont.css"
-import App from "./App.vue"
-import { axiosPlugin } from "./api/api"
-import { store, key } from "./store/index"
 import "@/assets/css/index.css"
 import registeDirective from "@/directive/directive";
-import router from "./router/index"
 import i18n from "@/i18n/i18n"
 
 //=====================================内部组件按需加载====================================//
@@ -28,6 +24,10 @@ import sParamsTree from "@/components/apidoc/params-tree/g-params-tree.vue"
 import sParamsView from "@/components/apidoc/params-view/g-params-view.vue"
 import sRawEditor from "@/components/apidoc/raw-editor/g-raw-editor.vue"
 import sMock from "@/components/apidoc/mock/g-mock.vue"
+import router from "./router/index"
+import { store, key } from "./store/index"
+import { axiosPlugin } from "./api/api"
+import App from "./App.vue"
 //=========================================================================//
 const app = createApp(App)
 
