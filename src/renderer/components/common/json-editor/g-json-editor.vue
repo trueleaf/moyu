@@ -17,8 +17,12 @@ const props = defineProps({
         type: String,
         default: ""
     },
+    readOnly: {
+        type: Boolean,
+        default: true
+    }
 });
-const emits = defineEmits(["update:modelValue"])
+const emits = defineEmits(["update:modelValue", "change"])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -54,7 +58,7 @@ onMounted(() => {
         },
         renderLineHighlight: "none",
         fontSize: 13,
-        readOnly: true,
+        readOnly: props.readOnly,
     })
     const container = document.querySelector(".s-json-editor")
     const updateHeight = () => {
@@ -67,6 +71,7 @@ onMounted(() => {
     updateHeight()
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
+        emits("change", monacoInstance?.getValue())
     })
 })
 onBeforeUnmount(() => {
