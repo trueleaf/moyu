@@ -92,7 +92,7 @@ const handleOpenImportParams = () => {
 }
 //处理导入成功回调
 const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-    const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
+    const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.rawJson;
     store.commit("apidoc/apidoc/changePropertyValue", {
         data: jsonData[0],
         field: "children",
@@ -202,7 +202,7 @@ const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.fi
 |--------------------------------------------------------------------------
 */
 //json格式body参数
-const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.json)
+const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.rawJson)
 
 /*
 |--------------------------------------------------------------------------

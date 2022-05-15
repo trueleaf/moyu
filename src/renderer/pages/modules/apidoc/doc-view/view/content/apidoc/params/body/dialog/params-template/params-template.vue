@@ -43,7 +43,7 @@ export default defineComponent({
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const { formInfo } = this.$refs.form;
-                    const bodyParams = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody.json
+                    const bodyParams = this.$store.state["apidoc/apidoc"].apidoc.item.requestBody.rawJson
                     const params = {
                         name: formInfo.name,
                         presetParamsType: "bodyParams",

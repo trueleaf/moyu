@@ -36,10 +36,8 @@ export const mockServer = (): void => {
                 const localMethod = data.method.toLocaleLowerCase();
                 const hasPathParams = data.url.match(/\{[^}]+\}/);
                 const localUrl = hasPathParams ? data.url.replace(/\/[^/]+$/, "") : data.url;
-                console.log(data.url, url)
                 return (localUrl === url && localMethod === method.toLocaleLowerCase());
             });
-            console.log(22, url, store.state["apidoc/mock"].urlMap)
             if (matchedReuqest) {
                 const params = {
                     projectId: matchedReuqest.projectId,

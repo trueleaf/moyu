@@ -68,7 +68,7 @@ const jsonBodyValidator = {
         obj[prop] = value;
         self.postMessage({
             type: "change-json-body",
-            value: JSON.parse(JSON.stringify(jsonBody))
+            value: JSON.stringify(jsonBody)
         })
         return true;
     },
@@ -76,7 +76,7 @@ const jsonBodyValidator = {
         delete target[prop];
         self.postMessage({
             type: "change-json-body",
-            value: JSON.parse(JSON.stringify(jsonBody))
+            value: JSON.stringify(jsonBody)
         })
     },
 }
@@ -300,3 +300,4 @@ self.addEventListener("message", (e) => {
         }
     }
 });
+

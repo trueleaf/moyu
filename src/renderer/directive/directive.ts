@@ -41,16 +41,20 @@ export default (app: App): void => {
     //=====================================flex指令====================================//
     app.directive("flex1", {
         mounted(el: HTMLElement, binding) {
-            const offsetY = el.getBoundingClientRect().y;
-            const { value } = binding;
-            el.style.height = `calc(100vh - ${offsetY + value}px)`;
-            el.style.overflowY = `auto`;
+            setTimeout(() => {
+                const offsetY = el.getBoundingClientRect().y;
+                const { value } = binding;
+                el.style.height = `calc(100vh - ${offsetY + value}px)`;
+                el.style.overflowY = `auto`;
+            });
         },
         updated(el: HTMLElement, binding) {
-            const offsetY = el.getBoundingClientRect().y;
-            const { value } = binding;
-            el.style.height = `calc(100vh - ${offsetY + value}px)`;
-            el.style.overflowY = `auto`;
+            setTimeout(() => {
+                const offsetY = el.getBoundingClientRect().y;
+                const { value } = binding;
+                el.style.height = `calc(100vh - ${offsetY + value}px)`;
+                el.style.overflowY = `auto`;
+            });
         },
     });
     //=====================================拷贝指令====================================//

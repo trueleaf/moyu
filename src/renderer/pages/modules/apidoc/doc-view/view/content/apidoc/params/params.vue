@@ -216,7 +216,7 @@ export default defineComponent({
             }
             // const { requestBody } = cpApidoc.item.requestBody;
             if (cpApidoc.item.requestBody.mode === "json") {
-                const jsonBodyIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.json, cpOriginApidoc.item.requestBody.json);
+                const jsonBodyIsEqual = cpApidoc.item.requestBody.rawJson === cpOriginApidoc.item.requestBody.rawJson;
                 if (!jsonBodyIsEqual) {
                     return false;
                 }

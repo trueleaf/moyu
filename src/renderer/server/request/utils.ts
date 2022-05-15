@@ -1,6 +1,6 @@
 import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
-import { apidocGenerateApidoc, apidocConvertParamsToJsonData, apidocGenerateProperty } from "@/helper/index"
+import { apidocGenerateApidoc, apidocGenerateProperty } from "@/helper/index"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line prefer-destructuring
@@ -275,7 +275,7 @@ class ApidocConverter {
     /**
      * 改变json body信息
      */
-    changeJsonBody(jsonData: ApidocProperty[]) {
+    changeJsonBody(jsonData: string) {
         const { requestBody } = this.apidoc.item
         const { mode } = requestBody;
         const matchedContentTypeHeader = this.apidoc.item.headers.find(v => v.key.toLocaleLowerCase() === "content-type" || v.key.toLocaleLowerCase() === "contenttype")
@@ -288,7 +288,7 @@ class ApidocConverter {
                 this.apidoc.item.headers.push(property)
             }
         }
-        this.apidoc.item.requestBody.json = jsonData;
+        this.apidoc.item.requestBody.rawJson = jsonData;
     }
 
     /**
@@ -338,7 +338,7 @@ class ApidocConverter {
         let body: string | FormData = "";
         switch (contentType) {
         case "application/json":
-            body = mode === "raw" ? requestBody.raw.data : JSON.stringify(apidocConvertParamsToJsonData(requestBody.json, true));
+            body = mode === "raw" ? requestBody.raw.data : requestBody.rawJson;
             break;
         case "application/x-www-form-urlencoded":
             body = this.convertUrlencodedToBodyString(requestBody.urlencoded);

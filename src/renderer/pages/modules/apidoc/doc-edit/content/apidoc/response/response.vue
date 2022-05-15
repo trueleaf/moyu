@@ -11,17 +11,17 @@
         <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3" :class="{ vertical: layout === 'vertical' }">
             <el-tabs v-model="activeName" class="h-100">
                 <el-tab-pane :label="$t('返回值')" name="s-body">
-                    <s-body class="h-100"></s-body>
+                    <s-body v-if="activeName === 's-body'" class="h-100"></s-body>
                 </el-tab-pane>
                 <el-tab-pane :label="$t('请求信息')" name="s-request">
-                    <s-request class="h-100"></s-request>
+                    <s-request v-if="activeName === 's-request'" class="h-100"></s-request>
                 </el-tab-pane>
                 <el-tab-pane name="s-headers">
                     <template #label>
                         <span>{{ $t("返回头") }}&nbsp;</span>
                         <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
                     </template>
-                    <s-headers></s-headers>
+                    <s-headers v-if="activeName === 's-headers'"></s-headers>
                 </el-tab-pane>
                 <el-tab-pane name="s-cookie">
                     <template #label>

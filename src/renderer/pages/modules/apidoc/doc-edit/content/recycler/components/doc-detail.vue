@@ -53,7 +53,7 @@
                 </template>
                 <template v-if="hasJsonBodyParams">
                     <div class="title">{{ $t("Body参数") }}(application/json)</div>
-                    <s-params-view :data="apidocInfo?.item.requestBody.json"></s-params-view>
+                    <s-params-view :data="apidocInfo?.item.requestBody.rawJson"></s-params-view>
                 </template>
                 <template v-if="hasFormDataParams">
                     <div class="title">{{ $t("Body参数") }}(multipart/formdata)</div>

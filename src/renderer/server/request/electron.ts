@@ -6,7 +6,6 @@ import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer"
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
-import { apidocConvertJsonDataToParams } from "@/helper/index"
 import config from "./config"
 import apidocConverter from "./utils"
 
@@ -263,8 +262,7 @@ export function sendRequest(): void {
             apidocConverter.changeQueryParams(res.data.value);
         }
         if (res.data.type === "change-json-body") { //改变请求body
-            const moyuJson = apidocConvertJsonDataToParams(res.data.value);
-            apidocConverter.changeJsonBody(moyuJson);
+            apidocConverter.changeJsonBody(res.data.value);
         }
         if (res.data.type === "change-formdata-body") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);

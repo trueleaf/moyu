@@ -27,10 +27,11 @@
                 <span>请求body</span>
                 <span v-if="contentType">({{ contentType }})</span>
             </template>
-            <div v-if="contentType === 'application/json'" class="pl-1">
-                <pre>{{ jsonParse(requestInfo.body as string) }}</pre>
-            </div>
-            <div v-else-if="contentType.includes('multipart/')" class="pl-1">
+            <pre v-show="contentType === 'application/json'" v-flex1="10">{{ requestInfo.body }}</pre>
+            <!-- <div v-if="contentType === 'application/json'" class="pl-1">
+                <pre>{{ requestInfo.body }}</pre>
+            </div> -->
+            <div v-if="contentType.includes('multipart/')" class="pl-1">
                 formData
             </div>
             <pre v-else-if="contentType === 'application/x-www-form-urlencoded'">{{ requestInfo.body }}</pre>
@@ -51,13 +52,6 @@ const requestInfo = computed(() => store.state["apidoc/request"]); //请求基�
 const contentType = computed(() => store.state["apidoc/apidoc"].apidoc.item.contentType); //contentType
 
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase())
-const jsonParse = (jsonStr: string) => {
-    try {
-        return JSON.parse(jsonStr)
-    } catch {
-        return ""
-    }
-}
 
 </script>
 

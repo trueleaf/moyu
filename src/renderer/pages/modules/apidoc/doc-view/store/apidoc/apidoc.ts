@@ -243,10 +243,10 @@ const apidoc = {
                 payload.item.queryParams.push(apidocGenerateProperty());
             }
             // bodyParams如果没有数据则默认添加一条空数据
-            if (payload.item.requestBody.json.length === 0) {
+            if (payload.item.requestBody.rawJson.length === 0) {
                 const bodyRootParams = apidocGenerateProperty("object");
                 bodyRootParams.children[0] = apidocGenerateProperty();
-                payload.item.requestBody.json.push(bodyRootParams);
+                payload.item.requestBody.rawJson = "";
             }
             //formData如果没有数据则默认添加一条空数据
             if (payload.item.requestBody.formdata.length === 0) {
