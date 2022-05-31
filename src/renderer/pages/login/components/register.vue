@@ -20,7 +20,7 @@
         </el-form-item>
         <el-form-item prop="smsCode">
             <div class="d-flex w-100">
-                <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
+                <el-input v-model="registerInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('请输入验证码')"></el-input>
                 <s-sms-button :hook="smsCodeHook" @click="getSmsCode"></s-sms-button>
             </div>
         </el-form-item>
