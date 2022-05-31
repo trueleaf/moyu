@@ -1,7 +1,8 @@
 //遍历树结构数据
 function forEachForest(forest, fn, options = { }) {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型");
+        return
     }
     const childrenKey = options?.childrenKey || "children";
     const foo = (forestData, hook) => {
@@ -49,6 +50,7 @@ function getPathParamsMap(pathParams) {
 function convertPlaceholder(value) {
     const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
     const allVariables = Object.assign({}, JSON.parse(JSON.stringify(collectionVariables)), JSON.parse(JSON.stringify(tempVariables)));
+    // console.log(33, value, collectionVariables.age)
     let convertValue = value;
     if (matchdVariable) {
         const realValue = allVariables[matchdVariable[1]];
