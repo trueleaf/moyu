@@ -20,8 +20,8 @@
                 <s-label-value :label="`${$t('维护人员：')}`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
                 </s-label-value>
-                <s-label-value :label="`${$t('创建人员：')}`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
-                    <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
+                <s-label-value :label="`${$t('创建人员：')}`" :title="apidocInfo.info.creator || apidocInfo.info.maintainer" label-width="auto" class="w-30">
+                    <span class="text-ellipsis">{{ apidocInfo.info.creator || apidocInfo.info.maintainer }}</span>
                 </s-label-value>
                 <s-label-value :label="`${$t('累计用时：')}`" :title="$helper.formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
                     <span class="text-ellipsis">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
