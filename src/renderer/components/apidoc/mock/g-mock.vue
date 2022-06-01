@@ -113,7 +113,7 @@
                     @mouseenter="handleMockView(item)"
                     @click="handleSelectMockData(item)"
                 >
-                    <span>{{ item.value }}</span>
+                    <span class="flex0 mr-5">{{ item.value }}</span>
                     <span>{{ item.name }}</span>
                 </div>
             </div>
@@ -203,7 +203,7 @@ export default defineComponent({
 
 <style lang="scss">
 .s-mock-select {
-    width: size(700);
+    width: size(800);
     height: size(250);
     background: $white;
     .wrap {
@@ -211,7 +211,7 @@ export default defineComponent({
         display: flex;
         .list {
             padding: size(10) 0;
-            flex: 0 0 60%;
+            flex: 0 0 75%;
             height: 100%;
             overflow-y: auto;
             .list-item {
