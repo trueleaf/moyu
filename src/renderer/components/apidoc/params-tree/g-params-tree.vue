@@ -52,7 +52,7 @@
                         :select-data="mindParams"
                         @remote-select="handleRemoteSelectKey($event, scope.data)"
                         @update:modelValue="handleChangeKeyData($event, scope)"
-                        @focus="enableDrag = false"
+                        @focus="enableDrag = false; currentOpData = null"
                         @blur="handleCheckKeyField(scope);enableDrag=true"
                     >
                     </s-valid-input>
@@ -66,6 +66,7 @@
                     :placeholder="$t('类型')"
                     class="w-15 flex0 mr-2"
                     :size="config.renderConfig.layout.size"
+                    @click="currentOpData = null"
                     @update:modelValue="handleChangeParamsType($event, scope.data)"
                 >
                     <el-option :disabled="scope.data.children && scope.data.children.length > 0" label="String" value="string"></el-option>
@@ -112,6 +113,7 @@
                     :placeholder="$t('请选择')"
                     class="w-25 flex0"
                     :size="config.renderConfig.layout.size"
+                    @click="currentOpData = null"
                     @update:modelValue="handleChangeBooleanValue($event, scope.data)"
                 >
                     <el-option label="true" value="true"></el-option>
@@ -133,6 +135,7 @@
                     :model-value="scope.data.required"
                     :label="$t('必有')"
                     :disabled="checkRequiredDisable(scope.data)"
+                    @click="currentOpData = null"
                     @update:modelValue="handleChangeIsRequired($event, scope.data)"
                 >
                 </el-checkbox>
@@ -142,7 +145,7 @@
                     :disabled="checkDescriptionDisable(scope)"
                     class="w-40 ml-2"
                     :placeholder="$t('参数描述与备注')"
-                    @focus="enableDrag = false"
+                    @focus="enableDrag = false; currentOpData = null"
                     @blur="handleDescriptionBlur"
                     @update:modelValue="handleChangeDescription($event, scope.data)"
                 >
@@ -527,7 +530,7 @@ const getValuePlaceholder = (data: ApidocProperty) => {
     if (data.type === "array") {
         return $t("填写数字代表mock数据条数")
     }
-    return $t("参数值、@开头代表mock数据")
+    return $t("参数值、@代表mock，{{ 变量 }}")
 }
 //改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {
@@ -657,9 +660,6 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     width: 100%;
     display: flex;
     align-items: center;
-    .el-button.is-disabled, .el-button.is-disabled:focus, .el-button.is-disabled:hover {
-        background-color: transparent;
-    }
     .el-input-number .el-input__inner {
         text-align: left;
     }
