@@ -36,6 +36,7 @@ body {
         align-items: center;
         justify-content: center;
         border-radius: 50%;
+        right: size(10);
         &:hover {
             background-color: $gray-300;
         }
