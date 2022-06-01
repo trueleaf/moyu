@@ -21,12 +21,15 @@ const collectionVariables = new Proxy({}, {
         return true
     }
 });
+
 /*
 |--------------------------------------------------------------------------
 | 请求参数request
 |--------------------------------------------------------------------------
 |
 */
+const environment = {}; //环境信息
+let currentEnvironment = ""; //当前环境信息
 const url = {}; //url相关信息
 const headers = {}; //headers相关信息
 const queryParamsValidator = {
@@ -68,7 +71,7 @@ const jsonBodyValidator = {
         obj[prop] = value;
         self.postMessage({
             type: "change-json-body",
-            value: JSON.stringify(jsonBody)
+            value: JSON.parse(JSON.stringify(jsonBody))
         })
         return true;
     },
@@ -76,7 +79,33 @@ const jsonBodyValidator = {
         delete target[prop];
         self.postMessage({
             type: "change-json-body",
-            value: JSON.stringify(jsonBody)
+            value: JSON.parse(JSON.stringify(jsonBody))
+        })
+    },
+}
+const arrJsonBodyValidator = {
+    get(target, key, description) {
+        if (typeof target[key] === "object" && target[key] !== null) {
+            return new Proxy(target[key], arrJsonBodyValidator)
+        } else {
+            return target[key];
+        }
+    },
+    set(obj, prop, value) {
+        if (prop !== "length") {
+            obj.push(value);
+        }
+        self.postMessage({
+            type: "change-json-body",
+            value: JSON.parse(JSON.stringify(arrJsonBody))
+        })
+        return true;
+    },
+    deleteProperty(target, prop) {
+        delete target[prop];
+        self.postMessage({
+            type: "change-json-body",
+            value: JSON.parse(JSON.stringify(arrJsonBody))
         })
     },
 }
@@ -134,28 +163,9 @@ const urlencodedValidator = {
         })
     },
 }
-// const rawValidator = {
-//     get(target, key) {
-//         if (typeof target[key] === "object") {
-//             throw Error(`urlencoded数据不支持嵌套`);
-//         } else {
-//             return target[key];
-//         }
-//     },
-//     set(obj, prop, value) {
-//         if (typeof value !== "string") {
-//             throw TypeError(`给 ${prop} 赋值时出错，urlencoded数据值类型只能为字符串`);
-//         }
-//         obj[prop] = value;
-//         self.postMessage({
-//             type: "change-urlencoded-body",
-//             value: JSON.parse(JSON.stringify(urlencodedBody))
-//         })
-//         return true;
-//     },
-// }
 const queryParams = new Proxy({}, queryParamsValidator)
 const jsonBody = new Proxy({}, jsonBodyValidator); //json类型的body参数
+const arrJsonBody = new Proxy([], arrJsonBodyValidator); //json类型的body参数
 const formdataBody = new Proxy({}, formdataBodyValidator); //formdata类型body参数
 const urlencodedBody = new Proxy({}, urlencodedValidator); //urlencoded类型body参数
 // const rawBody = new Proxy({}, rawValidator)
@@ -231,6 +241,18 @@ const request = new Proxy({}, {
         if (prop === "headers") {
             return headers;
         }
+        if (prop === "environment") {
+            return environment;
+        }
+        if (prop === "currentEnv") {
+            return currentEnvironment;
+        }
+        if (prop === "currentEnvironment") {
+            return currentEnvironment;
+        }
+        if (prop === "env") {
+            return environment;
+        }
         if (prop === "body") {
             return body;
         }
@@ -239,7 +261,7 @@ const request = new Proxy({}, {
         }
     }
 });
-
+importScripts("./json5.js")
 importScripts("./variables.js")
 importScripts("./utils.js")
 importScripts("./collection-variables.js")
@@ -254,7 +276,7 @@ const pm = new Proxy({}, {
             return tempVariables;
         }
         if (prop === "collectionVariables") { //项目内全局变量
-            return tempVariables;
+            return collectionVariables;
         }
         if (prop === "request") { //request对象
             return request;
@@ -267,13 +289,40 @@ const pm = new Proxy({}, {
 
 self.addEventListener("message", (e) => {
     // 初始化所有请求信息
-    if (e.data && e.data.type === "init") {
+    if (e.data && e.data.type === "init-apidoc") {
         Object.assign(apidocInfo, e.data.value);
         apidocInfo.initHeaders();
         apidocInfo.initBody();
         apidocInfo.initParams();
         replacedUrl = "";
     } 
+    // 初始化基础信息
+    if (e.data && e.data.type === "init-baseInfo") {
+        const { variables, hosts, currentEnv } = e.data.value;
+        const objVariable = {};
+        for(let i = 0; i < variables.length; i += 1) {
+            const item = variables[i];
+            if (item.type === "string") {
+                objVariable[item.name] = item.value.toString();
+            } else if (item.type === "number") {
+                objVariable[item.name] = Number(item.value);
+            } else if (item.type === "boolean" && item.value === "true") {
+                objVariable[item.name] = true;
+            } else if (item.type === "boolean" && item.value === "false") {
+                objVariable[item.name] = false;
+            } else if (item.type === "boolean") {
+                objVariable[item.name] = !!item.value;
+            }  else {
+                console.warn(`无法解析的变量数据类型${item.type}`)
+            }
+        }
+        for(let i = 0; i < hosts.length; i += 1) {
+            const item = hosts[i];
+            environment[item.name] = item.url;
+        }
+        currentEnvironment = currentEnv;
+        Object.assign(collectionVariables, objVariable); //初始化变量信息
+    }
     // 请求成功
     if (e.data && e.data.type === "request-success") {
         requestCb(null, e.data.value);
@@ -300,4 +349,3 @@ self.addEventListener("message", (e) => {
         }
     }
 });
-
