@@ -54,9 +54,8 @@ const storeTabs = {
             // eslint-disable-next-line no-return-assign
             state.tabs[projectId].forEach((tab) => tab.selected = false); //选中状态全部清空
             const hasTab = state.tabs[projectId].find((val) => val._id === _id);
-            const unFixedTab = state.tabs[projectId].find((val) => !val.fixed);
-            const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed);
-
+            const unFixedTab = state.tabs[projectId].find((val) => !val.fixed && val.saved);
+            const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed && val.saved);
             if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
             } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
@@ -123,6 +122,7 @@ const storeTabs = {
                 state.tabs[projectId].splice(deleteIndex, 1);
                 event.emit("apidoc/tabs/addOrDeleteTab")
             })
+            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
         },
     },
     actions: {
