@@ -6,7 +6,7 @@
 */
 <template>
     <el-select
-        v-model="selectData"
+        :model-value="value"
         v-bind="$attrs"
         :placeholder="placeholder"
         :multiple="multi"
@@ -90,7 +90,6 @@ export default defineComponent({
     emits: ["change", "update:value"],
     data() {
         return {
-            selectData: "",
             realSelectEnum: [] as Record<string, string | number | undefined>[],
             config,
         };

@@ -10,7 +10,7 @@
         v-bind="$attrs"
         :model-value="value"
         :placeholder="placeholder"
-        :maxlength="255"
+        :maxlength="9999"
         :size="config.renderConfig.layout.size"
         :class="className"
         clearable
