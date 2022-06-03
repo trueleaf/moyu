@@ -88,6 +88,7 @@ body .el-dialog__headerbtn {
   display: flex;
   align-items: center;
   justify-content: center;
+  right: 10px;
   border-radius: 50%; }
   body .el-dialog__headerbtn:hover {
     background-color: #dee2e6; }
