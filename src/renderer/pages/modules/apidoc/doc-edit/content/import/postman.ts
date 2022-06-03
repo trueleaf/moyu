@@ -25,6 +25,7 @@ class PostmanTranslator {
             info: {
                 projectName: this.postmanData?.info?.name,
             },
+            type: "postman",
             rules: {},
             docs: [] as any,
             hosts: [],
@@ -46,7 +47,11 @@ class PostmanTranslator {
                 } else {
                     doc.info.type = "api";
                     doc.item.method = item.request.method.toUpperCase();
-                    doc.item.url.path = item.request.url?.path?.join("/");
+                    if (typeof item.request.url === "string") {
+                        doc.item.url.path = item.request.url;
+                    } else {
+                        doc.item.url.path = item.request.url?.path?.join("/");
+                    }
                     if (item.request.url?.host?.length > 0) {
                         doc.item.url.host = `${item.request.url?.protocol ? `${item.request.url?.protocol}://` : ""}${item.request.url?.host?.join("/")}`;
                     }
