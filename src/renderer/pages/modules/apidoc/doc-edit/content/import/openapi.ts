@@ -11,7 +11,7 @@
 import jsontoxml from "jsontoxml"
 import type { OpenAPIV3 } from "openapi-types";
 import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from "@@/global"
-import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from "@/helper/index"
+import { uuid, apidocGenerateProperty, apidocGenerateApidoc, apidocConvertParamsToJsonStr } from "@/helper/index"
 import { $t } from "@/i18n/i18n"
 
 //=====================================项目信息====================================//
@@ -33,6 +33,7 @@ type ConvertParams = {
     query: ApidocProperty<"string">[],
     headers: ApidocProperty<"string">[],
     cookies: ApidocProperty<"string">[],
+    body: ApidocProperty[],
 }
 //=====================================解析requestBody返回值====================================//
 type ConvertRequestBody = {
@@ -215,14 +216,17 @@ class OpenApiTranslator {
                     moyuDoc.item.paths = parameters.paths;
                     moyuDoc.item.headers = parameters.headers;
                     moyuDoc.item.queryParams = parameters.query;
-                    moyuDoc.item.requestBody.json = requestBody.json;
+                    moyuDoc.item.requestBody.rawJson = apidocConvertParamsToJsonStr(parameters.body.length > 0 ? parameters.body : requestBody.json);
                     moyuDoc.item.requestBody.formdata = requestBody.formdata as ApidocProperty<"string">[];
                     moyuDoc.item.requestBody.urlencoded = requestBody.urlencoded as ApidocProperty<"string">[];
                     moyuDoc.item.requestBody.raw.data = requestBody.raw.data;
                     moyuDoc.item.requestBody.raw.dataType = requestBody.raw.dataType;
-                    allResponse.forEach(response => {
-                        moyuDoc.item.responseParams.push(response);
-                    })
+                    if (allResponse.length > 0) {
+                        moyuDoc.item.responseParams = [];
+                        allResponse.forEach(response => {
+                            moyuDoc.item.responseParams.push(response);
+                        })
+                    }
                     docsResult.push(moyuDoc);
                 } else {
                     console.warn(`
@@ -273,15 +277,14 @@ class OpenApiTranslator {
             query: [],
             cookies: [],
             headers: [],
+            body: []
         } as ConvertParams
         if (!parameters) {
             return result;
         }
         for (let i = 0; i < parameters.length; i += 1) {
-            const apidocProperty = apidocGenerateProperty<"string">();
+            const apidocProperty = apidocGenerateProperty();
             const parameter = parameters[i];
-            // const ref = (parameter as OpenAPIV3.ReferenceObject).$ref;
-            // const { schema } = (parameter as OpenAPIV3.ParameterObject);
             const paramsPosition = (parameter as OpenAPIV3.ParameterObject).in;
             const { name, description, required } = (parameter as OpenAPIV3.ParameterObject);
             apidocProperty.key = name;
@@ -296,11 +299,16 @@ class OpenApiTranslator {
                 result.headers.push(apidocProperty);
             } else if (paramsPosition === "cookies") {
                 result.cookies.push(apidocProperty);
+            } else if (paramsPosition === "body") {
+                if ((parameter as OpenAPIV3.ParameterObject).schema) {
+                    result.body = [this.convertSchemaObjectToParams((parameter as OpenAPIV3.ParameterObject).schema as (OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject))]
+                } else {
+                    result.body.push(apidocProperty);
+                }
             } else {
-                console.warn(`无法解析的参数位置in${paramsPosition}, Parameter的in字段仅允许query、path、header、cookie`);
+                console.warn(`无法解析的参数位置in${paramsPosition}, Parameter的in字段仅允许query、path、header、cookie、body`);
             }
         }
-        // console.log(parameters, result)
         return result;
     }
 
@@ -321,15 +329,9 @@ class OpenApiTranslator {
             return result;
         }
         const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
-        // const ref = (requestBody as OpenAPIV3.ReferenceObject).$ref;
         const { description, required, content } = (requestBody as OpenAPIV3.RequestBodyObject);
         apidocProperty.description = description || "";
         apidocProperty.required = required || true;
-        // if (ref) { //参数为引用
-        //     const schemaObject = this.getRefSchema(ref);
-        //     if (schemaObject) {
-        //     }
-        // }
         Object.keys(content).forEach(contentType => {
             const bodyData = content[contentType]
             if (!bodyData.schema) {
@@ -351,7 +353,6 @@ class OpenApiTranslator {
             }
             if (contentType.toLocaleLowerCase().startsWith("application/xml")) { //xml解析
                 result.raw.dataType = "application/xml";
-                // console.log(22, this.convertSchemaObjectToParams(bodyData.schema))
                 result.raw.data = jsontoxml(this.convertSchemaObjectToParams(bodyData.schema));
             }
             if (contentType.toLocaleLowerCase().startsWith("text/*")) { //出文本解析
@@ -363,7 +364,6 @@ class OpenApiTranslator {
                 result.raw.data = "";
             }
         });
-        // console.log(result.raw, 9)
         return result;
     }
 
@@ -390,10 +390,17 @@ class OpenApiTranslator {
             } as ConvertResponse;
             result.statusCode = Number(code);
             result.title = resItem.description;
-            if ((response[code] as OpenAPIV3.ReferenceObject).$ref) {
+            if ((response[code] as OpenAPIV3.ReferenceObject).$ref) { //引用类型
                 console.warn(`无法解析引用类型的返回值${JSON.stringify(resItem)}`);
                 return;
             }
+            // // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // if ((response[code] as any).schema as OpenAPIV3.ReferenceObject) { //兼容老旧规则
+            //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            //     result.value.json = [this.convertSchemaObjectToParams((response[code] as any).schema)]
+            //     // console.log(this.convertSchemaObjectToParams((response[code] as any).schema))
+            //     // result.value.json = [this.convertSchemaObjectToParams((response[code] as any).schema)];
+            // }
             const resContent = resItem.content;
             if (resContent) {
                 Object.keys(resContent).forEach(contentType => {
@@ -403,10 +410,12 @@ class OpenApiTranslator {
                         return;
                     }
                     if (contentType.toLocaleLowerCase().startsWith("application/json")) {
+                        result.value.dataType = "application/json"
                         result.value.json = [this.convertSchemaObjectToParams(bodyData.schema)];
                     }
                     if (contentType.toLocaleLowerCase().startsWith("*/*")) { //这种情况按照json格式解析
                         console.warn(`*/*按照json格式解析`);
+                        result.value.dataType = "application/json"
                         result.value.json = [this.convertSchemaObjectToParams(bodyData.schema)];
                     }
                 });
@@ -419,18 +428,22 @@ class OpenApiTranslator {
     /**
      * 解析schemaObject
      */
-    convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): ApidocProperty {
+    convertSchemaObjectToParams(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject, key?: string, deep = 1): ApidocProperty {
         const apidocProperty = apidocGenerateProperty<ApidocPropertyType>();
+        apidocProperty.key = key || "";
+        if (deep === 5) { //防止无线死循环
+            return apidocProperty;
+        }
         if ((schema as OpenAPIV3.ReferenceObject).$ref) { //引用
             const schemaObject = this.getRefSchema((schema as OpenAPIV3.ReferenceObject).$ref);
             if (schemaObject) {
-                return this.convertSchemaObjectToParams(schemaObject);
+                return this.convertSchemaObjectToParams(schemaObject, undefined, deep + 1);
             }
         } else if ((schema as OpenAPIV3.SchemaObject).type === "array") { //数组类型
             const schemaInfo = (schema as OpenAPIV3.ArraySchemaObject);
             apidocProperty.type = "array";
             apidocProperty.description = schemaInfo.description || "";
-            apidocProperty.children = [this.convertSchemaObjectToParams(schemaInfo.items)];
+            apidocProperty.children = [this.convertSchemaObjectToParams(schemaInfo.items, undefined, deep + 1)];
         } else if ((schema as OpenAPIV3.SchemaObject).type === "boolean") { //布尔类型
             const schemaInfo = (schema as OpenAPIV3.SchemaObject);
             apidocProperty.type = "boolean";
@@ -453,7 +466,7 @@ class OpenApiTranslator {
             if (schemaInfo.properties) {
                 Object.keys(schemaInfo.properties).forEach((property) => {
                     if (schemaInfo.properties) {
-                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property]));
+                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property], property, deep + 1));
                     }
                 })
             }
@@ -473,7 +486,7 @@ class OpenApiTranslator {
             if (schemaInfo.properties) {
                 Object.keys(schemaInfo.properties).forEach((property) => {
                     if (schemaInfo.properties) {
-                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property]));
+                        apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property], property, deep + 1));
                     }
                 })
             }
