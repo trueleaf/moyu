@@ -2,9 +2,10 @@ import type Koa from "koa"
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
+import { apidocConvertParamsToJsonData, forEachForest } from "@/helper/index"
 import { axios } from "@/api/api"
 import Mock from "@/server/mock/mock"
+import { ApidocDetail, ApidocProperty } from "@@/global"
 
 export const mockServer = (): void => {
     let app: Koa | null = null;
@@ -32,12 +33,7 @@ export const mockServer = (): void => {
         app.use(async (ctx) => {
             const url = ctx.request.url.replace(/(?<=)\?.*/, "");
             const method = ctx.request.method.toLowerCase();
-            const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => {
-                const localMethod = data.method.toLocaleLowerCase();
-                const hasPathParams = data.url.match(/\{[^}]+\}/);
-                const localUrl = hasPathParams ? data.url.replace(/\/[^/]+$/, "") : data.url;
-                return (localUrl === url && localMethod === method.toLocaleLowerCase());
-            });
+            const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
             if (matchedReuqest) {
                 const params = {
                     projectId: matchedReuqest.projectId,
@@ -52,12 +48,22 @@ export const mockServer = (): void => {
                     } else {
                         result = await axios.get("/api/project/doc_detail", { params });
                     }
-                    const rawBody = result.data.item.responseParams[0]?.value.json;
-                    // console.log(rawBody)
+                    const matchedRawBody = (result.data as ApidocDetail).item.responseParams.find(v => v.isMock)
+                    const rawBody = matchedRawBody?.value.json || result.data.item.responseParams[0]?.value.json;
+                    forEachForest(rawBody, (data) => {
+                        if (data.type === "array") {
+                            const loopNum = data.value || 5;
+                            const item = JSON.parse(JSON.stringify(data.children))
+                            for (let i = 1; i < loopNum; i += 1) {
+                                item.forEach((v: ApidocProperty) => {
+                                    if (v.type !== "array") { //过滤类型为数组的，否则导致json解析报错卡死系统
+                                        data.children.push(v);
+                                    }
+                                })
+                            }
+                        }
+                    })
                     const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                        // console.log(property)
-                        // const isArray = property.type === "array";
-                        // const loop = isArray ? property.value : 0;
                         if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
                             const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
                             return Mock.mock(new RegExp(replacedValue));
@@ -79,7 +85,12 @@ export const mockServer = (): void => {
             } else {
                 ctx.body = {
                     code: -1,
-                    msg: "未匹配到相关的Mock接口",
+                    Info: {
+                        msg: "未匹配到相关的Mock接口",
+                        url,
+                        method,
+                        urlList: store.state["apidoc/mock"].urlMap,
+                    },
                 };
             }
         });
