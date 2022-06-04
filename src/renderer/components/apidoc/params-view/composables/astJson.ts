@@ -56,7 +56,7 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
             const isObject = itemType === "object";
             const isArray = itemType === "array";
             const objectHasValue = (isObject && item.children.length > 0);
-            const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== "" || val.type === "object"));
+            const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== "" || val.value !== "" || val.type === "object" || val.type === "array"));
             const isSimpleType = ((itemType === "string") || (itemType === "boolean") || (itemType === "number") || (itemType === "file"));
             const astInfo = generateAstInfo();
             astInfo.id = item._id;
@@ -153,6 +153,9 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
                 rightBracketInfo.comma = ",";
                 result.push(rightBracketInfo);
                 // wordNum += 1;
+            }
+            if (parentIsArray) {
+                break;
             }
         }
     }
