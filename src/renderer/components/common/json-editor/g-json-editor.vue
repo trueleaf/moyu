@@ -9,7 +9,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
+import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch } from "vue"
+import beautify from "js-beautify"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 
 const props = defineProps({
@@ -19,10 +20,16 @@ const props = defineProps({
     },
     readOnly: {
         type: Boolean,
-        default: true
-    }
+        default: false,
+    },
+    config: {
+        type: Object,
+        default() {
+            return {};
+        }
+    },
 });
-const emits = defineEmits(["update:modelValue", "change"])
+const emits = defineEmits(["update:modelValue", "change", "ready"])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -33,11 +40,24 @@ watch(() => props.modelValue, (newValue) => {
         monacoInstance?.setValue(props.modelValue)
     }
 })
+watch(() => props.readOnly, (readOnly) => {
+    monacoInstance?.updateOptions({
+        readOnly,
+    });
+})
 onMounted(() => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         allowComments: true,
         validate: true,
         trailingCommas: "ignore",
+        schemaValidation: "warning"
+    })
+    monaco.languages.json.jsonDefaults.setModeConfiguration({
+        completionItems: false,
+        tokens: true,
+        colors: true,
+        foldingRanges: true,
+        diagnostics: true,
     })
     monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
         value: props.modelValue,
@@ -49,37 +69,56 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
+        // wordWrap: "bounded",
         wrappingStrategy: "advanced",
         scrollBeyondLastLine: false,
         overviewRulerLanes: 0,
+        scrollbar: {
+            alwaysConsumeMouseWheel: false
+        },
         hover: {
             enabled: true,
             above: false,
         },
         renderLineHighlight: "none",
-        fontSize: 13,
+        fontSize: 14,
         readOnly: props.readOnly,
+        ...props.config
     })
-    const container = document.querySelector(".s-json-editor")
-    const updateHeight = () => {
-        const contentHeight = monacoInstance?.getContentHeight() || 300;
-        const containerWidth = container?.getBoundingClientRect().width || 1000;
-        (container as HTMLElement).style.height = `${contentHeight}px`;
-        monacoInstance?.layout({ width: containerWidth, height: contentHeight });
-    };
-    monacoInstance.onDidContentSizeChange(updateHeight);
-    updateHeight()
+    // const container = document.querySelector(".s-json-editor")
+    // const updateHeight = () => {
+    //     const contentHeight = monacoInstance?.getContentHeight() || 300;
+    //     const containerWidth = container?.getBoundingClientRect().width || 1000;
+    //     (container as HTMLElement).style.height = `${contentHeight}px`;
+    //     monacoInstance?.layout({ width: containerWidth, height: contentHeight });
+    // };
+    // monacoInstance.onDidContentSizeChange(updateHeight);
+    // updateHeight()
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
         emits("change", monacoInstance?.getValue())
     })
+    emits("ready")
+})
+onActivated(() => {
+    monacoInstance?.focus()
 })
 onBeforeUnmount(() => {
     monacoInstance?.dispose();
     // model?.dispose();
-    // monacoCompletionItem?.dispose()
     // monacoHoverProvider?.dispose()
 })
+const format = () => {
+    const formatStr = beautify(props.modelValue, { indent_size: 4 });
+    monacoInstance?.setValue(formatStr)
+}
+const focus = () => {
+    monacoInstance?.focus()
+}
+defineExpose({
+    format,
+    focus
+});
 
 </script>
 

@@ -64,6 +64,14 @@ export default defineComponent({
             },
             immediate: true,
         },
+        modelValue: {
+            handler(newValue: string) {
+                const value = this.editorInstance?.getValue();
+                if (newValue !== value) {
+                    this.editorInstance?.setValue(newValue);
+                }
+            }
+        }
     },
     mounted() {
         this.initEditor();
@@ -75,7 +83,6 @@ export default defineComponent({
     },
     beforeUnmount() {
         this.editorInstance?.destroy()
-        // console.log("leave", this.editorInstance?.destroy)
     },
     methods: {
         initEditor() {
@@ -84,6 +91,7 @@ export default defineComponent({
             this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || "text"}`);
             this.editorInstance.setTheme("ace/theme/github");
             this.editorInstance.setOptions({
+                fontSize: "13px",
                 // enableBasicAutocompletion: true,
                 // enableSnippets: true,
                 // enableLiveAutocompletion: false
