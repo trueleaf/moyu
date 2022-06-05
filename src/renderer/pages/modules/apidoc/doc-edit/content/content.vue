@@ -17,6 +17,8 @@
         <s-recycler v-else-if="currentSelectTab.tabType === 'recycler'"></s-recycler>
         <s-history v-else-if="currentSelectTab.tabType === 'history'"></s-history>
         <s-config v-else-if="currentSelectTab.tabType === 'config'"></s-config>
+        <s-hook v-else-if="currentSelectTab.tabType === 'hook'"></s-hook>
+        <s-common-header v-else-if="currentSelectTab.tabType === 'commonHeader'"></s-common-header>
     </keep-alive>
 </template>
 
@@ -34,6 +36,8 @@ import onlineLink from "./link/link.vue"
 import recycler from "./recycler/recycler.vue"
 import history from "./history/history.vue"
 import config from "./config/config.vue"
+import hook from "./hook/hook.vue"
+import commonHeader from "./common-header/common-header.vue"
 
 export default defineComponent({
     components: {
@@ -48,6 +52,8 @@ export default defineComponent({
         "s-recycler": recycler,
         "s-history": history,
         "s-config": config,
+        "s-hook": hook,
+        "s-common-header": commonHeader,
     },
     data() {
         return {

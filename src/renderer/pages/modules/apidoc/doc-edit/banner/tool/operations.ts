@@ -56,4 +56,11 @@ export default [{
     shortcut: ["Ctrl", "H"],
     pin: false,
     viewOnly: true,
+}, {
+    name: $t("生成代码"),
+    icon: "#iconshengchengdaima",
+    op: "hook",
+    shortcut: ["Ctrl", "H"],
+    pin: false,
+    viewOnly: true,
 }];

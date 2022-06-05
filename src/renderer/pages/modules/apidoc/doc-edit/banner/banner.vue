@@ -14,7 +14,7 @@
                 :data="bannerData"
                 :default-expanded-keys="defaultExpandedKeys"
                 node-key="_id"
-                :empty-text="$t('点击工具栏按钮新增文档或者鼠标右键新增')"
+                :empty-text="$t('点击工具栏按钮新建接口或者鼠标右键新增')"
                 :draggable="enableDrag"
                 :allow-drop="handleCheckNodeCouldDrop"
                 :filter-node-method="filterNode"
@@ -28,6 +28,7 @@
                             'select-node': selectNodes.find(v => v._id === scope.data._id),
                             'active-node': activeNode && activeNode._id === scope.data._id,
                             'cut-node': cutNodes.find(v => v._id === scope.data._id),
+                            'readonly': scope.data.readonly
                         }"
                         tabindex="0"
                         @keydown.stop="handleNodeKeydown($event)"
@@ -102,8 +103,9 @@
         <teleport to="body">
             <!-- 单个节点操作 -->
             <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
-                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('新建文档')" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('新建接口')" @click="handleOpenAddFileDialog"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('新建文件夹')" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
+                <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('设置公共请求头')" @click="handleJumpToCommonHeader"></s-contextmenu-item>
                 <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('以模板新建')"></s-contextmenu-item> -->
                 <s-contextmenu-item v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" :label="$t('剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
@@ -111,7 +113,7 @@
                 <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="$t('生成副本')" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('粘贴')" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
-                <s-contextmenu-item v-show="currentOperationalNode" :label="$t('重命名')" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
+                <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="$t('重命名')" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
                 <s-contextmenu-item v-show="currentOperationalNode" :label="$t('删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
             </s-contextmenu>
             <!-- 多个节点操作 -->
@@ -303,6 +305,25 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
     addFileAndFolderCb.call(this, currentOperationalNode, data);
     store.commit("apidoc/banner/addExpandItem", data._id)
 };
+//添加公共请求头
+const handleJumpToCommonHeader = (e: MouseEvent) => {
+    e.stopPropagation();
+    showContextmenu.value = false;
+    if (currentOperationalNode.value) {
+        store.commit("apidoc/tabs/addTab", {
+            _id: currentOperationalNode.value._id,
+            projectId,
+            tabType: "commonHeader",
+            label: `【公共头】${currentOperationalNode.value.name}`,
+            saved: true,
+            fixed: true,
+            selected: true,
+            head: {
+                icon: "",
+            },
+        })
+    }
+}
 //删除节点
 const handleDeleteNodes = () => {
     deleteNode.call(this, selectNodes.value);
@@ -433,7 +454,7 @@ const handleNodeKeydown = (e: KeyboardEvent) => {
     if (e.code === "ControlLeft" || e.code === "ControlRight") {
         pressCtrl.value = true;
     }
-    if (e.code === "F2") {
+    if (e.code === "F2" && !currentOperationalNode.value?.readonly) {
         handleRenameNode()
     } else if (e.ctrlKey && (e.key === "D" || e.key === "d")) {
         handleDeleteNodes();
@@ -554,6 +575,15 @@ onUnmounted(() => {
             }
             .folder-icon {
                 color: $gray-300!important;
+            }
+        }
+        &.readonly {
+            color: $gray-600;
+            .file-icon {
+                color: $gray-600!important;
+            }
+            .folder-icon {
+                color: $gray-500!important;
             }
         }
     }

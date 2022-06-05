@@ -132,7 +132,7 @@ import { router } from "@/router/index"
 import { $t } from "@/i18n/i18n"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
-import localOriginOperation from "./operations"
+import localOriginOperations from "./operations"
 import { addFileAndFolderCb } from "../composables/curd-node"
 
 type Operation = {
@@ -186,12 +186,30 @@ const initCacheOperation = () => {
     const localToolbarOperations = localStorage.getItem("apidoc/toolbarOperations");
     const localPinToolbarOperations = localStorage.getItem("apidoc/PinToolbarOperations");
     if (localToolbarOperations) {
-        operations.value = JSON.parse(localToolbarOperations);
+        const localData: Operation[] = JSON.parse(localToolbarOperations);
+        localOriginOperations.forEach((data) => {
+            //如果本地缓存数据没有当前图标则新增图标
+            if (localData.every((v: Operation) => (v.name !== data.name && v.op !== data.op))) {
+                localData.push(data);
+            }
+            const matchedData = localData.find((v: Operation) => v.name === data.name);
+            if (matchedData?.icon) {
+                matchedData.icon = data.icon;
+            }
+        })
+        operations.value = localData;
     } else {
-        operations.value = localOriginOperation;
+        operations.value = localOriginOperations;
     }
     if (localPinToolbarOperations) {
-        pinOperations.value = JSON.parse(localPinToolbarOperations);
+        const localData: Operation[] = JSON.parse(localPinToolbarOperations);
+        localOriginOperations.forEach((data) => {
+            const matchedData = localData.find((v: Operation) => v.name === data.name);
+            if (matchedData?.icon) {
+                matchedData.icon = data.icon;
+            }
+        })
+        pinOperations.value = localData;
     } else {
         pinOperations.value = operations.value.filter((v) => v.pin);
     }
@@ -322,6 +340,36 @@ const handleEmit = (op: ApidocOperations) => {
             projectId,
             tabType: "config",
             label: $t("全局设置"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
+    case "hook": //生成代码
+        store.commit("apidoc/tabs/addTab", {
+            _id: "hook",
+            projectId,
+            tabType: "hook",
+            label: $t("生成代码"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
+    case "commonHeader": //公共请求头
+        store.commit("apidoc/tabs/addTab", {
+            _id: "commonHeader",
+            projectId,
+            tabType: "commonHeader",
+            label: $t("公共请求头"),
             head: {
                 icon: "",
                 color: ""
@@ -527,7 +575,7 @@ const handleFilterBanner = () => {
         height: size(25);
         position: absolute;
         top: size(8);
-        right: size(18);
+        right: size(25);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -545,7 +593,9 @@ const handleFilterBanner = () => {
     }
     // 搜索框样式
     .doc-search {
-        border-radius: 20px;
+        .el-input__wrapper {
+            border-radius: 20px;
+        }
         .el-input__inner {
             border-radius: 20px;
         }
