@@ -136,7 +136,7 @@
                     :label="$t('必有')"
                     :disabled="checkRequiredDisable(scope.data)"
                     @click="currentOpData = null"
-                    @update:modelValue="handleChangeIsRequired($event, scope.data)"
+                    @update:modelValue="handleChangeIsRequired($event as string, scope.data)"
                 >
                 </el-checkbox>
                 <!-- 参数描述 -->
@@ -660,6 +660,9 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     width: 100%;
     display: flex;
     align-items: center;
+    .el-input__wrapper {
+        box-shadow: none;
+    }
     .el-input-number .el-input__inner {
         text-align: left;
     }

@@ -51,7 +51,7 @@ const getCommonHeaderInfo = () => {
         projectId,
         id: currentSelectTab.value?._id
     }
-    axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>("/api/project/common_header", { params }).then((res) => {
+    axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>("/api/project/common_header_by_id", { params }).then((res) => {
         headerData.value = res.data.commonHeaders || [];
         if (!headerData.value.length) {
             headerData.value.push(apidocGenerateProperty())
