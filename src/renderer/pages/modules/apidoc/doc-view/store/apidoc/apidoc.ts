@@ -223,7 +223,8 @@ const apidoc = {
                         url: "",
                         raw: "",
                     },
-                }
+                },
+                isMock: false,
             })
         },
         //删除一个response
@@ -242,12 +243,16 @@ const apidoc = {
             if (payload.item.queryParams.length === 0) {
                 payload.item.queryParams.push(apidocGenerateProperty());
             }
-            // bodyParams如果没有数据则默认添加一条空数据
-            if (payload.item.requestBody.rawJson.length === 0) {
-                const bodyRootParams = apidocGenerateProperty("object");
-                bodyRootParams.children[0] = apidocGenerateProperty();
-                payload.item.requestBody.rawJson = "";
+            //如果没有commonHeaders则默认添加一条空数据
+            if (!payload.commonHeaders?.length) {
+                payload.commonHeaders = [];
             }
+            // bodyParams如果没有数据则默认添加一条空数据
+            // if (payload.item.requestBody.json.length === 0) {
+            //     const bodyRootParams = apidocGenerateProperty("object");
+            //     bodyRootParams.children[0] = apidocGenerateProperty();
+            //     payload.item.requestBody.json.push(bodyRootParams);
+            // }
             //formData如果没有数据则默认添加一条空数据
             if (payload.item.requestBody.formdata.length === 0) {
                 payload.item.requestBody.formdata.push(apidocGenerateProperty());

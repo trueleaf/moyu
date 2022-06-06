@@ -58,14 +58,7 @@
             <!-- 请求错误 -->
             <div v-else-if="remoteResponse.data.type.includes('error')" class="red">{{ remoteResponse.data.text }}</div>
             <!-- html -->
-            <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap">
-                <s-raw-editor
-                    :model-value="htmlResponse"
-                    readonly
-                    type="text/html"
-                >
-                </s-raw-editor>
-            </div>
+            <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap"><iframe :src="htmlPreview" style="width:100%;height:50%;"></iframe><s-raw-editor :model-value="htmlResponse" readonly type="text/plain"></s-raw-editor></div>
             <!-- 纯文本 -->
             <div v-else-if="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
                 <s-raw-editor
@@ -75,16 +68,26 @@
                 >
                 </s-raw-editor>
             </div>
+            <!-- 未知文件 -->
+            <div v-else-if="!remoteResponse.data.type.includes('application/json')">
+                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
+                    <use xlink:href="#iconicon_weizhiwenjian"></use>
+                </svg>
+                <div>{{ remoteResponse.data.type }}</div>
+                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+            </div>
             <!-- json -->
-            <template v-else-if="remoteResponse.data.type.includes('application/json')">
+            <div v-show="remoteResponse.data.type.includes('application/json')">
                 <div class="json-wrap">
-                    <s-json-editor :model-value="jsonResponse"></s-json-editor>
-                    <!-- <s-raw-editor
-                        :model-value="jsonResponse"
-                        readonly
-                        type="application/json"
-                    >
-                    </s-raw-editor> -->
+                    <!-- <pre>{{ jsonResponse }}</pre> -->
+                    <!-- <s-json-editor :model-value="jsonResponse" read-only></s-json-editor>
+                    <div class="tip">由于性能原因，只能展示5kb(1024*5个字符)数据</div> -->
+                    <s-raw-editor :model-value="jsonResponse" readonly type="application/json"></s-raw-editor>
+                    <div v-show="showTip" class="tip">
+                        <span>由于性能原因，只能展示40kb数据</span>
+                        <span v-show="!couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">显示全部</span>
+                        <span v-show="couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">显示部分</span>
+                    </div>
                 </div>
                 <el-dropdown class="apply-response" trigger="click">
                     <span class="d-flex a-center">
@@ -102,14 +105,6 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-            </template>
-            <!-- 未知文件 -->
-            <div v-else>
-                <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
-                    <use xlink:href="#iconicon_weizhiwenjian"></use>
-                </svg>
-                <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
         </template>
         <div v-show="showProcess" class="d-flex j-center w-100">
@@ -138,6 +133,11 @@ type ResponseApplyEnum = {
 export default defineComponent({
     components: {
         "icon-arrow-down": ArrowDown
+    },
+    data() {
+        return {
+            couldShowAllJsonStr: false,
+        };
     },
     computed: {
         //远端返回数据结果
@@ -170,13 +170,35 @@ export default defineComponent({
         },
         //json返回参数
         jsonResponse() {
-            const data = this.$store.state["apidoc/response"].data.text
-            return beautify(data, { indent_size: 4 });
+            const data = this.$store.state["apidoc/response"].data.text;
+            const formatCode = beautify(data, { indent_size: 4 });
+            if (this.couldShowAllJsonStr) {
+                return formatCode;
+            }
+            if (formatCode.length > 1024 * 40) {
+                return formatCode.slice(0, 1024 * 40);
+            }
+            return formatCode;
+        },
+        //json数据过大是否显示提示
+        showTip() {
+            const data = this.$store.state["apidoc/response"].data.text;
+            const formatCode = beautify(data, { indent_size: 4 });
+            return formatCode.length > 1024 * 40
         },
         //HTML返回参数
         htmlResponse() {
             const data = this.$store.state["apidoc/response"].data.text;
             return beautify.html(data, { indent_size: 4 });
+        },
+        //HTML返回时预览
+        htmlPreview() {
+            const data = this.$store.state["apidoc/response"].data.text;
+            const blob = new Blob([data], {
+                type: "text/html"
+            });
+            const url = URL.createObjectURL(blob);
+            return url;
         },
         //纯文本返回参数
         textResponse() {
@@ -207,7 +229,7 @@ export default defineComponent({
                     // p.value = matchedData.value;
                 }
                 return "";
-            });
+            }, true);
             this.$store.commit("apidoc/apidoc/changeResponseByIndex", { index, value: convertData })
         },
         //下载文件
@@ -235,11 +257,27 @@ export default defineComponent({
     &.vertical {
         height: 100%;
     }
+    .json-wrap {
+        height: calc(100vh - #{size(400)});
+        position: relative;
+        .tip {
+            width: 100%;
+            padding: size(5) size(10);
+            background-color: $orange;
+            position: absolute;
+            bottom: -size(30);
+            z-index: $zIndex-contextmenu;
+            color: $white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
     .apply-response {
         position: absolute;
         cursor: pointer;
         right: size(15);
-        top: size(10);
+        top: size(0);
         z-index: $zIndex-contextmenu;
     }
     .text-wrap {

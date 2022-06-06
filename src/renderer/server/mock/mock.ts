@@ -1,12 +1,31 @@
+import { randomInt } from "@/helper";
+import dayjs from "dayjs";
 import Mock from "mockjs";
 
 const { Random } = Mock;
+let startTime = new Date();
 
 Random.extend({
     //时间戳
     timestamp() {
         return Date.now();
     },
+    //开始时间
+    startTime(date, rule) {
+        const dateParams = date || new Date(`202${randomInt(0, 3)}-0${randomInt(1, 12)}-0${randomInt(1, 12)}`);
+        startTime = dateParams;
+        const realRule = rule || "YYYY-MM-DD HH:mm"
+        const result = dayjs(dateParams).format(realRule);
+        return result;
+    },
+    //结束时间
+    endTime(date, rule) {
+        const dateParams = date || new Date(new Date(startTime).getTime() + 24 * 1000 * 60 * 60 * randomInt(1, 30));
+        const realRule = rule || "YYYY-MM-DD HH:mm"
+        const result = dayjs(dateParams).format(realRule);
+        return result;
+    }
+    //结束时间
     // image(data, background) {
     //     let width = 0;
     //     let height = 0;

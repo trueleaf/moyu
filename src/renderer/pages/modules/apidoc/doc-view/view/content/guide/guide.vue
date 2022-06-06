@@ -53,7 +53,7 @@ const allDocs = computed(() => {
     })
     return result;
 })
-//今日新增文档
+//今日新建接口
 const docsOfToday = computed(() => {
     const result: ApidocBanner[] = [];
     allDocs.value.forEach((v) => {

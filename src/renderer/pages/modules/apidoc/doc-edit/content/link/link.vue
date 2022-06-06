@@ -44,10 +44,10 @@
 import { ref, Ref } from "vue"
 import { ElMessageBox } from "element-plus"
 import { axios } from "@/api/api"
-import config from "@/../config/config"
+// import config from "@/../config/config"
 import { CirclePlus } from "@element-plus/icons-vue"
 import { router } from "@/router"
-// import { store } from "@/store/index"
+import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
 import sAddDialog from "./dialog/add.vue"
 import sEditDialog from "./dialog/edit.vue"
@@ -70,7 +70,7 @@ const dialogVisible2 = ref(false); //编辑弹窗
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-    const url = `${config.renderConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
+    const url = `${store.state.permission.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
     return `
     ${$t("链接")}：${url}   
     ${$t("密码")}：${linkInfo.password || `${$t("不需要密码")}`}

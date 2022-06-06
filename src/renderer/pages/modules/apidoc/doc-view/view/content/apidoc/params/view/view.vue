@@ -17,8 +17,8 @@
             </template>
             <template v-if="hasJsonBodyParams">
                 <div class="title">{{ $t("Body参数") }}(application/json)</div>
-                <pre>{{ apidocInfo.requestBody.rawJson }}</pre>
-                <!-- <s-params-view :data="apidocInfo.requestBody.rawJson"></s-params-view> -->
+                <s-json-editor :value="apidocInfo.requestBody.rawJson" read-only></s-json-editor>
+                <!-- <s-params-view :data="apidocInfo.requestBody.json"></s-params-view> -->
             </template>
             <template v-if="hasFormDataParams">
                 <div class="title">{{ $t("Body参数") }}(multipart/formdata)</div>

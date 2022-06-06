@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div v-if="requestInfo.url" class="request-info">
+    <div v-if="requestInfo.url" class="request-info" :class="{ vertical: layout === 'vertical' }">
         <s-collapse title="基本信息" bold>
             <div class="pl-1 d-flex a-top">
                 <span class="flex0 text-bold mr-1">URL:</span>
@@ -27,11 +27,8 @@
                 <span>请求body</span>
                 <span v-if="contentType">({{ contentType }})</span>
             </template>
-            <pre v-show="contentType === 'application/json'" v-flex1="10">{{ requestInfo.body }}</pre>
-            <!-- <div v-if="contentType === 'application/json'" class="pl-1">
-                <pre>{{ requestInfo.body }}</pre>
-            </div> -->
-            <div v-if="contentType.includes('multipart/')" class="pl-1">
+            <pre v-if="contentType === 'application/json'" class="pl-1">{{ formatJsonStr(requestInfo.body) }}</pre>
+            <div v-else-if="contentType?.includes('multipart/')" class="pl-1">
                 formData
             </div>
             <pre v-else-if="contentType === 'application/x-www-form-urlencoded'">{{ requestInfo.body }}</pre>
@@ -41,22 +38,33 @@
             <pre v-else-if="contentType === 'application/xml'">{{ requestInfo.body }}</pre>
         </s-collapse>
     </div>
-    <div v-else class="d-flex a-center j-center">等待发送请求...</div>
+    <div v-else class="d-flex a-center j-center">等待发送请求</div>
 </template>
 
 <script lang="ts" setup>
-import { store } from "@/store/index"
+// import json5 from "json5"
 import { computed } from "vue"
+import { store } from "@/store/index"
+import beautify from "js-beautify"
 
 const requestInfo = computed(() => store.state["apidoc/request"]); //请求基本信息
 const contentType = computed(() => store.state["apidoc/apidoc"].apidoc.item.contentType); //contentType
-
+const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase())
+
+//布局
+const layout = computed(() => store.state["apidoc/baseInfo"].layout)
 
 </script>
 
 <style lang="scss">
 .request-info {
+    width: 100%;
     word-break: break-all;
+    height: calc(100vh - #{size(370)});
+    overflow-y: auto;
+    &.vertical {
+        height: 100%;
+    }
 }
 </style>

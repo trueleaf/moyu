@@ -1,6 +1,10 @@
 import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
 import { apidocGenerateApidoc, apidocGenerateProperty } from "@/helper/index"
+import Mock from "@/server/mock/mock"
+import json5 from "json5"
+import { store } from "@/store"
+import { router } from "@/router"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line prefer-destructuring
@@ -187,7 +191,10 @@ class ApidocConverter {
         const queryString = this.convertQueryParamsToQueryString(queryParams);
         const pathMap = this.getPathParamsMap(paths)
         const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2);
-        const fullUrl = url.host + validPath + queryString;
+        let fullUrl = url.host + validPath + queryString;
+        if (!fullUrl.startsWith("http") && !fullUrl.startsWith("https")) {
+            fullUrl = `http://${fullUrl}`
+        }
         return {
             host: url.host,
             path: url.path,
@@ -221,15 +228,25 @@ class ApidocConverter {
      * 获取请求头
      */
     getHeaders() {
+        const projectId = router.currentRoute.value.query.id as string;
+        const currentSelectTab = store.state["apidoc/tabs"].tabs[projectId]?.find((tab) => tab.selected) || null;
+        const commonHeaders = store.getters["apidoc/baseInfo/headers"](currentSelectTab?._id) as Pick<ApidocProperty, "key" | "value" | "description" | "select">[];
         const realHeaders: Record<string, string | undefined> = {};
         const { headers, requestBody, contentType } = this.apidoc.item;
         const { mode } = requestBody;
+        commonHeaders.forEach((item) => {
+            const itemKey = item.key.toLocaleLowerCase();
+            if (itemKey) {
+                realHeaders[itemKey] = this.convertPlaceholder(item.value);
+            }
+        })
         headers.forEach((item) => {
             const itemKey = item.key.toLocaleLowerCase();
             if (item.select && itemKey) {
                 realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
+
         if (mode === "formdata") {
             realHeaders["content-type"] = this.multipartHeaders;
         } else {
@@ -275,7 +292,7 @@ class ApidocConverter {
     /**
      * 改变json body信息
      */
-    changeJsonBody(jsonData: string) {
+    changeJsonBody(jsonData: ApidocProperty[]) {
         const { requestBody } = this.apidoc.item
         const { mode } = requestBody;
         const matchedContentTypeHeader = this.apidoc.item.headers.find(v => v.key.toLocaleLowerCase() === "content-type" || v.key.toLocaleLowerCase() === "contenttype")
@@ -288,7 +305,7 @@ class ApidocConverter {
                 this.apidoc.item.headers.push(property)
             }
         }
-        this.apidoc.item.requestBody.rawJson = jsonData;
+        this.apidoc.item.requestBody.json = jsonData;
     }
 
     /**
@@ -326,7 +343,17 @@ class ApidocConverter {
      * 改变raw body信息
      */
     changeRawBody(rawData: string) {
-        this.apidoc.item.requestBody.raw.data = rawData
+        if (!rawData) {
+            this.apidoc.item.requestBody.raw.data = "";
+            return;
+        }
+        const convertRawJsonData = JSON.parse(rawData, (key, value) => {
+            if (value.toString().startsWith("@")) {
+                return Mock.mock(value);
+            }
+            return value;
+        })
+        this.apidoc.item.requestBody.raw.data = JSON.stringify(convertRawJsonData)
     }
 
     /**
@@ -334,11 +361,52 @@ class ApidocConverter {
      */
     getRequestBody() {
         const { contentType, requestBody } = this.apidoc.item
-        const { mode } = requestBody;
         let body: string | FormData = "";
         switch (contentType) {
         case "application/json":
-            body = mode === "raw" ? requestBody.raw.data : requestBody.rawJson;
+            // eslint-disable-next-line no-useless-escape, no-case-declarations
+            const numberMap: Record<string, string> = {};
+            // eslint-disable-next-line no-useless-escape, no-case-declarations
+            const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{9,})/g, (match, $1, $2) => {
+                numberMap[$2] = $2;
+                return `${$1}"${$2}"`;
+            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            body = JSON.stringify(json5.parse(convertBody || "null", (key: string, value: any) => {
+                const { variables } = store.state["apidoc/baseInfo"]
+                if (!value) { //null
+                    return value;
+                }
+                if (typeof value === "string") {
+                    const stringValue = value.toString();
+                    if (stringValue.startsWith("@")) {
+                        return Mock.mock(value);
+                    }
+                    if (stringValue.startsWith("$")) {
+                        return Mock.mock(value.replace(/^\$/, "@"));
+                    }
+                    const replacedStr = stringValue.replace(/\{\{\s*([^} ]+)\s*\}\}/g, ($1: string, varStr: string) => {
+                        // let realValue = "";
+                        if (varStr.startsWith("@")) {
+                            return Mock.mock(varStr);
+                        }
+                        if (varStr.startsWith("$")) {
+                            return Mock.mock(varStr.replace(/^\$/, "@"));
+                        }
+                        const matchedValue = variables.find(v => v.name === varStr)
+                        if (matchedValue) {
+                            return matchedValue.value
+                        }
+                        // console.log(store.state["apidoc/baseInfo"].variables, "repalce")
+                        return $1;
+                    });
+                    return replacedStr;
+                }
+                return value;
+            }));
+            Object.keys(numberMap).forEach(key => {
+                body = (body as string).replace(new RegExp(`:"(${key})"`, "g"), (match, $1) => `:${$1}`);
+            })
             break;
         case "application/x-www-form-urlencoded":
             body = this.convertUrlencodedToBodyString(requestBody.urlencoded);

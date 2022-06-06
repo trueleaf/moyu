@@ -28,7 +28,7 @@
             <el-button class="w-100" @click="handleJumpToRegister">{{ $t("注册账号") }}</el-button>
         </el-form-item>
         <div class="forget-pwd-wrap">
-            <el-button type="text" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
+            <el-button text link class="theme-color" @click="handleJumpToResetPassword">{{ $t("已有账号，忘记密码?") }}</el-button>
         </div>
         <div v-if="config.localization.enableDocLink" class="mt-2 d-flex j-around">
             <a href="https://github.com/trueleaf/moyu" target="_blank" class="d-flex flex-column j-center a-center">

@@ -5,7 +5,7 @@ import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
 
 type Response = {
-    showTemplate: Ref<boolean>;
+    showTemplateIndex: Ref<number>;
     templateFilterString: Ref<string>;
     paramsTemplatedialogVisible: Ref<boolean>;
     jsonTemplateList: ComputedRef<ApidocProjectParamsTemplate[]>;
@@ -15,7 +15,7 @@ type Response = {
 }
 
 export default function useImportParams(): Response {
-    const showTemplate = ref(false);//是否显示模板
+    const showTemplateIndex = ref(-1);//是否显示模板
     const templateFilterString = ref("");//模板过滤参数
     const paramsTemplatedialogVisible = ref(false); //模板维护弹窗
     const curentOperationIndex = ref(0); //当前操作数据index值
@@ -53,7 +53,7 @@ export default function useImportParams(): Response {
     }
     //处理模板点击空白区域关闭
     const bindClick = () => {
-        showTemplate.value = false;
+        showTemplateIndex.value = -1;
     }
     onMounted(() => {
         document.documentElement.addEventListener("click", bindClick)
@@ -62,7 +62,7 @@ export default function useImportParams(): Response {
         document.documentElement.removeEventListener("click", bindClick)
     })
     return {
-        showTemplate,
+        showTemplateIndex,
         paramsTemplatedialogVisible,
         templateFilterString,
         jsonTemplateList,

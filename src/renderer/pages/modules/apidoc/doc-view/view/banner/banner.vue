@@ -14,7 +14,7 @@
                 :data="bannerData"
                 :default-expanded-keys="defaultExpandedKeys"
                 node-key="_id"
-                :empty-text="$t('点击工具栏按钮新增文档或者鼠标右键新增')"
+                :empty-text="$t('点击工具栏按钮新建接口或者鼠标右键新增')"
                 :filter-node-method="filterNode"
             >
                 <template #default="scope">

@@ -344,6 +344,44 @@ class ApidocCache {
             localStorage.setItem("apidoc/responseCollapse", "{}");
         }
     }
+
+    /**
+     * @description        获取缓存的代码钩子
+     * @author             shuxiaokai
+     * @param {string}     projectId 项目id
+     * @create             2021-11-09 21:37
+     * @remark
+     */
+    getHookCodeById(projectId: string): string | null {
+        try {
+            const localData: Record<string, string> = JSON.parse(localStorage.getItem("apidoc/hookCode") || "{}");
+            if (localData[projectId] == null) {
+                return null;
+            }
+            return localData[projectId];
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    /**
+     * @description        设置缓存的代码钩子
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     * @param {string}     projectId 项目id
+     * @param {string}     code 缓存代码
+     */
+    setHookCode(projectId: string, code: string) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/hookCode") || "{}");
+            localData[projectId] = code;
+            localStorage.setItem("apidoc/hookCode", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/hookCode", "{}");
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();

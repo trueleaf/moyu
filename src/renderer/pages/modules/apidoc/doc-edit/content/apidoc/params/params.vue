@@ -37,6 +37,17 @@
                 </el-icon>
                 <span>{{ $t("联想值") }}</span>
             </div>
+            <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
+                <el-popover v-model:visible="generateCodeVisible" width="300px" placement="bottom" trigger="manual">
+                    <template #reference>
+                        <span @click.stop="generateCodeVisible = true">
+                            <i class="iconfont iconshengchengdaima"></i>
+                            <span>生成代码</span>
+                        </span>
+                    </template>
+                    <s-hook v-if="generateCodeVisible" @close="generateCodeVisible = false"></s-hook>
+                </el-popover>
+            </div>
         </div>
         <div v-show="workMode === 'edit'">
             <el-tabs v-model="activeName">
@@ -89,6 +100,7 @@ import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
 import { apidocCache } from "@/cache/apidoc"
 import { apidocConvertParamsToJsonData } from "@/helper/index"
+import { store } from "@/store"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
 import requestHeaders from "./headers/headers.vue";
@@ -97,6 +109,7 @@ import preRequestParams from "./pre-request/pre-request.vue";
 import afterRequestParams from "./after-request/after-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
+import hook from "./hook/hook.vue"
 
 export default defineComponent({
     components: {
@@ -108,6 +121,7 @@ export default defineComponent({
         "s-remarks": remarks,
         "s-pre-request": preRequestParams,
         "s-after-request": afterRequestParams,
+        "s-hook": hook,
         "icon-opportunity": Opportunity
     },
     data() {
@@ -115,6 +129,7 @@ export default defineComponent({
         return {
             workMode: mode, //是否开启预览模式
             activeName: "s-params",
+            generateCodeVisible: false, //是否打开生成代码弹窗
         };
     },
     computed: {
@@ -166,7 +181,8 @@ export default defineComponent({
         //是否存在headers
         hasHeaders() {
             const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            const hasHeaders = headers.filter(p => p.select).some((data) => data.key);
+            const commonHeaders = store.getters["apidoc/baseInfo/headers"](this.currentSelectTab?._id) as ApidocProperty<"string">[];
+            const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true }))).filter(p => p.select).some((data) => data.key);
             return hasHeaders;
         },
         //当前选中tab
@@ -230,13 +246,16 @@ export default defineComponent({
             deep: true,
         },
     },
-    created() {
+    mounted() {
         this.initTabCache();
-        // console.log(this.currentSelectTab, this.$store.state["apidoc/apidoc"].apidoc)
         this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
             id: this.currentSelectTab?._id,
             apidoc: this.$store.state["apidoc/apidoc"].apidoc,
         })
+        document.documentElement.addEventListener("click", this.handleCloseHook)
+    },
+    unmounted() {
+        document.documentElement.removeEventListener("click", this.handleCloseHook)
     },
     methods: {
         //初始化tab缓存
@@ -430,6 +449,10 @@ export default defineComponent({
                 fixed: true,
                 selected: true,
             });
+        },
+        //关闭生成代码popover
+        handleCloseHook() {
+            this.generateCodeVisible = false;
         },
     },
 })

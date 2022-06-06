@@ -13,7 +13,7 @@
                     <el-input v-model="formInfo.name" :size="config.renderConfig.layout.size" :placeholder="$t('请输入变量名称')" class="w-100" maxlength="100" clearable></el-input>
                 </el-form-item>
                 <el-form-item :label="`${$t('变量值')}：`" prop="value">
-                    <el-input v-model="formInfo.value" :size="config.renderConfig.layout.size" :placeholder="$t('请输入变量值')" class="w-100" maxlength="999" clearable></el-input>
+                    <el-input v-model="formInfo.value" type="textarea" :autosize="{ minRows: 10 }" :size="config.renderConfig.layout.size" :placeholder="$t('请输入变量值')" class="w-100" maxlength="9999" clearable></el-input>
                 </el-form-item>
                 <el-form-item :label="`${$t('值类型')}：`" prop="type">
                     <el-select v-model="formInfo.type" :size="config.renderConfig.layout.size" class="w-100">
@@ -45,7 +45,7 @@
                 </el-table-column>
                 <el-table-column :label="$t('变量值')" align="center" show-overflow-tooltip>
                     <template #default="scope">
-                        <el-input v-if="scope.row.__active" v-model="scope.row.value" :size="config.renderConfig.layout.size" class="w-100" maxlength="999" clearable></el-input>
+                        <el-input v-if="scope.row.__active" v-model="scope.row.value" type="textarea" :autosize="{ minRows: 10 }" :size="config.renderConfig.layout.size" class="w-100" maxlength="9999" clearable></el-input>
                         <span v-else>{{ scope.row.value }}</span>
                     </template>
                 </el-table-column>

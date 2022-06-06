@@ -17,8 +17,8 @@
                 <el-radio label="none">none</el-radio>
             </el-radio-group>
             <div v-show="bodyType === 'json'" class="operation">
-                <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
-                <el-divider direction="vertical"></el-divider>
+                <!-- <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
+                <el-divider direction="vertical"></el-divider> -->
                 <div class="p-relative no-select">
                     <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
                     <div v-if="showTemplate" class="template-wrap">
@@ -48,7 +48,8 @@
             </div>
         </div>
         <div class="params-wrap">
-            <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree>
+            <!-- <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree> -->
+            <s-json-editor v-if="bodyType === 'json'" v-model="rawJsonData"></s-json-editor>
             <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
         </div>
@@ -63,21 +64,21 @@
                     <el-option label="json" value="application/json"></el-option>
                 </el-select>
             </div>
-            <div v-show="rawType === 'application/json'" :title="$t('raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数')" class="tip">{{ $t("raw模块中json数据可用于快速调试，参数无法添加备注，如果需要添加备注可以选择在json模块中录入参数") }}</div>
+            <div v-show="rawType === 'application/json'" :title="$t('该模块即将废弃，请在json模块中录入参数')" class="tip">{{ $t("该模块即将废弃，请在json模块中录入参数") }}</div>
         </div>
-        <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
+        <!-- <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params> -->
     </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import { Search } from "@element-plus/icons-vue"
-import type { ApidocBodyMode, ApidocBodyRawType, ApidocProperty, ApidocPropertyType } from "@@/global"
+import type { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
 import { router } from "@/router/index"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
+import { apidocConvertParamsToJsonData, apidocConvertParamsToJsonStr } from "@/helper/index"
 import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { $t } from "@/i18n/i18n"
-import importParams from "./dialog/import-params/import-params.vue"
+// import importParams from "./dialog/import-params/import-params.vue"
 
 /*
 |--------------------------------------------------------------------------
@@ -85,20 +86,20 @@ import importParams from "./dialog/import-params/import-params.vue"
 |--------------------------------------------------------------------------
 |
 */
-const importParamsdialogVisible = ref(false);
+// const importParamsdialogVisible = ref(false);
 //打开导入参数弹窗
-const handleOpenImportParams = () => {
-    importParamsdialogVisible.value = true;
-}
+// const handleOpenImportParams = () => {
+//     importParamsdialogVisible.value = true;
+// }
 //处理导入成功回调
-const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-    const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.rawJson;
-    store.commit("apidoc/apidoc/changePropertyValue", {
-        data: jsonData[0],
-        field: "children",
-        value: result[0].children,
-    });
-}
+// const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
+//     const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
+//     store.commit("apidoc/apidoc/changePropertyValue", {
+//         data: jsonData[0],
+//         field: "children",
+//         value: result[0].children,
+//     });
+// }
 const paramsTemplatedialogVisible = ref(false);
 //打开保存参数模板弹窗
 const handleOpenTemplateDialog = () => {
@@ -195,15 +196,28 @@ const bodyType = computed<ApidocBodyMode>({
     },
 });
 //body参数联想值
-const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody"))
+// const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody"))
 /*
 |--------------------------------------------------------------------------
 | json类型操作
 |--------------------------------------------------------------------------
 */
 //json格式body参数
-const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.rawJson)
-
+// const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.json)
+//json格式body参数
+const rawJsonData = computed({
+    get() {
+        const { json, rawJson } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+        let finalJsonData = rawJson;
+        if (!rawJson) {
+            finalJsonData = apidocConvertParamsToJsonStr(json)
+        }
+        return finalJsonData;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeRawJson", val);
+    }
+})
 /*
 |--------------------------------------------------------------------------
 | x-www-form-urlencoded类型操作

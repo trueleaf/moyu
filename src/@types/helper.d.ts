@@ -21,6 +21,7 @@ import {
     formatBytes,
     formatMs,
     isEqual,
+    apidocConvertParamsToJsonStr,
 } from "@/helper/index"
 
 type Helper = {
@@ -112,6 +113,10 @@ type Helper = {
      * 格式化毫秒
      */
     formatMs: typeof formatMs,
+    /**
+     * 格式化moyu文档到json数据
+     */
+    apidocConvertParamsToJsonStr: typeof apidocConvertParamsToJsonStr,
 }
 
 export { Helper }

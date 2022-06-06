@@ -4,12 +4,12 @@
 
 import { computed } from "vue"
 import type { ApidocProperty, ApidocPropertyType } from "@@/global"
-import type { ApidocProjectHost } from "@@/store"
+// import type { ApidocProjectHost } from "@@/store"
 import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
-import globalConfig from "@/../config/config"
-import { router } from "@/router/index"
-import { apidocCache } from "@/cache/apidoc"
+// import globalConfig from "@/../config/config"
+// import { router } from "@/router/index"
+// import { apidocCache } from "@/cache/apidoc"
 
 /**
  * 从url中找出path参数
@@ -54,7 +54,7 @@ const convertQueryToParams = (requestPath: string): void => {
  * 格式化url
  */
 export function handleFormatUrl():void {
-    const projectId = router.currentRoute.value.query.id as string;
+    // const projectId = router.currentRoute.value.query.id as string;
     const requestPath = computed<string>({
         get() {
             return store.state["apidoc/apidoc"].apidoc.item.url.path;
@@ -63,44 +63,36 @@ export function handleFormatUrl():void {
             store.commit("apidoc/apidoc/changeApidocUrl", path)
         },
     });
-    const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);
-    const hostEnum = computed<ApidocProjectHost[]>(() => {
-        const localData = apidocCache.getApidocServer(projectId)
-        return store.state["apidoc/baseInfo"].hosts.concat(localData)
-    })
-    const matchedHost = hostEnum.value.find(hostInfo => hostInfo.url === currentHost.value)
-    /**
-     * 用例：http://127.0.0.1:80
-     * 用例：http://127.0.0.1
-     * 用例：http://255.255.0.1
-     * 用例：https://www.baidu.com
-     * 用例：demo.google.com
-     */
+    // const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);
+    // const hostEnum = computed<ApidocProjectHost[]>(() => {
+    //     const localData = apidocCache.getApidocServer(projectId)
+    //     return store.state["apidoc/baseInfo"].hosts.concat(localData)
+    // })
+    // const matchedHost = hostEnum.value.find(hostInfo => hostInfo.url === currentHost.value)
+    // /**
+    //  * 用例：http://127.0.0.1:80
+    //  * 用例：http://127.0.0.1
+    //  * 用例：http://255.255.0.1
+    //  * 用例：https://www.baidu.com
+    //  * 用例：demo.google.com
+    //  */
     convertQueryToParams(requestPath.value);
     const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
     const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
-    const dominReg = /^(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
+    const dominReg = /^(https?:\/\/)?([^./]{1,62}\.){1,}[^./]{1,62}/;
     const matchedIp = requestPath.value.match(ipReg);
     const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
     const matchedDomin = requestPath.value.match(dominReg);
     let formatPath = requestPath.value;
     if (!matchedIp && !matchedDomin && !matchedIpWithPort) {
-        const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
-        const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
+        // const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
+        // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
         //路径处理
-        const matchedPath = formatPath.match(pathReg);
-        if (matchedPath) {
-            formatPath = matchedPath[0];
-        } else if (formatPath.trim() === "") {
+        if (formatPath.trim() === "") {
             formatPath = "/";
         } else if (!formatPath.startsWith("/")) {
             formatPath = `/${formatPath}`;
         }
-        if (!matchedHost) {
-            store.commit("apidoc/apidoc/changeApidocHost", mockServer);
-        }
-    } else {
-        store.commit("apidoc/apidoc/changeApidocHost", "");
     }
     const queryReg = /(\?.*$)|(\/*$)/;
     formatPath = formatPath.replace(queryReg, "");

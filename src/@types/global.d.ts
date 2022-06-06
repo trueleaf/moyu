@@ -364,6 +364,10 @@ type ApidocBaseInfo = {
      * 花费时间
      */
     spendTime: number,
+    /**
+     * 是否只读
+     */
+    readonly: boolean,
 }
 //api文档ContentType
 type ApidocContentType = "" | "application/json" | "application/x-www-form-urlencoded" | "text/javascript" | "multipart/form-data" | "text/plain" | "application/xml" | "text/html";
@@ -385,6 +389,10 @@ type ApidocBodyParams = {
      */
     json: ApidocProperty[],
     /**
+     * 原始json值
+     */
+    rawJson: string,
+    /**
      * formData类型参数
      */
     formdata: ApidocProperty<"string" | "file">[],
@@ -399,10 +407,6 @@ type ApidocBodyParams = {
         data: string,
         dataType: ApidocBodyRawType
     },
-    /**
-     * 带备注的json数据
-     */
-    rawJson: string,
     /**
      * file类型参数
      */
@@ -453,7 +457,11 @@ type ApidocResponseParams = {
              */
             raw: string,
         },
-    }
+    },
+    /**
+     * 是否mock
+     */
+    isMock?: boolean,
 };
 //完整文档信息
 type ApidocDetail = {
@@ -528,6 +536,23 @@ type ApidocDetail = {
         contentType: ApidocContentType,
     },
     /**
+     * 公共请求头
+     */
+    commonHeaders?: {
+        /**
+         * 请求头名称
+         */
+        key: string,
+        /**
+         * 请求头值
+         */
+        value: string,
+        /**
+         * 请求头描述
+         */
+        description: string,
+    }[]
+    /**
      * 前置脚本
      */
     preRequest: {
@@ -595,12 +620,36 @@ type ApidocBanner = {
      */
     url?: string,
     /**
+     * 公共请求头
+     */
+    commonHeaders?: {
+        key: string,
+        value: string,
+        description: string
+    }[];
+    /**
+     * 是否只读
+     */
+    readonly: boolean,
+    /**
      * 子节点
      */
     children: ApidocBanner[]
 }
 //工具栏操作
-type ApidocOperations = "addRootFolder" | "addRootFile" | "freshBanner" | "generateLink" | "recycler" | "viewDoc" | "exportDoc" | "importDoc" | "history" | "config"
+type ApidocOperations =
+"addRootFolder" |
+"addRootFile" |
+"freshBanner" |
+"generateLink" |
+"recycler" |
+"viewDoc" |
+"exportDoc" |
+"importDoc" |
+"history" |
+"config" |
+"hook" |
+"commonHeader"
 
 /*
 |--------------------------------------------------------------------------
@@ -900,6 +949,46 @@ type GlobalConfig = {
 */
 type Language = "zh-cn" | "zh-tw" | "en" | "ja"
 
+/*
+|--------------------------------------------------------------------------
+| 生成代码
+|--------------------------------------------------------------------------
+*/
+type ApidocCodeInfo = {
+    /**
+     * 源码
+     */
+    code: string
+    /**
+     * 代码名称
+     */
+    codeName: string
+    /**
+     * 创建者
+     */
+    creator: string
+    /**
+     * 是否共享
+     */
+    isPublic: boolean
+    /**
+     * 项目id
+     */
+    projectId: string
+    /**
+     * 备注
+     */
+    remark: string
+    /**
+     * 更新时间
+     */
+    updatedAt: string
+    /**
+     * id值
+     */
+    _id: string
+}
+
 export {
     Response,
     ResponseTable,
@@ -933,6 +1022,7 @@ export {
     ApidocASTInfo,
     ApidocVariable,
     ApidocType,
+    ApidocCodeInfo,
     MockItem,
     Language,
     GlobalConfig

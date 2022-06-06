@@ -52,11 +52,11 @@ export default defineComponent({
         };
     },
     methods: {
-        handleClickItem() {
+        handleClickItem(e: MouseEvent) {
             if (this.disabled) {
                 return;
             }
-            this.$emit("click")
+            this.$emit("click", e)
         },
     },
 })

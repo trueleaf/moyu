@@ -15,7 +15,9 @@
             </div>
         </div>
         <template #footer>
-            <el-button type="primary" @click="handleSubmit">{{ $t("确认导入") }}</el-button>
+            <div class="orange">完整导入可以保留数组全部元素，导入只保留数组第一个元素</div>
+            <el-button type="primary" @click="handleSubmit(true)">{{ $t("导入") }}</el-button>
+            <el-button type="primary" @click="handleSubmit(false)">{{ $t("完整导入") }}</el-button>
             <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
         </template>
     </s-dialog>
@@ -25,6 +27,7 @@
 import { defineComponent } from "vue"
 import json5 from "json5"
 import { Editor } from "brace";
+import { ApidocProperty } from "@@/global";
 
 export default defineComponent({
     props: {
@@ -32,6 +35,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        pickFirstItem: { //json转换时候，对于数组操作是否只转换第一个元素
+            type: Boolean,
+            default: false
+        }
     },
     emits: ["update:modelValue", "success"],
     data() {
@@ -63,9 +70,14 @@ export default defineComponent({
             }
         },
         //确定导入
-        handleSubmit() {
+        handleSubmit(pickFirstItem: boolean) {
             try {
-                const convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams));
+                let convertResult: ApidocProperty[] | null = null;
+                if (pickFirstItem === false) { //false代表完整导入
+                    convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, false);
+                } else {
+                    convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, true);
+                }
                 this.$emit("success", convertResult);
                 this.handleClose();
             } catch (e) {

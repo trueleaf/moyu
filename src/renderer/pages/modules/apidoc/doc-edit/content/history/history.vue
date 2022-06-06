@@ -50,7 +50,7 @@
                     <el-checkbox label="deleteFolder">删除单个目录</el-checkbox>
                     <el-checkbox label="deleteMany">批量删除</el-checkbox>
                     <el-checkbox label="editDoc">编辑文档</el-checkbox>
-                    <el-checkbox label="addDoc">新建文档</el-checkbox>
+                    <el-checkbox label="addDoc">新建接口</el-checkbox>
                     <el-checkbox label="addFolder">新建文件夹</el-checkbox>
                     <el-checkbox label="copyDoc">复制文档</el-checkbox>
                     <el-checkbox label="position">改变位置</el-checkbox>
@@ -84,7 +84,7 @@
                     <div class="operator mr-2">{{ item2.operator }}</div>
                     <div class="operation mr-1">
                         <div v-if="item2.operation === 'addFolder'">新建文件夹</div>
-                        <div v-if="item2.operation === 'addDoc'">新建文档</div>
+                        <div v-if="item2.operation === 'addDoc'">新建接口</div>
                         <div v-if="item2.operation === 'copyDoc'">复制文档</div>
                         <div v-if="item2.operation === 'copyFolder'">复制文件夹</div>
                         <div v-if="item2.operation === 'deleteFolder'">删除文件夹</div>
@@ -101,7 +101,7 @@
                         <div v-if="item2.operation === 'export'">导出文档</div>
                     </div>
                     <div class="doc-wrap">
-                        <!-- 新增文档 -->
+                        <!-- 新建接口 -->
                         <div v-if="item2.operation === 'addDoc'" class="doc-info">
                             <template v-for="(req) in validRequestMethods">
                                 <span v-if="'get' === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>

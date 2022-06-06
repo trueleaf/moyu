@@ -77,7 +77,8 @@ type ForestData = {
  */
 export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) => void, options?: { childrenKey?: string }): void {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型");
+        return;
     }
     const childrenKey = options?.childrenKey || "children";
     const foo = (forestData: T[], hook: (arg: T) => void) => {
@@ -105,7 +106,8 @@ export function forEachForest<T extends ForestData>(forest: T[], fn: (arg: T) =>
  */
 export function findParentById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型");
+        return null;
     }
     const childrenKey = options?.childrenKey || "children";
     const idKey = options?.idKey || "id";
@@ -131,7 +133,8 @@ export function findParentById<T extends ForestData>(forest: T[], id: string | n
  */
 export function findNextSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型");
+        return null;
     }
     const childrenKey = options?.childrenKey || "children";
     const idKey = options?.idKey || "id";
@@ -156,7 +159,8 @@ export function findNextSiblingById<T extends ForestData>(forest: T[], id: strin
  */
 export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型");
+        return null;
     }
     const childrenKey = options?.childrenKey || "children";
     const idKey = options?.idKey || "id";
@@ -182,7 +186,8 @@ export function findPreviousSiblingById<T extends ForestData>(forest: T[], id: s
  */
 export function findNodeById<T extends ForestData>(forest: T[], id: string | number, options?: { childrenKey?: string, idKey?: string }): T | null {
     if (!Array.isArray(forest)) {
-        throw new Error("第一个参数必须为数组类型");
+        console.error("第一个参数必须为数组类型")
+        return null;
     }
     let result = null;
     const childrenKey = options?.childrenKey || "children";
@@ -454,7 +459,13 @@ function convertToJson(properties: Properties, options: ConvertToObjectOptions):
         }
     }
 }
-// 获取property字段类型
+/**
+ * @description        获取property字段类型
+ * @author             shuxiaokai
+ * @create             2021-8-29 13:38
+ * @param {any}        value - 任意类型变量
+ * @return {string}    返回参数类型
+ */
 function getJsonValueType(value: unknown): JsonValueType {
     let result: JsonValueType = "string";
     if (typeof value === "string") {
@@ -504,10 +515,6 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     }
     if (rootType === "object") {
         const resultJson = {};
-        const data = properties[0].children;
-        if (data.every((p) => !p.key)) {
-            return null;
-        }
         convertToJson(properties[0].children, {
             result: resultJson,
             valueHook,
@@ -518,10 +525,6 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     }
     if (rootType === "array") {
         const resultJson: JSON[] = [];
-        const data = properties[0].children;
-        if (data.every((p) => ((p.type === "number" && p.value === "") || (p.type === "boolean" && p.value === "")))) {
-            return null;
-        }
         convertToJson(properties[0].children, {
             result: resultJson,
             valueHook,
@@ -534,97 +537,180 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
 }
 
 /**
+ * 将录入参数转换为字符串
+ */
+export function apidocConvertParamsToJsonStr(properties: Properties): string {
+    const indent = 4;
+    if (properties[0]?.children && properties[0]?.children[0]?.key === "" && properties[0]?.children[0]?.value === "") {
+        return "";
+    }
+    // const rootType = properties[0]?.type
+    const foo = (moyuData: Properties, deep: number, isRoot?: boolean, parentIsArray?: boolean): string => {
+        let jsonStr = "";
+        if (moyuData?.length === 0) {
+            return "";
+        }
+        for (let i = 0; i < moyuData.length; i += 1) {
+            const item = moyuData[i];
+            const { key, value, type, description } = item;
+            let realValue: string | number | boolean | null = apidocConvertValue(value);
+            if ((type === "string" || type === "number" || type === "boolean") && key === "" && value === "") {
+                continue
+            }
+            if (type === "number") {
+                realValue = Number(realValue);
+            } else if (type === "boolean") {
+                realValue = !!realValue;
+            } else if (type === "string") {
+                realValue = `"${realValue}"`
+            }
+            if (!isRoot && (type === "string" || type === "boolean" || type === "number" || type === "file")) {
+                jsonStr += `${" ".repeat(deep * indent)}"${key}": ${realValue},${description ? ` //${description}` : ""}\n`;
+            } else if (isRoot && (type === "string" || type === "boolean" || type === "number" || type === "file")) {
+                jsonStr += `${" ".repeat(deep * indent)}${realValue}, ${description ? ` //${description}` : ""}\n`;
+            }
+            if (isRoot && !parentIsArray && type === "object") {
+                jsonStr += `{\n${foo(item.children, deep)}\n}`
+            } else if (isRoot && parentIsArray && type === "object") {
+                jsonStr += `${" ".repeat(deep * indent)}{\n${foo(item.children, deep + 1)}${" ".repeat(deep * indent)}},\n`
+            } else if (!isRoot && parentIsArray && type === "object") {
+                jsonStr += `${" ".repeat(deep * indent)}{\n${foo(item.children, deep)}\n${" ".repeat(deep * indent)}},`
+            } else if (!isRoot && !parentIsArray && type === "object") {
+                jsonStr += `${" ".repeat(deep * indent)}"${key}": {\n${" ".repeat(deep * indent)}${foo(item.children, deep)}${" ".repeat(deep * indent)}},\n`
+            }
+            if (type === "array") {
+                // let arrStr = "";
+                // for (let j = 0; j < item.children.length; j += 1) {
+                //     const item2 = item.children[j]
+                //     arrStr += `${foo(item2, deep)}`
+                // }
+                jsonStr += `${" ".repeat(deep * indent)}"${key}": [\n${foo(item.children, deep + 1, true, true)}${" ".repeat(deep * indent)}],\n`
+            }
+        }
+        return jsonStr;
+    }
+    return foo(properties || [], 1, true);
+}
+
+/**
  * 将json类型数据转换为moyu类型参数
  */
-export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyValueHook): Properties {
-    const globalResult: ApidocProperty[] = [];
-    // const rootType = getJsonValueType(jsonData);
-    // if (rootType === "object" || rootType === "array") {
-    //     const rootProperty = apidocGenerateProperty(rootType);
-    //     globalResult.push(rootProperty);
-
-    // } else {
-    //     const rootProperty = apidocGenerateProperty(rootType);
-    //     rootProperty.value = jsonData?.toString() || "";
-    //     globalResult.push(rootProperty);
-    // }
-    // eslint-disable-next-line no-shadow
-    const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
-        if (getJsonValueType(obj) === "object") {
-            const objProperty = apidocGenerateProperty("object");
-            result.push(objProperty);
-            Object.keys(obj as JsonObj).forEach((key) => {
-                const itemValue = (obj as JsonObj)[key];
-                const itemType = getJsonValueType(itemValue);
-                if (itemType === "string" || itemType === "number" || itemType === "boolean") {
-                    const property = apidocGenerateProperty(itemType);
-                    property.key = key;
-                    property.value = itemValue == null ? "null" : itemValue.toString();
-                    if (hook) {
-                        hook(property, itemValue);
-                    }
-                    objProperty.children.push(property);
-                } else if (itemType === "object") {
-                    const property = apidocGenerateProperty(itemType);
-                    property.key = key;
-                    if (hook) {
-                        hook(property, itemValue);
-                    }
-                    objProperty.children.push(property);
-                    foo(itemValue, {
-                        result: property.children,
-                        deep: deep + 1,
-                        hook,
-                    });
-                } else if (itemType === "array") {
-                    // eslint-disable-next-line no-shadow
-                    const itemValue = (obj as JsonObj)[key] as JsonArr
-                    const property = apidocGenerateProperty(itemType);
-                    property.key = key;
-                    if (hook) {
-                        hook(property, itemValue);
-                    }
-                    objProperty.children.push(property);
-                    if (getJsonValueType(itemValue[0]) === "object") {
-                        const property2 = apidocGenerateProperty("object");
-                        property.children.push(property2)
-                        foo(itemValue[0], {
-                            result: property.children[0].children,
+export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyValueHook, arrPickFirst?: boolean): Properties {
+    const globalResult = [];
+    const rootType = getJsonValueType(jsonData);
+    if (rootType === "object" || rootType === "array") {
+        const rootProperty = apidocGenerateProperty(rootType);
+        globalResult.push(rootProperty);
+        // eslint-disable-next-line no-shadow
+        const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
+            if (getJsonValueType(obj) === "object") {
+                Object.keys(obj as JsonObj).forEach((key) => {
+                    const itemValue = (obj as JsonObj)[key];
+                    const itemType = getJsonValueType(itemValue);
+                    if (itemType === "string" || itemType === "number" || itemType === "boolean") {
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        property.value = itemValue == null ? "null" : itemValue.toString();
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                    } else if (itemType === "object") {
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        foo(itemValue, {
+                            result: property.children,
                             deep: deep + 1,
                             hook,
                         });
-                    } else {
-                        foo(itemValue[0], {
+                    } else if (itemType === "array") {
+                        // eslint-disable-next-line no-shadow
+                        const itemValue = (obj as JsonObj)[key] as JsonArr
+                        const property = apidocGenerateProperty(itemType);
+                        property.key = key;
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        if (getJsonValueType(itemValue[0]) === "object") {
+                            const property2 = apidocGenerateProperty("object");
+                            property.children.push(property2)
+                            foo(itemValue[0], {
+                                result: property.children[0].children,
+                                deep: deep + 1,
+                                hook,
+                            });
+                        } else {
+                            // console.log("string", itemValue, property)
+                            itemValue.forEach(v => {
+                                foo(v, {
+                                    result: property.children,
+                                    deep: deep + 1,
+                                    hook,
+                                });
+                            })
+                        }
+                    }
+                });
+            } else if (getJsonValueType(obj) === "array") {
+                const loopNum = arrPickFirst ? 1 : (obj as JsonArr).length
+                for (let i = 0; i < loopNum; i += 1) {
+                    const itemValue = (obj as JsonArr)[i];
+                    const itemType = getJsonValueType(itemValue);
+                    if (itemType === "string" || itemType === "number" || itemType === "boolean") {
+                        const property = apidocGenerateProperty(itemType);
+                        property.value = itemValue == null ? "null" : itemValue.toString();
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                    } else if (itemType === "object") {
+                        const property = apidocGenerateProperty(itemType);
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        foo(itemValue, {
+                            result: property.children,
+                            deep: deep + 1,
+                            hook,
+                        });
+                    } else if (itemType === "array") {
+                        // eslint-disable-next-line no-shadow
+                        const itemValue = (obj as JsonArr)[i]
+                        const property = apidocGenerateProperty(itemType);
+                        if (hook) {
+                            hook(property, itemValue);
+                        }
+                        result.push(property);
+                        foo(itemValue, {
                             result: property.children,
                             deep: deep + 1,
                             hook,
                         });
                     }
                 }
-            });
-        } else if (getJsonValueType(obj) === "array") {
-            const valueType = getJsonValueType(obj);
-            const property = apidocGenerateProperty(valueType);
-            result.push(property)
-            for (let i = 0; i < (obj as JsonArr).length; i += 1) {
-                foo((obj as JsonArr)[i], {
-                    result: property.children,
-                    deep: deep + 1,
-                    hook,
-                });
+            } else {
+                const valueType = getJsonValueType(obj);
+                const property = apidocGenerateProperty(valueType);
+                property.value = obj as string;
+                result.push(property)
             }
-        } else {
-            const valueType = getJsonValueType(obj);
-            const property = apidocGenerateProperty(valueType);
-            property.value = (obj as string).toString();
-            result.push(property)
         }
+        foo(jsonData, {
+            result: rootProperty.children,
+            deep: 1,
+            hook,
+        });
+    } else {
+        const rootProperty = apidocGenerateProperty(rootType);
+        rootProperty.value = jsonData?.toString() || "";
+        globalResult.push(rootProperty);
     }
-    foo(jsonData, {
-        result: globalResult,
-        deep: 1,
-        hook,
-    });
     return globalResult;
 }
 
@@ -654,6 +740,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
             maintainer: "",
             deletePerson: "",
             spendTime: 0,
+            readonly: false,
         },
         preRequest: {
             raw: ""
@@ -672,13 +759,13 @@ export function apidocGenerateApidoc(): ApidocDetail {
             requestBody: {
                 mode: "json",
                 json: [],
+                rawJson: "",
                 formdata: [],
                 urlencoded: [],
                 raw: {
                     data: "",
                     dataType: "text/plain"
                 },
-                rawJson: "",
                 file: {
                     src: "",
                 },
@@ -695,7 +782,8 @@ export function apidocGenerateApidoc(): ApidocDetail {
                     json: [],
                     dataType: "application/json",
                     text: ""
-                }
+                },
+                isMock: true
             }],
             headers: [],
             contentType: "",
@@ -710,6 +798,14 @@ export function apidocGenerateApidoc(): ApidocDetail {
 export function apidocGenerateRequestParamTypes(): ApidocRequestParamTypes {
     return ["path", "params", "json", "x-www-form-urlencoded", "formData", "text/javascript", "text/plain", "text/html", "application/xml"];
 }
+// /**
+//  * @description        获取当前节点公共请求头
+//  * @author             shuxiaokai
+//  * @create             2022-01-20 22:35
+//  */
+//  export function apidocGetCommonHeader(docId: string) {
+//     store.state["apidoc/apidoc"].apidoc
+// }
 
 /**
  * @description        将byte转换为易读单位
@@ -760,3 +856,31 @@ export function formatMs(ms: number): string {
     }
     return result;
 }
+
+/**
+ * @description        拷贝文本
+ * @author             shuxiaokai
+ * @create             2020-10-26 21:56
+ * @param {string}     str - 需要拷贝的文本
+ */
+export function copy(str: string): void {
+    const dom = document.createElement("textarea");
+    dom.value = str;
+    dom.style.position = "fixed";
+    dom.style.top = "-9999px";
+    dom.style.left = "-9999px";
+    document.body.appendChild(dom);
+    dom.select();
+    document.execCommand("Copy", false);
+    document.body.removeChild(dom);
+}
+export function randomInt(start: number, end: number): number {
+    if (start > end) {
+        console.log("第二个参数必须大于第一个");
+        return 0;
+    }
+    const range = end - start - 1;
+    return Math.floor((Math.random() * range + 1))
+}
+
+export * from "./apidoc-format"

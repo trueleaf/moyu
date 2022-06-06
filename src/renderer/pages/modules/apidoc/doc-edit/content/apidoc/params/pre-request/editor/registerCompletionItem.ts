@@ -187,6 +187,24 @@ const requestSuggestions = [{
     keyword: "pm.sendRequest",
 }, {
     label: {
+        label: "env",
+        description: "所有环境信息"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `env`,
+    sortText: "1",
+    keyword: "pm.request.env",
+}, {
+    label: {
+        label: "currentEnv",
+        description: "当前环境"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `currentEnv`,
+    sortText: "1",
+    keyword: "pm.request.currentEnv",
+}, {
+    label: {
         label: "url",
         description: "请求url"
     },

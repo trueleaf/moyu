@@ -50,5 +50,8 @@ body {
     .el-input.is-disabled .el-input__inner {
         box-shadow: none;
     }
+    .el-menu--horizontal {
+        border-bottom: none;
+    }
 }
 

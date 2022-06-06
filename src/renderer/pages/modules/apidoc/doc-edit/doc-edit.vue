@@ -61,11 +61,16 @@ const initCookies = () => {
 const initLayout = () => {
     store.commit("apidoc/baseInfo/initLayout")
 }
+//初始化header信息
+const initCommonHeaders = () => {
+    store.dispatch("apidoc/baseInfo/getCommonHeaders")
+}
 onMounted(() => {
     window.addEventListener("keydown", bindShortcut);
     getProjectInfo();
     initCookies();
     initLayout();
+    initCommonHeaders();
 })
 onBeforeUnmount(() => {
     window.removeEventListener("keydown", bindShortcut);

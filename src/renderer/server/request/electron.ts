@@ -6,6 +6,7 @@ import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer"
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
+import { apidocConvertJsonDataToParams } from "@/helper/index"
 import config from "./config"
 import apidocConverter from "./utils"
 
@@ -98,7 +99,7 @@ async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
 function electronRequest() {
     const requestInstance = initGot();
     if (!requestInstance) {
-        console.warn("当前环境无法获取Got实例")
+        console.warn("当前环境无法获取Got实例");
         return
     }
     try {
@@ -111,9 +112,6 @@ function electronRequest() {
             body = apidocConverter.getRequestBody() as (string | FormData);
         }
         const headers = apidocConverter.getHeaders();
-        // console.log("请求url", requestUrl);
-        // console.log("请求header", headers);
-        // console.log("请求body", body);
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
             store.commit("apidoc/response/changeIsResponse", true)
@@ -133,7 +131,6 @@ function electronRequest() {
         let streamSize = 0;
         //收到返回
         requestStream.on("response", (response: IncomingMessageWithTimings & { ip: string }) => {
-            // console.log("response", response)
             responseData = response;
             store.commit("apidoc/response/changeResponseHeader", response.headers);
             store.commit("apidoc/response/changeResponseCookies", response.headers["set-cookie"] || []);
@@ -195,17 +192,26 @@ export function sendRequest(): void {
     store.commit("apidoc/response/changeIsResponse", false);
     store.commit("apidoc/baseInfo/clearTempVariables");
     store.commit("apidoc/response/changeLoading", true);
-    const cpApidoc = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
-    const cpApidoc2 = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
+    const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
+    const cpApidoc2: ApidocDetail = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc));
     apidocConverter.setData(cpApidoc as ApidocDetail);
     apidocConverter.replaceUrl("");
     apidocConverter.clearTempVariables()
     const worker = new Worker("/sandbox/worker.js");
+    const currentEnv = cpApidoc.item.url.host
     //初始化默认apidoc信息
     worker.postMessage({
-        type: "init",
+        type: "init-apidoc",
         value: cpApidoc2
     });
+    //初始化变量信息
+    worker.postMessage({
+        type: "init-baseInfo",
+        value: JSON.parse(JSON.stringify({
+            ...store.state["apidoc/baseInfo"],
+            currentEnv,
+        }))
+    })
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
         type: "request",
@@ -262,7 +268,8 @@ export function sendRequest(): void {
             apidocConverter.changeQueryParams(res.data.value);
         }
         if (res.data.type === "change-json-body") { //改变请求body
-            apidocConverter.changeJsonBody(res.data.value);
+            const moyuJson = apidocConvertJsonDataToParams(res.data.value);
+            apidocConverter.changeJsonBody(moyuJson);
         }
         if (res.data.type === "change-formdata-body") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);

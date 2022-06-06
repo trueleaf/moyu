@@ -1,11 +1,11 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-08-17 21:28
-    模块名称：域名、服务器地址、环境维护
+    模块名称：域名、服务器地址、接口前缀
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="70%" :title="$t('域名、服务器地址、环境维护')" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" width="85%" :title="$t('域名、服务器地址、接口前缀')" @close="handleClose">
         <div class="host-wrap">
             <!-- 左侧新增数据 -->
             <s-resize-x :min="400" :max="600" :width="400" name="curd-host" tabindex="1" class="add-host">
@@ -20,13 +20,24 @@
                                 <span>http://127.0.0.199:81/api</span>
                             </div>
                         </li>
-                        <li>
+                        <li class="mb-2">
                             <div class="mb-1">域名+路径(可选)</div>
                             <div class="gray-600">
                                 <span>{{ $t("例如") }}:</span>
                                 <span class="ml-1">www.demo.com</span>
                                 <el-divider direction="vertical"></el-divider>
                                 <span>www.demo.com/api</span>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="mb-1">域名不包含路径后缀</div>
+                            <div class="orang">
+                                <span>正确域名:</span>
+                                <span class="ml-1">www.demo.com</span>
+                            </div>
+                            <div class="orang">
+                                <span>错误域名:</span>
+                                <span class="ml-1">www.demo.com/prefix/test</span>
                             </div>
                         </li>
                     </ul>
@@ -103,7 +114,7 @@
                 >
                     <el-table-column :label="$t('服务器名称')" align="center">
                         <template #default="scope">
-                            <el-input v-if="scope.row.__active" v-model="scope.row.name" :size="config.renderConfig.layout.size" class="w-100" maxlength="8" clearable show-word-limit></el-input>
+                            <el-input v-if="editItem?._id === scope.row._id" v-model="scope.row.name" type="textarea" :autosize="{ minRows: 3 }" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
@@ -123,6 +134,10 @@
                     </el-table-column>
                     <el-table-column :label="$t('是否共享')" align="center">
                         <template #default="scope">
+                            <!-- <el-radio-group v-if="editItem?._id === scope.row._id && editItem?.isLocal" v-model="scope.row.isLocal">
+                                <el-radio :label="true">仅本地</el-radio>
+                                <el-radio :label="false">可共享</el-radio>
+                            </el-radio-group> -->
                             <span v-if="scope.row.isLocal" class="orange">{{ $t("仅本地") }}</span>
                             <span v-else class="green">{{ $t("可共享") }}</span>
                         </template>
@@ -313,6 +328,7 @@ export default defineComponent({
                     _id: row._id,
                     name: row.name,
                     url: row.url,
+                    isLocal: row.isLocal
                 };
                 this.axios.put("api/project/doc_service", params).then(() => {
                     this.$message.success(this.$t("修改成功"));

@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="$t('新增文档')" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="$t('新建接口')" @close="handleClose">
         <s-form ref="form" @submit.prevent="handleAddFile">
             <s-form-item :label="$t('文档名称')" prop="name" focus one-line></s-form-item>
         </s-form>

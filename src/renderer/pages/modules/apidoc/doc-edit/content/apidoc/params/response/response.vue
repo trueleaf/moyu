@@ -58,7 +58,7 @@
                     <el-divider direction="vertical"></el-divider>
                     <div class="content-type">
                         <div class="d-flex a-center j-center">
-                            <span class="flex0">{{ $t("返回格式") }}：</span>
+                            <!-- <span class="flex0">{{ $t("返回格式") }}：</span> -->
                             <el-popover v-model:visible="mimeVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                                 <template #reference>
                                     <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
@@ -74,6 +74,10 @@
                             </el-popover>
                         </div>
                     </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
+                        <span class="cursor-pointer ml-1" :class="{active: item.isMock}" @click="handleSelectMock(index)">Mock</span>
+                    </el-tooltip>
                 </div>
             </template>
             <template #tail>
@@ -81,8 +85,8 @@
                     <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
                     <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
                     <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select flex0">
-                        <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
-                        <div v-if="showTemplate" class="template-wrap">
+                        <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
+                        <div v-if="showTemplateIndex === index" class="template-wrap">
                             <div class="header">
                                 <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
                                 <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
@@ -100,7 +104,7 @@
                                     <span class="tail">{{ item2.creatorName }}</span>
                                 </div>
                             </template>
-                            <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
+                            <div v-else class="select-item disabled d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
                         </div>
                     </div>
                     <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
@@ -146,7 +150,6 @@ import useParamsTemplate from "./compsables/params-template" //参数模板
 |--------------------------------------------------------------------------
 | 编辑操作
 |--------------------------------------------------------------------------
-|
 */
 //当前编辑的节点
 const currentEditNode: Ref<null | { title: string, _title: string, index: number }> = ref(null);
@@ -193,6 +196,15 @@ const handleChangeTextValeu = (value: string, index: number) => {
         index,
         value,
     });
+}
+/*
+|--------------------------------------------------------------------------
+| mock操作
+|--------------------------------------------------------------------------
+*/
+//选择mock
+const handleSelectMock = (index: number) => {
+    store.commit("apidoc/apidoc/changeResponseMockByIndex", index);
 }
 /*
 |--------------------------------------------------------------------------
@@ -320,7 +332,7 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
 | 模板相关操作
 |--------------------------------------------------------------------------
 */
-const { showTemplate, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
+const { showTemplateIndex, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
 //选择模板
 const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
     handleConvertSuccess(templateInfo.items)
@@ -352,7 +364,7 @@ onMounted(() => {
             width: size(140);
         }
         .content-type {
-            max-width: size(300);
+            max-width: size(200);
             .type-text {
                 max-width: size(200);
                 // overflow: hidden;
@@ -372,6 +384,9 @@ onMounted(() => {
             &.error {
                 border: 1px solid $red;
             }
+        }
+        .active {
+            color: $theme-color;
         }
     }
     .edit-icon {
@@ -420,6 +435,7 @@ onMounted(() => {
         }
         .el-input__inner {
             border: none;
+            box-shadow: none;
         }
         .select-item {
             line-height: 1.8em;
@@ -433,6 +449,10 @@ onMounted(() => {
             &.active {
                 background: $theme-color;
                 color: $white;
+            }
+            &.disabled {
+                background: inherit;
+                color: inherit;
             }
             .head {
                 margin-right: size(10);

@@ -1,8 +1,55 @@
 import { ActionContext } from "vuex"
 import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
-import type { Response, ApidocMindParam } from "@@/global"
+import type { Response, ApidocMindParam, ApidocProperty, ApidocPropertyType } from "@@/global"
 import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
 import router from "../../router/index"
+
+type CommonHeaderResult = {
+    matched: boolean,
+    data: Pick<ApidocProperty, "key" | "value" | "description">[]
+};
+
+const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], id: string | undefined, preCommonHeaders: Pick<ApidocProperty, "key" | "value" | "description">[], result: CommonHeaderResult) => {
+    const loopList = [];
+    for (let i = 0; i < data.length; i += 1) {
+        if (result.matched) {
+            return;
+        }
+        if (preCommonHeaders && preCommonHeaders.length > 0) {
+            preCommonHeaders.forEach(headerInfo => {
+                const matchedHeader = result.data.find(v => v.key === headerInfo.key);
+                if (matchedHeader) { //子节点覆盖父节点
+                    matchedHeader.key = headerInfo.key;
+                    matchedHeader.value = headerInfo.value;
+                    matchedHeader.description = headerInfo.description;
+                } else {
+                    result.data.push({
+                        key: headerInfo.key,
+                        value: headerInfo.value,
+                        description: headerInfo.description,
+                    })
+                }
+            })
+        }
+        const { _id, commonHeaders, children } = data[i];
+        if (_id === id) { //找到子节点结束递归
+            result.matched = true;
+            const cpData = JSON.parse(JSON.stringify(result.data));
+            result.data = cpData;
+            return;
+        }
+        if (children.length > 0 && !result.matched) {
+            const preData = commonHeaders.length > 0 ? commonHeaders : preCommonHeaders;
+            loopList.push({
+                preData,
+                children,
+            });
+        }
+    }
+    loopList.forEach(v => {
+        getMatchedHeaders(v.children, id, JSON.parse(JSON.stringify(v.preData)), result);
+    })
+}
 
 const baseInfo = {
     namespaced: true,
@@ -22,6 +69,7 @@ const baseInfo = {
             enabled: false,
         },
         mode: "view",
+        commonHeaders: [],
     },
     mutations: {
         //改变项目基本信息
@@ -84,6 +132,23 @@ const baseInfo = {
         changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
             state.mode = mode;
         },
+        //改变公共请求头信息
+        changeCommonHeaders(state: ApidocProjectBaseInfoState, headers: ApidocProjectBaseInfoState["commonHeaders"]): void {
+            state.commonHeaders = headers
+        },
+        //根据id获取公共请求头
+        getCommonHeadersById(state: ApidocProjectBaseInfoState, id: string): Pick<ApidocProperty<ApidocPropertyType>, "key" | "value" | "description">[] {
+            if (!id) {
+                console.warn("必须传递id");
+                return [];
+            }
+            const result: CommonHeaderResult = {
+                matched: false,
+                data: []
+            };
+            getMatchedHeaders(state.commonHeaders, id, [], result);
+            return result.data;
+        }
     },
     actions: {
         /**
@@ -129,6 +194,24 @@ const baseInfo = {
                     console.error(err);
                     reject(err);
                 })
+            });
+        },
+        /**
+         * 获取全部公共请求头信息
+         */
+        async getCommonHeaders(context: ActionContext<ApidocProjectBaseInfoState, RootState>): Promise<void> {
+            return new Promise((resolve, reject) => {
+                const projectId = router.currentRoute.value.query.id as string;
+                const params = {
+                    projectId
+                }
+                axios.get<Response<ApidocProjectBaseInfoState["commonHeaders"][]>, Response<ApidocProjectBaseInfoState["commonHeaders"][]>>("/api/project/common_headers", { params }).then((res) => {
+                    context.commit("changeCommonHeaders", res.data)
+                    resolve();
+                }).catch((err) => {
+                    console.error(err);
+                    reject(err);
+                });
             });
         },
     },

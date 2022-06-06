@@ -7,10 +7,11 @@
 <template>
     <s-dialog :model-value="modelValue" :title="$t('修改用户信息')" @close="handleClose">
         <el-divider content-position="left">{{ $t("基础信息") }}</el-divider>
-        <s-form ref="form" v-loading="loading2" :edit-data="formInfo">
+        <s-form ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
             <s-form-item :label="$t('登录名称')" prop="loginName" required half-line></s-form-item>
             <s-form-item :label="$t('真实姓名')" prop="realName" required half-line></s-form-item>
-            <s-form-item :label="$t('手机号')" prop="phone" half-line phone required></s-form-item>
+            <s-form-item :label="$t('查看范围')" prop="isAdmin" type="select" :select-enum="viewPermissionEnum" half-line></s-form-item>
+            <!-- <s-form-item :label="$t('手机号')" prop="phone" half-line phone required></s-form-item> -->
         </s-form>
         <el-divider content-position="left">{{ $t("角色选择") }}</el-divider>
         <el-checkbox-group v-model="roleIds">
@@ -48,7 +49,14 @@ export default defineComponent({
         return {
             formInfo: {} as Record<string, unknown>, //用户基本信息
             roleIds: [] as string[], //----------------角色id列表
-            roleEnum: [] as PermissionRoleEnum, //---------------角色枚举信息
+            roleEnum: [] as PermissionRoleEnum, //-----角色枚举信息
+            viewPermissionEnum: [{
+                id: true,
+                name: "全部项目"
+            }, {
+                id: false,
+                name: "局部项目"
+            }], //-----------------是否允许查看所有项目
             loading: false, //-------------------------用户信息加载
             loading2: false, //------------------------修改用户加载
         };
@@ -66,6 +74,7 @@ export default defineComponent({
                     loginName: res.data.loginName,
                     realName: res.data.realName,
                     phone: res.data.phone,
+                    isAdmin: res.data.isAdmin,
                 };
                 this.roleIds = res.data.roleIds;
             }).catch((err) => {
@@ -95,9 +104,9 @@ export default defineComponent({
                         _id: this.userId,
                         loginName: formInfo.loginName,
                         realName: formInfo.realName,
-                        phone: formInfo.phone,
                         roleIds: this.roleIds,
                         roleNames,
+                        isAdmin: formInfo.isAdmin,
                     };
                     this.loading = true;
                     this.axios.put("/api/security/user_permission", params).then(() => {

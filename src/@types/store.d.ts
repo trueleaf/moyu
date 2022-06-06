@@ -188,6 +188,25 @@ type ApidocCookieInfo = {
      */
     sameSite: string,
 }
+//公共请求头信息
+type ApidocProjectCommonHeader = {
+    /**
+     * _id值
+     */
+    _id: string,
+    /**
+     * 是否为文件夹
+     */
+    isFolder: boolean,
+    /**
+     * 公共请求头信息
+     */
+    commonHeaders: Pick<ApidocProperty, "key" | "value" | "description">[],
+    /**
+     * 子元素
+     */
+    children: ApidocProjectCommonHeader[]
+}
 //项目基本信息
 type ApidocProjectBaseInfoState = {
     /**
@@ -250,10 +269,28 @@ type ApidocProjectBaseInfoState = {
     /**
      * 模式，view,edit
      */
-    mode: "view" | "edit"
+    mode: "view" | "edit",
+    /**
+     * 公共请求头
+     */
+    commonHeaders: ApidocProjectCommonHeader[]
 };
 //=========================================================================//
-type ApidocTabType = "doc" | "config" | "paramsTemplate" | "onlineLink" | "exportDoc" | "importDoc" | "history" | "variable" | "mock" | "recycler" | "guide" | "mindParams"
+type ApidocTabType =
+"doc" |
+"config" |
+"paramsTemplate" |
+"onlineLink" |
+"exportDoc" |
+"importDoc" |
+"history" |
+"variable" |
+"mock" |
+"recycler" |
+"guide" |
+"mindParams" |
+"hook" |
+"commonHeader"
 //tabs导航
 
 type ApidocTab = {
@@ -434,7 +471,6 @@ type ApidocRequest = {
     method: ApidocHttpRequestMethod, //请求方法
     body: string | FormData, //请求body
 };
-
 /*
 |--------------------------------------------------------------------------
 | 其他
@@ -450,7 +486,7 @@ type State = {
     "apidoc/apidoc": ApidocState,
     "apidoc/response": ApidocResponseState,
     "apidoc/mock": ApidocMockState,
-    "apidoc/request": ApidocRequest
+    "apidoc/request": ApidocRequest,
 }
 export {
     PermissionState,
@@ -468,5 +504,6 @@ export {
     ApidocMockState,
     ApidocMockMapInfo,
     ApidocRequest,
+    ApidocProjectVariable,
     State,
 }

@@ -7,20 +7,41 @@
 <template>
     <div class="api-operation">
         <!-- 环境、host、服务器地址 -->
-        <div class="d-flex a-center">
-            <el-radio-group v-model="host" size="small" @change="handleChangeHost">
-                <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
-                    <template #reference>
-                        <el-radio :label="mockServer" border>{{ $t("Mock服务器") }}</el-radio>
-                    </template>
-                </el-popover>
-                <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
-                    <template #reference>
-                        <el-radio :label="item.url" border>{{ item.name }}</el-radio>
-                    </template>
-                </el-popover>
-            </el-radio-group>
-            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("环境维护") }}</el-button>
+        <div v-if="hostEnum.length < 5" class="d-flex a-center">
+            <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
+                <template #reference>
+                    <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label="" @change="handleChangeHost">{{ $t("Mock服务器") }}</el-checkbox>
+                </template>
+            </el-popover>
+            <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
+                <template #reference>
+                    <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border @change="handleChangeHost">{{ item.name }}</el-checkbox>
+                </template>
+            </el-popover>
+            <!-- <el-checkbox-group v-model="host" size="small" @change="handleChangeHost">
+            </el-checkbox-group> -->
+            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+            <div v-if="!config.isElectron" class="proxy-wrap">
+                <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
+                <el-switch v-model="isProxy"></el-switch>
+            </div>
+        </div>
+        <div v-else class="d-flex a-center">
+            <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
+                <el-option :value="mockServer" label="Mock服务器">
+                    <div class="env-item">
+                        <div class="w-200">Mock服务器</div>
+                        <div class="gray-600">{{ mockServer }}</div>
+                    </div>
+                </el-option>
+                <el-option v-for="(item,index) in hostEnum" :key="index" :value="item.url" :label="item.name">
+                    <div class="env-item">
+                        <div class="w-200">{{ item.name }}</div>
+                        <div class="gray-600">{{ item.url }}</div>
+                    </div>
+                </el-option>
+            </el-select>
+            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
@@ -183,8 +204,8 @@ const fullUrl = computed(() => {
     .proxy-wrap {
         margin-left: auto;
     }
-    .el-radio {
-        margin-right: size(5);
+    .el-checkbox {
+        margin-right: size(10);
     }
     .op-wrap {
         display: flex;
@@ -217,5 +238,11 @@ const fullUrl = computed(() => {
             user-select: none;
         }
     }
+}
+.env-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 500px;
 }
 </style>

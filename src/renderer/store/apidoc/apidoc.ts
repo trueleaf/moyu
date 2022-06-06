@@ -173,9 +173,10 @@ const apidoc = {
         changeBodyRawType(state: ApidocState, rawType: ApidocBodyRawType): void {
             state.apidoc.item.requestBody.raw.dataType = rawType;
         },
-        //改变rawJson值
-        changeRawJson(state: ApidocState, jsonStr: string): void {
-            state.apidoc.item.requestBody.rawJson = jsonStr;
+        //改变rawBody数据
+        changeRawJson(state: ApidocState, rawJson: string): void {
+            state.apidoc.item.requestBody.rawJson = rawJson;
+            state.apidoc.item.requestBody.json = [];
         },
         /*
         |--------------------------------------------------------------------------
@@ -233,6 +234,13 @@ const apidoc = {
             const { index, value } = payload
             state.apidoc.item.responseParams[index].value.json = value;
         },
+        //根据index值改变mock值
+        changeResponseMockByIndex(state: ApidocState, index: number): void {
+            state.apidoc.item.responseParams.forEach(v => {
+                v.isMock = false;
+            })
+            state.apidoc.item.responseParams[index].isMock = true;
+        },
         //新增一个response
         addResponseParam(state: ApidocState): void {
             const objectParams = apidocGenerateProperty("object");
@@ -249,7 +257,8 @@ const apidoc = {
                         url: "",
                         raw: "",
                     },
-                }
+                },
+                isMock: false,
             })
         },
         //删除一个response
@@ -269,9 +278,11 @@ const apidoc = {
                 payload.item.queryParams.push(apidocGenerateProperty());
             }
             // bodyParams如果没有数据则默认添加一条空数据
-            if (payload.item.requestBody.rawJson.length === 0) {
-                payload.item.requestBody.rawJson = "";
-            }
+            // if (payload.item.requestBody.json.length === 0) {
+            //     const bodyRootParams = apidocGenerateProperty("object");
+            //     bodyRootParams.children[0] = apidocGenerateProperty();
+            //     payload.item.requestBody.json.push(bodyRootParams);
+            // }
             //formData如果没有数据则默认添加一条空数据
             if (payload.item.requestBody.formdata.length === 0) {
                 payload.item.requestBody.formdata.push(apidocGenerateProperty());
@@ -326,6 +337,10 @@ const apidoc = {
         changePropertyValue<K extends keyof ApidocProperty>(state: ApidocState, payload: EditApidocPropertyPayload<K>): void {
             const { data, field, value } = payload;
             data[field] = value;
+        },
+        //改变json类型requestBody
+        changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
+            state.apidoc.item.requestBody.json = payload;
         },
         /*
         |--------------------------------------------------------------------------
@@ -458,11 +473,11 @@ const apidoc = {
             const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
             const paths = filterValidParams(apidocDetail.item.paths, "paths");
             const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams").filter(v => v.description && v.value);
-            // const requestBody = filterValidParams(apidocDetail.item.requestBody.rawJson, "requestBody").filter(v => v.description && v.value);
+            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody").filter(v => v.description && v.value);
             const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams").filter(v => v.description && v.value);
             const params = {
                 projectId,
-                mindParams: paths.concat(queryParams).concat(responseParams)
+                mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
             };
             axiosInstance.post("/api/project/doc_params_mind", params).then((res) => {
                 if (res.data != null) {
