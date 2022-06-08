@@ -24,9 +24,9 @@
                 <!-- 新增嵌套数据按钮 -->
                 <el-button
                     v-if="!disableAdd"
-                    type="text"
                     :title="addNestTip"
                     :icon="Plus"
+                    text
                     :disabled="!nest"
                     @click="addNestTreeData(scope.data)"
                 >
@@ -37,7 +37,7 @@
                     class="mr-2"
                     :disabled="checkDeleteDisable(scope)"
                     :title="`${(!scope.node.nextSibling && scope.node.level === 1) ? $t('此项不允许删除') : $t('删除当前行')}`"
-                    type="text"
+                    text
                     :icon="Close"
                     @click="handleDeleteParams(scope)"
                 >

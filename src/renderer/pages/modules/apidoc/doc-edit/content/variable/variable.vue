@@ -62,9 +62,9 @@
                 <el-table-column :label="$t('创建者')" align="center" prop="creator"></el-table-column>
                 <el-table-column :label="$t('操作')" align="center">
                     <template #default="scope">
-                        <el-button v-show="!scope.row.__active && !isEditing" type="text" @click="handleEdit(scope.row)">{{ $t("编辑") }}</el-button>
-                        <el-button v-show="scope.row.__active" type="text" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
-                        <el-button v-show="scope.row.__active" type="text" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
+                        <el-button v-show="!scope.row.__active && !isEditing" type="primary" text @click="handleEdit(scope.row)">{{ $t("编辑") }}</el-button>
+                        <el-button v-show="scope.row.__active" type="primary" text @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
+                        <el-button v-show="scope.row.__active" type="primary" text @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
                         <el-button link type="primary" text @click="handleDelete(scope.row._id)">{{ $t("删除") }}</el-button>
                     </template>
                 </el-table-column>

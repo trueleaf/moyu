@@ -20,7 +20,7 @@
             </el-popover>
             <!-- <el-checkbox-group v-model="host" size="small" @change="handleChangeHost">
             </el-checkbox-group> -->
-            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+            <el-button v-if="!isView" type="primary" text class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
@@ -41,7 +41,7 @@
                     </div>
                 </el-option>
             </el-select>
-            <el-button v-if="!isView" type="text" class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+            <el-button v-if="!isView" type="primary" text class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
             <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
