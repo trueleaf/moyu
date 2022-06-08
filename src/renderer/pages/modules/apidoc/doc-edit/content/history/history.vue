@@ -12,7 +12,7 @@
                 <div>操作人员：</div>
                 <el-checkbox-group v-model="formInfo.operators">
                     <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item.name"></el-checkbox>
-                    <el-button type="text" @click="handleClearOperator">清空</el-button>
+                    <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
                 </el-checkbox-group>
             </div>
             <!-- 日期范围 -->
@@ -39,7 +39,7 @@
                         end-placeholder="结束日期"
                     >
                     </el-date-picker>
-                    <el-button type="text" @click="handleClearDate">清空</el-button>
+                    <el-button link type="primary" text @click="handleClearDate">清空</el-button>
                 </el-radio-group>
             </div>
             <!-- 日志类型 -->
@@ -57,7 +57,7 @@
                     <el-checkbox label="rename">重命名</el-checkbox>
                     <el-checkbox label="import">导入</el-checkbox>
                     <el-checkbox label="export">导出</el-checkbox>
-                    <el-button type="text" @click="handleClearType">清空</el-button>
+                    <el-button link type="primary" text @click="handleClearType">清空</el-button>
                 </el-checkbox-group>
             </div>
             <!-- 接口名称和接口url -->

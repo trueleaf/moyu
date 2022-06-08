@@ -13,7 +13,7 @@
                 <div>操作人员：</div>
                 <el-checkbox-group v-model="formInfo.operators">
                     <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item.name"></el-checkbox>
-                    <el-button type="text" @click="handleClearOperator">清空</el-button>
+                    <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
                 </el-checkbox-group>
             </div>
             <!-- 日期范围 -->
@@ -40,7 +40,7 @@
                         end-placeholder="结束日期"
                     >
                     </el-date-picker>
-                    <el-button type="text" @click="handleClearDate">清空</el-button>
+                    <el-button link type="primary" text @click="handleClearDate">清空</el-button>
                 </el-radio-group>
             </div>
             <!-- 接口名称和接口url -->
@@ -69,12 +69,12 @@
                         <div class="date-list-wrap">
                             <div v-for="(docInfo, index3) in chunkDeleteInfo" :key="index3" class="docinfo">
                                 <div class="op-area mr-4">
-                                    <el-button type="text" :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
+                                    <el-button link type="primary" text :loading="loading2" @click="handleRestore(docInfo)">恢复</el-button>
                                     <el-divider direction="vertical"></el-divider>
                                     <el-popover v-model:visible="docInfo._visible" placement="right" width="auto" trigger="manual" transition="none">
                                         <doc-detail v-if="docInfo._visible" :id="docInfo._id" @close="docInfo._visible = false;"></doc-detail>
                                         <template #reference>
-                                            <el-button type="text" @click.stop="handleShowDetail(docInfo)">详情</el-button>
+                                            <el-button link type="primary" text @click.stop="handleShowDetail(docInfo)">详情</el-button>
                                         </template>
                                     </el-popover>
                                 </div>

@@ -31,8 +31,8 @@
             <el-table-column prop="groupName" :label="$t('分组名称')" align="center"></el-table-column>
             <el-table-column :label="$t('操作')" align="center">
                 <template #default="scope">
-                    <el-button type="text" @click.stop="handleOpenServerEditDialog(scope.row)">{{ $t("修改") }}</el-button>
-                    <el-button type="text" @click.stop="handleDeleteServerRoute(scope.row)">{{ $t("删除") }}</el-button>
+                    <el-button link type="primary" text @click.stop="handleOpenServerEditDialog(scope.row)">{{ $t("修改") }}</el-button>
+                    <el-button link type="primary" text @click.stop="handleDeleteServerRoute(scope.row)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </s-table>

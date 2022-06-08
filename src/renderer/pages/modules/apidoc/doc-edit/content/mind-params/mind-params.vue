@@ -21,7 +21,7 @@
                             <el-checkbox label="queryParams">{{ $t("Query参数") }}</el-checkbox>
                             <el-checkbox label="requestBody">{{ $t("Body参数") }}</el-checkbox>
                             <el-checkbox label="responseParams">{{ $t("返回参数") }}</el-checkbox>
-                            <el-button type="text" class="ml-5" @click="handleClearType">{{ $t("清空") }}</el-button>
+                            <el-button link type="primary" text class="ml-5" @click="handleClearType">{{ $t("清空") }}</el-button>
                         </el-checkbox-group>
                     </div>
                 </div>
@@ -74,8 +74,8 @@
                 <el-table-column prop="paramsPosition" :label="$t('参数位置')" align="center"></el-table-column>
                 <el-table-column :label="$t('操作')" align="center">
                     <template #default="scope">
-                        <!-- <el-button type="text" @click="handleEditParams(scope.row)">修改</el-button> -->
-                        <el-button type="text" @click="handleDeleteParams(scope.row)">{{ $t("删除") }}</el-button>
+                        <!-- <el-button link type="primary" text @click="handleEditParams(scope.row)">修改</el-button> -->
+                        <el-button link type="primary" text @click="handleDeleteParams(scope.row)">{{ $t("删除") }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>

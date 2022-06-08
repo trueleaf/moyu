@@ -23,7 +23,7 @@
                             <div class="flex0">{{ $t("操作人员") }}：</div>
                             <el-checkbox-group v-model="formInfo.maintainers">
                                 <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
-                                <el-button type="text" class="ml-2" @click="handleClearMaintainer">{{ $t("清空") }}</el-button>
+                                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ $t("清空") }}</el-button>
                             </el-checkbox-group>
                         </div>
                         <!-- 日期范围 -->
@@ -49,7 +49,7 @@
                                     :end-placeholder="$t('结束日期')"
                                 >
                                 </el-date-picker>
-                                <el-button type="text" @click="handleClearDate">{{ $t("清空") }}</el-button>
+                                <el-button link type="primary" text @click="handleClearDate">{{ $t("清空") }}</el-button>
                             </el-radio-group>
                         </div>
                         <!-- 最近多少条数据 -->
@@ -63,7 +63,7 @@
                                 <el-radio :label="5">{{ $t("5条") }}</el-radio>
                                 <el-radio :label="10">{{ $t("10条") }}</el-radio>
                                 <el-radio :label="15">{{ $t("15条") }}</el-radio>
-                                <el-button type="text" @click="handleClearRecentNum">{{ $t("清空") }}</el-button>
+                                <el-button link type="primary" text @click="handleClearRecentNum">{{ $t("清空") }}</el-button>
                             </el-radio-group>
                         </div>
                     </s-fieldset>

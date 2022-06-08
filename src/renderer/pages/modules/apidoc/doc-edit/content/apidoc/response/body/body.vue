@@ -24,14 +24,14 @@
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+                <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <div v-else-if="remoteResponse.data.type.includes('application/force-download')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+                <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- excel -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')" class="d-flex flex-column j-center">
@@ -39,7 +39,7 @@
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+                <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- word -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')" class="d-flex flex-column j-center">
@@ -47,7 +47,7 @@
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+                <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- pdf -->
             <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
@@ -74,7 +74,7 @@
                     <use xlink:href="#iconicon_weizhiwenjian"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
-                <el-button type="text" @click="handleDownload">{{ $t("下载文件") }}</el-button>
+                <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- json -->
             <div v-show="remoteResponse.data.type.includes('application/json')">

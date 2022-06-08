@@ -8,8 +8,8 @@
     <s-loading :loading="loading">
         <div class="hook-popover">
             <div class="header">
-                <el-button type="text" @click="handleJumpToHook">管理</el-button>
-                <el-button type="text" @click="emit('close')">关闭</el-button>
+                <el-button link type="primary" text @click="handleJumpToHook">管理</el-button>
+                <el-button link type="primary" text @click="emit('close')">关闭</el-button>
             </div>
             <div v-for="(item, index) in codeList" :key="index" class="item" @click="handleSelectCode(item)">
                 <div>{{ item.codeName }}</div>

@@ -51,7 +51,7 @@
             <s-json-editor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig" class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></s-json-editor>
             <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
-            <el-button type="text" class="format-btn" @click="handleFormat">格式化</el-button>
+            <el-button link type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
         </div>
         <div v-if="bodyType === 'raw'" class="raw">
             <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>

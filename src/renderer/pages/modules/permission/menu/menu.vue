@@ -10,8 +10,8 @@
             <s-loading :loading="loading">
                 <s-card :title="$t('菜单列表')" class="menu-tree">
                     <template #operation>
-                        <el-button type="text" @click="handleOpenAddDialog()">{{ $t("新增") }}</el-button>
-                        <el-button type="text" @click="getData">{{ $t("刷新") }}</el-button>
+                        <el-button link type="primary" text @click="handleOpenAddDialog()">{{ $t("新增") }}</el-button>
+                        <el-button link type="primary" text @click="getData">{{ $t("刷新") }}</el-button>
                     </template>
                     <el-tree
                         ref="tree"
@@ -35,11 +35,11 @@
                                     <span>{{ data.name }}</span>
                                 </div>
                                 <div class="ml-auto mr-2">
-                                    <el-button type="text" @click.stop="handleOpenAddDialog(data)">{{ $t("新增子菜单") }}</el-button>
+                                    <el-button link type="primary" text @click.stop="handleOpenAddDialog(data)">{{ $t("新增子菜单") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button type="text" @click.stop="handleOpenEditDialog(data)">{{ $t("编辑") }}</el-button>
+                                    <el-button link type="primary" text @click.stop="handleOpenEditDialog(data)">{{ $t("编辑") }}</el-button>
                                     <el-divider direction="vertical"></el-divider>
-                                    <el-button type="text" @click.stop="handleDeleteCurrentNode(data)">{{ $t("删除") }}</el-button>
+                                    <el-button link type="primary" text @click.stop="handleDeleteCurrentNode(data)">{{ $t("删除") }}</el-button>
                                 </div>
                             </div>
                         </template>

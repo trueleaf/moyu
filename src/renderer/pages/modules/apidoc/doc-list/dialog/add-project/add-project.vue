@@ -45,7 +45,7 @@
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button type="text" @click="handleDeleteMember(scope.$index)">{{ $t("删除") }}</el-button>
+                    <el-button link type="primary" text @click="handleDeleteMember(scope.$index)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </el-table>

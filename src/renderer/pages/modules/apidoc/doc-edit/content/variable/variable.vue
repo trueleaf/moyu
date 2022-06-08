@@ -65,7 +65,7 @@
                         <el-button v-show="!scope.row.__active && !isEditing" type="text" @click="handleEdit(scope.row)">{{ $t("编辑") }}</el-button>
                         <el-button v-show="scope.row.__active" type="text" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
                         <el-button v-show="scope.row.__active" type="text" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
-                        <el-button type="text" @click="handleDelete(scope.row._id)">{{ $t("删除") }}</el-button>
+                        <el-button link type="primary" text @click="handleDelete(scope.row._id)">{{ $t("删除") }}</el-button>
                     </template>
                 </el-table-column>
             </s-table>

@@ -147,7 +147,7 @@
                             <el-button v-if="!editItem" type="text" @click="handleChangeEditNode(scope.row)">{{ $t("编辑") }}</el-button>
                             <el-button v-if="editItem?._id === scope.row._id" type="text" @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
                             <el-button v-if="editItem?._id === scope.row._id" type="text" @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
-                            <el-button type="text" @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
+                            <el-button link type="primary" text @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
                         </template>
                     </el-table-column>
                 </s-table>

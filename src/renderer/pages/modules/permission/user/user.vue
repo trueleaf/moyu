@@ -49,8 +49,8 @@
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button type="text" @click="handleOpenEditUser(scope.row)">{{ $t('修改用户信息') }}</el-button>
-                    <el-button type="text" @click="handleForbidRole(scope.row._id, scope.row.enable)">
+                    <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ $t('修改用户信息') }}</el-button>
+                    <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.enable)">
                         {{ scope.row.enable ? $t("禁用") : $t("启用") }}
                     </el-button>
                 </template>

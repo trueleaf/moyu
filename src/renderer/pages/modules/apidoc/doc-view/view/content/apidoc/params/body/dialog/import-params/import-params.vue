@@ -8,7 +8,7 @@
     <s-dialog :model-value="modelValue" width="40%" title="导入参数" @close="handleClose">
         <div>
             <div class="d-flex j-end">
-                <el-button type="text" @click="formatJSON">格式化JSON</el-button>
+                <el-button link type="primary" text @click="formatJSON">格式化JSON</el-button>
             </div>
             <div class="h-300px">
                 <s-raw-editor v-model="jsonParams" type="application/json" @ready="handleCodeReady"></s-raw-editor>

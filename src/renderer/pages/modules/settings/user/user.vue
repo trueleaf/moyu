@@ -17,7 +17,7 @@
                 <div class="w-50 flex0">
                     <div class="d-flex a-center">
                         <h2>{{ userInfo.realName || userInfo.loginName }}</h2>
-                        <el-button type="text" class="ml-3" @click="dialogVisible = true">修改密码</el-button>
+                        <el-button link type="primary" text class="ml-3" @click="dialogVisible = true">修改密码</el-button>
                     </div>
                     <div class="px-3">
                         <s-label-value label="登录名称：" :value="userInfo.loginName" class="w-45"></s-label-value>

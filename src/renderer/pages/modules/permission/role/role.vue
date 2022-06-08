@@ -15,8 +15,8 @@
         </el-table-column>
         <el-table-column :label="$t('操作')" align="center">
             <template #default="scope">
-                <el-button type="text" @click="handleOpenEditRole(scope.row._id)">{{ $t("修改") }}</el-button>
-                <el-button type="text" @click="handleDeleteRole(scope.row._id)">{{ $t("删除") }}</el-button>
+                <el-button link type="primary" text @click="handleOpenEditRole(scope.row._id)">{{ $t("修改") }}</el-button>
+                <el-button link type="primary" text @click="handleDeleteRole(scope.row._id)">{{ $t("删除") }}</el-button>
             </template>
         </el-table-column>
         <template #operation>
