@@ -21,7 +21,19 @@
         <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
         <template v-if="commonHeaders.length > 0">
             <el-divider content-position="left">公共请求头</el-divider>
-            <s-params-tree :drag="false" :readonly-keys="commonHeaderKeys" :data="commonHeaders"></s-params-tree>
+            <!-- <div v-for="(item, index) in commonHeaders" :key="index" class="d-flex">
+                <div class="w-20 text-center">{{ item.key }}</div>
+                <div class="w-10 text-center">{{ item.type }}</div>
+                <div class="w-30 text-center">{{ item.value }}</div>
+                <div class="w-30 text-center">{{ item.description }}</div>
+            </div> -->
+            <el-table :data="commonHeaders" stripe border size="mini">
+                <el-table-column prop="key" label="键" align="center"></el-table-column>
+                <el-table-column prop="type" label="类型" align="center"></el-table-column>
+                <el-table-column prop="value" label="值" align="center"></el-table-column>
+                <el-table-column prop="description" label="描述" align="center"></el-table-column>
+            </el-table>
+            <!-- <s-params-tree :drag="false" :readonly-keys="commonHeaderKeys" :data="commonHeaders"></s-params-tree> -->
         </template>
     </div>
 </template>
@@ -54,7 +66,6 @@ const commonHeaders = computed(() => {
         return property;
     })
 });
-const commonHeaderKeys = computed(() => store.getters["apidoc/baseInfo/headers"](currentSelectTab.value?._id).map((v: { key: string }) => v.key));
 
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 
