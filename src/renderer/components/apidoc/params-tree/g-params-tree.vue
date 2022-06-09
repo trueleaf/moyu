@@ -413,13 +413,13 @@ const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
 //转换key输入框placeholder值
 const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
     // const isComplex = node.data.type === "array" || node.data.type === "object";
-    if (node.level === 1) {
+    if (node.level === 1 && props.nest) {
         return $t("根元素");
     }
     if (node.parent.data.type === "array") {
         return $t("父元素为数组不必填写参数名称");
     }
-    return $t("输入参数名称");
+    return $t("输入参数名称自动换行");
 }
 //校验key值是否满足规范
 const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
@@ -660,11 +660,17 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     width: 100%;
     display: flex;
     align-items: center;
+    .el-button.is-text {
+        padding: 0;
+    }
     .el-input__wrapper {
         box-shadow: none;
     }
     .el-input-number .el-input__inner {
         text-align: left;
+    }
+    .el-select .el-input__inner {
+        border-bottom: none;
     }
     .el-input__inner {
         border-radius: 0;

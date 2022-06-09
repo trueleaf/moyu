@@ -6,7 +6,6 @@
 */
 <template>
     <div class="body-params">
-        <!-- <pre>{{ bodyType }}</pre> -->
         <div class="body-type d-flex a-center mb-1">
             <!-- body类型选择 -->
             <el-radio-group v-model="bodyType" @change="changeBodyType">
@@ -47,11 +46,10 @@
             </div>
         </div>
         <div v-if="bodyType !== 'raw'" class="params-wrap" @click="handleFocus">
-            <!-- <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree> -->
             <s-json-editor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig" class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></s-json-editor>
             <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
-            <el-button link type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
+            <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
         </div>
         <div v-if="bodyType === 'raw'" class="raw">
             <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>

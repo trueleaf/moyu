@@ -240,10 +240,10 @@ $border-direction: (
 $i: 1;
 @while $i <= 100 {
     .w-#{$i} {
-        width: percentage($i/100);
+        width: percentage(math.div($i, 100));
     }
     .h-#{$i} {
-        height: percentage($i/100);
+        height: percentage(math.div($i, 100));
     }
     .w-#{$i*10}px {
         width: $i*10 + px;

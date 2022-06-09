@@ -51,22 +51,22 @@
         </div>
         <div v-show="workMode === 'edit'">
             <el-tabs v-model="activeName">
-                <el-tab-pane label="Params" name="s-params">
+                <el-tab-pane name="s-params">
                     <template #label>
                         <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
                     </template>
                 </el-tab-pane>
-                <el-tab-pane label="Body" name="s-request-body">
+                <el-tab-pane name="s-request-body">
                     <template #label>
                         <el-badge :is-dot="hasBodyParams">Body</el-badge>
                     </template>
                 </el-tab-pane>
-                <el-tab-pane :label="$t('返回参数')" name="s-response-params">
+                <el-tab-pane name="s-response-params">
                     <template #label>
                         <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
                     </template>
                 </el-tab-pane>
-                <el-tab-pane :label="$t('请求头')" name="s-request-headers">
+                <el-tab-pane name="s-request-headers">
                     <template #label>
                         <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
                     </template>

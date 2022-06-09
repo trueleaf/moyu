@@ -13,6 +13,9 @@
   colorCyan: #17a2b8;
   colorThemeColor: #409EFF; }
 
+:root {
+  --el-transition-duration: 0, ; }
+
 * {
   box-sizing: border-box; }
 
@@ -59,8 +62,7 @@ pre {
   -moz-osx-font-smoothing: grayscale; }
 
 body .el-popper {
-    font-size: 14px;
-}
+  font-size: 14px; }
 body .el-dropdown-menu {
   max-height: 300px;
   overflow-y: auto;
@@ -70,12 +72,10 @@ body .el-dropdown-menu {
 body .el-dropdown-menu__item:focus, body .el-dropdown-menu__item:not(.is-disabled):hover {
   background: #f4f4f4;
   color: #409EFF; }
-body .el-divider__text {
-  font-size: 16px; }
 body .el-table .cell {
   line-height: 24px; }
 body .el-image-viewer__close {
-    background-color: white;
+  background-color: #fff;
   color: #f56c6c; }
 body .el-form--label-top .el-form-item__label {
   padding: 0; }
@@ -88,14 +88,21 @@ body .el-dialog__headerbtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  right: 10px;
-  border-radius: 50%; }
+  border-radius: 50%;
+  right: 10px; }
   body .el-dialog__headerbtn:hover {
     background-color: #dee2e6; }
   body .el-dialog__headerbtn .el-dialog__close {
     font-size: 20px; }
     body .el-dialog__headerbtn .el-dialog__close:hover {
       color: #f56c6c; }
+body .el-input.is-disabled .el-input__inner {
+  box-shadow: none; }
+body .el-input.is-disabled .el-input__inner {
+    border-bottom: none;
+}
+body .el-menu--horizontal {
+  border-bottom: none; }
 
 .primary {
   color: #409EFF; }
@@ -1142,7 +1149,7 @@ body .el-dialog__headerbtn {
   font-size: 12px; }
 
 .f-bg {
-  font-size: 18px; }
+  font-size: 20px; }
 
 .f-lg {
   font-size: 21.6px; }

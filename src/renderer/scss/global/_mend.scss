@@ -53,5 +53,10 @@ body {
     .el-menu--horizontal {
         border-bottom: none;
     }
+    .el-input.is-disabled {
+        .el-input__inner {
+            border-bottom: none;
+        }
+    }
 }
 

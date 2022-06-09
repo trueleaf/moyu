@@ -41,8 +41,8 @@
             </el-table-column>
             <el-table-column :label="$t('操作')" align="center" width="200px">
                 <template #default="scope">
-                    <el-button v-if="selfLoginName === scope.row.loginName" type="text" @click="handleLeaveGroup(scope.row, scope.$index)">{{ $t("退出") }}</el-button>
-                    <el-button v-else type="text" @click="handleDeleteMember(scope.row, scope.$index)">{{ $t("删除") }}</el-button>
+                    <el-button v-if="selfLoginName === scope.row.loginName" type="primary" text @click="handleLeaveGroup(scope.row, scope.$index)">{{ $t("退出") }}</el-button>
+                    <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ $t("删除") }}</el-button>
                 </template>
             </el-table-column>
         </el-table>
