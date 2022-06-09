@@ -90,11 +90,11 @@ export default defineComponent({
             this.editorInstance.$blockScrolling = Infinity;
             this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || "text"}`);
             this.editorInstance.setTheme("ace/theme/github");
+            // console.log(33, this.editorInstance.getOptions())
+            this.editorInstance.getSession().setUseWrapMode(true);
             this.editorInstance.setOptions({
                 fontSize: "13px",
-                // enableBasicAutocompletion: true,
-                // enableSnippets: true,
-                // enableLiveAutocompletion: false
+                wrapBehavioursEnabled: true
             });
             if (this.readonly) {
                 this.editorInstance.setReadOnly(true);
