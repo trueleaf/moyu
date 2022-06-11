@@ -58,7 +58,9 @@
             <!-- 请求错误 -->
             <div v-else-if="remoteResponse.data.type.includes('error')" class="red">{{ remoteResponse.data.text }}</div>
             <!-- html -->
-            <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap"><iframe :src="htmlPreview" style="width:100%;height:50%;"></iframe><s-raw-editor :model-value="htmlResponse" readonly type="text/plain"></s-raw-editor></div>
+            <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap">
+                <s-raw-editor :model-value="htmlResponse" readonly type="text/plain"></s-raw-editor>
+            </div>
             <!-- 纯文本 -->
             <div v-else-if="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
                 <s-raw-editor
