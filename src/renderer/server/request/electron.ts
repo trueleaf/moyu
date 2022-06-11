@@ -106,11 +106,11 @@ function electronRequest() {
         const requestUrl = apidocConverter.getUrlInfo().fullUrl;
         const method = apidocConverter.getMethod();
         let body: string | FormData = "";
-        if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
-            body = "";
-        } else {
-            body = apidocConverter.getRequestBody() as (string | FormData);
-        }
+        // if (method === "GET") { //GET请求body为空，否则请求将被一直挂起
+        // } else {
+        //     body = apidocConverter.getRequestBody() as (string | FormData);
+        // }
+        body = apidocConverter.getRequestBody() as (string | FormData); //允许GET请求发送body数据
         const headers = apidocConverter.getHeaders();
         if (!requestUrl) { //请求url不存在
             store.commit("apidoc/response/changeLoading", false)
