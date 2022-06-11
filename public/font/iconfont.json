@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "5318180",
+      "name": "生成代码",
+      "font_class": "shengchengdaima",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    },
+    {
+      "icon_id": "2077544",
+      "name": "同步",
+      "font_class": "tongbu",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
       "icon_id": "12463174",
       "name": "linux",
       "font_class": "linux1",
