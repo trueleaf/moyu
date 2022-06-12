@@ -1,91 +1,24 @@
 /*
     创建者：shuxiaokai
     创建时间：2021-08-17 21:28
-    模块名称：域名、服务器地址、接口前缀
+    模块名称：域名、接口前缀
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="85%" :title="$t('域名、服务器地址、接口前缀')" @close="handleClose">
+    <s-dialog :model-value="modelValue" top="10vh" width="85%" :title="$t('域名、接口前缀')" @close="handleClose">
         <div class="host-wrap">
             <!-- 左侧新增数据 -->
-            <s-resize-x :min="400" :max="600" :width="400" name="curd-host" tabindex="1" class="add-host">
-                <s-fieldset :title="$t('符合规范的服务器地址')">
-                    <ul>
-                        <li class="mb-2">
-                            <div class="mb-1">{{ $t("ip地址+路径(可选)") }}</div>
-                            <div class="gray-600">
-                                <span>{{ $t("例如") }}:</span>
-                                <span class="ml-1">http://127.0.0.199:81</span>
-                                <el-divider direction="vertical"></el-divider>
-                                <span>http://127.0.0.199:81/api</span>
-                            </div>
-                        </li>
-                        <li class="mb-2">
-                            <div class="mb-1">域名+路径(可选)</div>
-                            <div class="gray-600">
-                                <span>{{ $t("例如") }}:</span>
-                                <span class="ml-1">www.demo.com</span>
-                                <el-divider direction="vertical"></el-divider>
-                                <span>www.demo.com/api</span>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="mb-1">域名不包含路径后缀</div>
-                            <div class="orang">
-                                <span>正确域名:</span>
-                                <span class="ml-1">www.demo.com</span>
-                            </div>
-                            <div class="orang">
-                                <span>错误域名:</span>
-                                <span class="ml-1">www.demo.com/prefix/test</span>
-                            </div>
-                        </li>
-                    </ul>
+            <s-resize-x :min="450" :max="700" :width="450" name="curd-host" tabindex="1" class="add-host">
+                <s-fieldset :title="$t('什么是接口前缀')">
+                    <img :src="require('@/assets/imgs/apidoc/prefix.png')" alt="接口前缀" class="px-2 border-gray-400">
+                    <img :src="require('@/assets/imgs/apidoc/prefix.gif')" alt="接口前缀" class="px-2 border-gray-400">
                 </s-fieldset>
                 <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
-                    <el-form-item :label="`${$t('服务器名称')}：`" prop="name">
+                    <el-form-item :label="`${$t('前缀名称')}：`" prop="name">
                         <el-input v-model="formInfo.name" placeholder="例如：张三本地" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                     </el-form-item>
-                    <el-form-item :label="`${$t('协议')}：`" prop="protocol">
-                        <el-radio-group v-model="formInfo.protocol" :size="config.renderConfig.layout.size">
-                            <el-radio label="http://">http://</el-radio>
-                            <el-radio label="https://">https://</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item :label="`${$t('ip或域名')}：`" prop="server">
-                        <el-input
-                            v-model="formInfo.server"
-                            name="name"
-                            :size="config.renderConfig.layout.size"
-                            placeholder="192.168.0.11 | www.demo.com"
-                            class="w-100"
-                            maxlength="100"
-                            clearable
-                        >
-                        </el-input>
-                    </el-form-item>
-                    <el-form-item :label="`${$t('端口')}：`" prop="port">
-                        <el-input-number
-                            v-model="formInfo.port"
-                            :min="1"
-                            :max="65535"
-                            name="name"
-                            :placeholder="$t('不填则默认80')"
-                            class="w-100"
-                        >
-                        </el-input-number>
-                    </el-form-item>
-                    <el-form-item :label="`${$t('接口前缀')}：`">
-                        <el-input
-                            v-model="formInfo.prefix"
-                            name="name"
-                            :size="config.renderConfig.layout.size"
-                            :placeholder="$t('没有则不填')"
-                            class="w-100"
-                            maxlength="100"
-                            clearable
-                        >
-                        </el-input>
+                    <el-form-item :label="`${$t('前缀值')}：`" prop="name">
+                        <el-input v-model="formInfo.url" placeholder="例如：http://192.168.0.31:8080" :size="config.renderConfig.layout.size" class="w-100" maxlength="255" clearable show-word-limit></el-input>
                     </el-form-item>
                     <el-form-item :label="`${$t('是否共享')}：`" prop="name">
                         <el-radio-group v-model="formInfo.isLocal">
@@ -93,9 +26,6 @@
                             <el-radio :label="false">{{ $t("可共享") }}</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                    <div class="mb-2 bg-gray-200 h-30px d-flex a-center">
-                        {{ fullAddress }}
-                    </div>
                     <div class="d-flex j-end">
                         <el-button v-success="isSuccess" :loading="loading" type="primary" @click="handleAddHost">确认添加</el-button>
                     </div>
@@ -112,21 +42,20 @@
                     :res-hook="handleHookResponse"
                     @deleteMany="getTableData"
                 >
-                    <el-table-column :label="$t('服务器名称')" align="center">
+                    <el-table-column :label="$t('前缀名称')" align="center">
                         <template #default="scope">
                             <el-input v-if="editItem?._id === scope.row._id" v-model="scope.row.name" type="textarea" :autosize="{ minRows: 3 }" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
                             <span v-else>{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column :label="$t('服务器地址')" align="center" width="300px">
+                    <el-table-column :label="$t('接口前缀')" align="center" width="300px">
                         <template #default="scope">
                             <s-valid-input
                                 v-if="editItem?._id === scope.row._id"
                                 v-model="scope.row.url"
                                 :error="errorInfo.error"
                                 :error-tip="errorInfo.message"
-                                placeholder="服务器地址必填"
-                                @blur="handleCheckHost(scope.row.url)"
+                                placeholder="接口前缀必填"
                             >
                             </s-valid-input>
                             <div v-else class="url-wrap">{{ scope.row.url }}</div>
@@ -134,10 +63,6 @@
                     </el-table-column>
                     <el-table-column :label="$t('是否共享')" align="center">
                         <template #default="scope">
-                            <!-- <el-radio-group v-if="editItem?._id === scope.row._id && editItem?.isLocal" v-model="scope.row.isLocal">
-                                <el-radio :label="true">仅本地</el-radio>
-                                <el-radio :label="false">可共享</el-radio>
-                            </el-radio-group> -->
                             <span v-if="scope.row.isLocal" class="orange">{{ $t("仅本地") }}</span>
                             <span v-else class="green">{{ $t("可共享") }}</span>
                         </template>
@@ -161,7 +86,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import type { InternalRuleItem } from "async-validator/dist-types/interface"
 import { ResponseTable } from "@@/global"
 import { ApidocProjectHost } from "@@/store"
 import { apidocCache } from "@/cache/apidoc"
@@ -185,33 +109,15 @@ export default defineComponent({
     },
     emits: ["update:modelValue"],
     data() {
-        const validateServer = (rule: InternalRuleItem, value: string, callback: (err?: Error | string) => void) => {
-            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})?$/; //ip+端口(端口不必填)
-            const dominReg = /^[a-zA-Z0-9-_.]+\.[a-zA-Z]+?$/;
-            if (value === "") {
-                callback(new Error(this.$t("不能为空")));
-            } else if (!value.match(ipReg) && !value.match(dominReg)) {
-                callback(new Error("192.168.0.11 | www.demo.com"))
-            } else {
-                callback();
-            }
-        }
         return {
             //=====================================表单及表单验证====================================//
             formInfo: {
-                name: "", //-------------------服务器名称
-                protocol: "http://", //--------协议
-                server: this.config.ip, //-----服务器url
-                prefix: "", //-----------------前缀
-                port: 80, //-------------------端口
+                name: "", //-------------------前缀名称
+                url: "", //--------------------接口前缀地址
                 isLocal: true, //--------------是否为本地
             },
             rules: {
-                protocol: [{ required: true, message: this.$t("请选择协议"), trigger: "blur" }],
-                name: [{ required: true, message: this.$t("请输入服务器名称"), trigger: "blur" }],
-                server: [
-                    { required: true, validator: validateServer, trigger: "blur" },
-                ],
+                name: [{ required: true, message: this.$t("请输入前缀名称"), trigger: "blur" }],
             },
             //=====================================其他参数====================================//
             errorInfo: {
@@ -224,22 +130,6 @@ export default defineComponent({
         };
     },
     computed: {
-        fullAddress() {
-            const ipReg = /^((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})?$/; //ip+端口(端口不必填)
-            const { protocol, server, port, prefix } = this.formInfo;
-            const isIp = server.match(ipReg);
-            let realPort = "";
-            if (!isIp && port === 80) { //域名80端口默认不显示
-                realPort = "";
-            } else {
-                realPort = `:${port}`;
-            }
-            let realPrefix = prefix.replace(/^\/+/, "");
-            if (realPrefix) {
-                realPrefix = `/${realPrefix}`
-            }
-            return `${protocol}${server}${realPort}${realPrefix}`
-        },
         dominLimit() {
             return this.$store.state["apidoc/baseInfo"].rules.dominLimit;
         },
@@ -261,7 +151,7 @@ export default defineComponent({
         handleAddHost() {
             this.$refs.form.validate((valid) => {
                 if (valid) {
-                    const url = this.fullAddress;
+                    const { url } = this.formInfo;
                     const projectId = this.$route.query.id as string;
                     //保存为本地
                     if (this.formInfo.isLocal) {
@@ -377,19 +267,6 @@ export default defineComponent({
                 console.error(err);
             });
         },
-        handleCheckHost(url: string) {
-            const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(\d|[1-9]\d|1\d{2}|2[0-5]{2})(:\d{2,5})?(\/.+)?$/; //ip+端口(端口不必填)
-            const dominReg = /^https?:\/\/[a-zA-Z0-9-_.]+\.[a-zA-Z]+(\/.+)?$/;
-            if (url.trim() === "") {
-                this.errorInfo.error = true;
-                this.errorInfo.message = this.$t("服务器地址不能为空");
-            } else if (!url.match(ipReg) && !url.match(dominReg)) {
-                this.errorInfo.error = true;
-                this.errorInfo.message = this.$t("服务器地址不符合规范");
-            } else {
-                this.errorInfo.error = false;
-            }
-        },
         //=====================================其他操作====================================//
         //关闭弹窗
         handleClose() {
@@ -402,7 +279,7 @@ export default defineComponent({
 <style lang="scss">
 .host-wrap {
     display: flex;
-    overflow-y: auto;
+    // overflow-y: auto;
     .add-host {
         flex: 0 0 auto;
         padding-right: size(10);
