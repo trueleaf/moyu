@@ -502,7 +502,7 @@ type ApidocDetail = {
          */
         url: {
             /**
-             * 服务器地址
+             * 接口前缀
              */
             host: string,
             /**

@@ -6,7 +6,7 @@
 */
 <template>
     <div class="api-operation">
-        <!-- 环境、host、服务器地址 -->
+        <!-- 环境、host、接口前缀 -->
         <div v-if="hostEnum.length < 5" class="d-flex a-center">
             <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
                 <template #reference>

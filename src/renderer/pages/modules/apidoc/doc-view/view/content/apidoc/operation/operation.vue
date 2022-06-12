@@ -6,7 +6,7 @@
 */
 <template>
     <div class="api-operation">
-        <!-- 环境、host、服务器地址 -->
+        <!-- 环境、host、接口前缀 -->
         <div class="d-flex a-center">
             <el-radio-group v-model="host" @change="handleChangeHost">
                 <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
