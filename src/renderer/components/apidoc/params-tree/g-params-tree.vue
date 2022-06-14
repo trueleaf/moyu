@@ -92,18 +92,17 @@
                     >
                     </s-mock>
                     <template #reference>
-                        <el-input
+                        <s-valid-input
                             :model-value="scope.data.value"
                             :disabled="checkDisableValue(scope.data)"
                             :title="$t('对象和数组不必填写参数值')"
-                            class="w-25 flex0"
-                            :size="config.renderConfig.layout.size"
+                            class="w-25"
                             :placeholder="getValuePlaceholder(scope.data)"
                             @update:modelValue="handleChangeValue($event, scope.data)"
                             @focus="handleFocusValue(scope.data)"
                             @blur="handleBlurValue"
                         >
-                        </el-input>
+                        </s-valid-input>
                     </template>
                 </el-popover>
                 <!-- 布尔值类型录入 -->
@@ -660,11 +659,18 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
     width: 100%;
     display: flex;
     align-items: center;
+    .el-input--default {
+        .el-input__wrapper {
+            box-shadow: none;
+        }
+    }
+    .el-select .el-input--default {
+        .el-input__wrapper {
+            box-shadow: 0 0 0 1px var(--el-input-border-color,var(--el-border-color)) inset;
+        }
+    }
     .el-button.is-text {
         padding: 0;
-    }
-    .el-input__wrapper {
-        box-shadow: none;
     }
     .el-input-number .el-input__inner {
         text-align: left;
@@ -678,6 +684,8 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-bottom: 1px solid $gray-400;
         font-size: fz(12);
         box-shadow: none;
+    }
+    .el-input__wrapper {
         &:focus {
             border-bottom: 2px solid $theme-color;
             margin-bottom: -1px;
@@ -689,10 +697,10 @@ const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
         border-color: $gray-400;
         border-bottom: 1px solid $gray-400;
         font-size: fz(12);
-        &:focus {
-            border-bottom: 2px solid $theme-color;
-            margin-bottom: -1px;
-        }
+        // &:focus {
+        //     border-bottom: 2px solid $theme-color;
+        //     margin-bottom: -1px;
+        // }
     }
     .fake-input {
         cursor: pointer;
