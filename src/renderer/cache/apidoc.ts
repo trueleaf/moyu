@@ -382,6 +382,35 @@ class ApidocCache {
             localStorage.setItem("apidoc/hookCode", "{}");
         }
     }
+
+    /**
+     * @description        隐藏body参数提示信息
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     */
+    hideJsonBodyTip() {
+        try {
+            localStorage.setItem("apidoc/hideJsonBodyTip", JSON.stringify(true));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/hideJsonBodyTip", "false");
+        }
+    }
+
+    /**
+     * @description        获取是否显示body提示
+     * @author             shuxiaokai
+     * @create             2021-11-09 21:37
+     */
+    getCouldShowJsonBodyTip(): boolean {
+        try {
+            const isHidden = JSON.parse(localStorage.getItem("apidoc/hideJsonBodyTip") || "false");
+            return !isHidden;
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();
