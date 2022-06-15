@@ -172,7 +172,7 @@ onMounted(() => {
     }
     .json-view-wrap {
         height: calc(100vh - #{size(240)});
-        overflow-y: auto;
+        // overflow-y: auto;
     }
 }
 </style>

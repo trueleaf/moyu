@@ -12,7 +12,7 @@
         </div>
         <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
         <s-resize-y
-            v-show="layout === 'vertical'"
+            v-if="layout === 'vertical'"
             :min="150"
             :max="550"
             :height="350"
@@ -23,7 +23,7 @@
         >
             <s-response></s-response>
         </s-resize-y>
-        <s-resize-x v-show="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
+        <s-resize-x v-if="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
             <s-response></s-response>
         </s-resize-x>
     </div>

@@ -49,7 +49,7 @@
                 </el-popover>
             </div>
         </div>
-        <div v-show="workMode === 'edit'">
+        <template v-if="workMode === 'edit'">
             <el-tabs v-model="activeName">
                 <el-tab-pane name="s-params">
                     <template #label>
@@ -86,10 +86,10 @@
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
             </keep-alive>
-        </div>
-        <div v-show="workMode === 'view'">
+        </template>
+        <template v-if="workMode === 'view'">
             <s-view></s-view>
-        </div>
+        </template>
     </div>
 </template>
 
