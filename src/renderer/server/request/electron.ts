@@ -7,6 +7,7 @@ import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
 import { apidocConvertJsonDataToParams } from "@/helper/index"
+import { router } from "@/router";
 import config from "./config"
 import apidocConverter from "./utils"
 
@@ -197,21 +198,28 @@ export function sendRequest(): void {
     apidocConverter.setData(cpApidoc as ApidocDetail);
     apidocConverter.replaceUrl("");
     apidocConverter.clearTempVariables()
-    const worker = new Worker("/sandbox/worker.js");
-    const currentEnv = cpApidoc.item.url.host
+    const worker = new Worker("/sandbox/pre-request/worker.js");
+    const currentEnv = cpApidoc.item.url.host;
+    const baseInfo = JSON.parse(JSON.stringify({
+        ...store.state["apidoc/baseInfo"],
+        currentEnv,
+    }))
+    const projectId = router.currentRoute.value.query.id as string;
+    const tabs = store.state["apidoc/tabs"].tabs[projectId];
+    const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+    const commonHeaders = store.getters["apidoc/baseInfo/headers"](currentSelectTab?._id)
     //初始化默认apidoc信息
     worker.postMessage({
         type: "init-apidoc",
-        value: cpApidoc2
-    });
-    //初始化变量信息
-    worker.postMessage({
-        type: "init-baseInfo",
-        value: JSON.parse(JSON.stringify({
-            ...store.state["apidoc/baseInfo"],
+        value: {
+            apidocInfo: cpApidoc2,
+            commonHeaders,
             currentEnv,
-        }))
-    })
+            projectName: baseInfo.projectName,
+            _id: baseInfo._id,
+            projectVaribles: baseInfo.variables,
+        }
+    });
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
         type: "request",
