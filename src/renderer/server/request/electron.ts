@@ -210,7 +210,7 @@ export function sendRequest(): void {
     const commonHeaders = store.getters["apidoc/baseInfo/headers"](currentSelectTab?._id)
     //初始化默认apidoc信息
     worker.postMessage({
-        type: "init-apidoc",
+        type: "prerequest-init-apidoc",
         value: {
             apidocInfo: cpApidoc2,
             commonHeaders,
@@ -222,7 +222,7 @@ export function sendRequest(): void {
     });
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
-        type: "request",
+        type: "prerequest-request",
         value: store.state["apidoc/apidoc"].apidoc.preRequest.raw
     })));
     //错误处理
@@ -257,7 +257,7 @@ export function sendRequest(): void {
                 });
             })
         }
-        if (res.data.type === "worker-response") { //脚本执行完
+        if (res.data.type === "prerequest-finish") { //脚本执行完
             electronRequest();
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
@@ -269,7 +269,7 @@ export function sendRequest(): void {
         if (res.data.type === "replace-url") { //改变完整url
             apidocConverter.replaceUrl(res.data.value);
         }
-        if (res.data.type === "change-headers") { //改变请求头
+        if (res.data.type === "prerequest-change-headers") { //改变请求头
             apidocConverter.changeHeaders(res.data.value);
         }
         if (res.data.type === "change-query-params") { //改变 queryparams
