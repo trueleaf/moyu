@@ -11,7 +11,6 @@ const headers = new Proxy(_headers, {
         }
     },
     set(obj, prop, value) {
-        console.log("set", prop, value)
         let realValue = value;
         if (typeof value === "number") {
             console.warn(`请求头在给 【${prop}】 字段赋值时，值不为string类型，将通过toString进行转换`)
