@@ -7,11 +7,14 @@ import { store } from "@/store"
 import { router } from "@/router"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let path: any = null;
 // eslint-disable-next-line prefer-destructuring
 FormData = window.FormData;
 if (window.require) {
     // eslint-disable-next-line prefer-destructuring
     FormData = window.require("form-data");
+    path = window.require("path")
 }
 /**
  * 获取url信息
@@ -136,7 +139,9 @@ class ApidocConverter {
             } else if (item.type === "file") { //文件处理
                 try {
                     fs.accessSync(item.value);
-                    formData.append(item.key, fs.createReadStream(item.value));
+                    const file = fs.readFileSync(item.value);
+                    const fileName = path.basename(item.value);
+                    formData.append(item.key, file, fileName);
                 } catch (error) {
                     console.error(error);
                     console.log("文件不存在");
@@ -287,6 +292,20 @@ class ApidocConverter {
             result.push(property);
         })
         this.apidoc.item.queryParams = result
+    }
+
+    /**
+     * 改变pathparams
+     */
+    changePathParams(objPathParams: Record<string, string>) {
+        const result: ApidocProperty<"string">[] = [];
+        Object.keys(objPathParams).forEach((key) => {
+            const property = apidocGenerateProperty();
+            property.key = key;
+            property.value = objPathParams[key];
+            result.push(property);
+        })
+        this.apidoc.item.paths = result
     }
 
     /**
