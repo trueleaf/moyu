@@ -27,9 +27,9 @@
                 <span>请求body</span>
                 <span v-if="contentType">({{ contentType }})</span>
             </template>
-            <pre v-if="contentType === 'application/json'" class="pl-1">{{ formatJsonStr(requestInfo.body) }}</pre>
+            <pre v-if="contentType === 'application/json'" class="pl-1">{{ formatJsonStr(requestInfo.body as string) }}</pre>
             <div v-else-if="contentType?.includes('multipart/')" class="pl-1">
-                formData
+                <pre>{{ formatFormadata() }}</pre>
             </div>
             <pre v-else-if="contentType === 'application/x-www-form-urlencoded'">{{ requestInfo.body }}</pre>
             <pre v-else-if="contentType === 'text/html'">{{ requestInfo.body }}</pre>
@@ -46,12 +46,22 @@
 import { computed } from "vue"
 import { store } from "@/store/index"
 import beautify from "js-beautify"
+import type FormData from "form-data"
 
 const requestInfo = computed(() => store.state["apidoc/request"]); //请求基本信息
 const contentType = computed(() => store.state["apidoc/apidoc"].apidoc.item.contentType); //contentType
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase())
-
+const formatFormadata = () => {
+    const bufferFormData = (requestInfo.value.body as FormData)?.getBuffer();
+    const stringFormData = bufferFormData.toString();
+    const boundary = (requestInfo.value.body as FormData)?.getBoundary();
+    const result: string[] = [];
+    stringFormData.split(boundary).forEach(v => {
+        result.push(`${v.slice(0, 255)}${v.length > 255 ? "由于性能原因，仅展示255个字符" : ""}\n`); //最多展示255个字符
+    })
+    return result.join(boundary);
+}
 //布局
 const layout = computed(() => store.state["apidoc/baseInfo"].layout)
 
