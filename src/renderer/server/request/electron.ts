@@ -272,17 +272,20 @@ export function sendRequest(): void {
         if (res.data.type === "prerequest-change-headers") { //改变请求头
             apidocConverter.changeHeaders(res.data.value);
         }
-        if (res.data.type === "change-query-params") { //改变 queryparams
+        if (res.data.type === "prerequest-change-query-params") { //改变 queryparams
             apidocConverter.changeQueryParams(res.data.value);
+        }
+        if (res.data.type === "prerequest-change-path-params") { //改变 pathparams
+            apidocConverter.changePathParams(res.data.value);
         }
         if (res.data.type === "change-json-body") { //改变请求body
             const moyuJson = apidocConvertJsonDataToParams(res.data.value);
             apidocConverter.changeJsonBody(moyuJson);
         }
-        if (res.data.type === "change-formdata-body") { //改变请求formdata body
+        if (res.data.type === "prerequest-change-formdata") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);
         }
-        if (res.data.type === "change-urlencoded-body") { //改变请求urlencoded body
+        if (res.data.type === "prerequest-change-urlencoded") { //改变请求urlencoded body
             apidocConverter.changeUrlencodedBody(res.data.value);
         }
         if (res.data.type === "change-raw-body") { //改变raw body
