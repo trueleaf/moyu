@@ -241,13 +241,13 @@ const requestSuggestions = [{
     keyword: "pm.request.host",
 }, {
     label: {
-        label: "path",
-        description: "请求path"
+        label: "pathParams",
+        description: "请求path参数"
     },
     sortText: "5",
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "path",
-    keyword: "pm.request.path",
+    insertText: "pathParams",
+    keyword: "pm.request.pathParams",
 }, {
     label: {
         label: "replaceUrl",
