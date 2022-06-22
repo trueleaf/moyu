@@ -178,145 +178,73 @@ const requestSuggestions = [{
     keyword: "pm.request",
 }, {
     label: {
-        label: "sendRequest",
-        description: "发送请求"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `sendRequest("请求url", (err, response) => {})`,
-    sortText: "4",
-    keyword: "pm.sendRequest",
-}, {
-    label: {
-        label: "env",
-        description: "所有环境信息"
-    },
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `env`,
-    sortText: "1",
-    keyword: "pm.request.env",
-}, {
-    label: {
-        label: "currentEnv",
-        description: "当前环境"
-    },
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `currentEnv`,
-    sortText: "1",
-    keyword: "pm.request.currentEnv",
-}, {
-    label: {
         label: "url",
-        description: "请求url"
+        description: "请求url信息(prefix、path、url)"
     },
-    sortText: "1",
-    kind: monaco.languages.CompletionItemKind.Property,
+    sortText: "a",
+    kind: monaco.languages.CompletionItemKind.Module,
     insertText: "url",
     keyword: "pm.request.url",
 }, {
     label: {
-        label: "fullUrl",
-        description: "完整请求url"
+        label: "prefix",
+        description: "请求前缀"
+    },
+    sortText: "1",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "prefix",
+    keyword: "pm.request.url.prefix",
+}, {
+    label: {
+        label: "path",
+        description: "请求路径"
     },
     sortText: "2",
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "fullUrl",
-    keyword: "pm.request.fullUrl",
+    insertText: "path",
+    keyword: "pm.request.url.path",
 }, {
     label: {
-        label: "method",
-        description: "请求方法(GET|POST|PUT...)"
+        label: "url",
+        description: "完整请求路径"
     },
     sortText: "3",
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "method",
-    keyword: "pm.request.method",
-}, {
-    label: {
-        label: "host",
-        description: "请求host"
-    },
-    sortText: "4",
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "host",
-    keyword: "pm.request.host",
-}, {
-    label: {
-        label: "pathParams",
-        description: "请求path参数"
-    },
-    sortText: "5",
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "pathParams",
-    keyword: "pm.request.pathParams",
-}, {
-    label: {
-        label: "replaceUrl",
-        description: "替换url(最终发送替换后的url)"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
-    keyword: "pm.request.replaceUrl",
+    insertText: "url",
+    keyword: "pm.request.url.url",
 }, {
     label: {
         label: "headers",
         description: "请求头"
     },
-    kind: monaco.languages.CompletionItemKind.Property,
+    sortText: "3c",
+    kind: monaco.languages.CompletionItemKind.Module,
     insertText: `headers`,
     keyword: "pm.request.headers",
-}, {
-    label: {
-        label: "add",
-        description: "新增请求头"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `add("名称", "值")`,
-    keyword: "pm.request.headers.add",
-}, {
-    label: {
-        label: "delete",
-        description: "删除请求头"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `delete("名称")`,
-    keyword: "pm.request.headers.delete",
-}, {
-    label: {
-        label: "remove",
-        description: "删除请求头"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `remove("名称")`,
-    keyword: "pm.request.headers.remove",
-}, {
-    label: {
-        label: "update",
-        description: "更新请求头"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `update("名称", "值")`,
-    keyword: "pm.request.headers.update",
-}, {
-    label: {
-        label: "upsert",
-        description: "更新请求头，如果没有则新增"
-    },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `upsert("名称", "值")`,
-    keyword: "pm.request.headers.upsert",
 }, {
     label: {
         label: "queryParams",
         description: "请求query参数"
     },
+    sortText: "d",
     kind: monaco.languages.CompletionItemKind.Module,
     insertText: `queryParams`,
     keyword: "pm.request.queryParams",
 }, {
     label: {
+        label: "pathParams",
+        description: "请求path参数"
+    },
+    sortText: "e",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "pathParams",
+    keyword: "pm.request.pathParams",
+}, {
+    label: {
         label: "body",
         description: "请求body参数"
     },
+    sortText: "f",
     kind: monaco.languages.CompletionItemKind.Module,
     insertText: `body`,
     keyword: "pm.request.body",
@@ -325,33 +253,81 @@ const requestSuggestions = [{
         label: "json",
         description: "json参数"
     },
-    kind: monaco.languages.CompletionItemKind.Property,
+    sortText: "1",
+    kind: monaco.languages.CompletionItemKind.Module,
     insertText: `json`,
     keyword: "pm.request.body.json",
-}, {
-    label: {
-        label: "urlencoded",
-        description: "urlencoded参数"
-    },
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `urlencoded`,
-    keyword: "pm.request.body.urlencoded",
 }, {
     label: {
         label: "formdata",
         description: "formdata参数"
     },
-    kind: monaco.languages.CompletionItemKind.Property,
+    sortText: "2",
+    kind: monaco.languages.CompletionItemKind.Module,
     insertText: `formdata`,
     keyword: "pm.request.body.formdata",
+}, {
+    label: {
+        label: "urlencoded",
+        description: "urlencoded参数"
+    },
+    sortText: "3",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: `urlencoded`,
+    keyword: "pm.request.body.urlencoded",
 }, {
     label: {
         label: "raw",
         description: "raw参数"
     },
+    sortText: "4",
     kind: monaco.languages.CompletionItemKind.Property,
     insertText: `raw`,
     keyword: "pm.request.body.raw",
+}, {
+    label: {
+        label: "method",
+        description: "请求方法(GET|POST|PUT...)"
+    },
+    sortText: "g",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "method",
+    keyword: "pm.request.method",
+}, {
+    label: {
+        label: "envs",
+        description: "所有环境信息"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `envs`,
+    sortText: "h",
+    keyword: "pm.request.envs",
+}, {
+    label: {
+        label: "currentEnv",
+        description: "当前环境"
+    },
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `currentEnv`,
+    sortText: "i",
+    keyword: "pm.request.currentEnv",
+}, {
+    label: {
+        label: "replaceUrl",
+        description: "替换url(最终发送替换后的url)"
+    },
+    sortText: "j",
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
+    keyword: "pm.request.replaceUrl",
+}, {
+    label: {
+        label: "sendRequest",
+        description: "发送请求"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `sendRequest("请求url", (err, response) => {})`,
+    keyword: "pm.sendRequest",
 }]
 
 const suggestions: Suggestions = [{
@@ -362,6 +338,15 @@ const suggestions: Suggestions = [{
     kind: monaco.languages.CompletionItemKind.Function,
     insertText: "pm",
     keyword: "pm",
+},
+{
+    label: {
+        label: "console",
+        description: "控制台输出"
+    },
+    kind: monaco.languages.CompletionItemKind.Function,
+    insertText: "console.log()",
+    keyword: "console",
 },
 ...variableSuggestions,
 ...collectionVariableSuggestions,
@@ -380,7 +365,8 @@ export function useCompletionItem(): monaco.IDisposable {
             const lineStrArr = currentLineStr.replace("\t", "").split(" ");
             const activeStr = lineStrArr[lineStrArr.length - 1];
             const matchedSuggestions = suggestions.filter(v => {
-                const activeStrArr = activeStr.split(".");
+                const replacedStr = activeStr.replace(/^[^(]+\(\s*/, "")
+                const activeStrArr = replacedStr.split(".");
                 const keywordArr = v.keyword.split(".");
                 for (let i = 0; i < activeStrArr.length - 1; i += 1) {
                     if (activeStrArr[i] !== keywordArr[i]) {
@@ -389,7 +375,7 @@ export function useCompletionItem(): monaco.IDisposable {
                 }
                 if (activeStrArr.length < keywordArr.length) return false;
                 // console.log(v.keyword, activeStr)
-                const matchedTrigger = v.keyword.includes(activeStr);
+                const matchedTrigger = v.keyword.includes(replacedStr);
                 return matchedTrigger
             });
             const word = model.getWordUntilPosition(position);
