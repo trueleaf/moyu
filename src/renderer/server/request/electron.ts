@@ -6,7 +6,8 @@ import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer"
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
-import { apidocConvertJsonDataToParams } from "@/helper/index"
+// import { apidocConvertJsonDataToParams } from "@/helper/index"
+import { apidocCache } from "@/cache/apidoc";
 import { router } from "@/router";
 import config from "./config"
 import apidocConverter from "./utils"
@@ -208,6 +209,8 @@ export function sendRequest(): void {
     const tabs = store.state["apidoc/tabs"].tabs[projectId];
     const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
     const commonHeaders = store.getters["apidoc/baseInfo/headers"](currentSelectTab?._id)
+    const localEnvs = apidocCache.getApidocServer(projectId)
+    const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
     //初始化默认apidoc信息
     worker.postMessage({
         type: "prerequest-init-apidoc",
@@ -218,6 +221,7 @@ export function sendRequest(): void {
             projectName: baseInfo.projectName,
             _id: baseInfo._id,
             projectVaribles: baseInfo.variables,
+            envs,
         }
     });
     //发送请求
@@ -266,7 +270,7 @@ export function sendRequest(): void {
         if (res.data.type === "change-collection-variables") { //改版集合内变量
             apidocConverter.changeCollectionVariables(res.data.value);
         }
-        if (res.data.type === "replace-url") { //改变完整url
+        if (res.data.type === "prerequest-change-url") { //改变完整url
             apidocConverter.replaceUrl(res.data.value);
         }
         if (res.data.type === "prerequest-change-headers") { //改变请求头
@@ -278,9 +282,8 @@ export function sendRequest(): void {
         if (res.data.type === "prerequest-change-path-params") { //改变 pathparams
             apidocConverter.changePathParams(res.data.value);
         }
-        if (res.data.type === "change-json-body") { //改变请求body
-            const moyuJson = apidocConvertJsonDataToParams(res.data.value);
-            apidocConverter.changeJsonBody(moyuJson);
+        if (res.data.type === "prerequest-change-json-params") { //改变请求body
+            apidocConverter.changeJsonBody(res.data.value);
         }
         if (res.data.type === "prerequest-change-formdata") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);

@@ -311,7 +311,7 @@ class ApidocConverter {
     /**
      * 改变json body信息
      */
-    changeJsonBody(jsonData: ApidocProperty[]) {
+    changeJsonBody(jsonStr: string) {
         const { requestBody } = this.apidoc.item
         const { mode } = requestBody;
         const matchedContentTypeHeader = this.apidoc.item.headers.find(v => v.key.toLocaleLowerCase() === "content-type" || v.key.toLocaleLowerCase() === "contenttype")
@@ -324,7 +324,7 @@ class ApidocConverter {
                 this.apidoc.item.headers.push(property)
             }
         }
-        this.apidoc.item.requestBody.json = jsonData;
+        this.apidoc.item.requestBody.rawJson = jsonStr;
     }
 
     /**
