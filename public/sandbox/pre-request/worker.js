@@ -21,84 +21,115 @@ const pm = {
     },
 };
 
-self.addEventListener("message", (e) => {
-    //初始化所有请求信息
-    if (e.data && e.data.type === "prerequest-init-apidoc") {
-        const data = e.data.value; 
-        console.log("data", data)
-        GlobalData.apidocInfo = data.apidocInfo;
-        GlobalData.commonHeaders = data.commonHeaders;
-        GlobalData.currentEnv = data.currentEnv;
-        GlobalData.projectName = data.projectName;
-        GlobalData._id = data._id;
-        GlobalData.projectVaribles = data.projectVaribles;
-        //=====================================header转换====================================//
-        const objHeaders = {};
-        data.apidocInfo.item.headers.concat(data.commonHeaders).forEach(v => {
-            if (v.key) {
-                objHeaders[v.key] = v.value;
+self.addEventListener("message", async (e) => {
+    try {
+        //初始化所有请求信息
+        if (e.data && e.data.type === "prerequest-init-apidoc") {
+            const data = e.data.value; 
+            console.log("data", data)
+            GlobalData.apidocInfo = data.apidocInfo;
+            GlobalData.commonHeaders = data.commonHeaders;
+            GlobalData.currentEnv = data.currentEnv;
+            GlobalData.projectName = data.projectName;
+            GlobalData._id = data._id;
+            GlobalData.projectVaribles = data.projectVaribles;
+            //=====================================header转换====================================//
+            const objHeaders = {};
+            data.apidocInfo.item.headers.concat(data.commonHeaders).forEach(v => {
+                if (v.key) {
+                    objHeaders[v.key] = v.value;
+                }
+            })
+            Object.assign(_headers, objHeaders);
+            //=====================================query参数转换====================================//
+            const objQueryParams = {};
+            data.apidocInfo.item.queryParams.forEach(v => {
+                if (v.key) {
+                    objQueryParams[v.key] = v.value;
+                }
+            })
+            Object.assign(_queryParams, objQueryParams);
+            //=====================================path参数转换====================================//
+            const objPathParams = {};
+            data.apidocInfo.item.paths.forEach(v => {
+                if (v.key) {
+                    objPathParams[v.key] = v.value;
+                }
+            })
+            Object.assign(_pathParams, objPathParams);
+            //=====================================formdata参数====================================//
+            const objFormdataParams = {};
+            data.apidocInfo.item.requestBody.formdata.forEach(v => {
+                if (v.key) {
+                    objFormdataParams[v.key] = v.value;
+                }
+            })
+            Object.assign(_formdata, objFormdataParams);
+            //=====================================urlencoded参数====================================//
+            const objUrlencodedParams = {};
+            data.apidocInfo.item.requestBody.urlencoded.forEach(v => {
+                if (v.key) {
+                    objUrlencodedParams[v.key] = v.value;
+                }
+            })
+            Object.assign(_urlencoded, objUrlencodedParams);
+            //=====================================json参数====================================//
+            const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
+            Object.assign(json, parsedJson);
+            //=====================================请求url、环境等====================================//
+            const { host, path } = data.apidocInfo.item.url;
+            pm.request.url = {
+                prefix: host,
+                path: path,
+                url: `${host}${path}`
             }
-        })
-        Object.assign(_headers, objHeaders);
-        //=====================================query参数转换====================================//
-        const objQueryParams = {};
-        data.apidocInfo.item.queryParams.forEach(v => {
-            if (v.key) {
-                objQueryParams[v.key] = v.value;
+            pm.request.currentEnv = data.currentEnv;
+            pm.request.envs = data.envs;
+            //=====================================替换url====================================//
+            pm.request.replaceUrl = (url) => {
+                self.postMessage({
+                    type: "prerequest-change-url",
+                    value: url,
+                });
             }
-        })
-        Object.assign(_queryParams, objQueryParams);
-        //=====================================path参数转换====================================//
-        const objPathParams = {};
-        data.apidocInfo.item.paths.forEach(v => {
-            if (v.key) {
-                objPathParams[v.key] = v.value;
+        } 
+        //发送请求
+        if (e.data && e.data.type === "prerequest-request") {
+            const replacedCode = `(async function(pm) { 
+                ${e.data.value}
+            })(pm)`.replace(/((?<!https+:)\/\/[^\n]*)|(\/\*(\s|.)*\*\/)/g, "");
+            const importScriptList = replacedCode.match(/importScript\([^)]+\)/g);
+            const requestUrls = [];
+            let remoteScriptStr = ""
+            importScriptList.forEach(scriptStr => {
+                const matchedStr = scriptStr.match(/(?<=")[^"]+(?=")/g);
+                if (matchedStr) {
+                    requestUrls.push(matchedStr[0])
+                }
+            })
+            for(let i = 0; i < requestUrls.length; i ++) {
+                const result = await importScript(requestUrls[i]);
+                remoteScriptStr = remoteScriptStr + result + ";"
             }
-         })
-         Object.assign(_pathParams, objPathParams);
-        //=====================================formdata参数====================================//
-        const objFormdataParams = {};
-        data.apidocInfo.item.requestBody.formdata.forEach(v => {
-            if (v.key) {
-                objFormdataParams[v.key] = v.value;
-            }
-        })
-        Object.assign(_formdata, objFormdataParams);
-        //=====================================urlencoded参数====================================//
-        const objUrlencodedParams = {};
-        data.apidocInfo.item.requestBody.urlencoded.forEach(v => {
-            if (v.key) {
-                objUrlencodedParams[v.key] = v.value;
-            }
-        })
-        Object.assign(_urlencoded, objUrlencodedParams);
-        //=====================================json参数====================================//
-        const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
-        Object.assign(json, parsedJson);
-        //=====================================请求url、环境等====================================//
-        const { host, path } = data.apidocInfo.item.url;
-        pm.request.url = {
-            prefix: host,
-            path: path,
-            url: `${host}${path}`
+            const evalPromise = eval(`
+                ${remoteScriptStr}
+                ${replacedCode}
+            `);
+            evalPromise.then(() => {
+                self.postMessage({
+                    type: "prerequest-finish",
+                })
+            }).catch(error => {
+                self.postMessage({
+                    type: "prerequest-error",
+                    value: error,
+                });
+            })
         }
-        pm.request.currentEnv = data.currentEnv;
-        pm.request.envs = data.envs;
-        //=====================================替换url====================================//
-        pm.request.replaceUrl = (url) => {
-            self.postMessage({
-                type: "prerequest-change-url",
-                value: url,
-            });
-        }
-    } 
-    //发送请求
-    if (e.data && e.data.type === "prerequest-request") {
-        eval(`(async function(pm) { 
-            ${e.data.value}
-        })(pm)`);
+    } catch (error) {
         self.postMessage({
-            type: "prerequest-finish",
-        })
+            type: "prerequest-error",
+            value: error,
+        });
     }
 });
