@@ -294,6 +294,13 @@ export function sendRequest(): void {
         if (res.data.type === "change-raw-body") { //改变raw body
             apidocConverter.changeRawBody(res.data.value);
         }
+        if (res.data.type === "prerequest-error") { //预请求错误捕获
+            store.commit("apidoc/response/changeLoading", false);
+            store.commit("apidoc/response/changeResponseContentType", "error");
+            store.commit("apidoc/response/changeIsResponse", true);
+            store.commit("apidoc/response/changeResponseTextValue", res.data.value.message);
+            console.error(res.data.value);
+        }
     })
 }
 
