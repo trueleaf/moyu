@@ -1,6 +1,7 @@
 importScripts("../common/json5.js"); 
 importScripts("./global/global.js"); //暴露 GlobalData(全局数据)   
 importScripts("./helper/helper.js"); //helper在global后面引入，因为helper会使用到global里面数据
+importScripts("./variables/variables.js")
 importScripts("./request/headers.js")
 importScripts("./request/query.js")
 importScripts("./request/path.js")
@@ -19,6 +20,7 @@ const pm = {
             json,
         },
     },
+    variables,
 };
 
 self.addEventListener("message", async (e) => {
@@ -92,6 +94,14 @@ self.addEventListener("message", async (e) => {
                     value: url,
                 });
             }
+            //=====================================全局变量====================================//
+            const objVariable = {};
+            data.projectVaribles.forEach(v => {
+                if (v.name) {
+                    objVariable[v.name] = v.value;
+                }
+            })
+            Object.assign(variables, objVariable);
         } 
         //发送请求
         if (e.data && e.data.type === "prerequest-request") {
