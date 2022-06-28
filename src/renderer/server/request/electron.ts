@@ -267,7 +267,7 @@ export function sendRequest(): void {
         if (res.data.type === "change-temp-variables") { //改版临时变量
             apidocConverter.changeTempVariables(res.data.value);
         }
-        if (res.data.type === "change-collection-variables") { //改版集合内变量
+        if (res.data.type === "prerequest-change-variables") { //改版集合内变量
             apidocConverter.changeCollectionVariables(res.data.value);
         }
         if (res.data.type === "prerequest-change-url") { //改变完整url

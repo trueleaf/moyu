@@ -251,7 +251,6 @@ class ApidocConverter {
                 realHeaders[itemKey] = this.convertPlaceholder(item.value);
             }
         })
-
         if (mode === "formdata") {
             realHeaders["content-type"] = this.multipartHeaders;
         } else {
