@@ -101,7 +101,7 @@ self.addEventListener("message", async (e) => {
             const importScriptList = replacedCode.match(/importScript\([^)]+\)/g);
             const requestUrls = [];
             let remoteScriptStr = ""
-            importScriptList.forEach(scriptStr => {
+            importScriptList?.forEach(scriptStr => {
                 const matchedStr = scriptStr.match(/(?<=")[^"]+(?=")/g);
                 if (matchedStr) {
                     requestUrls.push(matchedStr[0])
