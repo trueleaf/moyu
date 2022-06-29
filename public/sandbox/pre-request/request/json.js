@@ -1,5 +1,5 @@
 /**
- * 路径参数
+ * json参数
  */
 const _json = {}; //为了初始化的时候不执行赋值操作
 const jsonValidator = {

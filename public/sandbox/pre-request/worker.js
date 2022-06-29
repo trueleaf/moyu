@@ -8,19 +8,39 @@ importScripts("./request/path.js")
 importScripts("./request/formdata.js")
 importScripts("./request/urlencoded.js")
 importScripts("./request/json.js")
+importScripts("./request/raw.js")
+importScripts("./request/send-request.js")
 importScripts("./global/import-script.js")
+
+const bodyData = new Proxy({}, {
+    get(target, key) {
+        if (key === "formdata") {
+            return formdata
+        } else if (key === "urlencoded") {
+            return urlencoded
+        } else if (key === "json") {
+            return json
+        } else if (key === "raw") {
+            return raw
+        }
+    },
+    set(obj, prop, value) {
+        if (prop === "raw") {
+            rawData.value = value;
+            return true;
+        }
+    }
+})
+
 const pm = {
     request: {
         headers,
         queryParams,
         pathParams,
-        body: {
-            formdata,
-            urlencoded,
-            json,
-        },
+        body: bodyData,
     },
     variables,
+    sendRequest,
 };
 
 self.addEventListener("message", async (e) => {
@@ -78,6 +98,8 @@ self.addEventListener("message", async (e) => {
             //=====================================json参数====================================//
             const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
             Object.assign(json, parsedJson);
+            //=====================================raw参数====================================//
+            rawData.value = data.apidocInfo.item.requestBody.raw.data;
             //=====================================请求url、环境等====================================//
             const { host, path } = data.apidocInfo.item.url;
             pm.request.url = {
