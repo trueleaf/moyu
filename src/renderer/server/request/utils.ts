@@ -360,18 +360,8 @@ class ApidocConverter {
     /**
      * 改变raw body信息
      */
-    changeRawBody(rawData: string) {
-        if (!rawData) {
-            this.apidoc.item.requestBody.raw.data = "";
-            return;
-        }
-        const convertRawJsonData = JSON.parse(rawData, (key, value) => {
-            if (value.toString().startsWith("@")) {
-                return Mock.mock(value);
-            }
-            return value;
-        })
-        this.apidoc.item.requestBody.raw.data = JSON.stringify(convertRawJsonData)
+    changeRawBody(value: string) {
+        this.apidoc.item.requestBody.raw.data = value
     }
 
     /**
