@@ -82,6 +82,11 @@
                         <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
                     </template>
                 </el-tab-pane>
+                <el-tab-pane name="s-mock">
+                    <template #label>
+                        <el-badge>Mock</el-badge>
+                    </template>
+                </el-tab-pane>
             </el-tabs>
             <keep-alive>
                 <component :is="activeName" class="workbench"></component>
@@ -110,6 +115,7 @@ import afterRequestParams from "./after-request/after-request.vue";
 import remarks from "./remarks/remarks.vue";
 import view from "./view/view.vue"
 import hook from "./hook/hook.vue"
+import mock from "./mock/mock.vue"
 
 export default defineComponent({
     components: {
@@ -122,6 +128,7 @@ export default defineComponent({
         "s-pre-request": preRequestParams,
         "s-after-request": afterRequestParams,
         "s-hook": hook,
+        "s-mock": mock,
         "icon-opportunity": Opportunity
     },
     data() {

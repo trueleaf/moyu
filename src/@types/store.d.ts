@@ -458,7 +458,14 @@ type ApidocMockState = {
      * mock服务器监听端口
      */
     mockServerPort: number,
-    urlMap: ApidocMockMapInfo[]
+    /**
+     * 地址映射，用于
+     */
+    urlMap: ApidocMockMapInfo[],
+    /**
+     * 服务器状态
+     */
+    serverState: "disconnection" | "connecting" | "connection" | "error"
 };
 /*
 |--------------------------------------------------------------------------

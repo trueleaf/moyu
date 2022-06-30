@@ -9,7 +9,8 @@ import { store } from "../index";
 const mock = {
     namespaced: true,
     state: {
-        mockServerPort: config.renderConfig.mock.port,
+        serverState: "disconnect", //服务器状态
+        mockServerPort: config.renderConfig.mock.port, // 端口
         urlMap: [],
     },
     mutations: {
@@ -43,10 +44,12 @@ const mock = {
         //改变mock端口
         changeMockServerPort(state: ApidocMockState, port: number): void {
             store.commit("apidoc/apidoc/changeApidocHost", `http://${config.renderConfig.mock.ip}:${port}`);
-            // console.log(router.currentRoute.value)
-            // apidocCache.setPreviousServer(router.currentRoute.value.query.id as string, `http://${config.renderConfig.mock.ip}:${port}`);
             state.mockServerPort = port;
         },
+        //改变服务器启动状态
+        changeMockServerState(state: ApidocMockState, payload: "disconnection" | "connecting" | "connection" | "error"): void{
+            state.serverState = payload;
+        }
     },
 }
 

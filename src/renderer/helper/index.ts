@@ -6,7 +6,7 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from "nanoid/non-secure"
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes } from "@@/global"
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes, ApidocCodeInfo } from "@@/global"
 import lodashIsEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import mitt from "mitt"
 import Mock from "@/server/mock/mock"
 import { store } from "@/store/index"
+import type { ApidocProjectBaseInfoState } from "@@/store";
 import tips from "./tips"
 
 type Data = Record<string, unknown>
@@ -38,7 +39,15 @@ export const throttle = lodashThrottle;
 /**
  * 全局事件订阅发布
  */
-const emitter = mitt()
+const emitter = mitt<{
+    "apidoc/mock/restartMock": void;
+    "apidoc/editor/removePreEditor": void;
+    "apidoc/editor/removeAfterEditor": void;
+    "apidoc/hook/jumpToEdit": ApidocCodeInfo;
+    "apidoc/tabs/addOrDeleteTab": void,
+    "apidoc/getBaseInfo": ApidocProjectBaseInfoState,
+    "searchItem/change": string,
+}>()
 
 export const event = emitter;
 /**
