@@ -97,7 +97,7 @@ export default defineComponent({
         this.initLabelWidth(); //初始化label的宽度
         this.initFormData(); //初始化表单数据绑定
         this.checkFormHeight(); //检查是否显示折叠按钮
-        this.$helper.event.on<string>("searchItem/change", this.handleChangeEvent);
+        this.$helper.event.on("searchItem/change", this.handleChangeEvent);
     },
     beforeUnmount() {
         this.$helper.event.off("searchItem/change", this.handleChangeEvent);

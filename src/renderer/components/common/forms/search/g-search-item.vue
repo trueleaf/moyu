@@ -79,7 +79,7 @@ export default defineComponent({
     },
     methods: {
         handleChange(value: string) {
-            this.$helper.event.emit<string>("searchItem/change", value);
+            this.$helper.event.emit("searchItem/change", value);
         },
     },
 })
