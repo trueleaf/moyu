@@ -61,10 +61,8 @@
                     <el-option label="html" value="text/html"></el-option>
                     <el-option label="xml" value="application/xml"></el-option>
                     <el-option label="javascript" value="text/javascript"></el-option>
-                    <el-option label="json" value="application/json"></el-option>
                 </el-select>
             </div>
-            <div v-show="rawType === 'application/json'" :title="$t('该模块即将废弃，请在json模块中录入参数')" class="tip">{{ $t("该模块即将废弃，请在json模块中录入参数") }}</div>
         </div>
         <!-- <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params> -->
     </div>
