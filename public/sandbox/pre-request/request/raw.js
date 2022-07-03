@@ -5,7 +5,7 @@ const rawData = new Proxy({ value: "" }, {
     set(obj, prop, value) {
         obj.value = value;
         self.postMessage({
-            type: "prerequest-change-raw-params",
+            type: "pre-request-change-raw-params",
             value,
         });
         return true;

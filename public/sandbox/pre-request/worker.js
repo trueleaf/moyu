@@ -9,8 +9,8 @@ importScripts("./request/formdata.js")
 importScripts("./request/urlencoded.js")
 importScripts("./request/json.js")
 importScripts("./request/raw.js")
-importScripts("./request/send-request.js")
 importScripts("./global/import-script.js")
+importScripts("./send-request/send-request.js")
 
 const bodyData = new Proxy({}, {
     get(target, key) {
@@ -41,12 +41,13 @@ const pm = {
     },
     variables,
     sendRequest,
+    http,
 };
 
 self.addEventListener("message", async (e) => {
     try {
         //初始化所有请求信息
-        if (e.data && e.data.type === "prerequest-init-apidoc") {
+        if (e.data && e.data.type === "pre-request-init-apidoc") {
             const data = e.data.value; 
             console.log("data", data)
             GlobalData.apidocInfo = data.apidocInfo;
@@ -96,8 +97,10 @@ self.addEventListener("message", async (e) => {
             })
             Object.assign(_urlencoded, objUrlencodedParams);
             //=====================================json参数====================================//
-            const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
-            Object.assign(json, parsedJson);
+            if (data.apidocInfo.item.requestBody.rawJson) {
+                const parsedJson = JSON5.parse(data.apidocInfo.item.requestBody.rawJson);
+                Object.assign(json, parsedJson);
+            }
             //=====================================raw参数====================================//
             rawData.value = data.apidocInfo.item.requestBody.raw.data;
             //=====================================请求url、环境等====================================//
@@ -112,7 +115,7 @@ self.addEventListener("message", async (e) => {
             //=====================================替换url====================================//
             pm.request.replaceUrl = (url) => {
                 self.postMessage({
-                    type: "prerequest-change-url",
+                    type: "pre-request-change-url",
                     value: url,
                 });
             }
@@ -126,10 +129,10 @@ self.addEventListener("message", async (e) => {
             Object.assign(variables, objVariable);
         } 
         //发送请求
-        if (e.data && e.data.type === "prerequest-request") {
+        if (e.data && e.data.type === "pre-request-request") {
             const replacedCode = `(async function(pm) { 
                 ${e.data.value}
-            })(pm)`.replace(/((?<!https+:)\/\/[^\n]*)|(\/\*(\s|.)*\*\/)/g, "");
+            })(pm)`.replace(/((?<!https?:)\/\/[^\n]*)|(\/\*(\s|.)*\*\/)/g, ""); //去掉单行和多行注释
             const importScriptList = replacedCode.match(/importScript\([^)]+\)/g);
             const requestUrls = [];
             let remoteScriptStr = ""
@@ -148,19 +151,38 @@ self.addEventListener("message", async (e) => {
                 ${replacedCode}
             `);
             evalPromise.then(() => {
+                console.log(123, isSendRequest)
+                if (isSendRequest) {
+                    return;
+                }
                 self.postMessage({
-                    type: "prerequest-finish",
+                    type: "pre-request-finish",
                 })
             }).catch(error => {
+                console.error(error);
                 self.postMessage({
-                    type: "prerequest-error",
+                    type: "pre-request-error",
                     value: error,
                 });
             })
         }
+        // 请求成功
+        if (e.data && e.data.type === "pre-request-request-success") {
+            requestCb(null, e.data.value);
+            self.postMessage({
+                type: "pre-request-finish",
+            })
+        } 
+        // 请求失败
+        if (e.data && e.data.type === "pre-request-request-error") {
+            requestCb(e.data.value, null);
+            self.postMessage({
+                type: "pre-request-finish",
+            })
+        } 
     } catch (error) {
         self.postMessage({
-            type: "prerequest-error",
+            type: "pre-request-error",
             value: error,
         });
     }

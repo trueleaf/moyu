@@ -17,7 +17,7 @@ const jsonValidator = {
             obj[prop] = value;
         }
         self.postMessage({
-            type: "prerequest-change-json-params",
+            type: "pre-request-change-json-params",
             value: JSON.stringify(json),
         });
         return true;
@@ -25,7 +25,7 @@ const jsonValidator = {
     deleteProperty(target, prop) {
         delete target[prop];
         self.postMessage({
-            type: "prerequest-change-json-params",
+            type: "pre-request-change-json-params",
             value: JSON.stringify(json),
         });
     },

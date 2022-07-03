@@ -24,7 +24,7 @@
          }
          obj[prop] = realValue;
          self.postMessage({
-             type: "prerequest-change-urlencoded",
+             type: "pre-request-change-urlencoded",
              value: JSON.parse(JSON.stringify(urlencoded)),
          });
          return true;
@@ -32,7 +32,7 @@
      deleteProperty(target, prop) {
          delete target[prop];
          self.postMessage({
-             type: "prerequest-change-urlencoded",
+             type: "pre-request-change-urlencoded",
              value: JSON.parse(JSON.stringify(urlencoded)),
          });
      },

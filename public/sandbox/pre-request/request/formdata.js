@@ -24,7 +24,7 @@ const formdata = new Proxy(_formdata, {
         }
         obj[prop] = realValue;
         self.postMessage({
-            type: "prerequest-change-formdata",
+            type: "pre-request-change-formdata",
             value: JSON.parse(JSON.stringify(formdata)),
         });
         return true;
@@ -32,7 +32,7 @@ const formdata = new Proxy(_formdata, {
     deleteProperty(target, prop) {
         delete target[prop];
         self.postMessage({
-            type: "prerequest-change-formdata",
+            type: "pre-request-change-formdata",
             value: JSON.parse(JSON.stringify(formdata)),
         });
     },

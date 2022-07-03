@@ -17,7 +17,7 @@ const variablesValidator = {
             obj[prop] = value;
         }
         self.postMessage({
-            type: "prerequest-change-variables",
+            type: "pre-request-change-variables",
             value: JSON.parse(JSON.stringify(variables)),
         });
         return true;
@@ -25,7 +25,7 @@ const variablesValidator = {
     deleteProperty(target, prop) {
         delete target[prop];
         self.postMessage({
-            type: "prerequest-change-variables",
+            type: "pre-request-change-variables",
             value: JSON.parse(JSON.stringify(variables)),
         });
     },

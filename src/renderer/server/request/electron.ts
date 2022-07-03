@@ -213,7 +213,7 @@ export function sendRequest(): void {
     const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
     //初始化默认apidoc信息
     worker.postMessage({
-        type: "prerequest-init-apidoc",
+        type: "pre-request-init-apidoc",
         value: {
             apidocInfo: cpApidoc2,
             commonHeaders,
@@ -226,7 +226,7 @@ export function sendRequest(): void {
     });
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
-        type: "prerequest-request",
+        type: "pre-request-request",
         value: store.state["apidoc/apidoc"].apidoc.preRequest.raw
     })));
     //错误处理
@@ -242,10 +242,10 @@ export function sendRequest(): void {
         if (typeof res.data !== "object") {
             return
         }
-        if (res.data.type === "send-request") { //发送ajax请求
+        if (res.data.type === "pre-request-send-request") { //老版本接口请求
             (got as Got)(res.data.value).then(response => {
                 worker.postMessage({
-                    type: "request-success",
+                    type: "pre-request-request-success",
                     value: {
                         headers: JSON.parse(JSON.stringify(response.headers)),
                         status: response.statusMessage,
@@ -256,45 +256,63 @@ export function sendRequest(): void {
                 });
             }).catch(err => {
                 worker.postMessage({
-                    type: "request-error",
+                    type: "pre-request-request-error",
                     value: err
                 });
             })
         }
-        if (res.data.type === "prerequest-finish") { //脚本执行完
+        if (res.data.type === "pre-request-http") { //接口请求
+            setTimeout(() => {
+                worker.postMessage({
+                    type: "pre-request-http-success",
+                    value: {
+                        x: 1
+                    }
+                });
+            }, 3000)
+            // (got as Got)(res.data.value).then(response => {
+            // }).catch(err => {
+            //     worker.postMessage({
+            //         type: "pre-request-http-error",
+            //         value: err
+            //     });
+            // })
+        }
+        if (res.data.type === "pre-request-finish") { //脚本执行完
+            console.log("finish")
             electronRequest();
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
             apidocConverter.changeTempVariables(res.data.value);
         }
-        if (res.data.type === "prerequest-change-variables") { //改版集合内变量
+        if (res.data.type === "pre-request-change-variables") { //改版集合内变量
             apidocConverter.changeCollectionVariables(res.data.value);
         }
-        if (res.data.type === "prerequest-change-url") { //改变完整url
+        if (res.data.type === "pre-request-change-url") { //改变完整url
             apidocConverter.replaceUrl(res.data.value);
         }
-        if (res.data.type === "prerequest-change-headers") { //改变请求头
+        if (res.data.type === "pre-request-change-headers") { //改变请求头
             apidocConverter.changeHeaders(res.data.value);
         }
-        if (res.data.type === "prerequest-change-query-params") { //改变 queryparams
+        if (res.data.type === "pre-request-change-query-params") { //改变 queryparams
             apidocConverter.changeQueryParams(res.data.value);
         }
-        if (res.data.type === "prerequest-change-path-params") { //改变 pathparams
+        if (res.data.type === "pre-request-change-path-params") { //改变 pathparams
             apidocConverter.changePathParams(res.data.value);
         }
-        if (res.data.type === "prerequest-change-json-params") { //改变请求body
+        if (res.data.type === "pre-request-change-json-params") { //改变请求body
             apidocConverter.changeJsonBody(res.data.value);
         }
-        if (res.data.type === "prerequest-change-formdata") { //改变请求formdata body
+        if (res.data.type === "pre-request-change-formdata") { //改变请求formdata body
             apidocConverter.changeFormdataBody(res.data.value);
         }
-        if (res.data.type === "prerequest-change-urlencoded") { //改变请求urlencoded body
+        if (res.data.type === "pre-request-change-urlencoded") { //改变请求urlencoded body
             apidocConverter.changeUrlencodedBody(res.data.value);
         }
-        if (res.data.type === "prerequest-change-raw-params") { //改变raw body
+        if (res.data.type === "pre-request-change-raw-params") { //改变raw body
             apidocConverter.changeRawBody(res.data.value);
         }
-        if (res.data.type === "prerequest-error") { //预请求错误捕获
+        if (res.data.type === "pre-request-error") { //预请求错误捕获
             store.commit("apidoc/response/changeLoading", false);
             store.commit("apidoc/response/changeResponseContentType", "error");
             store.commit("apidoc/response/changeIsResponse", true);

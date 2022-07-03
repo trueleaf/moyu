@@ -20,7 +20,7 @@
          }
          obj[prop] = realValue;
          self.postMessage({
-             type: "prerequest-change-query-params",
+             type: "pre-request-change-query-params",
              value: JSON.parse(JSON.stringify(queryParams))
          })
          return true;
@@ -28,7 +28,7 @@
      deleteProperty(target, prop) {
          delete target[prop];
          self.postMessage({
-             type: "prerequest-change-query-params",
+             type: "pre-request-change-query-params",
              value: JSON.parse(JSON.stringify(queryParams))
          })
      },

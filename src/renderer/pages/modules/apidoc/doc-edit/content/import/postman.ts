@@ -90,7 +90,7 @@ class PostmanTranslator {
                         doc.item.requestBody.raw.data = item.request?.body?.raw || ""
                         doc.item.requestBody.raw.dataType = "text/plain"
                     }
-                    const preScriptList = item.event?.find((v: any) => v.listen === "prerequest");
+                    const preScriptList = item.event?.find((v: any) => v.listen === "pre-request");
                     const afterScriptList = item.event?.find((v: any) => v.listen === "test");
                     doc.preRequest.raw = preScriptList?.script?.exec.join("") || "";
                     doc.afterRequest.raw = afterScriptList?.script?.exec.join("") || "";

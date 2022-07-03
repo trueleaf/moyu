@@ -20,7 +20,7 @@ const headers = new Proxy(_headers, {
         }
         obj[prop] = realValue;
         self.postMessage({
-            type: "prerequest-change-headers",
+            type: "pre-request-change-headers",
             value: JSON.parse(JSON.stringify(headers))
         })
         return true;
@@ -28,7 +28,7 @@ const headers = new Proxy(_headers, {
     deleteProperty(target, prop) {
         delete target[prop];
         self.postMessage({
-            type: "prerequest-change-headers",
+            type: "pre-request-change-headers",
             value: JSON.parse(JSON.stringify(headers))
         })
     },

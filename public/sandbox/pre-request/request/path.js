@@ -20,7 +20,7 @@
          }
          obj[prop] = realValue;
          self.postMessage({
-             type: "prerequest-change-path-params",
+             type: "pre-request-change-path-params",
              value: JSON.parse(JSON.stringify(pathParams))
          })
          return true;
@@ -28,7 +28,7 @@
      deleteProperty(target, prop) {
          delete target[prop];
          self.postMessage({
-             type: "prerequest-change-path-params",
+             type: "pre-request-change-path-params",
              value: JSON.parse(JSON.stringify(pathParams))
          })
      },
