@@ -322,12 +322,48 @@ const requestSuggestions = [{
     keyword: "pm.request.replaceUrl",
 }, {
     label: {
-        label: "sendRequest",
-        description: "发送请求"
+        label: "http",
+        description: "发送http请求"
     },
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `sendRequest("请求url", (err, response) => {})`,
-    keyword: "pm.sendRequest",
+    insertText: `http`,
+    keyword: "pm.http",
+}, {
+    label: {
+        label: "get",
+        description: "发送get请求"
+    },
+    sortText: "1",
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `get("请求url", { headers: {}, params: {}, body: {} })`,
+    keyword: "pm.http.get",
+}, {
+    label: {
+        label: "post",
+        description: "发送post请求"
+    },
+    sortText: "2",
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `post("请求url", { headers: {}, params: {}, body: {} })`,
+    keyword: "pm.http.post",
+}, {
+    label: {
+        label: "put",
+        description: "发送put请求"
+    },
+    sortText: "3",
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `put("请求url", { headers: {}, params: {}, body: {} })`,
+    keyword: "pm.http.put",
+}, {
+    label: {
+        label: "delete",
+        description: "发送delete请求"
+    },
+    sortText: "4",
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: `delete("请求url", { headers: {}, params: {}, body: {} })`,
+    keyword: "pm.http.delete",
 }]
 
 const suggestions: Suggestions = [{
