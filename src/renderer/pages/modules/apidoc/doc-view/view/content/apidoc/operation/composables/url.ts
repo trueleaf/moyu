@@ -80,11 +80,13 @@ export function handleFormatUrl():void {
     const ipReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)/;
     const ipWithPortReg = /^https?:\/\/((\d|[1-9]\d|1\d{2}|2[0-5]{2})\.){3}(2[0-5]{2}|1\d{2}|[1-9]\d|\d)(:\d{2,5})/;
     const dominReg = /^(https?:\/\/)?([^.]{1,62}\.){1,}[^.]{1,62}/;
+    const localhostReg = /^(https?:\/\/)?(localhost)/
     const matchedIp = requestPath.value.match(ipReg);
     const matchedIpWithPort = requestPath.value.match(ipWithPortReg);
     const matchedDomin = requestPath.value.match(dominReg);
+    const matchedLocalhost = requestPath.value.match(localhostReg);
     let formatPath = requestPath.value;
-    if (!matchedIp && !matchedDomin && !matchedIpWithPort) {
+    if (!matchedIp && !matchedDomin && !matchedIpWithPort && !matchedLocalhost) {
         const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
         const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
         //路径处理
