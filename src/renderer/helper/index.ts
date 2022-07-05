@@ -40,7 +40,9 @@ export const throttle = lodashThrottle;
  * 全局事件订阅发布
  */
 const emitter = mitt<{
-    "apidoc/mock/restartMock": void;
+    "apidoc/mock/closeMockServer": void;
+    "apidoc/mock/openMockServer": void;
+    "apidoc/mock/restartMockserver": void;
     "apidoc/editor/removePreEditor": void;
     "apidoc/editor/removeAfterEditor": void;
     "apidoc/hook/jumpToEdit": ApidocCodeInfo;
