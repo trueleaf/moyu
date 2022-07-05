@@ -6,7 +6,6 @@ import { apidocConvertParamsToJsonData, forEachForest, event } from "@/helper/in
 import { axios } from "@/api/api"
 import Mock from "@/server/mock/mock"
 import { ApidocDetail, ApidocProperty } from "@@/global"
-// import type { Server } from "http"
 
 let app: Koa | null = null;
 
@@ -26,8 +25,8 @@ export const mockServer = (): void => {
             app.use(cors());
             store.commit("apidoc/mock/changeMockServerState", "connecting")
             store.commit("apidoc/mock/changeMockServerPort", serverPort)
-            const appInstance = app.listen(serverPort, () => {
-                console.log("已连接")
+            let appInstance = app.listen(serverPort, () => {
+                console.log("mock服务器已连接")
                 store.commit("apidoc/mock/changeMockServerState", "connection")
             });
             appInstance.on("error", (err: { code: string }) => {
@@ -42,12 +41,27 @@ export const mockServer = (): void => {
                 console.log("mock服务器断开连接");
                 store.commit("apidoc/mock/changeMockServerState", "disconnection")
             })
-            event.on("apidoc/mock/restartMock", () => {
+            //关闭服务器
+            event.on("apidoc/mock/closeMockServer", () => {
+                store.commit("apidoc/mock/changeMockServerState", "closing")
                 appInstance.close((err) => {
                     if (err) {
+                        store.commit("apidoc/mock/changeMockServerState", "error")
                         console.error(err)
+                    } else {
+                        store.commit("apidoc/mock/changeMockServerState", "disconnection")
                     }
                 })
+            })
+            //打开服务器
+            event.on("apidoc/mock/openMockServer", () => {
+                if (app) {
+                    store.commit("apidoc/mock/changeMockServerState", "connecting");
+                    appInstance = app.listen(serverPort, () => {
+                        console.log("mock服务器已连接")
+                        store.commit("apidoc/mock/changeMockServerState", "connection")
+                    });
+                }
             })
         }
     }
