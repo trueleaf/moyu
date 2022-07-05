@@ -47,7 +47,7 @@ const mock = {
             state.mockServerPort = port;
         },
         //改变服务器启动状态
-        changeMockServerState(state: ApidocMockState, payload: "disconnection" | "connecting" | "connection" | "error"): void{
+        changeMockServerState(state: ApidocMockState, payload: "disconnection" | "connecting" | "connection" | "closing" | "error"): void{
             state.serverState = payload;
         }
     },

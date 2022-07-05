@@ -465,7 +465,7 @@ type ApidocMockState = {
     /**
      * 服务器状态
      */
-    serverState: "disconnection" | "connecting" | "connection" | "error"
+    serverState: "disconnection" | "connecting" | "connection" | "error" | "closing"
 };
 /*
 |--------------------------------------------------------------------------
