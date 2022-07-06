@@ -1,4 +1,4 @@
-import { App, DirectiveBinding } from "vue"
+import { App, DirectiveBinding, ref } from "vue"
 import scssData from "@/scss/variables/_variables.scss"
 
 let domList: HTMLElement[] = [];
@@ -58,11 +58,12 @@ export default (app: App): void => {
         },
     });
     //=====================================拷贝指令====================================//
-    const runCopy = (e: MouseEvent, value: string) => {
+    const copyValue = ref("");
+    const runCopy = (e: MouseEvent) => {
         const x = e.clientX;
         const y = e.clientY;
         const dom = document.createElement("textarea");
-        dom.value = value;
+        dom.value = copyValue.value;
         dom.style.position = "fixed";
         dom.style.top = "-9999px";
         dom.style.left = "-9999px";
@@ -92,10 +93,14 @@ export default (app: App): void => {
     let bindCopyFn: ((e: MouseEvent) => void) | null = null;
     app.directive("copy", {
         mounted(el: HTMLElement, binding) {
+            copyValue.value = binding.value;
             bindCopyFn = (e: MouseEvent) => {
-                runCopy(e, binding.value);
+                runCopy(e);
             }
             el.addEventListener("click", bindCopyFn)
+        },
+        updated(el: HTMLElement, binding) {
+            copyValue.value = binding.value;
         },
         unmounted(el: HTMLElement) {
             if (bindCopyFn) {
