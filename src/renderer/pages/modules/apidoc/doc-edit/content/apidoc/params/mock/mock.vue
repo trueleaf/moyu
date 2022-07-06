@@ -10,9 +10,8 @@
             <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
                 <span class="text">{{ originMockUrl }}</span>
                 <input v-model="customPath" type="text" class="edit-ipt">
-                <el-icon v-copy="fullMockUrl" class="cursor-pointer ml-2">
-                    <DocumentCopy />
-                </el-icon>
+                <span v-copy="fullMockUrl" class="cursor-pointer f-xs theme-color ml-1 mr-2">复制</span>
+                <span class="theme-color f-xs">还原</span>
             </s-label-value>
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
                 <span v-if="!isEditing">{{ mockPort }}</span>
@@ -23,17 +22,25 @@
                 <span v-if="isEditing" class="cursor-pointer theme-color mx-2" @click="handleChangePort">确定</span>
                 <span v-if="isEditing" class="cursor-pointer theme-color" @click="mockPort = _mockPort; isEditing = false">取消</span>
             </s-label-value>
-            <button @click="handleShutdownMockServer">关闭服务器</button>
-            <button @click="handleOpenMockServer">开启服务器</button>
-            <pre>{{ mockInfo }}</pre>
+            <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
+                200
+            </s-label-value>
+            <el-tabs v-model="activeName">
+                <el-tab-pane label="自定义返回结果" name="response"></el-tab-pane>
+                <el-tab-pane label="自定义返回头" name="header"> </el-tab-pane>
+            </el-tabs>
+            <button v-if="0" @click="handleShutdownMockServer">关闭服务器</button>
+            <button v-if="0" @click="handleOpenMockServer">开启服务器</button>
+            <!-- <pre>{{ mockInfo }}</pre> -->
+            <pre>{{ fullMockUrl }}</pre>
         </s-fieldset>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { store } from "@/store";
-import { EditPen, DocumentCopy } from "@element-plus/icons-vue"
+import { EditPen } from "@element-plus/icons-vue"
 import { event } from "@/helper/index"
 // import { router } from "@/router";
 import globalConfig from "@/../config/config"
@@ -50,8 +57,22 @@ const isEditing = ref(false);
 */
 const originMockUrl = ref(`http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
 const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.path); //原始请求路径
-const customPath = ref(orginPath); //自定义请求路径
+const customPath = ref(""); //自定义请求路径
 const fullMockUrl = computed(() => `${originMockUrl.value}${customPath.value}`)
+watch(orginPath, (newVal) => {
+    if (customPath.value === "") {
+        customPath.value = newVal;
+    }
+})
+watch(customPath, (newVal) => {
+    console.log(newVal, store.state["apidoc/apidoc"].apidoc.item.responseParams)
+})
+/*
+|--------------------------------------------------------------------------
+| 返回头和返回参数
+|--------------------------------------------------------------------------
+*/
+const activeName = ref("response");
 
 //改变端口编辑状态
 const handleChangePortEditState = () => {
@@ -86,11 +107,12 @@ onBeforeUnmount(() => {
     }
     .edit-ipt {
         padding: 0 size(3);
-        height: size(20);
-        line-height: size(20);
+        height: size(22);
+        line-height: size(22);
         border: none;
-        border-bottom: 1px solid $gray-600;
+        border-bottom: 1px solid $gray-500;
         font-size: fz(15);
+        width: size(300);
     }
 }
 </style>
