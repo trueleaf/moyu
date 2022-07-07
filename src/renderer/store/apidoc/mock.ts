@@ -22,6 +22,13 @@ const mock = {
         addMockUrl(state: ApidocMockState, payload: ApidocMockMapInfo): void {
             state.urlMap.push(payload);
         },
+        //根据id改变一条mock映射
+        changeMockUrlInfoById(state: ApidocMockState, payload: { id: string, data: ApidocMockMapInfo }): void {
+            const matchedMockInfo = state.urlMap.find(v => v.id === payload.id);
+            if (matchedMockInfo) {
+                Object.assign(matchedMockInfo, payload.data)
+            }
+        },
         //改变当前mock映射
         changeCurrentMockUrl(state: ApidocMockState, payload: { id: string, apidoc: ApidocDetail }): void {
             const index = state.urlMap.findIndex(v => v.id === payload.id);
