@@ -11,7 +11,7 @@
                 <span class="text">{{ originMockUrl }}</span>
                 <input v-model="customPath" type="text" class="edit-ipt">
                 <span v-copy="fullMockUrl" class="cursor-pointer f-xs theme-color ml-1 mr-2">复制</span>
-                <span class="theme-color f-xs">还原</span>
+                <span class="theme-color cursor-pointer f-xs">还原</span>
             </s-label-value>
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
                 <span v-if="!isEditing">{{ mockPort }}</span>
