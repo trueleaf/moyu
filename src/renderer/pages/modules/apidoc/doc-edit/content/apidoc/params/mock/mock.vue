@@ -31,8 +31,8 @@
             </el-tabs>
             <button v-if="0" @click="handleShutdownMockServer">关闭服务器</button>
             <button v-if="0" @click="handleOpenMockServer">开启服务器</button>
-            <!-- <pre>{{ mockInfo }}</pre> -->
-            <pre>{{ fullMockUrl }}</pre>
+            <pre>{{ mockInfo }}</pre>
+            <!-- <pre>{{ fullMockUrl }}</pre> -->
         </s-fieldset>
     </div>
 </template>
@@ -58,14 +58,33 @@ const isEditing = ref(false);
 const originMockUrl = ref(`http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
 const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.path); //原始请求路径
 const customPath = ref(""); //自定义请求路径
-const fullMockUrl = computed(() => `${originMockUrl.value}${customPath.value}`)
+const fullMockUrl = computed(() => `${originMockUrl.value}${customPath.value}`); //完整请求url
+const apidocInfo = computed(() => store.state["apidoc/apidoc"].apidoc); //当前api文档信息
 watch(orginPath, (newVal) => {
     if (customPath.value === "") {
         customPath.value = newVal;
     }
 })
 watch(customPath, (newVal) => {
-    console.log(newVal, store.state["apidoc/apidoc"].apidoc.item.responseParams)
+    const { urlMap } = store.state["apidoc/mock"];
+    const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
+    const matchedCustom = urlMap.find(v => v.id === apidocInfo.value._id && v.isCustom);
+    if (matchedMockInfo && !matchedCustom) { //如不不存在默认数据，则新增一条数据
+        store.commit("apidoc/mock/addMockUrl", {
+            ...matchedMockInfo,
+            url: newVal,
+            isCustom: true,
+        })
+    } else if (matchedMockInfo && matchedCustom) {
+        store.commit("apidoc/mock/changeMockUrlInfoById", {
+            id: matchedMockInfo.id,
+            data: {
+                ...matchedMockInfo,
+                url: newVal,
+            }
+        })
+    }
+    // console.log(newVal, matchedMockInfo)
 })
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +132,9 @@ onBeforeUnmount(() => {
         border-bottom: 1px solid $gray-500;
         font-size: fz(15);
         width: size(300);
+    }
+    .el-tabs {
+        padding: 0;
     }
 }
 </style>

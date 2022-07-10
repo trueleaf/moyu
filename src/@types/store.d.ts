@@ -452,6 +452,7 @@ type ApidocMockMapInfo = {
     projectId: string, //项目id
     url: string, //请求地址
     method: ApidocHttpRequestMethod, //请求方法
+    isCustom?: boolean, //是否为用户自定义mock数据
 }
 type ApidocMockState = {
     /**
