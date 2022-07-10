@@ -68,14 +68,14 @@ watch(orginPath, (newVal) => {
 watch(customPath, (newVal) => {
     const { urlMap } = store.state["apidoc/mock"];
     const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
-    const matchedCustom = urlMap.find(v => v.id === apidocInfo.value._id && v.isCustom);
-    if (matchedMockInfo && !matchedCustom) { //如不不存在默认数据，则新增一条数据
+    const matchedCustomMockInfo = urlMap.find(v => v.id === apidocInfo.value._id && v.isCustom);
+    if (matchedMockInfo && !matchedCustomMockInfo) { //如不不存在默认数据，则新增一条数据
         store.commit("apidoc/mock/addMockUrl", {
             ...matchedMockInfo,
             url: newVal,
             isCustom: true,
         })
-    } else if (matchedMockInfo && matchedCustom) {
+    } else if (matchedMockInfo && matchedCustomMockInfo) {
         store.commit("apidoc/mock/changeMockUrlInfoById", {
             id: matchedMockInfo.id,
             data: {
