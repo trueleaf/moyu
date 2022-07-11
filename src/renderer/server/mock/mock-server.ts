@@ -26,9 +26,9 @@ export const mockServer = (): void => {
             store.commit("apidoc/mock/changeMockServerState", "connecting")
             store.commit("apidoc/mock/changeMockServerPort", serverPort)
             let appInstance = app.listen(serverPort, () => {
-                console.log("mock服务器已连接")
                 store.commit("apidoc/mock/changeMockServerState", "connection")
             });
+            //错误处理
             appInstance.on("error", (err: { code: string }) => {
                 console.error(err)
                 if (err.code === "EADDRINUSE") {
@@ -37,8 +37,8 @@ export const mockServer = (): void => {
                     store.commit("apidoc/mock/changeMockServerPort", serverPort)
                 }
             });
+            //服务器端口
             appInstance.on("close", () => {
-                console.log("mock服务器断开连接");
                 store.commit("apidoc/mock/changeMockServerState", "disconnection")
             })
             //关闭服务器
@@ -58,10 +58,27 @@ export const mockServer = (): void => {
                 if (app) {
                     store.commit("apidoc/mock/changeMockServerState", "connecting");
                     appInstance = app.listen(serverPort, () => {
-                        console.log("mock服务器已连接")
                         store.commit("apidoc/mock/changeMockServerState", "connection")
                     });
                 }
+            })
+            //重启服务器
+            event.on("apidoc/mock/restartMockServer", () => {
+                appInstance.close((err) => {
+                    if (err) {
+                        store.commit("apidoc/mock/changeMockServerState", "error")
+                        console.error(err)
+                    } else {
+                        store.commit("apidoc/mock/changeMockServerState", "disconnection")
+                        const port = store.state["apidoc/mock"].mockServerPort
+                        if (app) {
+                            store.commit("apidoc/mock/changeMockServerState", "connecting");
+                            appInstance = app.listen(port, () => {
+                                store.commit("apidoc/mock/changeMockServerState", "connection")
+                            });
+                        }
+                    }
+                })
             })
         }
     }
