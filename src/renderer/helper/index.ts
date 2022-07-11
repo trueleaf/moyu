@@ -46,6 +46,7 @@ const emitter = mitt<{
     "apidoc/editor/removePreEditor": void;
     "apidoc/editor/removeAfterEditor": void;
     "apidoc/hook/jumpToEdit": ApidocCodeInfo;
+    "apidoc/mock/restartMockServer": void;
     "apidoc/tabs/addOrDeleteTab": void,
     "apidoc/getBaseInfo": ApidocProjectBaseInfoState,
     "searchItem/change": string,
