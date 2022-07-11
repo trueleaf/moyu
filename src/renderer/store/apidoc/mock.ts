@@ -39,7 +39,7 @@ const mock = {
                     url: payload.apidoc.item.url.path,
                     method: payload.apidoc.item.method
                 }
-            } else {
+            } else if (payload.apidoc.projectId) { //不添加无效数据
                 state.urlMap.push({
                     id: payload.apidoc._id,
                     projectId: payload.apidoc.projectId,
