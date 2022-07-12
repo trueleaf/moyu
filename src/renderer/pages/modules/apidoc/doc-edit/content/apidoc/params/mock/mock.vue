@@ -7,6 +7,7 @@
 <template>
     <div class="mock-wrap">
         <s-fieldset title="Mock服务器基本信息" class="w-80">
+            <!-- 状态 -->
             <s-label-value label="状态：" label-width="50px" class="mb-1" one-line>
                 <span v-if="mockInfo.serverState === 'closing'" class="f-sm">
                     <span class="dot"></span>
@@ -29,27 +30,34 @@
                     <span>异常</span>
                 </span>
             </s-label-value>
+            <!-- mock地址 -->
             <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
                 <span class="text">{{ mockServer }}</span>
                 <input v-model="customPath" type="text" class="edit-ipt">
                 <span v-copy="fullMockUrl" class="cursor-pointer f-xs theme-color ml-1 mr-2">复制</span>
                 <span class="theme-color cursor-pointer f-xs" @click="handleResetMockUrl">还原</span>
             </s-label-value>
+            <!-- mock端口 -->
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
                 <span v-if="!isEditing">{{ mockPort }}</span>
                 <el-input-number v-if="isEditing" v-model="mockPort" size="small" class="w-20" :step="1" :min="1" :max="65536"></el-input-number>
                 <el-icon v-if="!isEditing" class="ml-2 cursor-pointer" @click="handleChangePortEditState">
                     <EditPen />
                 </el-icon>
-                <span v-if="isEditing" class="cursor-pointer theme-color mx-2" @click="handleChangePort">确定</span>
-                <span v-if="isEditing" class="cursor-pointer theme-color" @click="mockPort = _mockPort; isEditing = false">取消</span>
+                <span v-if="isEditing" class="cursor-pointer f-xs theme-color mx-2" @click="handleChangePort">确定</span>
+                <span v-if="isEditing" class="cursor-pointer f-xs theme-color" @click="mockPort = _mockPort; isEditing = false">取消</span>
             </s-label-value>
+            <!-- http返回状态码 -->
             <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
+                200
+            </s-label-value>
+            <!-- 延迟返回(毫秒) -->
+            <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
                 200
             </s-label-value>
             <el-tabs v-model="activeName">
                 <el-tab-pane label="自定义返回结果" name="response"></el-tab-pane>
-                <el-tab-pane label="自定义返回头" name="header"> </el-tab-pane>
+                <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
             </el-tabs>
             <button @click="handleShutdownMockServer">关闭服务器</button>
             <button @click="handleOpenMockServer">开启服务器</button>
@@ -139,6 +147,8 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .mock-wrap {
     font-size: fz(15);
+    height: calc(100vh - #{size(310)});
+    overflow-y: auto;
     .dot {
         display: inline-block;
         width: size(10);
