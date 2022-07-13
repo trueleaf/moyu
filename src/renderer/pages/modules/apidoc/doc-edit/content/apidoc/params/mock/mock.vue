@@ -34,33 +34,46 @@
             <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
                 <span class="text">{{ mockServer }}</span>
                 <input v-model="customPath" type="text" class="edit-ipt">
-                <span v-copy="fullMockUrl" class="cursor-pointer f-xs theme-color ml-1 mr-2">复制</span>
-                <span class="theme-color cursor-pointer f-xs" @click="handleResetMockUrl">还原</span>
+                <span v-copy="fullMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
+                <span class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
             </s-label-value>
             <!-- mock端口 -->
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
-                <span v-if="!isEditing">{{ mockPort }}</span>
-                <el-input-number v-if="isEditing" v-model="mockPort" size="small" class="w-20" :step="1" :min="1" :max="65536"></el-input-number>
-                <el-icon v-if="!isEditing" class="ml-2 cursor-pointer" @click="handleChangePortEditState">
+                <span v-if="!isEditingPort">{{ mockPort }}</span>
+                <el-input-number v-if="isEditingPort" v-model="_mockPort" size="small" class="w-20" :step="1" :min="1" :max="65536"></el-input-number>
+                <!-- <el-icon v-if="!isEditingPort" class="ml-2 cursor-pointer" @click="handleChangePortEditState">
                     <EditPen />
-                </el-icon>
-                <span v-if="isEditing" class="cursor-pointer f-xs theme-color mx-2" @click="handleChangePort">确定</span>
-                <span v-if="isEditing" class="cursor-pointer f-xs theme-color" @click="mockPort = _mockPort; isEditing = false">取消</span>
+                </el-icon> -->
+                <span v-if="!isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePortEditState">修改</span>
+                <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePort">确定</span>
+                <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color" @click="_mockPort = mockPort; isEditingPort = false">取消</span>
             </s-label-value>
             <!-- http返回状态码 -->
             <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
-                200
+                <span v-if="!isEditingHttpStatusCode">{{ httpStatusCode }}</span>
+                <el-input-number v-if="isEditingHttpStatusCode" v-model="_httpStatusCode" size="small" class="w-20" :step="1" :min="1" :max="599"></el-input-number>
+                <!-- <el-icon v-if="!isEditingHttpStatusCode" class="ml-2 cursor-pointer" @click="isEditingHttpStatusCode = true">
+                    <EditPen />
+                </el-icon> -->
+                <span v-if="!isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingHttpStatusCode = true">修改</span>
+                <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeHttpStatusCode">确定</span>
+                <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color" @click="_httpStatusCode = httpStatusCode; isEditingHttpStatusCode = false">取消</span>
             </s-label-value>
             <!-- 延迟返回(毫秒) -->
             <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
-                200
+                <span v-if="!isEditingResponseDelay">{{ responseDelay }}</span>
+                <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="1" :min="0" :max="60000"></el-input-number>
+                <!-- <el-icon v-if="!isEditingResponseDelay" class="ml-2 cursor-pointer" @click="isEditingResponseDelay = true">
+                    <EditPen />
+                </el-icon> -->
+                <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingResponseDelay = true">修改</span>
+                <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelay">确定</span>
+                <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color" @click="_responseDelay = responseDelay; isEditingResponseDelay = false">取消</span>
             </s-label-value>
             <el-tabs v-model="activeName">
                 <el-tab-pane label="自定义返回结果" name="response"></el-tab-pane>
                 <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
             </el-tabs>
-            <button @click="handleShutdownMockServer">关闭服务器</button>
-            <button @click="handleOpenMockServer">开启服务器</button>
             <pre>{{ mockInfo }}</pre>
             <!-- <pre>{{ fullMockUrl }}</pre> -->
         </s-fieldset>
@@ -68,17 +81,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { store } from "@/store";
-import { EditPen } from "@element-plus/icons-vue"
+// import { EditPen } from "@element-plus/icons-vue"
 import { event } from "@/helper/index"
 // import { router } from "@/router";
 import globalConfig from "@/../config/config"
 
 const mockInfo = computed(() => store.state["apidoc/mock"]); //mock服务器相关数据
-const mockPort = ref(mockInfo.value.mockServerPort);
-const _mockPort = ref(mockPort.value);
-const isEditing = ref(false);
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +100,53 @@ const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.pa
 const customPath = ref(""); //自定义请求路径
 const fullMockUrl = computed(() => `${mockServer.value}${customPath.value}`); //完整请求url
 const apidocInfo = computed(() => store.state["apidoc/apidoc"].apidoc); //当前api文档信息
+/*
+|--------------------------------------------------------------------------
+| 端口号
+|--------------------------------------------------------------------------
+*/
+const mockPort = ref(mockInfo.value.mockServerPort);
+const _mockPort = ref(mockPort.value);
+const isEditingPort = ref(false);
+//改变端口编辑状态
+const handleChangePortEditState = () => {
+    isEditingPort.value = true;
+}
+//改变端口
+const handleChangePort = () => {
+    store.commit("apidoc/mock/changeMockServerPort", _mockPort.value);
+    if (mockInfo.value.serverState === "connection") {
+        event.emit("apidoc/mock/restartMockServer")
+    }
+    mockPort.value = _mockPort.value;
+    isEditingPort.value = false;
+}
+/*
+|--------------------------------------------------------------------------
+| HTTP状态码
+|--------------------------------------------------------------------------
+*/
+const httpStatusCode = computed(() => store.state["apidoc/mock"].httpStatusCode);
+const _httpStatusCode = ref(httpStatusCode.value);
+const isEditingHttpStatusCode = ref(false);
+//改变http状态码
+const handleChangeHttpStatusCode = () => {
+    store.commit("apidoc/mock/changeHttpStatusCode", _httpStatusCode.value);
+    isEditingHttpStatusCode.value = false;
+}
+/*
+|--------------------------------------------------------------------------
+| 返回延迟
+|--------------------------------------------------------------------------
+*/
+const responseDelay = computed(() => store.state["apidoc/mock"].responseDelay);
+const _responseDelay = ref(responseDelay.value);
+const isEditingResponseDelay = ref(false);
+//改变http状态码
+const handleChangeResponseDelay = () => {
+    store.commit("apidoc/mock/changeResponseDelay", _responseDelay.value);
+    isEditingResponseDelay.value = false;
+}
 //重置mock数据
 const handleResetMockUrl = () => {
     customPath.value = orginPath.value;
@@ -117,31 +174,6 @@ watch(customPath, (newVal) => {
 */
 const activeName = ref("response");
 
-//改变端口编辑状态
-const handleChangePortEditState = () => {
-    isEditing.value = true;
-}
-//改变端口
-const handleChangePort = () => {
-    store.commit("apidoc/mock/changeMockServerPort", mockPort.value);
-    if (mockInfo.value.serverState === "connection") {
-        event.emit("apidoc/mock/restartMockServer")
-    }
-    _mockPort.value = mockPort.value;
-    isEditing.value = false;
-}
-//关闭mock服务器
-const handleShutdownMockServer = () => {
-    event.emit("apidoc/mock/closeMockServer")
-}
-//打开mock服务器
-const handleOpenMockServer = () => {
-    event.emit("apidoc/mock/openMockServer")
-}
-
-onBeforeUnmount(() => {
-    event.off("apidoc/mock/closeMockServer")
-})
 </script>
 
 <style lang="scss" scoped>
