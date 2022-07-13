@@ -11,6 +11,8 @@ const mock = {
     state: {
         serverState: "disconnect", //服务器状态
         mockServerPort: config.renderConfig.mock.port, // 端口
+        httpStatusCode: 200, //http状态码
+        responseDelay: 0, //返回延时(毫秒)
         urlMap: [],
     },
     mutations: {
@@ -56,7 +58,15 @@ const mock = {
         //改变服务器启动状态
         changeMockServerState(state: ApidocMockState, payload: "disconnection" | "connecting" | "connection" | "closing" | "error"): void{
             state.serverState = payload;
-        }
+        },
+        //改变http状态码
+        changeHttpStatusCode(state: ApidocMockState, code: number): void {
+            state.httpStatusCode = code;
+        },
+        //改变返回延时
+        changeResponseDelay(state: ApidocMockState, delay: number): void {
+            state.responseDelay = delay;
+        },
     },
 }
 
