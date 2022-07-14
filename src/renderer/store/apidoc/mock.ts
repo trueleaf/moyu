@@ -13,6 +13,7 @@ const mock = {
         mockServerPort: config.renderConfig.mock.port, // 端口
         httpStatusCode: 200, //http状态码
         responseDelay: 0, //返回延时(毫秒)
+        responseType: "json", //返回数据类型
         urlMap: [],
     },
     mutations: {
@@ -66,6 +67,10 @@ const mock = {
         //改变返回延时
         changeResponseDelay(state: ApidocMockState, delay: number): void {
             state.responseDelay = delay;
+        },
+        //更改返回数据类型
+        changeResponseType(state: ApidocMockState, responseType: ApidocMockState["responseType"]): void {
+            state.responseType = responseType;
         },
     },
 }

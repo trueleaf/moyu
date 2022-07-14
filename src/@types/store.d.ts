@@ -474,7 +474,11 @@ type ApidocMockState = {
     /**
      * 返回延时
      */
-    responseDelay: number
+    responseDelay: number,
+    /**
+     * 返回数据类型
+     */
+    responseType: "json" | "image" | "file" | "text"
 };
 /*
 |--------------------------------------------------------------------------
