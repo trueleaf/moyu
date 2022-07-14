@@ -2,7 +2,7 @@ import type Koa from "koa"
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { apidocConvertParamsToJsonData, forEachForest, event } from "@/helper/index"
+import { apidocConvertParamsToJsonData, forEachForest, event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
 import Mock from "@/server/mock/mock"
 import { ApidocDetail, ApidocProperty } from "@@/global"
@@ -88,6 +88,7 @@ export const mockServer = (): void => {
     app.use(async (ctx) => {
         const url = ctx.request.url.replace(/(?<=)\?.*/, "");
         const method = ctx.request.method.toLowerCase();
+        const { httpStatusCode, responseDelay } = store.state["apidoc/mock"];
         const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
         if (matchedReuqest) {
             const params = {
@@ -132,7 +133,9 @@ export const mockServer = (): void => {
                     }
                     return property.value;
                 })
+                await sleep(responseDelay)
                 ctx.set("connection", "close"); //防止keep-alive无法立即结束http链接
+                ctx.status = httpStatusCode;
                 ctx.body = convertBody || "";
             } catch (error) {
                 console.error(error)
