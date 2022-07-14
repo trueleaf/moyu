@@ -894,5 +894,20 @@ export function randomInt(start: number, end: number): number {
     const range = end - start - 1;
     return Math.floor((Math.random() * range + 1))
 }
+//模拟延迟
+export async function sleep(delay: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!delay) {
+                resolve();
+            }
+            setTimeout(() => {
+                resolve();
+            }, delay)
+        } catch (error) {
+            reject(error);
+        }
+    })
+}
 
 export * from "./apidoc-format"
