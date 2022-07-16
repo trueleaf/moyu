@@ -115,6 +115,9 @@ export default defineComponent({
     &.vertical {
         flex-direction: column;
         overflow: hidden;
+        .el-divider--horizontal {
+            border-top: 1px dashed $gray-500;
+        }
     }
     // 请求编辑区域
     .request-layout {
