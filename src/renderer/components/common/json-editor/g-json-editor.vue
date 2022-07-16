@@ -12,6 +12,7 @@
 import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch } from "vue"
 import beautify from "js-beautify"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import { useCompletionItem } from "./registerCompletionItem"
 
 const props = defineProps({
     modelValue: {
@@ -33,6 +34,7 @@ const emits = defineEmits(["update:modelValue", "change", "ready"])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
+let monacoCompletionItem: monaco.IDisposable | null = null;
 
 watch(() => props.modelValue, (newValue) => {
     const value = monacoInstance?.getValue();
@@ -85,19 +87,11 @@ onMounted(() => {
         readOnly: props.readOnly,
         ...props.config
     })
-    // const container = document.querySelector(".s-json-editor")
-    // const updateHeight = () => {
-    //     const contentHeight = monacoInstance?.getContentHeight() || 300;
-    //     const containerWidth = container?.getBoundingClientRect().width || 1000;
-    //     (container as HTMLElement).style.height = `${contentHeight}px`;
-    //     monacoInstance?.layout({ width: containerWidth, height: contentHeight });
-    // };
-    // monacoInstance.onDidContentSizeChange(updateHeight);
-    // updateHeight()
     monacoInstance.onDidChangeModelContent(() => {
         emits("update:modelValue", monacoInstance?.getValue())
         emits("change", monacoInstance?.getValue())
     })
+    monacoCompletionItem = useCompletionItem();
     emits("ready")
 })
 onActivated(() => {
@@ -105,8 +99,7 @@ onActivated(() => {
 })
 onBeforeUnmount(() => {
     monacoInstance?.dispose();
-    // model?.dispose();
-    // monacoHoverProvider?.dispose()
+    monacoCompletionItem?.dispose();
 })
 const format = () => {
     const formatStr = beautify(props.modelValue, { indent_size: 4 });
