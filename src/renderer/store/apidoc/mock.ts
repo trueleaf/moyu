@@ -15,6 +15,12 @@ const mock = {
         responseDelay: 0, //返回延时(毫秒)
         responseType: "json", //返回数据类型
         urlMap: [],
+        json: "",
+        image: {
+            type: "png",
+            width: 200,
+            height: 200,
+        },
     },
     mutations: {
         //改变mock映射
@@ -71,6 +77,22 @@ const mock = {
         //更改返回数据类型
         changeResponseType(state: ApidocMockState, responseType: ApidocMockState["responseType"]): void {
             state.responseType = responseType;
+        },
+        //改变json数据
+        changeJsonValue(state: ApidocMockState, jsonData: string): void {
+            state.json = jsonData;
+        },
+        //改变图片类型
+        changeImageType(state: ApidocMockState, type: ApidocMockState["image"]["type"]): void {
+            state.image.type = type;
+        },
+        //改变图片宽度
+        changeImageWidth(state: ApidocMockState, width: number): void {
+            state.image.width = width;
+        },
+        //改变图片高度
+        changeImageHeight(state: ApidocMockState, height: number): void {
+            state.image.height = height;
         },
     },
 }
