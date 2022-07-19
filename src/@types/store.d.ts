@@ -499,6 +499,22 @@ type ApidocMockState = {
          * 图片高度
          */
         height: number,
+        /**
+         * 图片大小
+         */
+        size: number,
+        /**
+         * 文字大小
+         */
+        fontSize: number,
+        /**
+         * 文字颜色
+         */
+        color: string,
+        /**
+         * 背景颜色
+         */
+        backgroundColor: string
     },
 
 };

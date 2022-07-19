@@ -26,45 +26,42 @@
                     <el-radio label="svg" size="small">SVG</el-radio>
                 </el-radio-group>
             </s-label-value>
-            <s-label-value label-width="50px" label="宽度：" one-line>
-                <el-input-number v-model="imageWidth" size="small" :controls="false" :min="20" :max="9999" :step="1"></el-input-number>
+            <s-label-value label-width="50px" label="宽度：" width="30%">
+                <el-input-number v-model="imageWidth" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
             </s-label-value>
-            <s-label-value label-width="50px" label="高度：" one-line>
-                <el-input-number v-model="imageHeight" size="small" :controls="false" :min="20" :max="9999" :step="1"></el-input-number>
+            <s-label-value label-width="50px" label="高度：" width="30%">
+                <el-input-number v-model="imageHeight" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
             </s-label-value>
+            <s-label-value label-width="100px" label="文字大小：" width="30%">
+                <el-input-number v-model="imageFontSize" size="small" controls-position="right" :min="12" :max="100" :step="1"></el-input-number>
+            </s-label-value>
+            <s-label-value label-width="100px" label="背景颜色：" width="30%">
+                <el-color-picker v-model="imageBackgroundColor" />
+            </s-label-value>
+            <s-label-value label-width="100px" label="文字颜色：" width="30%">
+                <el-color-picker v-model="imageTextColor" />
+            </s-label-value>
+            <img :src="dataUrl" alt="mock图片" class="d-flex">
         </div>
-        <div ref="image" class="image-demo w-200px h-200px bg-orange">
-            <svg>
-                <text x="0" y="0">300 x 400</text>
-            </svg>
+        <div ref="image" class="image-demo" :style="{ backgroundColor: imageBackgroundColor, width: imageWidth + 'px', height: imageHeight + 'px' }">
+            <div :style="{color: imageTextColor, fontSize: imageFontSize + 'px'}">{{ imageWidth }} x {{ imageHeight }}</div>
+            <div :style="{color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px'}">{{ formatBytes(imageSize) }}</div>
         </div>
-        <!-- <img :src="dataUrl" alt=""> -->
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
 import html2canvas from "html2canvas";
 import { store } from "@/store";
+import { formatBytes } from "@/helper/index"
+import { nextTick } from "process";
 /*
 |--------------------------------------------------------------------------
 | 生命周期
 |--------------------------------------------------------------------------
 */
-const image = ref<HTMLElement | null>(null);
-const dataUrl = ref("")
-onMounted(() => {
-    if (image.value) {
-        html2canvas(image.value, {
-            logging: false,
-        }).then(canvas => {
-            dataUrl.value = canvas.toDataURL();
-            // console.log(123, canvas.toDataURL())
-        }).catch(err => {
-            console.error(err);
-        });
-    }
-})
+
 /*
 |--------------------------------------------------------------------------
 | 返回数据类型
@@ -96,6 +93,8 @@ const jsonValue = computed({
 | 图片相关
 |--------------------------------------------------------------------------
 */
+const image = ref<HTMLElement | null>(null);
+const dataUrl = ref("")
 const imageType = computed({
     get() {
         return store.state["apidoc/mock"].image.type;
@@ -120,6 +119,65 @@ const imageHeight = computed({
         store.commit("apidoc/mock/changeImageHeight", val)
     },
 })
+const imageSize = computed({
+    get() {
+        return store.state["apidoc/mock"].image.size;
+    },
+    set(val) {
+        store.commit("apidoc/mock/changeImageSize", val)
+    },
+})
+const imageTextColor = computed({
+    get() {
+        return store.state["apidoc/mock"].image.color;
+    },
+    set(val) {
+        store.commit("apidoc/mock/changeImageColor", val)
+    },
+})
+const imageBackgroundColor = computed({
+    get() {
+        return store.state["apidoc/mock"].image.backgroundColor;
+    },
+    set(val) {
+        store.commit("apidoc/mock/changeImageBackgroundColor", val)
+    },
+})
+const imageFontSize = computed({
+    get() {
+        return store.state["apidoc/mock"].image.fontSize;
+    },
+    set(val) {
+        store.commit("apidoc/mock/changeImageFontSize", val)
+    },
+})
+const watchFlag = ref<WatchStopHandle | null>(null);
+
+onMounted(() => {
+    watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize], () => {
+        nextTick(() => {
+            if (image.value) {
+                html2canvas(image.value, {
+                    logging: true,
+                }).then(canvas => {
+                    store.commit("apidoc/mock/changeImageSize", dataUrl.value.length)
+                    dataUrl.value = canvas.toDataURL();
+                }).catch(err => {
+                    console.error(err);
+                });
+            }
+        })
+    }, {
+        deep: true,
+        immediate: true
+    })
+})
+onBeforeUnmount(() => {
+    if (watchFlag.value) {
+        watchFlag.value();
+    }
+})
+
 </script>
 
 <style lang="scss" scoped>
@@ -130,16 +188,17 @@ const imageHeight = computed({
         border: 1px solid $gray-500;
     }
     .img-wrap {
-        height: calc(100vh - #{size(620)});
+        // height: calc(100vh - #{size(620)});
         min-height: size(200);
     }
     .image-demo {
-        // position: fixed;
-        // left: -99999;
-        // top: -99999;
+        position: fixed;
+        left: -99999px;
+        top: -99999px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-direction: column;
     }
 }
 </style>

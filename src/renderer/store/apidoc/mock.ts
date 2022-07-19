@@ -13,13 +13,17 @@ const mock = {
         mockServerPort: config.renderConfig.mock.port, // 端口
         httpStatusCode: 200, //http状态码
         responseDelay: 0, //返回延时(毫秒)
-        responseType: "json", //返回数据类型
+        responseType: "image", //返回数据类型
         urlMap: [],
         json: "",
         image: {
             type: "png",
             width: 200,
             height: 200,
+            fontSize: 30,
+            size: 0,
+            color: "#fff",
+            backgroundColor: "#aaa"
         },
     },
     mutations: {
@@ -93,6 +97,22 @@ const mock = {
         //改变图片高度
         changeImageHeight(state: ApidocMockState, height: number): void {
             state.image.height = height;
+        },
+        //改变图片size
+        changeImageSize(state: ApidocMockState, size: number): void {
+            state.image.size = size;
+        },
+        //改变文字颜色
+        changeImageColor(state: ApidocMockState, color: string): void {
+            state.image.color = color;
+        },
+        //改变图片背景颜色
+        changeImageBackgroundColor(state: ApidocMockState, backgroundColor: string): void {
+            state.image.backgroundColor = backgroundColor;
+        },
+        //改变图片背景颜色
+        changeImageFontSize(state: ApidocMockState, fontSize: number): void {
+            state.image.fontSize = fontSize;
         },
     },
 }
