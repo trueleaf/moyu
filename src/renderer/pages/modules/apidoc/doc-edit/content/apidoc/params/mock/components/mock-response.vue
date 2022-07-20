@@ -26,14 +26,17 @@
                     <el-radio label="svg" size="small">SVG</el-radio>
                 </el-radio-group>
             </s-label-value>
-            <s-label-value label-width="50px" label="宽度：" width="30%">
+            <s-label-value label-width="100px" label="图片宽度：" width="40%">
                 <el-input-number v-model="imageWidth" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
             </s-label-value>
-            <s-label-value label-width="50px" label="高度：" width="30%">
+            <s-label-value label-width="150px" label="图片高度：" width="40%">
                 <el-input-number v-model="imageHeight" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
             </s-label-value>
-            <s-label-value label-width="100px" label="文字大小：" width="30%">
+            <s-label-value label-width="100px" label="文字大小：" width="40%">
                 <el-input-number v-model="imageFontSize" size="small" controls-position="right" :min="12" :max="100" :step="1"></el-input-number>
+            </s-label-value>
+            <s-label-value label-width="150px" label="增大图片体积(KB)：" width="40%">
+                <el-input-number v-model="imageSize" size="small" controls-position="right" :min="0" :step="100" :max="1024 * 1024 * 1024"></el-input-number>
             </s-label-value>
             <s-label-value label-width="100px" label="背景颜色：" width="30%">
                 <el-color-picker v-model="imageBackgroundColor" />
@@ -41,21 +44,20 @@
             <s-label-value label-width="100px" label="文字颜色：" width="30%">
                 <el-color-picker v-model="imageTextColor" />
             </s-label-value>
-            <img :src="dataUrl" alt="mock图片" class="d-flex">
-        </div>
-        <div ref="image" class="image-demo" :style="{ backgroundColor: imageBackgroundColor, width: imageWidth + 'px', height: imageHeight + 'px' }">
-            <div :style="{color: imageTextColor, fontSize: imageFontSize + 'px'}">{{ imageWidth }} x {{ imageHeight }}</div>
-            <div :style="{color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px'}">{{ formatBytes(imageSize) }}</div>
+            <!-- <img :src="dataUrl" alt="mock图片" class="d-flex"> -->
+            <div ref="image" class="image-demo" :style="{ backgroundColor: imageBackgroundColor, width: imageWidth + 'px', height: imageHeight + 'px' }">
+                <div :style="{color: imageTextColor, fontSize: imageFontSize + 'px'}">{{ imageWidth }} x {{ imageHeight }}</div>
+                <div :style="{color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px'}">{{ formatBytes(realImageSize) }}</div>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, nextTick } from "vue";
 import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
-import { nextTick } from "process";
 /*
 |--------------------------------------------------------------------------
 | 生命周期
@@ -95,6 +97,7 @@ const jsonValue = computed({
 */
 const image = ref<HTMLElement | null>(null);
 const dataUrl = ref("")
+const realImageSize = ref(0);
 const imageType = computed({
     get() {
         return store.state["apidoc/mock"].image.type;
@@ -154,19 +157,21 @@ const imageFontSize = computed({
 const watchFlag = ref<WatchStopHandle | null>(null);
 
 onMounted(() => {
-    watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize], () => {
-        nextTick(() => {
-            if (image.value) {
-                html2canvas(image.value, {
-                    logging: true,
-                }).then(canvas => {
-                    store.commit("apidoc/mock/changeImageSize", dataUrl.value.length)
-                    dataUrl.value = canvas.toDataURL();
-                }).catch(err => {
-                    console.error(err);
-                });
-            }
-        })
+    watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
+        console.log(html2canvas, nextTick, dataUrl)
+        realImageSize.value = imageSize.value * 1024
+        // nextTick(() => {
+        //     if (image.value) {
+        //         html2canvas(image.value, {
+        //             logging: true,
+        //         }).then(canvas => {
+        //             dataUrl.value = canvas.toDataURL();
+        //             realImageSize.value = dataUrl.value.length + imageSize.value * 1024
+        //         }).catch(err => {
+        //             console.error(err);
+        //         });
+        //     }
+        // })
     }, {
         deep: true,
         immediate: true
@@ -192,9 +197,9 @@ onBeforeUnmount(() => {
         min-height: size(200);
     }
     .image-demo {
-        position: fixed;
-        left: -99999px;
-        top: -99999px;
+        // position: fixed;
+        // left: -99999px;
+        // top: -99999px;
         display: flex;
         align-items: center;
         justify-content: center;

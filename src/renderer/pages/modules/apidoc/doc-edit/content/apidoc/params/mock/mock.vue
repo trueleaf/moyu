@@ -6,7 +6,7 @@
 */
 <template>
     <div class="mock-wrap">
-        <s-fieldset title="Mock服务器基本信息" class="w-80">
+        <s-fieldset title="Mock服务器基本信息" class="w-100">
             <!-- 状态 -->
             <s-label-value label="状态：" label-width="50px" class="mb-1" one-line>
                 <span v-if="mockInfo.serverState === 'closing'" class="f-sm">

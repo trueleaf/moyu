@@ -478,7 +478,7 @@ type ApidocMockState = {
     /**
      * 返回数据类型
      */
-    responseType: "json" | "image" | "file" | "text",
+    responseType: "json" | "image" | "file" | "text" | "customJson",
     /**
      * json数据信息
      */
