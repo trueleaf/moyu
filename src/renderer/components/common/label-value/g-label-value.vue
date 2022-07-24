@@ -39,6 +39,10 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        width: {
+            type: String,
+            default: "",
+        },
     },
     computed: {
         realWidth() {
@@ -47,6 +51,9 @@ export default defineComponent({
             }
             if (this.oneLine) {
                 return "100%";
+            }
+            if (this.width) {
+                return this.width
             }
             return "";
         },
