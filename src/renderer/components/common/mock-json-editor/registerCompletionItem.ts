@@ -17,7 +17,7 @@ const suggestions: Suggestions = [{
         description: "中文名称"
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "@name",
+    insertText: `"@name"`,
     keyword: "@name",
 }]
 
@@ -33,7 +33,6 @@ export function useCompletionItem(): monaco.IDisposable {
             });
             const lineStrArr = currentLineStr.replace("\t", "").split(" ");
             const activeStr = lineStrArr[lineStrArr.length - 1];
-            console.log(123, activeStr)
             const matchedSuggestions = suggestions.filter(v => {
                 const activeStrArr = activeStr.split(".");
                 const keywordArr = v.keyword.split(".");

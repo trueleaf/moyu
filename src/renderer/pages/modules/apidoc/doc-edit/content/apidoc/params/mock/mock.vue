@@ -6,70 +6,68 @@
 */
 <template>
     <div class="mock-wrap">
-        <s-fieldset title="Mock服务器基本信息" class="w-80">
-            <!-- 状态 -->
-            <s-label-value label="状态：" label-width="50px" class="mb-1" one-line>
-                <span v-if="mockInfo.serverState === 'closing'" class="f-sm">
-                    <span class="dot"></span>
-                    <span>关闭中</span>
-                </span>
-                <span v-if="mockInfo.serverState === 'connecting'" class="f-sm">
-                    <span class="dot bg-orange"></span>
-                    <span>连接中</span>
-                </span>
-                <span v-if="mockInfo.serverState === 'connection'" class="f-sm">
-                    <span class="dot bg-green"></span>
-                    <span>已连接</span>
-                </span>
-                <span v-if="mockInfo.serverState === 'disconnection'" class="f-sm">
-                    <span class="dot bg-gray-500"></span>
-                    <span>断开连接</span>
-                </span>
-                <span v-if="mockInfo.serverState === 'error'" class="f-sm">
-                    <span class="dot bg-red"></span>
-                    <span>异常</span>
-                </span>
-            </s-label-value>
-            <!-- mock地址 -->
-            <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
-                <span class="text">{{ mockServer }}</span>
-                <input v-model="customPath" type="text" class="edit-ipt" @input="handleChangeMockPath">
-                <span v-copy="fullMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
-                <span v-if="orginPath !== customPath" class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
-            </s-label-value>
-            <!-- mock端口 -->
-            <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
-                <span v-if="!isEditingPort">{{ mockPort }}</span>
-                <el-input-number v-if="isEditingPort" v-model="_mockPort" size="small" class="w-20" :step="1" :min="1" :max="65536"></el-input-number>
-                <span v-if="!isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePortEditState">修改</span>
-                <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePort">确定</span>
-                <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color" @click="_mockPort = mockPort; isEditingPort = false">取消</span>
-            </s-label-value>
-            <!-- http返回状态码 -->
-            <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
-                <span v-if="!isEditingHttpStatusCode">{{ httpStatusCode }}</span>
-                <el-input-number v-if="isEditingHttpStatusCode" v-model="_httpStatusCode" size="small" class="w-20" :step="1" :min="1" :max="599"></el-input-number>
-                <span v-if="!isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingHttpStatusCode = true">修改</span>
-                <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeHttpStatusCode">确定</span>
-                <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color" @click="_httpStatusCode = httpStatusCode; isEditingHttpStatusCode = false">取消</span>
-            </s-label-value>
-            <!-- 延迟返回(毫秒) -->
-            <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
-                <span v-if="!isEditingResponseDelay">{{ responseDelay }}</span>
-                <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="1" :min="0" :max="60000"></el-input-number>
-                <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingResponseDelay = true">修改</span>
-                <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelay">确定</span>
-                <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color" @click="_responseDelay = responseDelay; isEditingResponseDelay = false">取消</span>
-            </s-label-value>
-            <el-tabs v-model="activeName">
-                <el-tab-pane label="返回结果" name="response">
-                    <mock-response></mock-response>
-                </el-tab-pane>
-                <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
-            </el-tabs>
-            <!-- <pre>{{ mockInfo }}</pre> -->
-            <!-- <pre>{{ fullMockUrl }}</pre> -->
-        </s-fieldset>
+        <!-- 状态 -->
+        <s-label-value label="状态：" label-width="50px" class="mb-1" one-line>
+            <span v-if="mockInfo.serverState === 'closing'" class="f-sm">
+                <span class="dot"></span>
+                <span>关闭中</span>
+            </span>
+            <span v-if="mockInfo.serverState === 'connecting'" class="f-sm">
+                <span class="dot bg-orange"></span>
+                <span>连接中</span>
+            </span>
+            <span v-if="mockInfo.serverState === 'connection'" class="f-sm">
+                <span class="dot bg-green"></span>
+                <span>已连接</span>
+            </span>
+            <span v-if="mockInfo.serverState === 'disconnection'" class="f-sm">
+                <span class="dot bg-gray-500"></span>
+                <span>断开连接</span>
+            </span>
+            <span v-if="mockInfo.serverState === 'error'" class="f-sm">
+                <span class="dot bg-red"></span>
+                <span>异常</span>
+            </span>
+        </s-label-value>
+        <!-- mock地址 -->
+        <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
+            <span class="text">{{ mockServer }}</span>
+            <input v-model="customPath" type="text" class="edit-ipt" @input="handleChangeMockPath">
+            <span v-copy="fullMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
+            <span v-if="orginPath !== customPath" class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
+        </s-label-value>
+        <!-- mock端口 -->
+        <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
+            <span v-if="!isEditingPort">{{ mockPort }}</span>
+            <el-input-number v-if="isEditingPort" v-model="_mockPort" size="small" class="w-20" :step="1" :min="1" :max="65536"></el-input-number>
+            <span v-if="!isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePortEditState">修改</span>
+            <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangePort">确定</span>
+            <span v-if="isEditingPort" class="cursor-pointer f-sm theme-color" @click="_mockPort = mockPort; isEditingPort = false">取消</span>
+        </s-label-value>
+        <!-- http返回状态码 -->
+        <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
+            <span v-if="!isEditingHttpStatusCode">{{ httpStatusCode }}</span>
+            <el-input-number v-if="isEditingHttpStatusCode" v-model="_httpStatusCode" size="small" class="w-20" :step="1" :min="1" :max="599"></el-input-number>
+            <span v-if="!isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingHttpStatusCode = true">修改</span>
+            <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeHttpStatusCode">确定</span>
+            <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color" @click="_httpStatusCode = httpStatusCode; isEditingHttpStatusCode = false">取消</span>
+        </s-label-value>
+        <!-- 延迟返回(毫秒) -->
+        <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
+            <span v-if="!isEditingResponseDelay">{{ responseDelay }}</span>
+            <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="1" :min="0" :max="60000"></el-input-number>
+            <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingResponseDelay = true">修改</span>
+            <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelay">确定</span>
+            <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color" @click="_responseDelay = responseDelay; isEditingResponseDelay = false">取消</span>
+        </s-label-value>
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="返回结果" name="response">
+                <mock-response></mock-response>
+            </el-tab-pane>
+            <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
+        </el-tabs>
+        <!-- <s-fieldset title="Mock服务器基本信息">
+        </s-fieldset> -->
     </div>
 </template>
 
@@ -177,6 +175,8 @@ const activeName = ref("response");
     font-size: fz(15);
     height: calc(100vh - #{size(310)});
     overflow-y: auto;
+    margin-left: size(20);
+    margin-right: size(20);
     .dot {
         display: inline-block;
         width: size(10);

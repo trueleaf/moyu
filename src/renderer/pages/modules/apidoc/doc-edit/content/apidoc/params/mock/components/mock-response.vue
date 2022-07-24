@@ -15,7 +15,10 @@
             </el-radio-group>
         </s-label-value>
         <div class="editor-wrap">
-            <s-json-editor></s-json-editor>
+            <s-resize-x :min="300" :max="750" :width="400" name="mock-json-editor" class="mock-json-editor" tabindex="1">
+                <s-mock-json-editor></s-mock-json-editor>
+            </s-resize-x>
+            <div>xxxx</div>
         </div>
     </div>
 </template>
@@ -23,13 +26,14 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { store } from "@/store";
+import { ApidocMockState } from "@@/store";
 
 /*
 |--------------------------------------------------------------------------
 | 返回数据类型
 |--------------------------------------------------------------------------
 */
-const responseType = computed({
+const responseType = computed<ApidocMockState["responseType"]>({
     get() {
         return store.state["apidoc/mock"].responseType;
     },
@@ -42,9 +46,14 @@ const responseType = computed({
 <style lang="scss" scoped>
 .mock-response {
     .editor-wrap {
-        height: calc(100vh - #{size(620)});
+        height: calc(100vh - #{size(580)});
         min-height: size(200);
         border: 1px solid $gray-500;
+        display: flex;
+        .mock-json-editor {
+            height: 100%;
+            border-right: 1px solid $gray-500;
+        }
     }
 }
 </style>
