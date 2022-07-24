@@ -363,7 +363,7 @@ type ApidocResponseState = {
     /**
      * 返回值contentType
      */
-    contentType: string,
+    contentType?: string,
     /**
      * http版本信息
      */
@@ -434,7 +434,7 @@ type ApidocResponseState = {
         /**
          * 数据类型(contentType)
          */
-        type: string,
+        type?: string,
         /**
          * 文本返回值
          */

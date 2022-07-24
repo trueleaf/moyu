@@ -158,6 +158,9 @@ export default defineComponent({
         showProcess() {
             const remoteResponse = this.$store.state["apidoc/response"];
             const dataType = remoteResponse.data.type;
+            if (!dataType) { //没有返回类型，不显示进度
+                return false;
+            }
             const isError = dataType.includes("error");
             const isText = dataType.includes("text");
             const isJson = dataType.includes("application/json");

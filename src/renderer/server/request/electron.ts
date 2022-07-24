@@ -68,13 +68,15 @@ function initGot() {
 }
 
 //将buffer值转换为返回参数
-async function formatResponseBuffer(bufferData: Buffer, contentType: string) {
+async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
     const typeInfo = await FileType.fromBuffer(bufferData.buffer);
-    const mimeType = typeInfo ? typeInfo.mime : ""
+    const mimeType = typeInfo ? typeInfo.mime : "text/plain" //无法解析数据按照文本显示
     const mime = contentType || mimeType; //优先读取contentType
     const textContentType = ["text/", "application/json", "application/javascript", "application/xml"];
     store.commit("apidoc/response/changeResponseContentType", mime);
-    if (textContentType.find(type => contentType.match(type))) {
+    if (!contentType) { //没有contentType按照文本格式解析
+        store.commit("apidoc/response/changeResponseTextValue", bufferData.toString());
+    } else if (textContentType.find(type => contentType.match(type))) {
         store.commit("apidoc/response/changeResponseTextValue", bufferData.toString());
     } else {
         const blobData = new Blob([bufferData], { type: mime });
@@ -279,7 +281,7 @@ export function sendRequest(): void {
             // })
         }
         if (res.data.type === "pre-request-finish") { //脚本执行完
-            console.log("finish")
+            console.log("script finish")
             electronRequest();
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
