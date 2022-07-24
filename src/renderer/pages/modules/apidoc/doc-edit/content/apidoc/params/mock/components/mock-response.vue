@@ -58,6 +58,7 @@ import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, next
 import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
+import { ApidocMockState } from "@@/store";
 /*
 |--------------------------------------------------------------------------
 | 生命周期
