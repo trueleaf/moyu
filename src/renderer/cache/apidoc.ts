@@ -411,6 +411,36 @@ class ApidocCache {
             return false;
         }
     }
+
+    /**
+     * 获取worker全局local状态
+     */
+    getApidocWorkerLocalStateById(projectId: string): null | Record<string, unknown> {
+        try {
+            const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem("apidoc/worker/localState") || "{}");
+            if (localData[projectId] == null) {
+                return null;
+            }
+            return localData[projectId];
+        } catch (error) {
+            console.error(error);
+            return null
+        }
+    }
+
+    /**
+     * 设置worker全局local状态
+     */
+    setApidocWorkerLocalState(projectId: string, state: Record<string, unknown>) {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/worker/localState") || "{}");
+            localData[projectId] = state;
+            localStorage.setItem("apidoc/worker/localState", JSON.stringify(localData));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/worker/localState", "{}");
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();

@@ -18,6 +18,7 @@
 import { computed, onMounted, onBeforeUnmount } from "vue"
 import { router } from "@/router/index"
 import { useStore } from "@/store/index"
+import { apidocCache } from "@/cache/apidoc"
 import sBanner from "./banner/banner.vue";
 import sNav from "./nav/nav.vue";
 import sContent from "./content/content.vue";
@@ -65,12 +66,20 @@ const initLayout = () => {
 const initCommonHeaders = () => {
     store.dispatch("apidoc/baseInfo/getCommonHeaders")
 }
+//初始化worker本地状态
+const initWorkerLocalState = () => {
+    const localState = apidocCache.getApidocWorkerLocalStateById(projectId);
+    if (localState) {
+        store.commit("apidoc/workerState/changeLocalState", { projectId, value: localState })
+    }
+}
 onMounted(() => {
     window.addEventListener("keydown", bindShortcut);
     getProjectInfo();
     initCookies();
     initLayout();
     initCommonHeaders();
+    initWorkerLocalState();
 })
 onBeforeUnmount(() => {
     window.removeEventListener("keydown", bindShortcut);

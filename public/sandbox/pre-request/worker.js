@@ -11,6 +11,7 @@ importScripts("./request/json.js")
 importScripts("./request/raw.js")
 importScripts("./global/import-script.js")
 importScripts("./send-request/send-request.js")
+importScripts("../state/state.js")
 
 const bodyData = new Proxy({}, {
     get(target, key) {
@@ -42,6 +43,9 @@ const pm = {
     variables,
     sendRequest,
     http,
+    sessionState,
+    localState,
+    remoteState,
 };
 
 self.addEventListener("message", async (e) => {
@@ -49,7 +53,7 @@ self.addEventListener("message", async (e) => {
         //初始化所有请求信息
         if (e.data && e.data.type === "pre-request-init-apidoc") {
             const data = e.data.value; 
-            console.log("data", data)
+            // console.log("data", data)
             GlobalData.apidocInfo = data.apidocInfo;
             GlobalData.commonHeaders = data.commonHeaders;
             GlobalData.currentEnv = data.currentEnv;
@@ -127,6 +131,10 @@ self.addEventListener("message", async (e) => {
                 }
             })
             Object.assign(variables, objVariable);
+            //=====================================worker状态====================================//
+            Object.assign(_sessionState, data.sessionState);
+            Object.assign(_localState, data.localState);
+            Object.assign(_remoteState, data.remoteState);
         } 
         //发送请求
         if (e.data && e.data.type === "pre-request-request") {
@@ -151,7 +159,6 @@ self.addEventListener("message", async (e) => {
                 ${replacedCode}
             `);
             evalPromise.then(() => {
-                console.log(123, isSendRequest)
                 if (isSendRequest) {
                     return;
                 }

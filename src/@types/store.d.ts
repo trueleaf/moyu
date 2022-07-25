@@ -531,6 +531,26 @@ type ApidocRequest = {
 };
 /*
 |--------------------------------------------------------------------------
+| 前置脚本，后置脚本公共变量
+|--------------------------------------------------------------------------
+*/
+type ApidocWorkerState = {
+    /**
+     * 会话状态，刷新页面消失
+     */
+    sessionState: Record<string, unknown>;
+    /**
+     * 本地状态，刷新页面不会刷新
+     */
+    localState: Record<string, unknown>;
+    /**
+     * 可共享状态，允许多机共享
+     */
+    remoteState: Record<string, unknown>
+};
+
+/*
+|--------------------------------------------------------------------------
 | 其他
 |--------------------------------------------------------------------------
 |
@@ -545,6 +565,7 @@ type State = {
     "apidoc/response": ApidocResponseState,
     "apidoc/mock": ApidocMockState,
     "apidoc/request": ApidocRequest,
+    "apidoc/workerState": ApidocWorkerState,
 }
 export {
     PermissionState,
@@ -563,5 +584,6 @@ export {
     ApidocMockMapInfo,
     ApidocRequest,
     ApidocProjectVariable,
+    ApidocWorkerState,
     State,
 }

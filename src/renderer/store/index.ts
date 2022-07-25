@@ -9,6 +9,7 @@ import { apidoc } from "./apidoc/apidoc";
 import { response } from "./apidoc/response";
 import { mock } from "./apidoc/mock";
 import { request } from "./apidoc/request";
+import { workerState } from "./apidoc/worker-state";
 
 export const key: InjectionKey<Store<State>> = Symbol("")
 
@@ -23,6 +24,7 @@ export const store = createStore<State>({
         "apidoc/response": response,
         "apidoc/mock": mock,
         "apidoc/request": request,
+        "apidoc/workerState": workerState,
     }
 });
 export const useStore = (): Store<State> => baseUseStore(key);

@@ -213,6 +213,7 @@ export function sendRequest(): void {
     const commonHeaders = store.getters["apidoc/baseInfo/headers"](currentSelectTab?._id)
     const localEnvs = apidocCache.getApidocServer(projectId)
     const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
+    const { sessionState, localState, remoteState } = store.state["apidoc/workerState"];
     //初始化默认apidoc信息
     worker.postMessage({
         type: "pre-request-init-apidoc",
@@ -224,6 +225,9 @@ export function sendRequest(): void {
             _id: baseInfo._id,
             projectVaribles: baseInfo.variables,
             envs,
+            sessionState: JSON.parse(JSON.stringify(sessionState[projectId] || {})),
+            localState: JSON.parse(JSON.stringify(localState[projectId] || {})),
+            remoteState: JSON.parse(JSON.stringify(remoteState[projectId] || {})),
         }
     });
     //发送请求
@@ -272,13 +276,6 @@ export function sendRequest(): void {
                     }
                 });
             }, 3000)
-            // (got as Got)(res.data.value).then(response => {
-            // }).catch(err => {
-            //     worker.postMessage({
-            //         type: "pre-request-http-error",
-            //         value: err
-            //     });
-            // })
         }
         if (res.data.type === "pre-request-finish") { //脚本执行完
             console.log("script finish")
@@ -313,6 +310,19 @@ export function sendRequest(): void {
         }
         if (res.data.type === "pre-request-change-raw-params") { //改变raw body
             apidocConverter.changeRawBody(res.data.value);
+        }
+        if (res.data.type === "pre-request-change-sessionState") { //改变worker的sessionState
+            store.commit("apidoc/workerState/changeSessionState", {
+                projectId,
+                value: res.data.value
+            });
+        }
+        if (res.data.type === "pre-request-change-localState") { //改变worker的localState
+            apidocCache.setApidocWorkerLocalState(projectId, res.data.value)
+            store.commit("apidoc/workerState/changeLocalState", {
+                projectId,
+                value: res.data.value
+            });
         }
         if (res.data.type === "pre-request-error") { //预请求错误捕获
             store.commit("apidoc/response/changeLoading", false);
