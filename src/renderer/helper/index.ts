@@ -800,6 +800,21 @@ export function apidocGenerateApidoc(): ApidocDetail {
             headers: [],
             contentType: "",
         },
+        mockInfo: {
+            httpStatusCode: 200,
+            responseDelay: 0,
+            responseType: "json",
+            json: "",
+            image: {
+                type: "png",
+                width: 200,
+                height: 200,
+                fontSize: 30,
+                size: 0,
+                color: "#fff",
+                backgroundColor: "#aaa"
+            },
+        },
     }
 }
 /**
