@@ -11,162 +11,6 @@ type Suggestions = {
     sortText?: string
 }[]
 
-const variableSuggestions = [{
-    label: {
-        label: "variables",
-        description: "临时变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "variables",
-    sortText: "1",
-    keyword: "pm.variables",
-}, {
-    label: {
-        label: "get",
-        description: "获取单个临时变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `get("变量名称")`,
-    sortText: "1",
-    keyword: "pm.variables.get",
-}, {
-    label: {
-        label: "set",
-        description: "设置临时变量值"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `set("变量名称", "变量值")`,
-    sortText: "2",
-    keyword: "pm.variables.set",
-}, {
-    label: {
-        label: "update",
-        description: "更新临时变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `update("变量名称", "变量值")`,
-    sortText: "3",
-    keyword: "pm.variables.update",
-}, {
-    label: {
-        label: "upsert",
-        description: "更新临时变量(不存在则新增)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `upsert("变量名称", "变量值")`,
-    sortText: "4",
-    keyword: "pm.variables.upsert",
-}, {
-    label: {
-        label: "has",
-        description: "判断临时变量是否存在"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `has("变量名称")`,
-    keyword: "pm.variables.has",
-}, {
-    label: {
-        label: "unset",
-        description: "删除临时变量值(同delete)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `unset("变量名称")`,
-    keyword: "pm.variables.unset",
-}, {
-    label: {
-        label: "delete",
-        description: "删除临时变量值(同unset)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `delete("变量名称")`,
-    keyword: "pm.variables.delete",
-}, {
-    label: {
-        label: "toObject",
-        description: "以对象形式输出临时变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "toObject",
-    keyword: "pm.variables.toObject",
-}]
-const collectionVariableSuggestions = [{
-    label: {
-        label: "collectionVariables",
-        description: "集合内变量(跨接口使用)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "collectionVariables",
-    sortText: "2",
-    keyword: "pm.collectionVariables",
-}, {
-    label: {
-        label: "get",
-        description: "获取单个变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `get("变量名称")`,
-    sortText: "1",
-    keyword: "pm.collectionVariables.get",
-}, {
-    label: {
-        label: "set",
-        description: "设置变量值"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `set("变量名称", "变量值")`,
-    sortText: "2",
-    keyword: "pm.collectionVariables.set",
-}, {
-    label: {
-        label: "update",
-        description: "更新变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `update("变量名称", "变量值")`,
-    sortText: "3",
-    keyword: "pm.collectionVariables.update",
-}, {
-    label: {
-        label: "upsert",
-        description: "更新变量(不存在则新增)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `upsert("变量名称", "变量值")`,
-    sortText: "4",
-    keyword: "pm.collectionVariables.upsert",
-}, {
-    label: {
-        label: "has",
-        description: "判断变量是否存在"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `has("变量名称")`,
-    keyword: "pm.collectionVariables.has",
-}, {
-    label: {
-        label: "unset",
-        description: "删除变量值(同delete)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `unset("变量名称")`,
-    keyword: "pm.collectionVariables.unset",
-}, {
-    label: {
-        label: "delete",
-        description: "删除变量值(同unset)"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `delete("变量名称")`,
-    keyword: "pm.collectionVariables.delete",
-}, {
-    label: {
-        label: "toObject",
-        description: "以对象形式输出变量"
-    },
-    kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "toObject",
-    keyword: "pm.collectionVariables.toObject",
-}]
 const requestSuggestions = [{
     label: {
         label: "request",
@@ -320,50 +164,74 @@ const requestSuggestions = [{
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
     keyword: "pm.request.replaceUrl",
-}, {
+}]
+const httpSuggestions = [
+    {
+        label: {
+            label: "http",
+            description: "发送http请求"
+        },
+        sortText: "2",
+        kind: monaco.languages.CompletionItemKind.Method,
+        insertText: `http`,
+        keyword: "pm.http",
+    }, {
+        label: {
+            label: "get",
+            description: "发送get请求"
+        },
+        sortText: "1",
+        kind: monaco.languages.CompletionItemKind.Method,
+        insertText: `get("请求url", { headers: {}, params: {}, body: {} })`,
+        keyword: "pm.http.get",
+    }, {
+        label: {
+            label: "post",
+            description: "发送post请求"
+        },
+        sortText: "2",
+        kind: monaco.languages.CompletionItemKind.Method,
+        insertText: `post("请求url", { headers: {}, params: {}, body: {} })`,
+        keyword: "pm.http.post",
+    }, {
+        label: {
+            label: "put",
+            description: "发送put请求"
+        },
+        sortText: "3",
+        kind: monaco.languages.CompletionItemKind.Method,
+        insertText: `put("请求url", { headers: {}, params: {}, body: {} })`,
+        keyword: "pm.http.put",
+    }, {
+        label: {
+            label: "delete",
+            description: "发送delete请求"
+        },
+        sortText: "4",
+        kind: monaco.languages.CompletionItemKind.Method,
+        insertText: `delete("请求url", { headers: {}, params: {}, body: {} })`,
+        keyword: "pm.http.delete",
+    }
+]
+const sessionStateSuggestions = [{
     label: {
-        label: "http",
-        description: "发送http请求"
+        label: "sessionState",
+        description: "会话数据(刷新后消失)"
     },
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `http`,
-    keyword: "pm.http",
-}, {
-    label: {
-        label: "get",
-        description: "发送get请求"
-    },
-    sortText: "1",
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `get("请求url", { headers: {}, params: {}, body: {} })`,
-    keyword: "pm.http.get",
-}, {
-    label: {
-        label: "post",
-        description: "发送post请求"
-    },
-    sortText: "2",
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `post("请求url", { headers: {}, params: {}, body: {} })`,
-    keyword: "pm.http.post",
-}, {
-    label: {
-        label: "put",
-        description: "发送put请求"
-    },
-    sortText: "3",
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `put("请求url", { headers: {}, params: {}, body: {} })`,
-    keyword: "pm.http.put",
-}, {
-    label: {
-        label: "delete",
-        description: "发送delete请求"
-    },
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "sessionState",
     sortText: "4",
-    kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `delete("请求url", { headers: {}, params: {}, body: {} })`,
-    keyword: "pm.http.delete",
+    keyword: "pm.sessionState",
+}]
+const localStateSuggestions = [{
+    label: {
+        label: "localState",
+        description: "持久数据(清空缓存后消失)"
+    },
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "localState",
+    sortText: "5",
+    keyword: "pm.localState",
 }]
 
 const suggestions: Suggestions = [{
@@ -384,8 +252,9 @@ const suggestions: Suggestions = [{
     insertText: "console.log()",
     keyword: "console",
 },
-...variableSuggestions,
-...collectionVariableSuggestions,
+...httpSuggestions,
+...sessionStateSuggestions,
+...localStateSuggestions,
 ...requestSuggestions]
 
 export function useCompletionItem(): monaco.IDisposable {

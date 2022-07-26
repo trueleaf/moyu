@@ -268,14 +268,43 @@ export function sendRequest(): void {
             })
         }
         if (res.data.type === "pre-request-http") { //接口请求
-            setTimeout(() => {
+            const { url, body, headers, method, params } = res.data.value;
+            if (!got) {
                 worker.postMessage({
-                    type: "pre-request-http-success",
-                    value: {
-                        x: 1
-                    }
+                    type: "pre-request-http-error",
+                    value: {}
                 });
-            }, 3000)
+                console.warn("got实例不存在")
+            } else {
+                const requestBody = method.toLowerCase() === "get" ? undefined : JSON.stringify(body);
+                got(url, {
+                    method,
+                    body: requestBody,
+                    headers,
+                    searchParams: params,
+                }).then(data => {
+                    let jsonBody = {};
+                    try {
+                        jsonBody = JSON.parse(data.body);
+                    } catch {
+                        console.log("error")
+                    }
+                    worker.postMessage({
+                        type: "pre-request-http-success",
+                        value: {
+                            headers: data.headers,
+                            body: jsonBody,
+                            rawBody: data.rawBody,
+                            statusCode: data.statusCode,
+                        }
+                    });
+                }).catch(err => {
+                    worker.postMessage({
+                        type: "pre-request-http-error",
+                        value: err
+                    });
+                })
+            }
         }
         if (res.data.type === "pre-request-finish") { //脚本执行完
             console.log("script finish")
