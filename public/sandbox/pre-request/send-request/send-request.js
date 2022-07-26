@@ -17,7 +17,7 @@ const request = (method, url = "", options = {}) => {
     isSendRequest = true;
     return new Promise((resolve, reject) => {
         const { headers = {}, params = {}, body = {} } = options;
-        let realUrl = "";
+        let realUrl = url;
         if (!url.toString().match(/^https?:\/\//)) {
             realUrl = `http://${url}`
         }
@@ -35,14 +35,14 @@ const request = (method, url = "", options = {}) => {
         //接受请求
         self.addEventListener("message", (e) => {
             if (e.data && e.data.type === "pre-request-http-success") {
-                resolve(e.data);
+                resolve(e.data.value);
                 self.postMessage({
                     type: "pre-request-finish",
                 })
                 isSendRequest = false;
             }
             if (e.data && e.data.type === "pre-request-http-error") {
-                reject(e.data);
+                reject(e.data.value);
                 self.postMessage({
                     type: "pre-request-finish",
                 })
