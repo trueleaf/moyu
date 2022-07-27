@@ -14,7 +14,7 @@
                 <el-radio label="text" size="small">Text</el-radio>
             </el-radio-group>
         </s-label-value>
-        <div v-if="responseType === 'json'" class="editor-wrap">
+        <div v-show="responseType === 'json'" class="editor-wrap">
             <s-json-editor v-model="jsonValue"></s-json-editor>
         </div>
         <div v-if="responseType === 'image'" class="img-wrap">
@@ -58,7 +58,7 @@ import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, next
 import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
-import { ApidocMockState } from "@@/store";
+import { ApidocDetail } from "@@/global";
 /*
 |--------------------------------------------------------------------------
 | 生命周期
@@ -70,12 +70,12 @@ import { ApidocMockState } from "@@/store";
 | 返回数据类型
 |--------------------------------------------------------------------------
 */
-const responseType = computed<ApidocMockState["responseType"]>({
+const responseType = computed<ApidocDetail["mockInfo"]["responseType"]>({
     get() {
-        return store.state["apidoc/mock"].responseType;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.responseType;
     },
     set(val) {
-        store.commit("apidoc/mock/changeResponseType", val)
+        store.commit("apidoc/apidoc/changeMockResponseType", val)
     },
 })
 /*
@@ -85,10 +85,10 @@ const responseType = computed<ApidocMockState["responseType"]>({
 */
 const jsonValue = computed({
     get() {
-        return store.state["apidoc/mock"].json;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.json;
     },
     set(val) {
-        store.commit("apidoc/mock/changeJsonValue", val)
+        store.commit("apidoc/apidoc/changeMockJsonValue", val)
     },
 })
 /*
@@ -101,58 +101,58 @@ const dataUrl = ref("")
 const realImageSize = ref(0);
 const imageType = computed({
     get() {
-        return store.state["apidoc/mock"].image.type;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.type;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageType", val)
+        store.commit("apidoc/apidoc/changeMockImageType", val)
     },
 })
 const imageWidth = computed({
     get() {
-        return store.state["apidoc/mock"].image.width;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.width;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageWidth", val)
+        store.commit("apidoc/apidoc/changeMockImageWidth", val)
     },
 })
 const imageHeight = computed({
     get() {
-        return store.state["apidoc/mock"].image.height;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.height;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageHeight", val)
+        store.commit("apidoc/apidoc/changeMockImageHeight", val)
     },
 })
 const imageSize = computed({
     get() {
-        return store.state["apidoc/mock"].image.size;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.size;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageSize", val)
+        store.commit("apidoc/apidoc/changeMockImageSize", val)
     },
 })
 const imageTextColor = computed({
     get() {
-        return store.state["apidoc/mock"].image.color;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.color;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageColor", val)
+        store.commit("apidoc/apidoc/changeMockImageColor", val)
     },
 })
 const imageBackgroundColor = computed({
     get() {
-        return store.state["apidoc/mock"].image.backgroundColor;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.backgroundColor;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageBackgroundColor", val)
+        store.commit("apidoc/apidoc/changeMockImageBackgroundColor", val)
     },
 })
 const imageFontSize = computed({
     get() {
-        return store.state["apidoc/mock"].image.fontSize;
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.image.fontSize;
     },
     set(val) {
-        store.commit("apidoc/mock/changeImageFontSize", val)
+        store.commit("apidoc/apidoc/changeMockImageFontSize", val)
     },
 })
 const watchFlag = ref<WatchStopHandle | null>(null);
@@ -161,18 +161,6 @@ onMounted(() => {
     watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
         console.log(html2canvas, nextTick, dataUrl)
         realImageSize.value = imageSize.value * 1024
-        // nextTick(() => {
-        //     if (image.value) {
-        //         html2canvas(image.value, {
-        //             logging: true,
-        //         }).then(canvas => {
-        //             dataUrl.value = canvas.toDataURL();
-        //             realImageSize.value = dataUrl.value.length + imageSize.value * 1024
-        //         }).catch(err => {
-        //             console.error(err);
-        //         });
-        //     }
-        // })
     }, {
         deep: true,
         immediate: true

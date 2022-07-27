@@ -353,6 +353,56 @@ const apidoc = {
         changeAfterRequest(state: ApidocState, afterRequest: string): void {
             state.apidoc.afterRequest.raw = afterRequest;
         },
+        /*
+        |--------------------------------------------------------------------------
+        | mock相关
+        |--------------------------------------------------------------------------
+        |
+        */
+        //改变http状态码
+        changeMockHttpStatusCode(state: ApidocState, code: number): void {
+            state.apidoc.mockInfo.httpStatusCode = code;
+        },
+        //改变返回延时
+        changeMockResponseDelay(state: ApidocState, delay: number): void {
+            state.apidoc.mockInfo.responseDelay = delay;
+        },
+        //更改返回数据类型
+        changeMockResponseType(state: ApidocState, responseType: ApidocDetail["mockInfo"]["responseType"]): void {
+            state.apidoc.mockInfo.responseType = responseType;
+        },
+        //改变json数据
+        changeMockJsonValue(state: ApidocState, jsonData: string): void {
+            state.apidoc.mockInfo.json = jsonData;
+        },
+        //改变图片类型
+        changeMockImageType(state: ApidocState, type: ApidocDetail["mockInfo"]["image"]["type"]): void {
+            state.apidoc.mockInfo.image.type = type;
+        },
+        //改变图片宽度
+        changeMockImageWidth(state: ApidocState, width: number): void {
+            state.apidoc.mockInfo.image.width = width;
+        },
+        //改变图片高度
+        changeMockImageHeight(state: ApidocState, height: number): void {
+            state.apidoc.mockInfo.image.height = height;
+        },
+        //改变图片size
+        changeMockImageSize(state: ApidocState, size: number): void {
+            state.apidoc.mockInfo.image.size = size;
+        },
+        //改变文字颜色
+        changeMockImageColor(state: ApidocState, color: string): void {
+            state.apidoc.mockInfo.image.color = color;
+        },
+        //改变图片背景颜色
+        changeMockImageBackgroundColor(state: ApidocState, backgroundColor: string): void {
+            state.apidoc.mockInfo.image.backgroundColor = backgroundColor;
+        },
+        //改变图片背景颜色
+        changeMockImageFontSize(state: ApidocState, fontSize: number): void {
+            state.apidoc.mockInfo.image.fontSize = fontSize;
+        },
     },
     actions: {
         /**
@@ -418,6 +468,7 @@ const apidoc = {
                     item: apidocDetail.item,
                     preRequest: apidocDetail.preRequest,
                     afterRequest: apidocDetail.afterRequest,
+                    mockInfo: apidocDetail.mockInfo,
                 };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法

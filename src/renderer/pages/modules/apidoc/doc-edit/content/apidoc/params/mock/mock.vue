@@ -9,23 +9,23 @@
         <s-fieldset title="Mock服务器基本信息" class="w-100">
             <!-- 状态 -->
             <s-label-value label="状态：" label-width="50px" class="mb-1" one-line>
-                <span v-if="mockInfo.serverState === 'closing'" class="f-sm">
+                <span v-if="mockServerInfo.serverState === 'closing'" class="f-sm">
                     <span class="dot"></span>
                     <span>关闭中</span>
                 </span>
-                <span v-if="mockInfo.serverState === 'connecting'" class="f-sm">
+                <span v-if="mockServerInfo.serverState === 'connecting'" class="f-sm">
                     <span class="dot bg-orange"></span>
                     <span>连接中</span>
                 </span>
-                <span v-if="mockInfo.serverState === 'connection'" class="f-sm">
+                <span v-if="mockServerInfo.serverState === 'connection'" class="f-sm">
                     <span class="dot bg-green"></span>
                     <span>已连接</span>
                 </span>
-                <span v-if="mockInfo.serverState === 'disconnection'" class="f-sm">
+                <span v-if="mockServerInfo.serverState === 'disconnection'" class="f-sm">
                     <span class="dot bg-gray-500"></span>
                     <span>断开连接</span>
                 </span>
-                <span v-if="mockInfo.serverState === 'error'" class="f-sm">
+                <span v-if="mockServerInfo.serverState === 'error'" class="f-sm">
                     <span class="dot bg-red"></span>
                     <span>异常</span>
                 </span>
@@ -80,7 +80,7 @@ import { event } from "@/helper/index"
 import globalConfig from "@/../config/config"
 import mockResponse from "./components/mock-response.vue"
 
-const mockInfo = computed(() => store.state["apidoc/mock"]); //mock服务器相关数据
+const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 
 /*
 |--------------------------------------------------------------------------
@@ -122,7 +122,7 @@ watch(customPath, (newVal) => {
 | 端口号
 |--------------------------------------------------------------------------
 */
-const mockPort = computed(() => mockInfo.value.mockServerPort)
+const mockPort = computed(() => mockServerInfo.value.mockServerPort)
 const _mockPort = ref(mockPort.value);
 const isEditingPort = ref(false);
 //改变端口编辑状态
@@ -132,7 +132,7 @@ const handleChangePortEditState = () => {
 //改变端口
 const handleChangePort = () => {
     store.commit("apidoc/mock/changeMockServerPort", _mockPort.value);
-    if (mockInfo.value.serverState === "connection") {
+    if (mockServerInfo.value.serverState === "connection") {
         event.emit("apidoc/mock/restartMockServer")
     }
     isEditingPort.value = false;
@@ -142,12 +142,12 @@ const handleChangePort = () => {
 | HTTP状态码
 |--------------------------------------------------------------------------
 */
-const httpStatusCode = computed(() => store.state["apidoc/mock"].httpStatusCode);
+const httpStatusCode = computed(() => store.state["apidoc/apidoc"].apidoc.mockInfo.httpStatusCode);
 const _httpStatusCode = ref(httpStatusCode.value);
 const isEditingHttpStatusCode = ref(false);
 //改变http状态码
 const handleChangeHttpStatusCode = () => {
-    store.commit("apidoc/mock/changeHttpStatusCode", _httpStatusCode.value);
+    store.commit("apidoc/apidoc/changeMockHttpStatusCode", _httpStatusCode.value);
     isEditingHttpStatusCode.value = false;
 }
 /*
@@ -155,12 +155,12 @@ const handleChangeHttpStatusCode = () => {
 | 返回延迟
 |--------------------------------------------------------------------------
 */
-const responseDelay = computed(() => store.state["apidoc/mock"].responseDelay);
+const responseDelay = computed(() => store.state["apidoc/apidoc"].apidoc.mockInfo.responseDelay);
 const _responseDelay = ref(responseDelay.value);
 const isEditingResponseDelay = ref(false);
 //改变返回时长
 const handleChangeResponseDelay = () => {
-    store.commit("apidoc/mock/changeResponseDelay", _responseDelay.value);
+    store.commit("apidoc/apidoc/changeMockResponseDelay", _responseDelay.value);
     isEditingResponseDelay.value = false;
 }
 /*

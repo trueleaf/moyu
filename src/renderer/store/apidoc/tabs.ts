@@ -182,6 +182,7 @@ const storeTabs = {
                         item: apidoc.item,
                         preRequest: apidoc.preRequest,
                         afterRequest: apidoc.afterRequest,
+                        mockInfo: apidoc.mockInfo,
                     };
                     axios.post("/api/project/fill_doc", params).then(() => {
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);

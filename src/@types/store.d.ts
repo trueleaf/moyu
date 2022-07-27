@@ -467,56 +467,6 @@ type ApidocMockState = {
      * 服务器状态
      */
     serverState: "disconnection" | "connecting" | "connection" | "error" | "closing",
-    /**
-     * http状态码
-     */
-    httpStatusCode: number,
-    /**
-     * 返回延时
-     */
-    responseDelay: number,
-    /**
-     * 返回数据类型
-     */
-    responseType: "json" | "image" | "file" | "text" | "customJson",
-    /**
-     * json数据信息
-     */
-    json: string,
-    /**
-     * 图片相关信息
-     */
-    image: {
-        /**
-         * 图片类型
-         */
-        type: "png" | "jpg" | "gif" | "svg",
-        /**
-         * 图片宽度
-         */
-        width: number,
-        /**
-         * 图片高度
-         */
-        height: number,
-        /**
-         * 图片大小
-         */
-        size: number,
-        /**
-         * 文字大小
-         */
-        fontSize: number,
-        /**
-         * 文字颜色
-         */
-        color: string,
-        /**
-         * 背景颜色
-         */
-        backgroundColor: string
-    },
-
 };
 /*
 |--------------------------------------------------------------------------
