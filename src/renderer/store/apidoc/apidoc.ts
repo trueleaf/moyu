@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, forEachForest, uuid } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import config from "@/../config/config"
@@ -307,6 +307,9 @@ const apidoc = {
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
             }
+            if (payload.mockInfo == null) {
+                payload.mockInfo = apidocGenerateMockInfo();
+            }
             //如果host为空则默认为mockserver
             if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
                 payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
@@ -402,6 +405,10 @@ const apidoc = {
         //改变图片背景颜色
         changeMockImageFontSize(state: ApidocState, fontSize: number): void {
             state.apidoc.mockInfo.image.fontSize = fontSize;
+        },
+        //改变返回文件类型
+        changeMockFileType(state: ApidocState, type: ApidocDetail["mockInfo"]["file"]["type"]): void {
+            state.apidoc.mockInfo.file.type = type;
         },
     },
     actions: {

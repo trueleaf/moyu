@@ -56,7 +56,7 @@
             <!-- 延迟返回(毫秒) -->
             <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
                 <span v-if="!isEditingResponseDelay">{{ responseDelay }}</span>
-                <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="1" :min="0" :max="60000"></el-input-number>
+                <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="500" :min="0" :max="60000"></el-input-number>
                 <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingResponseDelay = true">修改</span>
                 <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelay">确定</span>
                 <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color" @click="_responseDelay = responseDelay; isEditingResponseDelay = false">取消</span>
@@ -67,8 +67,6 @@
                 </el-tab-pane>
                 <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
             </el-tabs>
-            <!-- <pre>{{ mockInfo }}</pre> -->
-            <!-- <pre>{{ fullMockUrl }}</pre> -->
         </s-fieldset>
     </div>
 </template>

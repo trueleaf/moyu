@@ -88,7 +88,7 @@ export const mockServer = (): void => {
     app.use(async (ctx) => {
         const url = ctx.request.url.replace(/(?<=)\?.*/, "");
         const method = ctx.request.method.toLowerCase();
-        const { httpStatusCode, responseDelay } = store.state["apidoc/mock"];
+        const { httpStatusCode, responseDelay } = store.state["apidoc/apidoc"].apidoc.mockInfo;
         const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
         if (matchedReuqest) {
             const params = {

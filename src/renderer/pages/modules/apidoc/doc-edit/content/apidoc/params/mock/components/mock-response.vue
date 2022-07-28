@@ -14,7 +14,7 @@
                 <el-radio label="text" size="small">Text</el-radio>
             </el-radio-group>
         </s-label-value>
-        <div v-show="responseType === 'json'" class="editor-wrap">
+        <div v-if="responseType === 'json'" class="editor-wrap">
             <s-json-editor v-model="jsonValue"></s-json-editor>
         </div>
         <div v-if="responseType === 'image'" class="img-wrap">
@@ -50,6 +50,67 @@
                 <div :style="{color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px'}">{{ formatBytes(realImageSize) }}</div>
             </div>
         </div>
+        <div v-if="responseType === 'file'" class="download-wrap">
+            <div class="item" :class="{active: selectedType === 'doc'}" @click="selectedType = 'doc'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconWORD"></use>
+                </svg>
+                <div class="mt-1">DOC</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'docx'}" @click="selectedType = 'docx'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconWORD"></use>
+                </svg>
+                <div class="mt-1">DOCX</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'xls'}" @click="selectedType = 'xls'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconexcel"></use>
+                </svg>
+                <div class="mt-1">XLS</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'xlsx'}" @click="selectedType = 'xlsx'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconexcel"></use>
+                </svg>
+                <div class="mt-1">XLSX</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'pdf'}" @click="selectedType = 'pdf'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconpdfwenjian"></use>
+                </svg>
+                <div class="mt-1">PDF</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'zip'}" @click="selectedType = 'zip'">
+                <svg class="svg-icon" aria-hidden="true">
+                    <use xlink:href="#iconyasuobao"></use>
+                </svg>
+                <div class="mt-1">ZIP</div>
+            </div>
+            <div class="item" :class="{active: selectedType === 'custom'}" @click="selectedType = 'custom'">
+                <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
+                <div class="mt-1">自定义</div>
+            </div>
+        </div>
+        <el-upload
+            v-if="responseType === 'file' && selectedType === 'custom'"
+            ref="uploadInstance"
+            :auto-upload="false"
+            class="mt-3"
+            action="/"
+            :limit="1"
+            :on-exceed="handleExceed"
+            @change="handleSelectFile"
+        >
+            <template #trigger>
+                <el-button type="primary">选择文件</el-button>
+            </template>
+            <template v-if="fileInfo.size" #tip>
+                <div>文件名称：{{ fileInfo.name }}</div>
+                <div>文件大小：{{ formatBytes(fileInfo.size) }}</div>
+            </template>
+            <template #file>&nbsp;</template>
+        </el-upload>
     </div>
 </template>
 
@@ -59,9 +120,12 @@ import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
+import { UploadFile } from "element-plus/es/components";
+import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
+
 /*
 |--------------------------------------------------------------------------
-| 生命周期
+| 公共
 |--------------------------------------------------------------------------
 */
 
@@ -155,6 +219,38 @@ const imageFontSize = computed({
         store.commit("apidoc/apidoc/changeMockImageFontSize", val)
     },
 })
+/*
+|--------------------------------------------------------------------------
+| 文件相关
+|--------------------------------------------------------------------------
+*/
+//选中的文件类型
+const selectedType = computed({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.file.type
+    },
+    set(type) {
+        store.commit("apidoc/apidoc/changeMockFileType", type)
+    }
+})
+const fileInfo = ref({
+    name: "",
+    size: 0,
+});
+const uploadInstance = ref<UploadInstance>()
+//选择文件
+const handleSelectFile = (file: UploadFile) => {
+    fileInfo.value.name = file.name;
+    fileInfo.value.size = file.size || 0;
+}
+//覆盖文件
+const handleExceed: UploadProps["onExceed"] = (files) => {
+    uploadInstance.value?.clearFiles()
+    const file = files[0] as UploadRawFile
+    file.uid = genFileId()
+    uploadInstance.value?.handleStart(file)
+}
+
 const watchFlag = ref<WatchStopHandle | null>(null);
 
 onMounted(() => {
@@ -198,6 +294,36 @@ onBeforeUnmount(() => {
         align-items: center;
         justify-content: center;
         flex-direction: column;
+    }
+    .download-wrap {
+        display: flex;
+        .item {
+            width: size(130);
+            height: size(100);
+            padding: size(10);
+            margin-right: size(20);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 1px solid transparent;
+            &.active {
+                border: 1px solid $gray-400;
+                box-shadow: $box-shadow-sm;
+            }
+            &:hover {
+                border: 1px solid $gray-400;
+            }
+            .svg-icon {
+                width: size(70);
+                height: size(70);
+            }
+            .img {
+                width: size(60);
+                height: size(60);
+            }
+        }
     }
 }
 </style>
