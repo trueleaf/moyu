@@ -323,7 +323,33 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = "string">(
     };
     return result as ApidocProperty<T>;
 }
-
+/**
+ * 生成一条默认mock数据
+ */
+export function apidocGenerateMockInfo(): ApidocDetail["mockInfo"] {
+    const result: ApidocDetail["mockInfo"] = {
+        httpStatusCode: 200,
+        responseDelay: 0,
+        responseType: "json",
+        json: "",
+        image: {
+            type: "png",
+            width: 200,
+            height: 200,
+            fontSize: 30,
+            size: 0,
+            color: "#fff",
+            backgroundColor: "#aaa"
+        },
+        file: {
+            type: "doc",
+            base64File: "",
+        },
+        text: "",
+        customResponseScript: "",
+    };
+    return result;
+}
 /*
 |--------------------------------------------------------------------------
 |--------------------------------------------------------------------------
@@ -814,6 +840,12 @@ export function apidocGenerateApidoc(): ApidocDetail {
                 color: "#fff",
                 backgroundColor: "#aaa"
             },
+            file: {
+                type: "doc",
+                base64File: "",
+            },
+            text: "",
+            customResponseScript: "",
         },
     }
 }
