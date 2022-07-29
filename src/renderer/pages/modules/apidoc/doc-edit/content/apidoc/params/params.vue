@@ -104,7 +104,7 @@ import { Opportunity } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
 import { apidocCache } from "@/cache/apidoc"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
+import { apidocConvertParamsToJsonData, lodashIsEqual } from "@/helper/index"
 import { store } from "@/store"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
@@ -280,6 +280,7 @@ export default defineComponent({
         checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
             const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
             const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+            const mockInfoIsEqual = this.checkMockInfo(cpApidoc, cpOriginApidoc);
             const preRequestIsEqual = this.checkPreRequest(cpApidoc, cpOriginApidoc);
             const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
             const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
@@ -287,7 +288,7 @@ export default defineComponent({
             const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
             const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
             //=====================================Request====================================//
-            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual) {
+            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !mockInfoIsEqual) {
                 return false;
             }
             if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
@@ -346,6 +347,11 @@ export default defineComponent({
                 }
             }
             return true;
+        },
+        //检查mockInfo是否改变
+        checkMockInfo(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+            // console.log(apidoc, originApidoc)
+            return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
         },
         //检查请求方法是否发生改变
         checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {

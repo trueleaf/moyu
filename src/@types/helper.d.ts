@@ -20,7 +20,7 @@ import {
     apidocConvertJsonDataToParams,
     formatBytes,
     formatMs,
-    isEqual,
+    lodashIsEqual,
     apidocConvertParamsToJsonStr,
 } from "@/helper/index"
 
@@ -28,7 +28,7 @@ type Helper = {
     /**
      * 两个变量是否相等
      */
-    isEqual: typeof isEqual,
+    lodashIsEqual: typeof lodashIsEqual,
     /**
      * 深拷贝
      */

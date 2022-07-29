@@ -362,6 +362,10 @@ const apidoc = {
         |--------------------------------------------------------------------------
         |
         */
+        //改变mock地址
+        changeMockPath(state: ApidocState, path: string): void {
+            state.apidoc.mockInfo.path = path;
+        },
         //改变http状态码
         changeMockHttpStatusCode(state: ApidocState, code: number): void {
             state.apidoc.mockInfo.httpStatusCode = code;
@@ -410,6 +414,14 @@ const apidoc = {
         changeMockFileType(state: ApidocState, type: ApidocDetail["mockInfo"]["file"]["type"]): void {
             state.apidoc.mockInfo.file.type = type;
         },
+        //改变返回text类型数据
+        changeMockTextValue(state: ApidocState, text: string): void {
+            state.apidoc.mockInfo.text = text;
+        },
+        //改变自定义返回脚本数据
+        changeCustomResponseScript(state: ApidocState, text: string): void {
+            state.apidoc.mockInfo.customResponseScript = text;
+        }
     },
     actions: {
         /**

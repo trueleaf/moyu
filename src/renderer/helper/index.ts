@@ -7,7 +7,7 @@
  */
 import { nanoid } from "nanoid/non-secure"
 import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes, ApidocCodeInfo } from "@@/global"
-import lodashIsEqual from "lodash/isEqual";
+import isEqual from "lodash/isEqual";
 import lodashCloneDeep from "lodash/cloneDeep";
 import lodashDebounce from "lodash/debounce";
 import lodashThrottle from "lodash/throttle";
@@ -23,7 +23,7 @@ type Data = Record<string, unknown>
 /**
  * 对象对比
  */
-export const isEqual = lodashIsEqual;
+export const lodashIsEqual = isEqual;
 /**
  * 深拷贝
  */
@@ -328,6 +328,7 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = "string">(
  */
 export function apidocGenerateMockInfo(): ApidocDetail["mockInfo"] {
     const result: ApidocDetail["mockInfo"] = {
+        path: "",
         httpStatusCode: 200,
         responseDelay: 0,
         responseType: "json",
@@ -827,6 +828,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
             contentType: "",
         },
         mockInfo: {
+            path: "",
             httpStatusCode: 200,
             responseDelay: 0,
             responseType: "json",

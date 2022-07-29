@@ -651,6 +651,10 @@ type ApidocDetail = {
     updatedAt?: string;
     mockInfo: {
         /**
+         * mock地址
+         */
+        path: string,
+        /**
          * http状态码
          */
         httpStatusCode: number;

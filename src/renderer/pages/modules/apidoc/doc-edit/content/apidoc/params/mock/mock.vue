@@ -49,7 +49,7 @@
             <s-label-value label="HTTP返回状态码：" label-width="130px" class="mb-1" one-line>
                 <span v-if="!isEditingHttpStatusCode">{{ httpStatusCode }}</span>
                 <el-input-number v-if="isEditingHttpStatusCode" v-model="_httpStatusCode" size="small" class="w-20" :step="1" :min="1" :max="599"></el-input-number>
-                <span v-if="!isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingHttpStatusCode = true">修改</span>
+                <span v-if="!isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeHttpStatusCodeState">修改</span>
                 <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeHttpStatusCode">确定</span>
                 <span v-if="isEditingHttpStatusCode" class="cursor-pointer f-sm theme-color" @click="_httpStatusCode = httpStatusCode; isEditingHttpStatusCode = false">取消</span>
             </s-label-value>
@@ -57,7 +57,7 @@
             <s-label-value label="延迟返回(毫秒)：" label-width="120px" class="mb-1" one-line>
                 <span v-if="!isEditingResponseDelay">{{ responseDelay }}</span>
                 <el-input-number v-if="isEditingResponseDelay" v-model="_responseDelay" size="small" class="w-20" :step="500" :min="0" :max="60000"></el-input-number>
-                <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="isEditingResponseDelay = true">修改</span>
+                <span v-if="!isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelayState">修改</span>
                 <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color mx-2" @click="handleChangeResponseDelay">确定</span>
                 <span v-if="isEditingResponseDelay" class="cursor-pointer f-sm theme-color" @click="_responseDelay = responseDelay; isEditingResponseDelay = false">取消</span>
             </s-label-value>
@@ -76,7 +76,7 @@ import { computed, ref, watch } from "vue";
 import { store } from "@/store";
 import { event } from "@/helper/index"
 import globalConfig from "@/../config/config"
-import mockResponse from "./components/mock-response.vue"
+import mockResponse from "./components/mock-response/mock-response.vue"
 
 const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 
@@ -87,7 +87,14 @@ const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 */
 const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
 const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.path); //原始请求路径
-const customPath = ref(""); //自定义请求路径
+const customPath = computed({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.path;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeMockPath", val)
+    }
+}); //自定义请求路径
 const fullMockUrl = computed(() => `${mockServer.value}${customPath.value}`); //完整请求url
 const apidocInfo = computed(() => store.state["apidoc/apidoc"].apidoc); //当前api文档信息
 const handleChangeMockPath = () => {
@@ -95,7 +102,7 @@ const handleChangeMockPath = () => {
         customPath.value = "/"
     }
 }
-//重置mock数据
+//重置mock地址
 const handleResetMockUrl = () => {
     customPath.value = orginPath.value;
 }
@@ -141,8 +148,13 @@ const handleChangePort = () => {
 |--------------------------------------------------------------------------
 */
 const httpStatusCode = computed(() => store.state["apidoc/apidoc"].apidoc.mockInfo.httpStatusCode);
-const _httpStatusCode = ref(httpStatusCode.value);
+const _httpStatusCode = ref(200);
 const isEditingHttpStatusCode = ref(false);
+//改变状态
+const handleChangeHttpStatusCodeState = () => {
+    _httpStatusCode.value = httpStatusCode.value
+    isEditingHttpStatusCode.value = true
+}
 //改变http状态码
 const handleChangeHttpStatusCode = () => {
     store.commit("apidoc/apidoc/changeMockHttpStatusCode", _httpStatusCode.value);
@@ -154,8 +166,13 @@ const handleChangeHttpStatusCode = () => {
 |--------------------------------------------------------------------------
 */
 const responseDelay = computed(() => store.state["apidoc/apidoc"].apidoc.mockInfo.responseDelay);
-const _responseDelay = ref(responseDelay.value);
+const _responseDelay = ref();
 const isEditingResponseDelay = ref(false);
+//改变状态
+const handleChangeResponseDelayState = () => {
+    _responseDelay.value = responseDelay.value
+    isEditingResponseDelay.value = true
+}
 //改变返回时长
 const handleChangeResponseDelay = () => {
     store.commit("apidoc/apidoc/changeMockResponseDelay", _responseDelay.value);

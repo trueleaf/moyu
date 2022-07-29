@@ -14,7 +14,7 @@ import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/
 /**
  * 从url中找出path参数
  */
-export const handlePickPathParams = (): void => {
+export const handleChangeUrl = (): void => {
     const requestPath = store.state["apidoc/apidoc"].apidoc.item.url.path;
     const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
     let matchedPathParams = requestPath.match(pathParamsReg);
@@ -29,6 +29,8 @@ export const handlePickPathParams = (): void => {
     } else {
         store.commit("apidoc/apidoc/changePathParams", [])
     }
+    //同步更新mock路径数据
+    store.commit("apidoc/apidoc/changeMockPath", requestPath)
 };
 
 /**
@@ -99,4 +101,6 @@ export function handleFormatUrl():void {
     const queryReg = /(\?.*$)|(\/*$)/;
     formatPath = formatPath.replace(queryReg, "");
     requestPath.value = formatPath;
+    //同步更新mock路径数据
+    store.commit("apidoc/apidoc/changeMockPath", formatPath)
 }

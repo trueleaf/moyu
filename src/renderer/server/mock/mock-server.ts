@@ -2,10 +2,9 @@ import type Koa from "koa"
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { apidocConvertParamsToJsonData, forEachForest, event, sleep } from "@/helper/index"
+import { event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
-import Mock from "@/server/mock/mock"
-import { ApidocDetail, ApidocProperty } from "@@/global"
+import { ApidocDetail } from "@@/global"
 
 let app: Koa | null = null;
 
@@ -88,7 +87,8 @@ export const mockServer = (): void => {
     app.use(async (ctx) => {
         const url = ctx.request.url.replace(/(?<=)\?.*/, "");
         const method = ctx.request.method.toLowerCase();
-        const { httpStatusCode, responseDelay } = store.state["apidoc/apidoc"].apidoc.mockInfo;
+        const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
+        const realMockInfo = {} as ApidocDetail["mockInfo"]; //最终的mock数据
         const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
         if (matchedReuqest) {
             const params = {
@@ -98,45 +98,33 @@ export const mockServer = (): void => {
             try {
                 const localApis = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
                 const localApi = localApis[matchedReuqest.id]
-                let result = null;
+                let remoteMockInfo = null;
                 if (localApi) {
-                    result = { data: localApi }
+                    remoteMockInfo = localApi.mockInfo
                 } else {
-                    result = await axios.get("/api/project/doc_detail", { params });
+                    const res = await axios.get("/api/project/doc_detail", { params });
+                    remoteMockInfo = res.data.mockInfo
                 }
-                const matchedRawBody = (result.data as ApidocDetail).item.responseParams.find(v => v.isMock)
-                const rawBody = matchedRawBody?.value.json || result.data.item.responseParams[0]?.value.json;
-                forEachForest(rawBody, (data) => {
-                    if (data.type === "array") {
-                        const loopNum = data.value || 1;
-                        const item = JSON.parse(JSON.stringify(data.children))
-                        for (let i = 1; i < loopNum; i += 1) {
-                            item.forEach((v: ApidocProperty) => {
-                                if (v.type !== "array") { //过滤类型为数组的，否则导致json解析报错卡死系统
-                                    data.children.push(v);
-                                }
-                            })
-                        }
-                    }
-                })
-                const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                    if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
-                        const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
-                        return Mock.mock(new RegExp(replacedValue));
-                    }
-                    if (property.value.startsWith("@")) { //普通mock
-                        const mockValue = Mock.mock(property.value)
-                        if (property.type === "string") {
-                            return mockValue.toString();
-                        }
-                        return mockValue;
-                    }
-                    return property.value;
-                })
-                await sleep(responseDelay)
+                Object.assign(realMockInfo, remoteMockInfo, mockInfo)
+
+                // const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
+                //     if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
+                //         const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
+                //         return Mock.mock(new RegExp(replacedValue));
+                //     }
+                //     if (property.value.startsWith("@")) { //普通mock
+                //         const mockValue = Mock.mock(property.value)
+                //         if (property.type === "string") {
+                //             return mockValue.toString();
+                //         }
+                //         return mockValue;
+                //     }
+                //     return property.value;
+                // })
+                await sleep(realMockInfo.responseDelay)
                 ctx.set("connection", "close"); //防止keep-alive无法立即结束http链接
-                ctx.status = httpStatusCode;
-                ctx.body = convertBody || "";
+                ctx.status = realMockInfo.httpStatusCode;
+                ctx.body = "";
             } catch (error) {
                 console.error(error)
                 ctx.body = "";

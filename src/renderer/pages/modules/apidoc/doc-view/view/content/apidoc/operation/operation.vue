@@ -31,7 +31,7 @@
                 v-model="requestPath"
                 :placeholder="$t('输入请求url')"
                 :size="config.renderConfig.layout.size"
-                @input="handlePickPathParams"
+                @input="handleChangeUrl"
                 @blur="handleFormatUrl"
                 @keyup.enter.stop="handleFormatUrl"
             >
@@ -79,7 +79,7 @@ import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
 import { apidocCache } from "@/cache/apidoc"
 import router from "@/pages/modules/apidoc/doc-view/router/index"
 import getHostPart from "./composables/host"
-import { handleFormatUrl, handlePickPathParams } from "./composables/url"
+import { handleFormatUrl, handleChangeUrl } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
 

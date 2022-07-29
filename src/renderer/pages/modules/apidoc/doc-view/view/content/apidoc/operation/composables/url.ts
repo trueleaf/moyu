@@ -14,7 +14,7 @@ import { apidocCache } from "@/cache/apidoc"
 /**
  * 从url中找出path参数
  */
-export const handlePickPathParams = (): void => {
+export const handleChangeUrl = (): void => {
     const requestPath = store.state["apidoc/apidoc"].apidoc.item.url.path;
     const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
     let matchedPathParams = requestPath.match(pathParamsReg);

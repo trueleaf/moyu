@@ -52,7 +52,7 @@
             <el-input
                 v-model="requestPath"
                 :placeholder="$t('输入请求url')"
-                @input="handlePickPathParams"
+                @input="handleChangeUrl"
                 @blur="handleFormatUrl"
                 @keyup.enter.stop="handleFormatUrl"
             >
@@ -102,7 +102,7 @@ import { apidocCache } from "@/cache/apidoc"
 import { router } from "@/router/index"
 import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
-import { handleFormatUrl, handlePickPathParams } from "./composables/url"
+import { handleFormatUrl, handleChangeUrl } from "./composables/url"
 import getMethodPart from "./composables/method"
 import getOperationPart from "./composables/operation"
 
@@ -165,7 +165,7 @@ const requestPath = computed<string>({
         return store.state["apidoc/apidoc"].apidoc.item.url.path;
     },
     set(path) {
-        store.commit("apidoc/apidoc/changeApidocUrl", path)
+        store.commit("apidoc/apidoc/changeApidocUrl", path);
     },
 });
 const paths = computed(() => store.state["apidoc/apidoc"].apidoc.item.paths)

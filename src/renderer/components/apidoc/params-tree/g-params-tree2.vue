@@ -178,7 +178,7 @@
                     :model-value="scope.data.required"
                     :label="$t('必有')"
                     :disabled="checkRequiredDisable(scope.data)"
-                    @update:modelValue="handleChangeIsRequired($event, scope.data)"
+                    @update:modelValue="handleChangeIsRequired($event as string, scope.data)"
                 >
                 </el-checkbox>
                 <!-- 参数描述 -->

@@ -27,7 +27,12 @@
                             <!-- 接口文档 -->
                             <template v-if="element.tabType === 'doc'">
                                 <template v-for="(req) in requestMethods">
-                                    <span v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()" :key="req.value" class="mr-2" :style="{color: req.iconColor}">{{ req.name }}</span>
+                                    <span
+                                        v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()"
+                                        :key="req.value"
+                                        class="mr-2"
+                                        :style="{color: req.iconColor, transform: `skewX(${ element.fixed ? 0 : '-30deg'})`}"
+                                    >{{ req.name }}</span>
                                 </template>
                             </template>
                             <!-- 其他 -->
@@ -372,7 +377,9 @@ export default defineComponent({
                 white-space: nowrap;
                 // font-size: fz(12);
                 &.unfixed {
-                    font-style: oblique;
+                    // font-family: Verdana, sans-serif;
+                    // font-style: italic;
+                    transform: skewX(-10deg);
                 }
             }
             background: rgb(222, 225, 230);

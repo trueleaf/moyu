@@ -12,6 +12,7 @@
                 <el-radio label="image" size="small">图片</el-radio>
                 <el-radio label="file" size="small">文件</el-radio>
                 <el-radio label="text" size="small">Text</el-radio>
+                <el-radio label="customJson" size="small">自定义返回逻辑</el-radio>
             </el-radio-group>
         </s-label-value>
         <div v-if="responseType === 'json'" class="editor-wrap">
@@ -92,6 +93,12 @@
                 <div class="mt-1">自定义</div>
             </div>
         </div>
+        <div v-if="responseType === 'text'" class="raw-editor-wrap">
+            <s-raw-editor v-model="rawText"></s-raw-editor>
+        </div>
+        <div v-if="responseType === 'customJson'" class="editor-wrap">
+            <s-custom-editor v-model="customResponseScript"></s-custom-editor>
+        </div>
         <el-upload
             v-if="responseType === 'file' && selectedType === 'custom'"
             ref="uploadInstance"
@@ -116,18 +123,13 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, nextTick } from "vue";
+import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
 import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
 import { UploadFile } from "element-plus/es/components";
-import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
-
-/*
-|--------------------------------------------------------------------------
-| 公共
-|--------------------------------------------------------------------------
-*/
+import sCustomEditor from "./components/custom-editor.vue"
 
 /*
 |--------------------------------------------------------------------------
@@ -250,9 +252,33 @@ const handleExceed: UploadProps["onExceed"] = (files) => {
     file.uid = genFileId()
     uploadInstance.value?.handleStart(file)
 }
-
+/*
+|--------------------------------------------------------------------------
+| raw类型文本数据
+|--------------------------------------------------------------------------
+*/
+const rawText = computed({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.text;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeMockTextValue", val);
+    }
+})
+/*
+|--------------------------------------------------------------------------
+| 自定义返回数据逻辑
+|--------------------------------------------------------------------------
+*/
+const customResponseScript = computed({
+    get() {
+        return store.state["apidoc/apidoc"].apidoc.mockInfo.customResponseScript;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeCustomResponseScript", val);
+    }
+})
 const watchFlag = ref<WatchStopHandle | null>(null);
-
 onMounted(() => {
     watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
         console.log(html2canvas, nextTick, dataUrl)
@@ -273,7 +299,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .mock-response {
     .editor-wrap {
-        height: calc(100vh - #{size(580)});
+        height: calc(100vh - #{size(610)});
         min-height: size(200);
         border: 1px solid $gray-500;
         display: flex;
@@ -281,6 +307,10 @@ onBeforeUnmount(() => {
             height: 100%;
             border-right: 1px solid $gray-500;
         }
+    }
+    .raw-editor-wrap {
+        height: calc(100vh - #{size(610)});
+        min-height: size(200);
     }
     .img-wrap {
         // height: calc(100vh - #{size(620)});
@@ -298,8 +328,8 @@ onBeforeUnmount(() => {
     .download-wrap {
         display: flex;
         .item {
-            width: size(130);
-            height: size(100);
+            width: size(70);
+            height: size(70);
             padding: size(10);
             margin-right: size(20);
             cursor: pointer;
@@ -316,12 +346,12 @@ onBeforeUnmount(() => {
                 border: 1px solid $gray-400;
             }
             .svg-icon {
-                width: size(70);
-                height: size(70);
+                width: size(40);
+                height: size(40);
             }
             .img {
-                width: size(60);
-                height: size(60);
+                width: size(28);
+                height: size(28);
             }
         }
     }

@@ -74,16 +74,10 @@
                             </el-popover>
                         </div>
                     </div>
-                    <el-divider direction="vertical"></el-divider>
-                    <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
-                        <span class="cursor-pointer ml-1" :class="{active: item.isMock}" @click="handleSelectMock(index)">Mock</span>
-                    </el-tooltip>
                 </div>
             </template>
             <template #tail>
                 <div class="d-flex a-center">
-                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0" @click="handleOpenImportParams(index)">{{ $t("导入参数") }}</div>
-                    <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
                     <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select flex0">
                         <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplateIndex === index" class="template-wrap">
@@ -114,7 +108,10 @@
                 </div>
             </template>
             <!-- 内容展示 -->
-            <s-params-tree v-if="checkDisplayType(item.value.dataType) === 'json'" nest :mind-params="mindResponseParams" :data="item.value.json"></s-params-tree>
+            <div v-if="checkDisplayType(item.value.dataType) === 'json'">
+                <pre>{{ item.value.json }}</pre>
+                <!-- <s-json-editor v-model="item.value.json"></s-json-editor> -->
+            </div>
             <!-- 文本类型 -->
             <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
                 <s-raw-editor
@@ -126,7 +123,6 @@
                 </s-raw-editor>
             </div>
         </s-collapse-card>
-        <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params>
         <params-template v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></params-template>
     </div>
 </template>
@@ -139,11 +135,9 @@ import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
 import { ApidocProjectParamsTemplate } from "@@/store";
 import { store } from "@/store/index"
 import { apidocCache } from "@/cache/apidoc"
-import importParams from "../../dialog/import-params/import-params.vue"
 import sStatus from "./children/status.vue"
 import sMime from "./children/mime.vue"
 import paramsTemplate from "./dialog/params-template/params-template.vue"
-import useImportParams from "./compsables/import-params" //导入参数
 import useParamsTemplate from "./compsables/params-template" //参数模板
 
 /*
@@ -199,15 +193,6 @@ const handleChangeTextValeu = (value: string, index: number) => {
 }
 /*
 |--------------------------------------------------------------------------
-| mock操作
-|--------------------------------------------------------------------------
-*/
-//选择mock
-const handleSelectMock = (index: number) => {
-    store.commit("apidoc/apidoc/changeResponseMockByIndex", index);
-}
-/*
-|--------------------------------------------------------------------------
 | 状态修改、contentType修改、新增response、删除response
 |--------------------------------------------------------------------------
 |
@@ -222,16 +207,8 @@ const handleDeleteResponse = (index: number) => {
 }
 //response参数值
 const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.responseParams);
-//body参数联想值
-const mindResponseParams = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams"))
 //布局
 const layout = computed(() => store.state["apidoc/baseInfo"].layout);
-/*
-|--------------------------------------------------------------------------
-| 导入参数
-|--------------------------------------------------------------------------
-*/
-const { importParamsdialogVisible, handleOpenImportParams, handleConvertSuccess } = useImportParams();
 
 /*
 |--------------------------------------------------------------------------
@@ -335,7 +312,7 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
 const { showTemplateIndex, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
 //选择模板
 const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
-    handleConvertSuccess(templateInfo.items)
+    console.log(123, templateInfo.items)
 }
 /*
 |--------------------------------------------------------------------------
