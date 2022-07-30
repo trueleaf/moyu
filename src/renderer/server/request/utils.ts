@@ -5,6 +5,7 @@ import Mock from "@/server/mock/mock"
 import json5 from "json5"
 import { store } from "@/store"
 import { router } from "@/router"
+import { axios } from "@/api/api"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -446,6 +447,18 @@ class ApidocConverter {
             break;
         }
         return body;
+    }
+
+    /**
+     * 根据id获取接口信息
+     */
+    async getDocRequestInfo(projectId: string, _id: string) {
+        const params = {
+            projectId,
+            _id,
+        }
+        const res = await axios.get("/api/project/doc_detail", { params })
+        console.log(res)
     }
 }
 

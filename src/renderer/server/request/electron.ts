@@ -244,7 +244,7 @@ export function sendRequest(): void {
         console.error(error);
     });
     //信息处理
-    worker.addEventListener("message", (res) => {
+    worker.addEventListener("message", async (res) => {
         if (typeof res.data !== "object") {
             return
         }
@@ -305,6 +305,9 @@ export function sendRequest(): void {
                     });
                 })
             }
+        }
+        if (res.data.type === "pre-request-send-request-by-id") { //根据文档id发送请求
+            apidocConverter.getDocRequestInfo(projectId, res.data.value.id)
         }
         if (res.data.type === "pre-request-finish") { //脚本执行完
             console.log("script finish")

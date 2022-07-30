@@ -66,3 +66,15 @@ const http = {
         return request("DELETE", url, options);
     },
 }
+
+const sendRequestById = (id) => {
+    isSendRequest = true;
+    return new Promise((resolve, reject) => {
+        self.postMessage({
+            type: "pre-request-send-request-by-id",
+            value: {
+                id,
+            }
+        })
+    })
+}

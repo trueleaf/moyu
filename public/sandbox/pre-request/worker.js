@@ -42,6 +42,7 @@ const pm = {
     },
     variables,
     sendRequest,
+    sendRequestById,
     http,
     sessionState,
     localState,
