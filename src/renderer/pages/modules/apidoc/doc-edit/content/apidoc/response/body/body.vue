@@ -36,7 +36,7 @@
             <!-- excel -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
-                    <use xlink:href="#iconicon_weizhiwenjian"></use>
+                    <use xlink:href="#iconexcel"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
                 <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
@@ -44,7 +44,7 @@
             <!-- word -->
             <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')" class="d-flex flex-column j-center">
                 <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
-                    <use xlink:href="#iconicon_weizhiwenjian"></use>
+                    <use xlink:href="#iconWORD"></use>
                 </svg>
                 <div>{{ remoteResponse.data.type }}</div>
                 <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>

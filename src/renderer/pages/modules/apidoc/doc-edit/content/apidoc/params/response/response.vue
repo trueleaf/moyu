@@ -78,7 +78,7 @@
             </template>
             <template #tail>
                 <div class="d-flex a-center">
-                    <div v-if="item.value.dataType === 'application/json'" class="p-relative no-select flex0">
+                    <div v-if="item.value.dataType === 'application/json' && 0" class="p-relative no-select flex0">
                         <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
                         <div v-if="showTemplateIndex === index" class="template-wrap">
                             <div class="header">
@@ -101,16 +101,15 @@
                             <div v-else class="select-item disabled d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
                         </div>
                     </div>
-                    <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider>
-                    <div v-if="item.value.dataType === 'application/json'" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
+                    <!-- <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider> -->
+                    <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
                     <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
                     <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
                 </div>
             </template>
             <!-- 内容展示 -->
-            <div v-if="checkDisplayType(item.value.dataType) === 'json'">
-                <pre>{{ item.value.json }}</pre>
-                <!-- <s-json-editor v-model="item.value.json"></s-json-editor> -->
+            <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400" :class="{ vertical: layout === 'vertical' }">
+                <s-json-editor :model-value="item.value.strJson" @update:modelValue="handleChangeResponseJson($event, index)"></s-json-editor>
             </div>
             <!-- 文本类型 -->
             <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
@@ -257,6 +256,13 @@ const handleSelectContentType = (type: string, index: number) => {
         index,
         type,
     });
+}
+//更改返回json数据
+const handleChangeResponseJson = (value: string, index: number) => {
+    store.commit("apidoc/apidoc/changeResponseStrJsonByIndex", {
+        index,
+        value
+    })
 }
 onMounted(() => {
     document.documentElement.addEventListener("click", closeStatusPopover)

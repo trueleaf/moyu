@@ -1,11 +1,12 @@
 import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from "@@/global"
 import type IFromData from "form-data"
-import { apidocGenerateApidoc, apidocGenerateProperty } from "@/helper/index"
+import { apidocGenerateApidoc, apidocGenerateProperty, formatBytes } from "@/helper/index"
 import Mock from "@/server/mock/mock"
 import json5 from "json5"
 import { store } from "@/store"
 import { router } from "@/router"
 import { axios } from "@/api/api"
+import html2canvas from "html2canvas";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -381,38 +382,7 @@ class ApidocConverter {
                 return `${$1}"${$2}"`;
             });
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            body = JSON.stringify(json5.parse(convertBody || "null", (key: string, value: any) => {
-                const { variables } = store.state["apidoc/baseInfo"]
-                if (!value) { //null
-                    return value;
-                }
-                if (typeof value === "string") {
-                    const stringValue = value.toString();
-                    if (stringValue.startsWith("@")) {
-                        return Mock.mock(value);
-                    }
-                    if (stringValue.startsWith("$")) {
-                        return Mock.mock(value.replace(/^\$/, "@"));
-                    }
-                    const replacedStr = stringValue.replace(/\{\{\s*([^} ]+)\s*\}\}/g, ($1: string, varStr: string) => {
-                        // let realValue = "";
-                        if (varStr.startsWith("@")) {
-                            return Mock.mock(varStr);
-                        }
-                        if (varStr.startsWith("$")) {
-                            return Mock.mock(varStr.replace(/^\$/, "@"));
-                        }
-                        const matchedValue = variables.find(v => v.name === varStr)
-                        if (matchedValue) {
-                            return matchedValue.value
-                        }
-                        // console.log(store.state["apidoc/baseInfo"].variables, "repalce")
-                        return $1;
-                    });
-                    return replacedStr;
-                }
-                return value;
-            }));
+            body = this.convertMockJsonToRealJson(convertBody);
             Object.keys(numberMap).forEach(key => {
                 body = (body as string).replace(new RegExp(`:"(${key})"`, "g"), (match, $1) => `:${$1}`);
             })
@@ -459,6 +429,81 @@ class ApidocConverter {
         }
         const res = await axios.get("/api/project/doc_detail", { params })
         console.log(res)
+    }
+
+    /**
+     * 将mock类型json转换为真实json
+     */
+    convertMockJsonToRealJson(mockJson: string) {
+        try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return JSON.stringify(json5.parse(mockJson || "null", (key: string, value: any) => {
+                const { variables } = store.state["apidoc/baseInfo"]
+                if (!value) { //null
+                    return value;
+                }
+                if (typeof value === "string") {
+                    const stringValue = value.toString();
+                    if (stringValue.startsWith("@")) {
+                        return Mock.mock(value);
+                    }
+                    if (stringValue.startsWith("$")) {
+                        return Mock.mock(value.replace(/^\$/, "@"));
+                    }
+                    const replacedStr = stringValue.replace(/\{\{\s*([^} ]+)\s*\}\}/g, ($1: string, varStr: string) => {
+                        // let realValue = "";
+                        if (varStr.startsWith("@")) {
+                            return Mock.mock(varStr);
+                        }
+                        if (varStr.startsWith("$")) {
+                            return Mock.mock(varStr.replace(/^\$/, "@"));
+                        }
+                        const matchedValue = variables.find(v => v.name === varStr)
+                        if (matchedValue) {
+                            return matchedValue.value
+                        }
+                        return $1;
+                    });
+                    return replacedStr;
+                }
+                return value;
+            }));
+        } catch (error) {
+            console.error(error);
+            return "";
+        }
+    }
+
+    /**
+     * 创建一张图片
+     */
+    async createMockImage(imageInfo: ApidocDetail["mockInfo"]["image"]) {
+        const wrapDom = document.createElement("div");
+        const widthAndHeightDom = document.createElement("div");
+        const sizeDom = document.createElement("div");
+        wrapDom.style.backgroundColor = imageInfo.backgroundColor;
+        wrapDom.style.width = `${imageInfo.width}px`;
+        wrapDom.style.height = `${imageInfo.height}px`;
+        wrapDom.style.position = "fixed";
+        wrapDom.style.left = "-99999px";
+        wrapDom.style.top = "-99999px";
+        wrapDom.style.display = "flex";
+        wrapDom.style.alignItems = "center";
+        wrapDom.style.justifyContent = "center";
+        wrapDom.style.flexDirection = "column";
+        widthAndHeightDom.style.color = imageInfo.color;
+        widthAndHeightDom.style.fontSize = `${imageInfo.fontSize}px`;
+        widthAndHeightDom.innerText = `${imageInfo.width}x${imageInfo.height}`;
+        sizeDom.style.color = imageInfo.color;
+        sizeDom.style.fontSize = `${imageInfo.fontSize / 1.2}px`;
+        sizeDom.innerText = `${formatBytes(imageInfo.size)}`;
+        wrapDom.appendChild(widthAndHeightDom)
+        wrapDom.appendChild(sizeDom)
+        document.body.append(wrapDom)
+        const data = await html2canvas(wrapDom);
+        const base64 = data.toDataURL(`image/${imageInfo.type}`, 1);
+        document.body.removeChild(wrapDom)
+        return base64;
     }
 }
 

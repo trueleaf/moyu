@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import config from "@/../config/config"
@@ -234,6 +234,11 @@ const apidoc = {
             const { index, value } = payload
             state.apidoc.item.responseParams[index].value.json = value;
         },
+        //根据index值改变response的json数据
+        changeResponseStrJsonByIndex(state: ApidocState, payload: { index: number, value: string }): void {
+            const { index, value } = payload
+            state.apidoc.item.responseParams[index].value.strJson = value;
+        },
         //根据index值改变mock值
         changeResponseMockByIndex(state: ApidocState, index: number): void {
             state.apidoc.item.responseParams.forEach(v => {
@@ -250,6 +255,7 @@ const apidoc = {
                 title: "返回参数名称",
                 statusCode: 200,
                 value: {
+                    strJson: "",
                     dataType: "application/json",
                     json: [objectParams],
                     text: "",
@@ -310,6 +316,12 @@ const apidoc = {
             if (payload.mockInfo == null) {
                 payload.mockInfo = apidocGenerateMockInfo();
             }
+            //替换返回json数据，把以前数组类型数据替换为字符串类型
+            payload.item.responseParams.forEach(response => {
+                if (response.value.dataType === "application/json" && !response.value.strJson) {
+                    response.value.strJson = apidocConvertParamsToJsonStr(response.value.json);
+                }
+            })
             //如果host为空则默认为mockserver
             if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
                 payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`

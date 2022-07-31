@@ -514,6 +514,10 @@ type ApidocResponseParams = {
          */
         dataType: ApidocResponseContentType;
         /**
+         * 字符串json数据
+         */
+        strJson: string,
+        /**
          * json返回类型数据
          */
         json: ApidocProperty[];

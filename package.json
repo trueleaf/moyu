@@ -40,6 +40,7 @@
     "form-data": "^4.0.0",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
+    "highlight.js": "^11.6.0",
     "html2canvas": "^1.4.1",
     "ip": "^1.1.5",
     "js-beautify": "^1.14.0",
@@ -57,7 +58,7 @@
     "nprogress": "^0.2.0",
     "proxy-agent": "^5.0.0",
     "set-cookie-parser": "^2.4.8",
-    "vue": "^3.2.26",
+    "vue": "^3.2.37",
     "vue-router": "^4.0.0-0",
     "vuedraggable": "^4.0.3",
     "vuex": "^4.0.0-0"

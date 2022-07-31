@@ -67,6 +67,7 @@ type ConvertResponse = {
             url: string,
             raw: string
         },
+        strJson: string,
         json: ApidocProperty[],
         dataType: ApidocResponseContentType,
         text: string
@@ -383,6 +384,7 @@ class OpenApiTranslator {
                         url: "",
                         raw: "",
                     },
+                    strJson: "",
                     json: [],
                     dataType: "",
                     text: "",

@@ -51,7 +51,8 @@
                     <span>{{ $t("返回格式") }}：</span>
                     <span>{{ item.value.dataType }}</span>
                 </div>
-                <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view>
+                <pre v-if="item.value.dataType === 'application/json'">{{ item.value.strJson }}</pre>
+                <!-- <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view> -->
                 <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'">
                     <pre>{{ item.value.text }}</pre>
                 </div>

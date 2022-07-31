@@ -818,6 +818,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
                         url: "",
                         raw: ""
                     },
+                    strJson: "",
                     json: [],
                     dataType: "application/json",
                     text: ""

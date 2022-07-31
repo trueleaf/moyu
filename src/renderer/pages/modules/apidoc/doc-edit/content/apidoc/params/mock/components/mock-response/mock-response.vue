@@ -122,9 +122,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, nextTick } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
 import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
-import html2canvas from "html2canvas";
+// import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
@@ -163,7 +163,7 @@ const jsonValue = computed({
 |--------------------------------------------------------------------------
 */
 const image = ref<HTMLElement | null>(null);
-const dataUrl = ref("")
+// const dataUrl = ref("")
 const realImageSize = ref(0);
 const imageType = computed({
     get() {
@@ -281,7 +281,6 @@ const customResponseScript = computed({
 const watchFlag = ref<WatchStopHandle | null>(null);
 onMounted(() => {
     watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
-        console.log(html2canvas, nextTick, dataUrl)
         realImageSize.value = imageSize.value * 1024
     }, {
         deep: true,

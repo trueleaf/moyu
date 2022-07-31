@@ -326,8 +326,8 @@ export default defineComponent({
             for (let i = 0; i < cpApidoc.item.responseParams.length; i += 1) {
                 const item = cpApidoc.item.responseParams[i];
                 const originItem = cpOriginApidoc.item.responseParams[i];
-                const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
-                if (!jsonResponseIsEqual) {
+                // const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
+                if (item.value.strJson !== originItem.value.strJson) {
                     return false;
                 }
                 if (item.statusCode !== originItem.statusCode) { //状态码不相同

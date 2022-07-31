@@ -5,6 +5,7 @@ import { store } from "@/store/index"
 import { event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
 import { ApidocDetail } from "@@/global"
+import apidocConverter from "../request/utils"
 
 let app: Koa | null = null;
 
@@ -85,6 +86,18 @@ export const mockServer = (): void => {
         return;
     }
     app.use(async (ctx) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let fs: any = null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let path: any = null;
+        if (window.require) {
+            // eslint-disable-next-line prefer-destructuring
+            fs = window.require("fs-extra");
+            // eslint-disable-next-line prefer-destructuring
+            path = window.require("path");
+        } else {
+            console.error("web端无法发送文件");
+        }
         const url = ctx.request.url.replace(/(?<=)\?.*/, "");
         const method = ctx.request.method.toLowerCase();
         const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
@@ -106,7 +119,7 @@ export const mockServer = (): void => {
                     remoteMockInfo = res.data.mockInfo
                 }
                 Object.assign(realMockInfo, remoteMockInfo, mockInfo)
-
+                const { responseType, json, image, file } = realMockInfo;
                 // const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
                 //     if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
                 //         const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
@@ -124,7 +137,42 @@ export const mockServer = (): void => {
                 await sleep(realMockInfo.responseDelay)
                 ctx.set("connection", "close"); //防止keep-alive无法立即结束http链接
                 ctx.status = realMockInfo.httpStatusCode;
-                ctx.body = "";
+                if (responseType === "json") {
+                    const realJson = apidocConverter.convertMockJsonToRealJson(json);
+                    ctx.body = realJson;
+                } else if (responseType === "image") {
+                    const imageBase64 = await apidocConverter.createMockImage(image);
+                    const base64 = imageBase64.replace(/^data:image\/[^;]+;base64,/, "");
+                    const buffer = window.Buffer.from(`${btoa(`${atob(base64)}${"x".repeat(image.size * 1024)}`)}`, "base64");
+                    ctx.set("Content-Type", `image/${image.type}`);
+                    ctx.body = buffer
+                } else if (responseType === "file" && file.type === "doc") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.doc"));
+                    ctx.set("Content-Type", "application/msword");
+                    ctx.body = fileData
+                } else if (responseType === "file" && file.type === "docx") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.docx"));
+                    ctx.set("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+                    ctx.body = fileData
+                } else if (responseType === "file" && file.type === "xls") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.xls"));
+                    ctx.set("Content-Type", "application/vnd.ms-excel");
+                    ctx.body = fileData
+                } else if (responseType === "file" && file.type === "xlsx") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.xlsx"));
+                    ctx.set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    ctx.body = fileData
+                } else if (responseType === "file" && file.type === "pdf") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.pdf"));
+                    ctx.set("Content-Type", "application/pdf");
+                    ctx.body = fileData
+                } else if (responseType === "file" && file.type === "zip") {
+                    const fileData = await fs.readFile(path.resolve("public/mock-file/mock.zip"));
+                    ctx.set("Content-Type", "application/x-zip-compressed");
+                    ctx.body = fileData
+                } else {
+                    ctx.body = "";
+                }
             } catch (error) {
                 console.error(error)
                 ctx.body = "";

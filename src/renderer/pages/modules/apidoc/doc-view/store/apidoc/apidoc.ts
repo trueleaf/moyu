@@ -216,6 +216,7 @@ const apidoc = {
                 title: $t("返回参数名称"),
                 statusCode: 200,
                 value: {
+                    strJson: "",
                     dataType: "application/json",
                     json: [objectParams],
                     text: "",
