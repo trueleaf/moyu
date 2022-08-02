@@ -17,6 +17,23 @@
         </s-label-value>
         <div v-if="responseType === 'json'" class="editor-wrap">
             <s-json-editor v-model="jsonValue"></s-json-editor>
+            <div class="mock" @click.stop="showMockTip = !showMockTip">
+                <el-popover
+                    :visible="showMockTip"
+                    placement="top-start"
+                    trigger="manual"
+                    width="auto"
+                >
+                    <s-mock @select="handleSelectMockStr"></s-mock>
+                    <template #reference>
+                        <span>Mock语法</span>
+                    </template>
+                </el-popover>
+            </div>
+            <div v-if="isShowJsonTip" class="tip">
+                <span>若不填写任何数据，mock结果会取返回参数数据，反之则会以填写数据作为mock结果</span>
+                <span class="cursor-pointer d-flex a-center" @click="handleCloseTip">不再显示</span>
+            </div>
         </div>
         <div v-if="responseType === 'image'" class="img-wrap">
             <s-label-value label-width="50px" label="格式：" one-line>
@@ -124,11 +141,12 @@
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
 import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
+import { UploadFile } from "element-plus/es/components";
 // import html2canvas from "html2canvas";
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
-import { UploadFile } from "element-plus/es/components";
+import { apidocCache } from "@/cache/apidoc";
 import sCustomEditor from "./components/custom-editor.vue"
 
 /*
@@ -149,6 +167,7 @@ const responseType = computed<ApidocDetail["mockInfo"]["responseType"]>({
 | json数据类型
 |--------------------------------------------------------------------------
 */
+const isShowJsonTip = ref(apidocCache.getIsShowApidocMockParamsJsonTip());
 const jsonValue = computed({
     get() {
         return store.state["apidoc/apidoc"].apidoc.mockInfo.json;
@@ -157,6 +176,17 @@ const jsonValue = computed({
         store.commit("apidoc/apidoc/changeMockJsonValue", val)
     },
 })
+//不再显示提示
+const handleCloseTip = () => {
+    apidocCache.setIsShowApidocMockParamsJsonTip(false);
+    isShowJsonTip.value = false;
+}
+//是否显示mock提示
+const showMockTip = ref(false)
+//选中mock数据
+const handleSelectMockStr = () => {
+    showMockTip.value = false;
+}
 /*
 |--------------------------------------------------------------------------
 | 图片相关
@@ -280,6 +310,9 @@ const customResponseScript = computed({
 })
 const watchFlag = ref<WatchStopHandle | null>(null);
 onMounted(() => {
+    document.body.addEventListener("click", () => {
+        showMockTip.value = false;
+    })
     watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
         realImageSize.value = imageSize.value * 1024
     }, {
@@ -302,9 +335,30 @@ onBeforeUnmount(() => {
         min-height: size(200);
         border: 1px solid $gray-500;
         display: flex;
+        position: relative;
         .mock-json-editor {
             height: 100%;
             border-right: 1px solid $gray-500;
+        }
+        .tip {
+            width: 100%;
+            bottom: size(0);
+            height: size(25);
+            display: flex;
+            align-items: center;
+            background-color: $orange;
+            color: $white;
+            position: absolute;
+            text-indent: 1em;
+        }
+        .mock {
+            position: absolute;
+            top: size(5);
+            right: size(10);
+            z-index: 1;
+            background-color: $white;
+            color: $theme-color;
+            cursor: pointer;
         }
     }
     .raw-editor-wrap {

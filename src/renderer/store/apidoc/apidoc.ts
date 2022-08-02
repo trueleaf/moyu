@@ -310,6 +310,10 @@ const apidoc = {
                     params.value.json.push(objectParams);
                 }
             })
+            //若全部返回数据isMock都为false，则取第一条数据为mock数据
+            if (payload.item.responseParams.every(v => !v.isMock)) {
+                payload.item.responseParams[0].isMock = true;
+            }
             if (payload.item.headers.length === 0) {
                 payload.item.headers.push(apidocGenerateProperty());
             }

@@ -5,7 +5,8 @@
     备注：
 */
 <template>
-    <div ref="preEditor" class="s-monaco-editor"></div>
+    <div ref="preEditor" class="s-monaco-editor">
+    </div>
 </template>
 
 <script lang="ts" setup>
@@ -79,5 +80,6 @@ onBeforeUnmount(() => {
     width: 100%;
     height: 100%;
     border: 1px solid $gray-300;
+    position: relative;
 }
 </style>

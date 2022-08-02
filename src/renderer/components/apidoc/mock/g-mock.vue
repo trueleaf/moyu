@@ -109,6 +109,7 @@
                 <div
                     v-for="(item, index) in mockEnum"
                     :key="index"
+                    v-copy="`@${item.value}`"
                     class="list-item"
                     @mouseenter="handleMockView(item)"
                     @click="handleSelectMockData(item)"
@@ -150,6 +151,13 @@ export default defineComponent({
             type: Boolean,
             default: true
         },
+        /**
+         * 自动拷贝选中数据
+         */
+        autoCopy: {
+            type: Boolean,
+            default: false
+        }
     },
     emits: ["select", "close"],
     data() {

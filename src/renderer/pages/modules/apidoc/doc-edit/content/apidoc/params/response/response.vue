@@ -74,6 +74,10 @@
                             </el-popover>
                         </div>
                     </div>
+                    <el-divider direction="vertical"></el-divider>
+                    <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
+                        <span class="cursor-pointer ml-1" :class="{active: item.isMock}" @click="handleSelectMock(index)">Mock</span>
+                    </el-tooltip>
                 </div>
             </template>
             <template #tail>
@@ -189,6 +193,15 @@ const handleChangeTextValeu = (value: string, index: number) => {
         index,
         value,
     });
+}
+/*
+|--------------------------------------------------------------------------
+| mock操作
+|--------------------------------------------------------------------------
+*/
+//选择mock
+const handleSelectMock = (index: number) => {
+    store.commit("apidoc/apidoc/changeResponseMockByIndex", index);
 }
 /*
 |--------------------------------------------------------------------------

@@ -441,6 +441,31 @@ class ApidocCache {
             localStorage.setItem("apidoc/worker/localState", "{}");
         }
     }
+
+    /**
+     * 获取mock编辑 json返回数据提示信息
+     */
+    getIsShowApidocMockParamsJsonTip(): boolean {
+        try {
+            const localData = JSON.parse(localStorage.getItem("apidoc/mock/isShowJsonTip") || "true");
+            return localData;
+        } catch (error) {
+            console.error(error);
+            return true
+        }
+    }
+
+    /**
+     * 设置 json返回数据提示信息
+     */
+    setIsShowApidocMockParamsJsonTip(isShow: boolean) {
+        try {
+            localStorage.setItem("apidoc/mock/isShowJsonTip", JSON.stringify(isShow));
+        } catch (error) {
+            console.error(error);
+            localStorage.setItem("apidoc/mock/isShowJsonTip", "true");
+        }
+    }
 }
 
 export const apidocCache = new ApidocCache();

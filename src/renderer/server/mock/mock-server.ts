@@ -2,10 +2,11 @@ import type Koa from "koa"
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { event, sleep } from "@/helper/index"
+import { apidocConvertParamsToJsonData, event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
 import { ApidocDetail } from "@@/global"
 import apidocConverter from "../request/utils"
+import Mock from "./mock"
 
 let app: Koa | null = null;
 
@@ -110,36 +111,49 @@ export const mockServer = (): void => {
             };
             try {
                 const localApis = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
-                const localApi = localApis[matchedReuqest.id]
+                const localApi = localApis[matchedReuqest.id];
                 let remoteMockInfo = null;
+                let realApidocDetail: ApidocDetail;
                 if (localApi) {
-                    remoteMockInfo = localApi.mockInfo
+                    remoteMockInfo = localApi.mockInfo;
+                    realApidocDetail = localApi
                 } else {
                     const res = await axios.get("/api/project/doc_detail", { params });
+                    realApidocDetail = res.data as ApidocDetail;
                     remoteMockInfo = res.data.mockInfo
                 }
+                if (realApidocDetail.item.responseParams.every(v => !v.isMock)) {
+                    realApidocDetail.item.responseParams[0].isMock = true;
+                }
+                //若全部返回数据isMock都为false，则取第一条数据为mock数据
+                const matchedRawBody = realApidocDetail.item.responseParams.find(v => v.isMock);
+                const rawBody = matchedRawBody?.value.json || realApidocDetail.item.responseParams[0]?.value.json;
+                const responseBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
+                    if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
+                        const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
+                        return Mock.mock(new RegExp(replacedValue));
+                    }
+                    if (property.value.startsWith("@")) { //普通mock
+                        const mockValue = Mock.mock(property.value)
+                        if (property.type === "string") {
+                            return mockValue.toString();
+                        }
+                        return mockValue;
+                    }
+                    return property.value;
+                })
                 Object.assign(realMockInfo, remoteMockInfo, mockInfo)
                 const { responseType, json, image, file } = realMockInfo;
-                // const convertBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                //     if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
-                //         const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
-                //         return Mock.mock(new RegExp(replacedValue));
-                //     }
-                //     if (property.value.startsWith("@")) { //普通mock
-                //         const mockValue = Mock.mock(property.value)
-                //         if (property.type === "string") {
-                //             return mockValue.toString();
-                //         }
-                //         return mockValue;
-                //     }
-                //     return property.value;
-                // })
                 await sleep(realMockInfo.responseDelay)
                 ctx.set("connection", "close"); //防止keep-alive无法立即结束http链接
                 ctx.status = realMockInfo.httpStatusCode;
-                if (responseType === "json") {
+                if (responseType === "json" && json) {
                     const realJson = apidocConverter.convertMockJsonToRealJson(json);
-                    ctx.body = realJson;
+                    ctx.body = JSON.parse(realJson);
+                } else if (responseType === "json" && !json) {
+                    console.log(33, responseBody)
+
+                    ctx.body = responseBody;
                 } else if (responseType === "image") {
                     const imageBase64 = await apidocConverter.createMockImage(image);
                     const base64 = imageBase64.replace(/^data:image\/[^;]+;base64,/, "");
