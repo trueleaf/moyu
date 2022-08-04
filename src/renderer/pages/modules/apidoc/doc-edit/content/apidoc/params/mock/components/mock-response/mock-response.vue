@@ -41,7 +41,7 @@
                     <el-radio label="png" size="small">PNG</el-radio>
                     <el-radio label="jpg" size="small">JPG/JPEG</el-radio>
                     <el-radio label="gif" size="small">GIF</el-radio>
-                    <el-radio label="svg" size="small">SVG</el-radio>
+                    <el-radio label="svg" size="small" disabled title="还未实现">SVG</el-radio>
                 </el-radio-group>
             </s-label-value>
             <s-label-value label-width="100px" label="图片宽度：" width="40%">
@@ -149,6 +149,18 @@ import { ApidocDetail } from "@@/global";
 import { apidocCache } from "@/cache/apidoc";
 import sCustomEditor from "./components/custom-editor.vue"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let fs: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let FileType: any = null;
+if (window.require) {
+    // eslint-disable-next-line prefer-destructuring
+    fs = window.require("fs-extra");
+    // eslint-disable-next-line prefer-destructuring
+    FileType = window.require("file-type");
+} else {
+    console.error("web端无法发送文件");
+}
 /*
 |--------------------------------------------------------------------------
 | 返回数据类型
@@ -271,7 +283,18 @@ const fileInfo = ref({
 });
 const uploadInstance = ref<UploadInstance>()
 //选择文件
-const handleSelectFile = (file: UploadFile) => {
+const handleSelectFile = async (file: UploadFile) => {
+    const fileReader = new FileReader()
+    const buffer = await fs.readFile((file.raw as File).path);
+    const fileTypeInfo = await FileType.fromBuffer(buffer);
+    console.log(file.raw, fileTypeInfo)
+    fileReader.readAsDataURL(file.raw as File);
+    fileReader.onload = () => {
+        console.log(fileTypeInfo);
+    };
+    fileReader.onerror = (error) => {
+        console.log(error);
+    };
     fileInfo.value.name = file.name;
     fileInfo.value.size = file.size || 0;
 }
