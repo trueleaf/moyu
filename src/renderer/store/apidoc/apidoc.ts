@@ -131,6 +131,12 @@ const apidoc = {
         },
         //改变url值
         changeApidocUrl(state: ApidocState, path: string): void {
+            const originUrl = state.apidoc.item.url.path;
+            const customMockUrl = state.apidoc.mockInfo.path;
+            if (originUrl === customMockUrl) { //如果没有修改过自定义mockurl，则自定义mockurl会随着真实接口地址改变而改变
+                store.commit("apidoc/apidoc/changeMockPath", path)
+            }
+            // console.log(originUrl, customMockUrl, path)
             state.apidoc.item.url.path = path;
         },
         //改变请求method
@@ -437,7 +443,11 @@ const apidoc = {
         //改变自定义返回脚本数据
         changeCustomResponseScript(state: ApidocState, text: string): void {
             state.apidoc.mockInfo.customResponseScript = text;
-        }
+        },
+        //改变自定义文件数据
+        changeCustomFile(state: ApidocState, base64Str: string): void {
+            state.apidoc.mockInfo.file.base64File = base64Str;
+        },
     },
     actions: {
         /**

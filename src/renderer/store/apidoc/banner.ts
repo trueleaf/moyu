@@ -89,6 +89,7 @@ const banner = {
                         if (!data.isFolder) {
                             urlMap.push({
                                 url: data.url,
+                                customMockUrl: data.customMockUrl,
                                 projectId: payload.projectId,
                                 method: data.method,
                                 id: data._id,

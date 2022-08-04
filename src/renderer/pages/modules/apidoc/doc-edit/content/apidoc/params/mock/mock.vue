@@ -114,12 +114,9 @@ watch(orginPath, (newVal) => {
 watch(customPath, (newVal) => {
     const { urlMap } = store.state["apidoc/mock"];
     const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
-    store.commit("apidoc/mock/changeMockUrlInfoById", {
+    store.commit("apidoc/mock/changeCustomMockUrlById", {
         id: matchedMockInfo?.id,
-        data: {
-            ...matchedMockInfo,
-            url: newVal,
-        }
+        url: newVal,
     })
 })
 /*

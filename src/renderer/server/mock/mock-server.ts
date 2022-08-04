@@ -103,7 +103,10 @@ export const mockServer = (): void => {
         const method = ctx.request.method.toLowerCase();
         const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
         const realMockInfo = {} as ApidocDetail["mockInfo"]; //最终的mock数据
-        const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => (data.url === url && data.method.toLocaleLowerCase() === method.toLocaleLowerCase()));
+        const matchedReuqest = store.state["apidoc/mock"].urlMap.find((data) => {
+            const isSameMethod = data.method.toLocaleLowerCase() === method.toLocaleLowerCase();
+            return (data.url === url || data.customMockUrl === url) && isSameMethod;
+        });
         if (matchedReuqest) {
             const params = {
                 projectId: matchedReuqest.projectId,
@@ -151,8 +154,6 @@ export const mockServer = (): void => {
                     const realJson = apidocConverter.convertMockJsonToRealJson(json);
                     ctx.body = JSON.parse(realJson);
                 } else if (responseType === "json" && !json) {
-                    console.log(33, responseBody)
-
                     ctx.body = responseBody;
                 } else if (responseType === "image") {
                     const imageBase64 = await apidocConverter.createMockImage(image);
@@ -184,6 +185,9 @@ export const mockServer = (): void => {
                     const fileData = await fs.readFile(path.resolve("public/mock-file/mock.zip"));
                     ctx.set("Content-Type", "application/x-zip-compressed");
                     ctx.body = fileData
+                } else if (responseType === "file" && file.type === "custom") {
+                    // ctx.set("Content-Type", "application/x-zip-compressed");
+                    ctx.body = { x: 1 }
                 } else {
                     ctx.body = "";
                 }

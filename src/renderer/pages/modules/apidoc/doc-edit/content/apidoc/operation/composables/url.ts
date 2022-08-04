@@ -30,7 +30,7 @@ export const handleChangeUrl = (): void => {
         store.commit("apidoc/apidoc/changePathParams", [])
     }
     //同步更新mock路径数据
-    store.commit("apidoc/apidoc/changeMockPath", requestPath)
+    // store.commit("apidoc/apidoc/changeMockPath", requestPath)
 };
 
 /**
@@ -102,5 +102,5 @@ export function handleFormatUrl():void {
     formatPath = formatPath.replace(queryReg, "");
     requestPath.value = formatPath;
     //同步更新mock路径数据
-    store.commit("apidoc/apidoc/changeMockPath", formatPath)
+    // store.commit("apidoc/apidoc/changeMockPath", formatPath)
 }

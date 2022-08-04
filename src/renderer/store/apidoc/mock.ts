@@ -24,10 +24,10 @@ const mock = {
             state.urlMap.push(payload);
         },
         //根据id改变一条mock映射
-        changeMockUrlInfoById(state: ApidocMockState, payload: { id: string, data: ApidocMockMapInfo }): void {
+        changeCustomMockUrlById(state: ApidocMockState, payload: { id: string, url: string }): void {
             const matchedMockInfo = state.urlMap.find(v => v.id === payload.id);
             if (matchedMockInfo) {
-                Object.assign(matchedMockInfo, payload.data)
+                matchedMockInfo.customMockUrl = payload.url
             }
         },
         //改变当前mock映射
@@ -38,14 +38,16 @@ const mock = {
                     id: payload.apidoc._id,
                     projectId: payload.apidoc.projectId,
                     url: payload.apidoc.item.url.path,
-                    method: payload.apidoc.item.method
+                    method: payload.apidoc.item.method,
+                    customMockUrl: payload.apidoc.mockInfo.path,
                 }
             } else if (payload.apidoc.projectId) { //不添加无效数据
                 state.urlMap.push({
                     id: payload.apidoc._id,
                     projectId: payload.apidoc.projectId,
                     url: payload.apidoc.item.url.path,
-                    method: payload.apidoc.item.method
+                    method: payload.apidoc.item.method,
+                    customMockUrl: payload.apidoc.mockInfo.path,
                 });
             }
         },
