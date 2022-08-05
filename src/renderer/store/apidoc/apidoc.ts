@@ -445,8 +445,9 @@ const apidoc = {
             state.apidoc.mockInfo.customResponseScript = text;
         },
         //改变自定义文件数据
-        changeCustomFile(state: ApidocState, base64Str: string): void {
-            state.apidoc.mockInfo.file.base64File = base64Str;
+        changeCustomFile(state: ApidocState, payload: { base64: string, type: string }): void {
+            state.apidoc.mockInfo.file.base64File = payload.base64;
+            state.apidoc.mockInfo.file.base64FileType = payload.type;
         },
     },
     actions: {
@@ -515,6 +516,10 @@ const apidoc = {
                     afterRequest: apidocDetail.afterRequest,
                     mockInfo: apidocDetail.mockInfo,
                 };
+                params.mockInfo.file.base64File = apidocDetail.mockInfo.file.base64File; //防止vuex直接修改
+                if (apidocDetail.mockInfo.file.base64File.length > 1024 * 2 * 10) {
+                    params.mockInfo.file.base64File = "";
+                }
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法
                     store.commit("apidoc/tabs/changeTabInfoById", {

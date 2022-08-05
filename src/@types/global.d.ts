@@ -716,9 +716,13 @@ type ApidocDetail = {
              */
             type: "doc" | "docx" | "xls" | "xlsx" | "pdf" | "zip" | "custom";
             /**
-             * 只能存小于10kb数据，requestBody有大小限制
+             * 只能存小于20kb数据，requestBody有大小限制
              */
             base64File: string;
+            /**
+             * 自定义文件类型
+             */
+            base64FileType: string
         };
         /**
          * 纯文本，html，css等

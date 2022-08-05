@@ -124,14 +124,19 @@
             action="/"
             :limit="1"
             :on-exceed="handleExceed"
+            :before-upload="handleCheckSize"
             @change="handleSelectFile"
         >
             <template #trigger>
-                <el-button type="primary">选择文件</el-button>
+                <div>
+                    <el-button type="primary">选择文件</el-button>
+                    <div>若自定义文件大小超过20kb，则无法保存到服务端，并且只会在本地生效</div>
+                </div>
             </template>
             <template v-if="fileInfo.size" #tip>
                 <div>文件名称：{{ fileInfo.name }}</div>
                 <div>文件大小：{{ formatBytes(fileInfo.size) }}</div>
+                <div>文件类型：{{ fileInfo.type }}</div>
             </template>
             <template #file>&nbsp;</template>
         </el-upload>
@@ -140,27 +145,17 @@
 
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
+import { ElMessage } from "element-plus"
 import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
 import { UploadFile } from "element-plus/es/components";
 // import html2canvas from "html2canvas";
+import FileType from "file-type/browser"
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
 import { apidocCache } from "@/cache/apidoc";
 import sCustomEditor from "./components/custom-editor.vue"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let fs: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let FileType: any = null;
-if (window.require) {
-    // eslint-disable-next-line prefer-destructuring
-    fs = window.require("fs-extra");
-    // eslint-disable-next-line prefer-destructuring
-    FileType = window.require("file-type");
-} else {
-    console.error("web端无法发送文件");
-}
 /*
 |--------------------------------------------------------------------------
 | 返回数据类型
@@ -280,23 +275,34 @@ const selectedType = computed({
 const fileInfo = ref({
     name: "",
     size: 0,
+    type: "",
 });
 const uploadInstance = ref<UploadInstance>()
 //选择文件
 const handleSelectFile = async (file: UploadFile) => {
     const fileReader = new FileReader()
-    const buffer = await fs.readFile((file.raw as File).path);
-    const fileTypeInfo = await FileType.fromBuffer(buffer);
-    console.log(file.raw, fileTypeInfo)
+    const fileTypeInfo = await FileType.fromBlob(file.raw as File)
     fileReader.readAsDataURL(file.raw as File);
     fileReader.onload = () => {
-        console.log(fileTypeInfo);
+        // console.log(fileReader.result);
+        store.commit("apidoc/apidoc/changeCustomFile", {
+            base64: fileReader.result,
+            type: fileTypeInfo?.mime || ""
+        })
+        fileInfo.value.type = fileTypeInfo?.mime || "未知类型";
     };
     fileReader.onerror = (error) => {
         console.log(error);
     };
     fileInfo.value.name = file.name;
     fileInfo.value.size = file.size || 0;
+}
+//检查文件类型
+const handleCheckSize: UploadProps["beforeUpload"] = (rawFile) => {
+    if (rawFile.size > 2 * 1024 * 10) {
+        ElMessage.warning("超过20KB文件仅支持本地mock")
+    }
+    return true
 }
 //覆盖文件
 const handleExceed: UploadProps["onExceed"] = (files) => {

@@ -184,6 +184,10 @@ const storeTabs = {
                         afterRequest: apidoc.afterRequest,
                         mockInfo: apidoc.mockInfo,
                     };
+                    params.mockInfo.file.base64File = apidoc.mockInfo.file.base64File; //防止vuex直接修改
+                    if (apidoc.mockInfo.file.base64File.length > 1024 * 2 * 10) {
+                        params.mockInfo.file.base64File = "";
+                    }
                     axios.post("/api/project/fill_doc", params).then(() => {
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);
                         context.commit("deleteTabByIndex", {

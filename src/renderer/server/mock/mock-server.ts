@@ -187,6 +187,7 @@ export const mockServer = (): void => {
                     ctx.body = fileData
                 } else if (responseType === "file" && file.type === "custom") {
                     // ctx.set("Content-Type", "application/x-zip-compressed");
+                    console.log(realMockInfo)
                     ctx.body = { x: 1 }
                 } else {
                     ctx.body = "";

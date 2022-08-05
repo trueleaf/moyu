@@ -345,6 +345,7 @@ export function apidocGenerateMockInfo(): ApidocDetail["mockInfo"] {
         file: {
             type: "doc",
             base64File: "",
+            base64FileType: "",
         },
         text: "",
         customResponseScript: "",
@@ -846,6 +847,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
             file: {
                 type: "doc",
                 base64File: "",
+                base64FileType: "",
             },
             text: "",
             customResponseScript: "",
