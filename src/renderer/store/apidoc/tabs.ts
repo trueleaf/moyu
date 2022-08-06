@@ -175,7 +175,7 @@ const storeTabs = {
                     if (!apidoc) {
                         continue;
                     }
-                    const params = {
+                    const params = JSON.parse(JSON.stringify({
                         _id: apidoc._id,
                         projectId,
                         info: apidoc.info,
@@ -183,9 +183,8 @@ const storeTabs = {
                         preRequest: apidoc.preRequest,
                         afterRequest: apidoc.afterRequest,
                         mockInfo: apidoc.mockInfo,
-                    };
-                    params.mockInfo.file.base64File = apidoc.mockInfo.file.base64File; //防止vuex直接修改
-                    if (apidoc.mockInfo.file.base64File.length > 1024 * 2 * 10) {
+                    }));
+                    if (params.mockInfo.file.base64File.length > 1024 * 2 * 10) {
                         params.mockInfo.file.base64File = "";
                     }
                     axios.post("/api/project/fill_doc", params).then(() => {

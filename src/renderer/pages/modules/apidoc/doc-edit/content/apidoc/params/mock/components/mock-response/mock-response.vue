@@ -133,7 +133,7 @@
                     <div>若自定义文件大小超过20kb，则无法保存到服务端，并且只会在本地生效</div>
                 </div>
             </template>
-            <template v-if="fileInfo.size" #tip>
+            <template #tip>
                 <div>文件名称：{{ fileInfo.name }}</div>
                 <div>文件大小：{{ formatBytes(fileInfo.size) }}</div>
                 <div>文件类型：{{ fileInfo.type }}</div>
@@ -284,7 +284,6 @@ const handleSelectFile = async (file: UploadFile) => {
     const fileTypeInfo = await FileType.fromBlob(file.raw as File)
     fileReader.readAsDataURL(file.raw as File);
     fileReader.onload = () => {
-        // console.log(fileReader.result);
         store.commit("apidoc/apidoc/changeCustomFile", {
             base64: fileReader.result,
             type: fileTypeInfo?.mime || ""

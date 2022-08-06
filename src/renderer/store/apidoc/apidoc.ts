@@ -507,7 +507,7 @@ const apidoc = {
                 const apidocDetail = context.state.apidoc;
                 context.commit("changeApidocSaveLoading", true);
                 context.dispatch("saveMindParams");
-                const params = {
+                const params = JSON.parse(JSON.stringify({
                     _id: currentSelectTab._id,
                     projectId,
                     info: apidocDetail.info,
@@ -515,9 +515,8 @@ const apidoc = {
                     preRequest: apidocDetail.preRequest,
                     afterRequest: apidocDetail.afterRequest,
                     mockInfo: apidocDetail.mockInfo,
-                };
-                params.mockInfo.file.base64File = apidocDetail.mockInfo.file.base64File; //防止vuex直接修改
-                if (apidocDetail.mockInfo.file.base64File.length > 1024 * 2 * 10) {
+                }));
+                if (params.mockInfo.file.base64File.length > 1024 * 2 * 10) {
                     params.mockInfo.file.base64File = "";
                 }
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {

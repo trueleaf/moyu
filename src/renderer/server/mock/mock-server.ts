@@ -146,7 +146,7 @@ export const mockServer = (): void => {
                     return property.value;
                 })
                 Object.assign(realMockInfo, remoteMockInfo, mockInfo)
-                const { responseType, json, image, file } = realMockInfo;
+                const { responseType, json, image, file, text } = realMockInfo;
                 await sleep(realMockInfo.responseDelay)
                 ctx.set("connection", "close"); //防止keep-alive无法立即结束http链接
                 ctx.status = realMockInfo.httpStatusCode;
@@ -186,9 +186,11 @@ export const mockServer = (): void => {
                     ctx.set("Content-Type", "application/x-zip-compressed");
                     ctx.body = fileData
                 } else if (responseType === "file" && file.type === "custom") {
-                    // ctx.set("Content-Type", "application/x-zip-compressed");
-                    console.log(realMockInfo)
-                    ctx.body = { x: 1 }
+                    ctx.set("Content-Type", file.base64FileType);
+                    ctx.body = window.Buffer.from(file.base64File.replace(/([^,]*,)|(^data)/, ""), "base64");
+                } else if (responseType === "text") {
+                    ctx.set("Content-Type", "text/plain; charset=utf-8");
+                    ctx.body = text;
                 } else {
                     ctx.body = "";
                 }
