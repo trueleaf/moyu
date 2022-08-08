@@ -100,11 +100,12 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
+import { DebouncedFunc } from "lodash"
 import { Opportunity } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
 import { apidocCache } from "@/cache/apidoc"
-import { apidocConvertParamsToJsonData, lodashIsEqual } from "@/helper/index"
+import { apidocConvertParamsToJsonData, lodashIsEqual, debounce } from "@/helper/index"
 import { store } from "@/store"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
@@ -137,6 +138,7 @@ export default defineComponent({
             workMode: mode, //是否开启预览模式
             activeName: "s-params",
             generateCodeVisible: false, //是否打开生成代码弹窗
+            debounceFn: null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>),
         };
     },
     computed: {
@@ -223,37 +225,44 @@ export default defineComponent({
         },
         apidoc: {
             handler(apidoc: ApidocDetail) {
-                const { originApidoc } = this.$store.state["apidoc/apidoc"];
-                const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
-                this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
-                    id: this.currentSelectTab?._id,
-                    apidoc,
-                })
-                if (!isEqual) {
-                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
-                        id: this.currentSelectTab?._id,
-                        field: "saved",
-                        value: false,
-                    })
-                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
-                        id: this.currentSelectTab?._id,
-                        field: "fixed",
-                        value: true,
-                    })
-                } else {
-                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
-                        id: this.currentSelectTab?._id,
-                        field: "saved",
-                        value: true,
-                    })
+                if (this.debounceFn) {
+                    this.debounceFn(apidoc);
                 }
-                //缓存接口信息
-                apidocCache.setApidoc(apidoc);
             },
             deep: true,
         },
     },
     mounted() {
+        this.debounceFn = debounce((apidoc: ApidocDetail) => {
+            const { originApidoc } = this.$store.state["apidoc/apidoc"];
+            const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
+            this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
+                id: this.currentSelectTab?._id,
+                apidoc,
+            })
+            if (!isEqual) {
+                this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                    id: this.currentSelectTab?._id,
+                    field: "saved",
+                    value: false,
+                })
+                this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                    id: this.currentSelectTab?._id,
+                    field: "fixed",
+                    value: true,
+                })
+            } else {
+                this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                    id: this.currentSelectTab?._id,
+                    field: "saved",
+                    value: true,
+                })
+            }
+            //缓存接口信息
+            apidocCache.setApidoc(apidoc);
+        }, 200, {
+            leading: true
+        })
         this.initTabCache();
         this.$store.commit("apidoc/mock/changeCurrentMockUrl", {
             id: this.currentSelectTab?._id,
@@ -350,7 +359,6 @@ export default defineComponent({
         },
         //检查mockInfo是否改变
         checkMockInfo(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            // console.log(apidoc, originApidoc)
             return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
         },
         //检查请求方法是否发生改变
