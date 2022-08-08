@@ -10,6 +10,10 @@ Random.extend({
     timestamp() {
         return Date.now();
     },
+    //时间戳精确到秒
+    timestamp2() {
+        return Date.now().toString().slice(0, 10);
+    },
     //开始时间
     startTime(date, rule) {
         const dateParams = date || new Date(`202${randomInt(0, 3)}-0${randomInt(1, 12)}-0${randomInt(1, 12)}`);

@@ -79,7 +79,7 @@ onBeforeUnmount(() => {
 .s-monaco-editor {
     width: 100%;
     height: 100%;
-    border: 1px solid $gray-300;
+    // border: 1px solid $gray-300;
     position: relative;
 }
 </style>
