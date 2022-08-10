@@ -171,7 +171,7 @@ const storeTabs = {
                     if (!apidoc) {
                         continue;
                     }
-                    const params = JSON.parse(JSON.stringify({
+                    const params = {
                         _id: apidoc._id,
                         projectId,
                         info: apidoc.info,
@@ -179,10 +179,7 @@ const storeTabs = {
                         preRequest: apidoc.preRequest,
                         afterRequest: apidoc.afterRequest,
                         mockInfo: apidoc.mockInfo,
-                    }));
-                    if (params.mockInfo.file.base64File.length > 1024 * 2 * 10) {
-                        params.mockInfo.file.base64File = "";
-                    }
+                    };
                     axios.post("/api/project/fill_doc", params).then(() => {
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);
                         context.commit("deleteTabByIndex", {

@@ -131,6 +131,7 @@
                 </div>
                 <!-- 参数是否必填 -->
                 <el-checkbox
+                    v-if="!noRequiredCheckbox"
                     :model-value="scope.data.required"
                     :label="$t('必有')"
                     :disabled="checkRequiredDisable(scope.data)"
@@ -220,6 +221,13 @@ const props = defineProps({
      * 禁止新增，Path参数字段值不允许删除
      */
     disableDelete: { //禁止删除
+        type: Boolean,
+        default: false,
+    },
+    /**
+     * 不显示必有checkbox
+     */
+    noRequiredCheckbox: {
         type: Boolean,
         default: false,
     },

@@ -326,6 +326,9 @@ const apidoc = {
             if (payload.mockInfo == null) {
                 payload.mockInfo = apidocGenerateMockInfo();
             }
+            if (payload.mockInfo.responseHeaders.length === 0) {
+                payload.mockInfo.responseHeaders.push(apidocGenerateProperty());
+            }
             //替换返回json数据，把以前数组类型数据替换为字符串类型
             payload.item.responseParams.forEach(response => {
                 if (response.value.dataType === "application/json" && !response.value.strJson) {
@@ -445,9 +448,8 @@ const apidoc = {
             state.apidoc.mockInfo.customResponseScript = text;
         },
         //改变自定义文件数据
-        changeCustomFile(state: ApidocState, payload: { base64: string, type: string }): void {
-            state.apidoc.mockInfo.file.base64File = payload.base64;
-            state.apidoc.mockInfo.file.base64FileType = payload.type;
+        changeCustomFile(state: ApidocState, filePath: string): void {
+            state.apidoc.mockInfo.file.filePath = filePath;
         },
     },
     actions: {
@@ -507,7 +509,7 @@ const apidoc = {
                 const apidocDetail = context.state.apidoc;
                 context.commit("changeApidocSaveLoading", true);
                 context.dispatch("saveMindParams");
-                const params = JSON.parse(JSON.stringify({
+                const params = {
                     _id: currentSelectTab._id,
                     projectId,
                     info: apidocDetail.info,
@@ -515,10 +517,7 @@ const apidoc = {
                     preRequest: apidocDetail.preRequest,
                     afterRequest: apidocDetail.afterRequest,
                     mockInfo: apidocDetail.mockInfo,
-                }));
-                if (params.mockInfo.file.base64File.length > 1024 * 2 * 10) {
-                    params.mockInfo.file.base64File = "";
-                }
+                };
                 axiosInstance.post("/api/project/fill_doc", params).then(() => {
                     //改变tab请求方法
                     store.commit("apidoc/tabs/changeTabInfoById", {

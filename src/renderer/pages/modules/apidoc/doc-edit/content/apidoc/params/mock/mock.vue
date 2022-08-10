@@ -63,9 +63,17 @@
             </s-label-value>
             <el-tabs v-model="activeName">
                 <el-tab-pane label="返回结果" name="response">
+                    <template #label>
+                        <el-badge :is-dot="hasCustomResponse">返回结果</el-badge>
+                    </template>
                     <mock-response></mock-response>
                 </el-tab-pane>
-                <el-tab-pane label="自定义返回头" name="header"></el-tab-pane>
+                <el-tab-pane name="header">
+                    <template #label>
+                        <el-badge :is-dot="hasCustomHeaders">自定义返回头</el-badge>
+                    </template>
+                    <mock-headers></mock-headers>
+                </el-tab-pane>
             </el-tabs>
         </s-fieldset>
     </div>
@@ -77,6 +85,7 @@ import { store } from "@/store";
 import { event } from "@/helper/index"
 import globalConfig from "@/../config/config"
 import mockResponse from "./components/mock-response/mock-response.vue"
+import mockHeaders from "./components/mock-headers/mock-headers.vue"
 
 const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 
@@ -181,6 +190,32 @@ const handleChangeResponseDelay = () => {
 |--------------------------------------------------------------------------
 */
 const activeName = ref("response");
+//是否存在返回参数
+const hasCustomResponse = computed(() => {
+    const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
+    if (mockInfo.responseType === "json" && mockInfo.json.trim() !== "") {
+        return true;
+    }
+    if (mockInfo.responseType === "text" && mockInfo.text.trim() !== "") {
+        return true;
+    }
+    if (mockInfo.responseType === "image") {
+        return true;
+    }
+    if (mockInfo.responseType === "file") {
+        return true;
+    }
+    if (mockInfo.responseType === "customJson" && mockInfo.customResponseScript.trim() !== "") {
+        return true;
+    }
+    return false;
+})
+//是否存在headers
+const hasCustomHeaders = computed(() => {
+    const { responseHeaders } = store.state["apidoc/apidoc"].apidoc.mockInfo;
+    const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
+    return !!hasHeaders;
+})
 
 </script>
 

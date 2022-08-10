@@ -1,8 +1,9 @@
 import type Koa from "koa"
+import FileType from "file-type/browser";
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { apidocConvertParamsToJsonData, event, sleep } from "@/helper/index"
+import { apidocConvertParamsToJsonData, apidocConvertValue, event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
 import { ApidocDetail } from "@@/global"
 import apidocConverter from "../request/utils"
@@ -145,6 +146,13 @@ export const mockServer = (): void => {
                     }
                     return property.value;
                 })
+                mockInfo.responseHeaders.filter(v => v.key && v.value && v.select).forEach(header => {
+                    const realValue = apidocConvertValue(header.value);
+                    if (realValue.match(/[\u4E00-\u9FA5]/)) {
+                        throw new Error("不允许请求头值为中文")
+                    }
+                    ctx.set(header.key, realValue)
+                })
                 Object.assign(realMockInfo, remoteMockInfo, mockInfo)
                 const { responseType, json, image, file, text } = realMockInfo;
                 await sleep(realMockInfo.responseDelay)
@@ -185,9 +193,13 @@ export const mockServer = (): void => {
                     const fileData = await fs.readFile(path.resolve("public/mock-file/mock.zip"));
                     ctx.set("Content-Type", "application/x-zip-compressed");
                     ctx.body = fileData
-                } else if (responseType === "file" && file.type === "custom") {
-                    ctx.set("Content-Type", file.base64FileType);
-                    ctx.body = window.Buffer.from(file.base64File.replace(/([^,]*,)|(^data)/, ""), "base64");
+                } else if (responseType === "file" && file.type === "custom" && file.filePath) {
+                    const bufferFile = await fs.readFile(file.filePath);
+                    const fileTypeInfo = await FileType.fromBuffer(bufferFile);
+                    ctx.set("Content-Type", fileTypeInfo?.mime || "");
+                    ctx.body = bufferFile;
+                } else if (responseType === "file" && file.type === "custom" && !file.filePath) {
+                    ctx.body = "未选择自定义文件";
                 } else if (responseType === "text") {
                     ctx.set("Content-Type", "text/plain; charset=utf-8");
                     ctx.body = text;
@@ -196,7 +208,7 @@ export const mockServer = (): void => {
                 }
             } catch (error) {
                 console.error(error)
-                ctx.body = "";
+                ctx.body = `Error: ${(error as Error).message}`;
             }
         } else {
             ctx.body = {

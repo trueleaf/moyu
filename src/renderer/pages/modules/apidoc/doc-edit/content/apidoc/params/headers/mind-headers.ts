@@ -35,6 +35,9 @@ const standarHeaders = [{
 }, {
     name: "Accept",
     description: "用户代理期望的MIME 类型列表",
+}, {
+    name: "Cookie",
+    description: "Cookie",
 }]
 
 const headers: ApidocProperty[] = [{

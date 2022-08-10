@@ -112,7 +112,7 @@
                     v-copy="`@${item.value}`"
                     class="list-item"
                     @mouseenter="handleMockView(item)"
-                    @click="handleSelectMockData(item)"
+                    @click="handleSelectMockData(item, $event)"
                 >
                     <span class="flex0 mr-5">{{ item.value }}</span>
                     <span>{{ item.name }}</span>
@@ -199,7 +199,10 @@ export default defineComponent({
             this.mockValue = Mock.mock(`@${item.value}`)
             this.mockTags = item.tags;
         },
-        handleSelectMockData(item: MockItem) {
+        handleSelectMockData(item: MockItem, e: MouseEvent) {
+            if (!this.$props.autoCopy) {
+                e.stopImmediatePropagation();
+            }
             this.$emit("select", item);
         },
         handleCloseModel() {

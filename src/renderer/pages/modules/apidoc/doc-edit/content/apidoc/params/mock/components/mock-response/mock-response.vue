@@ -24,7 +24,7 @@
                     trigger="manual"
                     width="auto"
                 >
-                    <s-mock @select="handleSelectMockStr"></s-mock>
+                    <s-mock auto-copy @select="handleSelectMockStr"></s-mock>
                     <template #reference>
                         <span>Mock语法</span>
                     </template>
@@ -130,13 +130,13 @@
             <template #trigger>
                 <div>
                     <el-button type="primary">选择文件</el-button>
-                    <div>若自定义文件大小超过20kb，则无法保存到服务端，并且只会在本地生效</div>
                 </div>
             </template>
             <template #tip>
+                <div>若自定义文件大小超过20kb，则无法保存到服务端，并且只会在本地生效</div>
                 <div>文件名称：{{ fileInfo.name }}</div>
                 <div>文件大小：{{ formatBytes(fileInfo.size) }}</div>
-                <div>文件类型：{{ fileInfo.type }}</div>
+                <div>文件路径：{{ filePath }}</div>
             </template>
             <template #file>&nbsp;</template>
         </el-upload>
@@ -148,8 +148,6 @@ import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } fro
 import { ElMessage } from "element-plus"
 import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
 import { UploadFile } from "element-plus/es/components";
-// import html2canvas from "html2canvas";
-import FileType from "file-type/browser"
 import { store } from "@/store";
 import { formatBytes } from "@/helper/index"
 import { ApidocDetail } from "@@/global";
@@ -272,6 +270,7 @@ const selectedType = computed({
         store.commit("apidoc/apidoc/changeMockFileType", type)
     }
 })
+const filePath = computed(() => store.state["apidoc/apidoc"].apidoc.mockInfo.file.filePath)
 const fileInfo = ref({
     name: "",
     size: 0,
@@ -280,23 +279,11 @@ const fileInfo = ref({
 const uploadInstance = ref<UploadInstance>()
 //选择文件
 const handleSelectFile = async (file: UploadFile) => {
-    const fileReader = new FileReader()
-    const fileTypeInfo = await FileType.fromBlob(file.raw as File)
-    fileReader.readAsDataURL(file.raw as File);
-    fileReader.onload = () => {
-        store.commit("apidoc/apidoc/changeCustomFile", {
-            base64: fileReader.result,
-            type: fileTypeInfo?.mime || ""
-        })
-        fileInfo.value.type = fileTypeInfo?.mime || "未知类型";
-    };
-    fileReader.onerror = (error) => {
-        console.log(error);
-    };
+    store.commit("apidoc/apidoc/changeCustomFile", (file.raw as File).path)
     fileInfo.value.name = file.name;
     fileInfo.value.size = file.size || 0;
 }
-//检查文件类型
+//检查文件大小
 const handleCheckSize: UploadProps["beforeUpload"] = (rawFile) => {
     if (rawFile.size > 2 * 1024 * 10) {
         ElMessage.warning("超过20KB文件仅支持本地mock")
