@@ -332,6 +332,7 @@ export function apidocGenerateMockInfo(): ApidocDetail["mockInfo"] {
         httpStatusCode: 200,
         responseDelay: 0,
         responseType: "json",
+        responseHeaders: [],
         json: "",
         image: {
             type: "png",
@@ -344,8 +345,7 @@ export function apidocGenerateMockInfo(): ApidocDetail["mockInfo"] {
         },
         file: {
             type: "doc",
-            base64File: "",
-            base64FileType: "",
+            filePath: "",
         },
         text: "",
         customResponseScript: "",
@@ -834,6 +834,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
             httpStatusCode: 200,
             responseDelay: 0,
             responseType: "json",
+            responseHeaders: [],
             json: "",
             image: {
                 type: "png",
@@ -846,8 +847,7 @@ export function apidocGenerateApidoc(): ApidocDetail {
             },
             file: {
                 type: "doc",
-                base64File: "",
-                base64FileType: "",
+                filePath: "",
             },
             text: "",
             customResponseScript: "",

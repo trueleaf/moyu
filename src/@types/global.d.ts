@@ -671,6 +671,10 @@ type ApidocDetail = {
          */
         responseType: "json" | "image" | "file" | "text" | "customJson";
         /**
+         * 自定义返回头
+         */
+        responseHeaders: ApidocProperty<"string">[];
+        /**
          * json数据信息
          */
         json: string;
@@ -716,13 +720,9 @@ type ApidocDetail = {
              */
             type: "doc" | "docx" | "xls" | "xlsx" | "pdf" | "zip" | "custom";
             /**
-             * 只能存小于20kb数据，requestBody有大小限制
+             * 文件地址
              */
-            base64File: string;
-            /**
-             * 自定义文件类型
-             */
-            base64FileType: string
+            filePath: string;
         };
         /**
          * 纯文本，html，css等
