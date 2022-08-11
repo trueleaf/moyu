@@ -1,6 +1,7 @@
 import { randomInt } from "@/helper";
 import dayjs from "dayjs";
 import Mock from "mockjs";
+import config from "@/../config/config";
 
 const { Random } = Mock;
 let startTime = new Date();
@@ -28,29 +29,19 @@ Random.extend({
         const realRule = rule || "YYYY-MM-DD HH:mm"
         const result = dayjs(dateParams).format(realRule);
         return result;
-    }
-    //结束时间
-    // image(data, background) {
-    //     let width = 0;
-    //     let height = 0;
-    //     const widthAndHeight = data?.split("x");
-    //     if (!widthAndHeight) {
-    //         width = 100;
-    //         height = 100;
-    //     } else {
-    //         width = widthAndHeight[0];
-    //         height = widthAndHeight[1];
-    //     }
-    //     const canvas = document.createElement("canvas");
-    //     canvas.width = width;
-    //     canvas.height = height;
-    //     const ctx = canvas.getContext("2d");
-    //     ctx.fillStyle = background || "#ccc";
-    //     ctx.fillRect(0, 0, width, height);
-    //     ctx.font = `${Math.min(width, height) / 2}px`;
-    //     ctx.strokeText(`${width}x${height}`, 0, height / 2);
-    //     return canvas.toDataURL("image/png");
+    },
+    //图片
+    image(w: string | number = 200, h: string | number = 200) {
+        return `${config.renderConfig.httpRequest.url}/mock/image?w=${w}&h=${h}`;
+    },
+    // //base64图片
+    // dataImage(w: string | number = 200, h: string | number = 200) {
+    //     return Mock.dataImage();
     // },
+    //文件
+    file(type = "doc") { //xls | xlsx | doc | docx | zip | image
+        return `${config.renderConfig.httpRequest.url}/mock/file?type=${type}`
+    }
 });
 
 export default Mock;

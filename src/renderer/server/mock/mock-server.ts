@@ -3,11 +3,11 @@ import FileType from "file-type/browser";
 import cors from "@koa/cors"
 import config from "@/../config/config"
 import { store } from "@/store/index"
-import { apidocConvertParamsToJsonData, apidocConvertValue, event, sleep } from "@/helper/index"
+import { apidocConvertValue, event, sleep } from "@/helper/index"
 import { axios } from "@/api/api"
 import { ApidocDetail } from "@@/global"
 import apidocConverter from "../request/utils"
-import Mock from "./mock"
+// import Mock from "./mock"
 
 let app: Koa | null = null;
 
@@ -131,21 +131,21 @@ export const mockServer = (): void => {
                 }
                 //若全部返回数据isMock都为false，则取第一条数据为mock数据
                 const matchedRawBody = realApidocDetail.item.responseParams.find(v => v.isMock);
-                const rawBody = matchedRawBody?.value.json || realApidocDetail.item.responseParams[0]?.value.json;
-                const responseBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
-                    if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
-                        const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
-                        return Mock.mock(new RegExp(replacedValue));
-                    }
-                    if (property.value.startsWith("@")) { //普通mock
-                        const mockValue = Mock.mock(property.value)
-                        if (property.type === "string") {
-                            return mockValue.toString();
-                        }
-                        return mockValue;
-                    }
-                    return property.value;
-                })
+                const responseStrJson = matchedRawBody?.value.strJson || realApidocDetail.item.responseParams[0]?.value.strJson;
+                // const responseBody = apidocConvertParamsToJsonData(rawBody, false, (property) => {
+                //     if (property.value.startsWith("@/") && property.value.endsWith("/")) { //正则表达式
+                //         const replacedValue = property.value.replace(/(^@\/|\/$)/g, "");
+                //         return Mock.mock(new RegExp(replacedValue));
+                //     }
+                //     if (property.value.startsWith("@")) { //普通mock
+                //         const mockValue = Mock.mock(property.value)
+                //         if (property.type === "string") {
+                //             return mockValue.toString();
+                //         }
+                //         return mockValue;
+                //     }
+                //     return property.value;
+                // })
                 mockInfo.responseHeaders.filter(v => v.key && v.value && v.select).forEach(header => {
                     const realValue = apidocConvertValue(header.value);
                     if (realValue.match(/[\u4E00-\u9FA5]/)) {
@@ -162,7 +162,7 @@ export const mockServer = (): void => {
                     const realJson = apidocConverter.convertMockJsonToRealJson(json);
                     ctx.body = JSON.parse(realJson);
                 } else if (responseType === "json" && !json) {
-                    ctx.body = responseBody;
+                    ctx.body = apidocConverter.convertMockJsonToRealJson(responseStrJson);
                 } else if (responseType === "image") {
                     const imageBase64 = await apidocConverter.createMockImage(image);
                     const base64 = imageBase64.replace(/^data:image\/[^;]+;base64,/, "");
