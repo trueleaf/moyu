@@ -84,7 +84,7 @@
                 </el-tab-pane>
                 <el-tab-pane name="s-mock">
                     <template #label>
-                        <el-badge :is-dot="hasCustomResponse || hasCustomHeaders">Mock</el-badge>
+                        <el-badge :is-dot="hasCustomMockInfo">Mock</el-badge>
                     </template>
                 </el-tab-pane>
             </el-tabs>
@@ -187,16 +187,11 @@ export default defineComponent({
             });
             return resNum;
         },
-        //是否存在headers
-        hasHeaders() {
-            const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
-            const commonHeaders = store.getters["apidoc/baseInfo/headers"](this.currentSelectTab?._id) as ApidocProperty<"string">[];
-            const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true }))).filter(p => p.select).some((data) => data.key);
-            return hasHeaders;
-        },
-        //是否存在自定义返回参数
-        hasCustomResponse() {
+        hasCustomMockInfo() {
             const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
+            const { path } = this.$store.state["apidoc/apidoc"].apidoc.item.url;
+            const { responseHeaders } = this.$store.state["apidoc/apidoc"].apidoc.mockInfo;
+            const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
             if (mockInfo.responseType === "json" && mockInfo.json.trim() !== "") {
                 return true;
             }
@@ -212,13 +207,26 @@ export default defineComponent({
             if (mockInfo.responseType === "customJson" && mockInfo.customResponseScript.trim() !== "") {
                 return true;
             }
+            if (hasHeaders) { //存在自定义headers
+                return true;
+            }
+            if (mockInfo.path !== path) {
+                return true;
+            }
+            if (mockInfo.responseDelay !== 0) {
+                return true;
+            }
+            if (mockInfo.httpStatusCode !== 200) {
+                return true;
+            }
             return false;
         },
-        //是否存在mock数据
-        hasCustomHeaders() {
-            const { responseHeaders } = store.state["apidoc/apidoc"].apidoc.mockInfo;
-            const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
-            return !!hasHeaders;
+        //是否存在headers
+        hasHeaders() {
+            const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const commonHeaders = store.getters["apidoc/baseInfo/headers"](this.currentSelectTab?._id) as ApidocProperty<"string">[];
+            const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true }))).filter(p => p.select).some((data) => data.key);
+            return hasHeaders;
         },
         //当前选中tab
         currentSelectTab(): ApidocTab | null { //当前选中的doc
