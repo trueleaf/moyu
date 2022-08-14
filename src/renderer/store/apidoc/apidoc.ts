@@ -326,7 +326,10 @@ const apidoc = {
             if (payload.mockInfo == null) {
                 payload.mockInfo = apidocGenerateMockInfo();
             }
-            if (payload.mockInfo.responseHeaders.length === 0) {
+            if (!payload.mockInfo.responseHeaders) {
+                payload.mockInfo.responseHeaders = []
+            }
+            if (payload.mockInfo.responseHeaders?.length === 0) {
                 payload.mockInfo.responseHeaders.push(apidocGenerateProperty());
             }
             //替换返回json数据，把以前数组类型数据替换为字符串类型
