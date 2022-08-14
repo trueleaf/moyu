@@ -50,6 +50,9 @@ const emitter = mitt<{
     "apidoc/tabs/addOrDeleteTab": void,
     "apidoc/getBaseInfo": ApidocProjectBaseInfoState,
     "searchItem/change": string,
+    "tabs/saveTabSuccess": void,
+    "tabs/saveTabError": void,
+    "tabs/cancelSaveTab": void,
 }>()
 
 export const event = emitter;

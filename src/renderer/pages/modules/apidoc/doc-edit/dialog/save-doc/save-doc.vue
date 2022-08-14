@@ -51,6 +51,7 @@ import { TreeNodeOptions } from "element-plus/es/components/tree/src/tree.type";
 import { router } from "@/router";
 import { axios } from "@/api/api"
 import { store } from "@/store";
+import { event } from "@/helper";
 
 type FormInfo = {
     name: string, //接口名称
@@ -106,6 +107,7 @@ onMounted(() => {
 })
 const handleClose = () => {
     emit("update:modelValue", false)
+    event.emit("tabs/cancelSaveTab")
 }
 const handleSaveDoc = () => {
     const docInfo = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc))
@@ -123,12 +125,12 @@ const handleSaveDoc = () => {
         store.commit("apidoc/apidoc/changeApidocId", res.data);
         store.commit("apidoc/apidoc/changeApidocName", formInfo.value.name);
         store.commit("apidoc/tabs/changeTabInfoById", {
-            id: docInfo._id,
+            id: store.state["apidoc/apidoc"].savedDocId,
             field: "label",
             value: formInfo.value.name,
         })
         store.commit("apidoc/tabs/changeTabInfoById", {
-            id: docInfo._id,
+            id: store.state["apidoc/apidoc"].savedDocId,
             field: "_id",
             value: res.data,
         })
@@ -138,10 +140,12 @@ const handleSaveDoc = () => {
                 field: "saved",
                 value: true,
             })
+            event.emit("tabs/saveTabSuccess")
         })
         emit("update:modelValue", false)
     }).catch((err) => {
         console.error(err);
+        event.emit("tabs/saveTabError")
     }).finally(() => {
         loading.value = false;
     });
