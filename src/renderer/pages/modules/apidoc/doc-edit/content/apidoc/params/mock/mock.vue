@@ -37,6 +37,10 @@
                 <span v-copy="fullMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
                 <span v-if="orginPath !== customPath" class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
             </s-label-value>
+            <s-label-value label="远端Mock地址：" label-width="120px" class="mb-1" one-line>
+                <span>{{ remoteMockUrl }}</span>
+                <span v-copy="remoteMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
+            </s-label-value>
             <!-- mock端口 -->
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
                 <span v-if="!isEditingPort">{{ mockPort }}</span>
@@ -83,6 +87,7 @@
 import { computed, ref, watch } from "vue";
 import { store } from "@/store";
 import { event } from "@/helper/index"
+import { router } from "@/router";
 import globalConfig from "@/../config/config"
 import mockResponse from "./components/mock-response/mock-response.vue"
 import mockHeaders from "./components/mock-headers/mock-headers.vue"
@@ -96,6 +101,13 @@ const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 */
 const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
 const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.path); //原始请求路径
+const remoteMockUrl = computed(() => {
+    const projectId = router.currentRoute.value.query.id as string;
+    const tabs = store.state["apidoc/tabs"].tabs[projectId];
+    const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+    const remoteUrl = globalConfig.renderConfig.httpRequest.url
+    return `${remoteUrl}/mock/remote?id=${currentSelectTab?._id}`
+})
 const customPath = computed({
     get() {
         return store.state["apidoc/apidoc"].apidoc.mockInfo.path;

@@ -188,7 +188,7 @@ export default [
     {
         name: $t("图片(150x100)"),
         value: "image(150,100)",
-        tags: [$t("图片")],
+        tags: [$t("图片"), $t("常用")],
     },
     {
         name: $t("base64图片数据"),
@@ -197,8 +197,8 @@ export default [
     },
     {
         name: $t("base64图片数据100x100"),
-        value: "dataImage(100,100)",
-        tags: [$t("图片")],
+        value: "dataImage(100x100)",
+        tags: [$t("图片"), $t("常用")],
     },
 
     {
