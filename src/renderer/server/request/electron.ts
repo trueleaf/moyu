@@ -15,12 +15,14 @@ import apidocConverter from "./utils"
 let got: Got | null = null;
 let gotInstance: Got | null = null;
 let requestStream: Request | null = null;
+let worker: Worker;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let ProxyAgent: any = null;
 if (window.require) {
     got = window.require("got");
     ProxyAgent = window.require("proxy-agent");
 }
+
 //初始化请求
 function initGot() {
     if (!got) {
@@ -156,6 +158,21 @@ function electronRequest() {
             store.commit("apidoc/response/changeResponseTime", rt);
             store.commit("apidoc/response/changeResponseSize", streamSize);
             store.commit("apidoc/response/changeLoading", false);
+            const responseInfo = store.state["apidoc/response"];
+            // console.log(responseInfo)
+            worker.postMessage({
+                type: "after-request-init-response",
+                value: JSON.parse(JSON.stringify({
+                    headers: responseInfo.header,
+                    cookies: responseInfo.cookies,
+                    httpVersion: responseInfo.httpVersion,
+                    ip: responseInfo.ip,
+                    rt: responseInfo.rt,
+                    size: responseInfo.size,
+                    statusCode: responseInfo.statusCode,
+                    statusMessage: responseInfo.statusMessage,
+                }))
+            });
         });
         //获取流数据
         requestStream.on("data", (chunk) => {
@@ -201,7 +218,6 @@ export function sendRequest(): void {
     apidocConverter.setData(cpApidoc as ApidocDetail);
     apidocConverter.replaceUrl("");
     apidocConverter.clearTempVariables()
-    const worker = new Worker("/sandbox/pre-request/worker.js");
     const currentEnv = cpApidoc.item.url.host;
     const baseInfo = JSON.parse(JSON.stringify({
         ...store.state["apidoc/baseInfo"],
@@ -214,6 +230,7 @@ export function sendRequest(): void {
     const localEnvs = apidocCache.getApidocServer(projectId)
     const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
     const { sessionState, localState, remoteState } = store.state["apidoc/workerState"];
+    worker = new Worker("/sandbox/pre-request/worker.js");
     //初始化默认apidoc信息
     worker.postMessage({
         type: "pre-request-init-apidoc",
@@ -286,8 +303,12 @@ export function sendRequest(): void {
                     let jsonBody = {};
                     try {
                         jsonBody = JSON.parse(data.body);
-                    } catch {
+                    } catch (err) {
                         console.log("error")
+                        worker.postMessage({
+                            type: "pre-request-http-error",
+                            value: err
+                        });
                     }
                     worker.postMessage({
                         type: "pre-request-http-success",
