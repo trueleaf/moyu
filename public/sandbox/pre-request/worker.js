@@ -40,6 +40,7 @@ const pm = {
         pathParams,
         body: bodyData,
     },
+    response: {},
     variables,
     sendRequest,
     sendRequestById,
@@ -174,20 +175,68 @@ self.addEventListener("message", async (e) => {
                 });
             })
         }
-        // 请求成功
+        //请求成功
         if (e.data && e.data.type === "pre-request-request-success") {
             requestCb(null, e.data.value);
             self.postMessage({
                 type: "pre-request-finish",
             })
         } 
-        // 请求失败
+        //请求失败
         if (e.data && e.data.type === "pre-request-request-error") {
             requestCb(e.data.value, null);
             self.postMessage({
                 type: "pre-request-finish",
             })
         } 
+        //返回参数赋值
+        if (e.data && e.data.type === "after-request-init-response") {
+            pm.response.cookies = e.data.value.cookies;
+            pm.response.headers = e.data.value.headers;
+            pm.response.httpVersion = e.data.value.httpVersion;
+            pm.response.ip = e.data.value.ip;
+            pm.response.rt = e.data.value.rt;
+            pm.response.size = e.data.value.size;
+            pm.response.statusCode = e.data.value.statusCode;
+            pm.response.statusMessage = e.data.value.statusMessage;
+        } 
+        //after request
+        if (e.data && e.data.type === "after-request-request") {
+            const replacedCode = `(async function(pm) { 
+                ${e.data.value}
+            })(pm)`.replace(/((?<!https?:)\/\/[^\n]*)|(\/\*(\s|.)*\*\/)/g, ""); //去掉单行和多行注释
+            const importScriptList = replacedCode.match(/importScript\([^)]+\)/g);
+            const requestUrls = [];
+            let remoteScriptStr = ""
+            importScriptList?.forEach(scriptStr => {
+                const matchedStr = scriptStr.match(/(?<=")[^"]+(?=")/g);
+                if (matchedStr) {
+                    requestUrls.push(matchedStr[0])
+                }
+            })
+            for(let i = 0; i < requestUrls.length; i ++) {
+                const result = await importScript(requestUrls[i]);
+                remoteScriptStr = remoteScriptStr + result + ";"
+            }
+            const evalPromise = eval(`
+                ${remoteScriptStr}
+                ${replacedCode}
+            `);
+            evalPromise.then(() => {
+                if (isSendRequest) {
+                    return;
+                }
+                self.postMessage({
+                    type: "after-request-finish",
+                })
+            }).catch(error => {
+                console.error(error);
+                self.postMessage({
+                    type: "after-request-error",
+                    value: error,
+                });
+            })
+        }
     } catch (error) {
         self.postMessage({
             type: "pre-request-error",
