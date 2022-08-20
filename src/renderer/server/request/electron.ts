@@ -173,6 +173,10 @@ function electronRequest() {
                     statusMessage: responseInfo.statusMessage,
                 }))
             });
+            worker.postMessage(JSON.parse(JSON.stringify({
+                type: "after-request-request",
+                value: store.state["apidoc/apidoc"].apidoc.afterRequest.raw
+            })));
         });
         //获取流数据
         requestStream.on("data", (chunk) => {
@@ -330,9 +334,12 @@ export function sendRequest(): void {
         if (res.data.type === "pre-request-send-request-by-id") { //根据文档id发送请求
             apidocConverter.getDocRequestInfo(projectId, res.data.value.id)
         }
-        if (res.data.type === "pre-request-finish") { //脚本执行完
-            console.log("script finish")
+        if (res.data.type === "pre-request-finish") { //前置脚本执行完
+            console.log("pre script finish")
             electronRequest();
+        }
+        if (res.data.type === "after-request-finish") { //后置脚本执行完
+            console.log("after script finish")
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
             apidocConverter.changeTempVariables(res.data.value);
@@ -377,11 +384,15 @@ export function sendRequest(): void {
                 value: res.data.value
             });
         }
-        if (res.data.type === "pre-request-error") { //预请求错误捕获
+        if (res.data.type === "pre-request-error" || res.data.type === "after-request-error") { //预请求错误捕获
             store.commit("apidoc/response/changeLoading", false);
             store.commit("apidoc/response/changeResponseContentType", "error");
             store.commit("apidoc/response/changeIsResponse", true);
-            store.commit("apidoc/response/changeResponseTextValue", res.data.value.message);
+            if (res.data.type === "pre-request-error") {
+                store.commit("apidoc/response/changeResponseTextValue", `前置脚本：${res.data.value.message}`);
+            } else {
+                store.commit("apidoc/response/changeResponseTextValue", `后置脚本：${res.data.value.message}`);
+            }
             console.error(res.data.value);
         }
     })

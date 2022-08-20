@@ -14,7 +14,7 @@ type Suggestions = {
 const requestSuggestions = [{
     label: {
         label: "request",
-        description: "全局请求"
+        description: "请求参数"
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: "request",
@@ -165,13 +165,104 @@ const requestSuggestions = [{
     insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
     keyword: "pm.request.replaceUrl",
 }]
+const responseSuggestions = [{
+    label: {
+        label: "response",
+        description: "返回参数"
+    },
+    kind: monaco.languages.CompletionItemKind.Method,
+    insertText: "response",
+    sortText: "2",
+    keyword: "pm.response",
+}, {
+    label: {
+        label: "cookie",
+        description: "对象形式的cookie"
+    },
+    sortText: "a",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "cookie",
+    keyword: "pm.response.cookie",
+}, {
+    label: {
+        label: "cookies",
+        description: "数组形式的cookie"
+    },
+    sortText: "b",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "cookies",
+    keyword: "pm.response.cookies",
+}, {
+    label: {
+        label: "header",
+        description: "对象形式header"
+    },
+    sortText: "c",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "header",
+    keyword: "pm.response.header",
+}, {
+    label: {
+        label: "headers",
+        description: "数组形式header"
+    },
+    sortText: "d",
+    kind: monaco.languages.CompletionItemKind.Module,
+    insertText: "headers",
+    keyword: "pm.response.headers",
+}, {
+    label: {
+        label: "httpVersion",
+        description: "http协议版本"
+    },
+    sortText: "e",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `httpVersion`,
+    keyword: "pm.response.httpVersion",
+}, {
+    label: {
+        label: "ip",
+        description: "远端ip地址"
+    },
+    sortText: "f",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `ip`,
+    keyword: "pm.response.ip",
+}, {
+    label: {
+        label: "rt",
+        description: "返回时长"
+    },
+    sortText: "g",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: "rt",
+    keyword: "pm.response.rt",
+}, {
+    label: {
+        label: "size",
+        description: "返回体大小(单位b)"
+    },
+    sortText: "h",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `size`,
+    keyword: "pm.response.size",
+}, {
+    label: {
+        label: "statusCode",
+        description: "http状态码"
+    },
+    sortText: "i",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: `statusCode`,
+    keyword: "pm.response.statusCode",
+}]
 const httpSuggestions = [
     {
         label: {
             label: "http",
             description: "发送http请求"
         },
-        sortText: "2",
+        sortText: "4",
         kind: monaco.languages.CompletionItemKind.Method,
         insertText: `http`,
         keyword: "pm.http",
@@ -253,6 +344,7 @@ const suggestions: Suggestions = [{
     keyword: "console",
 },
 ...httpSuggestions,
+...responseSuggestions,
 ...sessionStateSuggestions,
 ...localStateSuggestions,
 ...requestSuggestions]
