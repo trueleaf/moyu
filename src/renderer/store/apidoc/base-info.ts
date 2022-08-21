@@ -6,51 +6,44 @@ import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { event } from "@/helper/index"
 import { router } from "@/router"
 
+type HeaderInfo = Pick<ApidocProperty, "key" | "value" | "description">
 type CommonHeaderResult = {
     matched: boolean,
-    data: Pick<ApidocProperty, "key" | "value" | "description">[]
+    data: HeaderInfo[]
 };
 
-const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], id: string | undefined, preCommonHeaders: Pick<ApidocProperty, "key" | "value" | "description">[], result: CommonHeaderResult) => {
-    const loopList = [];
+type MatchedHeaderOptions = {
+    id: string | undefined,
+    preCommonHeaders: HeaderInfo[],
+    result: CommonHeaderResult,
+    deep: number
+}
+
+const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], options: MatchedHeaderOptions) => {
     for (let i = 0; i < data.length; i += 1) {
-        if (result.matched) {
+        const currentItem = data[i];
+        const currentHeaders: HeaderInfo[] = []
+        const { _id, commonHeaders, children } = currentItem;
+        if (_id === options.id) {
+            options.result.matched = true;
+            options.result.data = options.preCommonHeaders;
             return;
         }
-        if (preCommonHeaders && preCommonHeaders.length > 0) {
-            preCommonHeaders.forEach(headerInfo => {
-                const matchedHeader = result.data.find(v => v.key === headerInfo.key);
-                if (matchedHeader) { //子节点覆盖父节点
-                    matchedHeader.key = headerInfo.key;
-                    matchedHeader.value = headerInfo.value;
-                    matchedHeader.description = headerInfo.description;
-                } else {
-                    result.data.push({
-                        key: headerInfo.key,
-                        value: headerInfo.value,
-                        description: headerInfo.description,
-                    })
-                }
+        //当前headers覆盖老的headers
+        options.preCommonHeaders.concat(commonHeaders).forEach(header => {
+            if (currentHeaders.every(v => v.key !== header.key)) {
+                currentHeaders.push(JSON.parse(JSON.stringify(header)))
+            }
+        })
+        if (children?.length > 0) {
+            getMatchedHeaders(children, {
+                id: options.id,
+                deep: options.deep + 1,
+                result: options.result,
+                preCommonHeaders: currentHeaders,
             })
         }
-        const { _id, commonHeaders, children } = data[i];
-        if (_id === id) { //找到子节点结束递归
-            result.matched = true;
-            const cpData = JSON.parse(JSON.stringify(result.data));
-            result.data = cpData;
-            return;
-        }
-        if (children.length > 0 && !result.matched) {
-            const preData = commonHeaders?.length > 0 ? commonHeaders : preCommonHeaders;
-            loopList.push({
-                preData,
-                children,
-            });
-        }
     }
-    loopList.forEach(v => {
-        getMatchedHeaders(v.children, id, JSON.parse(JSON.stringify(v.preData)), result);
-    })
 }
 
 const baseInfo = {
@@ -85,7 +78,12 @@ const baseInfo = {
                     matched: false,
                     data: []
                 };
-                getMatchedHeaders(state.commonHeaders, id, [], result);
+                getMatchedHeaders(state.commonHeaders, {
+                    id,
+                    preCommonHeaders: [],
+                    deep: 1,
+                    result,
+                });
                 return result.data?.filter(v => v.key) || [];
             }
         }
