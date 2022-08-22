@@ -21,10 +21,10 @@
             <!-- <el-checkbox-group v-model="host" size="small" @change="handleChangeHost">
             </el-checkbox-group> -->
             <el-button v-if="!isView" type="primary" text class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
-            <div v-if="!config.isElectron" class="proxy-wrap">
+            <!-- <div v-if="!config.isElectron" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
-            </div>
+            </div> -->
         </div>
         <div v-else class="d-flex a-center">
             <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
@@ -75,6 +75,7 @@
             <el-button
                 v-if="!loading"
                 :loading="loading"
+                :disabled="!config.isElectron"
                 :title="config.isElectron ? '' : `${$t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
                 type="success"
                 @click="handleSendRequest"
@@ -86,7 +87,7 @@
             <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
         </div>
         <pre class="pre-url">
-            <span class="label">{{ $t("完整路径") }}：</span><span>{{ fullUrl }}</span>
+            <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
