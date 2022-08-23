@@ -106,7 +106,7 @@ const remoteMockUrl = computed(() => {
     const tabs = store.state["apidoc/tabs"].tabs[projectId];
     const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
     const remoteUrl = globalConfig.renderConfig.httpRequest.url
-    return `${remoteUrl}/mock/remote?id=${currentSelectTab?._id}`
+    return `${remoteUrl}/mock/remote/${currentSelectTab?._id}`
 })
 const customPath = computed({
     get() {
