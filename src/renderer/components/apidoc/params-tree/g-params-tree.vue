@@ -50,6 +50,7 @@
                         :title="convertKeyPlaceholder(scope)"
                         :placeholder="convertKeyPlaceholder(scope)"
                         :select-data="mindParams"
+                        one-line
                         @remote-select="handleRemoteSelectKey($event, scope.data)"
                         @update:modelValue="handleChangeKeyData($event, scope)"
                         @focus="enableDrag = false; currentOpData = null"

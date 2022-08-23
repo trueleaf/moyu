@@ -8,17 +8,31 @@
     <div ref="inputWrap" class="valid-input" tabindex="-1" @keydown="handleInputKeydown" @mouseenter="handleMouseoverWrap">
         <div class="ipt-wrap">
             <input
+                v-show="!isShowTextarea"
                 v-bind="$attrs"
                 :disabled="disabled"
                 :value="modelValue"
-                type="text"
+                type="textarea"
                 class="ipt-inner"
                 :class="{ error, disabled }"
                 :placeholder="placeholder"
                 @input="handleInput"
                 @focus="handleFocus"
-                @blur="isFocus = false;"
             >
+            <el-input
+                v-show="isShowTextarea"
+                ref="textarea"
+                :disabled="disabled"
+                :model-value="modelValue"
+                class="textarea-wrap"
+                :placeholder="placeholder"
+                type="textarea"
+                :autosize="{ minRows: 1, maxRows: oneLine ? 1 : 5 }"
+                resize="none"
+                @input="handleInput2"
+                @blur="handleBlur"
+                @focus="handleFocus2"
+            />
         </div>
         <div v-if="error" class="ipt-error">{{ errorTip }}</div>
         <div v-if="isInput && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
@@ -69,18 +83,23 @@ export default defineComponent({
             type: Boolean,
             default: false,
         },
+        oneLine: { //textarea不换行
+            type: Boolean,
+            default: false
+        },
         selectData: {
             type: Array as PropType<ApidocProperty[]>,
             default: () => []
         },
     },
-    emits: ["update:modelValue", "remote-select"],
+    emits: ["update:modelValue", "remote-select", "focus", "blur"],
     data() {
         return {
             focusX: 0,
             focusY: 0,
             isFocus: false, //是否focus
             isInput: false, //是否输入了数据
+            isShowTextarea: false, //是否显示textarea
             currentSelectIndex: 0,
             validator: null as Schema | null,
         };
@@ -103,12 +122,20 @@ export default defineComponent({
         //=====================================input事件====================================//
         //键盘输入
         handleInput(e: Event) {
-            const iptValue = (e.target as HTMLInputElement).value;
-            this.$emit("update:modelValue", iptValue);
+            this.$emit("update:modelValue", (e.target as HTMLInputElement).value);
+            this.isInput = true;
+        },
+        //键盘输入
+        handleInput2(value: string) {
+            this.$emit("update:modelValue", value);
             this.isInput = true;
         },
         //处理focus
         handleFocus(e: FocusEvent) {
+            // const currentDom = e.target as HTMLInputElement;
+            this.isShowTextarea = true;
+            // if (currentDom.clientWidth < currentDom.scrollWidth) {
+            // }
             const iptDom = e.target as HTMLInputElement;
             const iptRect = iptDom.getBoundingClientRect();
             this.focusX = iptRect.left;
@@ -118,10 +145,17 @@ export default defineComponent({
             if (hasData && !exactMatchData) {
                 this.isFocus = true;
             }
+            this.$emit("focus");
+            (this.$refs.textarea as HTMLInputElement).focus();
+        },
+        handleFocus2() {
+            this.$emit("focus");
         },
         //处理blur
         handleBlur() {
-            console.log("blur")
+            this.isFocus = false;
+            this.isShowTextarea = false;
+            this.$emit("blur")
         },
         //=========================================================================//
         //处理键盘事件
@@ -211,6 +245,8 @@ export default defineComponent({
     position: relative;
     .ipt-wrap {
         width: 100%;
+        // position: relative;
+        height: size(32);
         .ipt-inner {
             width: 100%;
             height: size(32);
@@ -221,7 +257,7 @@ export default defineComponent({
             padding: 0 size(10);
             font-size: fz(12);
             color: var(--el-input-text-color,var(--el-text-color-regular));
-             &.disabled {
+            &.disabled {
                 cursor: not-allowed;
                 //保持与elementui样式统一
                 background-color: var(--el-disabled-bg-color);
@@ -233,6 +269,18 @@ export default defineComponent({
             }
             &.error {
                 border: 1px solid $red;
+            }
+        }
+        .textarea-wrap {
+            position: absolute;
+            z-index: 1;
+            .el-textarea__inner {
+                width: 100%;
+                font-size: fz(12);
+                color: var(--el-input-text-color,var(--el-text-color-regular));
+                &::placeholder {
+                    color: $gray-400;
+                }
             }
         }
     }
