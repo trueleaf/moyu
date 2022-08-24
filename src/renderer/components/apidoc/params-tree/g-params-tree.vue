@@ -135,6 +135,7 @@
                     v-if="!noRequiredCheckbox"
                     :model-value="scope.data.required"
                     :label="$t('必有')"
+                    class="pr-2"
                     :disabled="checkRequiredDisable(scope.data)"
                     @click="currentOpData = null"
                     @update:modelValue="handleChangeIsRequired($event as string, scope.data)"
@@ -144,7 +145,7 @@
                 <s-valid-input
                     :model-value="scope.data.description"
                     :disabled="checkDescriptionDisable(scope)"
-                    class="w-40 ml-2"
+                    class="w-40"
                     :placeholder="$t('参数描述与备注')"
                     @focus="enableDrag = false; currentOpData = null"
                     @blur="handleDescriptionBlur"

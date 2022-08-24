@@ -20,14 +20,15 @@
                 @focus="handleFocus"
             >
             <el-input
-                v-show="isShowTextarea"
+                v-if="isShowTextarea"
                 ref="textarea"
                 :disabled="disabled"
                 :model-value="modelValue"
                 class="textarea-wrap"
                 :placeholder="placeholder"
                 type="textarea"
-                :autosize="{ minRows: 1, maxRows: oneLine ? 1 : 5 }"
+                :size="config.renderConfig.layout.size"
+                :autosize="{ minRows: 1, maxRows: 10 }"
                 resize="none"
                 @input="handleInput2"
                 @blur="handleBlur"
@@ -146,7 +147,9 @@ export default defineComponent({
                 this.isFocus = true;
             }
             this.$emit("focus");
-            (this.$refs.textarea as HTMLInputElement).focus();
+            this.$nextTick(() => {
+                (this.$refs.textarea as HTMLInputElement).focus();
+            })
         },
         handleFocus2() {
             this.$emit("focus");
@@ -246,10 +249,10 @@ export default defineComponent({
     .ipt-wrap {
         width: 100%;
         // position: relative;
-        height: size(32);
+        height: size(29);
         .ipt-inner {
             width: 100%;
-            height: size(32);
+            height: 100%;
             display: flex;
             align-items: center;
             border: 1px solid $gray-400;
@@ -275,9 +278,21 @@ export default defineComponent({
             position: absolute;
             z-index: 1;
             .el-textarea__inner {
+                text-indent: -1px;
                 width: 100%;
                 font-size: fz(12);
                 color: var(--el-input-text-color,var(--el-text-color-regular));
+                // box-shadow: none;
+                // border: none;
+                // border-bottom: 1px solid $gray-400;
+                border-radius: 0;
+                &::-webkit-scrollbar {
+                    width: size(3);
+                    height: size(3);
+                }
+                &::-webkit-scrollbar-thumb  {
+                    background: $gray-500;
+                }
                 &::placeholder {
                     color: $gray-400;
                 }
