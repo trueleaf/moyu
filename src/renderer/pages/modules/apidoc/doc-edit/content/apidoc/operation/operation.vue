@@ -91,6 +91,7 @@
         </pre>
     </div>
     <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
+    <s-save-doc-dialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></s-save-doc-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -101,6 +102,7 @@ import globalConfig from "@/../config/config"
 import { useStore } from "@/store/index"
 import { apidocCache } from "@/cache/apidoc"
 import { router } from "@/router/index"
+import sSaveDocDialog from "@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue"
 import sCurdHostDialog from "../dialog/curd-host/curd-host.vue"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handleChangeUrl } from "./composables/url"
@@ -153,11 +155,22 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
+const currentSelectTab = computed(() => {
+    const tabs = store.state["apidoc/tabs"].tabs[projectId];
+    const currentTab = tabs?.find((tab) => tab.selected) || null;
+    return currentTab;
+});
 const loading = computed(() => store.state["apidoc/response"].loading)
-const operationPart = getOperationPart();
 const loading2 = computed(() => store.state["apidoc/apidoc"].saveLoading)
+const saveDocDialogVisible = ref(false);
+const operationPart = getOperationPart();
+
 const handleSaveApidoc = () => {
-    store.dispatch("apidoc/apidoc/saveApidoc");
+    if (currentSelectTab.value?._id.includes("local_")) {
+        saveDocDialogVisible.value = true;
+    } else {
+        store.dispatch("apidoc/apidoc/saveApidoc");
+    }
 }
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
