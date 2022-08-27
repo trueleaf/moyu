@@ -105,7 +105,7 @@ import { Opportunity } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 import type { ApidocDetail, ApidocProperty } from "@@/global"
 import { apidocCache } from "@/cache/apidoc"
-import { apidocConvertParamsToJsonData, lodashIsEqual, debounce } from "@/helper/index"
+import { lodashIsEqual, debounce } from "@/helper/index"
 import { store } from "@/store"
 import params from "./params/params.vue";
 import requestBody from "./body/body.vue";
@@ -172,9 +172,7 @@ export default defineComponent({
                 const resValue = response.value;
                 const { dataType } = resValue;
                 if (dataType === "application/json") {
-                    const converJsonData = apidocConvertParamsToJsonData(resValue.json);
-                    const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
-                    if (hasJsonData) {
+                    if (resValue.strJson.length > 0) {
                         resNum += 1;
                     }
                 } else if (dataType === "text/javascript" || dataType === "text/plain" || dataType === "text/html" || dataType === "application/xml") {

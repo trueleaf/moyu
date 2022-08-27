@@ -11,14 +11,16 @@
             <s-nav></s-nav>
             <s-content></s-content>
         </div>
+        <s-save-doc-dialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></s-save-doc-dialog>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onBeforeUnmount } from "vue"
+import { computed, onMounted, ref, onBeforeUnmount } from "vue"
 import { router } from "@/router/index"
 import { useStore } from "@/store/index"
 import { apidocCache } from "@/cache/apidoc"
+import sSaveDocDialog from "@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue"
 import sBanner from "./banner/banner.vue";
 import sNav from "./nav/nav.vue";
 import sContent from "./content/content.vue";
@@ -35,6 +37,7 @@ const currentSelectTab = computed(() => {
 const saveDocLoading = computed(() => store.state["apidoc/apidoc"].loading)
 //当前工作区状态
 const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
+const saveDocDialogVisible = ref(false);
 //=====================================绑定快捷键====================================//
 const bindShortcut = (e: KeyboardEvent) => {
     if (isView.value) {
@@ -46,7 +49,11 @@ const bindShortcut = (e: KeyboardEvent) => {
     if (hasTabs && currentTabIsDoc && e.ctrlKey && e.key === "s" && saveDocLoading.value === false) {
         e.preventDefault();
         e.stopPropagation();
-        store.dispatch("apidoc/apidoc/saveApidoc");
+        if (currentSelectTab.value._id.includes("local_")) {
+            saveDocDialogVisible.value = true
+        } else {
+            store.dispatch("apidoc/apidoc/saveApidoc");
+        }
     }
 }
 //=====================================基本数据获取====================================//
