@@ -108,6 +108,12 @@ export default (): OperationReturn => {
         if (currentSelectTab.value) {
             apidocCache.deleteResponse(currentSelectTab.value._id);
         }
+        if (currentSelectTab.value?._id.startsWith("local_")) { //通过+按钮新增的空白文档
+            setTimeout(() => {
+                loading3.value = false;
+            }, 500)
+            return;
+        }
         store.dispatch("apidoc/apidoc/getApidocDetail", {
             id: currentSelectTab.value?._id,
             projectId,

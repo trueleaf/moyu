@@ -14,7 +14,7 @@ type Suggestions = {
 const requestSuggestions = [{
     label: {
         label: "request",
-        description: "全局请求"
+        description: "请求参数"
     },
     kind: monaco.languages.CompletionItemKind.Method,
     insertText: "request",

@@ -80,6 +80,11 @@ export default defineComponent({
             if (!this.currentSelectTab) {
                 return
             }
+            if (this.currentSelectTab._id?.startsWith("local_")) {
+                this.$store.commit("apidoc/apidoc/changeApidoc", this.$helper.apidocGenerateApidoc(this.currentSelectTab._id));
+                this.$store.commit("apidoc/apidoc/changeOriginApidoc")
+                return
+            }
             if (this.currentSelectTab.saved) { //取最新值
                 this.$store.dispatch("apidoc/apidoc/getApidocDetail", {
                     id: this.currentSelectTab?._id,

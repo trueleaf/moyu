@@ -7,14 +7,14 @@
 <template>
     <div class="nav">
         <div class="tab-wrap">
-            <div class="btn left" @click="handleMoveLeft">
+            <div v-if="0" class="btn left" @click="handleMoveLeft">
                 <el-icon :size="16">
                     <icon-arrow-left />
                 </el-icon>
             </div>
             <!-- https://github.com/element-plus/element-plus/issues/2293 -->
             <div ref="tabList" class="tab-list">
-                <s-draggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex">
+                <s-draggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex drag-wrap">
                     <template #item="{ element }">
                         <div
                             :title="element.label"
@@ -87,7 +87,7 @@
                                 <span v-show="!element.saved" class="has-change">
                                     <span class="dot"></span>
                                 </span>
-                                <el-icon v-show="element.saved" class="close" :size="16" @click.stop="handleCloseCurrentTab(element)">
+                                <el-icon v-show="element.saved" class="close" :size="15" @click.stop="handleCloseCurrentTab(element)">
                                     <icon-close />
                                 </el-icon>
                             </span>
@@ -95,18 +95,23 @@
                     </template>
                 </s-draggable>
             </div>
-            <div class="btn right" @click="handleMoveRight">
+            <div class="add-tab">
+                <el-icon :size="16" title="新增一个空白接口" color="#333" @click="handleAddNewTab">
+                    <Plus />
+                </el-icon>
+            </div>
+            <div v-if="0" class="btn right" @click="handleMoveRight">
                 <el-icon :size="16">
                     <icon-arrow-right />
                 </el-icon>
             </div>
         </div>
-        <div class="d-flex a-center ml-1">{{ config.ip }}</div>
+        <div class="d-flex a-center pl-1 border-left-gray-400">{{ config.ip }}</div>
     </div>
     <teleport to="body">
         <!-- 单个节点操作 -->
         <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-            <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab"></s-contextmenu-item>
+            <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab()"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
@@ -122,7 +127,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import draggable from "vuedraggable"
-import { Setting, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from "@element-plus/icons-vue"
+import { Setting, Plus, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from "@element-plus/icons-vue"
 import type { ApidocTab } from "@@/store"
 
 export default defineComponent({
@@ -139,9 +144,11 @@ export default defineComponent({
         "icon-close": Close,
         "icon-arrow-right": ArrowRight,
         "icon-arrow-left": ArrowLeft,
+        Plus,
     },
     data() {
         return {
+            tabIndex: 1,
             showContextmenu: false, //是否显示contextmenu
             contextmenuLeft: 0, //鼠标右键x值
             contextmenuTop: 0, //鼠标右键y值
@@ -215,7 +222,7 @@ export default defineComponent({
             this.showContextmenu = true;
         },
         //关闭当前tab
-        handleCloseCurrentTab(element: ApidocTab) {
+        handleCloseCurrentTab(element?: ApidocTab) {
             const projectId = this.$route.query.id;
             const currentOperationNodeId = this.currentOperationNode?._id || ""
             const tabId: string = element ? element._id : currentOperationNodeId;
@@ -303,6 +310,22 @@ export default defineComponent({
                 projectId,
             })
         },
+        //打开一个新的tab
+        handleAddNewTab() {
+            this.$store.commit("apidoc/tabs/addTab", {
+                _id: `local_${this.$helper.uuid()}`,
+                projectId: this.$route.query.id,
+                tabType: "doc",
+                label: `未命名接口${this.tabIndex}`,
+                saved: true,
+                fixed: true,
+                selected: true,
+                head: {
+                    icon: "GET",
+                },
+            })
+            this.tabIndex += 1;
+        }
     },
 })
 </script>
@@ -317,9 +340,9 @@ export default defineComponent({
     .tab-wrap {
         width: 90%;
         min-width: 300px;
-        display: flex;
         overflow-x: hidden;
         overflow-y: hidden;
+        display: flex;
         position: relative;
         .btn {
             flex: 0 0 auto;
@@ -338,9 +361,11 @@ export default defineComponent({
         }
     }
     .tab-list {
-        width: 100%;
-        line-height: 40px;
-        height: 40px;
+        width: auto;
+        max-width: calc(100% - 40px);
+        line-height: size(40);
+        display: flex;
+        height: size(40);
         color: #5f6368;
         white-space: nowrap;
         transition: left .1s;
@@ -446,6 +471,22 @@ export default defineComponent({
                 }
             }
     }
+    }
+    .add-tab {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: size(40);
+        height: size(40);
+        .el-icon {
+            width: size(30);
+            height: size(30);
+            transition: background .3s;
+            border-radius: 50%;
+            &:hover {
+                background-color: $gray-400;
+            }
+        }
     }
     //滚动条样式
     .el-scrollbar__bar {

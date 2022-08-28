@@ -15,12 +15,14 @@ import apidocConverter from "./utils"
 let got: Got | null = null;
 let gotInstance: Got | null = null;
 let requestStream: Request | null = null;
+let worker: Worker;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let ProxyAgent: any = null;
 if (window.require) {
     got = window.require("got");
     ProxyAgent = window.require("proxy-agent");
 }
+
 //初始化请求
 function initGot() {
     if (!got) {
@@ -156,6 +158,25 @@ function electronRequest() {
             store.commit("apidoc/response/changeResponseTime", rt);
             store.commit("apidoc/response/changeResponseSize", streamSize);
             store.commit("apidoc/response/changeLoading", false);
+            const responseInfo = store.state["apidoc/response"];
+            // console.log(responseInfo)
+            worker.postMessage({
+                type: "after-request-init-response",
+                value: JSON.parse(JSON.stringify({
+                    headers: responseInfo.header,
+                    cookies: responseInfo.cookies,
+                    httpVersion: responseInfo.httpVersion,
+                    ip: responseInfo.ip,
+                    rt: responseInfo.rt,
+                    size: responseInfo.size,
+                    statusCode: responseInfo.statusCode,
+                    statusMessage: responseInfo.statusMessage,
+                }))
+            });
+            worker.postMessage(JSON.parse(JSON.stringify({
+                type: "after-request-request",
+                value: store.state["apidoc/apidoc"].apidoc.afterRequest.raw
+            })));
         });
         //获取流数据
         requestStream.on("data", (chunk) => {
@@ -201,7 +222,6 @@ export function sendRequest(): void {
     apidocConverter.setData(cpApidoc as ApidocDetail);
     apidocConverter.replaceUrl("");
     apidocConverter.clearTempVariables()
-    const worker = new Worker("/sandbox/pre-request/worker.js");
     const currentEnv = cpApidoc.item.url.host;
     const baseInfo = JSON.parse(JSON.stringify({
         ...store.state["apidoc/baseInfo"],
@@ -214,6 +234,7 @@ export function sendRequest(): void {
     const localEnvs = apidocCache.getApidocServer(projectId)
     const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
     const { sessionState, localState, remoteState } = store.state["apidoc/workerState"];
+    worker = new Worker("/sandbox/pre-request/worker.js");
     //初始化默认apidoc信息
     worker.postMessage({
         type: "pre-request-init-apidoc",
@@ -286,8 +307,12 @@ export function sendRequest(): void {
                     let jsonBody = {};
                     try {
                         jsonBody = JSON.parse(data.body);
-                    } catch {
+                    } catch (err) {
                         console.log("error")
+                        worker.postMessage({
+                            type: "pre-request-http-error",
+                            value: err
+                        });
                     }
                     worker.postMessage({
                         type: "pre-request-http-success",
@@ -309,9 +334,12 @@ export function sendRequest(): void {
         if (res.data.type === "pre-request-send-request-by-id") { //根据文档id发送请求
             apidocConverter.getDocRequestInfo(projectId, res.data.value.id)
         }
-        if (res.data.type === "pre-request-finish") { //脚本执行完
-            console.log("script finish")
+        if (res.data.type === "pre-request-finish") { //前置脚本执行完
+            console.log("pre script finish")
             electronRequest();
+        }
+        if (res.data.type === "after-request-finish") { //后置脚本执行完
+            console.log("after script finish")
         }
         if (res.data.type === "change-temp-variables") { //改版临时变量
             apidocConverter.changeTempVariables(res.data.value);
@@ -356,11 +384,15 @@ export function sendRequest(): void {
                 value: res.data.value
             });
         }
-        if (res.data.type === "pre-request-error") { //预请求错误捕获
+        if (res.data.type === "pre-request-error" || res.data.type === "after-request-error") { //预请求错误捕获
             store.commit("apidoc/response/changeLoading", false);
             store.commit("apidoc/response/changeResponseContentType", "error");
             store.commit("apidoc/response/changeIsResponse", true);
-            store.commit("apidoc/response/changeResponseTextValue", res.data.value.message);
+            if (res.data.type === "pre-request-error") {
+                store.commit("apidoc/response/changeResponseTextValue", `前置脚本：${res.data.value.message}`);
+            } else {
+                store.commit("apidoc/response/changeResponseTextValue", `后置脚本：${res.data.value.message}`);
+            }
             console.error(res.data.value);
         }
     })

@@ -21,12 +21,6 @@
         <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
         <template v-if="commonHeaders.length > 0">
             <el-divider content-position="left">公共请求头</el-divider>
-            <!-- <div v-for="(item, index) in commonHeaders" :key="index" class="d-flex">
-                <div class="w-20 text-center">{{ item.key }}</div>
-                <div class="w-10 text-center">{{ item.type }}</div>
-                <div class="w-30 text-center">{{ item.value }}</div>
-                <div class="w-30 text-center">{{ item.description }}</div>
-            </div> -->
             <el-table :data="commonHeaders" stripe border size="mini">
                 <el-table-column prop="key" label="键" align="center"></el-table-column>
                 <el-table-column prop="type" label="类型" align="center"></el-table-column>

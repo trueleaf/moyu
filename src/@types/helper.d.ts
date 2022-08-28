@@ -22,6 +22,7 @@ import {
     formatMs,
     lodashIsEqual,
     apidocConvertParamsToJsonStr,
+    apidocGenerateApidoc,
 } from "@/helper/index"
 
 type Helper = {
@@ -117,6 +118,10 @@ type Helper = {
      * 格式化moyu文档到json数据
      */
     apidocConvertParamsToJsonStr: typeof apidocConvertParamsToJsonStr,
+    /**
+     * 生成一条默认api文档
+     */
+    apidocGenerateApidoc: typeof apidocGenerateApidoc,
 }
 
 export { Helper }

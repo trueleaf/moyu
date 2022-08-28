@@ -50,6 +50,7 @@
                         :title="convertKeyPlaceholder(scope)"
                         :placeholder="convertKeyPlaceholder(scope)"
                         :select-data="mindParams"
+                        one-line
                         @remote-select="handleRemoteSelectKey($event, scope.data)"
                         @update:modelValue="handleChangeKeyData($event, scope)"
                         @focus="enableDrag = false; currentOpData = null"
@@ -134,6 +135,7 @@
                     v-if="!noRequiredCheckbox"
                     :model-value="scope.data.required"
                     :label="$t('必有')"
+                    class="pr-2"
                     :disabled="checkRequiredDisable(scope.data)"
                     @click="currentOpData = null"
                     @update:modelValue="handleChangeIsRequired($event as string, scope.data)"
@@ -143,7 +145,7 @@
                 <s-valid-input
                     :model-value="scope.data.description"
                     :disabled="checkDescriptionDisable(scope)"
-                    class="w-40 ml-2"
+                    class="w-40"
                     :placeholder="$t('参数描述与备注')"
                     @focus="enableDrag = false; currentOpData = null"
                     @blur="handleDescriptionBlur"
