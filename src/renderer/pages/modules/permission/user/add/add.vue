@@ -10,7 +10,7 @@
         <s-form ref="form">
             <s-form-item :label="$t('登录名称')" prop="loginName" required half-line></s-form-item>
             <s-form-item :label="$t('真实姓名')" prop="realName" required half-line></s-form-item>
-            <s-form-item :label="$t('手机号')" prop="phone" half-line phone required></s-form-item>
+            <s-form-item :label="$t('手机号')" prop="phone" half-line phone></s-form-item>
         </s-form>
         <el-divider content-position="left">{{ $t("角色选择") }}</el-divider>
         <el-checkbox-group v-model="roleIds">

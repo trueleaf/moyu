@@ -47,9 +47,10 @@
                     <el-tag v-else type="warning">{{ $t("禁用") }}</el-tag>
                 </template>
             </el-table-column>
-            <el-table-column :label="$t('操作')" align="center" width="200px">
+            <el-table-column :label="$t('操作')" align="center" width="300px">
                 <template #default="scope">
-                    <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ $t('修改用户信息') }}</el-button>
+                    <el-button link type="primary" text @click="handleOpenEditUser(scope.row)">{{ $t('修改') }}</el-button>
+                    <el-button link type="primary" text @click="handleResetPassword(scope.row)">重置密码</el-button>
                     <el-button link type="primary" text @click="handleForbidRole(scope.row._id, scope.row.enable)">
                         {{ scope.row.enable ? $t("禁用") : $t("启用") }}
                     </el-button>
@@ -58,6 +59,7 @@
         </s-table>
         <s-add-user-dialog v-model="addUserDialog" @success="getData"></s-add-user-dialog>
         <s-edit-user-dialog v-if="editUserDialog" v-model="editUserDialog" :user-id="editUserId" @success="getData"></s-edit-user-dialog>
+        <s-reset-password-dialog v-if="resetPwdDialog" v-model="resetPwdDialog" :user-id="editUserId"></s-reset-password-dialog>
     </div>
 </template>
 
@@ -65,16 +67,19 @@
 import { defineComponent } from "vue"
 import addUserDialog from "./add/add.vue"
 import editUserDialog from "./edit/edit.vue"
+import resetPasswordDialog from "./reset-pwd/reset-pwd.vue"
 
 export default defineComponent({
     components: {
         "s-add-user-dialog": addUserDialog,
         "s-edit-user-dialog": editUserDialog,
+        "s-reset-password-dialog": resetPasswordDialog,
     },
     data() {
         return {
             addUserDialog: false, //------------------新增用户弹窗
             editUserDialog: false, //-----------------编辑用户弹窗
+            resetPwdDialog: false, //-----------------重置密码弹窗
             editUserId: "", //------------------------编辑时候用户id
             loading: false, //------------------------下载模板加载效果
             loading2: false, //-----------------------批量导入用户加载效果
@@ -116,6 +121,11 @@ export default defineComponent({
         handleOpenEditUser(row: { _id: string }) {
             this.editUserId = row._id;
             this.editUserDialog = true;
+        },
+        //重置密码
+        handleResetPassword(row: { _id: string }) {
+            this.editUserId = row._id;
+            this.resetPwdDialog = true;
         },
         //导入成功弹窗
         handleImportSuccess(data: { total: number, success: number }) {

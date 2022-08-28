@@ -9,7 +9,7 @@
         <div class="s-header">
             <div class="ml-5 header-left">
                 <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">
-                    <span>{{ $store.state.permission.globalConfig.title }}</span>
+                    <span>{{ config.localization.title }}</span>
                     <span v-if="config.isDev">(本地)</span>
                 </span>
                 <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">

@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" :title="$t('修改用户信息')" @close="handleClose">
+    <s-dialog :model-value="modelValue" :title="$t('修改')" @close="handleClose">
         <el-divider content-position="left">{{ $t("基础信息") }}</el-divider>
         <s-form ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
             <s-form-item :label="$t('登录名称')" prop="loginName" required half-line></s-form-item>
