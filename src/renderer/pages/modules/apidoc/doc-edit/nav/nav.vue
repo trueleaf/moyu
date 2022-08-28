@@ -222,7 +222,7 @@ export default defineComponent({
             this.showContextmenu = true;
         },
         //关闭当前tab
-        handleCloseCurrentTab(element: ApidocTab) {
+        handleCloseCurrentTab(element?: ApidocTab) {
             const projectId = this.$route.query.id;
             const currentOperationNodeId = this.currentOperationNode?._id || ""
             const tabId: string = element ? element._id : currentOperationNodeId;
