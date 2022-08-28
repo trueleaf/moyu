@@ -111,7 +111,7 @@
     <teleport to="body">
         <!-- 单个节点操作 -->
         <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-            <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab"></s-contextmenu-item>
+            <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab()"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
             <s-contextmenu-item :label="$t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
@@ -226,6 +226,7 @@ export default defineComponent({
             const projectId = this.$route.query.id;
             const currentOperationNodeId = this.currentOperationNode?._id || ""
             const tabId: string = element ? element._id : currentOperationNodeId;
+            console.log(22, tabId, currentOperationNodeId, element)
             this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: [tabId]
