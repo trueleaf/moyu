@@ -147,6 +147,10 @@ const apidoc = {
         changeApidocName(state: ApidocState, name: string): void {
             state.apidoc.info.name = name;
         },
+        //改变api文档id值
+        changeApidocId(state: ApidocState, _id: string): void {
+            state.apidoc._id = _id;
+        },
         //改变接口描述
         changeDescription(state: ApidocState, description: string): void {
             state.apidoc.info.description = description;

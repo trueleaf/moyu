@@ -226,7 +226,6 @@ export default defineComponent({
             const projectId = this.$route.query.id;
             const currentOperationNodeId = this.currentOperationNode?._id || ""
             const tabId: string = element ? element._id : currentOperationNodeId;
-            console.log(22, tabId, currentOperationNodeId, element)
             this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
                 projectId,
                 ids: [tabId]

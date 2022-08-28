@@ -7,6 +7,7 @@ import type { State as RootState, ApidocTabsState, ApidocTab } from "@@/store"
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { findNodeById, event } from "@/helper/index"
+import sSaveDocDialog from "@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue"
 import { router } from "@/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
@@ -56,7 +57,9 @@ const storeTabs = {
             const hasTab = state.tabs[projectId].find((val) => val._id === _id);
             const unFixedTab = state.tabs[projectId].find((val) => !val.fixed && val.saved);
             const unFixedTabIndex = state.tabs[projectId].findIndex((val) => !val.fixed && val.saved);
-            if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
+            if (_id.startsWith("local_")) { //直接末尾添加
+                state.tabs[projectId].push(tabInfo)
+            } else if (!fixed && unFixedTab && !hasTab) { //如果tabs里面存在未固定的tab并且是新增一个tab则覆盖未固定
                 state.tabs[projectId].splice(unFixedTabIndex, 1, tabInfo)
             } else if (!unFixedTab && !hasTab) { //不存在未固定的并且不存在tab则新增一个tab
                 state.tabs[projectId].splice(selectedTabIndex + 1, 0, tabInfo); //添加到已选中的后面
@@ -99,6 +102,7 @@ const storeTabs = {
             })
             localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
             store.commit("apidoc/banner/changeExpandItems", [id]);
+            event.emit("apidoc/tabs/addOrDeleteTab")
         },
         //根据id改变节点属性
         changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
@@ -128,6 +132,7 @@ const storeTabs = {
     actions: {
         //根据id删除tab
         async deleteTabByIds(context: ActionContext<ApidocTabsState, RootState>, payload: { ids: string[], projectId: string }): Promise<void> {
+            console.log(sSaveDocDialog, 888)
             const { ids, projectId } = payload;
             const checkSeletedTab = () => {
                 const selectTab = context.state.tabs[projectId].find((tab) => tab.selected);

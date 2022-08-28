@@ -759,9 +759,9 @@ export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyVal
  * @author             shuxiaokai
  * @create             2021-09-07 22:35
  */
-export function apidocGenerateApidoc(): ApidocDetail {
+export function apidocGenerateApidoc(id?: string): ApidocDetail {
     return {
-        _id: "",
+        _id: id || "",
         pid: "",
         projectId: "",
         isFolder: false,

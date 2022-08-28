@@ -65,7 +65,7 @@
             <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
         </div>
         <pre class="pre-url">
-            <span class="label">{{ $t("完整路径") }}：</span><span>{{ fullUrl }}</span>
+            <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
         </pre>
     </div>
 </template>
