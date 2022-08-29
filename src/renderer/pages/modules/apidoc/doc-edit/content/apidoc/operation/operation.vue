@@ -162,7 +162,14 @@ const currentSelectTab = computed(() => {
 });
 const loading = computed(() => store.state["apidoc/response"].loading)
 const loading2 = computed(() => store.state["apidoc/apidoc"].saveLoading)
-const saveDocDialogVisible = ref(false);
+const saveDocDialogVisible = computed({
+    get() {
+        return store.state["apidoc/apidoc"].saveDocDialogVisible;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", val)
+    }
+});
 const operationPart = getOperationPart();
 
 const handleSaveApidoc = () => {

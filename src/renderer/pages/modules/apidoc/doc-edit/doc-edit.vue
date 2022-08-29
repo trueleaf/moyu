@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, onBeforeUnmount } from "vue"
+import { computed, onMounted, onBeforeUnmount } from "vue"
 import { router } from "@/router/index"
 import { useStore } from "@/store/index"
 import { apidocCache } from "@/cache/apidoc"
@@ -37,7 +37,14 @@ const currentSelectTab = computed(() => {
 const saveDocLoading = computed(() => store.state["apidoc/apidoc"].loading)
 //当前工作区状态
 const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
-const saveDocDialogVisible = ref(false);
+const saveDocDialogVisible = computed({
+    get() {
+        return store.state["apidoc/apidoc"].saveDocDialogVisible;
+    },
+    set(val) {
+        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", val)
+    }
+});
 //=====================================绑定快捷键====================================//
 const bindShortcut = (e: KeyboardEvent) => {
     if (isView.value) {

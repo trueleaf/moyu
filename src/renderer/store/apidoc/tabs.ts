@@ -7,7 +7,6 @@ import type { State as RootState, ApidocTabsState, ApidocTab } from "@@/store"
 import { store } from "@/store/index"
 import { axios } from "@/api/api"
 import { findNodeById, event } from "@/helper/index"
-import sSaveDocDialog from "@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue"
 import { router } from "@/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
@@ -132,7 +131,6 @@ const storeTabs = {
     actions: {
         //根据id删除tab
         async deleteTabByIds(context: ActionContext<ApidocTabsState, RootState>, payload: { ids: string[], projectId: string }): Promise<void> {
-            console.log(sSaveDocDialog, 888)
             const { ids, projectId } = payload;
             const checkSeletedTab = () => {
                 const selectTab = context.state.tabs[projectId].find((tab) => tab.selected);
@@ -179,6 +177,11 @@ const storeTabs = {
                     const apidoc = apidocCache.getApidoc(unsavedTab._id)
                     if (!apidoc) {
                         continue;
+                    }
+                    if (apidoc._id.includes("local_")) {
+                        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", true)
+                        console.log(12367)
+                        return
                     }
                     const params = {
                         _id: apidoc._id,

@@ -353,6 +353,7 @@ type ApidocState = {
     defaultHeaders: ApidocProperty<"string">[],
     loading: boolean,
     saveLoading: boolean,
+    saveDocDialogVisible: boolean,
 }
 
 type ApidocResponseState = {

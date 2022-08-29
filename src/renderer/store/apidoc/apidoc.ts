@@ -118,6 +118,10 @@ const apidoc = {
          * 是否正在保存接口
          */
         saveLoading: false,
+        /**
+         * 保存接口弹窗是否展示
+         */
+        saveDocDialogVisible: false,
     },
     mutations: {
         /*
@@ -359,6 +363,10 @@ const apidoc = {
         //保存apidoc时候更新loading
         changeApidocSaveLoading(state: ApidocState, loading: boolean): void {
             state.saveLoading = loading;
+        },
+        //改变保存apidoc弹窗状态
+        changeSaveDocDialogVisible(state: ApidocState, visible: boolean): void {
+            state.saveDocDialogVisible = visible;
         },
         //添加一个请求参数数据
         addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
