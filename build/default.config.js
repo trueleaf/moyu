@@ -79,6 +79,7 @@ module.exports = {
             builderOptions: {
                 productName: "moyu",
                 appId: "com.example.yourapp",
+                extraResources: ["./public/**"],
                 publish: [
                     {
                         provider: "generic",
