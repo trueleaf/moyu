@@ -179,29 +179,37 @@ const storeTabs = {
                         continue;
                     }
                     if (apidoc._id.includes("local_")) {
-                        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", true)
-                        console.log(12367)
-                        return
-                    }
-                    const params = {
-                        _id: apidoc._id,
-                        projectId,
-                        info: apidoc.info,
-                        item: apidoc.item,
-                        preRequest: apidoc.preRequest,
-                        afterRequest: apidoc.afterRequest,
-                        mockInfo: apidoc.mockInfo,
-                    };
-                    axios.post("/api/project/fill_doc", params).then(() => {
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);
-                        context.commit("deleteTabByIndex", {
+                        // eslint-disable-next-line no-await-in-loop
+                        const result = await store.dispatch("apidoc/apidoc/openSaveDocDialog", apidoc._id);
+                        if (result === "save") {
+                            context.commit("deleteTabByIndex", {
+                                projectId,
+                                deleteIndex,
+                            });
+                            checkSeletedTab();
+                        }
+                    } else {
+                        const params = {
+                            _id: apidoc._id,
                             projectId,
-                            deleteIndex,
-                        });
-                        checkSeletedTab();
-                    }).catch((err) => {
-                        console.error(err);
-                    })
+                            info: apidoc.info,
+                            item: apidoc.item,
+                            preRequest: apidoc.preRequest,
+                            afterRequest: apidoc.afterRequest,
+                            mockInfo: apidoc.mockInfo,
+                        };
+                        axios.post("/api/project/fill_doc", params).then(() => {
+                            const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);
+                            context.commit("deleteTabByIndex", {
+                                projectId,
+                                deleteIndex,
+                            });
+                            checkSeletedTab();
+                        }).catch((err) => {
+                            console.error(err);
+                        })
+                    }
                 } catch (error) {
                     if (error === "close") {
                         return;

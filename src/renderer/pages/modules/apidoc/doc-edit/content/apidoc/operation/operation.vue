@@ -168,6 +168,7 @@ const saveDocDialogVisible = computed({
     },
     set(val) {
         store.commit("apidoc/apidoc/changeSaveDocDialogVisible", val)
+        store.commit("apidoc/apidoc/changeSavedDocId", currentSelectTab.value?._id);
     }
 });
 const operationPart = getOperationPart();

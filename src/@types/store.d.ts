@@ -354,6 +354,7 @@ type ApidocState = {
     loading: boolean,
     saveLoading: boolean,
     saveDocDialogVisible: boolean,
+    savedDocId: string,
 }
 
 type ApidocResponseState = {

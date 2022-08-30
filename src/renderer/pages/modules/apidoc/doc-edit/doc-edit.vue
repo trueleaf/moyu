@@ -42,7 +42,8 @@ const saveDocDialogVisible = computed({
         return store.state["apidoc/apidoc"].saveDocDialogVisible;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", val)
+        store.commit("apidoc/apidoc/changeSaveDocDialogVisible", val);
+        store.commit("apidoc/apidoc/changeSavedDocId", currentSelectTab.value?._id);
     }
 });
 //=====================================绑定快捷键====================================//

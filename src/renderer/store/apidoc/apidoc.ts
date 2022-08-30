@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from "@/api/api"
 import { router } from "@/router/index"
 import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr } from "@/helper/index"
+import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr, event } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
 import config from "@/../config/config"
@@ -122,6 +122,10 @@ const apidoc = {
          * 保存接口弹窗是否展示
          */
         saveDocDialogVisible: false,
+        /**
+         * 需要保存接口的id
+         */
+        savedDocId: ""
     },
     mutations: {
         /*
@@ -364,10 +368,6 @@ const apidoc = {
         changeApidocSaveLoading(state: ApidocState, loading: boolean): void {
             state.saveLoading = loading;
         },
-        //改变保存apidoc弹窗状态
-        changeSaveDocDialogVisible(state: ApidocState, visible: boolean): void {
-            state.saveDocDialogVisible = visible;
-        },
         //添加一个请求参数数据
         addProperty(state: ApidocState, payload: { data: ApidocProperty[], params: ApidocProperty }): void {
             payload.data.push(payload.params);
@@ -384,6 +384,14 @@ const apidoc = {
         //改变json类型requestBody
         changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
             state.apidoc.item.requestBody.json = payload;
+        },
+        //保存接口弹窗是否展示
+        changeSaveDocDialogVisible(state: ApidocState, visible: boolean): void {
+            state.saveDocDialogVisible = visible;
+        },
+        //改变当前需要保存的节点id
+        changeSavedDocId(state: ApidocState, id: string): void {
+            state.savedDocId = id;
         },
         /*
         |--------------------------------------------------------------------------
@@ -600,6 +608,23 @@ const apidoc = {
             }).catch((err) => {
                 console.error(err);
             });
+        },
+        //改变保存apidoc弹窗状态
+        openSaveDocDialog(context: ActionContext<ApidocState, RootState>, id: string): Promise<"save" | "cancel"> {
+            context.commit("changeSaveDocDialogVisible", true)
+            context.commit("changeSavedDocId", id)
+            return new Promise((resolve, reject) => {
+                try {
+                    event.on("tabs/saveTabSuccess", () => {
+                        resolve("save");
+                    })
+                    event.on("tabs/cancelSaveTab", () => {
+                        resolve("cancel");
+                    })
+                } catch (error) {
+                    reject(error)
+                }
+            })
         },
     },
 }
