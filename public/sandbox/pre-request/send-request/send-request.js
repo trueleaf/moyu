@@ -1,7 +1,7 @@
 //老版本调用方式
 let isSendRequest = false;
 const sendRequest = (url, cb) => {
-    let realUrl = "";
+    let realUrl = url;
     if (!url.toString().match(/^https?:\/\//)) {
         realUrl = `http://${url}`
     }
