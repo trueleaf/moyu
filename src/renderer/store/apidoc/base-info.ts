@@ -31,7 +31,7 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], op
         }
         //当前headers覆盖老的headers
         options.preCommonHeaders.concat(commonHeaders).forEach(header => {
-            if (currentHeaders.every(v => v.key !== header.key)) {
+            if (header && currentHeaders.every(v => v.key !== header.key)) {
                 currentHeaders.push(JSON.parse(JSON.stringify(header)))
             }
         })
