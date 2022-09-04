@@ -290,6 +290,7 @@ type ApidocTabType =
 "guide" |
 "mindParams" |
 "hook" |
+"package" |
 "commonHeader"
 //tabs导航
 
