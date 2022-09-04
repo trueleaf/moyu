@@ -1,4 +1,4 @@
-import type { Got, NormalizedOptions } from "got"
+import type { Got, NormalizedOptions, OptionsOfTextResponseBody } from "got"
 import Request from "got/dist/source/core"
 import FileType from "file-type/browser";
 import type FormData from "form-data"
@@ -298,12 +298,20 @@ export function sendRequest(): void {
                 console.warn("got实例不存在")
             } else {
                 const requestBody = method.toLowerCase() === "get" ? undefined : JSON.stringify(body);
-                got(url, {
+                const options: OptionsOfTextResponseBody = {
                     method,
                     body: requestBody,
-                    headers,
-                    searchParams: params,
-                }).then(data => {
+                    headers
+                }
+                let realUrl = url;
+                const stringParams = url.split("?")[1] || "";
+                const urlSearchParams = new URLSearchParams(stringParams);
+                const queryParams = Object.fromEntries(urlSearchParams.entries())
+                if (Object.keys(queryParams).length > 0) {
+                    options.searchParams = Object.assign(queryParams, params);
+                    realUrl = realUrl.replace(/\?.*/, "")
+                }
+                got(realUrl, options).then(data => {
                     let jsonBody = {};
                     try {
                         jsonBody = JSON.parse(data.body);
