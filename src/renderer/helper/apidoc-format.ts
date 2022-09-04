@@ -173,7 +173,6 @@ export const apidocFormatUrl = (apidoc: ApidocDetail): UrlInfo => {
 export const apidocFormatResponseParams = (apidoc: ApidocDetail): ResponseData[] => {
     const { responseParams } = apidoc.item;
     const result: ResponseData[] = [];
-    responseParams[0].value.dataType
     responseParams.forEach(res => {
         const data: ResponseData = {
             title: res.title,
