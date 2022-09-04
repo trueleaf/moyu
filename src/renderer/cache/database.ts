@@ -4,21 +4,23 @@
  * @create             2021-7-13 22:50
  */
 import Dexie from "dexie";
-// import config from "@/../config/config";
-import { ApidocProjectListInfo } from "@@/global"
 
-class MoyuDataBase extends Dexie {
-    public projectList: Dexie.Table<ApidocProjectListInfo, number>
+type ScriptInfo = {
+    id?: number,
+    name: string,
+    value: string
+}
+class MoyuDatabase extends Dexie {
+    scriptList!: Dexie.Table<ScriptInfo[]>
 
     public constructor() {
-        super("MoyuDataBase");
+        super("moyuDataBase");
         this.version(1).stores({
-            projectList: "list, recentVisitProjects, starProjects"
+            scriptList: "++id, name, value"
         });
-        this.projectList = this.table("projectList");
     }
 }
 
-const db = new MoyuDataBase();
+const db = new MoyuDatabase();
 
 export default db;
