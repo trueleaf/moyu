@@ -15,12 +15,14 @@ import App from "./App.vue"
 import { router } from "./router"
 import registeDirective from "./directive/directive";
 import { store, key } from "./store"
+import db from "./cache/database";
 
 mockServer();
 const app = createApp(App)
 
 app.config.globalProperties.$helper = helper; //挂载全局辅助函数
 app.config.globalProperties.config = config; //挂载全局辅助函数
+app.config.globalProperties.db = db; //挂载全局数据库
 
 registeGlobalComponent(app); //注册全局组件
 registeDirective(app); //注册全局指令

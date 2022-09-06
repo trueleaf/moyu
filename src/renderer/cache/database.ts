@@ -8,15 +8,15 @@ import Dexie from "dexie";
 type ScriptInfo = {
     id?: number,
     name: string,
-    value: string
+    code: string
 }
 class MoyuDatabase extends Dexie {
-    scriptList!: Dexie.Table<ScriptInfo[]>
+    scriptList!: Dexie.Table<ScriptInfo>
 
     public constructor() {
         super("moyuDataBase");
         this.version(1).stores({
-            scriptList: "++id, name, value"
+            scriptList: "++id, name, code"
         });
     }
 }
