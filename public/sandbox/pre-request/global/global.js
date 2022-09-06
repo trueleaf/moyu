@@ -25,4 +25,8 @@ const GlobalData = {
      * 仅当前接口生效变量
      */
     tempVariables: {},
+    /**
+     * 全局安装包
+     */
+    packages: []
 }

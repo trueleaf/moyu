@@ -60,6 +60,7 @@ self.addEventListener("message", async (e) => {
             GlobalData.commonHeaders = data.commonHeaders;
             GlobalData.currentEnv = data.currentEnv;
             GlobalData.projectName = data.projectName;
+            GlobalData.packages = data.packages || [];
             GlobalData._id = data._id;
             GlobalData.projectVaribles = data.projectVaribles;
             //=====================================header转换====================================//
@@ -156,6 +157,7 @@ self.addEventListener("message", async (e) => {
                 const result = await importScript(requestUrls[i]);
                 remoteScriptStr = remoteScriptStr + result + ";"
             }
+            console.log(99, remoteScriptStr, replacedCode)
             const evalPromise = eval(`
                 ${remoteScriptStr}
                 ${replacedCode}
