@@ -33,13 +33,18 @@
             <!-- mock地址 -->
             <s-label-value label="Mock地址：" label-width="90px" class="mb-1" one-line>
                 <span class="text">{{ mockServer }}</span>
-                <input v-model="customPath" type="text" class="edit-ipt" @input="handleChangeMockPath">
+                <input v-model="customPath" type="text" class="edit-ipt" @blur="handleCompleteMockPath">
                 <span v-copy="fullMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
-                <span v-if="orginPath !== customPath" class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
+                <span v-if="customPath !== ''" class="theme-color cursor-pointer f-sm" @click="handleResetMockUrl">还原</span>
             </s-label-value>
             <s-label-value label="远端Mock地址：" label-width="120px" class="mb-1" one-line>
-                <span>{{ remoteMockUrl }}</span>
-                <span v-copy="remoteMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
+                <template v-if="currentSelectTab && !currentSelectTab._id.startsWith('local')">
+                    <span>{{ remoteMockUrl }}</span>
+                    <span v-copy="remoteMockUrl" class="cursor-pointer f-sm theme-color ml-1 mr-2">复制</span>
+                </template>
+                <template v-else>
+                    <span class="f-sm gray-500">保存接口后更新</span>
+                </template>
             </s-label-value>
             <!-- mock端口 -->
             <s-label-value label="Mock端口：" label-width="90px" class="mb-1" one-line>
@@ -100,13 +105,14 @@ const mockServerInfo = computed(() => store.state["apidoc/mock"]);
 |--------------------------------------------------------------------------
 */
 const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
-const orginPath = computed(() => store.state["apidoc/apidoc"].apidoc.item.url.path); //原始请求路径
-const remoteMockUrl = computed(() => {
+const currentSelectTab = computed(() => {
     const projectId = router.currentRoute.value.query.id as string;
     const tabs = store.state["apidoc/tabs"].tabs[projectId];
-    const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+    return tabs?.find((tab) => tab.selected) || null;
+})
+const remoteMockUrl = computed(() => {
     const remoteUrl = globalConfig.renderConfig.httpRequest.url
-    return `${remoteUrl}/mock/remote/${currentSelectTab?._id}`
+    return `${remoteUrl}/mock/remote/${currentSelectTab.value?._id}`
 })
 const customPath = computed({
     get() {
@@ -118,20 +124,20 @@ const customPath = computed({
 }); //自定义请求路径
 const fullMockUrl = computed(() => `${mockServer.value}${customPath.value}`); //完整请求url
 const apidocInfo = computed(() => store.state["apidoc/apidoc"].apidoc); //当前api文档信息
-const handleChangeMockPath = () => {
-    if (!customPath.value) {
-        customPath.value = "/"
+const handleCompleteMockPath = () => {
+    if (!customPath.value.startsWith("/")) {
+        customPath.value = `/${customPath.value}`
     }
 }
 //重置mock地址
 const handleResetMockUrl = () => {
-    customPath.value = orginPath.value;
+    customPath.value = "/";
 }
-watch(orginPath, (newVal) => {
-    if (customPath.value === "") {
-        customPath.value = newVal;
-    }
-})
+// watch(orginPath, (newVal) => {
+//     if (customPath.value === "") {
+//         customPath.value = newVal;
+//     }
+// })
 watch(customPath, (newVal) => {
     const { urlMap } = store.state["apidoc/mock"];
     const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
