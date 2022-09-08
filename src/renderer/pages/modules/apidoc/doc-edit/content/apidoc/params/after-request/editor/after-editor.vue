@@ -6,11 +6,13 @@
 */
 <template>
     <div ref="afterEditor" class="s-monaco-editor"></div>
+    <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import beautify from "js-beautify"
 import { event } from "@/helper/index"
 import { useCompletionItem } from "./registerCompletionItem"
 import { useHoverProvider } from "./registerHoverProvider"
@@ -73,12 +75,22 @@ onBeforeUnmount(() => {
     monacoCompletionItem?.dispose()
     monacoHoverProvider?.dispose()
 })
-
+//格式化数据
+const handleFormat = () => {
+    const formatStr = beautify(props.modelValue, { indent_size: 4 });
+    monacoInstance?.setValue(formatStr)
+}
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-monaco-editor {
     width: 100%;
     height: 100%;
+    border: 1px solid $gray-300;
+}
+.format-btn {
+    position: absolute;
+    right: size(20);
+    top: size(0);
 }
 </style>
