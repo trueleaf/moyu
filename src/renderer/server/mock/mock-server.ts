@@ -148,7 +148,7 @@ export const mockServer = (): void => {
                     const realJson = apidocConverter.convertMockJsonToRealJson(json);
                     ctx.body = JSON.parse(realJson);
                 } else if (responseType === "json" && !json) {
-                    ctx.body = apidocConverter.convertMockJsonToRealJson(responseStrJson);
+                    ctx.body = JSON.parse(apidocConverter.convertMockJsonToRealJson(responseStrJson));
                 } else if (responseType === "image") {
                     const imageBase64 = await apidocConverter.createMockImage(image);
                     const base64 = imageBase64.replace(/^data:image\/[^;]+;base64,/, "");

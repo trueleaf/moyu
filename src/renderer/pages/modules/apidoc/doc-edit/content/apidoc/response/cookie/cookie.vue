@@ -8,7 +8,11 @@
     <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
         <el-table :data="cookies" stripe border height="100%">
             <el-table-column align="center" prop="name" label="Name"></el-table-column>
-            <el-table-column align="center" prop="value" label="Value"></el-table-column>
+            <el-table-column align="center" prop="value" label="Value">
+                <template #default="scope">
+                    <div class="value-wrap">{{ scope.row.value }}</div>
+                </template>
+            </el-table-column>
             <el-table-column align="center" prop="domin" label="Domin"></el-table-column>
             <el-table-column align="center" prop="path" label="Path"></el-table-column>
             <el-table-column align="center" prop="expires" label="Expires"></el-table-column>
@@ -45,6 +49,10 @@ export default defineComponent({
 .cookie-view {
     width: 100%;
     height: calc(100vh - #{size(370)});
+    .value-wrap {
+        max-height: size(140);
+        overflow-y: auto;
+    }
     &.vertical {
         height: 100%;
     }

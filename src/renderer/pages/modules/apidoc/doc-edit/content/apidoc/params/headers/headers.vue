@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div>
+    <div class="header-info">
         <div v-if="!hideDefaultHeader">
             <span class="cursor-pointer no-select" @click="hideDefaultHeader = true">
                 <span>{{ $t("点击隐藏默认") }}</span>
@@ -24,7 +24,11 @@
             <el-table :data="commonHeaders" stripe border size="mini">
                 <el-table-column prop="key" label="键" align="center"></el-table-column>
                 <el-table-column prop="type" label="类型" align="center"></el-table-column>
-                <el-table-column prop="value" label="值" align="center"></el-table-column>
+                <el-table-column prop="value" label="值" align="center">
+                    <template #default="scope">
+                        <div class="value-wrap">{{ scope.row.value }}</div>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="description" label="描述" align="center"></el-table-column>
             </el-table>
             <!-- <s-params-tree :drag="false" :readonly-keys="commonHeaderKeys" :data="commonHeaders"></s-params-tree> -->
@@ -71,5 +75,10 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-
+.header-info {
+    .value-wrap {
+        max-height: size(140);
+        overflow-y: auto;
+    }
+}
 </style>

@@ -18,13 +18,7 @@
                     <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border @change="handleChangeHost">{{ item.name }}</el-checkbox>
                 </template>
             </el-popover>
-            <!-- <el-checkbox-group v-model="host" size="small" @change="handleChangeHost">
-            </el-checkbox-group> -->
-            <el-button v-if="!isView" type="primary" text class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
-            <!-- <div v-if="!config.isElectron" class="proxy-wrap">
-                <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
-                <el-switch v-model="isProxy"></el-switch>
-            </div> -->
+            <el-button v-if="!isView" type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
         </div>
         <div v-else class="d-flex a-center">
             <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
@@ -41,11 +35,7 @@
                     </div>
                 </el-option>
             </el-select>
-            <el-button v-if="!isView" type="primary" text class="ml-3" @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
-            <div v-if="!config.isElectron" class="proxy-wrap">
-                <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
-                <el-switch v-model="isProxy"></el-switch>
-            </div>
+            <el-button v-if="!isView" type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
         </div>
         <!-- 请求地址，发送请求 -->
         <div class="op-wrap">
@@ -126,16 +116,6 @@ onMounted(() => {
         store.commit("apidoc/baseInfo/changeWebProxy", localProxyState);
     }
 })
-const isProxy = computed({
-    get() {
-        // const localProxyState = apidocCache.getApidocProxyState(projectId);
-        return store.state["apidoc/baseInfo"].webProxy;
-    },
-    set(v: boolean) {
-        apidocCache.setApidocProxyState(v, projectId);
-        store.commit("apidoc/baseInfo/changeWebProxy", v);
-    },
-});
 /*
 |--------------------------------------------------------------------------
 | host相关

@@ -17,13 +17,13 @@
                 width="500px"
             >
                 <template #reference>
-                    <div class="toggle-btn" title="切换项目" @click.stop="toggleProjectVisible = !toggleProjectVisible">
+                    <div class="toggle-btn" title="切换项目" @click.stop="handleToggleProjectModel">
                         <el-icon>
                             <Switch></Switch>
                         </el-icon>
                     </div>
                 </template>
-                <div class="tool-toggle-project">
+                <s-loading :loading="loading" class="tool-toggle-project">
                     <h3>收藏的项目</h3>
                     <div class="project-wrap">
                         <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
@@ -38,7 +38,7 @@
                             <span class="item-content gray-600">{{ item.owner.name }}</span>
                         </div>
                     </div>
-                </div>
+                </s-loading>
             </el-popover>
         </div>
         <div class="p-relative">
@@ -639,9 +639,13 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
     }
     store.dispatch("apidoc/banner/getDocBanner", { projectId: item._id, });
 }
-onMounted(() => {
-    getProjectList();
-})
+//打开或者关闭项目列表切换
+const handleToggleProjectModel = () => {
+    if (!toggleProjectVisible.value) {
+        getProjectList();
+    }
+    toggleProjectVisible.value = !toggleProjectVisible.value;
+}
 </script>
 
 <style lang="scss">
@@ -799,6 +803,7 @@ onMounted(() => {
     }
 }
 .tool-toggle-project {
+    min-height: size(300);
     h3 {
         margin-top: size(5);
         margin-bottom: size(5);

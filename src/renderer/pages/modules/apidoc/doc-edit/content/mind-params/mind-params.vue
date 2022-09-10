@@ -69,7 +69,11 @@
                     </template>
                 </el-table-column>
                 <el-table-column prop="type" :label="$t('参数类型')" align="center"></el-table-column>
-                <el-table-column prop="value" :label="$t('参数值')" align="center"></el-table-column>
+                <el-table-column prop="value" :label="$t('参数值')" align="center">
+                    <template #default="scope">
+                        <div class="value-wrap">{{ scope.row.value }}</div>
+                    </template>
+                </el-table-column>
                 <el-table-column prop="description" :label="$t('备注')" align="center"></el-table-column>
                 <el-table-column prop="paramsPosition" :label="$t('参数位置')" align="center"></el-table-column>
                 <el-table-column :label="$t('操作')" align="center">
@@ -188,6 +192,10 @@ const handleDeleteManyParams = () => {
 <style lang="scss">
 .s-mind-params {
     padding: size(20);
+    .value-wrap {
+        max-height: size(140);
+        overflow-y: auto;
+    }
     .left {
         padding-left: size(20);
         flex: 0 0 40%;

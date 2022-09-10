@@ -16,8 +16,8 @@
             </el-radio-group>
         </s-label-value>
         <div v-if="responseType === 'json'" class="editor-wrap">
-            <s-json-editor v-model="jsonValue"></s-json-editor>
-            <div class="mock" @click.stop="showMockTip = !showMockTip">
+            <s-json-editor ref="jsonComponent" v-model="jsonValue"></s-json-editor>
+            <el-button class="mock" text @click.stop="showMockTip = !showMockTip">
                 <el-popover
                     :visible="showMockTip"
                     placement="top-start"
@@ -29,7 +29,8 @@
                         <span>Mock语法</span>
                     </template>
                 </el-popover>
-            </div>
+            </el-button>
+            <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
             <div v-if="isShowJsonTip" class="tip">
                 <span>若不填写任何数据，mock结果会取返回参数数据，反之则会以填写数据作为mock结果</span>
                 <span class="cursor-pointer d-flex a-center" @click="handleCloseTip">不再显示</span>
@@ -144,7 +145,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, Ref } from "vue";
 import { ElMessage } from "element-plus"
 import { genFileId, UploadInstance, UploadProps, UploadRawFile } from "element-plus/lib/components/upload/src/upload";
 import { UploadFile } from "element-plus/es/components";
@@ -191,6 +192,13 @@ const showMockTip = ref(false)
 //选中mock数据
 const handleSelectMockStr = () => {
     showMockTip.value = false;
+}
+const jsonComponent: Ref<null | {
+    format: () => void,
+}> = ref(null)
+//格式化数据
+const handleFormat = () => {
+    jsonComponent.value?.format();
 }
 /*
 |--------------------------------------------------------------------------
@@ -368,12 +376,17 @@ onBeforeUnmount(() => {
         }
         .mock {
             position: absolute;
-            top: size(5);
-            right: size(10);
+            top: size(0);
+            right: size(70);
             z-index: 1;
             background-color: $white;
             color: $theme-color;
             cursor: pointer;
+        }
+        .format-btn {
+            position: absolute;
+            right: size(10);
+            top: size(0);
         }
     }
     .raw-editor-wrap {

@@ -6,6 +6,7 @@ import type { Timings, IncomingMessageWithTimings } from "@szmarczak/http-timer"
 import { ApidocDetail } from "@@/global";
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
+import db from "@/cache/database";
 // import { apidocConvertJsonDataToParams } from "@/helper/index"
 import { apidocCache } from "@/cache/apidoc";
 import { router } from "@/router";
@@ -171,6 +172,7 @@ function electronRequest() {
                     size: responseInfo.size,
                     statusCode: responseInfo.statusCode,
                     statusMessage: responseInfo.statusMessage,
+                    data: responseInfo.data,
                 }))
             });
             worker.postMessage(JSON.parse(JSON.stringify({
@@ -235,27 +237,30 @@ export function sendRequest(): void {
     const envs = store.state["apidoc/baseInfo"].hosts.concat(localEnvs);
     const { sessionState, localState, remoteState } = store.state["apidoc/workerState"];
     worker = new Worker("/sandbox/pre-request/worker.js");
-    //初始化默认apidoc信息
-    worker.postMessage({
-        type: "pre-request-init-apidoc",
-        value: {
-            apidocInfo: cpApidoc2,
-            commonHeaders,
-            currentEnv,
-            projectName: baseInfo.projectName,
-            _id: baseInfo._id,
-            projectVaribles: baseInfo.variables,
-            envs,
-            sessionState: JSON.parse(JSON.stringify(sessionState[projectId] || {})),
-            localState: JSON.parse(JSON.stringify(localState[projectId] || {})),
-            remoteState: JSON.parse(JSON.stringify(remoteState[projectId] || {})),
-        }
-    });
-    //发送请求
-    worker.postMessage(JSON.parse(JSON.stringify({
-        type: "pre-request-request",
-        value: store.state["apidoc/apidoc"].apidoc.preRequest.raw
-    })));
+    db.scriptList.toArray().then(scriptList => {
+        //初始化默认apidoc信息
+        worker.postMessage({
+            type: "pre-request-init-apidoc",
+            value: {
+                apidocInfo: JSON.parse(JSON.stringify(cpApidoc2)),
+                commonHeaders: JSON.parse(JSON.stringify(commonHeaders)),
+                currentEnv,
+                projectName: baseInfo.projectName,
+                _id: baseInfo._id,
+                projectVaribles: JSON.parse(JSON.stringify(baseInfo.variables)),
+                envs,
+                sessionState: JSON.parse(JSON.stringify(sessionState[projectId] || {})),
+                localState: JSON.parse(JSON.stringify(localState[projectId] || {})),
+                remoteState: JSON.parse(JSON.stringify(remoteState[projectId] || {})),
+                packages: JSON.parse(JSON.stringify(scriptList))
+            }
+        });
+        //发送请求
+        worker.postMessage(JSON.parse(JSON.stringify({
+            type: "pre-request-request",
+            value: store.state["apidoc/apidoc"].apidoc.preRequest.raw
+        })));
+    })
     //错误处理
     worker.addEventListener("error", (error) => {
         store.commit("apidoc/response/changeLoading", false);

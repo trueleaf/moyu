@@ -8,7 +8,11 @@
     <div class="header-view" :class="{ vertical: layout === 'vertical' }">
         <el-table :data="headers" stripe border>
             <el-table-column align="center" prop="key" :label="$t('名称')"></el-table-column>
-            <el-table-column align="center" prop="value" :label="$t('值')"></el-table-column>
+            <el-table-column align="center" prop="value" :label="$t('值')">
+                <template #default="scope">
+                    <div class="value-wrap">{{ scope.row.value }}</div>
+                </template>
+            </el-table-column>
         </el-table>
     </div>
 </template>
@@ -48,6 +52,10 @@ export default defineComponent({
     width: 100%;
     height: calc(100vh - #{size(370)});
     overflow-y: auto;
+    .value-wrap {
+        max-height: size(140);
+        overflow-y: auto;
+    }
     &.vertical {
         height: 100%;
     }

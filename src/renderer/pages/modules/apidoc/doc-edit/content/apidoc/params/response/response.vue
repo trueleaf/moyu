@@ -113,7 +113,8 @@
             </template>
             <!-- 内容展示 -->
             <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400" :class="{ vertical: layout === 'vertical' }">
-                <s-json-editor :model-value="item.value.strJson" @update:modelValue="handleChangeResponseJson($event, index)"></s-json-editor>
+                <s-json-editor ref="jsonComponents" :model-value="item.value.strJson" @update:modelValue="handleChangeResponseJson($event, index)"></s-json-editor>
+                <el-button type="primary" text class="format-btn" @click="handleFormat(index)">格式化</el-button>
             </div>
             <!-- 文本类型 -->
             <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
@@ -338,6 +339,14 @@ const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
 | 其他操作
 |--------------------------------------------------------------------------
 */
+const jsonComponents: Ref<null | {
+    format: () => void,
+}[]> = ref(null)
+const handleFormat = (index: number) => {
+    if (jsonComponents.value) {
+        jsonComponents.value[index].format();
+    }
+}
 const collapseState: Ref<Record<string, boolean>> = ref({});
 const handleChangeCollapseState = (isShow: boolean, item: ApidocResponseParams) => {
     apidocCache.setResponseCollapseState(item._id, isShow);
@@ -398,12 +407,18 @@ onMounted(() => {
         }
     }
     .editor-wrap {
+        position: relative;
         height: size(350);
         &.vertical {
             height: size(250);
         }
         .editor {
             height: size(350);
+        }
+        .format-btn {
+            position: absolute;
+            right: size(10);
+            top: size(0);
         }
     }
     .template-wrap {

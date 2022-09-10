@@ -81,6 +81,8 @@
                                 <el-icon v-if="element.tabType === 'mindParams'" class="blue mr-2" :size="16">
                                     <icon-opportunity />
                                 </el-icon>
+                                <!-- 安装包 -->
+                                <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
                             </template>
                             <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
                             <span class="operaion">

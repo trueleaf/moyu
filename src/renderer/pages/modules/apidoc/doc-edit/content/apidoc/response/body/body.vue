@@ -91,22 +91,6 @@
                         <span v-show="couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">显示部分</span>
                     </div>
                 </div>
-                <el-dropdown class="apply-response" trigger="click">
-                    <span class="d-flex a-center">
-                        <span>{{ $t("应用为响应值") }}</span>
-                        <el-icon :size="16" class="ml-1">
-                            <icon-arrow-down />
-                        </el-icon>
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
-                                <span class="mr-1">{{ $t("应用为") }}</span>
-                                <span>{{ item.title }}</span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
             </div>
         </template>
         <div v-show="showProcess" class="d-flex j-center w-100">
@@ -122,7 +106,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { ArrowDown } from "@element-plus/icons-vue"
 import beautify from "js-beautify"
 import { ApidocProperty } from "@@/global";
 
@@ -133,9 +116,6 @@ type ResponseApplyEnum = {
 }
 
 export default defineComponent({
-    components: {
-        "icon-arrow-down": ArrowDown
-    },
     data() {
         return {
             couldShowAllJsonStr: false,

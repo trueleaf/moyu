@@ -9,7 +9,7 @@ import { store } from "@/store/index"
 import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr, event } from "@/helper/index"
 import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
 import { apidocCache } from "@/cache/apidoc"
-import config from "@/../config/config"
+// import config from "@/../config/config"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
     data: ApidocProperty,
@@ -139,12 +139,6 @@ const apidoc = {
         },
         //改变url值
         changeApidocUrl(state: ApidocState, path: string): void {
-            const originUrl = state.apidoc.item.url.path;
-            const customMockUrl = state.apidoc.mockInfo.path;
-            if (originUrl === customMockUrl) { //如果没有修改过自定义mockurl，则自定义mockurl会随着真实接口地址改变而改变
-                store.commit("apidoc/apidoc/changeMockPath", path)
-            }
-            // console.log(originUrl, customMockUrl, path)
             state.apidoc.item.url.path = path;
         },
         //改变请求method
@@ -351,9 +345,9 @@ const apidoc = {
                 }
             })
             //如果host为空则默认为mockserver
-            if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
-                payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
-            }
+            // if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
+            //     payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
+            // }
             state.apidoc = payload;
         },
         //改变apidoc原始缓存值
@@ -412,6 +406,7 @@ const apidoc = {
         */
         //改变mock地址
         changeMockPath(state: ApidocState, path: string): void {
+            console.log(22, path)
             state.apidoc.mockInfo.path = path;
         },
         //改变http状态码
