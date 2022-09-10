@@ -193,6 +193,11 @@ self.addEventListener("message", async (e) => {
         } 
         //返回参数赋值
         if (e.data && e.data.type === "after-request-init-response") {
+            const objCookie = {};
+            e.data.value.cookies.forEach(v => {
+                objCookie[v.name] = v.value;
+            })
+            pm.response.cookie = objCookie;
             pm.response.cookies = e.data.value.cookies;
             pm.response.headers = e.data.value.headers;
             pm.response.httpVersion = e.data.value.httpVersion;

@@ -19,6 +19,7 @@
         <s-config v-else-if="currentSelectTab.tabType === 'config'"></s-config>
         <s-hook v-else-if="currentSelectTab.tabType === 'hook'"></s-hook>
         <s-common-header v-else-if="currentSelectTab.tabType === 'commonHeader'"></s-common-header>
+        <s-package v-else-if="currentSelectTab.tabType === 'package'"></s-package>
     </keep-alive>
 </template>
 
@@ -38,6 +39,7 @@ import history from "./history/history.vue"
 import config from "./config/config.vue"
 import hook from "./hook/hook.vue"
 import commonHeader from "./common-header/common-header.vue"
+import sPackage from "./package/package.vue"
 
 export default defineComponent({
     components: {
@@ -54,10 +56,7 @@ export default defineComponent({
         "s-config": config,
         "s-hook": hook,
         "s-common-header": commonHeader,
-    },
-    data() {
-        return {
-        };
+        "s-package": sPackage,
     },
     computed: {
         currentSelectTab(): ApidocTab | null { //当前选中的doc
