@@ -6,8 +6,41 @@
 */
 <template>
     <div class="tool">
-        <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
-        <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
+        <div class="d-flex a-center j-center">
+            <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
+            <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
+            <el-popover
+                v-model:visible="toggleProjectVisible"
+                transition="none"
+                placement="right"
+                trigger="click"
+                width="500px"
+            >
+                <template #reference>
+                    <div class="toggle-btn" title="切换项目" @click.stop="toggleProjectVisible = !toggleProjectVisible">
+                        <el-icon>
+                            <Switch></Switch>
+                        </el-icon>
+                    </div>
+                </template>
+                <div class="tool-toggle-project">
+                    <h3>收藏的项目</h3>
+                    <div class="project-wrap">
+                        <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
+                            <span class="item-title">{{ item.projectName }}</span>
+                            <span class="item-content gray-600">{{ item.owner.name }}</span>
+                        </div>
+                    </div>
+                    <h3>项目列表</h3>
+                    <div class="project-wrap">
+                        <div v-for="(item, index) in projectList" :key="index" class="item" @click="handleChangeProject(item)">
+                            <span class="item-title">{{ item.projectName }}</span>
+                            <span class="item-content gray-600">{{ item.owner.name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </el-popover>
+        </div>
         <div class="p-relative">
             <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
             <el-badge :is-dot="hasFilterCondition" class="badge">
@@ -124,12 +157,14 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from "vue"
 import sDraggable from "vuedraggable"
-import { MoreFilled, Close } from "@element-plus/icons-vue"
-import type { ApidocBanner, ApidocOperations } from "@@/global"
+import { MoreFilled, Close, Switch } from "@element-plus/icons-vue"
+import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from "@@/global"
 import { store } from "@/store/index"
 import { forEachForest } from "@/helper/index"
 import { router } from "@/router/index"
 import { $t } from "@/i18n/i18n"
+import { axios } from "@/api/api"
+import { apidocCache } from "@/cache/apidoc"
 import sAddFileDialog from "../../dialog/add-file/add-file.vue"
 import sAddFolderDialog from "../../dialog/add-folder/add-folder.vue"
 import localOriginOperations from "./operations"
@@ -163,8 +198,8 @@ type Operation = {
 };
 
 const emit = defineEmits(["fresh", "filter"])
-//当前工作区状态
-const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
+const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view") //当前工作区状态
+const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
     addFileAndFolderCb.call(this, ref(null), data)
@@ -233,15 +268,16 @@ const togglePin = (element: Operation) => {
     pinOperations.value = operations.value.filter((v) => v.pin);
 }
 //隐藏更多操作
-const handleHideMoreOperation = () => {
+const handleHidePopover = () => {
     visible.value = false;
+    toggleProjectVisible.value = false;
 }
 onMounted(() => {
-    document.documentElement.addEventListener("click", handleHideMoreOperation);
+    document.documentElement.addEventListener("click", handleHidePopover);
     initCacheOperation();
 });
 onUnmounted(() => {
-    document.documentElement.removeEventListener("click", handleHideMoreOperation);
+    document.documentElement.removeEventListener("click", handleHidePopover);
 })
 //点击操作按钮
 const projectId = router.currentRoute.value.query.id as string;
@@ -521,7 +557,7 @@ watch(() => formInfo.value, (formData) => {
     deep: true,
     immediate: true,
 });
-
+//banner数据过滤
 const handleFilterBanner = () => {
     let plainBannerData: ApidocBanner[] = [];
     const { startTime, endTime, maintainers, recentNum } = formInfo.value;
@@ -561,6 +597,51 @@ const handleFilterBanner = () => {
         recentNumIds: plainBannerData.map(v => v._id),
     });
 }
+/*
+|--------------------------------------------------------------------------
+| 切换项目相关
+|--------------------------------------------------------------------------
+*/
+const loading = ref(false);
+const projectList: Ref<ApidocProjectInfo[]> = ref([]); //项目列表
+const startProjectList: Ref<ApidocProjectInfo[]> = ref([]); //收藏项目列表
+const getProjectList = () => {
+    loading.value = true;
+    axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>("/api/project/project_list").then((res) => {
+        projectList.value = res.data.list;
+        startProjectList.value = res.data.list.filter(v => res.data.starProjects.find(v2 => v2 === v._id));
+    }).catch((err) => {
+        console.error(err);
+    }).finally(() => {
+        loading.value = false;
+    });
+}
+//改变项目列表
+const handleChangeProject = (item: ApidocProjectInfo) => {
+    if (item._id === router.currentRoute.value.query.id) {
+        return;
+    }
+    axios.put("/api/project/visited", { projectId: item._id }).catch((err) => {
+        console.error(err);
+    });
+    router.push({
+        path: "/v1/apidoc/doc-edit",
+        query: {
+            id: item._id,
+            mode: router.currentRoute.value.query.mode,
+        },
+    });
+    store.dispatch("apidoc/baseInfo/getProjectBaseInfo", { projectId: item._id });
+    store.dispatch("apidoc/baseInfo/getCommonHeaders")
+    const localState = apidocCache.getApidocWorkerLocalStateById(item._id);
+    if (localState) {
+        store.commit("apidoc/workerState/changeLocalState", { projectId: item._id, value: localState })
+    }
+    store.dispatch("apidoc/banner/getDocBanner", { projectId: item._id, });
+}
+onMounted(() => {
+    getProjectList();
+})
 </script>
 
 <style lang="scss">
@@ -570,6 +651,17 @@ const handleFilterBanner = () => {
     height: size(150);
     background: $gray-200;
     flex: 0 0 auto;
+    .toggle-btn {
+        height: size(30);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 size(30);
+        cursor: pointer;
+        &:hover {
+            color: $theme-color;
+        }
+    }
     .badge {
         width: size(25);
         height: size(25);
@@ -703,6 +795,39 @@ const handleFilterBanner = () => {
         .el-radio-group {
             display: flex;
             align-items: center;
+        }
+    }
+}
+.tool-toggle-project {
+    h3 {
+        margin-top: size(5);
+        margin-bottom: size(5);
+    }
+    .project-wrap {
+        padding: 0 size(10) 0 size(20);
+        max-height: size(300);
+        overflow-y: auto;
+    }
+    .item {
+        height: size(35);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid $gray-300;
+        .item-title {
+            flex: 0 0 75%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: size(25);
+        }
+        &:hover {
+            background-color: $theme-color;
+            color: $white;
+            cursor: pointer;
+            .item-content {
+                color: $white;
+            }
         }
     }
 }
