@@ -6,7 +6,7 @@
 */
 <template>
     <div class="editor-wrap">
-        <pre-editor v-model="preRequest"></pre-editor>
+        <pre-editor ref="editorWrap" v-model="preRequest"></pre-editor>
     </div>
 </template>
 
