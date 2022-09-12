@@ -6,7 +6,7 @@
 */
 <template>
     <s-dialog :model-value="modelValue" top="10vh" title="保存接口" width="40%" @close="handleClose">
-        <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc">
+        <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc" @submit.prevent="handleSaveDoc">
             <el-form-item label="接口名称" prop="name">
                 <el-input v-model="formInfo.name" name="name" placeholder="请输入接口名称" class="w-100" maxlength="100" show-word-limit clearable></el-input>
             </el-form-item>
