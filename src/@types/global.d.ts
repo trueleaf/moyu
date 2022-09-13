@@ -806,7 +806,8 @@ type ApidocOperations =
     | "history"
     | "config"
     | "hook"
-    | "commonHeader";
+    | "commonHeader"
+    | "apiflow";
 
 /*
 |--------------------------------------------------------------------------
