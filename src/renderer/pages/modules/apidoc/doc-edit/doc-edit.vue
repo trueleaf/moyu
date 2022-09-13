@@ -59,7 +59,7 @@ const bindShortcut = (e: KeyboardEvent) => {
         e.stopPropagation();
         if (currentSelectTab.value._id.includes("local_")) {
             saveDocDialogVisible.value = true
-        } else {
+        } else if (!store.state["apidoc/apidoc"].saveLoading) {
             store.dispatch("apidoc/apidoc/saveApidoc");
         }
     }
