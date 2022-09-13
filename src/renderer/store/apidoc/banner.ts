@@ -27,6 +27,7 @@ type EditBannerPayload<K extends keyof ApidocBanner> = {
 const banner = {
     namespaced: true,
     state: {
+        loading: false,
         banner: [],
         defaultExpandedKeys: [],
     },
@@ -71,6 +72,10 @@ const banner = {
         changeExpandItems(state: ApidocBannerState, payload: string[]): void {
             state.defaultExpandedKeys = payload;
         },
+        //改变加载状态
+        changeBannerLoading(state: ApidocBannerState, loading: boolean): void {
+            state.loading = loading
+        }
     },
     actions: {
         /**

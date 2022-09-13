@@ -184,7 +184,8 @@ const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
 //当前工作区状态
 const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
-const { loading, getBannerData } = useBannerData();
+const loading = computed(() => store.state["apidoc/banner"].loading)
+const { getBannerData } = useBannerData();
 //默认展开节点
 const defaultExpandedKeys = computed(() => store.state["apidoc/banner"].defaultExpandedKeys);
 

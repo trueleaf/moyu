@@ -43,6 +43,7 @@ type PermissionState = {
 
 //文档banner state
 type ApidocBannerState = {
+    loading: boolean, //左侧导航数据加载状态
     banner: ApidocBanner[],
     defaultExpandedKeys: string[],
 };
@@ -291,7 +292,8 @@ type ApidocTabType =
 "mindParams" |
 "hook" |
 "package" |
-"commonHeader"
+"commonHeader" |
+"apiflow"
 //tabs导航
 
 type ApidocTab = {
@@ -502,6 +504,41 @@ type ApidocWorkerState = {
      */
     remoteState: Record<string, unknown>
 };
+/*
+|--------------------------------------------------------------------------
+| 接口编排
+|--------------------------------------------------------------------------
+*/
+type ApidocApiflowInfo = {
+    /**
+     * 节点id
+     */
+    id: string,
+    /**
+     * 样式信息
+     */
+    styleInfo: {
+        /**
+         * 距离左侧距离
+         */
+        x: number,
+        /**
+         * 距离顶部距离
+         */
+        y: number,
+        /**
+         * 节点宽度
+         */
+        width: number,
+        /**
+         * 节点高度
+         */
+        height: number,
+    },
+};
+type ApidocApiflowState = {
+    apiflowList: ApidocApiflowInfo[]
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -520,6 +557,7 @@ type State = {
     "apidoc/mock": ApidocMockState,
     "apidoc/request": ApidocRequest,
     "apidoc/workerState": ApidocWorkerState,
+    "apidoc/apiflow": ApidocApiflowState,
 }
 export {
     PermissionState,
@@ -539,5 +577,6 @@ export {
     ApidocRequest,
     ApidocProjectVariable,
     ApidocWorkerState,
+    ApidocApiflowState,
     State,
 }
