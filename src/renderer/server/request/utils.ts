@@ -377,7 +377,7 @@ class ApidocConverter {
             // eslint-disable-next-line no-useless-escape, no-case-declarations
             const numberMap: Record<string, string> = {};
             // eslint-disable-next-line no-useless-escape, no-case-declarations
-            const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{9,})/g, (match, $1, $2) => {
+            const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{14,})/g, (match, $1, $2) => {
                 numberMap[$2] = $2;
                 return `${$1}"${$2}"`;
             });
