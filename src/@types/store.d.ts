@@ -509,6 +509,29 @@ type ApidocWorkerState = {
 | 接口编排
 |--------------------------------------------------------------------------
 */
+type ApidocApiflowLineInfo = {
+    /**
+     * 线条id
+     */
+    id: string,
+    /**
+     * 开始位置x值
+     */
+    startX: number,
+    /**
+     * 开始位置y值
+     */
+    startY: number,
+    /**
+     * 结束位置x值
+     */
+    endX: number,
+    /**
+     * 结束位置y值
+     */
+    endY: number
+}
+//节点信息
 type ApidocApiflowInfo = {
     /**
      * 节点id
@@ -535,8 +558,32 @@ type ApidocApiflowInfo = {
          */
         height: number,
     },
+    /**
+     * 出线
+     */
+    outcomings: ApidocApiflowLineInfo[]
+};
+//节点包裹框信息
+type ApidocApiflowContainerInfo = {
+    /**
+     * 距离左侧距离
+     */
+    x: number,
+    /**
+     * 距离顶部距离
+     */
+    y: number,
+    /**
+     * 容器宽度
+     */
+    width: number,
+    /**
+     * 容器高度
+     */
+    height: number,
 };
 type ApidocApiflowState = {
+    containerInfo: ApidocApiflowContainerInfo,
     apiflowList: ApidocApiflowInfo[]
 }
 
@@ -574,9 +621,11 @@ export {
     ApidocProjectRules,
     ApidocMockState,
     ApidocMockMapInfo,
+    ApidocApiflowInfo,
     ApidocRequest,
     ApidocProjectVariable,
     ApidocWorkerState,
     ApidocApiflowState,
+    ApidocApiflowContainerInfo,
     State,
 }
