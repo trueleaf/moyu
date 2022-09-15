@@ -187,7 +187,7 @@ export default defineComponent({
         },
         hasCustomMockInfo() {
             const { mockInfo } = store.state["apidoc/apidoc"].apidoc;
-            const { path } = this.$store.state["apidoc/apidoc"].apidoc.item.url;
+            // const { path } = this.$store.state["apidoc/apidoc"].apidoc.item.url;
             const { responseHeaders } = this.$store.state["apidoc/apidoc"].apidoc.mockInfo;
             const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
             if (mockInfo.responseType === "json" && mockInfo.json.trim() !== "") {
@@ -208,7 +208,7 @@ export default defineComponent({
             if (hasHeaders) { //存在自定义headers
                 return true;
             }
-            if (mockInfo.path !== path) {
+            if (mockInfo.path !== "" && mockInfo.path !== "/") { //blur会在自动添加/，这种情况也属于未改变
                 return true;
             }
             if (mockInfo.responseDelay !== 0) {
