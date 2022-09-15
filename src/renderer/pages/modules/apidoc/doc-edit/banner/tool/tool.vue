@@ -24,7 +24,7 @@
                     </div>
                 </template>
                 <s-loading :loading="loading" class="tool-toggle-project">
-                    <h3>收藏的项目</h3>
+                    <h3 v-if="startProjectList.length > 0">收藏的项目</h3>
                     <div class="project-wrap">
                         <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
                             <span class="item-title">{{ item.projectName }}</span>
@@ -415,6 +415,21 @@ const handleEmit = (op: ApidocOperations) => {
             selected: true,
         });
         break;
+    case "apiflow": //接口编排
+        store.commit("apidoc/tabs/addTab", {
+            _id: "apiflow",
+            projectId,
+            tabType: "apiflow",
+            label: $t("接口编排"),
+            head: {
+                icon: "",
+                color: ""
+            },
+            saved: true,
+            fixed: true,
+            selected: true,
+        });
+        break;
     default:
         break;
     }
@@ -637,7 +652,10 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
     if (localState) {
         store.commit("apidoc/workerState/changeLocalState", { projectId: item._id, value: localState })
     }
-    store.dispatch("apidoc/banner/getDocBanner", { projectId: item._id, });
+    store.commit("apidoc/banner/changeBannerLoading", true)
+    store.dispatch("apidoc/banner/getDocBanner", { projectId: item._id, }).finally(() => {
+        store.commit("apidoc/banner/changeBannerLoading", false)
+    });
 }
 //打开或者关闭项目列表切换
 const handleToggleProjectModel = () => {
