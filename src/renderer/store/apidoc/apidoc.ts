@@ -406,7 +406,6 @@ const apidoc = {
         */
         //改变mock地址
         changeMockPath(state: ApidocState, path: string): void {
-            console.log(22, path)
             state.apidoc.mockInfo.path = path;
         },
         //改变http状态码
