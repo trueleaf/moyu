@@ -63,4 +63,11 @@ export default [{
     shortcut: ["Ctrl", "H"],
     pin: false,
     viewOnly: true,
+}, {
+    name: $t("接口编排"),
+    icon: "#iconbianpaixin",
+    op: "apiflow",
+    shortcut: [],
+    pin: false,
+    viewOnly: true,
 }];
