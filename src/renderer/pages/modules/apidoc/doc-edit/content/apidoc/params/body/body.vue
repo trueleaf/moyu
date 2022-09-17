@@ -20,7 +20,11 @@
             <s-json-editor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig" class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></s-json-editor>
             <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
-            <el-button v-show="bodyType === 'json'" type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
+            <div v-show="bodyType === 'json'" class="body-op">
+                <span class="btn" @click="handleFormat">格式化</span>
+                <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
+                <span class="btn" @click="handleFormat">切换用例</span> -->
+            </div>
             <div v-if="bodyType === 'json' && !rawJsonData && jsonBodyVisible" class="json-tip">
                 <img
                     class="w-100 h-100"
@@ -42,6 +46,7 @@
                 </el-select>
             </div>
         </div>
+        <!-- <s-body-use-case-dialog v-model="bodyUseVisible"></s-body-use-case-dialog> -->
     </div>
 </template>
 
@@ -52,6 +57,7 @@ import { apidocConvertParamsToJsonStr } from "@/helper/index"
 import { store } from "@/store/index"
 import { $t } from "@/i18n/i18n"
 import { apidocCache } from "@/cache/apidoc"
+// import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 
 //=========================================================================//
 const jsonComponent: Ref<null | {
@@ -113,6 +119,11 @@ const bodyType = computed<ApidocBodyMode>({
 | json类型操作
 |--------------------------------------------------------------------------
 */
+// const bodyUseVisible = ref(false); //保存用例弹窗
+// //打开用例弹窗
+// const handleOpenSaveDialog = () => {
+//     bodyUseVisible.value = true
+// }
 //json格式body参数
 const rawJsonData = computed<string>({
     get() {
@@ -258,10 +269,15 @@ onMounted(() => {
             height: calc(100vh - #{size(350)});
             // height: calc(100vh - #{size(350)});
         }
-        .format-btn {
+        .body-op {
             position: absolute;
             right: size(10);
-            top: size(10);
+            top: size(5);
+            .btn {
+                color: $theme-color;
+                cursor: pointer;
+                margin-right: size(10);
+            }
         }
         .json-tip {
             width: size(576);
