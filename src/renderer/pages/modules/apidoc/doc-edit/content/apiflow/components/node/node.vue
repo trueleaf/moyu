@@ -40,7 +40,7 @@
 import { uuid } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowInfo } from "@@/store";
-import { onUnmounted, ref, Ref, computed, onMounted, watch, render } from "vue";
+import { onUnmounted, ref, Ref, computed, onMounted, watch } from "vue";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
