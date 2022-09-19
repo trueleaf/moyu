@@ -15,11 +15,11 @@
 </template>
 
 <script lang="ts" setup>
+import { onMounted, ref, Ref, provide, computed } from "vue";
 import { axios } from "@/api/api";
 import { router } from "@/router";
 import { uuid } from "@/helper";
 import { store } from "@/store";
-import { onMounted, ref, Ref, computed } from "vue";
 import type { ApidocApiflowInfo } from "@@/store"
 import dragNode from "./components/node/node.vue"
 
@@ -39,6 +39,7 @@ const getApiflowList = () => {
     })
 }
 const apiflow: Ref<HTMLElement | null> = ref(null);
+provide("apiflowWrapper", apiflow)
 const wrapX = ref(0);
 const wrapY = ref(0);
 onMounted(() => {

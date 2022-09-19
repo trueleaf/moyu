@@ -6,7 +6,7 @@
 */
 <template>
     <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
-        <s-tool @fresh="getBannerData" @filter="handleFilterNode"></s-tool>
+        <s-tool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></s-tool>
         <s-loading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
             <el-tree
                 ref="docTree"
@@ -166,7 +166,8 @@ type SearchData = {
      */
     recentNumIds: string[] | null,
 };
-
+//带projectId的banner数据
+type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 /*
 |--------------------------------------------------------------------------
 | 变量、函数等内容声明
@@ -175,10 +176,10 @@ type SearchData = {
 |--------------------------------------------------------------------------
 */
 const store = useStore();
-const projectId = router.currentRoute.value.query.id as string;
+const projectId = ref(router.currentRoute.value.query.id as string);
 const docTree: Ref<TreeNodeOptions["store"] | null | TreeNodeOptions> = ref(null);
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
-const selectNodes: Ref<ApidocBanner[]> = ref([]); //当前选中节点
+const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节点
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
@@ -190,7 +191,7 @@ const { getBannerData } = useBannerData();
 const defaultExpandedKeys = computed(() => store.state["apidoc/banner"].defaultExpandedKeys);
 
 const projectInfo = computed(() => store.state["apidoc/baseInfo"]);
-const activeNode = computed(() => store.state["apidoc/tabs"].tabs[projectId]?.find((v) => v.selected));
+const activeNode = computed(() => store.state["apidoc/tabs"].tabs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
     const originBannerData = store.state["apidoc/banner"].banner;
     return originBannerData
@@ -211,7 +212,10 @@ const contextmenuTop = ref(0); //contextmenu top值
 
 const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
     if (selectNodes.value.length < 2) { //处理单个节点
-        selectNodes.value = [data];
+        selectNodes.value = [{
+            ...data,
+            projectId: projectId.value,
+        }];
     }
     const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
     pasteValue.value = copyData ? JSON.parse(copyData) : null;
@@ -250,14 +254,20 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         if (delIndex !== -1) {
             selectNodes.value.splice(delIndex, 1);
         } else {
-            selectNodes.value.push(data);
+            selectNodes.value.push({
+                ...data,
+                projectId: projectId.value,
+            });
         }
     } else {
-        selectNodes.value = [data];
+        selectNodes.value = [{
+            ...data,
+            projectId: projectId.value,
+        }];
         if (!data.isFolder) {
             store.commit("apidoc/tabs/addTab", {
                 _id: data._id,
-                projectId,
+                projectId: projectId.value,
                 tabType: "doc",
                 label: data.name,
                 saved: true,
@@ -277,7 +287,7 @@ const handleDbclickNode = (data: ApidocBanner) => {
     }
     store.commit("apidoc/tabs/fixedTab", {
         _id: data._id,
-        projectId,
+        projectId: projectId.value,
     })
 }
 //鼠标放到节点上面
@@ -313,7 +323,7 @@ const handleJumpToCommonHeader = (e: MouseEvent) => {
     if (currentOperationalNode.value) {
         store.commit("apidoc/tabs/addTab", {
             _id: currentOperationalNode.value._id,
-            projectId,
+            projectId: projectId.value,
             tabType: "commonHeader",
             label: `【公共头】${currentOperationalNode.value.name}`,
             saved: true,
@@ -330,7 +340,7 @@ const handleDeleteNodes = () => {
     deleteNode.call(this, selectNodes.value);
 }
 //剪切节点
-const cutNodes: Ref<ApidocBanner[]> = ref([]);
+const cutNodes: Ref<ApidocBannerWithProjectId[]> = ref([]);
 //复制节点
 const handleCopyNode = () => {
     cutNodes.value = [];
@@ -355,7 +365,7 @@ const handlePasteNode = () => {
     if (currentOperationalNode.value && !currentOperationalNode.value.isFolder) return //只允许根元素或者文件夹粘贴
     const copyData = clipboard?.readBuffer("moyu-apidoc-node").toString();
     pasteValue.value = copyData ? JSON.parse(copyData) : null;
-    pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBanner[]).then(() => {
+    pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBannerWithProjectId[]).then(() => {
         if (cutNodes.value.length > 0) { //剪切节点
             deleteNode.call(this, cutNodes.value, true);
             cutNodes.value = [];
@@ -466,6 +476,10 @@ const handleNodeKeydown = (e: KeyboardEvent) => {
     } else if (e.ctrlKey && (e.key === "X" || e.key === "x")) {
         handleCutNode();
     }
+}
+//改变项目
+const handleChangeProject = (id: string) => {
+    projectId.value = id;
 }
 const handleGlobalClick = () => {
     showContextmenu.value = false;

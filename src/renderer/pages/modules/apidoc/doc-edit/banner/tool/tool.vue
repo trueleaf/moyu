@@ -197,7 +197,7 @@ type Operation = {
     viewOnly?: boolean,
 };
 
-const emit = defineEmits(["fresh", "filter"])
+const emit = defineEmits(["fresh", "filter", "changeProject"])
 const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view") //当前工作区状态
 const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
@@ -656,6 +656,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
     store.dispatch("apidoc/banner/getDocBanner", { projectId: item._id, }).finally(() => {
         store.commit("apidoc/banner/changeBannerLoading", false)
     });
+    emit("changeProject", item._id)
 }
 //打开或者关闭项目列表切换
 const handleToggleProjectModel = () => {

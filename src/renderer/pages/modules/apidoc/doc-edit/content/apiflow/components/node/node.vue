@@ -37,10 +37,10 @@
 </template>
 
 <script lang="ts" setup>
+import { onUnmounted, ref, Ref, computed, onMounted, watch, inject } from "vue";
 import { uuid } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowInfo } from "@@/store";
-import { onUnmounted, ref, Ref, computed, onMounted, watch } from "vue";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
@@ -293,9 +293,24 @@ const handleAddSiblingNode = () => {
 | 线条绘制
 |--------------------------------------------------------------------------
 */
+const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
+const tempLine: Ref<null | HTMLElement> = ref(null);
+const isMouseDownNode = ref(false);
 // const bufferDistance = 40;
 const handleMouseDownDot = (e: MouseEvent, direction: "left" | "top" | "bottom" | "right") => {
+    isMouseDownNode.value = true;
+    if (!tempLine.value) {
+        tempLine.value = document.createElement("div");
+        apiflowWrapper.value.append(tempLine.value);
+    }
     console.log(e, direction)
+}
+const handleRemoveTempLine = () => {
+    isMouseDownNode.value = false;
+    if (tempLine.value) {
+        apiflowWrapper.value.removeChild(tempLine.value);
+        tempLine.value = null;
+    }
 }
 const lineCanvas: Ref<HTMLCanvasElement | null> = ref(null)
 const initLineCanvas = () => {
@@ -344,6 +359,7 @@ document.documentElement.addEventListener("mousemove", handleNodeMousemove);
 document.documentElement.addEventListener("mousemove", handleResizeNodeMousemove);
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
+document.documentElement.addEventListener("mouseup", handleRemoveTempLine);
 document.documentElement.addEventListener("click", handleClickGlobal);
 onMounted(() => {
     // initLineCanvas();
@@ -381,23 +397,23 @@ $dotHeight: 18;
         cursor: pointer;
         background-color: $white;
         &.lt { //左上
-            top: -(size($dotWidth/2));
-            left: -(size($dotWidth/2));
+            top: -(size(calc($dotWidth/2)));
+            left: -(size(calc($dotWidth/2)));
             cursor: se-resize;
         }
         &.rt { //右上
-            top: -(size($dotWidth/2));
-            right: -(size($dotWidth/2));
+            top: -(size(calc($dotWidth/2)));
+            right: -(size(calc($dotWidth/2)));
             cursor: ne-resize;
         }
         &.lb { //左下
-            bottom: -(size($dotWidth/2));
-            left: -(size($dotWidth/2));
+            bottom: -(size(calc($dotWidth/2)));
+            left: -(size(calc($dotWidth/2)));
             cursor: sw-resize;
         }
         &.rb { //右下
-            bottom: -(size($dotWidth/2));
-            right: -(size($dotWidth/2));
+            bottom: -(size(calc($dotWidth/2)));
+            right: -(size(calc($dotWidth/2)));
             cursor: se-resize;
         }
     }
@@ -410,23 +426,23 @@ $dotHeight: 18;
         cursor: pointer;
         background-color: $white;
         &.left { //左
-            top: calc(50% - size($dotHeight / 2));
-            left: -(size($dotWidth/2));
+            top: calc(50% - size(calc($dotHeight / 2)));
+            left: -(size(calc($dotWidth/2)));
             cursor: crosshair;
         }
         &.right { //右
-            top: calc(50% - size($dotHeight / 2));
-            right: -(size($dotWidth/2));
+            top: calc(50% - size(calc($dotHeight / 2)));
+            right: -(size(calc($dotWidth/2)));
             cursor: crosshair;
         }
         &.top { //上
-            top: -(size($dotHeight/2));
-            left: calc(50% - size($dotHeight / 2));
+            top: -(size(calc($dotHeight/2)));
+            left: calc(50% - size(calc($dotHeight / 2)));
             cursor: crosshair;
         }
         &.bottom { //下
-            bottom: -(size($dotWidth/2));
-            left: calc(50% - size($dotWidth / 2));;
+            bottom: -(size(calc($dotWidth/2)));
+            left: calc(50% - size(calc($dotWidth / 2)));;
             cursor: crosshair;
         }
     }

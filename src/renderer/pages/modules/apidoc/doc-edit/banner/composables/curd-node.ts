@@ -17,6 +17,8 @@ type MapId = {
     oldPid: string, //历史pid
     newPid: string, //新pid
 };
+//带projectId的banner数据
+type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 /**
  * 删除某个(多个)节点
  */
@@ -176,7 +178,7 @@ export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | nu
  * 3. 从去重数据中寻找无父元素的节点(pid在数组中无_id对应)
  * 4. 将这些
  */
-export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBanner[]): Promise<ApidocBanner[]> {
+export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pastedNodes: ApidocBannerWithProjectId[]): Promise<ApidocBanner[]> {
     const copyPasteNodes: ApidocBanner[] = JSON.parse(JSON.stringify(pastedNodes));
     return new Promise((resolve, reject) => {
         const flatNodes: ApidocBanner[] = [];
@@ -186,6 +188,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
         const uniqueFlatNodes = uniqueByKey(flatNodes, "_id");
         const params = {
             projectId: router.currentRoute.value.query.id,
+            fromProjectId: pastedNodes[0].projectId,
             mountedId: currentOperationalNode.value?._id,
             docs: uniqueFlatNodes.map((v) => ({
                 _id: v._id,
