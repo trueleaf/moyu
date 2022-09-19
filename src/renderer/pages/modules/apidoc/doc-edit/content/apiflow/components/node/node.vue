@@ -19,7 +19,7 @@
             <div class="rect lb" @mousedown.stop="handleResizeNodeMousedown($event, 'leftBottom')"></div>
             <div class="rect rb" @mousedown.stop="handleResizeNodeMousedown($event, 'rightBottom')"></div>
         </template>
-        <template v-if="isMouseInNode">
+        <template v-if="1 || isMouseInNode">
             <div class="dot left" @mousedown.stop="handleMouseDownDot($event, 'left')"></div>
             <div class="dot right" @mousedown.stop="handleMouseDownDot($event, 'right')"></div>
             <div class="dot top" @mousedown.stop="handleMouseDownDot($event, 'top')"></div>
@@ -41,6 +41,7 @@ import { onUnmounted, ref, Ref, computed, onMounted, watch, inject } from "vue";
 import { uuid } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowInfo } from "@@/store";
+import { getRectInfo } from "./utils";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
@@ -295,21 +296,69 @@ const handleAddSiblingNode = () => {
 */
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const tempLine: Ref<null | HTMLElement> = ref(null);
-const isMouseDownNode = ref(false);
+const tempCanvas: Ref<null | HTMLCanvasElement> = ref(null);
+const isMouseDownDot = ref(false);
+const dotStartX = ref(0);
+const dotStartY = ref(0);
 // const bufferDistance = 40;
 const handleMouseDownDot = (e: MouseEvent, direction: "left" | "top" | "bottom" | "right") => {
-    isMouseDownNode.value = true;
+    const dotDom = e.target as HTMLElement;
+    const dotDomRect = dotDom.getBoundingClientRect();
+    const apiflowDomRect = apiflowWrapper.value.getBoundingClientRect();
+    dotStartX.value = dotDomRect.x + dotDomRect.width / 2;
+    dotStartY.value = dotDomRect.y + dotDomRect.height / 2;
+    isMouseDownDot.value = true;
     if (!tempLine.value) {
         tempLine.value = document.createElement("div");
+        tempLine.value.style.border = "1px solid #aaa";
+        tempLine.value.style.position = "absolute";
+        tempLine.value.style.left = `${dotStartX.value - apiflowDomRect.x}px`;
+        tempLine.value.style.top = `${dotStartY.value - apiflowDomRect.y}px`;
+        tempCanvas.value = document.createElement("canvas");
+        tempCanvas.value.style.position = "absolute";
+        tempCanvas.value.style.left = `${dotStartX.value - apiflowDomRect.x}px`;
+        tempCanvas.value.style.top = `${dotStartY.value - apiflowDomRect.y}px`;
         apiflowWrapper.value.append(tempLine.value);
+        apiflowWrapper.value.append(tempCanvas.value);
     }
     console.log(e, direction)
 }
+//绘制线条
+const handleDotMousemove = (e: MouseEvent) => {
+    if (!isMouseDownDot.value || !tempLine.value || !tempCanvas.value) {
+        return;
+    }
+    const apiflowDomRect = apiflowWrapper.value.getBoundingClientRect();
+    const drawInfo = getRectInfo({
+        x: dotStartX.value - apiflowDomRect.x,
+        y: dotStartY.value - apiflowDomRect.y,
+    }, {
+        x: e.clientX - apiflowDomRect.x,
+        y: e.clientY - apiflowDomRect.y,
+    });
+    tempLine.value.style.left = `${drawInfo.x}px`;
+    tempLine.value.style.top = `${drawInfo.y}px`;
+    tempLine.value.style.width = `${drawInfo.width}px`;
+    tempLine.value.style.height = `${drawInfo.height}px`;
+    tempCanvas.value.style.left = `${drawInfo.x}px`;
+    tempCanvas.value.style.top = `${drawInfo.y}px`;
+    // tempCanvas.value.style.width = `${drawInfo.width}px`;
+    // tempCanvas.value.style.height = `${drawInfo.height}px`;
+    tempCanvas.value.width = drawInfo.width;
+    tempCanvas.value.height = drawInfo.height;
+    const ctx = tempCanvas.value.getContext("2d");
+    ctx?.beginPath();
+    ctx?.moveTo(drawInfo.lineInfo.startX, drawInfo.lineInfo.startY);
+    ctx?.quadraticCurveTo(drawInfo.lineInfo.cpx, drawInfo.lineInfo.cpy, drawInfo.lineInfo.endX, drawInfo.lineInfo.endY);
+    ctx?.stroke();
+}
 const handleRemoveTempLine = () => {
-    isMouseDownNode.value = false;
-    if (tempLine.value) {
-        apiflowWrapper.value.removeChild(tempLine.value);
+    isMouseDownDot.value = false;
+    if (tempLine.value && tempCanvas.value) {
+        // apiflowWrapper.value.removeChild(tempLine.value);
+        // apiflowWrapper.value.removeChild(tempCanvas.value);
         tempLine.value = null;
+        tempCanvas.value = null;
     }
 }
 const lineCanvas: Ref<HTMLCanvasElement | null> = ref(null)
@@ -355,6 +404,7 @@ const handleClickGlobal = () => {
     isSelectedNode.value = false;
     contextmenuVisible.value = false;
 }
+document.documentElement.addEventListener("mousemove", handleDotMousemove);
 document.documentElement.addEventListener("mousemove", handleNodeMousemove);
 document.documentElement.addEventListener("mousemove", handleResizeNodeMousemove);
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
