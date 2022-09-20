@@ -6,7 +6,7 @@
 <template>
     <div
         class="node"
-        :style="{ left: nodeX + 'px', top: nodeY + 'px', width: nodeWidth + 'px', height: nodeHeight + 'px' }"
+        :style="{ left: nodeX + 'px', top: nodeY + 'px', width: nodeWidth + 'px', height: nodeHeight + 'px', zIndex: styleInfo?.zIndex }"
         @click.stop="() => {}"
         @mousedown.stop="handleNodeMousedown"
         @mouseenter="handleNodeMouseEnter"
@@ -64,6 +64,7 @@ const nodeMousedownY = ref(0);
 const isNodeMousedown = ref(false);
 const isMouseInNode = ref(false);
 const isSelectedNode = ref(false); //是否选中节点
+const styleInfo = computed(() => currentNode.value?.styleInfo)
 const nodeX = computed({ //节点x值
     get() {
         return currentNode.value?.styleInfo.x || 0
@@ -269,6 +270,15 @@ const handleOpenContextmenu = (e: MouseEvent) => {
     contextmenuLeft.value = e.x;
     contextmenuTop.value = e.y;
 }
+const zIndex = computed({
+    get() {
+        store.commit("apidoc/apiflow/increaseZIndex")
+        return store.state["apidoc/apiflow"].zIndex;
+    },
+    set() {
+        console.log("set")
+    }
+})
 //添加子节点
 const handleAddSubNode = () => {
     if (!currentNode.value) {
@@ -281,6 +291,7 @@ const handleAddSubNode = () => {
             y: currentNode.value.styleInfo.y,
             width: 100,
             height: 50,
+            zIndex: zIndex.value
         },
         outcomings: []
     }
@@ -300,11 +311,10 @@ const tempCanvas: Ref<null | HTMLCanvasElement> = ref(null);
 const isMouseDownDot = ref(false);
 const dotStartX = ref(0);
 const dotStartY = ref(0);
-// const bufferDistance = 40;
 const handleMouseDownDot = (e: MouseEvent, direction: "left" | "top" | "bottom" | "right") => {
     const dotDom = e.target as HTMLElement;
     const dotDomRect = dotDom.getBoundingClientRect();
-    const apiflowDomRect = apiflowWrapper.value.getBoundingClientRect();
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     dotStartX.value = dotDomRect.x + dotDomRect.width / 2;
     dotStartY.value = dotDomRect.y + dotDomRect.height / 2;
     isMouseDownDot.value = true;
@@ -312,12 +322,12 @@ const handleMouseDownDot = (e: MouseEvent, direction: "left" | "top" | "bottom" 
         tempLine.value = document.createElement("div");
         tempLine.value.style.border = "1px solid #aaa";
         tempLine.value.style.position = "absolute";
-        tempLine.value.style.left = `${dotStartX.value - apiflowDomRect.x}px`;
-        tempLine.value.style.top = `${dotStartY.value - apiflowDomRect.y}px`;
+        tempLine.value.style.left = `${dotStartX.value - apiflowWrapperRect.x}px`;
+        tempLine.value.style.top = `${dotStartY.value - apiflowWrapperRect.y}px`;
         tempCanvas.value = document.createElement("canvas");
         tempCanvas.value.style.position = "absolute";
-        tempCanvas.value.style.left = `${dotStartX.value - apiflowDomRect.x}px`;
-        tempCanvas.value.style.top = `${dotStartY.value - apiflowDomRect.y}px`;
+        tempCanvas.value.style.left = `${dotStartX.value - apiflowWrapperRect.x}px`;
+        tempCanvas.value.style.top = `${dotStartY.value - apiflowWrapperRect.y}px`;
         apiflowWrapper.value.append(tempLine.value);
         apiflowWrapper.value.append(tempCanvas.value);
     }
@@ -328,13 +338,13 @@ const handleDotMousemove = (e: MouseEvent) => {
     if (!isMouseDownDot.value || !tempLine.value || !tempCanvas.value) {
         return;
     }
-    const apiflowDomRect = apiflowWrapper.value.getBoundingClientRect();
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     const drawInfo = getRectInfo({
-        x: dotStartX.value - apiflowDomRect.x,
-        y: dotStartY.value - apiflowDomRect.y,
+        x: dotStartX.value - apiflowWrapperRect.x,
+        y: dotStartY.value - apiflowWrapperRect.y,
     }, {
-        x: e.clientX - apiflowDomRect.x,
-        y: e.clientY - apiflowDomRect.y,
+        x: e.clientX - apiflowWrapperRect.x,
+        y: e.clientY - apiflowWrapperRect.y,
     });
     tempLine.value.style.left = `${drawInfo.x}px`;
     tempLine.value.style.top = `${drawInfo.y}px`;
@@ -342,8 +352,6 @@ const handleDotMousemove = (e: MouseEvent) => {
     tempLine.value.style.height = `${drawInfo.height}px`;
     tempCanvas.value.style.left = `${drawInfo.x}px`;
     tempCanvas.value.style.top = `${drawInfo.y}px`;
-    // tempCanvas.value.style.width = `${drawInfo.width}px`;
-    // tempCanvas.value.style.height = `${drawInfo.height}px`;
     tempCanvas.value.width = drawInfo.width;
     tempCanvas.value.height = drawInfo.height;
     const ctx = tempCanvas.value.getContext("2d");
@@ -359,39 +367,6 @@ const handleRemoveTempLine = () => {
         // apiflowWrapper.value.removeChild(tempCanvas.value);
         tempLine.value = null;
         tempCanvas.value = null;
-    }
-}
-const lineCanvas: Ref<HTMLCanvasElement | null> = ref(null)
-const initLineCanvas = () => {
-    if (lineCanvas.value) {
-        lineCanvas.value.width = 200
-        lineCanvas.value.height = 200
-        lineCanvas.value.style.position = "absolute";
-        lineCanvas.value.style.left = `${containerInfo.value.x}px`
-        lineCanvas.value.style.top = `${containerInfo.value.y}px`
-    }
-}
-const drawLine = () => {
-    initLineCanvas();
-    if (currentNode.value?.outcomings) {
-        const { outcomings } = currentNode.value;
-        outcomings.forEach((outcoming) => {
-            if (lineCanvas.value) {
-                const ctx = lineCanvas.value.getContext("2d");
-                if (!ctx) {
-                    return;
-                }
-                ctx.strokeStyle = "red";
-                ctx.lineWidth = 1;
-                ctx.lineJoin = "round";
-                ctx.lineCap = "round";
-                ctx.beginPath();
-                ctx.moveTo(outcoming.startX, outcoming.startY);
-                ctx.lineTo(outcoming.endX, outcoming.endY);
-                ctx.stroke();
-                ctx.closePath();
-            }
-        })
     }
 }
 
@@ -415,7 +390,7 @@ onMounted(() => {
     // initLineCanvas();
     watch(currentNode, () => {
         console.log(222)
-        drawLine()
+        // drawLine()
     }, {
         deep: true
     })

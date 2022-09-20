@@ -18,12 +18,20 @@
 import { onMounted, ref, Ref, provide, computed } from "vue";
 import { axios } from "@/api/api";
 import { router } from "@/router";
-import { uuid } from "@/helper";
 import { store } from "@/store";
 import type { ApidocApiflowInfo } from "@@/store"
 import dragNode from "./components/node/node.vue"
 
-const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList)
+const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
+const zIndex = computed({
+    get() {
+        store.commit("apidoc/apiflow/increaseZIndex")
+        return store.state["apidoc/apiflow"].zIndex;
+    },
+    set() {
+        console.log("set")
+    }
+})
 const loading = ref(false);
 const getApiflowList = () => {
     loading.value = true;
@@ -55,14 +63,9 @@ onMounted(() => {
                 y: clientRect.height / 2,
                 width: 120,
                 height: 90,
+                zIndex: zIndex.value
             },
-            outcomings: [{
-                id: uuid(),
-                startX: 200,
-                startY: clientRect.height / 2 + 25,
-                endX: 300,
-                endY: clientRect.height / 2 + 25 - 100,
-            }]
+            outcomings: []
         }
         store.commit("apidoc/apiflow/changeContainerInfo", {
             x: clientRect.x,
