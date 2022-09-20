@@ -529,7 +529,11 @@ type ApidocApiflowLineInfo = {
     /**
      * 结束位置y值
      */
-    endY: number
+    endY: number,
+    /**
+     * z-index值
+     */
+    zIndex: number
 }
 //节点信息
 type ApidocApiflowInfo = {
@@ -557,6 +561,10 @@ type ApidocApiflowInfo = {
          * 节点高度
          */
         height: number,
+        /**
+         * z-index值
+         */
+        zIndex: number
     },
     /**
      * 出线
@@ -583,6 +591,10 @@ type ApidocApiflowContainerInfo = {
     height: number,
 };
 type ApidocApiflowState = {
+    /**
+     * 全局自增index 从1开始
+     */
+    zIndex: number,
     containerInfo: ApidocApiflowContainerInfo,
     apiflowList: ApidocApiflowInfo[]
 }
@@ -627,5 +639,6 @@ export {
     ApidocWorkerState,
     ApidocApiflowState,
     ApidocApiflowContainerInfo,
+    ApidocApiflowLineInfo,
     State,
 }
