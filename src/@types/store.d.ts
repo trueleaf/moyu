@@ -509,11 +509,22 @@ type ApidocWorkerState = {
 | 接口编排
 |--------------------------------------------------------------------------
 */
+type ApiflowNodeType = "node" | "line";
+type ApiflowOutComingDirection = "left" | "top" | "right" | "bottom"
+//线条信息
 type ApidocApiflowLineInfo = {
     /**
      * 线条id
      */
     id: string,
+    /**
+     * 出线位置，从节点那个方向引出的
+     */
+    position: ApiflowOutComingDirection,
+    /**
+     * 节点类型
+     */
+    type: "line",
     /**
      * 开始位置x值
      */
@@ -531,16 +542,36 @@ type ApidocApiflowLineInfo = {
      */
     endY: number,
     /**
+     * 宽度
+     */
+    width: number,
+    /**
+     * 高度
+     */
+    height: number,
+    /**
+     * left值
+     */
+    x: number,
+    /**
+     * top值
+     */
+    y: number,
+    /**
      * z-index值
      */
     zIndex: number
 }
 //节点信息
-type ApidocApiflowInfo = {
+type ApidocApiflowNodeInfo = {
     /**
      * 节点id
      */
     id: string,
+    /**
+     * 节点类型
+     */
+    type: "node",
     /**
      * 样式信息
      */
@@ -596,7 +627,7 @@ type ApidocApiflowState = {
      */
     zIndex: number,
     containerInfo: ApidocApiflowContainerInfo,
-    apiflowList: ApidocApiflowInfo[]
+    apiflowList: ApidocApiflowNodeInfo[]
 }
 
 /*
@@ -633,12 +664,13 @@ export {
     ApidocProjectRules,
     ApidocMockState,
     ApidocMockMapInfo,
-    ApidocApiflowInfo,
+    ApidocApiflowNodeInfo,
     ApidocRequest,
     ApidocProjectVariable,
     ApidocWorkerState,
     ApidocApiflowState,
     ApidocApiflowContainerInfo,
     ApidocApiflowLineInfo,
+    ApiflowOutComingDirection,
     State,
 }

@@ -1,4 +1,4 @@
-import type { ApidocApiflowState, ApidocApiflowInfo, ApidocApiflowContainerInfo, ApidocApiflowLineInfo } from "@@/store"
+import type { ApidocApiflowState, ApidocApiflowNodeInfo, ApidocApiflowContainerInfo, ApidocApiflowLineInfo } from "@@/store"
 
 type UpsertOutComingInfo = {
     /**
@@ -56,7 +56,7 @@ const apiflow = {
             }
         },
         //新增一个节点
-        addNode(state: ApidocApiflowState, payload: ApidocApiflowInfo): void {
+        addNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo): void {
             state.apiflowList.push(payload);
         },
         //根据id改变节点zIndex值
@@ -81,7 +81,36 @@ const apiflow = {
             if (matchedNode) {
                 // matchedNode.styleInfo.zIndex = payload.;
             }
-        }
+        },
+        //新增一条出线
+        addOutComing(state: ApidocApiflowState, payload: UpsertOutComingInfo): void {
+            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            if (matchedNode) {
+                matchedNode.outcomings.push(payload.lineInfo)
+            }
+        },
+        //改变出线属性
+        changeOutComingInfoById(state: ApidocApiflowState, payload: UpsertOutComingInfo): void {
+            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            if (!matchedNode) {
+                return
+            }
+            const matchedLine = matchedNode.outcomings.find(v => v.id === payload.lineId)
+            if (matchedLine) {
+                Object.assign(matchedLine, payload.lineInfo)
+            }
+        },
+        //根据id删除出线
+        removeOutcomingById(state: ApidocApiflowState, payload: { nodeId: string, lineId: string }): void {
+            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            if (!matchedNode) {
+                return
+            }
+            const matchedLineIndex = matchedNode.outcomings.findIndex(v => v.id === payload.lineId)
+            if (matchedLineIndex !== -1) {
+                matchedNode.outcomings.splice(matchedLineIndex, 1)
+            }
+        },
     },
 }
 
