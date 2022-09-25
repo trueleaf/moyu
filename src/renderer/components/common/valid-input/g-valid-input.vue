@@ -147,7 +147,10 @@ export default defineComponent({
                 this.isFocus = true;
             }
             this.$emit("focus");
-            this.$nextTick(() => {
+            // this.$nextTick(() => {
+            //     (this.$refs.textarea as HTMLInputElement).focus();
+            // })
+            setTimeout(() => {
                 (this.$refs.textarea as HTMLInputElement).focus();
             })
         },
