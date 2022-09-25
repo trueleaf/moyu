@@ -93,6 +93,10 @@ class ApidocConverter {
             if (realValue != null) {
                 convertValue = realValue
             }
+        } else if (convertValue.startsWith("@")) {
+            convertValue = Mock.mock(value);
+        } else if (convertValue.startsWith("$")) {
+            convertValue = Mock.mock(value.replace(/^\$/, "@"));
         }
         return convertValue;
     }
