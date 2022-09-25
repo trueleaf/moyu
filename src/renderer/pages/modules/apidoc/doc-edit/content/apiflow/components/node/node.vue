@@ -70,6 +70,7 @@ const props = defineProps({
 })
 const outcomingRef: Ref<null | HTMLCanvasElement[]> = ref(null);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
+const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 console.log(containerInfo)
 /*
 |--------------------------------------------------------------------------
@@ -194,6 +195,7 @@ const handleNodeMousemove = (e: MouseEvent) => {
     }
     const relativeX = e.clientX - nodeMousedownX.value; //相对于mousedown位置移动距离
     const relativeY = e.clientY - nodeMousedownY.value; //相对于mousedown位置移动距离
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     currentNode.value?.outcomings.forEach(outcoming => {
         if (!currentNode.value) {
             return
@@ -219,6 +221,7 @@ const handleNodeMousemove = (e: MouseEvent) => {
             x: outcoming.endX,
             y: outcoming.endY,
         }
+        console.log(startNodeInfo, apiflowWrapperRect)
         const drawInfo = getRectInfo(startNodeInfo, endNodeInfo);
         store.commit("apidoc/apiflow/changeOutComingInfoById", {
             nodeId: props.nodeId,
@@ -397,7 +400,6 @@ const handleAddSiblingNode = () => {
 | 线条绘制
 |--------------------------------------------------------------------------
 */
-const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 // const tempLine: Ref<null | HTMLElement> = ref(null);
 // const tempCanvas: Ref<null | HTMLCanvasElement> = ref(null);
 const currentOutcoming: Ref<null | HTMLCanvasElement> = ref(null);
