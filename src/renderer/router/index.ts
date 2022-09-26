@@ -13,6 +13,10 @@ const routes: Array<RouteRecordRaw> = [
         redirect: lastVisitPage || "/login",
     },
     {
+        path: "/test",
+        component: () => import(/* webpackChunkName: "Test" */ "@/pages/test/test.vue"),
+    },
+    {
         path: "/login",
         name: "Login",
         component: () => import(/* webpackChunkName: "Login" */ "@/pages/login/login.vue")
