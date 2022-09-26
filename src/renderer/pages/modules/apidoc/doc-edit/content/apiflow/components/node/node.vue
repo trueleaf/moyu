@@ -81,19 +81,18 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;
-    const arrowWidth = 15;
-    const arrowHeight = 5;
     const { endX, endY } = drawInfo.lineInfo
     ctx.beginPath();
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
     ctx.moveTo(drawInfo.lineInfo.startX, drawInfo.lineInfo.startY);
+    // ctx.lineTo(endX, endY);
     ctx.quadraticCurveTo(drawInfo.lineInfo.cpx, drawInfo.lineInfo.cpy, endX, endY);
     ctx.stroke();
     ctx.beginPath()
-    ctx.moveTo(endX, endY - arrowHeight)
-    ctx.lineTo(endX, endY + arrowHeight)
-    ctx.lineTo(drawInfo.lineInfo.endX + arrowWidth, drawInfo.lineInfo.endY)
+    ctx.moveTo(drawInfo.lineInfo.arrowP1.x, drawInfo.lineInfo.arrowP1.y)
+    ctx.lineTo(drawInfo.lineInfo.arrowP2.x, drawInfo.lineInfo.arrowP2.y)
+    ctx.lineTo(drawInfo.lineInfo.arrowP3.x, drawInfo.lineInfo.arrowP3.y)
     ctx.fill();
     ctx.closePath()
 }
@@ -218,10 +217,9 @@ const handleNodeMousemove = (e: MouseEvent) => {
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height;
         }
         const endNodeInfo = {
-            x: outcoming.endX,
-            y: outcoming.endY,
+            x: outcoming.endX - apiflowWrapperRect.x,
+            y: outcoming.endY - apiflowWrapperRect.y,
         }
-        console.log(startNodeInfo, apiflowWrapperRect)
         const drawInfo = getRectInfo(startNodeInfo, endNodeInfo);
         store.commit("apidoc/apiflow/changeOutComingInfoById", {
             nodeId: props.nodeId,
@@ -440,13 +438,15 @@ const handleDotMousemove = (e: MouseEvent) => {
         return;
     }
     const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
-    const drawInfo = getRectInfo({
+    const startPoint = {
         x: dotStartX.value - apiflowWrapperRect.x,
         y: dotStartY.value - apiflowWrapperRect.y,
-    }, {
+    }
+    const endPoint = {
         x: e.clientX - apiflowWrapperRect.x,
         y: e.clientY - apiflowWrapperRect.y,
-    });
+    }
+    const drawInfo = getRectInfo(startPoint, endPoint);
     store.commit("apidoc/apiflow/changeOutComingInfoById", {
         nodeId: props.nodeId,
         lineId: lineId.value,
@@ -473,7 +473,7 @@ const handleDotMousemove = (e: MouseEvent) => {
 }
 const handleRemoveTempLine = () => {
     isMouseDownDot.value = false;
-    if (currentOutcoming.value && (currentOutcoming.value.width < 20 || currentOutcoming.value.height < 20)) {
+    if (currentOutcoming.value && (currentOutcoming.value.width < 20 && currentOutcoming.value.height < 20)) {
         store.commit("apidoc/apiflow/removeOutcomingById", {
             nodeId: props.nodeId,
             lineId: lineId.value,
