@@ -19,6 +19,12 @@ type ResultRect = {
         arrowP3: Coordinate,
     },
 }
+// type Options = {
+//     /**
+//      * 是否允许拖拽过程中buffer缓存
+//      */
+//     fixedStartPoint: boolean
+// }
 
 //根据起始位置返回节点 width height left top
 export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultRect {
@@ -103,15 +109,11 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.startY = minHeight / 2;
             result.lineInfo.endY = minHeight / 2;
             result.height = minHeight;
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
         } else {
             result.height = Math.abs(endInfo.y - startInfo.y);
             result.y = endInfo.y;
             result.lineInfo.startY = result.height;
             result.lineInfo.endY = arrowWidth;
-            result.lineInfo.cpx = result.width;
-            result.lineInfo.cpy = 0;
         }
         if (Math.abs(endInfo.x - startInfo.x) < minWidth) {
             result.lineInfo.endY = arrowLength;
@@ -125,8 +127,6 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.arrowP2.y = result.lineInfo.endY
             result.lineInfo.arrowP3.x = result.lineInfo.endX
             result.lineInfo.arrowP3.y = result.lineInfo.endY - arrowLength
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
         } else {
             result.width = Math.abs(endInfo.x - startInfo.x);
             result.x = endInfo.x;
@@ -138,19 +138,20 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.arrowP2.y = result.lineInfo.endY + arrowWidth
             result.lineInfo.arrowP3.x = result.lineInfo.endX - arrowLength
             result.lineInfo.arrowP3.y = result.lineInfo.endY
+        }
+        if (Math.abs(endInfo.y - startInfo.y) < minHeight || Math.abs(endInfo.x - startInfo.x) < minWidth) {
+            result.lineInfo.cpx = result.lineInfo.endX;
+            result.lineInfo.cpy = result.lineInfo.endY;
+        } else {
             result.lineInfo.cpx = result.width;
             result.lineInfo.cpy = 0;
         }
     } else if (endInfo.x <= startInfo.x && endInfo.y > startInfo.y) { //第三象限
-        result.lineInfo.cpx = result.width;
-        result.lineInfo.cpy = result.height;
         if (Math.abs(endInfo.y - startInfo.y) < minHeight) {
             result.y = startInfo.y - minHeight / 2;
             result.lineInfo.startY = minHeight / 2;
             result.lineInfo.endY = minHeight / 2;
             result.height = minHeight;
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
         } else {
             result.height = Math.abs(endInfo.y - startInfo.y);
             result.y = startInfo.y;
@@ -169,8 +170,6 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.arrowP2.y = result.lineInfo.endY
             result.lineInfo.arrowP3.x = result.lineInfo.endX
             result.lineInfo.arrowP3.y = result.lineInfo.endY + arrowLength
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
         } else {
             result.width = Math.abs(endInfo.x - startInfo.x);
             result.x = endInfo.x;
@@ -183,9 +182,14 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.arrowP3.x = result.lineInfo.endX - arrowLength
             result.lineInfo.arrowP3.y = result.lineInfo.endY
         }
+        if (Math.abs(endInfo.y - startInfo.y) < minHeight || Math.abs(endInfo.x - startInfo.x) < minWidth) {
+            result.lineInfo.cpx = result.lineInfo.endX;
+            result.lineInfo.cpy = result.lineInfo.endY;
+        } else {
+            result.lineInfo.cpx = result.width;
+            result.lineInfo.cpy = result.height;
+        }
     } else if (endInfo.x > startInfo.x && endInfo.y > startInfo.y) { //第四象限
-        result.lineInfo.cpx = 0;
-        result.lineInfo.cpy = result.height;
         if (Math.abs(endInfo.y - startInfo.y) < minHeight) {
             result.y = startInfo.y - minHeight / 2;
             result.lineInfo.startY = minHeight / 2;
@@ -224,6 +228,13 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             result.lineInfo.arrowP2.y = result.lineInfo.endY + arrowWidth
             result.lineInfo.arrowP3.x = result.lineInfo.endX + arrowLength
             result.lineInfo.arrowP3.y = result.lineInfo.endY
+        }
+        if (Math.abs(endInfo.y - startInfo.y) < minHeight || Math.abs(endInfo.x - startInfo.x) < minWidth) {
+            result.lineInfo.cpx = result.lineInfo.endX;
+            result.lineInfo.cpy = result.lineInfo.endY;
+        } else {
+            result.lineInfo.cpx = 0;
+            result.lineInfo.cpy = result.height;
         }
     }
     return result;
