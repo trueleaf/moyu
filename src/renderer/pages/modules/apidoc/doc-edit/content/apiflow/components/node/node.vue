@@ -81,7 +81,8 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;
-    const { endX, endY } = drawInfo.lineInfo
+    const { endX, endY, arrowInfo: { p1, p2, p3, leftTopPoint, rightBottomPoint } } = drawInfo.lineInfo
+    console.log(p1, p2, p3, leftTopPoint, rightBottomPoint)
     ctx.beginPath();
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
@@ -89,14 +90,16 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     // ctx.lineTo(endX, endY);
     ctx.quadraticCurveTo(drawInfo.lineInfo.cpx, drawInfo.lineInfo.cpy, endX, endY);
     ctx.stroke();
-    ctx.beginPath()
-    ctx.moveTo(drawInfo.lineInfo.arrowP1.x, drawInfo.lineInfo.arrowP1.y)
-    ctx.lineTo(drawInfo.lineInfo.arrowP2.x, drawInfo.lineInfo.arrowP2.y)
-    ctx.lineTo(drawInfo.lineInfo.arrowP3.x, drawInfo.lineInfo.arrowP3.y)
+    ctx.beginPath();
+    ctx.fillStyle = "teal"
+    // ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
+    ctx.lineTo(p3.x, p3.y)
     ctx.fill();
     ctx.closePath()
 }
-
+const debounceRepaint = repaintLine;
 /*
 |--------------------------------------------------------------------------
 | 节点
@@ -236,7 +239,7 @@ const handleNodeMousemove = (e: MouseEvent) => {
         if (outcomingRef.value) {
             const currentOutcoming = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === outcoming.id) || null
             if (currentOutcoming) {
-                repaintLine(currentOutcoming, drawInfo);
+                debounceRepaint(currentOutcoming, drawInfo);
             }
         }
     })
@@ -467,7 +470,7 @@ const handleDotMousemove = (e: MouseEvent) => {
     if (outcomingRef.value) {
         currentOutcoming.value = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === lineId.value) || null
         if (currentOutcoming.value) {
-            repaintLine(currentOutcoming.value, drawInfo);
+            debounceRepaint(currentOutcoming.value, drawInfo);
         }
     }
 }
