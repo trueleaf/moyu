@@ -6,7 +6,7 @@
 <template>
     <div
         class="node"
-        :style="{ left: nodeX + 'px', top: nodeY + 'px', width: nodeWidth + 'px', height: nodeHeight + 'px', zIndex: styleInfo?.zIndex }"
+        :style="{ left: nodeOffsetX + 'px', top: nodeOffsetY + 'px', width: nodeWidth + 'px', height: nodeHeight + 'px', zIndex: styleInfo?.zIndex }"
         @click.stop="() => {}"
         @mousedown.stop="handleNodeMousedown"
         @mouseenter="handleNodeMouseEnter"
@@ -20,10 +20,10 @@
             <div class="rect rb" @mousedown.stop="handleResizeNodeMousedown($event, 'rightBottom')"></div>
         </template>
         <template v-if="1 || isMouseInNode">
-            <div class="dot left" @mousedown.stop="handleMouseDownDot($event, 'left')"></div>
-            <div class="dot right" @mousedown.stop="handleMouseDownDot($event, 'right')"></div>
-            <div class="dot top" @mousedown.stop="handleMouseDownDot($event, 'top')"></div>
-            <div class="dot bottom" @mousedown.stop="handleMouseDownDot($event, 'bottom')"></div>
+            <div :style="{zIndex: dotZIndex}" class="dot left" @mousedown.stop="handleMouseDownDot($event, 'left')"></div>
+            <div :style="{zIndex: dotZIndex}" class="dot right" @mousedown.stop="handleMouseDownDot($event, 'right')"></div>
+            <div :style="{zIndex: dotZIndex}" class="dot top" @mousedown.stop="handleMouseDownDot($event, 'top')"></div>
+            <div :style="{zIndex: dotZIndex}" class="dot bottom" @mousedown.stop="handleMouseDownDot($event, 'bottom')"></div>
         </template>
         <teleport to="body">
             <!-- 多个节点操作 -->
@@ -32,6 +32,8 @@
                 <s-contextmenu-item v-if="currentNode?.id !== 'start'" label="新增同级" @click="handleAddSiblingNode"></s-contextmenu-item>
             </s-contextmenu>
             <!-- <canvas ref="lineCanvas"></canvas> -->
+            <pre style="position: absolute; right: 320px; top: 40px;">{{ currentNode?.outcomings }}</pre>
+            <pre style="position: absolute; right: 620px; top: 40px;">{{ { ...currentNode, outcomings: [] } }}</pre>
         </teleport>
     </div>
     <template v-for="(item, index) in currentNode?.outcomings" :key="index">
@@ -40,25 +42,25 @@
             class="outcoming"
             :data-id="item.id"
             :style="{
-                left: item.x + 'px',
-                top: item.y + 'px',
+                left: item.offsetX + 'px',
+                top: item.offsetY + 'px',
                 width: item.width + 'px',
                 height: item.height + 'px',
                 zIndex: item.zIndex
             }"
+            @mousemove="handleCanvasLineMouseMove"
             @click="handleCanvasLineClick"
         >
-            <!-- {{ item }} -->
         </canvas>
     </template>
 </template>
 
 <script lang="ts" setup>
 import { onUnmounted, ref, Ref, computed, onMounted, inject } from "vue";
-import { uuid } from "@/helper";
+import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
-import { getRectInfo } from "./utils";
+import { getRectInfo, getZIndex } from "./utils";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
@@ -82,7 +84,6 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;
     const { endX, endY, arrowInfo: { p1, p2, p3, leftTopPoint, rightBottomPoint } } = drawInfo.lineInfo
-    console.log(p1, p2, p3, leftTopPoint, rightBottomPoint)
     ctx.beginPath();
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
@@ -91,41 +92,49 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     ctx.quadraticCurveTo(drawInfo.lineInfo.cpx, drawInfo.lineInfo.cpy, endX, endY);
     ctx.stroke();
     ctx.beginPath();
-    ctx.fillStyle = "teal"
-    // ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
+    // ctx.fillStyle = "teal"
+    ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
     ctx.moveTo(p1.x, p1.y)
     ctx.lineTo(p2.x, p2.y)
     ctx.lineTo(p3.x, p3.y)
     ctx.fill();
     ctx.closePath()
 }
-const debounceRepaint = repaintLine;
 /*
 |--------------------------------------------------------------------------
 | 节点
 |--------------------------------------------------------------------------
 */
 const currentNode = computed(() => store.state["apidoc/apiflow"].apiflowList.find(v => v.id === props.nodeId));
+const dotZIndex = computed(() => {
+    let maxZIndex = 0;
+    currentNode.value?.outcomings.forEach(outcoming => {
+        if (outcoming.zIndex > maxZIndex) {
+            maxZIndex = outcoming.zIndex;
+        }
+    })
+    return maxZIndex + 1;
+})
 const nodeMousedownX = ref(0);
 const nodeMousedownY = ref(0);
 const isNodeMousedown = ref(false);
 const isMouseInNode = ref(false);
 const isSelectedNode = ref(false); //是否选中节点
 const styleInfo = computed(() => currentNode.value?.styleInfo)
-const nodeX = computed({ //节点x值
+const nodeOffsetX = computed({ //节点x值
     get() {
-        return currentNode.value?.styleInfo.x || 0
+        return currentNode.value?.styleInfo.offsetX || 0
     },
     set(v) {
-        store.commit("apidoc/apiflow/changeNodeXById", { id: props.nodeId, x: v })
+        store.commit("apidoc/apiflow/changeNodeOffsetXById", { id: props.nodeId, x: v })
     },
 });
-const nodeY = computed({ //节点y值
+const nodeOffsetY = computed({ //节点y值
     get() {
-        return currentNode.value?.styleInfo.y || 0
+        return currentNode.value?.styleInfo.offsetY || 0
     },
     set(v) {
-        store.commit("apidoc/apiflow/changeNodeYById", { id: props.nodeId, y: v })
+        store.commit("apidoc/apiflow/changeNodeOffsetYById", { id: props.nodeId, y: v })
     },
 });
 const nodeWidth = computed({ //节点宽度
@@ -171,8 +180,8 @@ const resizeDirection: Ref<ResizeDirection> = ref("leftTop");
 const handleNodeMousedown = (e: MouseEvent) => {
     nodeMousedownX.value = e.clientX;
     nodeMousedownY.value = e.clientY;
-    mousedownNodeX.value = nodeX.value;
-    mousedownNodeY.value = nodeY.value;
+    mousedownNodeX.value = nodeOffsetX.value;
+    mousedownNodeY.value = nodeOffsetY.value;
     isNodeMousedown.value = true;
     isSelectedNode.value = true;
 }
@@ -197,6 +206,8 @@ const handleNodeMousemove = (e: MouseEvent) => {
     }
     const relativeX = e.clientX - nodeMousedownX.value; //相对于mousedown位置移动距离
     const relativeY = e.clientY - nodeMousedownY.value; //相对于mousedown位置移动距离
+    nodeOffsetX.value = mousedownNodeX.value + relativeX;
+    nodeOffsetY.value = mousedownNodeY.value + relativeY;
     const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     currentNode.value?.outcomings.forEach(outcoming => {
         if (!currentNode.value) {
@@ -206,7 +217,13 @@ const handleNodeMousemove = (e: MouseEvent) => {
             x: 0,
             y: 0,
         }
+        let clientStartX = 0;
+        let clientStartY = 0;
         if (outcoming.position === "left") {
+            if (styleInfo.value) {
+                clientStartX = styleInfo.value?.offsetX + styleInfo.value?.width;
+                clientStartY = styleInfo.value?.offsetY
+            }
             startNodeInfo.x = mousedownNodeX.value + relativeX;
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height / 2;
         } else if (outcoming.position === "top") {
@@ -220,18 +237,18 @@ const handleNodeMousemove = (e: MouseEvent) => {
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height;
         }
         const endNodeInfo = {
-            x: outcoming.endX - apiflowWrapperRect.x,
-            y: outcoming.endY - apiflowWrapperRect.y,
+            x: outcoming.clientEndX - apiflowWrapperRect.x,
+            y: outcoming.clientEndY - apiflowWrapperRect.y,
         }
         const drawInfo = getRectInfo(startNodeInfo, endNodeInfo);
         store.commit("apidoc/apiflow/changeOutComingInfoById", {
             nodeId: props.nodeId,
             lineId: outcoming.id,
             lineInfo: {
-                startX: outcoming.startX + relativeX,
-                startY: outcoming.startY + relativeY,
-                x: drawInfo.x,
-                y: drawInfo.y,
+                clientStartX,
+                clientStartY,
+                offsetX: drawInfo.x,
+                offsetY: drawInfo.y,
                 width: drawInfo.width,
                 height: drawInfo.height,
             }
@@ -239,16 +256,14 @@ const handleNodeMousemove = (e: MouseEvent) => {
         if (outcomingRef.value) {
             const currentOutcoming = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === outcoming.id) || null
             if (currentOutcoming) {
-                debounceRepaint(currentOutcoming, drawInfo);
+                repaintLine(currentOutcoming, drawInfo);
             }
         }
     })
-    nodeX.value = mousedownNodeX.value + relativeX;
-    nodeY.value = mousedownNodeY.value + relativeY;
 }
 /*
 |--------------------------------------------------------------------------
-| 拖拽节点事件
+| 拖拽节点改变节点大小事件
 |--------------------------------------------------------------------------
 */
 //拖拽节点点击
@@ -258,25 +273,25 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
     resizeNodeMousedownY.value = e.clientY;
     nodeStartResizeWidth.value = nodeWidth.value;
     nodeStartResizeHeight.value = nodeHeight.value;
-    mousedownNodeX.value = nodeX.value;
-    mousedownNodeY.value = nodeY.value;
+    mousedownNodeX.value = nodeOffsetX.value;
+    mousedownNodeY.value = nodeOffsetY.value;
     resizeDirection.value = direction;
     switch (direction) {
     case "leftTop":
-        nodeFixedX.value = nodeX.value + (nodeWidth.value - nodeMinWidth)
-        nodeFixedY.value = nodeY.value + (nodeHeight.value - nodeMinHeight)
+        nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+        nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
         break;
     case "rightTop":
-        nodeFixedX.value = nodeX.value
-        nodeFixedY.value = nodeY.value + (nodeHeight.value - nodeMinHeight)
+        nodeFixedX.value = nodeOffsetX.value
+        nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
         break;
     case "leftBottom":
-        nodeFixedX.value = nodeX.value + (nodeWidth.value - nodeMinWidth)
-        nodeFixedY.value = nodeY.value
+        nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+        nodeFixedY.value = nodeOffsetY.value
         break;
     case "rightBottom":
-        nodeFixedX.value = nodeX.value
-        nodeFixedY.value = nodeY.value
+        nodeFixedX.value = nodeOffsetX.value
+        nodeFixedY.value = nodeOffsetY.value
         break;
     default:
         break;
@@ -292,51 +307,51 @@ const handleResizeNodeMousemove = (e: MouseEvent) => {
     if (resizeDirection.value === "leftTop") {
         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
-            nodeX.value = nodeFixedX.value
+            nodeOffsetX.value = nodeFixedX.value
         } else {
-            nodeX.value = mousedownNodeX.value + relativeX;
+            nodeOffsetX.value = mousedownNodeX.value + relativeX;
             nodeWidth.value = nodeStartResizeWidth.value - relativeX
         }
         if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
             nodeHeight.value = nodeMinHeight;
-            nodeY.value = nodeFixedY.value
+            nodeOffsetY.value = nodeFixedY.value
         } else {
             nodeHeight.value = nodeStartResizeHeight.value - relativeY
-            nodeY.value = mousedownNodeY.value + relativeY;
+            nodeOffsetY.value = mousedownNodeY.value + relativeY;
         }
     } else if (resizeDirection.value === "rightTop") {
         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
-            nodeX.value = nodeFixedX.value
+            nodeOffsetX.value = nodeFixedX.value
         } else {
             nodeWidth.value = nodeStartResizeWidth.value + relativeX
         }
         if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
             nodeHeight.value = nodeMinHeight;
-            nodeY.value = nodeFixedY.value
+            nodeOffsetY.value = nodeFixedY.value
         } else {
             nodeHeight.value = nodeStartResizeHeight.value - relativeY
-            nodeY.value = mousedownNodeY.value + relativeY;
+            nodeOffsetY.value = mousedownNodeY.value + relativeY;
         }
     } else if (resizeDirection.value === "leftBottom") {
         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
-            nodeX.value = nodeFixedX.value
+            nodeOffsetX.value = nodeFixedX.value
         } else {
             nodeWidth.value = nodeStartResizeWidth.value - relativeX;
-            nodeX.value = mousedownNodeX.value + relativeX;
+            nodeOffsetX.value = mousedownNodeX.value + relativeX;
         }
         if (nodeStartResizeHeight.value + relativeY < nodeMinHeight) {
             nodeHeight.value = nodeMinHeight;
-            nodeY.value = nodeFixedY.value
+            nodeOffsetY.value = nodeFixedY.value
         } else {
             nodeHeight.value = nodeStartResizeHeight.value + relativeY
-            nodeY.value = mousedownNodeY.value;
+            nodeOffsetY.value = mousedownNodeY.value;
         }
     } else if (resizeDirection.value === "rightBottom") {
         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
-            nodeX.value = nodeFixedX.value
+            nodeOffsetX.value = nodeFixedX.value
         } else {
             nodeWidth.value = nodeStartResizeWidth.value + relativeX;
         }
@@ -344,9 +359,55 @@ const handleResizeNodeMousemove = (e: MouseEvent) => {
             nodeHeight.value = nodeMinHeight;
         } else {
             nodeHeight.value = nodeStartResizeHeight.value + relativeY
-            nodeY.value = mousedownNodeY.value;
+            nodeOffsetY.value = mousedownNodeY.value;
         }
     }
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
+    currentNode.value?.outcomings.forEach(outcoming => {
+        if (!currentNode.value) {
+            return
+        }
+        const startNodeInfo = {
+            x: 0,
+            y: 0,
+        }
+        const endNodeInfo = {
+            x: outcoming.clientEndX - apiflowWrapperRect.x,
+            y: outcoming.clientEndY - apiflowWrapperRect.y,
+        }
+        if (outcoming.position === "left") {
+            startNodeInfo.x = nodeOffsetX.value;
+            startNodeInfo.y = nodeOffsetY.value + nodeHeight.value / 2;
+        } else if (outcoming.position === "top") {
+            startNodeInfo.x = nodeOffsetX.value + nodeWidth.value / 2;
+            startNodeInfo.y = nodeOffsetY.value;
+        } else if (outcoming.position === "right") {
+            startNodeInfo.x = nodeOffsetX.value + nodeWidth.value
+            startNodeInfo.y = nodeOffsetY.value + nodeHeight.value / 2;
+        } else if (outcoming.position === "bottom") {
+            startNodeInfo.x = nodeOffsetX.value + nodeWidth.value / 2;
+            startNodeInfo.y = nodeOffsetY.value + nodeHeight.value;
+        }
+        const drawInfo = getRectInfo(startNodeInfo, endNodeInfo);
+        store.commit("apidoc/apiflow/changeOutComingInfoById", {
+            nodeId: props.nodeId,
+            lineId: outcoming.id,
+            lineInfo: {
+                clientStartX: outcoming.clientStartX + relativeX,
+                clientStartY: outcoming.clientStartY + relativeY,
+                offsetX: drawInfo.x,
+                offsetY: drawInfo.y,
+                width: drawInfo.width,
+                height: drawInfo.height,
+            }
+        })
+        if (outcomingRef.value) {
+            const currentOutcoming = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === outcoming.id) || null
+            if (currentOutcoming) {
+                repaintLine(currentOutcoming, drawInfo);
+            }
+        }
+    })
 }
 //拖拽节点鼠标松开
 const handleResizeNodeMouseUp = () => {
@@ -365,15 +426,6 @@ const handleOpenContextmenu = (e: MouseEvent) => {
     contextmenuLeft.value = e.x;
     contextmenuTop.value = e.y;
 }
-const zIndex = computed({
-    get() {
-        store.commit("apidoc/apiflow/increaseZIndex")
-        return store.state["apidoc/apiflow"].zIndex;
-    },
-    set() {
-        console.log("set")
-    }
-})
 //添加子节点
 const handleAddSubNode = () => {
     if (!currentNode.value) {
@@ -383,11 +435,11 @@ const handleAddSubNode = () => {
         id: uuid(),
         type: "node",
         styleInfo: {
-            x: currentNode.value.styleInfo.x + currentNode.value.styleInfo.width + 100,
-            y: currentNode.value.styleInfo.y,
+            offsetX: currentNode.value.styleInfo.offsetX + currentNode.value.styleInfo.width + 100,
+            offsetY: currentNode.value.styleInfo.offsetY,
             width: 100,
             height: 50,
-            zIndex: zIndex.value
+            zIndex: getZIndex()
         },
         outcomings: []
     }
@@ -401,8 +453,6 @@ const handleAddSiblingNode = () => {
 | 线条绘制
 |--------------------------------------------------------------------------
 */
-// const tempLine: Ref<null | HTMLElement> = ref(null);
-// const tempCanvas: Ref<null | HTMLCanvasElement> = ref(null);
 const currentOutcoming: Ref<null | HTMLCanvasElement> = ref(null);
 const isMouseDownDot = ref(false);
 const dotStartX = ref(0);
@@ -411,11 +461,11 @@ const lineId = ref("");
 const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection) => {
     const dotDom = e.target as HTMLElement;
     const dotDomRect = dotDom.getBoundingClientRect();
-    // const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     dotStartX.value = dotDomRect.x + dotDomRect.width / 2;
     dotStartY.value = dotDomRect.y + dotDomRect.height / 2;
     isMouseDownDot.value = true;
     lineId.value = uuid()
+    const zIndex = getZIndex()
     store.commit("apidoc/apiflow/addOutComing", {
         nodeId: props.nodeId,
         lineId: lineId.value,
@@ -423,16 +473,20 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
             id: lineId.value,
             type: "line",
             position: direction,
-            x: 0,
-            y: 0,
+            offsetX: 0,
+            offsetY: 0,
             width: 0,
             height: 0,
-            startX: dotStartX.value,
-            startY: dotStartY.value,
-            endX: dotStartX.value,
-            endY: dotStartY.value,
-            zIndex: zIndex.value,
+            clientStartX: dotStartX.value,
+            clientStartY: dotStartY.value,
+            clientEndX: dotStartX.value,
+            clientEndY: dotStartY.value,
+            zIndex,
         }
+    })
+    store.commit("apidoc/apiflow/changeNodeZIndexById", {
+        id: currentNode.value?.id,
+        zIndex: zIndex + 1,
     })
 }
 //绘制线条
@@ -456,13 +510,12 @@ const handleDotMousemove = (e: MouseEvent) => {
         lineInfo: {
             id: lineId.value,
             type: "line",
-            startX: dotStartX.value,
-            startY: dotStartY.value,
-            endX: e.clientX,
-            endY: e.clientY,
-            zIndex: zIndex.value,
-            x: drawInfo.x,
-            y: drawInfo.y,
+            clientStartX: dotStartX.value,
+            clientStartY: dotStartY.value,
+            clientEndX: e.clientX,
+            clientEndY: e.clientY,
+            offsetX: drawInfo.x,
+            offsetY: drawInfo.y,
             width: drawInfo.width,
             height: drawInfo.height,
         }
@@ -470,7 +523,7 @@ const handleDotMousemove = (e: MouseEvent) => {
     if (outcomingRef.value) {
         currentOutcoming.value = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === lineId.value) || null
         if (currentOutcoming.value) {
-            debounceRepaint(currentOutcoming.value, drawInfo);
+            repaintLine(currentOutcoming.value, drawInfo);
         }
     }
 }
@@ -487,6 +540,10 @@ const handleRemoveTempLine = () => {
 const handleCanvasLineClick = (e: MouseEvent) => {
     console.log(e)
 }
+//线条上面鼠标移动
+const handleCanvasLineMouseMove = (e: MouseEvent) => {
+    console.log(e.offsetX, 99)
+}
 /*
 |--------------------------------------------------------------------------
 | 事件绑定
@@ -496,9 +553,9 @@ const handleClickGlobal = () => {
     isSelectedNode.value = false;
     contextmenuVisible.value = false;
 }
-document.documentElement.addEventListener("mousemove", handleDotMousemove);
-document.documentElement.addEventListener("mousemove", handleNodeMousemove);
-document.documentElement.addEventListener("mousemove", handleResizeNodeMousemove);
+document.documentElement.addEventListener("mousemove", debounce(handleDotMousemove));
+document.documentElement.addEventListener("mousemove", debounce(handleNodeMousemove));
+document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMousemove));
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleRemoveTempLine);
