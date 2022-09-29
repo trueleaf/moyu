@@ -4,7 +4,7 @@
     备注：
 */
 <template>
-    <div ref="apiflow" class="apiflow">
+    <div ref="apiflow" class="apiflow" @contextmenu.prevent="() => {}">
         <dragNode
             v-for="(item, index) in apiflowList"
             :key="index"
@@ -19,17 +19,9 @@ import { onMounted, ref, Ref, provide, computed } from "vue";
 import { store } from "@/store";
 import type { ApidocApiflowNodeInfo } from "@@/store"
 import dragNode from "./components/node/node.vue"
+import { getZIndex } from "./components/node/utils";
 
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
-const zIndex = computed({
-    get() {
-        store.commit("apidoc/apiflow/increaseZIndex")
-        return store.state["apidoc/apiflow"].zIndex;
-    },
-    set() {
-        console.log("set")
-    }
-})
 const apiflow: Ref<HTMLElement | null> = ref(null);
 provide("apiflowWrapper", apiflow)
 const wrapX = ref(0);
@@ -43,11 +35,11 @@ onMounted(() => {
             id: "start",
             type: "node",
             styleInfo: {
-                x: 100,
-                y: clientRect.height / 2,
+                offsetX: 100,
+                offsetY: clientRect.height / 2,
                 width: 120,
                 height: 90,
-                zIndex: zIndex.value
+                zIndex: getZIndex()
             },
             outcomings: []
         }

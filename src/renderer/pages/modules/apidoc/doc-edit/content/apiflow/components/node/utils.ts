@@ -25,19 +25,10 @@ type ResultRect = {
         },
     },
 }
-// type Options = {
-//     /**
-//      * 是否允许拖拽过程中buffer缓存
-//      */
-//     fixedStartPoint: boolean
-// }
-
 //根据起始位置返回节点 width height left top
 export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultRect {
     const arrowLength = 15;
     const arrowWidth = 5;
-    const minWidth = 20
-    const minHeight = 20
     const padding = 15;
     const result: ResultRect = {
         x: 0,
@@ -97,22 +88,24 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
         result.lineInfo.endY = padding;
         result.lineInfo.cpx = padding;
         result.lineInfo.cpy = padding;
+        //=========================================================================//
         result.lineInfo.arrowInfo.leftTopPoint = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY - arrowWidth
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY - padding
         }
         result.lineInfo.arrowInfo.leftBottomPoint = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY + arrowWidth
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY + padding
         }
         result.lineInfo.arrowInfo.rightTopPoint = {
-            x: result.lineInfo.endX + arrowLength,
-            y: result.lineInfo.endY - arrowWidth
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY - padding
         }
         result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: result.lineInfo.endX + arrowLength,
-            y: result.lineInfo.endY + arrowWidth
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY + padding
         }
+        //=========================================================================//
         result.lineInfo.arrowInfo.p1 = {
             x: result.lineInfo.endX,
             y: result.lineInfo.endY - arrowWidth
@@ -136,22 +129,65 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
         result.lineInfo.endY = padding;
         result.lineInfo.cpx = result.width - padding;
         result.lineInfo.cpy = padding;
+        //=========================================================================//
         result.lineInfo.arrowInfo.leftTopPoint = {
-            x: result.lineInfo.endX - arrowLength,
-            y: result.lineInfo.endY - arrowWidth
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY - padding
         }
         result.lineInfo.arrowInfo.leftBottomPoint = {
-            x: result.lineInfo.endX - arrowLength,
-            y: result.lineInfo.endY + arrowWidth
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY + padding
         }
         result.lineInfo.arrowInfo.rightTopPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY - padding
+        }
+        result.lineInfo.arrowInfo.rightBottomPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY + padding
+        }
+        //=========================================================================//
+        result.lineInfo.arrowInfo.p1 = {
             x: result.lineInfo.endX,
             y: result.lineInfo.endY - arrowWidth
         }
-        result.lineInfo.arrowInfo.rightBottomPoint = {
+        result.lineInfo.arrowInfo.p2 = {
             x: result.lineInfo.endX,
             y: result.lineInfo.endY + arrowWidth
         }
+        result.lineInfo.arrowInfo.p3 = {
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY
+        }
+    } else if (endInfo.x <= startInfo.x && endInfo.y > startInfo.y) { //第三象限
+        result.x = endInfo.x - padding;
+        result.y = startInfo.y - padding
+        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding;
+        result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding;
+        result.lineInfo.startX = result.width - padding;
+        result.lineInfo.startY = padding;
+        result.lineInfo.endX = padding;
+        result.lineInfo.endY = result.height - padding;
+        result.lineInfo.cpx = result.width - padding;
+        result.lineInfo.cpy = result.height - padding;
+        //=========================================================================//
+        result.lineInfo.arrowInfo.leftTopPoint = {
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY - padding
+        }
+        result.lineInfo.arrowInfo.leftBottomPoint = {
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY + padding
+        }
+        result.lineInfo.arrowInfo.rightTopPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY - padding
+        }
+        result.lineInfo.arrowInfo.rightBottomPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY + padding
+        }
+        //=========================================================================//
         result.lineInfo.arrowInfo.p1 = {
             x: result.lineInfo.endX,
             y: result.lineInfo.endY - arrowWidth
@@ -164,64 +200,53 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             x: result.lineInfo.endX - arrowLength,
             y: result.lineInfo.endY
         }
-    } else if (endInfo.x <= startInfo.x && endInfo.y > startInfo.y) { //第三象限
-        result.x = endInfo.x - padding;
+    } else if (endInfo.x > startInfo.x && endInfo.y > startInfo.y) { //第四象限
+        result.x = startInfo.x - padding;
         result.y = startInfo.y - padding
         result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding;
         result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding;
-        result.lineInfo.startX = result.width - padding;
-        result.lineInfo.startY = result.height - padding;
-        result.lineInfo.endX = padding;
-        result.lineInfo.endY = padding;
-        result.lineInfo.cpx = result.width - padding;
-        result.lineInfo.cpy = padding;
-    } else if (endInfo.x > startInfo.x && endInfo.y > startInfo.y) { //第四象限
-        if (Math.abs(endInfo.y - startInfo.y) < minHeight) {
-            result.y = startInfo.y - minHeight / 2;
-            result.lineInfo.startY = minHeight / 2;
-            result.lineInfo.endY = minHeight / 2;
-            result.height = minHeight;
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
-        } else {
-            result.height = Math.abs(endInfo.y - startInfo.y);
-            result.y = startInfo.y;
-            result.lineInfo.startY = 0;
-            result.lineInfo.endY = result.height - arrowWidth;
+        result.lineInfo.startX = padding;
+        result.lineInfo.startY = padding;
+        result.lineInfo.endX = result.width - padding;
+        result.lineInfo.endY = result.height - padding;
+        result.lineInfo.cpx = padding;
+        result.lineInfo.cpy = result.height - padding;
+        //=========================================================================//
+        result.lineInfo.arrowInfo.leftTopPoint = {
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY - padding
         }
-        if (Math.abs(endInfo.x - startInfo.x) < minWidth) {
-            result.width = minWidth;
-            result.x = startInfo.x - minWidth / 2;
-            result.lineInfo.startX = minWidth / 2;
-            result.lineInfo.endX = minWidth / 2;
-            result.lineInfo.endY = result.height - arrowLength;
-            // result.lineInfo.arrowP1.x = result.lineInfo.endX - arrowWidth
-            // result.lineInfo.arrowP1.y = result.lineInfo.endY
-            // result.lineInfo.arrowP2.x = result.lineInfo.endX + arrowWidth
-            // result.lineInfo.arrowP2.y = result.lineInfo.endY
-            // result.lineInfo.arrowP3.x = result.lineInfo.endX
-            // result.lineInfo.arrowP3.y = result.lineInfo.endY + arrowLength
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
-        } else {
-            result.width = Math.abs(endInfo.x - startInfo.x);
-            result.x = startInfo.x;
-            result.lineInfo.startX = 0;
-            result.lineInfo.endX = result.width - arrowLength;
-        //     result.lineInfo.arrowP1.x = result.lineInfo.endX
-        //     result.lineInfo.arrowP1.y = result.lineInfo.endY - arrowWidth
-        //     result.lineInfo.arrowP2.x = result.lineInfo.endX
-        //     result.lineInfo.arrowP2.y = result.lineInfo.endY + arrowWidth
-        //     result.lineInfo.arrowP3.x = result.lineInfo.endX + arrowLength
-        //     result.lineInfo.arrowP3.y = result.lineInfo.endY
+        result.lineInfo.arrowInfo.leftBottomPoint = {
+            x: result.lineInfo.endX - padding,
+            y: result.lineInfo.endY + padding
         }
-        if (Math.abs(endInfo.y - startInfo.y) < minHeight || Math.abs(endInfo.x - startInfo.x) < minWidth) {
-            result.lineInfo.cpx = result.lineInfo.endX;
-            result.lineInfo.cpy = result.lineInfo.endY;
-        } else {
-            result.lineInfo.cpx = 0;
-            result.lineInfo.cpy = result.height;
+        result.lineInfo.arrowInfo.rightTopPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY - padding
+        }
+        result.lineInfo.arrowInfo.rightBottomPoint = {
+            x: result.lineInfo.endX + padding,
+            y: result.lineInfo.endY + padding
+        }
+        //=========================================================================//
+        result.lineInfo.arrowInfo.p1 = {
+            x: result.lineInfo.endX,
+            y: result.lineInfo.endY - arrowWidth
+        }
+        result.lineInfo.arrowInfo.p2 = {
+            x: result.lineInfo.endX,
+            y: result.lineInfo.endY + arrowWidth
+        }
+        result.lineInfo.arrowInfo.p3 = {
+            x: result.lineInfo.endX + arrowLength,
+            y: result.lineInfo.endY
         }
     }
     return result;
+}
+//获取zIndex值
+let zIndex = 0;
+export function getZIndex(): number {
+    zIndex += 1;
+    return zIndex;
 }
