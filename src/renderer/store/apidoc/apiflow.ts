@@ -18,7 +18,6 @@ type UpsertOutComingInfo = {
 const apiflow = {
     namespaced: true,
     state: {
-        zIndex: 1,
         containerInfo: {},
         apiflowList: [],
     },
@@ -28,17 +27,17 @@ const apiflow = {
             state.containerInfo = payload;
         },
         //根据id改变节点x值
-        changeNodeXById(state: ApidocApiflowState, payload: { id: string, x: number }): void {
+        changeNodeOffsetXById(state: ApidocApiflowState, payload: { id: string, x: number }): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.id);
             if (matchedNode) {
-                matchedNode.styleInfo.x = payload.x;
+                matchedNode.styleInfo.offsetX = payload.x;
             }
         },
         //根据id改变节点y值
-        changeNodeYById(state: ApidocApiflowState, payload: { id: string, y: number }): void {
+        changeNodeOffsetYById(state: ApidocApiflowState, payload: { id: string, y: number }): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.id);
             if (matchedNode) {
-                matchedNode.styleInfo.y = payload.y;
+                matchedNode.styleInfo.offsetY = payload.y;
             }
         },
         //根据id改变节点宽度
@@ -65,10 +64,6 @@ const apiflow = {
             if (matchedNode) {
                 matchedNode.styleInfo.zIndex = payload.zIndex;
             }
-        },
-        //获取zIndex值
-        increaseZIndex(state: ApidocApiflowState): void {
-            state.zIndex += 1;
         },
         /*
         |--------------------------------------------------------------------------

@@ -526,21 +526,21 @@ type ApidocApiflowLineInfo = {
      */
     type: "line",
     /**
-     * 开始位置x值
+     * 相对于窗口开始位置x值
      */
-    startX: number,
+    clientStartX: number,
     /**
-     * 开始位置y值
+     * 相对于窗口开始位置y值
      */
-    startY: number,
+    clientStartY: number,
     /**
-     * 结束位置x值
+     * 相对于窗口结束位置x值
      */
-    endX: number,
+    clientEndX: number,
     /**
-     * 结束位置y值
+     * 相对于窗口结束位置y值
      */
-    endY: number,
+    clientEndY: number,
     /**
      * 宽度
      */
@@ -552,11 +552,11 @@ type ApidocApiflowLineInfo = {
     /**
      * left值
      */
-    x: number,
-    /**
+    offsetX: number,
+    /*
      * top值
      */
-    y: number,
+    offsetY: number,
     /**
      * z-index值
      */
@@ -579,11 +579,11 @@ type ApidocApiflowNodeInfo = {
         /**
          * 距离左侧距离
          */
-        x: number,
+        offsetX: number,
         /**
          * 距离顶部距离
          */
-        y: number,
+        offsetY: number,
         /**
          * 节点宽度
          */
@@ -607,11 +607,11 @@ type ApidocApiflowContainerInfo = {
     /**
      * 距离左侧距离
      */
-    x: number,
+    clientX: number,
     /**
      * 距离顶部距离
      */
-    y: number,
+    clientY: number,
     /**
      * 容器宽度
      */
@@ -622,10 +622,6 @@ type ApidocApiflowContainerInfo = {
     height: number,
 };
 type ApidocApiflowState = {
-    /**
-     * 全局自增index 从1开始
-     */
-    zIndex: number,
     containerInfo: ApidocApiflowContainerInfo,
     apiflowList: ApidocApiflowNodeInfo[]
 }
