@@ -250,3 +250,10 @@ export function getZIndex(): number {
     zIndex += 1;
     return zIndex;
 }
+//判断点是否在矩形内部
+export const isInRect = (point: Coordinate, rectLeftTop: Coordinate, rectRightBottom: Coordinate): boolean => {
+    if (point.x >= rectLeftTop.x && point.x <= rectRightBottom.x && point.y >= rectLeftTop.y && point.y <= rectRightBottom.y) {
+        return true;
+    }
+    return false;
+}
