@@ -6,7 +6,13 @@
 <template>
     <div
         class="node"
-        :style="{ left: nodeOffsetX + 'px', top: nodeOffsetY + 'px', width: nodeWidth + 'px', height: nodeHeight + 'px', zIndex: styleInfo?.zIndex }"
+        :style="{
+            left: nodeOffsetX + 'px',
+            top: nodeOffsetY + 'px',
+            width: nodeWidth + 'px',
+            height: nodeHeight + 'px',
+            zIndex: styleInfo?.zIndex,
+        }"
         @click.stop="() => {}"
         @mousedown.stop="handleNodeMousedown"
         @mouseenter="handleNodeMouseEnter"
@@ -32,8 +38,14 @@
                 <s-contextmenu-item v-if="currentNode?.id !== 'start'" label="新增同级" @click="handleAddSiblingNode"></s-contextmenu-item>
             </s-contextmenu>
             <!-- <canvas ref="lineCanvas"></canvas> -->
-            <pre style="position: absolute; right: 320px; top: 40px;">{{ currentNode?.outcomings }}</pre>
+            <pre style="position: absolute; right: 820px; top: 40px;">
+                {{ canvasClickOffsetX }}
+                {{ canvasClickOffsetY }}
+                canvasDown: {{ isMouseDownCanvasArrow }}
+                isInArrow: {{ isInLineArrow }}
+            </pre>
             <pre style="position: absolute; right: 620px; top: 40px;">{{ { ...currentNode, outcomings: [] } }}</pre>
+            <pre style="position: absolute; right: 320px; top: 40px;">{{ currentNode?.outcomings }}</pre>
         </teleport>
     </div>
     <template v-for="(item, index) in currentNode?.outcomings" :key="index">
@@ -46,11 +58,11 @@
                 top: item.offsetY + 'px',
                 width: item.width + 'px',
                 height: item.height + 'px',
-                zIndex: item.zIndex
+                zIndex: item.zIndex,
+                cursor: isInLineArrow ? 'move' : 'default',
             }"
             @mouseleave="handleCanvasLineMouseLeave"
-            @mousemove="handleCanvasLineMouseMove($event, item)"
-            @click="handleCanvasLineClick"
+            @mousedown.stop="handleMouseDownCanvas($event, item)"
         >
         </canvas>
     </template>
@@ -71,9 +83,16 @@ const props = defineProps({
         default: ""
     },
 })
+/*
+|--------------------------------------------------------------------------
+| 公共变量
+|--------------------------------------------------------------------------
+*/
 const outcomingRef: Ref<null | HTMLCanvasElement[]> = ref(null);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
+const isInLineArrow = ref(false);
+const isMouseDownCanvasArrow = ref(false);
 console.log(containerInfo)
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +132,7 @@ const nodeHeight = computed({ //节点高度
         store.commit("apidoc/apiflow/changeNodeHeightById", { id: props.nodeId, h: v })
     },
 });
+//根据线条信息获取线条数据
 const getOutcomingDrawInfo = (outcoming: ApidocApiflowLineInfo) => {
     const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     const startNodeInfo = {
@@ -139,6 +159,7 @@ const getOutcomingDrawInfo = (outcoming: ApidocApiflowLineInfo) => {
     const drawInfo = getRectInfo(startNodeInfo, endNodeInfo);
     return drawInfo;
 }
+//绘制线条
 const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRectInfo>) => {
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
@@ -228,7 +249,7 @@ const handleNodeMouseLeave = () => {
 //重绘出线
 
 //节点移动
-const handleNodeMousemove = (e: MouseEvent) => {
+const handleNodeMouseMove = (e: MouseEvent) => {
     if (!isNodeMousedown.value || isResizeNodeMousedown.value) {
         return
     }
@@ -301,6 +322,7 @@ const handleNodeMousemove = (e: MouseEvent) => {
         }
     })
 }
+
 /*
 |--------------------------------------------------------------------------
 | 拖拽节点改变节点大小事件
@@ -338,7 +360,7 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
     }
 }
 //拖拽节点鼠标移动(改变大小)
-const handleResizeNodeMousemove = (e: MouseEvent) => {
+const handleResizeNodeMouseMove = (e: MouseEvent) => {
     if (!isResizeNodeMousedown.value) {
         return;
     }
@@ -506,7 +528,7 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
     })
 }
 //绘制线条
-const handleDotMousemove = (e: MouseEvent) => {
+const handleDotMouseMove = (e: MouseEvent) => {
     if (!isMouseDownDot.value) {
         return;
     }
@@ -543,6 +565,8 @@ const handleDotMousemove = (e: MouseEvent) => {
         }
     }
 }
+
+//移除无效的线段
 const handleRemoveTempLine = () => {
     isMouseDownDot.value = false;
     if (currentOutcoming.value && (currentOutcoming.value.width < 20 && currentOutcoming.value.height < 20)) {
@@ -552,21 +576,87 @@ const handleRemoveTempLine = () => {
         })
     }
 }
-//线条点击事件
-const handleCanvasLineClick = (e: MouseEvent) => {
-    console.log(e)
+
+//线条上面鼠标移动(仅在节点上面生效)
+const handleCheckMouseIsInArrow = (e: MouseEvent) => {
+    if (currentNode.value) {
+        const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
+        isInLineArrow.value = currentNode.value.outcomings.some(outcoming => {
+            const drawInfo = getOutcomingDrawInfo(outcoming)
+            const offsetPoint = { x: e.clientX - apiflowWrapperRect.x, y: e.clientY - apiflowWrapperRect.y }
+            const leftTopPoint = {
+                x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + outcoming.offsetX,
+                y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + outcoming.offsetY,
+            }
+            const rightBottomPoint = {
+                x: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + outcoming.offsetX,
+                y: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + outcoming.offsetY,
+            }
+            const isIn = isInRect(offsetPoint, leftTopPoint, rightBottomPoint);
+            return isIn;
+        })
+    }
 }
-//线条上面鼠标移动
-const handleCanvasLineMouseMove = (e: MouseEvent, item: ApidocApiflowLineInfo) => {
-    const drawInfo = getOutcomingDrawInfo(item)
-    // console.log({ x: e.offsetX, y: e.offsetY }, drawInfo.lineInfo.arrowInfo.leftTopPoint, drawInfo.lineInfo.arrowInfo.rightBottomPoint)
-    if (isInRect({ x: e.offsetX, y: e.offsetY }, drawInfo.lineInfo.arrowInfo.leftTopPoint, drawInfo.lineInfo.arrowInfo.rightBottomPoint)) {
-        console.log(222)
+//线条点击事件
+const canvasClickOffsetX = ref(0);
+const canvasClickOffsetY = ref(0);
+const currentDragedCanvasInfo: Ref<null | ApidocApiflowLineInfo> = ref(null)
+const handleMouseDownCanvas = (e: MouseEvent, item: ApidocApiflowLineInfo) => {
+    canvasClickOffsetX.value = e.offsetX;
+    canvasClickOffsetY.value = e.offsetY;
+    currentDragedCanvasInfo.value = item
+    if (isInLineArrow.value) {
+        isMouseDownCanvasArrow.value = true;
+    }
+}
+//在canvas可以拖拽区域移动
+const handleCanvasMouseMove = (e: MouseEvent) => {
+    if (!isMouseDownCanvasArrow.value && currentDragedCanvasInfo.value) {
+        return
+    }
+    if (currentDragedCanvasInfo.value && currentNode.value) {
+        const nodeInfo = currentNode.value.styleInfo;
+        const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
+        if (currentDragedCanvasInfo.value.position === "right") {
+            const startPoint = {
+                x: nodeInfo.offsetX + nodeInfo.width,
+                y: nodeInfo.offsetY + nodeInfo.height / 2,
+            }
+            const endPoint = {
+                x: e.clientX - apiflowWrapperRect.x + 2,
+                y: e.clientY - apiflowWrapperRect.y,
+            }
+            const drawInfo = getRectInfo(startPoint, endPoint);
+            store.commit("apidoc/apiflow/changeOutComingInfoById", {
+                nodeId: props.nodeId,
+                lineId: currentDragedCanvasInfo.value.id,
+                lineInfo: {
+                    id: currentDragedCanvasInfo.value.id,
+                    type: "line",
+                    clientEndX: e.clientX,
+                    clientEndY: e.clientY,
+                    offsetX: drawInfo.x,
+                    offsetY: drawInfo.y,
+                    width: drawInfo.width,
+                    height: drawInfo.height,
+                }
+            })
+            if (outcomingRef.value) {
+                currentOutcoming.value = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === currentDragedCanvasInfo.value?.id) || null
+                if (currentOutcoming.value) {
+                    repaintLine(currentOutcoming.value, drawInfo);
+                }
+            }
+        }
     }
 }
 //线条上面鼠标移出
 const handleCanvasLineMouseLeave = () => {
-    console.log(2)
+    console.log("leave")
+}
+//取消鼠标在arrow上面样式
+const handleCanvasMouseUp = () => {
+    isMouseDownCanvasArrow.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -577,20 +667,23 @@ const handleClickGlobal = () => {
     isSelectedNode.value = false;
     contextmenuVisible.value = false;
 }
-document.documentElement.addEventListener("mousemove", debounce(handleDotMousemove));
-document.documentElement.addEventListener("mousemove", debounce(handleNodeMousemove));
-document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMousemove));
+document.documentElement.addEventListener("mousemove", debounce(handleDotMouseMove));
+document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
+document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
+document.documentElement.addEventListener("mousemove", debounce(handleCanvasMouseMove));
+document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleRemoveTempLine);
+document.documentElement.addEventListener("mouseup", handleCanvasMouseUp);
 document.documentElement.addEventListener("click", handleClickGlobal);
 onMounted(() => {
     console.log("mouted")
 })
 
 onUnmounted(() => {
-    document.documentElement.removeEventListener("mousemove", handleNodeMousemove);
-    document.documentElement.removeEventListener("mousemove", handleResizeNodeMousemove);
+    document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
+    document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
     document.documentElement.removeEventListener("mouseup", handleNodeMouseUp);
     document.documentElement.removeEventListener("mouseup", handleResizeNodeMouseUp);
     document.documentElement.removeEventListener("click", handleClickGlobal);
