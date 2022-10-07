@@ -1,6 +1,13 @@
+import { store } from "@/store";
+import { ApidocApiflowNodeInfo } from "@@/store";
+
 type Coordinate = {
     x: number,
     y: number
+}
+type OffsetCoordinate = {
+    offsetX: number,
+    offsetY: number
 }
 type ResultRect = {
     x: number,
@@ -25,8 +32,56 @@ type ResultRect = {
         },
     },
 }
+
+//返回节点上下左右四个连接点吸附区域
+function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 40) {
+    const { styleInfo } = node;
+    const leftMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX,
+        offsetY: styleInfo.offsetY + styleInfo.height / 2
+    }
+    const topMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width / 2,
+        offsetY: styleInfo.offsetY
+    }
+    const rightMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width,
+        offsetY: styleInfo.offsetY + styleInfo.height / 2
+    }
+    const bottomMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width / 2,
+        offsetY: styleInfo.offsetY + styleInfo.height
+    }
+    return {
+        leftArea: {
+            offsetX: leftMidPoint.offsetX - stickySize,
+            offsetX2: leftMidPoint.offsetX + stickySize,
+            offsetY: leftMidPoint.offsetY - stickySize,
+            offsetY2: leftMidPoint.offsetY + stickySize,
+        },
+        topArea: {
+            offsetX: topMidPoint.offsetX - stickySize,
+            offsetX2: topMidPoint.offsetX + stickySize,
+            offsetY: topMidPoint.offsetY - stickySize,
+            offsetY2: topMidPoint.offsetY + stickySize,
+        },
+        rightArea: {
+            offsetX: rightMidPoint.offsetX - stickySize,
+            offsetX2: rightMidPoint.offsetX + stickySize,
+            offsetY: rightMidPoint.offsetY - stickySize,
+            offsetY2: rightMidPoint.offsetY + stickySize,
+        },
+        bottomArea: {
+            offsetX: bottomMidPoint.offsetX - stickySize,
+            offsetX2: bottomMidPoint.offsetX + stickySize,
+            offsetY: bottomMidPoint.offsetY - stickySize,
+            offsetY2: bottomMidPoint.offsetY + stickySize,
+        },
+    };
+}
 //根据起始位置返回节点 width height left top
 export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultRect {
+    const nodes = store.state["apidoc/apiflow"].apiflowList;
     const arrowLength = 15;
     const arrowWidth = 5;
     const padding = 15;
@@ -118,6 +173,11 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             x: result.lineInfo.endX + arrowLength,
             y: result.lineInfo.endY
         }
+        //=====================================粘贴效果====================================//
+        nodes.forEach(node => {
+            const stickyArea = getNodeStickyArea(node);
+            console.log(stickyArea);
+        })
     } else if (endInfo.x <= startInfo.x && endInfo.y <= startInfo.y) { //第二象限
         result.x = endInfo.x - padding;
         result.y = endInfo.y - padding
