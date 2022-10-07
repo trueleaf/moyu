@@ -45,7 +45,9 @@
                 isInArrow: {{ isInLineArrow }}
             </pre>
             <pre style="position: absolute; right: 620px; top: 40px;">{{ { ...currentNode, outcomings: [] } }}</pre>
-            <pre style="position: absolute; right: 320px; top: 40px;">{{ currentNode?.outcomings }}</pre>
+            <pre style="position: absolute; right: 320px; top: 40px;">outcomings
+                {{ currentNode?.outcomings }}
+            </pre>
         </teleport>
     </div>
     <template v-for="(item, index) in currentNode?.outcomings" :key="index">
@@ -164,7 +166,7 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;
-    const { endX, endY, arrowInfo: { p1, p2, p3, leftTopPoint, rightBottomPoint } } = drawInfo.lineInfo
+    const { endX, endY, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo
     ctx.beginPath();
     ctx.lineCap = "round";
     ctx.lineWidth = 2;
@@ -174,7 +176,7 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getRect
     ctx.stroke();
     ctx.beginPath();
     // ctx.fillStyle = "teal"
-    ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
+    // ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
     ctx.moveTo(p1.x, p1.y)
     ctx.lineTo(p2.x, p2.y)
     ctx.lineTo(p3.x, p3.y)
