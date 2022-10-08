@@ -1,6 +1,7 @@
 import { store } from "@/store";
 import { ApidocApiflowNodeInfo } from "@@/store";
 
+const padding = 15; //绘制图形边距
 type Coordinate = {
     x: number,
     y: number
@@ -80,11 +81,11 @@ function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 40) {
     };
 }
 //根据起始位置返回节点 width height left top
-export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultRect {
+export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate, options: { currentNode: ApidocApiflowNodeInfo }): ResultRect {
     const nodes = store.state["apidoc/apiflow"].apiflowList;
+    const { currentNode } = options;
     const arrowLength = 15;
     const arrowWidth = 5;
-    const padding = 15;
     const result: ResultRect = {
         x: 0,
         y: 0,
@@ -133,10 +134,45 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
         return result
     }
     if (endInfo.x > startInfo.x && endInfo.y <= startInfo.y) { //第一象限(startPostion为原点)
+        //=====================================粘贴效果====================================//
         result.x = startInfo.x - padding;
         result.y = endInfo.y - padding
         result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding;
         result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding;
+        nodes.forEach(node => {
+            if (node.id === currentNode.id) {
+                return;
+            }
+            const { leftArea, /*rightArea, topArea, bottomArea*/ } = getNodeStickyArea(node);
+            if (endInfo.x >= leftArea.offsetX && endInfo.x <= leftArea.offsetX2 && endInfo.y >= leftArea.offsetY && endInfo.y <= leftArea.offsetY2) {
+                // result.width = Math.abs(leftArea.offsetX + 40 - startInfo.x) + 2 * padding;
+                // result.height = Math.abs(leftArea.offsetY + 40 - startInfo.y) + 2 * padding;
+                // result.y = leftArea.offsetY + 40 - padding;
+                // result.lineInfo.startX = padding;
+                // result.lineInfo.startY = result.height - padding;
+                // result.lineInfo.endX = result.width - padding;
+                // result.lineInfo.endY = padding;
+            }
+            // if (endInfo.x >= rightArea.offsetX && endInfo.x <= rightArea.offsetX2) {
+            //     result.width = Math.abs(rightArea.offsetX + 40 - startInfo.x - padding) + 2 * padding;
+            // }
+            // if (endInfo.y >= rightArea.offsetY && endInfo.y <= rightArea.offsetY2) {
+            //     result.height = Math.abs(rightArea.offsetY + 40 - startInfo.y - padding) + 2 * padding;
+            // }
+            // if (endInfo.x >= topArea.offsetX && endInfo.x <= topArea.offsetX2) {
+            //     result.width = Math.abs(topArea.offsetX + 40 - startInfo.x - padding) + 2 * padding;
+            // }
+            // if (endInfo.y >= topArea.offsetY && endInfo.y <= topArea.offsetY2) {
+            //     result.height = Math.abs(topArea.offsetY + 40 - startInfo.y - padding) + 2 * padding;
+            // }
+            // if (endInfo.x >= bottomArea.offsetX && endInfo.x <= bottomArea.offsetX2) {
+            //     result.width = Math.abs(bottomArea.offsetX + 40 - startInfo.x - padding) + 2 * padding;
+            // }
+            // if (endInfo.y >= bottomArea.offsetY && endInfo.y <= bottomArea.offsetY2) {
+            //     result.height = Math.abs(bottomArea.offsetY + 40 - startInfo.y - padding) + 2 * padding;
+            // }
+            // console.log(endInfo);
+        })
         result.lineInfo.startX = padding;
         result.lineInfo.startY = result.height - padding;
         result.lineInfo.endX = result.width - padding;
@@ -173,11 +209,6 @@ export function getRectInfo(startInfo: Coordinate, endInfo: Coordinate): ResultR
             x: result.lineInfo.endX + arrowLength,
             y: result.lineInfo.endY
         }
-        //=====================================粘贴效果====================================//
-        nodes.forEach(node => {
-            const stickyArea = getNodeStickyArea(node);
-            console.log(stickyArea);
-        })
     } else if (endInfo.x <= startInfo.x && endInfo.y <= startInfo.y) { //第二象限
         result.x = endInfo.x - padding;
         result.y = endInfo.y - padding
