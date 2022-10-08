@@ -142,8 +142,8 @@ const getOutcomingDrawInfo = (outcoming: ApidocApiflowLineInfo) => {
         y: 0,
     }
     const endNodeInfo = {
-        x: outcoming.clientEndX - apiflowWrapperRect.x,
-        y: outcoming.clientEndY - apiflowWrapperRect.y,
+        x: outcoming.lineClientEndX - apiflowWrapperRect.x,
+        y: outcoming.lineClientEndY - apiflowWrapperRect.y,
     }
     if (outcoming.position === "left") {
         startNodeInfo.x = nodeOffsetX.value;
@@ -270,40 +270,40 @@ const handleNodeMouseMove = (e: MouseEvent) => {
             x: 0,
             y: 0,
         }
-        let clientStartX = 0;
-        let clientStartY = 0;
+        let lineClientStartX = 0;
+        let lineClientStartY = 0;
         if (outcoming.position === "left") {
             if (styleInfo.value) {
-                clientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x;
-                clientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
             }
             startNodeInfo.x = mousedownNodeX.value + relativeX;
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height / 2;
         } else if (outcoming.position === "top") {
             if (styleInfo.value) {
-                clientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
-                clientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y;
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y;
             }
             startNodeInfo.x = mousedownNodeX.value + relativeX + currentNode.value.styleInfo.width / 2;
             startNodeInfo.y = mousedownNodeY.value + relativeY;
         } else if (outcoming.position === "right") {
             if (styleInfo.value) {
-                clientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width;
-                clientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
             }
             startNodeInfo.x = mousedownNodeX.value + relativeX + currentNode.value.styleInfo.width;
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height / 2;
         } else if (outcoming.position === "bottom") {
             if (styleInfo.value) {
-                clientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
-                clientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height;
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height;
             }
             startNodeInfo.x = mousedownNodeX.value + relativeX + currentNode.value.styleInfo.width / 2;
             startNodeInfo.y = mousedownNodeY.value + relativeY + currentNode.value.styleInfo.height;
         }
         const endNodeInfo = {
-            x: outcoming.clientEndX - apiflowWrapperRect.x,
-            y: outcoming.clientEndY - apiflowWrapperRect.y,
+            x: outcoming.lineClientEndX - apiflowWrapperRect.x,
+            y: outcoming.lineClientEndY - apiflowWrapperRect.y,
         }
         const drawInfo = getRectInfo(startNodeInfo, endNodeInfo, {
             currentNode: currentNode.value
@@ -312,8 +312,8 @@ const handleNodeMouseMove = (e: MouseEvent) => {
             nodeId: props.nodeId,
             lineId: outcoming.id,
             lineInfo: {
-                clientStartX,
-                clientStartY,
+                lineClientStartX,
+                lineClientStartY,
                 offsetX: drawInfo.x,
                 offsetY: drawInfo.y,
                 width: drawInfo.width,
@@ -430,15 +430,41 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeOffsetY.value = mousedownNodeY.value;
         }
     }
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     currentNode.value?.outcomings.forEach(outcoming => {
         if (!currentNode.value) {
             return
+        }
+        let lineClientStartX = 0;
+        let lineClientStartY = 0;
+        if (outcoming.position === "left") {
+            if (styleInfo.value) {
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
+            }
+        } else if (outcoming.position === "top") {
+            if (styleInfo.value) {
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y;
+            }
+        } else if (outcoming.position === "right") {
+            if (styleInfo.value) {
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
+            }
+        } else if (outcoming.position === "bottom") {
+            if (styleInfo.value) {
+                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
+                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height;
+            }
         }
         const drawInfo = getOutcomingDrawInfo(outcoming);
         store.commit("apidoc/apiflow/changeOutComingInfoById", {
             nodeId: props.nodeId,
             lineId: outcoming.id,
             lineInfo: {
+                lineClientStartX,
+                lineClientStartY,
                 offsetX: drawInfo.x,
                 offsetY: drawInfo.y,
                 width: drawInfo.width,
@@ -503,13 +529,26 @@ const dotStartX = ref(0);
 const dotStartY = ref(0);
 const lineId = ref("");
 const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection) => {
-    const dotDom = e.target as HTMLElement;
-    const dotDomRect = dotDom.getBoundingClientRect();
-    dotStartX.value = dotDomRect.x + dotDomRect.width / 2;
-    dotStartY.value = dotDomRect.y + dotDomRect.height / 2;
+    if (!currentNode.value) {
+        return;
+    }
+    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     isMouseDownDot.value = true;
     lineId.value = uuid()
-    const zIndex = getZIndex()
+    const zIndex = getZIndex();
+    if (direction === "left") {
+        dotStartX.value = currentNode.value.styleInfo.offsetX + apiflowWrapperRect.x;
+        dotStartY.value = currentNode.value.styleInfo.offsetY + apiflowWrapperRect.y + currentNode.value.styleInfo.height / 2;
+    } else if (direction === "top") {
+        dotStartX.value = currentNode.value.styleInfo.offsetX + apiflowWrapperRect.x + currentNode.value.styleInfo.width / 2;
+        dotStartY.value = currentNode.value.styleInfo.offsetY + apiflowWrapperRect.y;
+    } else if (direction === "right") {
+        dotStartX.value = currentNode.value.styleInfo.offsetX + apiflowWrapperRect.x + currentNode.value.styleInfo.width;
+        dotStartY.value = currentNode.value.styleInfo.offsetY + apiflowWrapperRect.y + currentNode.value.styleInfo.height / 2;
+    } else if (direction === "bottom") {
+        dotStartX.value = currentNode.value.styleInfo.offsetX + apiflowWrapperRect.x + currentNode.value.styleInfo.width / 2;
+        dotStartY.value = currentNode.value.styleInfo.offsetY + apiflowWrapperRect.y + currentNode.value.styleInfo.height;
+    }
     store.commit("apidoc/apiflow/addOutComing", {
         nodeId: props.nodeId,
         lineId: lineId.value,
@@ -521,10 +560,10 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
             offsetY: 0,
             width: 0,
             height: 0,
-            clientStartX: dotStartX.value,
-            clientStartY: dotStartY.value,
-            clientEndX: dotStartX.value,
-            clientEndY: dotStartY.value,
+            lineClientStartX: dotStartX.value,
+            lineClientStartY: dotStartY.value,
+            lineClientEndX: dotStartX.value,
+            lineClientEndY: dotStartY.value,
             zIndex,
         }
     })
@@ -556,10 +595,8 @@ const handleDotMouseMove = (e: MouseEvent) => {
         lineInfo: {
             id: lineId.value,
             type: "line",
-            clientStartX: dotStartX.value,
-            clientStartY: dotStartY.value,
-            clientEndX: dotStartX.value + drawInfo.width,
-            clientEndY: dotStartY.value + drawInfo.height,
+            lineClientEndX: e.clientX,
+            lineClientEndY: e.clientY,
             offsetX: drawInfo.x,
             offsetY: drawInfo.y,
             width: drawInfo.width,
@@ -644,8 +681,8 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 lineInfo: {
                     id: currentDragedCanvasInfo.value.id,
                     type: "line",
-                    clientEndX: currentDragedCanvasInfo.value.clientStartX + drawInfo.width,
-                    clientEndY: currentDragedCanvasInfo.value.clientStartY + drawInfo.height,
+                    lineClientEndX: currentDragedCanvasInfo.value.lineClientStartX + drawInfo.width,
+                    lineClientEndY: currentDragedCanvasInfo.value.lineClientStartY + drawInfo.height,
                     offsetX: drawInfo.x,
                     offsetY: drawInfo.y,
                     width: drawInfo.width,

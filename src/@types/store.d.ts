@@ -528,19 +528,19 @@ type ApidocApiflowLineInfo = {
     /**
      * 相对于窗口开始位置x值
      */
-    clientStartX: number,
+    lineClientStartX: number,
     /**
      * 相对于窗口开始位置y值
      */
-    clientStartY: number,
+    lineClientStartY: number,
     /**
      * 相对于窗口结束位置x值
      */
-    clientEndX: number,
+    lineClientEndX: number,
     /**
      * 相对于窗口结束位置y值
      */
-    clientEndY: number,
+    lineClientEndY: number,
     /**
      * 宽度
      */
