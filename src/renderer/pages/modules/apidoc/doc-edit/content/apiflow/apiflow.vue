@@ -36,9 +36,9 @@ onMounted(() => {
             type: "node",
             styleInfo: {
                 offsetX: 100,
-                offsetY: clientRect.height / 2,
-                width: 120,
-                height: 90,
+                offsetY: 120,
+                width: 320,
+                height: 190,
                 zIndex: getZIndex()
             },
             outcomings: []
