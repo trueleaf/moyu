@@ -334,11 +334,90 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 }
             }
         } else if (position === "left") {
-            if (breakLineHeight < currentNode.styleInfo.height / 2) { //节点内部
+            if (breakLineHeight < currentNode.styleInfo.height / 2 + breakLineOffsetNode) { //节点内部加上上面缓冲距离
                 result.x = currentNode.styleInfo.offsetX - padding - breakLineOffsetNode;
                 result.y = currentNode.styleInfo.offsetY - padding - breakLineOffsetNode;
                 result.width = Math.abs(endInfo.x - result.x) + padding;
                 result.height = currentNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
+                if (result.width < breakLineOffsetNode * 2 + padding * 2) { //宽度二倍breakLineOffsetNode+2*padding
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding + breakLineOffsetNode,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y + arrowLength,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x + arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x - arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                } else {
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding + breakLineOffsetNode,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding * 2,
+                        y: padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding * 2,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x + arrowLength,
+                        y: endInfo.y - result.y,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y + arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowWidth
+                    }
+                }
+            } else { //节点外部
+                result.x = currentNode.styleInfo.offsetX - padding - breakLineOffsetNode;
+                result.y = endInfo.y - padding;
+                result.width = Math.abs(endInfo.x - result.x) + padding;
+                result.height = Math.abs(endInfo.y - currentNode.styleInfo.offsetY) + currentNode.styleInfo.height / 2 + 2 * padding;
+                // eslint-disable-next-line no-lonely-if
                 if (result.width < breakLineOffsetNode * 2 + padding * 2) { //宽度二倍breakLineOffsetNode+2*padding
                     result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
                     result.lineInfo.brokenLinePoints.push({
