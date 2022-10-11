@@ -334,7 +334,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 }
             }
         } else if (position === "left") {
-            if (breakLineHeight < currentNode.styleInfo.height / 2 + breakLineOffsetNode) { //节点内部加上上面缓冲距离
+            if (breakLineHeight < currentNode.styleInfo.height / 2 + breakLineOffsetNode) { //节点内部加上缓冲距离
                 result.x = currentNode.styleInfo.offsetX - padding - breakLineOffsetNode;
                 result.y = currentNode.styleInfo.offsetY - padding - breakLineOffsetNode;
                 result.width = Math.abs(endInfo.x - result.x) + padding;
@@ -498,12 +498,12 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 y: endInfo.y - result.y + padding
             }
         } else if (position === "bottom") {
-            if (breakLineWidth < currentNode.styleInfo.width / 2 + breakLineOffsetNode) { //节点内部加上上面缓冲距离
+            if (Math.abs(endInfo.x - startInfo.x) < currentNode.styleInfo.width / 2 + breakLineOffsetNode) { //节点内部加上缓冲距离
                 result.x = currentNode.styleInfo.offsetX + currentNode.styleInfo.width / 2 - padding;
                 result.y = endInfo.y - padding;
                 result.width = currentNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
                 result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding + breakLineOffsetNode;
-                if (Math.abs(endInfo.x - startInfo.x) < breakLineOffsetNode * 2 + padding * 2) {
+                if (Math.abs(endInfo.y - startInfo.y) < breakLineOffsetNode) { //箭头朝左
                     result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
                     result.lineInfo.brokenLinePoints.push({
                         x: padding,
@@ -519,24 +519,24 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     })
                     result.lineInfo.brokenLinePoints.push({
                         x: result.width - padding,
-                        y: (result.height - padding - breakLineOffsetNode) - padding
+                        y: endInfo.y - result.y
                     })
-                    // result.lineInfo.brokenLinePoints.push({
-                    //     x: result.width - padding,
-                    //     y: endInfo.y - result.y
-                    // })
-                    // result.lineInfo.arrowInfo.p1 = {
-                    //     x: endInfo.x - result.x,
-                    //     y: endInfo.y - result.y + arrowLength,
-                    // }
-                    // result.lineInfo.arrowInfo.p2 = {
-                    //     x: endInfo.x - result.x + arrowWidth,
-                    //     y: endInfo.y - result.y
-                    // }
-                    // result.lineInfo.arrowInfo.p3 = {
-                    //     x: endInfo.x - result.x - arrowWidth,
-                    //     y: endInfo.y - result.y
-                    // }
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x - arrowLength,
+                        y: endInfo.y - result.y,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y + arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowWidth
+                    }
                 } else {
                     console.log(2)
                 }
