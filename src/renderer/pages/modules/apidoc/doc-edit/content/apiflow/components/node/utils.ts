@@ -153,11 +153,11 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         result.lineInfo.endY = padding;
         //=================================箭头属性========================================//
         result.lineInfo.arrowInfo.leftTopPoint = {
-            x: result.lineInfo.endX - padding,
+            x: result.width - padding * 2,
             y: result.lineInfo.endY - padding
         }
         result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: result.lineInfo.endX + padding,
+            x: result.width,
             y: result.lineInfo.endY + padding
         }
         //=====================================绘制折线====================================//
@@ -165,8 +165,8 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         const breakPointStartY = result.lineInfo.startY;
         const breakPointEndX = result.lineInfo.endX;
         const breakPointEndY = result.lineInfo.endY;
-        const breakLineWidth = Math.abs(breakPointEndX - breakPointStartX);
-        const breakLineHeight = Math.abs(breakPointEndY - breakPointStartY);
+        const breakLineWidth = Math.abs(breakPointEndX - breakPointStartX); //折线宽度
+        const breakLineHeight = Math.abs(breakPointEndY - breakPointStartY); //折线高度
         //起始点
         result.lineInfo.brokenLinePoints.push({
             x: breakPointStartX,
@@ -418,7 +418,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 result.width = Math.abs(endInfo.x - result.x) + padding;
                 result.height = Math.abs(endInfo.y - currentNode.styleInfo.offsetY) + currentNode.styleInfo.height / 2 + 2 * padding;
                 // eslint-disable-next-line no-lonely-if
-                if (result.width < breakLineOffsetNode * 2 + padding * 2) { //宽度二倍breakLineOffsetNode+2*padding
+                if (result.width > result.height - breakLineOffsetNode) { //宽度二倍breakLineOffsetNode+2*padding
                     result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
                     result.lineInfo.brokenLinePoints.push({
                         x: padding + breakLineOffsetNode,
@@ -435,44 +435,6 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     result.lineInfo.brokenLinePoints.push({
                         x: result.width - padding,
                         y: padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - padding,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.arrowInfo.p1 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y + arrowLength,
-                    }
-                    result.lineInfo.arrowInfo.p2 = {
-                        x: endInfo.x - result.x + arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                    result.lineInfo.arrowInfo.p3 = {
-                        x: endInfo.x - result.x - arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                } else {
-                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
-                    result.lineInfo.brokenLinePoints.push({
-                        x: padding + breakLineOffsetNode,
-                        y: result.height - padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: padding,
-                        y: result.height - padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: padding,
-                        y: padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - padding * 2,
-                        y: padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - padding * 2,
-                        y: endInfo.y - result.y
                     })
                     result.lineInfo.brokenLinePoints.push({
                         x: result.width - padding,
@@ -490,6 +452,93 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: endInfo.x - result.x,
                         y: endInfo.y - result.y - arrowWidth
                     }
+                } else {
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding + breakLineOffsetNode,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: padding + breakLineOffsetNode
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: padding + breakLineOffsetNode
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowLength,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x + arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x - arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                }
+            }
+            //修复拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: endInfo.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: endInfo.y - result.y + padding
+            }
+        } else if (position === "bottom") {
+            if (breakLineWidth < currentNode.styleInfo.width / 2 + breakLineOffsetNode) { //节点内部加上上面缓冲距离
+                result.x = currentNode.styleInfo.offsetX + currentNode.styleInfo.width / 2 - padding;
+                result.y = endInfo.y - padding;
+                result.width = currentNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
+                result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding + breakLineOffsetNode;
+                if (Math.abs(endInfo.x - startInfo.x) < breakLineOffsetNode * 2 + padding * 2) {
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: Math.abs(endInfo.y - startInfo.y) + padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: (result.height - padding - breakLineOffsetNode) - padding
+                    })
+                    // result.lineInfo.brokenLinePoints.push({
+                    //     x: result.width - padding,
+                    //     y: endInfo.y - result.y
+                    // })
+                    // result.lineInfo.arrowInfo.p1 = {
+                    //     x: endInfo.x - result.x,
+                    //     y: endInfo.y - result.y + arrowLength,
+                    // }
+                    // result.lineInfo.arrowInfo.p2 = {
+                    //     x: endInfo.x - result.x + arrowWidth,
+                    //     y: endInfo.y - result.y
+                    // }
+                    // result.lineInfo.arrowInfo.p3 = {
+                    //     x: endInfo.x - result.x - arrowWidth,
+                    //     y: endInfo.y - result.y
+                    // }
+                } else {
+                    console.log(2)
                 }
             }
         }
