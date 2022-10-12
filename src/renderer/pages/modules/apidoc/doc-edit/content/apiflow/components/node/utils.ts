@@ -537,8 +537,84 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: endInfo.x - result.x,
                         y: endInfo.y - result.y - arrowWidth
                     }
-                } else {
-                    console.log(2)
+                } else { //箭头朝上
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: Math.abs(endInfo.y - startInfo.y) + padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: endInfo.y - result.y + breakLineOffsetNode
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y + breakLineOffsetNode
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowLength,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x + arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x - arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                }
+            } else { //节点外部
+                result.x = currentNode.styleInfo.offsetX + currentNode.styleInfo.width / 2 - padding;
+                result.y = endInfo.y - padding;
+                result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding;
+                result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding + breakLineOffsetNode;
+                if (result.width > result.height) { //箭头朝右
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: Math.abs(endInfo.y - startInfo.y) + padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding - breakLineOffsetNode,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding - breakLineOffsetNode,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x + arrowLength,
+                        y: endInfo.y - result.y,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y + arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowWidth
+                    }
                 }
             }
         }
