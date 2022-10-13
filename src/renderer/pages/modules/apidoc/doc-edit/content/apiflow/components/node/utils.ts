@@ -1,4 +1,4 @@
-// import { store } from "@/store";
+import { store } from "@/store";
 import { ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 
 const padding = 15; //绘制图形边距
@@ -6,10 +6,10 @@ type Coordinate = {
     x: number,
     y: number
 }
-// type OffsetCoordinate = {
-//     offsetX: number,
-//     offsetY: number
-// }
+type OffsetCoordinate = {
+    offsetX: number,
+    offsetY: number
+}
 type ResultRect = {
     x: number,
     y: number,
@@ -37,66 +37,66 @@ type ResultRect = {
 }
 
 //返回节点上下左右四个连接点吸附区域
-// function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 20) {
-//     const { styleInfo } = node;
-//     const leftMidPoint: OffsetCoordinate = {
-//         offsetX: styleInfo.offsetX,
-//         offsetY: styleInfo.offsetY + styleInfo.height / 2
-//     }
-//     const topMidPoint: OffsetCoordinate = {
-//         offsetX: styleInfo.offsetX + styleInfo.width / 2,
-//         offsetY: styleInfo.offsetY
-//     }
-//     const rightMidPoint: OffsetCoordinate = {
-//         offsetX: styleInfo.offsetX + styleInfo.width,
-//         offsetY: styleInfo.offsetY + styleInfo.height / 2
-//     }
-//     const bottomMidPoint: OffsetCoordinate = {
-//         offsetX: styleInfo.offsetX + styleInfo.width / 2,
-//         offsetY: styleInfo.offsetY + styleInfo.height
-//     }
-//     return {
-//         leftArea: {
-//             pointX: leftMidPoint.offsetX,
-//             pointY: leftMidPoint.offsetY,
-//             offsetX: leftMidPoint.offsetX - stickySize,
-//             offsetX2: leftMidPoint.offsetX + stickySize,
-//             offsetY: leftMidPoint.offsetY - stickySize,
-//             offsetY2: leftMidPoint.offsetY + stickySize,
-//         },
-//         topArea: {
-//             pointX: topMidPoint.offsetX,
-//             pointY: topMidPoint.offsetY,
-//             offsetX: topMidPoint.offsetX - stickySize,
-//             offsetX2: topMidPoint.offsetX + stickySize,
-//             offsetY: topMidPoint.offsetY - stickySize,
-//             offsetY2: topMidPoint.offsetY + stickySize,
-//         },
-//         rightArea: {
-//             pointX: rightMidPoint.offsetX,
-//             pointY: rightMidPoint.offsetY,
-//             offsetX: rightMidPoint.offsetX - stickySize,
-//             offsetX2: rightMidPoint.offsetX + stickySize,
-//             offsetY: rightMidPoint.offsetY - stickySize,
-//             offsetY2: rightMidPoint.offsetY + stickySize,
-//         },
-//         bottomArea: {
-//             pointX: bottomMidPoint.offsetX,
-//             pointY: bottomMidPoint.offsetY,
-//             offsetX: bottomMidPoint.offsetX - stickySize,
-//             offsetX2: bottomMidPoint.offsetX + stickySize,
-//             offsetY: bottomMidPoint.offsetY - stickySize,
-//             offsetY2: bottomMidPoint.offsetY + stickySize,
-//         },
-//     };
-// }
+function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 20) {
+    const { styleInfo } = node;
+    const leftMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX,
+        offsetY: styleInfo.offsetY + styleInfo.height / 2
+    }
+    const topMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width / 2,
+        offsetY: styleInfo.offsetY
+    }
+    const rightMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width,
+        offsetY: styleInfo.offsetY + styleInfo.height / 2
+    }
+    const bottomMidPoint: OffsetCoordinate = {
+        offsetX: styleInfo.offsetX + styleInfo.width / 2,
+        offsetY: styleInfo.offsetY + styleInfo.height
+    }
+    return {
+        leftArea: {
+            pointX: leftMidPoint.offsetX,
+            pointY: leftMidPoint.offsetY,
+            offsetX: leftMidPoint.offsetX - stickySize,
+            offsetX2: leftMidPoint.offsetX + stickySize,
+            offsetY: leftMidPoint.offsetY - stickySize,
+            offsetY2: leftMidPoint.offsetY + stickySize,
+        },
+        topArea: {
+            pointX: topMidPoint.offsetX,
+            pointY: topMidPoint.offsetY,
+            offsetX: topMidPoint.offsetX - stickySize,
+            offsetX2: topMidPoint.offsetX + stickySize,
+            offsetY: topMidPoint.offsetY - stickySize,
+            offsetY2: topMidPoint.offsetY + stickySize,
+        },
+        rightArea: {
+            pointX: rightMidPoint.offsetX,
+            pointY: rightMidPoint.offsetY,
+            offsetX: rightMidPoint.offsetX - stickySize,
+            offsetX2: rightMidPoint.offsetX + stickySize,
+            offsetY: rightMidPoint.offsetY - stickySize,
+            offsetY2: rightMidPoint.offsetY + stickySize,
+        },
+        bottomArea: {
+            pointX: bottomMidPoint.offsetX,
+            pointY: bottomMidPoint.offsetY,
+            offsetX: bottomMidPoint.offsetX - stickySize,
+            offsetX2: bottomMidPoint.offsetX + stickySize,
+            offsetY: bottomMidPoint.offsetY - stickySize,
+            offsetY2: bottomMidPoint.offsetY + stickySize,
+        },
+    };
+}
 //根据起始位置返回节点 width height left top
 type Options = {
     currentNode: ApidocApiflowNodeInfo,
     position: ApiflowOutComingDirection
 }
 export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, options: Options): ResultRect {
-    // const nodes = store.state["apidoc/apiflow"].apiflowList;
+    const nodes = store.state["apidoc/apiflow"].apiflowList;
     const { position, currentNode } = options;
     const arrowLength = 15;
     const arrowWidth = 5;
@@ -220,6 +220,46 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     y: result.lineInfo.endY
                 }
             }
+            //判断线条是否吸附节点
+            nodes.filter(node => node.id !== currentNode.id).forEach(node => {
+                const stickyArea = getNodeStickyArea(node);
+                const isLeftInStickyArea = endInfo.x >= stickyArea.leftArea.offsetX && endInfo.x <= stickyArea.leftArea.offsetX2
+                const isTopInStickyArea = endInfo.y >= stickyArea.leftArea.offsetY && endInfo.y <= stickyArea.leftArea.offsetY2
+                if (isLeftInStickyArea && isTopInStickyArea) {
+                    result.width = stickyArea.leftArea.pointX - startInfo.x + 2 * padding;
+                    result.height = Math.abs(startInfo.y - stickyArea.leftArea.pointY) + 2 * padding;
+                    result.y = stickyArea.leftArea.pointY - padding;
+                    result.lineInfo.brokenLinePoints = [];
+                    result.lineInfo.brokenLinePoints.push({
+                        x: startInfo.x - result.x,
+                        y: result.height - padding
+                    });
+                    result.lineInfo.brokenLinePoints.push({
+                        x: (stickyArea.leftArea.pointX - startInfo.x) / 2,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: (stickyArea.leftArea.pointX - startInfo.x) / 2,
+                        y: stickyArea.leftArea.pointY - result.y
+                    });
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.leftArea.pointX - result.x - arrowLength,
+                        y: stickyArea.leftArea.pointY - result.y
+                    });
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: stickyArea.leftArea.pointX - result.x - arrowLength,
+                        y: stickyArea.leftArea.pointY - result.y + arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: stickyArea.leftArea.pointX - result.x,
+                        y: stickyArea.leftArea.pointY - result.y
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: stickyArea.leftArea.pointX - result.x - arrowLength,
+                        y: stickyArea.leftArea.pointY - result.y - arrowWidth
+                    }
+                }
+            })
         } else if (position === "right" && breakLineWidth <= breakLineHeight) {
             result.lineInfo.brokenLinePoints.push({
                 x: breakPointStartX + breakLineWidth,
@@ -614,6 +654,36 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     result.lineInfo.arrowInfo.p3 = {
                         x: endInfo.x - result.x,
                         y: endInfo.y - result.y - arrowWidth
+                    }
+                } else {
+                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: Math.abs(endInfo.y - startInfo.y) + padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: result.width - padding,
+                        y: endInfo.y - result.y
+                    })
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: endInfo.x - result.x,
+                        y: endInfo.y - result.y - arrowLength,
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: endInfo.x - result.x - arrowWidth,
+                        y: endInfo.y - result.y
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: endInfo.x - result.x + arrowWidth,
+                        y: endInfo.y - result.y
                     }
                 }
             }
