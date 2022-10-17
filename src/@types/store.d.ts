@@ -600,7 +600,11 @@ type ApidocApiflowNodeInfo = {
     /**
      * 出线
      */
-    outcomings: ApidocApiflowLineInfo[]
+    outcomings: ApidocApiflowLineInfo[],
+    /**
+     * 入线
+     */
+    incomings: ApidocApiflowLineInfo[],
 };
 //节点包裹框信息
 type ApidocApiflowContainerInfo = {
