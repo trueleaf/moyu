@@ -36,12 +36,13 @@ onMounted(() => {
             type: "node",
             styleInfo: {
                 offsetX: 100,
-                offsetY: 120,
-                width: 320,
-                height: 190,
+                offsetY: 240,
+                width: 220,
+                height: 150,
                 zIndex: getZIndex()
             },
-            outcomings: []
+            outcomings: [],
+            incomings: []
         }
         store.commit("apidoc/apiflow/changeContainerInfo", {
             x: clientRect.x,
@@ -50,6 +51,19 @@ onMounted(() => {
             height: clientRect.height,
         });
         store.commit("apidoc/apiflow/addNode", startNode)
+        store.commit("apidoc/apiflow/addNode", {
+            id: "start2",
+            type: "node",
+            styleInfo: {
+                offsetX: 500,
+                offsetY: 150,
+                width: 220,
+                height: 150,
+                zIndex: getZIndex()
+            },
+            outcomings: [],
+            incomings: []
+        })
     } else {
         console.warn("容器不存在");
     }
