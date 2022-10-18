@@ -60,31 +60,31 @@ function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 10) {
             pointX: leftMidPoint.offsetX,
             pointY: leftMidPoint.offsetY,
             offsetX: leftMidPoint.offsetX - stickySize,
-            offsetX2: leftMidPoint.offsetX + node.styleInfo.width,
+            offsetX2: leftMidPoint.offsetX + node.styleInfo.width - stickySize,
             offsetY: node.styleInfo.offsetY + stickySize,
             offsetY2: node.styleInfo.offsetY + node.styleInfo.height - stickySize,
         },
         topArea: {
             pointX: topMidPoint.offsetX,
             pointY: topMidPoint.offsetY,
-            offsetX: node.styleInfo.offsetX,
-            offsetX2: node.styleInfo.offsetX + node.styleInfo.width,
+            offsetX: node.styleInfo.offsetX + stickySize,
+            offsetX2: node.styleInfo.offsetX + node.styleInfo.width - stickySize,
             offsetY: topMidPoint.offsetY - stickySize,
-            offsetY2: topMidPoint.offsetY + node.styleInfo.height,
+            offsetY2: topMidPoint.offsetY + node.styleInfo.height - stickySize,
         },
         rightArea: {
             pointX: rightMidPoint.offsetX,
             pointY: rightMidPoint.offsetY,
             offsetX: rightMidPoint.offsetX - stickySize,
             offsetX2: rightMidPoint.offsetX + stickySize,
-            offsetY: rightMidPoint.offsetY - stickySize,
-            offsetY2: rightMidPoint.offsetY + stickySize,
+            offsetY: node.styleInfo.offsetY + stickySize,
+            offsetY2: node.styleInfo.offsetY + node.styleInfo.height - stickySize,
         },
         bottomArea: {
             pointX: bottomMidPoint.offsetX,
             pointY: bottomMidPoint.offsetY,
-            offsetX: bottomMidPoint.offsetX - stickySize,
-            offsetX2: bottomMidPoint.offsetX + stickySize,
+            offsetX: node.styleInfo.offsetX + stickySize,
+            offsetX2: bottomMidPoint.offsetX + node.styleInfo.width - stickySize,
             offsetY: bottomMidPoint.offsetY - stickySize,
             offsetY2: bottomMidPoint.offsetY + stickySize,
         },
@@ -228,6 +228,10 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 const isTopInLeftStickyArea = endInfo.y >= stickyArea.leftArea.offsetY && endInfo.y <= stickyArea.leftArea.offsetY2;
                 const isLeftInTopStickyArea = endInfo.x >= stickyArea.topArea.offsetX && endInfo.x <= stickyArea.topArea.offsetX2;
                 const isTopInTopStickyArea = endInfo.y >= stickyArea.topArea.offsetY && endInfo.y <= stickyArea.topArea.offsetY2;
+                const isLeftInBottomStickyArea = endInfo.x >= stickyArea.bottomArea.offsetX && endInfo.x <= stickyArea.bottomArea.offsetX2;
+                const isTopInBottomStickyArea = endInfo.y >= stickyArea.bottomArea.offsetY && endInfo.y <= stickyArea.bottomArea.offsetY2;
+                const isLeftInRightStickyArea = endInfo.x >= stickyArea.rightArea.offsetX && endInfo.x <= stickyArea.rightArea.offsetX2;
+                const isTopInRightStickyArea = endInfo.y >= stickyArea.rightArea.offsetY && endInfo.y <= stickyArea.rightArea.offsetY2;
                 if (isLeftInLeftStickyArea && isTopInLeftStickyArea) {
                     result.width = stickyArea.leftArea.pointX - startInfo.x + 2 * padding;
                     result.height = Math.abs(startInfo.y - stickyArea.leftArea.pointY) + 2 * padding;
@@ -318,6 +322,94 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     result.lineInfo.arrowInfo.rightBottomPoint = {
                         x: result.width,
                         y: stickyArea.topArea.pointY - result.y
+                    }
+                    store.commit("apidoc/apiflow/upsertIncoming", {
+                        nodeId: node.id,
+                        lineId: currendLine.id,
+                        lineInfo: currendLine,
+                    })
+                } else if (isLeftInBottomStickyArea && isTopInBottomStickyArea) {
+                    result.width = stickyArea.bottomArea.pointX - startInfo.x + 2 * padding;
+                    result.height = Math.abs(startInfo.y - stickyArea.bottomArea.pointY) + 2 * padding;
+                    result.y = stickyArea.bottomArea.pointY - padding;
+                    result.lineInfo.brokenLinePoints = [];
+                    result.lineInfo.brokenLinePoints.push({
+                        x: startInfo.x - result.x,
+                        y: result.height - padding
+                    });
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.bottomArea.pointX - startInfo.x + padding,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.bottomArea.pointX - startInfo.x + padding,
+                        y: stickyArea.bottomArea.pointY - result.y
+                    });
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: stickyArea.bottomArea.pointX - startInfo.x + padding - arrowWidth,
+                        y: stickyArea.bottomArea.pointY - result.y + arrowLength
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: stickyArea.bottomArea.pointX - startInfo.x + padding + arrowWidth,
+                        y: stickyArea.bottomArea.pointY - result.y + arrowLength
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: stickyArea.bottomArea.pointX - startInfo.x + padding,
+                        y: stickyArea.bottomArea.pointY - result.y
+                    }
+                    result.lineInfo.arrowInfo.leftTopPoint = {
+                        x: result.width - padding * 2,
+                        y: stickyArea.bottomArea.pointY - result.y - padding
+                    }
+                    result.lineInfo.arrowInfo.rightBottomPoint = {
+                        x: result.width,
+                        y: stickyArea.bottomArea.pointY - result.y + padding
+                    }
+                    store.commit("apidoc/apiflow/upsertIncoming", {
+                        nodeId: node.id,
+                        lineId: currendLine.id,
+                        lineInfo: currendLine,
+                    })
+                } else if (isLeftInRightStickyArea && isTopInRightStickyArea) {
+                    result.width = stickyArea.rightArea.pointX - startInfo.x + 2 * padding + breakLineOffsetNode;
+                    result.height = Math.abs(startInfo.y - stickyArea.rightArea.pointY) + 2 * padding;
+                    result.y = stickyArea.rightArea.pointY - padding;
+                    result.lineInfo.brokenLinePoints = [];
+                    result.lineInfo.brokenLinePoints.push({
+                        x: startInfo.x - result.x,
+                        y: result.height - padding
+                    });
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding + breakLineOffsetNode,
+                        y: result.height - padding
+                    })
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding + breakLineOffsetNode,
+                        y: stickyArea.rightArea.pointY - result.y
+                    });
+                    result.lineInfo.brokenLinePoints.push({
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding * 2,
+                        y: stickyArea.rightArea.pointY - result.y
+                    });
+                    result.lineInfo.arrowInfo.p1 = {
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding + arrowLength,
+                        y: stickyArea.rightArea.pointY - result.y + arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p2 = {
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding + arrowLength,
+                        y: stickyArea.rightArea.pointY - result.y - arrowWidth
+                    }
+                    result.lineInfo.arrowInfo.p3 = {
+                        x: stickyArea.rightArea.pointX - startInfo.x + padding,
+                        y: stickyArea.rightArea.pointY - result.y
+                    }
+                    result.lineInfo.arrowInfo.leftTopPoint = {
+                        x: stickyArea.rightArea.pointX - result.x - padding,
+                        y: stickyArea.rightArea.pointY - result.y - padding
+                    }
+                    result.lineInfo.arrowInfo.rightBottomPoint = {
+                        x: stickyArea.rightArea.pointX - result.x + padding,
+                        y: stickyArea.rightArea.pointY - result.y + padding
                     }
                     store.commit("apidoc/apiflow/upsertIncoming", {
                         nodeId: node.id,
