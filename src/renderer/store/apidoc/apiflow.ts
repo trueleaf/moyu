@@ -1,6 +1,6 @@
 import type { ApidocApiflowState, ApidocApiflowNodeInfo, ApidocApiflowContainerInfo, ApidocApiflowLineInfo } from "@@/store"
 
-type UpsertOutComingInfo = {
+type ChangedLineInfo = {
     /**
      * 节点id
      */
@@ -71,21 +71,21 @@ const apiflow = {
         |--------------------------------------------------------------------------
         */
         //新增或者更新出线信息
-        upsertOutComing(state: ApidocApiflowState, payload: UpsertOutComingInfo): void {
+        upsertOutComing(state: ApidocApiflowState, payload: ChangedLineInfo): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 // matchedNode.styleInfo.zIndex = payload.;
             }
         },
         //新增一条出线
-        addOutComing(state: ApidocApiflowState, payload: UpsertOutComingInfo): void {
+        addOutComing(state: ApidocApiflowState, payload: ChangedLineInfo): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 matchedNode.outcomings.push(payload.lineInfo)
             }
         },
         //改变出线属性
-        changeOutComingInfoById(state: ApidocApiflowState, payload: UpsertOutComingInfo): void {
+        changeOutComingInfoById(state: ApidocApiflowState, payload: ChangedLineInfo): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
             if (!matchedNode) {
                 return
@@ -104,6 +104,20 @@ const apiflow = {
             const matchedLineIndex = matchedNode.outcomings.findIndex(v => v.id === payload.lineId)
             if (matchedLineIndex !== -1) {
                 matchedNode.outcomings.splice(matchedLineIndex, 1)
+            }
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | 入线
+        |--------------------------------------------------------------------------
+        */
+        upsertIncoming(state: ApidocApiflowState, payload: ChangedLineInfo): void {
+            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedLine = matchedNode?.incomings.find(incoming => incoming.id === payload.lineId)
+            if (matchedNode && matchedLine) {
+                Object.assign(matchedLine, payload.lineInfo)
+            } else if (matchedNode && !matchedLine) {
+                matchedNode.incomings.push(payload.lineInfo)
             }
         },
     },
