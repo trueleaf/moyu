@@ -34,6 +34,18 @@ type ResultRect = {
          */
         brokenLinePoints: Coordinate[],
     },
+    /**
+     * 是否连接到别的节点
+     */
+    isConnectedNode: boolean,
+    /**
+     * 连接到节点位置
+     */
+    connectedPosition: "left" | "top" | "right" | "bottom"
+    /**
+     * 被连接的节点id
+     */
+    connectedNodeId: string,
 }
 
 //返回节点上下左右四个连接点吸附区域
@@ -93,12 +105,12 @@ function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 10) {
 //根据起始位置返回节点 width height left top
 type Options = {
     currentNode: ApidocApiflowNodeInfo,
-    currendLine: ApidocApiflowLineInfo,
+    currendLine?: ApidocApiflowLineInfo,
     position: ApiflowOutComingDirection
 }
 export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, options: Options): ResultRect {
     const nodes = store.state["apidoc/apiflow"].apiflowList;
-    const { position, currentNode, currendLine } = options;
+    const { position, currentNode } = options;
     const arrowLength = 15;
     const arrowWidth = 5;
     const breakLineSticky = 5;
@@ -139,6 +151,9 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
             },
             brokenLinePoints: [],
         },
+        isConnectedNode: false,
+        connectedPosition: "left",
+        connectedNodeId: ""
     }
     if (Math.abs(endInfo.x - startInfo.x) < 10 && Math.abs(endInfo.y - startInfo.y) < 10) {
         return result
@@ -273,11 +288,9 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: result.width - padding,
                         y: result.lineInfo.endY + padding
                     }
-                    store.commit("apidoc/apiflow/upsertIncoming", {
-                        nodeId: node.id,
-                        lineId: currendLine.id,
-                        lineInfo: currendLine,
-                    })
+                    result.isConnectedNode = true
+                    result.connectedPosition = "left";
+                    result.connectedNodeId = node.id;
                 } else if (isLeftInTopStickyArea && isTopInTopStickyArea) {
                     result.width = stickyArea.topArea.pointX - startInfo.x + 2 * padding;
                     result.height = Math.abs(startInfo.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
@@ -323,11 +336,9 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: result.width,
                         y: stickyArea.topArea.pointY - result.y
                     }
-                    store.commit("apidoc/apiflow/upsertIncoming", {
-                        nodeId: node.id,
-                        lineId: currendLine.id,
-                        lineInfo: currendLine,
-                    })
+                    result.isConnectedNode = true
+                    result.connectedPosition = "top";
+                    result.connectedNodeId = node.id;
                 } else if (isLeftInBottomStickyArea && isTopInBottomStickyArea) {
                     result.width = stickyArea.bottomArea.pointX - startInfo.x + 2 * padding;
                     result.height = Math.abs(startInfo.y - stickyArea.bottomArea.pointY) + 2 * padding;
@@ -365,11 +376,9 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: result.width,
                         y: stickyArea.bottomArea.pointY - result.y + padding
                     }
-                    store.commit("apidoc/apiflow/upsertIncoming", {
-                        nodeId: node.id,
-                        lineId: currendLine.id,
-                        lineInfo: currendLine,
-                    })
+                    result.isConnectedNode = true
+                    result.connectedPosition = "bottom";
+                    result.connectedNodeId = node.id;
                 } else if (isLeftInRightStickyArea && isTopInRightStickyArea) {
                     result.width = stickyArea.rightArea.pointX - startInfo.x + 2 * padding + breakLineOffsetNode;
                     result.height = Math.abs(startInfo.y - stickyArea.rightArea.pointY) + 2 * padding;
@@ -411,11 +420,9 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         x: stickyArea.rightArea.pointX - result.x + padding,
                         y: stickyArea.rightArea.pointY - result.y + padding
                     }
-                    store.commit("apidoc/apiflow/upsertIncoming", {
-                        nodeId: node.id,
-                        lineId: currendLine.id,
-                        lineInfo: currendLine,
-                    })
+                    result.isConnectedNode = true
+                    result.connectedPosition = "right";
+                    result.connectedNodeId = node.id;
                 }
             })
         } else if (position === "right" && breakLineWidth <= breakLineHeight) {
@@ -913,7 +920,6 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
             y: result.lineInfo.endY
         }
     } else if (endInfo.x > startInfo.x && endInfo.y > startInfo.y) { //第四象限
-        console.log(options)
         result.x = startInfo.x - padding;
         result.y = startInfo.y - padding
         result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding;
