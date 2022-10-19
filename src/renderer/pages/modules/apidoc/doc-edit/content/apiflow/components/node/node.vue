@@ -294,8 +294,21 @@ const handleDotMouseMove = (e: MouseEvent) => {
     const drawInfo = getLineDrawInfo(startPoint, endPoint, {
         currentNode: currentNode.value as ApidocApiflowNodeInfo,
         position: mousedownDotPosition.value,
-        currendLine: currentDrawLineInfo.value as ApidocApiflowLineInfo
     });
+    if (drawInfo.isConnectedNode && currentDrawLineInfo.value) {
+        store.commit("apidoc/apiflow/upsertIncoming", {
+            nodeId: drawInfo.connectedNodeId,
+            lineId: currentDrawLineInfo.value.id,
+            lineInfo: {
+                ...currentDrawLineInfo.value,
+                position: drawInfo.connectedPosition
+            },
+        })
+    } else {
+        store.commit("apidoc/apiflow/removeIncomingById", {
+            lineId: (currentDrawLineInfo.value as ApidocApiflowLineInfo).id,
+        })
+    }
     store.commit("apidoc/apiflow/changeOutComingInfoById", {
         nodeId: props.nodeId,
         lineId: lineId.value,
@@ -427,6 +440,20 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
             });
         }
         if (drawInfo) {
+            if (drawInfo.isConnectedNode && currentDrawLineInfo.value) {
+                store.commit("apidoc/apiflow/upsertIncoming", {
+                    nodeId: drawInfo.connectedNodeId,
+                    lineId: currentDrawLineInfo.value.id,
+                    lineInfo: {
+                        ...currentDrawLineInfo.value,
+                        position: drawInfo.connectedPosition
+                    },
+                })
+            } else {
+                store.commit("apidoc/apiflow/removeIncomingById", {
+                    lineId: (currentDrawLineInfo.value as ApidocApiflowLineInfo).id,
+                })
+            }
             store.commit("apidoc/apiflow/changeOutComingInfoById", {
                 nodeId: props.nodeId,
                 lineId: currentDragedCanvasInfo.value.id,
@@ -596,6 +623,67 @@ const handleNodeMouseMove = (e: MouseEvent) => {
         })
         if (outcomingRef.value) {
             const oc = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === outcoming.id) || null
+            if (oc) {
+                repaintLine(oc, drawInfo);
+            }
+        }
+    })
+    currentNode.value?.incomings.forEach(incoming => {
+        const outcomingNode = apiflowList.value.find(node => node.outcomings.find(v => v.id === incoming.id));
+        const matchedOutcoming = outcomingNode?.outcomings.find(v => v.id === incoming.id)
+        if (!matchedOutcoming || !outcomingNode || !currentNode.value) {
+            return
+        }
+        const nodeStyleInfo = outcomingNode.styleInfo;
+        const startNodeInfo = {
+            x: matchedOutcoming.offsetX,
+            y: matchedOutcoming.offsetY,
+        }
+        let lineClientEndX = 0;
+        let lineClientEndY = 0;
+        const endNodeInfo = {
+            x: 0,
+            y: 0,
+        }
+        if (incoming.position === "left") {
+            lineClientEndX = nodeStyleInfo.offsetX + apiflowWrapperRect.x;
+            lineClientEndY = nodeStyleInfo.offsetY + apiflowWrapperRect.y + nodeStyleInfo.height / 2;
+            endNodeInfo.x = mousedownNodeX.value + relativeX;
+            endNodeInfo.y = mousedownNodeY.value + relativeY + nodeStyleInfo.height / 2;
+        } else if (matchedOutcoming.position === "top") {
+            lineClientEndX = nodeStyleInfo.offsetX + apiflowWrapperRect.x + nodeStyleInfo.width / 2;
+            lineClientEndY = nodeStyleInfo.offsetY + apiflowWrapperRect.y;
+            endNodeInfo.x = mousedownNodeX.value + relativeX + nodeStyleInfo.width / 2;
+            endNodeInfo.y = mousedownNodeY.value + relativeY;
+        } else if (matchedOutcoming.position === "right") {
+            lineClientEndX = nodeStyleInfo.offsetX + apiflowWrapperRect.x + nodeStyleInfo.width;
+            lineClientEndY = nodeStyleInfo.offsetY + apiflowWrapperRect.y + nodeStyleInfo.height / 2;
+            endNodeInfo.x = mousedownNodeX.value + relativeX + nodeStyleInfo.width;
+            endNodeInfo.y = mousedownNodeY.value + relativeY + nodeStyleInfo.height / 2;
+        } else if (matchedOutcoming.position === "bottom") {
+            lineClientEndX = nodeStyleInfo.offsetX + apiflowWrapperRect.x + nodeStyleInfo.width / 2;
+            lineClientEndY = nodeStyleInfo.offsetY + apiflowWrapperRect.y + nodeStyleInfo.height;
+            endNodeInfo.x = mousedownNodeX.value + relativeX + nodeStyleInfo.width / 2;
+            endNodeInfo.y = mousedownNodeY.value + relativeY + nodeStyleInfo.height;
+        }
+        const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
+            currentNode: currentNode.value,
+            position: matchedOutcoming.position,
+            currendLine: matchedOutcoming
+        });
+        store.commit("apidoc/apiflow/changeInComingInfoById", {
+            nodeId: props.nodeId,
+            lineId: incoming.id,
+            lineInfo: {
+                lineClientEndX,
+                lineClientEndY,
+                width: drawInfo.width,
+                height: drawInfo.height,
+            }
+        })
+        console.log(3, outcomingRef.value)
+        if (outcomingRef.value) {
+            const oc = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === matchedOutcoming.id) || null;
             if (oc) {
                 repaintLine(oc, drawInfo);
             }
