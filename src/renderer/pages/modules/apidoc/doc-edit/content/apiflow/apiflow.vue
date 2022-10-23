@@ -5,12 +5,17 @@
 */
 <template>
     <div ref="apiflow" class="apiflow" @contextmenu.prevent="() => {}">
-        <dragNode
+        <s-node
             v-for="(item, index) in apiflowList"
             :key="index"
             :node-id="item.id"
         >
-        </dragNode>
+        </s-node>
+        <template v-for="(item, index) in apiflowList" :key="index">
+            <template v-for="(item2, index2) in item.outcomings" :key="index2">
+                <s-line :line-info="item2"></s-line>
+            </template>
+        </template>
     </div>
 </template>
 
@@ -18,15 +23,21 @@
 import { onMounted, ref, Ref, provide, computed } from "vue";
 import { store } from "@/store";
 import type { ApidocApiflowNodeInfo } from "@@/store"
-import dragNode from "./components/node/node.vue"
-import { getZIndex } from "./components/node/utils";
+import sNode from "./components/node/node.vue"
+import sLine from "./components/line/line.vue"
+import { getZIndex } from "./components/utils/utils";
 
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
 const apiflow: Ref<HTMLElement | null> = ref(null);
 provide("apiflowWrapper", apiflow)
 const wrapX = ref(0);
 const wrapY = ref(0);
-onMounted(() => {
+/*
+|--------------------------------------------------------------------------
+| 初始化widget
+|--------------------------------------------------------------------------
+*/
+const initWidgets = () => {
     if (apiflow.value) {
         const clientRect = apiflow.value.getBoundingClientRect();
         wrapX.value = clientRect.x;
@@ -56,7 +67,7 @@ onMounted(() => {
             type: "node",
             styleInfo: {
                 offsetX: 500,
-                offsetY: 150,
+                offsetY: 120,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
@@ -67,6 +78,9 @@ onMounted(() => {
     } else {
         console.warn("容器不存在");
     }
+}
+onMounted(() => {
+    initWidgets();
 })
 </script>
 
