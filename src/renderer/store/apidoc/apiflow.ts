@@ -18,14 +18,34 @@ type ChangedLineInfo = {
 const apiflow = {
     namespaced: true,
     state: {
+        isMouseInLineArrow: false,
+        currentSelectedDotId: "",
         containerInfo: {},
         apiflowList: [],
     },
     mutations: {
+        /*
+        |--------------------------------------------------------------------------
+        | 通用
+        |--------------------------------------------------------------------------
+        */
         //改变容器大小
         changeContainerInfo(state: ApidocApiflowState, payload: ApidocApiflowContainerInfo): void {
             state.containerInfo = payload;
         },
+        //当前选中dot所对应的id
+        changeCurrentSelectedDotId(state: ApidocApiflowState, payload: string): void {
+            state.currentSelectedDotId = payload;
+        },
+        //改变鼠标是否在线条箭头上面
+        changeIsMouseInLineArrow(state: ApidocApiflowState, payload: boolean): void {
+            state.isMouseInLineArrow = payload;
+        },
+        /*
+        |--------------------------------------------------------------------------
+        | node相关操作
+        |--------------------------------------------------------------------------
+        */
         //根据id改变节点x值
         changeNodeOffsetXById(state: ApidocApiflowState, payload: { id: string, x: number }): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.id);
@@ -118,6 +138,28 @@ const apiflow = {
                 Object.assign(matchedLine, payload.lineInfo)
             } else if (matchedNode && !matchedLine) {
                 matchedNode.incomings.push(payload.lineInfo)
+            }
+        },
+        //根据id移除入线
+        removeIncomingById(state: ApidocApiflowState, payload: { lineId: string }): void {
+            for (let i = 0; i < state.apiflowList.length; i += 1) {
+                const node = state.apiflowList[i];
+                const matchedLineIndex = node.incomings.findIndex(v => v.id === payload.lineId);
+                if (matchedLineIndex !== -1) {
+                    node.incomings.splice(matchedLineIndex, 1)
+                    break;
+                }
+            }
+        },
+        //改变入线属性
+        changeInComingInfoById(state: ApidocApiflowState, payload: ChangedLineInfo): void {
+            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            if (!matchedNode) {
+                return
+            }
+            const matchedLine = matchedNode.incomings.find(v => v.id === payload.lineId)
+            if (matchedLine) {
+                Object.assign(matchedLine, payload.lineInfo)
             }
         },
     },
