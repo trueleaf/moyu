@@ -626,6 +626,14 @@ type ApidocApiflowContainerInfo = {
     height: number,
 };
 type ApidocApiflowState = {
+    /**
+     * 当前被点击dot的节点
+     */
+    currentSelectedDotId: string,
+    /**
+     * 鼠标是否在线条箭头上面
+     */
+    isMouseInLineArrow: boolean,
     containerInfo: ApidocApiflowContainerInfo,
     apiflowList: ApidocApiflowNodeInfo[]
 }
