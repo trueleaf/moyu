@@ -634,7 +634,25 @@ type ApidocApiflowState = {
      * 鼠标是否在线条箭头上面
      */
     isMouseInLineArrow: boolean,
+    /**
+     * 鼠标是否点击元素
+     */
+    isMouseDownNode: boolean,
+    /**
+     * 鼠标是否点击节点resizedot
+     */
+    isMouseDownResizeDot: boolean,
+    /**
+     * 当前操作的节点信息
+     */
+    currentOperatNode: ApidocApiflowNodeInfo | null;
+    /**
+     * 容器信息
+     */
     containerInfo: ApidocApiflowContainerInfo,
+    /**
+     * 元素集合
+     */
     apiflowList: ApidocApiflowNodeInfo[]
 }
 
