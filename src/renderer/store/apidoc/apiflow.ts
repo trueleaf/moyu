@@ -19,6 +19,8 @@ const apiflow = {
     namespaced: true,
     state: {
         isMouseInLineArrow: false,
+        isMouseDownResizeDot: false,
+        isMouseDownNode: false,
         currentSelectedDotId: "",
         containerInfo: {},
         apiflowList: [],
@@ -37,9 +39,21 @@ const apiflow = {
         changeCurrentSelectedDotId(state: ApidocApiflowState, payload: string): void {
             state.currentSelectedDotId = payload;
         },
-        //改变鼠标是否在线条箭头上面
+        //鼠标是否在线条箭头上面
         changeIsMouseInLineArrow(state: ApidocApiflowState, payload: boolean): void {
             state.isMouseInLineArrow = payload;
+        },
+        //鼠标是否点击元素
+        changeIsMouseDownNode(state: ApidocApiflowState, payload: boolean): void {
+            state.isMouseDownNode = payload;
+        },
+        //鼠标是否点击节点resizedot
+        changeIsMouseDownResizeDot(state: ApidocApiflowState, payload: boolean): void {
+            state.isMouseDownResizeDot = payload;
+        },
+        //改变当前操作的node信息
+        changeCurrentOperatNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
+            state.currentOperatNode = payload;
         },
         /*
         |--------------------------------------------------------------------------

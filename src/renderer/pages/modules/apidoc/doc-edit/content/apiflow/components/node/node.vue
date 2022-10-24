@@ -41,7 +41,7 @@
             <pre style="position: absolute; right: 720px; top: 40px;">
                 isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
                 isInArrow: {{ isMouseInLineArrow }}
-                isNodeMousedown: {{ isNodeMousedown }}
+                isMouseDownNode: {{ isMouseDownNode }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -74,7 +74,7 @@ import { onUnmounted, ref, Ref, computed, onMounted, inject } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
-import { getLineDrawInfo, getZIndex, isInRect } from "../utils/utils";
+import { getLineDrawInfo, getZIndex } from "../utils/utils";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
@@ -90,7 +90,8 @@ const props = defineProps({
 |--------------------------------------------------------------------------
 */
 const outcomingRef: Ref<null | HTMLCanvasElement[]> = ref(null);
-const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
+const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
+// const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
@@ -128,7 +129,7 @@ const nodeHeight = computed({ //节点高度
         store.commit("apidoc/apiflow/changeNodeHeightById", { id: props.nodeId, h: v })
     },
 });
-console.log(containerInfo)
+// console.log(containerInfo)
 /*
 |--------------------------------------------------------------------------
 | 公共方法
@@ -272,29 +273,6 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
     //     zIndex: zIndex + 1,
     // })
 }
-//线条上面鼠标移动(仅在节点上面生效)
-const handleCheckMouseIsInArrow = (e: MouseEvent) => {
-    if (currentNode.value) {
-        const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
-        const isInArrow = currentNode.value.outcomings.some(outcoming => {
-            const drawInfo = getOutcomingDrawInfo(outcoming)
-            const mouseOffsetPoint = { x: e.clientX - apiflowWrapperRect.x, y: e.clientY - apiflowWrapperRect.y }
-            const leftTopPoint = {
-                x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + outcoming.offsetX,
-                y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + outcoming.offsetY,
-            }
-            const rightBottomPoint = {
-                x: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + outcoming.offsetX,
-                y: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + outcoming.offsetY,
-            }
-            const isIn = isInRect(mouseOffsetPoint, leftTopPoint, rightBottomPoint);
-            console.log(2, isIn)
-            return isIn;
-        })
-        console.log(1, isInArrow)
-        store.commit("apidoc/apiflow/changeIsMouseInLineArrow", isInArrow)
-    }
-}
 /*
 |--------------------------------------------------------------------------
 | 节点
@@ -311,7 +289,14 @@ const dotZIndex = computed(() => {
 })
 const nodeMousedownX = ref(0);
 const nodeMousedownY = ref(0);
-const isNodeMousedown = ref(false);
+const isMouseDownNode = computed({
+    get() {
+        return store.state["apidoc/apiflow"].isMouseDownNode;
+    },
+    set(val) {
+        store.commit("apidoc/apiflow/changeIsMouseDownNode", val)
+    }
+});
 const isMouseInNode = ref(false);
 const isSelectedNode = ref(false); //是否选中节点
 const styleInfo = computed(() => currentNode.value?.styleInfo)
@@ -330,7 +315,14 @@ const nodeMinHeight = 50; //最小高度
 */
 const resizeNodeMousedownX = ref(0); //鼠标按下时候resize节点x值
 const resizeNodeMousedownY = ref(0); //鼠标按下时候resize节点y值
-const isResizeNodeMousedown = ref(false);
+const isResizeNodeMousedown = computed({
+    get() {
+        return store.state["apidoc/apiflow"].isMouseDownResizeDot;
+    },
+    set(val) {
+        store.commit("apidoc/apiflow/changeIsMouseDownResizeDot", val)
+    }
+});
 const nodeStartResizeWidth = ref(0); //节点开始resize时候宽度
 const nodeStartResizeHeight = ref(0); //节点开始resize时候高度
 const resizeDirection: Ref<ResizeDirection> = ref("leftTop");
@@ -345,12 +337,14 @@ const handleNodeMousedown = (e: MouseEvent) => {
     nodeMousedownY.value = e.clientY;
     mousedownNodeX.value = nodeOffsetX.value;
     mousedownNodeY.value = nodeOffsetY.value;
-    isNodeMousedown.value = true;
+    isMouseDownNode.value = true;
     isSelectedNode.value = true;
+    store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
 }
 //鼠标松开
 const handleNodeMouseUp = () => {
-    isNodeMousedown.value = false;
+    isMouseDownNode.value = false;
+    store.commit("apidoc/apiflow/changeCurrentOperatNode", null)
 }
 //鼠标移入
 const handleNodeMouseEnter = () => {
@@ -362,7 +356,10 @@ const handleNodeMouseLeave = () => {
 }
 //节点移动
 const handleNodeMouseMove = (e: MouseEvent) => {
-    if (!isNodeMousedown.value || isResizeNodeMousedown.value || isMouseInLineArrow.value) {
+    if (!isMouseDownNode.value || isResizeNodeMousedown.value || isMouseInLineArrow.value) {
+        return
+    }
+    if (currentOperatNode.value?.id !== currentNode.value?.id) {
         return
     }
     const relativeX = e.clientX - nodeMousedownX.value; //相对于mousedown位置移动距离
@@ -378,6 +375,7 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 */
 //拖拽节点点击
 const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
+    store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
     isResizeNodeMousedown.value = true;
     resizeNodeMousedownX.value = e.clientX;
     resizeNodeMousedownY.value = e.clientY;
@@ -573,7 +571,6 @@ const handleClickGlobal = () => {
 }
 document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
 document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
-document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
 document.documentElement.addEventListener("click", handleClickGlobal);
