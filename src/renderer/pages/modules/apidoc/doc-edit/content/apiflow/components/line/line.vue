@@ -349,53 +349,56 @@ const handleCanvasMouseUp = () => {
 |--------------------------------------------------------------------------
 */
 const handleNodeMouseMove = () => {
-    if (!isMouseDownNode.value || isResizeNodeMousedown.value || isMouseInLineArrow.value) {
+    if (!isMouseDownNode.value || isResizeNodeMousedown.value || isMouseInLineArrow.value || !hostNode.value) {
         return
     }
     const incomings = currentOperatNode.value?.incomings;
-    console.log(3, incomings)
-    if (currentOperatNode.value?.id !== hostNode.value?.id) {
-        return
-    }
-    if (!hostNode.value) {
-        return
-    }
+    const outcomings = currentOperatNode.value?.outcomings;
+    const isIncomingLine = incomings && incomings.find(incoming => incoming.id === props.lineInfo.id);
+    const isOutcomingLine = outcomings && outcomings.find(outcoming => outcoming.id === props.lineInfo.id);
     const { styleInfo } = hostNode.value;
+    let lineClientStartX = 0;
+    let lineClientStartY = 0;
     const startNodeInfo = {
         x: 0,
         y: 0,
     }
-    let lineClientStartX = 0;
-    let lineClientStartY = 0;
-    if (props.lineInfo.position === "left") {
-        if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
+    if (isOutcomingLine) {
+        if (props.lineInfo.position === "left") {
+            if (styleInfo) {
+                lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x;
+                lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
+            }
+            startNodeInfo.x = styleInfo.offsetX;
+            startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
+        } else if (props.lineInfo.position === "top") {
+            if (styleInfo) {
+                lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
+                lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y;
+            }
+            startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
+            startNodeInfo.y = styleInfo.offsetY;
+        } else if (props.lineInfo.position === "right") {
+            if (styleInfo) {
+                lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width;
+                lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
+            }
+            startNodeInfo.x = styleInfo.offsetX + styleInfo.width
+            startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
+        } else if (props.lineInfo.position === "bottom") {
+            if (styleInfo) {
+                lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
+                lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height;
+            }
+            startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
+            startNodeInfo.y = styleInfo.offsetY + styleInfo.height;
         }
-        startNodeInfo.x = styleInfo.offsetX;
-        startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
-    } else if (props.lineInfo.position === "top") {
-        if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y;
-        }
-        startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
-        startNodeInfo.y = styleInfo.offsetY;
-    } else if (props.lineInfo.position === "right") {
-        if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
-        }
-        startNodeInfo.x = styleInfo.offsetX + styleInfo.width
-        startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
-    } else if (props.lineInfo.position === "bottom") {
-        if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height;
-        }
-        startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
-        startNodeInfo.y = styleInfo.offsetY + styleInfo.height;
+    } else if (isIncomingLine) {
+        console.log(3)
+    } else {
+        return;
     }
+
     const endNodeInfo = {
         x: props.lineInfo.lineClientEndX - apiflowWrapperRect.x,
         y: props.lineInfo.lineClientEndY - apiflowWrapperRect.y,
