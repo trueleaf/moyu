@@ -106,11 +106,11 @@ function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 10) {
 type Options = {
     currentNode: ApidocApiflowNodeInfo,
     currendLine?: ApidocApiflowLineInfo,
-    position: ApiflowOutComingDirection
+    fromPosition: ApiflowOutComingDirection
 }
 export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, options: Options): ResultRect {
     const nodes = store.state["apidoc/apiflow"].apiflowList;
-    const { position, currentNode } = options;
+    const { fromPosition, currentNode } = options;
     const arrowLength = 15;
     const arrowWidth = 5;
     const breakLineSticky = 5;
@@ -188,7 +188,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
             x: breakPointStartX,
             y: breakPointStartY
         })
-        if (position === "right" && breakLineWidth > breakLineHeight) {
+        if (fromPosition === "right" && breakLineWidth > breakLineHeight) {
             result.lineInfo.brokenLinePoints.push({
                 x: breakPointStartX + breakLineWidth / 2,
                 y: breakPointStartY
@@ -425,7 +425,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     result.connectedNodeId = node.id;
                 }
             })
-        } else if (position === "right" && breakLineWidth <= breakLineHeight) {
+        } else if (fromPosition === "right" && breakLineWidth <= breakLineHeight) {
             result.lineInfo.brokenLinePoints.push({
                 x: breakPointStartX + breakLineWidth,
                 y: breakPointStartY
@@ -446,7 +446,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 x: result.lineInfo.endX + arrowWidth,
                 y: result.lineInfo.endY
             }
-        } else if (position === "top" && breakLineWidth > breakLineHeight) {
+        } else if (fromPosition === "top" && breakLineWidth > breakLineHeight) {
             if (Math.abs(breakPointEndX - breakPointStartX) < breakLineSticky) { //折线吸附效果
                 result.lineInfo.brokenLinePoints.push({
                     x: breakPointStartX,
@@ -490,7 +490,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     y: result.lineInfo.endY
                 }
             }
-        } else if (position === "top" && breakLineWidth <= breakLineHeight) {
+        } else if (fromPosition === "top" && breakLineWidth <= breakLineHeight) {
             if (Math.abs(breakPointEndX - breakPointStartX) < breakLineSticky) { //折线吸附效果
                 result.lineInfo.brokenLinePoints.push({
                     x: breakPointStartX,
@@ -538,7 +538,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                     y: result.lineInfo.endY
                 }
             }
-        } else if (position === "left") {
+        } else if (fromPosition === "left") {
             if (breakLineHeight < currentNode.styleInfo.height / 2 + breakLineOffsetNode) { //节点内部加上缓冲距离
                 result.x = currentNode.styleInfo.offsetX - padding - breakLineOffsetNode;
                 result.y = currentNode.styleInfo.offsetY - padding - breakLineOffsetNode;
@@ -702,7 +702,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 x: result.width,
                 y: endInfo.y - result.y + padding
             }
-        } else if (position === "bottom") {
+        } else if (fromPosition === "bottom") {
             if (Math.abs(endInfo.x - startInfo.x) < currentNode.styleInfo.width / 2 + breakLineOffsetNode) { //节点内部加上缓冲距离
                 result.x = currentNode.styleInfo.offsetX + currentNode.styleInfo.width / 2 - padding;
                 result.y = endInfo.y - padding;

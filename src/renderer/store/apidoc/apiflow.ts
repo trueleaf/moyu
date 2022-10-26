@@ -14,6 +14,20 @@ type ChangedLineInfo = {
      */
     lineInfo: ApidocApiflowLineInfo
 }
+type AddIncomingInfo = {
+    /**
+     * 出线所在节点id
+     */
+    fromNodeId: string,
+    /**
+     * 当前需要挂载节点id
+     */
+     nodeId: string,
+     /**
+      * 出线id
+      */
+     lineId: string,
+}
 
 const apiflow = {
     namespaced: true,
@@ -145,13 +159,17 @@ const apiflow = {
         | 入线
         |--------------------------------------------------------------------------
         */
-        upsertIncoming(state: ApidocApiflowState, payload: ChangedLineInfo): void {
+        //新增一条入线
+        addIncoming(state: ApidocApiflowState, payload: AddIncomingInfo): void {
             const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
-            const matchedLine = matchedNode?.incomings.find(incoming => incoming.id === payload.lineId)
-            if (matchedNode && matchedLine) {
-                Object.assign(matchedLine, payload.lineInfo)
-            } else if (matchedNode && !matchedLine) {
-                matchedNode.incomings.push(payload.lineInfo)
+            const matchedHostNode = state.apiflowList.find(v => v.id === payload.fromNodeId);
+            const matchedOutcomingLine = matchedHostNode?.outcomings.find(outcoming => outcoming.id === payload.lineId)
+            const matchedIncomingLine = matchedNode?.incomings.find(incoming => incoming.id === payload.lineId)
+            const matchedIncomingLineIndex = matchedNode?.incomings.findIndex(incoming => incoming.id === payload.lineId) as number;
+            if (matchedNode && !matchedIncomingLine && matchedOutcomingLine) {
+                matchedNode.incomings.push(matchedOutcomingLine)
+            } else if (matchedNode && matchedIncomingLine && matchedIncomingLineIndex !== -1 && matchedOutcomingLine) {
+                matchedNode.incomings[matchedIncomingLineIndex] = matchedOutcomingLine;
             }
         },
         //根据id移除入线
