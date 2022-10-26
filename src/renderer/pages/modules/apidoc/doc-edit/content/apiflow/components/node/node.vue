@@ -39,6 +39,7 @@
             </s-contextmenu>
             <!-- <canvas ref="lineCanvas"></canvas> -->
             <pre style="position: absolute; right: 720px; top: 40px;">
+                isMouseDownResizeDot: {{ isMouseDownResizeDot }}
                 isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
                 isInArrow: {{ isMouseInLineArrow }}
                 isMouseDownNode: {{ isMouseDownNode }}
@@ -49,24 +50,6 @@
             </pre> -->
         </teleport>
     </div>
-    <!-- <template v-for="(item, index) in currentNode?.outcomings" :key="index">
-        <canvas
-            ref="outcomingRef"
-            class="outcoming"
-            :data-id="item.id"
-            :style="{
-                left: item.offsetX + 'px',
-                top: item.offsetY + 'px',
-                width: item.width + 'px',
-                height: item.height + 'px',
-                zIndex: item.zIndex,
-                cursor: isMouseInLineArrow ? 'move' : 'default',
-            }"
-            @mouseleave="handleCanvasLineMouseLeave"
-            @mousedown.stop="handleMouseDownCanvas($event, item)"
-        >
-        </canvas>
-    </template> -->
 </template>
 
 <script lang="ts" setup>
@@ -74,7 +57,7 @@ import { onUnmounted, ref, Ref, computed, onMounted, inject } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
-import { getLineDrawInfo, getZIndex } from "../utils/utils";
+import { getZIndex } from "../utils/utils";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 
@@ -89,9 +72,7 @@ const props = defineProps({
 | 公共变量
 |--------------------------------------------------------------------------
 */
-const outcomingRef: Ref<null | HTMLCanvasElement[]> = ref(null);
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
-// const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
@@ -129,93 +110,6 @@ const nodeHeight = computed({ //节点高度
         store.commit("apidoc/apiflow/changeNodeHeightById", { id: props.nodeId, h: v })
     },
 });
-// console.log(containerInfo)
-/*
-|--------------------------------------------------------------------------
-| 公共方法
-|--------------------------------------------------------------------------
-*/
-//根据线条信息获取线条数据
-const getOutcomingDrawInfo = (outcoming: ApidocApiflowLineInfo) => {
-    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
-    const startNodeInfo = {
-        x: 0,
-        y: 0,
-    }
-    const endNodeInfo = {
-        x: outcoming.lineClientEndX - apiflowWrapperRect.x,
-        y: outcoming.lineClientEndY - apiflowWrapperRect.y,
-    }
-    if (outcoming.position === "left") {
-        startNodeInfo.x = nodeOffsetX.value;
-        startNodeInfo.y = nodeOffsetY.value + nodeHeight.value / 2;
-    } else if (outcoming.position === "top") {
-        startNodeInfo.x = nodeOffsetX.value + nodeWidth.value / 2;
-        startNodeInfo.y = nodeOffsetY.value;
-    } else if (outcoming.position === "right") {
-        startNodeInfo.x = nodeOffsetX.value + nodeWidth.value
-        startNodeInfo.y = nodeOffsetY.value + nodeHeight.value / 2;
-    } else if (outcoming.position === "bottom") {
-        startNodeInfo.x = nodeOffsetX.value + nodeWidth.value / 2;
-        startNodeInfo.y = nodeOffsetY.value + nodeHeight.value;
-    }
-    const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
-        currentNode: currentNode.value as ApidocApiflowNodeInfo,
-        position: outcoming.position,
-        currendLine: outcoming
-    });
-    return drawInfo;
-}
-//绘制线条
-const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLineDrawInfo>) => {
-    const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
-    dom.width = drawInfo.width;
-    dom.height = drawInfo.height;
-    const { brokenLinePoints, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo;
-    ctx.beginPath();
-    // ctx.fillRect(drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.leftTopPoint.y, drawInfo.lineInfo.arrowInfo.rightBottomPoint.x - drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.rightBottomPoint.y - drawInfo.lineInfo.arrowInfo.leftTopPoint.y)
-    ctx.closePath()
-    ctx.lineWidth = 2;
-    ctx.lineCap = "round";
-    for (let i = 0; i < brokenLinePoints.length - 1; i += 1) {
-        const point = brokenLinePoints[i];
-        const point2 = brokenLinePoints[i + 1];
-        if (point.x === point2.x) { //画竖线
-            ctx.moveTo(point.x + 0.5, point.y);
-            ctx.lineTo(point2.x + 0.5, point2.y);
-        } else if (point.y === point2.y) { //画横线
-            ctx.moveTo(point.x, point.y + 0.5);
-            ctx.lineTo(point2.x, point2.y + 0.5);
-        }
-        ctx.moveTo(point.x, point.y);
-        ctx.lineTo(point2.x, point2.y);
-        ctx.stroke()
-    }
-    ctx.closePath()
-    ctx.beginPath()
-    // ctx.fillStyle = "#abc"
-    ctx.moveTo(p1.x, p1.y)
-    ctx.lineTo(p2.x, p2.y)
-    ctx.lineTo(p3.x, p3.y)
-    ctx.fill();
-    ctx.closePath()
-    // const { endX, endY, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo
-    // ctx.beginPath();
-    // ctx.lineCap = "round";
-    // ctx.lineWidth = 2;
-    // ctx.moveTo(drawInfo.lineInfo.startX, drawInfo.lineInfo.startY);
-    // // ctx.lineTo(endX, endY);
-    // ctx.quadraticCurveTo(drawInfo.lineInfo.cpx, drawInfo.lineInfo.cpy, endX, endY);
-    // ctx.stroke();
-    // ctx.beginPath();
-    // // ctx.fillStyle = "teal"
-    // // ctx.fillRect(leftTopPoint.x, leftTopPoint.y, rightBottomPoint.x - leftTopPoint.x, rightBottomPoint.y - leftTopPoint.y)
-    // ctx.moveTo(p1.x, p1.y)
-    // ctx.lineTo(p2.x, p2.y)
-    // ctx.lineTo(p3.x, p3.y)
-    // ctx.fill();
-    // ctx.closePath()
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -252,7 +146,8 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
     currentDrawLineInfo.value = {
         id: lineId.value,
         type: "line",
-        position: direction,
+        fromPosition: direction,
+        toPosition: null,
         offsetX: 0,
         offsetY: 0,
         width: 0,
@@ -315,7 +210,7 @@ const nodeMinHeight = 50; //最小高度
 */
 const resizeNodeMousedownX = ref(0); //鼠标按下时候resize节点x值
 const resizeNodeMousedownY = ref(0); //鼠标按下时候resize节点y值
-const isResizeNodeMousedown = computed({
+const isMouseDownResizeDot = computed({
     get() {
         return store.state["apidoc/apiflow"].isMouseDownResizeDot;
     },
@@ -356,7 +251,7 @@ const handleNodeMouseLeave = () => {
 }
 //节点移动
 const handleNodeMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownNode.value || isResizeNodeMousedown.value || isMouseInLineArrow.value) {
+    if (!isMouseDownNode.value || isMouseDownResizeDot.value || isMouseInLineArrow.value) {
         return
     }
     if (currentOperatNode.value?.id !== currentNode.value?.id) {
@@ -376,7 +271,7 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 //拖拽节点点击
 const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
     store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
-    isResizeNodeMousedown.value = true;
+    isMouseDownResizeDot.value = true;
     resizeNodeMousedownX.value = e.clientX;
     resizeNodeMousedownY.value = e.clientY;
     nodeStartResizeWidth.value = nodeWidth.value;
@@ -407,7 +302,7 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
 }
 //拖拽节点鼠标移动(改变大小)
 const handleResizeNodeMouseMove = (e: MouseEvent) => {
-    if (!isResizeNodeMousedown.value) {
+    if (!isMouseDownResizeDot.value || currentOperatNode.value?.id !== currentNode.value?.id) {
         return;
     }
     const relativeX = e.clientX - resizeNodeMousedownX.value; //相对x移动距离
@@ -470,58 +365,10 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeOffsetY.value = mousedownNodeY.value;
         }
     }
-    const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
-    currentNode.value?.outcomings.forEach(outcoming => {
-        if (!currentNode.value) {
-            return
-        }
-        let lineClientStartX = 0;
-        let lineClientStartY = 0;
-        if (outcoming.position === "left") {
-            if (styleInfo.value) {
-                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x;
-                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
-            }
-        } else if (outcoming.position === "top") {
-            if (styleInfo.value) {
-                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
-                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y;
-            }
-        } else if (outcoming.position === "right") {
-            if (styleInfo.value) {
-                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width;
-                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height / 2;
-            }
-        } else if (outcoming.position === "bottom") {
-            if (styleInfo.value) {
-                lineClientStartX = styleInfo.value?.offsetX + apiflowWrapperRect.x + styleInfo.value.width / 2;
-                lineClientStartY = styleInfo.value?.offsetY + apiflowWrapperRect.y + styleInfo.value.height;
-            }
-        }
-        const drawInfo = getOutcomingDrawInfo(outcoming);
-        store.commit("apidoc/apiflow/changeOutComingInfoById", {
-            nodeId: props.nodeId,
-            lineId: outcoming.id,
-            lineInfo: {
-                lineClientStartX,
-                lineClientStartY,
-                offsetX: drawInfo.x,
-                offsetY: drawInfo.y,
-                width: drawInfo.width,
-                height: drawInfo.height,
-            }
-        })
-        if (outcomingRef.value) {
-            const oc = outcomingRef.value.find(canvas => (canvas.dataset.id as string) === outcoming.id) || null
-            if (oc) {
-                repaintLine(oc, drawInfo);
-            }
-        }
-    })
 }
 //拖拽节点鼠标松开
 const handleResizeNodeMouseUp = () => {
-    isResizeNodeMousedown.value = false;
+    isMouseDownResizeDot.value = false;
 }
 /*
 |--------------------------------------------------------------------------
