@@ -518,9 +518,13 @@ type ApidocApiflowLineInfo = {
      */
     id: string,
     /**
-     * 出线位置，从节点那个方向引出的
+     * 线条从节点那个方向引出的
      */
-    position: ApiflowOutComingDirection,
+    fromPosition: ApiflowOutComingDirection,
+    /**
+     * 线条从节点那个方向引入的
+     */
+    toPosition: ApiflowOutComingDirection | null,
     /**
      * 节点类型
      */
