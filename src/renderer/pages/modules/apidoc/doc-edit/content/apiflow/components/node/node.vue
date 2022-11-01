@@ -443,6 +443,7 @@ $dotHeight: 18;
     position: absolute;
     cursor: move;
     user-select: none;
+    background-color: $white;
     .rect {
         width: size($dotWidth);
         height: size($dotHeight);
