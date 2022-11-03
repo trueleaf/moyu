@@ -12,11 +12,19 @@ type Options = LineDrawInfoOptions & {
 */
 //拖拽时候绘制右侧线条
 const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
-    const { lineConfig: { padding } } = options;
+    const { lineConfig: { padding }, startInfo, endInfo } = options;
     const breakLineWidth = Math.abs(result.width - 2 * padding); //折线宽度
     const breakLineHeight = Math.abs(result.height - 2 * padding); //折线高度
+    /*
+        示例如下：
+                   |‾‾‾‾‾‾‾‾‾‾‾‾‾
+        ___________|
+    */
     if (breakLineWidth > breakLineHeight) {
-        console.log(1)
+        result.lineInfo.brokenLinePoints.push({
+            x: padding,
+            y: Math.abs(endInfo.y - startInfo.y) + padding
+        })
     }
 }
 export const getQuardantInfo = (result: ResultRect, options: Options): void => {
