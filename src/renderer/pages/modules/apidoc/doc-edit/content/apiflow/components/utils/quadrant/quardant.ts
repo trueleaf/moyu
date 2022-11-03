@@ -10,8 +10,8 @@ type Options = LineDrawInfoOptions & {
 | 获取canvas绘制信息
 |--------------------------------------------------------------------------
 */
-//绘制右侧线条
-const drawRightLine = (result: ResultRect, options: Options) => {
+//拖拽时候绘制右侧线条
+const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding } } = options;
     const breakLineWidth = Math.abs(result.width - 2 * padding); //折线宽度
     const breakLineHeight = Math.abs(result.height - 2 * padding); //折线高度
@@ -37,6 +37,6 @@ export const getQuardantInfo = (result: ResultRect, options: Options): void => {
     }
     //第三步，根据线条引出时候位置，绘制线条
     if (fromPosition === "right") { //第一象限，从节点右侧引出线条
-        drawRightLine(result, options);
+        drawRightLineWhenDrag(result, options);
     }
 }
