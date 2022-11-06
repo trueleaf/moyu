@@ -117,7 +117,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
     const { fromPosition, currentNode } = options;
     const lineConfig: LineConfig = {
         padding: 15, //绘制图形边距
-        arrowLength: 15, //箭头长度
+        arrowLength: 15, //箭头长度, 箭头长度不能超过绘制图形边距
         arrowWidth: 5, //箭头宽度
         breakLineSticky: 5, //折线吸附阈值
         breakLineOffsetNode: 25, //折现与节点之间间隙
@@ -144,58 +144,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         const breakLineWidth = Math.abs(breakPointEndX - breakPointStartX); //折线宽度
         const breakLineHeight = Math.abs(breakPointEndY - breakPointStartY); //折线高度
         //起始点
-        result.lineInfo.brokenLinePoints.push({
-            x: breakPointStartX,
-            y: breakPointStartY
-        })
         if (fromPosition === "right" && breakLineWidth > breakLineHeight) {
-            result.lineInfo.brokenLinePoints.push({
-                x: breakPointStartX + breakLineWidth / 2,
-                y: breakPointStartY
-            })
-            if (Math.abs(breakPointEndY - breakPointStartY) < lineConfig.breakLineSticky) { //折线吸附效果
-                result.lineInfo.brokenLinePoints.push({
-                    x: breakPointStartX + breakLineWidth / 2,
-                    y: breakPointStartY
-                })
-                result.lineInfo.brokenLinePoints.push({
-                    x: breakPointEndX,
-                    y: breakPointStartY
-                })
-                result.lineInfo.arrowInfo.p1 = {
-                    x: result.lineInfo.endX,
-                    y: breakPointStartY - lineConfig.arrowWidth
-                }
-                result.lineInfo.arrowInfo.p2 = {
-                    x: result.lineInfo.endX,
-                    y: breakPointStartY + lineConfig.arrowWidth
-                }
-                result.lineInfo.arrowInfo.p3 = {
-                    x: result.lineInfo.endX + lineConfig.arrowLength,
-                    y: breakPointStartY
-                }
-            } else {
-                result.lineInfo.brokenLinePoints.push({
-                    x: breakPointStartX + breakLineWidth / 2,
-                    y: breakPointEndY
-                })
-                result.lineInfo.brokenLinePoints.push({
-                    x: breakPointEndX,
-                    y: breakPointEndY
-                })
-                result.lineInfo.arrowInfo.p1 = {
-                    x: result.lineInfo.endX,
-                    y: result.lineInfo.endY - lineConfig.arrowWidth
-                }
-                result.lineInfo.arrowInfo.p2 = {
-                    x: result.lineInfo.endX,
-                    y: result.lineInfo.endY + lineConfig.arrowWidth
-                }
-                result.lineInfo.arrowInfo.p3 = {
-                    x: result.lineInfo.endX + lineConfig.arrowLength,
-                    y: result.lineInfo.endY
-                }
-            }
             //判断线条是否吸附节点
             nodes.filter(node => node.id !== currentNode.id).forEach(node => {
                 const stickyArea = getNodeStickyArea(node);

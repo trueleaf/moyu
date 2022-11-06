@@ -10,9 +10,9 @@ type Options = LineDrawInfoOptions & {
 | 获取canvas绘制信息
 |--------------------------------------------------------------------------
 */
-//拖拽时候绘制右侧线条
+//绘制右侧线条
 const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
-    const { lineConfig: { padding }, startInfo, endInfo } = options;
+    const { lineConfig: { padding, breakLineSticky, arrowLength, arrowWidth } } = options;
     const breakLineWidth = Math.abs(result.width - 2 * padding); //折线宽度
     const breakLineHeight = Math.abs(result.height - 2 * padding); //折线高度
     /*
@@ -23,8 +23,51 @@ const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
     if (breakLineWidth > breakLineHeight) {
         result.lineInfo.brokenLinePoints.push({
             x: padding,
-            y: Math.abs(endInfo.y - startInfo.y) + padding
+            y: result.height - padding
         })
+        result.lineInfo.brokenLinePoints.push({
+            x: padding + breakLineWidth / 2,
+            y: result.height - padding
+        })
+        if (Math.abs(result.height - 2 * padding) < breakLineSticky) { //折线往上移动吸附效果
+            result.lineInfo.brokenLinePoints.push({
+                x: Math.abs(result.width - padding),
+                y: result.height - padding
+            })
+            result.lineInfo.arrowInfo.p1 = {
+                x: Math.abs(result.width - padding),
+                y: result.height - padding - arrowWidth
+            }
+            result.lineInfo.arrowInfo.p2 = {
+                x: Math.abs(result.width - padding),
+                y: result.height - padding + arrowWidth
+            }
+            result.lineInfo.arrowInfo.p3 = {
+                x: Math.abs(result.width - padding) + arrowLength,
+                y: result.height - padding
+            }
+        } else {
+            result.lineInfo.brokenLinePoints.push({
+                x: padding + breakLineWidth / 2,
+                y: padding
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: Math.abs(result.width - padding),
+                y: padding
+            })
+            result.lineInfo.arrowInfo.p1 = {
+                x: Math.abs(result.width - padding),
+                y: padding - arrowWidth
+            }
+            result.lineInfo.arrowInfo.p2 = {
+                x: Math.abs(result.width - padding),
+                y: padding + arrowWidth
+            }
+            result.lineInfo.arrowInfo.p3 = {
+                x: Math.abs(result.width - padding) + arrowLength,
+                y: padding
+            }
+        }
     }
 }
 export const getQuardantInfo = (result: ResultRect, options: Options): void => {
@@ -47,4 +90,5 @@ export const getQuardantInfo = (result: ResultRect, options: Options): void => {
     if (fromPosition === "right") { //第一象限，从节点右侧引出线条
         drawRightLineWhenDrag(result, options);
     }
+    console.log(result.lineInfo.brokenLinePoints)
 }
