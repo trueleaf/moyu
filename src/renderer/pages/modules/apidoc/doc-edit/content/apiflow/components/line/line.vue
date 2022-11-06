@@ -104,8 +104,8 @@ const getCurrentLineDrawInfo = () => {
         y: 0,
     }
     const endNodeInfo = {
-        x: props.lineInfo.lineClientEndX - apiflowWrapperRect.x,
-        y: props.lineInfo.lineClientEndY - apiflowWrapperRect.y,
+        x: props.lineInfo.lineClientEndX - Math.ceil(apiflowWrapperRect.x),
+        y: props.lineInfo.lineClientEndY - Math.ceil(apiflowWrapperRect.y),
     }
     if (props.lineInfo.fromPosition === "left") {
         startNodeInfo.x = hostNode.value.styleInfo.offsetX;
@@ -159,8 +159,8 @@ const handleDotMouseMove = (e: MouseEvent) => {
         startPoint.y = hostNode.value.styleInfo.offsetY + hostNode.value.styleInfo.height;
     }
     const endPoint = {
-        x: e.clientX - apiflowWrapperRect.x,
-        y: e.clientY - apiflowWrapperRect.y,
+        x: e.clientX - Math.ceil(apiflowWrapperRect.x),
+        y: e.clientY - Math.ceil(apiflowWrapperRect.y),
     }
     const drawInfo = getLineDrawInfo(startPoint, endPoint, {
         currentNode: hostNode.value,
@@ -228,7 +228,7 @@ const handleRemoveTempLine = () => {
 const handleCheckMouseIsInArrow = (e: MouseEvent) => {
     const drawInfo = getCurrentLineDrawInfo()
     if (hostNode.value && drawInfo) {
-        const mouseOffsetPoint = { x: e.clientX - apiflowWrapperRect.x, y: e.clientY - apiflowWrapperRect.y }
+        const mouseOffsetPoint = { x: e.clientX - Math.ceil(apiflowWrapperRect.x), y: e.clientY - Math.ceil(apiflowWrapperRect.y) }
         const leftTopPoint = {
             x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + props.lineInfo.offsetX,
             y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + props.lineInfo.offsetY,
@@ -264,8 +264,8 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: nodeInfo.offsetY + nodeInfo.height / 2,
             }
             const endPoint = {
-                x: e.clientX - apiflowWrapperRect.x,
-                y: e.clientY - apiflowWrapperRect.y,
+                x: e.clientX - Math.ceil(apiflowWrapperRect.x),
+                y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
                 currentNode: hostNode.value,
@@ -278,8 +278,8 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: nodeInfo.offsetY,
             }
             const endPoint = {
-                x: e.clientX - apiflowWrapperRect.x,
-                y: e.clientY - apiflowWrapperRect.y,
+                x: e.clientX - Math.ceil(apiflowWrapperRect.x),
+                y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
                 currentNode: hostNode.value,
@@ -292,8 +292,8 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: nodeInfo.offsetY + nodeInfo.height / 2,
             }
             const endPoint = {
-                x: e.clientX - apiflowWrapperRect.x,
-                y: e.clientY - apiflowWrapperRect.y,
+                x: e.clientX - Math.ceil(apiflowWrapperRect.x),
+                y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
                 currentNode: hostNode.value,
@@ -306,8 +306,8 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: nodeInfo.offsetY + nodeInfo.height,
             }
             const endPoint = {
-                x: e.clientX - apiflowWrapperRect.x,
-                y: e.clientY - apiflowWrapperRect.y,
+                x: e.clientX - Math.ceil(apiflowWrapperRect.x),
+                y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
                 currentNode: hostNode.value,
@@ -393,57 +393,57 @@ const drawLine = () => {
         return
     }
     const endNodeInfo = {
-        x: props.lineInfo.lineClientEndX - apiflowWrapperRect.x,
-        y: props.lineInfo.lineClientEndY - apiflowWrapperRect.y,
+        x: props.lineInfo.lineClientEndX - Math.ceil(apiflowWrapperRect.x),
+        y: props.lineInfo.lineClientEndY - Math.ceil(apiflowWrapperRect.y),
     }
     if (props.lineInfo.fromPosition === "left") {
         if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
+            lineClientStartX = styleInfo?.offsetX + Math.ceil(apiflowWrapperRect.x);
+            lineClientStartY = styleInfo?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo.height / 2;
         }
         startNodeInfo.x = styleInfo.offsetX;
         startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
     } else if (props.lineInfo.fromPosition === "top") {
         if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y;
+            lineClientStartX = styleInfo?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo.width / 2;
+            lineClientStartY = styleInfo?.offsetY + Math.ceil(apiflowWrapperRect.y);
         }
         startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
         startNodeInfo.y = styleInfo.offsetY;
     } else if (props.lineInfo.fromPosition === "right") {
         if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height / 2;
+            lineClientStartX = styleInfo?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo.width;
+            lineClientStartY = styleInfo?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo.height / 2;
         }
         startNodeInfo.x = styleInfo.offsetX + styleInfo.width
         startNodeInfo.y = styleInfo.offsetY + styleInfo.height / 2;
     } else if (props.lineInfo.fromPosition === "bottom") {
         if (styleInfo) {
-            lineClientStartX = styleInfo?.offsetX + apiflowWrapperRect.x + styleInfo.width / 2;
-            lineClientStartY = styleInfo?.offsetY + apiflowWrapperRect.y + styleInfo.height;
+            lineClientStartX = styleInfo?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo.width / 2;
+            lineClientStartY = styleInfo?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo.height;
         }
         startNodeInfo.x = styleInfo.offsetX + styleInfo.width / 2;
         startNodeInfo.y = styleInfo.offsetY + styleInfo.height;
     }
     if (isIncomingLine) { //节点移动时，当前线条属于节点的入线
         if (props.lineInfo.toPosition === "left") {
-            lineClientEndX = styleInfo2?.offsetX + apiflowWrapperRect.x;
-            lineClientEndY = styleInfo2?.offsetY + apiflowWrapperRect.y + styleInfo2.height / 2;
+            lineClientEndX = styleInfo2?.offsetX + Math.ceil(apiflowWrapperRect.x);
+            lineClientEndY = styleInfo2?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo2.height / 2;
             endNodeInfo.x = styleInfo2.offsetX;
             endNodeInfo.y = styleInfo2.offsetY + styleInfo2.height / 2;
         } else if (props.lineInfo.toPosition === "top") {
-            lineClientEndX = styleInfo2?.offsetX + apiflowWrapperRect.x + styleInfo2.width / 2;
-            lineClientEndY = styleInfo2?.offsetY + apiflowWrapperRect.y;
+            lineClientEndX = styleInfo2?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo2.width / 2;
+            lineClientEndY = styleInfo2?.offsetY + Math.ceil(apiflowWrapperRect.y);
             endNodeInfo.x = styleInfo2.offsetX + styleInfo2.width / 2;
             endNodeInfo.y = styleInfo2.offsetY;
         } else if (props.lineInfo.toPosition === "right") {
-            lineClientEndX = styleInfo2?.offsetX + apiflowWrapperRect.x + styleInfo2.width;
-            lineClientEndY = styleInfo2?.offsetY + apiflowWrapperRect.y + styleInfo2.height / 2;
+            lineClientEndX = styleInfo2?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo2.width;
+            lineClientEndY = styleInfo2?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo2.height / 2;
             endNodeInfo.x = styleInfo2.offsetX + styleInfo2.width
             endNodeInfo.y = styleInfo2.offsetY + styleInfo2.height / 2;
         } else if (props.lineInfo.toPosition === "bottom") {
-            lineClientEndX = styleInfo2?.offsetX + apiflowWrapperRect.x + styleInfo2.width / 2;
-            lineClientEndY = styleInfo2?.offsetY + apiflowWrapperRect.y + styleInfo2.height;
+            lineClientEndX = styleInfo2?.offsetX + Math.ceil(apiflowWrapperRect.x) + styleInfo2.width / 2;
+            lineClientEndY = styleInfo2?.offsetY + Math.ceil(apiflowWrapperRect.y) + styleInfo2.height;
             endNodeInfo.x = styleInfo2.offsetX + styleInfo2.width / 2;
             endNodeInfo.y = styleInfo2.offsetY + styleInfo2.height;
         }

@@ -56,8 +56,8 @@ const initWidgets = () => {
             incomings: []
         }
         store.commit("apidoc/apiflow/changeContainerInfo", {
-            x: clientRect.x,
-            y: clientRect.y,
+            x: Math.floor(clientRect.x),
+            y: Math.floor(clientRect.y),
             width: clientRect.width,
             height: clientRect.height,
         });
