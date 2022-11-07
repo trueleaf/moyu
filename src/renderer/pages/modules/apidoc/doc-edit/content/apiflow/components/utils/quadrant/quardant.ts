@@ -5,11 +5,26 @@ type Options = LineDrawInfoOptions & {
     endInfo: Coordinate,
     lineConfig: LineConfig
 }
+type GetArrowInfoOptions = {
+    position: "left"| "right" | "top" | "bottom";
+}
 /*
 |--------------------------------------------------------------------------
 | 获取canvas绘制信息
 |--------------------------------------------------------------------------
 */
+//绘制箭头
+const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coordinate[] => {
+    const arrowList: Coordinate[] = [];
+    const { position } = options;
+    if (position === "right") {
+        arrowList[0] = {
+            x: point.x,
+            y: point.x - 2
+        }
+    }
+    return arrowList
+}
 //绘制右侧线条
 const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, breakLineSticky, arrowLength, arrowWidth } } = options;
@@ -34,18 +49,27 @@ const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
                 x: Math.abs(result.width - padding),
                 y: result.height - padding
             })
-            result.lineInfo.arrowInfo.p1 = {
-                x: Math.abs(result.width - padding),
-                y: result.height - padding - arrowWidth
-            }
-            result.lineInfo.arrowInfo.p2 = {
-                x: Math.abs(result.width - padding),
-                y: result.height - padding + arrowWidth
-            }
-            result.lineInfo.arrowInfo.p3 = {
-                x: Math.abs(result.width - padding) + arrowLength,
+            const arrowList = getDrawArrowInfo({
+                x: result.width - padding,
                 y: result.height - padding
-            }
+            }, {
+                position: "right"
+            });
+            result.lineInfo.arrowInfo.p1 = arrowList[0];
+            result.lineInfo.arrowInfo.p2 = arrowList[1];
+            result.lineInfo.arrowInfo.p3 = arrowList[2];
+            // result.lineInfo.arrowInfo.p1 = {
+            //     x: Math.abs(result.width - padding),
+            //     y: result.height - padding - arrowWidth
+            // }
+            // result.lineInfo.arrowInfo.p2 = {
+            //     x: Math.abs(result.width - padding),
+            //     y: result.height - padding + arrowWidth
+            // }
+            // result.lineInfo.arrowInfo.p3 = {
+            //     x: Math.abs(result.width - padding) + arrowLength,
+            //     y: result.height - padding
+            // }
         } else {
             result.lineInfo.brokenLinePoints.push({
                 x: padding + breakLineWidth / 2,
@@ -68,6 +92,27 @@ const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
                 y: padding
             }
         }
+    } else {
+        /*
+        示例如下：
+                |
+                |
+                |
+                |
+            ____|
+        */
+        result.lineInfo.brokenLinePoints.push({
+            x: padding,
+            y: result.height - padding
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: padding + breakLineWidth,
+            y: result.height - padding
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: padding + breakLineWidth,
+            y: padding
+        })
     }
 }
 export const getQuardantInfo = (result: ResultRect, options: Options): void => {
@@ -90,5 +135,4 @@ export const getQuardantInfo = (result: ResultRect, options: Options): void => {
     if (fromPosition === "right") { //第一象限，从节点右侧引出线条
         drawRightLineWhenDrag(result, options);
     }
-    console.log(result.lineInfo.brokenLinePoints)
 }

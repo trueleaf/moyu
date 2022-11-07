@@ -335,26 +335,22 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                 }
             })
         } else if (fromPosition === "right" && breakLineWidth <= breakLineHeight) {
-            result.lineInfo.brokenLinePoints.push({
-                x: breakPointStartX + breakLineWidth,
-                y: breakPointStartY
-            })
-            result.lineInfo.arrowInfo.p1 = {
-                x: result.lineInfo.endX,
-                y: result.lineInfo.endY - lineConfig.arrowLength
-            }
-            result.lineInfo.brokenLinePoints.push({
-                x: breakPointEndX,
-                y: breakPointEndY
-            })
-            result.lineInfo.arrowInfo.p2 = {
-                x: result.lineInfo.endX - lineConfig.arrowWidth,
-                y: result.lineInfo.endY
-            }
-            result.lineInfo.arrowInfo.p3 = {
-                x: result.lineInfo.endX + lineConfig.arrowWidth,
-                y: result.lineInfo.endY
-            }
+            // result.lineInfo.arrowInfo.p1 = {
+            //     x: result.lineInfo.endX,
+            //     y: result.lineInfo.endY - lineConfig.arrowLength
+            // }
+            // result.lineInfo.brokenLinePoints.push({
+            //     x: breakPointEndX,
+            //     y: breakPointEndY
+            // })
+            // result.lineInfo.arrowInfo.p2 = {
+            //     x: result.lineInfo.endX - lineConfig.arrowWidth,
+            //     y: result.lineInfo.endY
+            // }
+            // result.lineInfo.arrowInfo.p3 = {
+            //     x: result.lineInfo.endX + lineConfig.arrowWidth,
+            //     y: result.lineInfo.endY
+            // }
             //=========================================================================//
             //判断线条是否吸附节点
             nodes.filter(node => node.id !== currentNode.id).forEach(node => {
