@@ -10,7 +10,7 @@ type OffsetCoordinate = {
     offsetX: number,
     offsetY: number
 }
-type StickyArea = {
+export type StickyArea = {
     leftArea: {
         pointX: number,
         pointY: number,
