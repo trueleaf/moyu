@@ -28,7 +28,7 @@ import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
 import { debounce } from "@/helper";
 import { computed } from "@vue/reactivity";
 import { store } from "@/store";
-import { getLineDrawInfo, isInRect } from "../utils/utils";
+import { getLineDrawInfo } from "../utils/utils";
 
 const props = defineProps({
     lineInfo: { //节点信息
@@ -95,7 +95,7 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLine
 }
 
 //根据线条信息获取线条数据
-const getCurrentLineDrawInfo = () => {
+/* const getCurrentLineDrawInfo = () => {
     if (!hostNode.value) {
         return null
     }
@@ -121,12 +121,12 @@ const getCurrentLineDrawInfo = () => {
         startNodeInfo.y = hostNode.value.styleInfo.offsetY + hostNode.value.styleInfo.height;
     }
     const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
-        currentNode: hostNode.value,
+        fromNode: hostNode.value,
         fromPosition: props.lineInfo.fromPosition,
         currendLine: props.lineInfo
     });
     return drawInfo;
-}
+} */
 /*
 |--------------------------------------------------------------------------
 | 鼠标从节点四个方向绘制出线
@@ -163,7 +163,7 @@ const handleDotMouseMove = (e: MouseEvent) => {
         y: e.clientY - Math.ceil(apiflowWrapperRect.y),
     }
     const drawInfo = getLineDrawInfo(startPoint, endPoint, {
-        currentNode: hostNode.value,
+        fromNode: hostNode.value,
         fromPosition,
     });
     if (drawInfo.isConnectedNode) {
@@ -224,24 +224,7 @@ const handleRemoveTempLine = () => {
 | 鼠标在出线arrow上面拖拽
 |--------------------------------------------------------------------------
 */
-//线条上面鼠标移动(仅在节点上面生效)
-const handleCheckMouseIsInArrow = (e: MouseEvent) => {
-    const drawInfo = getCurrentLineDrawInfo()
-    if (hostNode.value && drawInfo) {
-        const mouseOffsetPoint = { x: e.clientX - Math.ceil(apiflowWrapperRect.x), y: e.clientY - Math.ceil(apiflowWrapperRect.y) }
-        const leftTopPoint = {
-            x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + props.lineInfo.offsetX,
-            y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + props.lineInfo.offsetY,
-        }
-        const rightBottomPoint = {
-            x: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + props.lineInfo.offsetX,
-            y: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + props.lineInfo.offsetY,
-        }
-        const isIn = isInRect(mouseOffsetPoint, leftTopPoint, rightBottomPoint);
-        // isInLineArrow.value = isIn
-        store.commit("apidoc/apiflow/changeIsMouseInLineArrow", isIn)
-    }
-}
+
 //鼠标点击线条canvas框
 const handleMouseDownCanvas = (e: MouseEvent) => {
     lineCanvasClickOffsetX.value = e.offsetX;
@@ -268,7 +251,7 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
-                currentNode: hostNode.value,
+                fromNode: hostNode.value,
                 fromPosition: props.lineInfo.fromPosition,
                 currendLine: props.lineInfo
             });
@@ -282,7 +265,7 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
-                currentNode: hostNode.value,
+                fromNode: hostNode.value,
                 fromPosition: props.lineInfo.fromPosition,
                 currendLine: props.lineInfo
             });
@@ -296,7 +279,7 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
-                currentNode: hostNode.value,
+                fromNode: hostNode.value,
                 fromPosition: props.lineInfo.fromPosition,
                 currendLine: props.lineInfo
             });
@@ -310,7 +293,7 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 y: e.clientY - Math.ceil(apiflowWrapperRect.y),
             }
             drawInfo = getLineDrawInfo(startPoint, endPoint, {
-                currentNode: hostNode.value,
+                fromNode: hostNode.value,
                 fromPosition: props.lineInfo.fromPosition,
                 currendLine: props.lineInfo
             });
@@ -450,7 +433,7 @@ const drawLine = () => {
     }
 
     const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
-        currentNode: hostNode.value,
+        fromNode: hostNode.value,
         fromPosition: props.lineInfo.fromPosition,
         currendLine: props.lineInfo
     });
@@ -502,14 +485,12 @@ onMounted(() => {
     document.documentElement.addEventListener("mouseup", handleRemoveTempLine);
     document.documentElement.addEventListener("mousemove", debounce(handleCanvasMouseMove));
     document.documentElement.addEventListener("mousemove", debounce(handleDotMouseMove));
-    document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
     document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
     document.documentElement.addEventListener("mouseup", handleCanvasMouseUp);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleCanvasMouseMove);
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
-    document.documentElement.removeEventListener("mousemove", handleCheckMouseIsInArrow);
     document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
     document.documentElement.removeEventListener("mousemove", handleDotMouseMove);
     document.documentElement.removeEventListener("mouseup", handleCanvasMouseUp);

@@ -20,9 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref, provide, computed } from "vue";
+import { onMounted, ref, Ref, provide, computed, onUnmounted } from "vue";
 import { store } from "@/store";
-import type { ApidocApiflowNodeInfo } from "@@/store"
+import { debounce } from "@/helper";
+import type { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
@@ -79,8 +80,38 @@ const initWidgets = () => {
         console.warn("容器不存在");
     }
 }
+//线条上面鼠标移动(仅在节点上面生效)
+const handleCheckMouseIsInArrow = (e: MouseEvent) => {
+    const nodes = apiflowList.value;
+    const lines: ApidocApiflowLineInfo[] = [];
+    nodes.forEach(node => {
+        node.outcomings.forEach(line => {
+            lines.push(line)
+        })
+    })
+    console.log(e, apiflowList.value)
+    // const drawInfo = getCurrentLineDrawInfo()
+    // if (hostNode.value && drawInfo) {
+    //     const mouseOffsetPoint = { x: e.clientX - Math.ceil(apiflowWrapperRect.x), y: e.clientY - Math.ceil(apiflowWrapperRect.y) }
+    //     const leftTopPoint = {
+    //         x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + props.lineInfo.offsetX,
+    //         y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + props.lineInfo.offsetY,
+    //     }
+    //     const rightBottomPoint = {
+    //         x: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + props.lineInfo.offsetX,
+    //         y: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + props.lineInfo.offsetY,
+    //     }
+    //     const isIn = isInRect(mouseOffsetPoint, leftTopPoint, rightBottomPoint);
+    //     // isInLineArrow.value = isIn
+    //     store.commit("apidoc/apiflow/changeIsMouseInLineArrow", isIn)
+    // }
+}
 onMounted(() => {
     initWidgets();
+    document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
+})
+onUnmounted(() => {
+    document.documentElement.removeEventListener("mousemove", handleCheckMouseIsInArrow);
 })
 </script>
 
