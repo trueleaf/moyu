@@ -511,6 +511,10 @@ type ApidocWorkerState = {
 */
 type ApiflowNodeType = "node" | "line";
 type ApiflowOutComingDirection = "left" | "top" | "right" | "bottom"
+type ApiflowCoordinate = {
+    clientX: number,
+    clientY: number
+}
 //线条信息
 type ApidocApiflowLineInfo = {
     /**
@@ -564,7 +568,14 @@ type ApidocApiflowLineInfo = {
     /**
      * z-index值
      */
-    zIndex: number
+    zIndex: number,
+    /**
+     * 箭头相关信息
+     */
+    arrowInfo: {
+        leftTopPoint: ApiflowCoordinate,
+        rightBottomPoint: ApiflowCoordinate,
+    },
 }
 //节点信息
 type ApidocApiflowNodeInfo = {

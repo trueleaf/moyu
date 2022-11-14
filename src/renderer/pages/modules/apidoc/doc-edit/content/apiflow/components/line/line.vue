@@ -185,6 +185,16 @@ const handleDotMouseMove = (e: MouseEvent) => {
             lineId: props.lineInfo.id,
             lineInfo: {
                 toPosition: null,
+                arrowInfo: {
+                    leftTopPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(apiflowWrapperRect.x),
+                        clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(apiflowWrapperRect.y),
+                    },
+                    rightBottomPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x,
+                        clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y,
+                    },
+                }
             }
         })
         store.commit("apidoc/apiflow/removeIncomingById", {
@@ -203,6 +213,16 @@ const handleDotMouseMove = (e: MouseEvent) => {
             offsetY: drawInfo.y,
             width: drawInfo.width,
             height: drawInfo.height,
+            arrowInfo: {
+                leftTopPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(apiflowWrapperRect.x),
+                    clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(apiflowWrapperRect.y),
+                },
+                rightBottomPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x,
+                    clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y,
+                },
+            }
         }
     })
     if (lineRef.value) {
@@ -336,6 +356,16 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                     offsetY: drawInfo.y,
                     width: drawInfo.width,
                     height: drawInfo.height,
+                    arrowInfo: {
+                        leftTopPoint: {
+                            clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(apiflowWrapperRect.x),
+                            clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(apiflowWrapperRect.y),
+                        },
+                        rightBottomPoint: {
+                            clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x,
+                            clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y,
+                        },
+                    }
                 }
             })
             if (lineRef.value) {
@@ -448,6 +478,16 @@ const drawLine = () => {
                 offsetY: drawInfo.y,
                 width: drawInfo.width,
                 height: drawInfo.height,
+                arrowInfo: {
+                    leftTopPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(apiflowWrapperRect.x),
+                        clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(apiflowWrapperRect.y),
+                    },
+                    rightBottomPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x,
+                        clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y,
+                    },
+                }
             }
         })
     } else {
@@ -461,6 +501,16 @@ const drawLine = () => {
                 offsetY: drawInfo.y,
                 width: drawInfo.width,
                 height: drawInfo.height,
+                arrowInfo: {
+                    leftTopPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(apiflowWrapperRect.x),
+                        clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(apiflowWrapperRect.y),
+                    },
+                    rightBottomPoint: {
+                        clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x,
+                        clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y,
+                    },
+                }
             }
         })
     }
