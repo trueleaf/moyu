@@ -650,6 +650,10 @@ type ApidocApiflowState = {
      */
     isMouseInLineArrow: boolean,
     /**
+     * 鼠标目前在那条线上面
+     */
+    mouseInlineArrrowId: string,
+    /**
      * 鼠标是否点击元素
      */
     isMouseDownNode: boolean,

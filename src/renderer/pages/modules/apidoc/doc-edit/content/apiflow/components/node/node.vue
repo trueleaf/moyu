@@ -43,6 +43,7 @@
                 isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
                 isInArrow: {{ isMouseInLineArrow }}
                 isMouseDownNode: {{ isMouseDownNode }}
+                mouseInlineArrrowId: {{ mouseInlineArrrowId }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -157,6 +158,16 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
         lineClientEndX: dotStartX.value,
         lineClientEndY: dotStartY.value,
         zIndex,
+        arrowInfo: {
+            leftTopPoint: {
+                clientX: 0,
+                clientY: 0,
+            },
+            rightBottomPoint: {
+                clientX: 0,
+                clientY: 0,
+            },
+        }
     }
     store.commit("apidoc/apiflow/addOutComing", {
         nodeId: props.nodeId,
@@ -192,6 +203,7 @@ const isMouseDownNode = computed({
         store.commit("apidoc/apiflow/changeIsMouseDownNode", val)
     }
 });
+const mouseInlineArrrowId = computed(() => store.state["apidoc/apiflow"].mouseInlineArrrowId)
 const isMouseInNode = ref(false);
 const isSelectedNode = ref(false); //是否选中节点
 const styleInfo = computed(() => currentNode.value?.styleInfo)
