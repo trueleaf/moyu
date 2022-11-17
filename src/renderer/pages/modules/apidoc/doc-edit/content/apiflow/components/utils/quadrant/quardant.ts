@@ -657,7 +657,7 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
         |             |                     |             |
         |_____________|                     |_____________|
     */
-    if (endInfo.y > (fromNode.styleInfo.offsetY - breakLineOffsetNode) && (endInfo.x - fromNode.styleInfo.offsetX) < breakLineOffsetNode) {
+    if (endInfo.y > (fromNode.styleInfo.offsetY - breakLineOffsetNode) && endInfo.x < fromNode.styleInfo.offsetX + breakLineOffsetNode) {
         result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding + breakLineOffsetNode;
         result.height = fromNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
         result.x = startInfo.x - padding - breakLineOffsetNode;
@@ -702,6 +702,84 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
             x: result.width,
             y: endInfo.y - result.y - arrowLength + padding
         }
+    } else if (endInfo.y > (fromNode.styleInfo.offsetY - breakLineOffsetNode) && endInfo.x >= fromNode.styleInfo.offsetX + breakLineOffsetNode) {
+        /*
+            示例如下：
+        |‾‾‾‾‾‾‾‾‾‾|                  |‾‾‾‾‾|
+        |          |                  |      ‾‾‾‾‾
+        |  |‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾|         |  |‾‾‾‾‾‾‾‾‾‾‾‾‾|
+        |  |       |____    |         |  |             |
+        |--|                |         |--|             |
+           |                |            |             |
+           |________________|            |_____________|
+        */
+        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding + breakLineOffsetNode;
+        result.height = fromNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
+        result.x = startInfo.x - padding - breakLineOffsetNode;
+        result.y = fromNode.styleInfo.offsetY - padding - breakLineOffsetNode
+        result.lineInfo.brokenLinePoints.push({
+            x: padding + breakLineOffsetNode,
+            y: result.height - padding,
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: padding,
+            y: result.height - padding,
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: padding,
+            y: padding,
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: result.width - padding - breakLineOffsetNode,
+            y: padding,
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: result.width - padding - breakLineOffsetNode,
+            y: endInfo.y - result.y,
+        })
+        result.lineInfo.brokenLinePoints.push({
+            x: result.width - padding,
+            y: endInfo.y - result.y,
+        })
+        const arrowList = getDrawArrowInfo({
+            x: result.width - padding,
+            y: endInfo.y - result.y
+        }, {
+            position: "right",
+            arrowLength,
+            arrowWidth
+        });
+        result.lineInfo.arrowInfo.p1 = arrowList[0];
+        result.lineInfo.arrowInfo.p2 = arrowList[1];
+        result.lineInfo.arrowInfo.p3 = arrowList[2];
+        //修正可拖拽区域
+        result.lineInfo.arrowInfo.leftTopPoint = {
+            x: result.width - padding * 2,
+            y: endInfo.y - result.y - arrowLength - padding
+        }
+        result.lineInfo.arrowInfo.rightBottomPoint = {
+            x: result.width,
+            y: endInfo.y - result.y - arrowLength + padding
+        }
+    } else if (endInfo.y <= fromNode.styleInfo.offsetY - breakLineOffsetNode) {
+        /*
+            示例如下：
+               |
+               |
+               |
+        |‾‾‾‾‾‾                    |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+        |                          |
+        |                          |
+        |  |‾‾‾‾‾‾‾‾‾‾‾‾‾|         |  |‾‾‾‾‾‾‾‾‾‾‾‾‾|
+        |  |             |         |  |             |
+        |--|             |         |--|             |
+           |             |            |             |
+           |_____________|            |_____________|
+        */
+        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * padding + breakLineOffsetNode;
+        result.height = Math.abs(endInfo.y - startInfo.y) + 2 * padding;
+        result.x = startInfo.x - padding - breakLineOffsetNode;
+        result.y = endInfo.y - padding;
     }
 }
 /*

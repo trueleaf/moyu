@@ -32,6 +32,7 @@ type AddIncomingInfo = {
 const apiflow = {
     namespaced: true,
     state: {
+        mouseInlineArrrowId: "",
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
@@ -68,6 +69,10 @@ const apiflow = {
         //改变当前操作的node信息
         changeCurrentOperatNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
             state.currentOperatNode = payload;
+        },
+        //
+        changeMouseInlineArrrowId(state: ApidocApiflowState, mouseInlineArrrowId: string): void {
+            state.mouseInlineArrrowId = mouseInlineArrrowId
         },
         /*
         |--------------------------------------------------------------------------
