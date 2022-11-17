@@ -89,7 +89,19 @@ const handleCheckMouseIsInArrow = (e: MouseEvent) => {
             lines.push(line)
         })
     })
-    console.log(e, apiflowList.value)
+    for (let i = 0; i < lines.length; i += 1) {
+        const line = lines[i];
+        const { arrowInfo: { leftTopPoint, rightBottomPoint } } = line;
+        const isXIn = e.clientX >= leftTopPoint.clientX && e.clientX <= rightBottomPoint.clientX
+        const isYIn = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY
+        if (isXIn && isYIn) {
+            store.commit("apidoc/apiflow/changeIsMouseInLineArrow", true);
+            store.commit("apidoc/apiflow/changeMouseInlineArrrowId", line.id);
+            break
+        }
+        store.commit("apidoc/apiflow/changeIsMouseInLineArrow", false);
+        store.commit("apidoc/apiflow/changeMouseInlineArrrowId", "");
+    }
     // const drawInfo = getCurrentLineDrawInfo()
     // if (hostNode.value && drawInfo) {
     //     const mouseOffsetPoint = { x: e.clientX - Math.ceil(apiflowWrapperRect.x), y: e.clientY - Math.ceil(apiflowWrapperRect.y) }
