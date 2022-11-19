@@ -126,6 +126,9 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endInfo, startInfo, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
+        if (toNode.id === options.fromNode.id) {
+            continue;
+        }
         const stickyArea = getNodeStickyArea(toNode);
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
@@ -291,6 +294,9 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endInfo, startInfo, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
+        if (toNode.id === options.fromNode.id) {
+            continue;
+        }
         const stickyArea = getNodeStickyArea(toNode);
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
@@ -460,6 +466,9 @@ const drawLeftLineWhenStick = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endInfo, startInfo, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
+        if (toNode.id === options.fromNode.id) {
+            continue;
+        }
         const stickyArea = getNodeStickyArea(toNode);
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
@@ -817,8 +826,6 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
 //左侧线条
 const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, breakLineOffsetNode, arrowLength, arrowWidth }, fromNode, endInfo, startInfo } = options;
-    // const breakLineWidth = Math.abs(result.width - 2 * padding); //折线宽度
-    // const breakLineHeight = Math.abs(result.height - 2 * padding); //折线高度
     /*
         示例如下：
      |‾‾‾‾‾|                             |‾‾‾‾‾|
@@ -1040,7 +1047,6 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
 |--------------------------------------------------------------------------
 */
 export const getQuardantInfo = (result: ResultRect, options: Options): void => {
-    console.log(3, options)
     const { startInfo, endInfo, lineConfig: { padding }, fromPosition } = options;
     //第一步，确定canvas位置和宽高
     result.x = startInfo.x - padding;

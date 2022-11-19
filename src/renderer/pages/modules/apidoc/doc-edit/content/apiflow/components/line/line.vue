@@ -495,7 +495,7 @@ const drawLine = () => {
     const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
         fromNode: hostNode.value,
         fromPosition: props.lineInfo.fromPosition,
-        currendLine: props.lineInfo
+        currendLine: props.lineInfo,
     });
     if (isOutcomingLine) {
         store.commit("apidoc/apiflow/changeOutComingInfoById", {
