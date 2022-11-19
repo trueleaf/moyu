@@ -277,10 +277,10 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 
 /*
 |--------------------------------------------------------------------------
-| 拖拽节点改变节点大小事件
+| 縮放节点改变节点大小事件
 |--------------------------------------------------------------------------
 */
-//拖拽节点点击
+//縮放节点点击
 const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
     store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
     isMouseDownResizeDot.value = true;
@@ -312,7 +312,7 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
         break;
     }
 }
-//拖拽节点鼠标移动(改变大小)
+//縮放节点鼠标移动(改变大小)
 const handleResizeNodeMouseMove = (e: MouseEvent) => {
     if (!isMouseDownResizeDot.value || currentOperatNode.value?.id !== currentNode.value?.id) {
         return;
@@ -378,7 +378,7 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
         }
     }
 }
-//拖拽节点鼠标松开
+//縮放节点鼠标松开
 const handleResizeNodeMouseUp = () => {
     isMouseDownResizeDot.value = false;
 }
