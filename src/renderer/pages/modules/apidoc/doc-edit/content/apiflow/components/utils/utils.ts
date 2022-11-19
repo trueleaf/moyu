@@ -111,7 +111,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         connectedPosition: "left",
         connectedNodeId: ""
     }
-    const { fromPosition, fromNode } = options;
+    const { fromPosition } = options;
     const lineConfig: LineConfig = {
         padding: 15, //绘制图形边距
         arrowLength: 15, //箭头长度, 箭头长度不能超过绘制图形边距
@@ -131,7 +131,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         });
         //=====================================绘制折线====================================//
         if (fromPosition === "bottom") {
-            if (Math.abs(endInfo.x - startInfo.x) < fromNode.styleInfo.width / 2 + lineConfig.breakLineOffsetNode) { //节点内部加上缓冲距离
+            /*  if (Math.abs(endInfo.x - startInfo.x) < fromNode.styleInfo.width / 2 + lineConfig.breakLineOffsetNode) { //节点内部加上缓冲距离
                 result.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2 - lineConfig.padding;
                 result.y = endInfo.y - lineConfig.padding;
                 result.width = fromNode.styleInfo.width / 2 + lineConfig.breakLineOffsetNode + 2 * lineConfig.padding;
@@ -279,7 +279,7 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
                         y: endInfo.y - result.y
                     }
                 }
-            }
+            } */
         }
     } else if (endInfo.x <= startInfo.x && endInfo.y <= startInfo.y) { //第二象限
         result.x = endInfo.x - lineConfig.padding;
