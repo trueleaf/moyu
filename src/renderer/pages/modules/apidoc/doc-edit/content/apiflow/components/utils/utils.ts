@@ -1,5 +1,6 @@
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getQuardantInfo } from "./quadrant/quardant";
+import { getQuardantInfo2 } from "./quadrant2/quadrant2";
 
 export type Coordinate = {
     x: number,
@@ -111,7 +112,6 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         connectedPosition: "left",
         connectedNodeId: ""
     }
-    const { fromPosition } = options;
     const lineConfig: LineConfig = {
         padding: 15, //绘制图形边距
         arrowLength: 15, //箭头长度, 箭头长度不能超过绘制图形边距
@@ -129,191 +129,13 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
             endInfo,
             lineConfig,
         });
-        //=====================================绘制折线====================================//
-        if (fromPosition === "bottom") {
-            /*  if (Math.abs(endInfo.x - startInfo.x) < fromNode.styleInfo.width / 2 + lineConfig.breakLineOffsetNode) { //节点内部加上缓冲距离
-                result.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2 - lineConfig.padding;
-                result.y = endInfo.y - lineConfig.padding;
-                result.width = fromNode.styleInfo.width / 2 + lineConfig.breakLineOffsetNode + 2 * lineConfig.padding;
-                result.height = Math.abs(endInfo.y - startInfo.y) + 2 * lineConfig.padding + lineConfig.breakLineOffsetNode;
-                if (Math.abs(endInfo.y - startInfo.y) < lineConfig.breakLineOffsetNode) { //箭头朝左
-                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: Math.abs(endInfo.y - startInfo.y) + lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.arrowInfo.p1 = {
-                        x: endInfo.x - result.x - lineConfig.arrowLength,
-                        y: endInfo.y - result.y,
-                    }
-                    result.lineInfo.arrowInfo.p2 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y + lineConfig.arrowWidth
-                    }
-                    result.lineInfo.arrowInfo.p3 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y - lineConfig.arrowWidth
-                    }
-                } else { //箭头朝上
-                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: Math.abs(endInfo.y - startInfo.y) + lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: endInfo.y - result.y + lineConfig.breakLineOffsetNode
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y + lineConfig.breakLineOffsetNode
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.arrowInfo.p1 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y - lineConfig.arrowLength,
-                    }
-                    result.lineInfo.arrowInfo.p2 = {
-                        x: endInfo.x - result.x + lineConfig.arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                    result.lineInfo.arrowInfo.p3 = {
-                        x: endInfo.x - result.x - lineConfig.arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                }
-            } else { //节点外部
-                result.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2 - lineConfig.padding;
-                result.y = endInfo.y - lineConfig.padding;
-                result.width = Math.abs(endInfo.x - startInfo.x) + 2 * lineConfig.padding;
-                result.height = Math.abs(endInfo.y - startInfo.y) + 2 * lineConfig.padding + lineConfig.breakLineOffsetNode;
-                if (result.width > result.height) { //箭头朝右
-                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: Math.abs(endInfo.y - startInfo.y) + lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding - lineConfig.breakLineOffsetNode,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding - lineConfig.breakLineOffsetNode,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.arrowInfo.p1 = {
-                        x: endInfo.x - result.x + lineConfig.arrowLength,
-                        y: endInfo.y - result.y,
-                    }
-                    result.lineInfo.arrowInfo.p2 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y + lineConfig.arrowWidth
-                    }
-                    result.lineInfo.arrowInfo.p3 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y - lineConfig.arrowWidth
-                    }
-                } else {
-                    result.lineInfo.brokenLinePoints = []; //清空起始点，特殊情况起始点并非为节点点击位置
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: Math.abs(endInfo.y - startInfo.y) + lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: result.height - lineConfig.padding
-                    })
-                    result.lineInfo.brokenLinePoints.push({
-                        x: result.width - lineConfig.padding,
-                        y: endInfo.y - result.y
-                    })
-                    result.lineInfo.arrowInfo.p1 = {
-                        x: endInfo.x - result.x,
-                        y: endInfo.y - result.y - lineConfig.arrowLength,
-                    }
-                    result.lineInfo.arrowInfo.p2 = {
-                        x: endInfo.x - result.x - lineConfig.arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                    result.lineInfo.arrowInfo.p3 = {
-                        x: endInfo.x - result.x + lineConfig.arrowWidth,
-                        y: endInfo.y - result.y
-                    }
-                }
-            } */
-        }
     } else if (endInfo.x <= startInfo.x && endInfo.y <= startInfo.y) { //第二象限
-        result.x = endInfo.x - lineConfig.padding;
-        result.y = endInfo.y - lineConfig.padding
-        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * lineConfig.padding;
-        result.height = Math.abs(endInfo.y - startInfo.y) + 2 * lineConfig.padding;
-        result.lineInfo.startX = result.width - lineConfig.padding;
-        result.lineInfo.startY = result.height - lineConfig.padding;
-        result.lineInfo.endX = lineConfig.padding;
-        result.lineInfo.endY = lineConfig.padding;
-        result.lineInfo.cpx = result.width - lineConfig.padding;
-        result.lineInfo.cpy = lineConfig.padding;
-        //=========================================================================//
-        result.lineInfo.arrowInfo.leftTopPoint = {
-            x: result.lineInfo.endX - lineConfig.padding,
-            y: result.lineInfo.endY - lineConfig.padding
-        }
-        result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: result.lineInfo.endX + lineConfig.padding,
-            y: result.lineInfo.endY + lineConfig.padding
-        }
-        //=========================================================================//
-        result.lineInfo.arrowInfo.p1 = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY - lineConfig.arrowWidth
-        }
-        result.lineInfo.arrowInfo.p2 = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY + lineConfig.arrowWidth
-        }
-        result.lineInfo.arrowInfo.p3 = {
-            x: result.lineInfo.endX - lineConfig.padding,
-            y: result.lineInfo.endY
-        }
+        getQuardantInfo2(result, {
+            ...options,
+            startInfo,
+            endInfo,
+            lineConfig,
+        });
     } else if (endInfo.x <= startInfo.x && endInfo.y > startInfo.y) { //第三象限
         result.x = endInfo.x - lineConfig.padding;
         result.y = startInfo.y - lineConfig.padding
