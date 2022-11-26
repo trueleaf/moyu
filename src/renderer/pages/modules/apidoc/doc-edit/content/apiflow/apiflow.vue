@@ -29,10 +29,13 @@ import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
 
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
+const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
+const currentDragLineId = ref("");
 const apiflow: Ref<HTMLElement | null> = ref(null);
-provide("apiflowWrapper", apiflow)
 const wrapX = ref(0);
 const wrapY = ref(0);
+provide("apiflowWrapper", apiflow)
+
 /*
 |--------------------------------------------------------------------------
 | 初始化widget
@@ -48,7 +51,7 @@ const initWidgets = () => {
             type: "node",
             styleInfo: {
                 offsetX: 100,
-                offsetY: 240,
+                offsetY: 120,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
@@ -68,7 +71,7 @@ const initWidgets = () => {
             type: "node",
             styleInfo: {
                 offsetX: 500,
-                offsetY: 120,
+                offsetY: 240,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
@@ -96,34 +99,32 @@ const handleCheckMouseIsInArrow = (e: MouseEvent) => {
         const isYIn = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY
         if (isXIn && isYIn) {
             store.commit("apidoc/apiflow/changeIsMouseInLineArrow", true);
-            store.commit("apidoc/apiflow/changeMouseInlineArrrowId", line.id);
+            currentDragLineId.value = line.id;
             break
         }
+        currentDragLineId.value = "";
         store.commit("apidoc/apiflow/changeIsMouseInLineArrow", false);
-        store.commit("apidoc/apiflow/changeMouseInlineArrrowId", "");
     }
-    // const drawInfo = getCurrentLineDrawInfo()
-    // if (hostNode.value && drawInfo) {
-    //     const mouseOffsetPoint = { x: e.clientX - Math.ceil(apiflowWrapperRect.x), y: e.clientY - Math.ceil(apiflowWrapperRect.y) }
-    //     const leftTopPoint = {
-    //         x: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + props.lineInfo.offsetX,
-    //         y: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + props.lineInfo.offsetY,
-    //     }
-    //     const rightBottomPoint = {
-    //         x: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + props.lineInfo.offsetX,
-    //         y: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + props.lineInfo.offsetY,
-    //     }
-    //     const isIn = isInRect(mouseOffsetPoint, leftTopPoint, rightBottomPoint);
-    //     // isInLineArrow.value = isIn
-    //     store.commit("apidoc/apiflow/changeIsMouseInLineArrow", isIn)
-    // }
+}
+const handleConfirmDragLineId = () => {
+    if (isMouseInLineArrow.value) {
+        store.commit("apidoc/apiflow/changeCurrentDragLineId", currentDragLineId.value);
+    }
+}
+const handleClearDragLineId = () => {
+    console.log("up")
+    store.commit("apidoc/apiflow/changeCurrentDragLineId", "");
 }
 onMounted(() => {
     initWidgets();
     document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
+    document.documentElement.addEventListener("mousedown", handleConfirmDragLineId);
+    document.documentElement.addEventListener("mouseup", handleClearDragLineId);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleCheckMouseIsInArrow);
+    document.documentElement.removeEventListener("mousedown", handleConfirmDragLineId);
+    document.documentElement.removeEventListener("mouseup", handleClearDragLineId);
 })
 </script>
 
