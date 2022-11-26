@@ -1237,11 +1237,11 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
         //修正可拖拽区域
         result.lineInfo.arrowInfo.leftTopPoint = {
             x: result.width - padding * 2,
-            y: endInfo.y - result.y - arrowLength - padding
+            y: endInfo.y - result.y - padding
         }
         result.lineInfo.arrowInfo.rightBottomPoint = {
             x: result.width,
-            y: endInfo.y - result.y - arrowLength + padding
+            y: endInfo.y - result.y + padding
         }
     } else if (endInfo.y <= fromNode.styleInfo.offsetY - breakLineOffsetNode) {
         /*
@@ -1293,11 +1293,11 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
             //修正可拖拽区域
             result.lineInfo.arrowInfo.leftTopPoint = {
                 x: result.width - padding * 2,
-                y: endInfo.y - result.y - arrowLength - padding
+                y: endInfo.y - result.y - padding
             }
             result.lineInfo.arrowInfo.rightBottomPoint = {
                 x: result.width,
-                y: endInfo.y - result.y - arrowLength + padding
+                y: endInfo.y - result.y + padding
             }
         } else {
             result.lineInfo.brokenLinePoints.push({
@@ -1334,11 +1334,11 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
             //修正可拖拽区域
             result.lineInfo.arrowInfo.leftTopPoint = {
                 x: result.width - padding * 2,
-                y: endInfo.y - result.y - arrowLength - padding
+                y: endInfo.y - result.y - padding
             }
             result.lineInfo.arrowInfo.rightBottomPoint = {
                 x: result.width,
-                y: endInfo.y - result.y - arrowLength + padding
+                y: endInfo.y - result.y + padding
             }
         }
     }
