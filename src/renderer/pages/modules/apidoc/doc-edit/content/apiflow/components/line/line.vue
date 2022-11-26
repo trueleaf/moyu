@@ -19,7 +19,6 @@
         @mousedown.stop="handleMouseDownCanvas"
     >
     </canvas>
-    {{ isMouseDownCanvasArrow }}
 </template>
 
 <script lang="ts" setup>
@@ -41,6 +40,7 @@ const props = defineProps({
 
 const lineRef: Ref<null | HTMLCanvasElement> = ref(null); //线条dom元素
 const currentSelectedDotId = computed(() => store.state["apidoc/apiflow"].currentSelectedDotId)
+const mouseInlineArrrowId = computed(() => store.state["apidoc/apiflow"].mouseInlineArrrowId)
 const hostNode = computed(() => { //宿主节点(节点出线包含当前线条，才叫做宿主)
     const { apiflowList } = store.state["apidoc/apiflow"];
     return apiflowList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
@@ -93,40 +93,6 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLine
     ctx.fill();
     ctx.closePath()
 }
-
-//根据线条信息获取线条数据
-/* const getCurrentLineDrawInfo = () => {
-    if (!hostNode.value) {
-        return null
-    }
-    const startNodeInfo = {
-        x: 0,
-        y: 0,
-    }
-    const endNodeInfo = {
-        x: props.lineInfo.lineClientEndX - Math.ceil(apiflowWrapperRect.x),
-        y: props.lineInfo.lineClientEndY - Math.ceil(apiflowWrapperRect.y),
-    }
-    if (props.lineInfo.fromPosition === "left") {
-        startNodeInfo.x = hostNode.value.styleInfo.offsetX;
-        startNodeInfo.y = hostNode.value.styleInfo.offsetY + hostNode.value.styleInfo.height / 2;
-    } else if (props.lineInfo.fromPosition === "top") {
-        startNodeInfo.x = hostNode.value.styleInfo.offsetX + hostNode.value.styleInfo.width / 2;
-        startNodeInfo.y = hostNode.value.styleInfo.offsetY;
-    } else if (props.lineInfo.fromPosition === "right") {
-        startNodeInfo.x = hostNode.value.styleInfo.offsetX + hostNode.value.styleInfo.width
-        startNodeInfo.y = hostNode.value.styleInfo.offsetY + hostNode.value.styleInfo.height / 2;
-    } else if (props.lineInfo.fromPosition === "bottom") {
-        startNodeInfo.x = hostNode.value.styleInfo.offsetX + hostNode.value.styleInfo.width / 2;
-        startNodeInfo.y = hostNode.value.styleInfo.offsetY + hostNode.value.styleInfo.height;
-    }
-    const drawInfo = getLineDrawInfo(startNodeInfo, endNodeInfo, {
-        fromNode: hostNode.value,
-        fromPosition: props.lineInfo.fromPosition,
-        currendLine: props.lineInfo
-    });
-    return drawInfo;
-} */
 /*
 |--------------------------------------------------------------------------
 | 鼠标从节点四个方向绘制出线
@@ -254,18 +220,20 @@ const handleRemoveTempLine = () => {
 | 鼠标在出线arrow上面拖拽
 |--------------------------------------------------------------------------
 */
-
 //鼠标点击线条canvas框
 const handleMouseDownCanvas = (e: MouseEvent) => {
     lineCanvasClickOffsetX.value = e.offsetX;
     lineCanvasClickOffsetY.value = e.offsetY;
-    if (isMouseInLineArrow.value) {
+    if (mouseInlineArrrowId.value === props.lineInfo.id) {
         isMouseDownCanvasArrow.value = true;
     }
 }
 //拖拽箭头
 const handleCanvasMouseMove = (e: MouseEvent) => {
     if (!isMouseDownCanvasArrow.value) {
+        return
+    }
+    if (mouseInlineArrrowId.value !== props.lineInfo.id) { //只能拖拽当前节点
         return
     }
     if (hostNode.value) {
