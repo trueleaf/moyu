@@ -16,7 +16,7 @@
             zIndex: lineInfo.zIndex,
             cursor: isMouseInLineArrow ? 'move' : 'default',
         }"
-        @mousedown.stop="handleMouseDownCanvas"
+        @mousedown="handleMouseDownCanvas"
     >
     </canvas>
 </template>
@@ -40,7 +40,7 @@ const props = defineProps({
 
 const lineRef: Ref<null | HTMLCanvasElement> = ref(null); //线条dom元素
 const currentSelectedDotId = computed(() => store.state["apidoc/apiflow"].currentSelectedDotId)
-const mouseInlineArrrowId = computed(() => store.state["apidoc/apiflow"].mouseInlineArrrowId)
+const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const hostNode = computed(() => { //宿主节点(节点出线包含当前线条，才叫做宿主)
     const { apiflowList } = store.state["apidoc/apiflow"];
     return apiflowList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
@@ -52,7 +52,6 @@ const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseI
 const isResizeNodeMousedown = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
 const isMouseDownNode = computed(() => store.state["apidoc/apiflow"].isMouseDownNode);
 const isMouseDownResizeDot = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
-const isMouseDownCanvasArrow = ref(false); //鼠标是否点击线条箭头
 const lineCanvasClickOffsetX = ref(0);
 const lineCanvasClickOffsetY = ref(0);
 /*
@@ -224,16 +223,10 @@ const handleRemoveTempLine = () => {
 const handleMouseDownCanvas = (e: MouseEvent) => {
     lineCanvasClickOffsetX.value = e.offsetX;
     lineCanvasClickOffsetY.value = e.offsetY;
-    if (mouseInlineArrrowId.value === props.lineInfo.id) {
-        isMouseDownCanvasArrow.value = true;
-    }
 }
 //拖拽箭头
 const handleCanvasMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownCanvasArrow.value) {
-        return
-    }
-    if (mouseInlineArrrowId.value !== props.lineInfo.id) { //只能拖拽当前节点
+    if (currentDragLineId.value !== props.lineInfo.id) { //只能拖拽当前节点
         return
     }
     if (hostNode.value) {
@@ -375,7 +368,6 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
 //取消鼠标在arrow上面样式
 const handleCanvasMouseUp = () => {
     store.commit("apidoc/apiflow/changeCurrentSelectedDotId", "")
-    isMouseDownCanvasArrow.value = false;
 }
 /*
 |--------------------------------------------------------------------------

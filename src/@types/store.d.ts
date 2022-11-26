@@ -652,7 +652,7 @@ type ApidocApiflowState = {
     /**
      * 鼠标目前在那条线上面
      */
-    mouseInlineArrrowId: string,
+    currentDragLineId: string,
     /**
      * 鼠标是否点击元素
      */

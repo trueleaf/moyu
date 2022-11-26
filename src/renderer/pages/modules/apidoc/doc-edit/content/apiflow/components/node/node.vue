@@ -43,7 +43,7 @@
                 isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
                 isInArrow: {{ isMouseInLineArrow }}
                 isMouseDownNode: {{ isMouseDownNode }}
-                mouseInlineArrrowId: {{ mouseInlineArrrowId }}
+                currentDragLineId: {{ currentDragLineId }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -203,7 +203,7 @@ const isMouseDownNode = computed({
         store.commit("apidoc/apiflow/changeIsMouseDownNode", val)
     }
 });
-const mouseInlineArrrowId = computed(() => store.state["apidoc/apiflow"].mouseInlineArrrowId)
+const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const isMouseInNode = ref(false);
 const isSelectedNode = ref(false); //是否选中节点
 const styleInfo = computed(() => currentNode.value?.styleInfo)

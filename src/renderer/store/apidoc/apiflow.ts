@@ -32,7 +32,7 @@ type AddIncomingInfo = {
 const apiflow = {
     namespaced: true,
     state: {
-        mouseInlineArrrowId: "",
+        currentDragLineId: "",
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
@@ -71,8 +71,8 @@ const apiflow = {
             state.currentOperatNode = payload;
         },
         //
-        changeMouseInlineArrrowId(state: ApidocApiflowState, mouseInlineArrrowId: string): void {
-            state.mouseInlineArrrowId = mouseInlineArrrowId
+        changeCurrentDragLineId(state: ApidocApiflowState, currentDragLineId: string): void {
+            state.currentDragLineId = currentDragLineId
         },
         /*
         |--------------------------------------------------------------------------

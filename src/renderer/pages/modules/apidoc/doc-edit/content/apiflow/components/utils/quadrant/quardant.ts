@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { getNodeStickyArea, StickyArea } from "../common/common";
+import { getNodeStickyArea, getLineStickyPosition, getContraryPosition } from "../common/common";
 import type { ResultRect, Coordinate, LineDrawInfoOptions, LineConfig } from "../utils"
 
 type Options = LineDrawInfoOptions & {
@@ -11,50 +11,6 @@ type GetArrowInfoOptions = {
     position: "left"| "right" | "top" | "bottom";
     arrowLength: number;
     arrowWidth: number;
-}
-type Position = "left" | "top" | "right" | "bottom"
-/*
-|--------------------------------------------------------------------------
-| 公共方法
-|--------------------------------------------------------------------------
-*/
-const getLineStickyPosition = (point: Coordinate, stickyArea: StickyArea): Position | null => {
-    const isLineXInLeftStickyArea = point.x >= stickyArea.leftArea.offsetX && point.x <= stickyArea.leftArea.offsetX2;
-    const isLineYInLeftStickyArea = point.y >= stickyArea.leftArea.offsetY && point.y <= stickyArea.leftArea.offsetY2;
-    const isLineXInTopStickyArea = point.x >= stickyArea.topArea.offsetX && point.x <= stickyArea.topArea.offsetX2;
-    const isLineYInTopStickyArea = point.y >= stickyArea.topArea.offsetY && point.y <= stickyArea.topArea.offsetY2;
-    const isLineXInBottomStickyArea = point.x >= stickyArea.bottomArea.offsetX && point.x <= stickyArea.bottomArea.offsetX2;
-    const isLineYInBottomStickyArea = point.y >= stickyArea.bottomArea.offsetY && point.y <= stickyArea.bottomArea.offsetY2;
-    const isLineXInRightStickyArea = point.x >= stickyArea.rightArea.offsetX && point.x <= stickyArea.rightArea.offsetX2;
-    const isLineYInRightStickyArea = point.y >= stickyArea.rightArea.offsetY && point.y <= stickyArea.rightArea.offsetY2;
-    if (isLineXInLeftStickyArea && isLineYInLeftStickyArea) {
-        return "left"
-    }
-    if (isLineXInTopStickyArea && isLineYInTopStickyArea) {
-        return "top"
-    }
-    if (isLineXInBottomStickyArea && isLineYInBottomStickyArea) {
-        return "bottom"
-    }
-    if (isLineXInRightStickyArea && isLineYInRightStickyArea) {
-        return "right"
-    }
-    return null;
-}
-const getContraryPosition = (position: Position): Position => {
-    if (position === "left") {
-        return "right"
-    }
-    if (position === "right") {
-        return "left"
-    }
-    if (position === "top") {
-        return "bottom"
-    }
-    if (position === "bottom") {
-        return "top"
-    }
-    return "left"
 }
 /*
 |--------------------------------------------------------------------------
