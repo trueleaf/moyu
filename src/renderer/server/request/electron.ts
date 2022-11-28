@@ -241,7 +241,7 @@ export function sendRequest(): void {
         //初始化默认apidoc信息
         worker.postMessage({
             type: "pre-request-init-apidoc",
-            value: {
+            value: JSON.parse(JSON.stringify({
                 apidocInfo: JSON.parse(JSON.stringify(cpApidoc2)),
                 commonHeaders: JSON.parse(JSON.stringify(commonHeaders)),
                 currentEnv,
@@ -253,7 +253,7 @@ export function sendRequest(): void {
                 localState: JSON.parse(JSON.stringify(localState[projectId] || {})),
                 remoteState: JSON.parse(JSON.stringify(remoteState[projectId] || {})),
                 packages: JSON.parse(JSON.stringify(scriptList))
-            }
+            }))
         });
         //发送请求
         worker.postMessage(JSON.parse(JSON.stringify({
@@ -278,13 +278,13 @@ export function sendRequest(): void {
             (got as Got)(res.data.value).then(response => {
                 worker.postMessage({
                     type: "pre-request-request-success",
-                    value: {
+                    value: JSON.parse(JSON.stringify({
                         headers: JSON.parse(JSON.stringify(response.headers)),
                         status: response.statusMessage,
                         code: response.statusCode,
                         responseTime: response.timings.phases.total,
                         body: response.body,
-                    }
+                    }))
                 });
             }).catch(err => {
                 worker.postMessage({
@@ -329,12 +329,12 @@ export function sendRequest(): void {
                     }
                     worker.postMessage({
                         type: "pre-request-http-success",
-                        value: {
+                        value: JSON.parse(JSON.stringify({
                             headers: data.headers,
                             body: jsonBody,
                             rawBody: data.rawBody,
                             statusCode: data.statusCode,
-                        }
+                        }))
                     });
                 }).catch(err => {
                     worker.postMessage({
