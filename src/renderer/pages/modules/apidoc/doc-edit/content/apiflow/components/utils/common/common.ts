@@ -11,6 +11,10 @@ type OffsetCoordinate = {
     offsetX: number,
     offsetY: number
 }
+type StickyAreaPosition = {
+    stickySize?: number,
+    startInfo: Coordinate
+}
 type Position = "left" | "top" | "right" | "bottom"
 export type StickyArea = {
     leftArea: {
@@ -47,8 +51,9 @@ export type StickyArea = {
     },
 }
 //返回节点上下左右四个连接点吸附区域
-export function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 10): StickyArea {
-    const { styleInfo } = node;
+export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: StickyAreaPosition): StickyArea {
+    const { styleInfo } = toNode;
+    const { stickySize = 10 } = options
     const leftMidPoint: OffsetCoordinate = {
         offsetX: styleInfo.offsetX,
         offsetY: styleInfo.offsetY + styleInfo.height / 2
@@ -70,31 +75,31 @@ export function getNodeStickyArea(node: ApidocApiflowNodeInfo, stickySize = 10):
             pointX: leftMidPoint.offsetX,
             pointY: leftMidPoint.offsetY,
             offsetX: leftMidPoint.offsetX - stickySize,
-            offsetX2: leftMidPoint.offsetX + node.styleInfo.width - stickySize,
-            offsetY: node.styleInfo.offsetY + stickySize,
-            offsetY2: node.styleInfo.offsetY + node.styleInfo.height - stickySize,
+            offsetX2: leftMidPoint.offsetX + styleInfo.width - stickySize,
+            offsetY: styleInfo.offsetY + stickySize,
+            offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
         },
         topArea: {
             pointX: topMidPoint.offsetX,
             pointY: topMidPoint.offsetY,
-            offsetX: node.styleInfo.offsetX + stickySize,
-            offsetX2: node.styleInfo.offsetX + node.styleInfo.width - stickySize,
+            offsetX: styleInfo.offsetX + stickySize,
+            offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
             offsetY: topMidPoint.offsetY - stickySize,
-            offsetY2: topMidPoint.offsetY + node.styleInfo.height - stickySize,
+            offsetY2: topMidPoint.offsetY + styleInfo.height - stickySize,
         },
         rightArea: {
             pointX: rightMidPoint.offsetX,
             pointY: rightMidPoint.offsetY,
             offsetX: rightMidPoint.offsetX - stickySize,
             offsetX2: rightMidPoint.offsetX + stickySize,
-            offsetY: node.styleInfo.offsetY + stickySize,
-            offsetY2: node.styleInfo.offsetY + node.styleInfo.height - stickySize,
+            offsetY: styleInfo.offsetY + stickySize,
+            offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
         },
         bottomArea: {
             pointX: bottomMidPoint.offsetX,
             pointY: bottomMidPoint.offsetY,
-            offsetX: node.styleInfo.offsetX + stickySize,
-            offsetX2: node.styleInfo.offsetX + node.styleInfo.width - stickySize,
+            offsetX: styleInfo.offsetX + stickySize,
+            offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
             offsetY: bottomMidPoint.offsetY - stickySize,
             offsetY2: bottomMidPoint.offsetY + stickySize,
         },

@@ -85,7 +85,9 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode);
+        const stickyArea = getNodeStickyArea(toNode, {
+            startInfo,
+        });
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
             y: endInfo.y
@@ -253,7 +255,9 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode);
+        const stickyArea = getNodeStickyArea(toNode, {
+            startInfo,
+        });
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
             y: endInfo.y
@@ -426,7 +430,9 @@ const drawLeftLineWhenStick = (result: ResultRect, options: Options) => {
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode);
+        const stickyArea = getNodeStickyArea(toNode, {
+            startInfo,
+        });
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
             y: endInfo.y
@@ -603,7 +609,9 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode);
+        const stickyArea = getNodeStickyArea(toNode, {
+            startInfo,
+        });
         const stickyNodePosition = getLineStickyPosition({
             x: endInfo.x,
             y: endInfo.y

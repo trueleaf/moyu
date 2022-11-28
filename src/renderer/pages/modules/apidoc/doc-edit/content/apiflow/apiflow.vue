@@ -112,7 +112,6 @@ const handleConfirmDragLineId = () => {
     }
 }
 const handleClearDragLineId = () => {
-    console.log("up")
     store.commit("apidoc/apiflow/changeCurrentDragLineId", "");
 }
 onMounted(() => {
