@@ -165,7 +165,7 @@ export default defineComponent({
                 const projectId = this.$route.query.id as string;
                 return this.$store.state["apidoc/tabs"].tabs[projectId]
             },
-            set(val) { //拖拽tabs会导致数据写入
+            set(val: ApidocTab) { //拖拽tabs会导致数据写入
                 this.$store.commit("apidoc/tabs/updateAllTabs", {
                     projectId: this.$route.query.id,
                     tabs: val,

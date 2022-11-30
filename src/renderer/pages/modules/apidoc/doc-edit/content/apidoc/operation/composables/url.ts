@@ -19,7 +19,7 @@ export const handleChangeUrl = (): void => {
     const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
     let matchedPathParams = requestPath.match(pathParamsReg);
     if (matchedPathParams) {
-        matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, ""))
+        matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, "")) as RegExpMatchArray
         const result = matchedPathParams.map((param) => {
             const property = apidocGenerateProperty();
             property.key = param;
