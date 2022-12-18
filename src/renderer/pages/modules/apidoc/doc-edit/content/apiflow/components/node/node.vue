@@ -54,7 +54,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, Ref, computed, onMounted, inject } from "vue";
+import { onUnmounted, ref, Ref, computed, inject } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
@@ -433,10 +433,6 @@ document.documentElement.addEventListener("mousemove", debounce(handleResizeNode
 document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
 document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
 document.documentElement.addEventListener("click", handleClickGlobal);
-onMounted(() => {
-    console.log("mouted")
-})
-
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
     document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
