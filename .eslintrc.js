@@ -31,8 +31,7 @@ module.exports = {
             "off",
             { packageDir: "./build/" },
         ],
-        indent: "off", //强制为4格缩进
-        "@typescript-eslint/indent": [2, 4],
+        indent: [2, 4], //强制为4格缩进
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",
         quotes: [
