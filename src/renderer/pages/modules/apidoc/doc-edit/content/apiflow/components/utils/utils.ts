@@ -71,7 +71,7 @@ export type LineConfig = {
     breakLineOffsetNode: number,
 }
 //根据起始位置返回节点 width height left top
-export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, options: LineDrawInfoOptions): ResultRect {
+export function getLineDrawInfo(startPoint: Coordinate, endPoint: Coordinate, options: LineDrawInfoOptions): ResultRect {
     const result: ResultRect = {
         x: 0,
         y: 0,
@@ -119,28 +119,28 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
         breakLineSticky: 5, //折线吸附阈值
         breakLineOffsetNode: 25, //折现与节点之间间隙
     }
-    if (Math.abs(endInfo.x - startInfo.x) < 10 && Math.abs(endInfo.y - startInfo.y) < 10) {
+    if (Math.abs(endPoint.x - startPoint.x) < 10 && Math.abs(endPoint.y - startPoint.y) < 10) {
         return result
     }
-    if (endInfo.x > startInfo.x && endInfo.y <= startInfo.y) { //第一象限(startPostion为原点)
+    if (endPoint.x > startPoint.x && endPoint.y <= startPoint.y) { //第一象限(startPostion为原点)
         getQuardantInfo(result, {
             ...options,
-            startInfo,
-            endInfo,
+            startPoint,
+            endPoint,
             lineConfig,
         });
-    } else if (endInfo.x <= startInfo.x && endInfo.y <= startInfo.y) { //第二象限
+    } else if (endPoint.x <= startPoint.x && endPoint.y <= startPoint.y) { //第二象限
         getQuardantInfo2(result, {
             ...options,
-            startInfo,
-            endInfo,
+            startPoint,
+            endPoint,
             lineConfig,
         });
-    } else if (endInfo.x <= startInfo.x && endInfo.y > startInfo.y) { //第三象限
-        result.x = endInfo.x - lineConfig.padding;
-        result.y = startInfo.y - lineConfig.padding
-        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * lineConfig.padding;
-        result.height = Math.abs(endInfo.y - startInfo.y) + 2 * lineConfig.padding;
+    } else if (endPoint.x <= startPoint.x && endPoint.y > startPoint.y) { //第三象限
+        result.x = endPoint.x - lineConfig.padding;
+        result.y = startPoint.y - lineConfig.padding
+        result.width = Math.abs(endPoint.x - startPoint.x) + 2 * lineConfig.padding;
+        result.height = Math.abs(endPoint.y - startPoint.y) + 2 * lineConfig.padding;
         result.lineInfo.startX = result.width - lineConfig.padding;
         result.lineInfo.startY = lineConfig.padding;
         result.lineInfo.endX = lineConfig.padding;
@@ -169,11 +169,11 @@ export function getLineDrawInfo(startInfo: Coordinate, endInfo: Coordinate, opti
             x: result.lineInfo.endX - lineConfig.arrowLength,
             y: result.lineInfo.endY
         }
-    } else if (endInfo.x > startInfo.x && endInfo.y > startInfo.y) { //第四象限
-        result.x = startInfo.x - lineConfig.padding;
-        result.y = startInfo.y - lineConfig.padding
-        result.width = Math.abs(endInfo.x - startInfo.x) + 2 * lineConfig.padding;
-        result.height = Math.abs(endInfo.y - startInfo.y) + 2 * lineConfig.padding;
+    } else if (endPoint.x > startPoint.x && endPoint.y > startPoint.y) { //第四象限
+        result.x = startPoint.x - lineConfig.padding;
+        result.y = startPoint.y - lineConfig.padding
+        result.width = Math.abs(endPoint.x - startPoint.x) + 2 * lineConfig.padding;
+        result.height = Math.abs(endPoint.y - startPoint.y) + 2 * lineConfig.padding;
         result.lineInfo.startX = lineConfig.padding;
         result.lineInfo.startY = lineConfig.padding;
         result.lineInfo.endX = result.width - lineConfig.padding;

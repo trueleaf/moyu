@@ -13,7 +13,7 @@ type OffsetCoordinate = {
 }
 type StickyAreaPosition = {
     stickySize?: number,
-    startInfo: Coordinate
+    startPoint: Coordinate
 }
 type Position = "left" | "top" | "right" | "bottom"
 export type StickyArea = {
@@ -53,7 +53,7 @@ export type StickyArea = {
 //返回节点上下左右四个连接点吸附区域
 export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: StickyAreaPosition): StickyArea {
     const { styleInfo } = toNode;
-    const { stickySize = 10 } = options
+    const { stickySize = 10, startPoint } = options
     const leftMidPoint: OffsetCoordinate = {
         offsetX: styleInfo.offsetX,
         offsetY: styleInfo.offsetY + styleInfo.height / 2
@@ -70,39 +70,58 @@ export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: Sticky
         offsetX: styleInfo.offsetX + styleInfo.width / 2,
         offsetY: styleInfo.offsetY + styleInfo.height
     }
+    // const generateStickyArea = () => {
+    // }
+    const leftArea = {
+        pointX: leftMidPoint.offsetX,
+        pointY: leftMidPoint.offsetY,
+        offsetX: leftMidPoint.offsetX - stickySize,
+        offsetX2: leftMidPoint.offsetX + stickySize,
+        offsetY: styleInfo.offsetY + stickySize,
+        offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
+    };
+    const rightArea = {
+        pointX: rightMidPoint.offsetX,
+        pointY: rightMidPoint.offsetY,
+        offsetX: rightMidPoint.offsetX - stickySize,
+        offsetX2: rightMidPoint.offsetX + stickySize,
+        offsetY: styleInfo.offsetY + stickySize,
+        offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
+    }
+    const topArea = {
+        pointX: topMidPoint.offsetX,
+        pointY: topMidPoint.offsetY,
+        offsetX: styleInfo.offsetX + stickySize,
+        offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
+        offsetY: topMidPoint.offsetY - stickySize,
+        offsetY2: topMidPoint.offsetY + stickySize,
+    }
+    const bottomArea = {
+        pointX: bottomMidPoint.offsetX,
+        pointY: bottomMidPoint.offsetY,
+        offsetX: styleInfo.offsetX + stickySize,
+        offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
+        offsetY: bottomMidPoint.offsetY - stickySize,
+        offsetY2: bottomMidPoint.offsetY + stickySize,
+    }
+    const stickyFactor = 0.618
+    const toNodeIsOnRightSide = styleInfo.offsetX > startPoint.x;
+    const toNodeIsOnTopSide = styleInfo.offsetY < startPoint.y;
+    if (toNodeIsOnRightSide && toNodeIsOnTopSide) { //右上，toNode只可能左、下节点延长吸附区域
+        const gapX = Math.abs(styleInfo.offsetX - startPoint.x);
+        const gapY = Math.abs(styleInfo.offsetY + styleInfo.height - startPoint.y);
+        console.log(gapX, gapY)
+        if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在左侧
+            leftArea.offsetX2 = leftMidPoint.offsetX + styleInfo.width - stickySize
+        } else { //toNode延长吸附区域在下侧
+            bottomArea.offsetY = styleInfo.offsetY + stickySize
+        }
+    }
     return {
-        leftArea: {
-            pointX: leftMidPoint.offsetX,
-            pointY: leftMidPoint.offsetY,
-            offsetX: leftMidPoint.offsetX - stickySize,
-            offsetX2: leftMidPoint.offsetX + styleInfo.width - stickySize,
-            offsetY: styleInfo.offsetY + stickySize,
-            offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
-        },
-        topArea: {
-            pointX: topMidPoint.offsetX,
-            pointY: topMidPoint.offsetY,
-            offsetX: styleInfo.offsetX + stickySize,
-            offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
-            offsetY: topMidPoint.offsetY - stickySize,
-            offsetY2: topMidPoint.offsetY + styleInfo.height - stickySize,
-        },
-        rightArea: {
-            pointX: rightMidPoint.offsetX,
-            pointY: rightMidPoint.offsetY,
-            offsetX: rightMidPoint.offsetX - stickySize,
-            offsetX2: rightMidPoint.offsetX + stickySize,
-            offsetY: styleInfo.offsetY + stickySize,
-            offsetY2: styleInfo.offsetY + styleInfo.height - stickySize,
-        },
-        bottomArea: {
-            pointX: bottomMidPoint.offsetX,
-            pointY: bottomMidPoint.offsetY,
-            offsetX: styleInfo.offsetX + stickySize,
-            offsetX2: styleInfo.offsetX + styleInfo.width - stickySize,
-            offsetY: bottomMidPoint.offsetY - stickySize,
-            offsetY2: bottomMidPoint.offsetY + stickySize,
-        },
+        leftArea,
+        topArea,
+        rightArea,
+        bottomArea,
     };
 }
 export const getLineStickyPosition = (point: Coordinate, stickyArea: StickyArea): Position | null => {
