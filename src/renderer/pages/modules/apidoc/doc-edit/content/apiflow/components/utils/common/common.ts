@@ -110,11 +110,34 @@ export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: Sticky
     if (toNodeIsOnRightSide && toNodeIsOnTopSide) { //右上，toNode只可能左、下节点延长吸附区域
         const gapX = Math.abs(styleInfo.offsetX - startPoint.x);
         const gapY = Math.abs(styleInfo.offsetY + styleInfo.height - startPoint.y);
-        console.log(gapX, gapY)
         if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在左侧
             leftArea.offsetX2 = leftMidPoint.offsetX + styleInfo.width - stickySize
         } else { //toNode延长吸附区域在下侧
             bottomArea.offsetY = styleInfo.offsetY + stickySize
+        }
+    } else if (!toNodeIsOnRightSide && toNodeIsOnTopSide) { //左上，toNode只可能右、下节点延长吸附区域
+        const gapX = Math.abs(styleInfo.offsetX + styleInfo.width - startPoint.x);
+        const gapY = Math.abs(styleInfo.offsetY + styleInfo.height - startPoint.y);
+        if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在右侧
+            rightArea.offsetX = leftMidPoint.offsetX + stickySize
+        } else { //toNode延长吸附区域在下侧
+            bottomArea.offsetY = styleInfo.offsetY + stickySize
+        }
+    } else if (toNodeIsOnRightSide && !toNodeIsOnTopSide) { //右下，toNode只可能左、上节点延长吸附区域
+        const gapX = Math.abs(startPoint.x - styleInfo.offsetX);
+        const gapY = Math.abs(startPoint.y - styleInfo.offsetY);
+        if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在左侧
+            leftArea.offsetX2 = leftMidPoint.offsetX + styleInfo.width - stickySize
+        } else { //toNode延长吸附区域在上侧
+            topArea.offsetY = bottomMidPoint.offsetY - stickySize
+        }
+    } else if (!toNodeIsOnRightSide && !toNodeIsOnTopSide) { //左下，toNode只可能右、上节点延长吸附区域
+        const gapX = Math.abs(styleInfo.offsetX + styleInfo.width - startPoint.x);
+        const gapY = Math.abs(startPoint.y - styleInfo.offsetY);
+        if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在右侧
+            rightArea.offsetX = leftMidPoint.offsetX + stickySize
+        } else { //toNode延长吸附区域在上侧
+            topArea.offsetY = bottomMidPoint.offsetY - stickySize
         }
     }
     return {
