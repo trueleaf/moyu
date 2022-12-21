@@ -293,7 +293,8 @@ type ApidocTabType =
 "hook" |
 "package" |
 "commonHeader" |
-"apiflow"
+"apiflow" |
+"prefix"
 //tabs导航
 
 type ApidocTab = {
