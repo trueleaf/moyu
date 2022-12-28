@@ -744,6 +744,7 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
             const gapX = toNode.styleInfo.offsetX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width; //fromNode右侧距离toNode左侧距离
+            console.log("top", gapX, endPoint.y < fromNode.styleInfo.offsetY)
             result.width = stickyArea.topArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + 2 * breakLineOffsetNode;
             result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
@@ -774,7 +775,7 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
                     y: stickyArea.topArea.pointY - result.y - padding
                 });
             } else if (gapX < 0 && endPoint.y < fromNode.styleInfo.offsetY) {
-                result.width = endPoint.x - fromNode.styleInfo.offsetX + breakLineOffsetNode + 2 * padding
+                result.width = Math.abs(fromNode.styleInfo.offsetX - stickyArea.topArea.pointX) + breakLineOffsetNode + 2 * padding
                 result.height = Math.abs(endPoint.y - startPoint.y) + 2 * breakLineOffsetNode + 2 * padding
                 result.x = fromNode.styleInfo.offsetX - padding - breakLineOffsetNode;
                 result.y = endPoint.y - padding - breakLineOffsetNode;
