@@ -1,6 +1,7 @@
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getQuardantInfo } from "./quadrant/quardant";
 import { getQuardantInfo2 } from "./quadrant2/quadrant2";
+import { getQuardantInfo3 } from "./quadrant3/quadrant3";
 
 export type Coordinate = {
     x: number,
@@ -137,38 +138,12 @@ export function getLineDrawInfo(startPoint: Coordinate, endPoint: Coordinate, op
             lineConfig,
         });
     } else if (endPoint.x <= startPoint.x && endPoint.y > startPoint.y) { //第三象限
-        result.x = endPoint.x - lineConfig.padding;
-        result.y = startPoint.y - lineConfig.padding
-        result.width = Math.abs(endPoint.x - startPoint.x) + 2 * lineConfig.padding;
-        result.height = Math.abs(endPoint.y - startPoint.y) + 2 * lineConfig.padding;
-        result.lineInfo.startX = result.width - lineConfig.padding;
-        result.lineInfo.startY = lineConfig.padding;
-        result.lineInfo.endX = lineConfig.padding;
-        result.lineInfo.endY = result.height - lineConfig.padding;
-        result.lineInfo.cpx = result.width - lineConfig.padding;
-        result.lineInfo.cpy = result.height - lineConfig.padding;
-        //=========================================================================//
-        result.lineInfo.arrowInfo.leftTopPoint = {
-            x: result.lineInfo.endX - lineConfig.padding,
-            y: result.lineInfo.endY - lineConfig.padding
-        }
-        result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: result.lineInfo.endX + lineConfig.padding,
-            y: result.lineInfo.endY + lineConfig.padding
-        }
-        //=========================================================================//
-        result.lineInfo.arrowInfo.p1 = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY - lineConfig.arrowWidth
-        }
-        result.lineInfo.arrowInfo.p2 = {
-            x: result.lineInfo.endX,
-            y: result.lineInfo.endY + lineConfig.arrowWidth
-        }
-        result.lineInfo.arrowInfo.p3 = {
-            x: result.lineInfo.endX - lineConfig.arrowLength,
-            y: result.lineInfo.endY
-        }
+        getQuardantInfo3(result, {
+            ...options,
+            startPoint,
+            endPoint,
+            lineConfig,
+        });
     } else if (endPoint.x > startPoint.x && endPoint.y > startPoint.y) { //第四象限
         result.x = startPoint.x - lineConfig.padding;
         result.y = startPoint.y - lineConfig.padding
