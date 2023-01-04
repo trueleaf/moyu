@@ -1281,11 +1281,11 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
             y: padding,
         })
         result.lineInfo.brokenLinePoints.push({
-            x: padding + arrowLength,
+            x: padding,
             y: padding,
         })
         const arrowList = getDrawArrowInfo({
-            x: padding + arrowLength,
+            x: padding,
             y: padding
         }, {
             position: "left",
