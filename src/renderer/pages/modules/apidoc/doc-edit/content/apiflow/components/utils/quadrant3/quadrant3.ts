@@ -951,92 +951,127 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
 */
 //右侧线条
 const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
-    const { lineConfig: { padding, breakLineSticky, arrowLength, arrowWidth } } = options;
-    const breakLineWidth = Math.abs(result.width - 2 * padding); //折线宽度
-    const breakLineHeight = Math.abs(result.height - 2 * padding); //折线高度
+    const { lineConfig: { padding, breakLineOffsetNode, arrowLength, arrowWidth }, fromNode, endPoint } = options;
     /*
-        示例如下：
-                   |‾‾‾‾‾‾‾‾‾‾‾‾‾
-        ___________|
+        示例如下：A点到B点范围外，线条方向共2种
+
+           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+           |                                 |         |                                 |           |                                 |
+           |                                 |         |               case1             |           |                                 |
+           |                                 |         |                                 |           |                                 |
+           |                                 |         |                               p |____       |               case2           p |____
+           |                               p |____     |                end ______       |    |      |                         end     |    |
+           |                                 |   |     |                         |       |    |      |                          |      |    |
+           |                                 |   |     |                         |       |    |      |                          |      |    |
+           |                                 |   |     |                         |       |    |      |                          |      |    |
+           |_________________________________|   |     |_________________________|_______|    |      |__________________________|______|    |
+                           |                     |                               |            |                                 |           |
+                           |_____________________|                               |____________|                                 |___________|
+                           B
     */
-    if (breakLineWidth > breakLineHeight) {
-        result.lineInfo.brokenLinePoints.push({
-            x: padding,
-            y: result.height - padding
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding + breakLineWidth / 2,
-            y: result.height - padding
-        })
-        if (Math.abs(result.height - 2 * padding) < breakLineSticky) { //折线往上移动吸附效果
+    const p = {
+        x: fromNode.styleInfo.width + fromNode.styleInfo.offsetX,
+        y: fromNode.styleInfo.height / 2 + fromNode.styleInfo.offsetY
+    }
+    const endPWidth = Math.abs(endPoint.x - p.x);
+    // const endPHeight = Math.abs(endPoint.y - p.y);
+    const B = {
+        y: fromNode.styleInfo.offsetY + fromNode.styleInfo.height + breakLineOffsetNode
+    }
+    if (endPoint.y < B.y) {
+        result.width = Math.abs(endPoint.x - p.x) + 2 * padding + breakLineOffsetNode;
+        result.height = fromNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
+        result.x = endPoint.x - padding;
+        result.y = p.y - padding
+        if (endPWidth > breakLineOffsetNode) { //case1
             result.lineInfo.brokenLinePoints.push({
-                x: Math.abs(result.width - padding),
-                y: result.height - padding
+                x: result.width - padding - breakLineOffsetNode,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding + breakLineOffsetNode,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding + breakLineOffsetNode,
+                y: endPoint.y - result.y,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: endPoint.y - result.y,
             })
             const arrowList = getDrawArrowInfo({
-                x: result.width - padding,
-                y: result.height - padding
+                x: padding,
+                y: endPoint.y - result.y,
             }, {
-                position: "right",
+                position: "left",
                 arrowLength,
                 arrowWidth
             });
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: 0,
+                y: endPoint.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: padding * 2,
+                y: endPoint.y - result.y + padding
+            }
         } else {
             result.lineInfo.brokenLinePoints.push({
-                x: padding + breakLineWidth / 2,
-                y: padding
+                x: result.width - padding - breakLineOffsetNode,
+                y: padding,
             })
             result.lineInfo.brokenLinePoints.push({
-                x: Math.abs(result.width - padding),
-                y: padding
+                x: result.width - padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: endPoint.y - result.y,
             })
             const arrowList = getDrawArrowInfo({
-                x: result.width - padding,
-                y: padding
+                x: padding,
+                y: endPoint.y - result.y,
             }, {
-                position: "right",
+                position: "top",
                 arrowLength,
                 arrowWidth
             });
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: 0,
+                y: endPoint.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: padding * 2,
+                y: endPoint.y - result.y + padding
+            }
         }
     } else {
-        /*
-        示例如下：
-                |
-                |
-                |
-                |
-            ____|
-        */
-        result.lineInfo.brokenLinePoints.push({
-            x: padding,
-            y: result.height - padding
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding + breakLineWidth,
-            y: result.height - padding
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding + breakLineWidth,
-            y: padding
-        })
-        const arrowList = getDrawArrowInfo({
-            x: result.width - padding,
-            y: padding
-        }, {
-            position: "top",
-            arrowLength,
-            arrowWidth
-        });
-        result.lineInfo.arrowInfo.p1 = arrowList[0];
-        result.lineInfo.arrowInfo.p2 = arrowList[1];
-        result.lineInfo.arrowInfo.p3 = arrowList[2];
+        console.log(2)
     }
 }
 //顶部线条
