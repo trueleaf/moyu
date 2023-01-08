@@ -51,7 +51,7 @@ const initWidgets = () => {
             type: "node",
             styleInfo: {
                 offsetX: 100,
-                offsetY: 120,
+                offsetY: 170,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
@@ -71,7 +71,7 @@ const initWidgets = () => {
             type: "node",
             styleInfo: {
                 offsetX: 500,
-                offsetY: 240,
+                offsetY: 70,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
