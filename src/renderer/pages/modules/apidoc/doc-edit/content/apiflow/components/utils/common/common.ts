@@ -129,7 +129,7 @@ export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: Sticky
         if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在左侧
             leftArea.offsetX2 = leftMidPoint.offsetX + styleInfo.width - stickySize
         } else { //toNode延长吸附区域在上侧
-            topArea.offsetY = bottomMidPoint.offsetY - stickySize
+            topArea.offsetY2 = bottomMidPoint.offsetY - stickySize
         }
     } else if (!toNodeIsOnRightSide && !toNodeIsOnTopSide) { //左下，toNode只可能右、上节点延长吸附区域
         const gapX = Math.abs(styleInfo.offsetX + styleInfo.width - startPoint.x);
@@ -137,7 +137,7 @@ export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: Sticky
         if (gapX > gapY * stickyFactor) { //toNode延长吸附区域在右侧
             rightArea.offsetX = leftMidPoint.offsetX + stickySize
         } else { //toNode延长吸附区域在上侧
-            topArea.offsetY = bottomMidPoint.offsetY - stickySize
+            topArea.offsetY2 = bottomMidPoint.offsetY - stickySize
         }
     }
     return {
@@ -156,6 +156,7 @@ export const getLineStickyPosition = (point: Coordinate, stickyArea: StickyArea)
     const isLineYInBottomStickyArea = point.y >= stickyArea.bottomArea.offsetY && point.y <= stickyArea.bottomArea.offsetY2;
     const isLineXInRightStickyArea = point.x >= stickyArea.rightArea.offsetX && point.x <= stickyArea.rightArea.offsetX2;
     const isLineYInRightStickyArea = point.y >= stickyArea.rightArea.offsetY && point.y <= stickyArea.rightArea.offsetY2;
+    // console.log(point.y, stickyArea.topArea.offsetY, stickyArea.topArea.offsetY2, isLineYInTopStickyArea)
     if (isLineXInLeftStickyArea && isLineYInLeftStickyArea) {
         return "left"
     }
