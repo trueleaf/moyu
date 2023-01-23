@@ -190,13 +190,14 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
-            const gapX = startPoint.x - toNode.styleInfo.offsetX - toNode.styleInfo.width
+            const gapX = startPoint.x - toNode.styleInfo.offsetX - toNode.styleInfo.width;
+            const gapY = fromNode.styleInfo.offsetY - toNode.styleInfo.offsetY;
             result.width = Math.abs(stickyArea.topArea.pointX - startPoint.x) + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.topArea.pointX - padding;
             result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
             result.lineInfo.brokenLinePoints = [];
-            if (gapX > 0) {
+            if (gapX > 0 && gapY > 0) {
                 result.lineInfo.brokenLinePoints.push({
                     x: startPoint.x - result.x,
                     y: result.height - padding
@@ -217,7 +218,7 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
                     x: padding,
                     y: padding + breakLineOffsetNode - arrowLength
                 });
-            } else {
+            } else if (gapX <= 0 && gapY > 0) {
                 result.width = toNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
                 result.lineInfo.brokenLinePoints.push({
                     x: startPoint.x - result.x,
@@ -239,6 +240,8 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
                     x: padding,
                     y: padding + breakLineOffsetNode - arrowLength
                 });
+            } else if (gapY <= 0) {
+                result.height = Math.abs(fromNode.styleInfo.offsetY - toNode.styleInfo.offsetY) + breakLineOffsetNode + padding;
             }
             lineEndPoint.x = padding;
             lineEndPoint.y = padding + breakLineOffsetNode - arrowLength;

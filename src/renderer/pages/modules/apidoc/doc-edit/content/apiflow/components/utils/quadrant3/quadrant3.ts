@@ -143,11 +143,34 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: result.width - padding,
-                    y: fromNode.styleInfo.height / 2 + gapY / 2
+                    y: startPoint.y - fromNode.styleInfo.offsetY + padding + gapY / 2
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
-                    y: fromNode.styleInfo.height / 2 + gapY / 2
+                    y: startPoint.y - fromNode.styleInfo.offsetY + padding + gapY / 2
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: result.height - padding - arrowLength
+                });
+            } else {
+                result.height = Math.abs(fromNode.styleInfo.offsetY - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
+                result.y = fromNode.styleInfo.offsetY - breakLineOffsetNode - padding;
+                result.lineInfo.brokenLinePoints.push({
+                    x: startPoint.x - result.x,
+                    y: startPoint.y - result.y
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width - padding,
+                    y: startPoint.y - result.y
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width - padding,
+                    y: padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: padding
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
