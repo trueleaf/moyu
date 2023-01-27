@@ -1020,7 +1020,7 @@ const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
             x: result.width,
             y: result.height
         }
-    } else {
+    } else { //case2
         result.lineInfo.brokenLinePoints.push({
             x: padding,
             y: padding,
@@ -1037,7 +1037,7 @@ const drawRightLineWhenDrag = (result: ResultRect, options: Options) => {
             x: result.width - padding,
             y: result.height - padding,
         }, {
-            position: "right",
+            position: "bottom",
             arrowLength,
             arrowWidth
         });
@@ -1060,57 +1060,63 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
     const { lineConfig: { padding, breakLineOffsetNode, arrowLength, arrowWidth }, fromNode, endPoint, startPoint } = options;
     /*
         示例如下：A点到B点范围内，线条方向共2种
-                    A
-                    |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
-                    |                     |
-    |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|   |        |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|          |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
-    |              p1                 |   |        |                                 |          |                                 |
-    |                                 |   |        |                                 |          |                                 |
-    |                                 |   |        |                                 |          |                    |            |
-    |                                 |   |        |               case1             |          |             case2  |            |
-    |                                 |   |        |                                 |          |                    |            |
-    |                                 |   |        |                        ‾‾‾‾‾‾‾‾‾|‾‾‾|      |                    ‾‾‾‾‾‾‾‾‾‾‾‾‾|‾‾‾|
-    |                                 |   |        |                                 |   |      |                                 |   |
-    |                                 |   |        |                                 |   |      |                                 |   |
-    |_________________________________|   |        |_________________________________|   |      |_________________________________|   |
-                    |                     |                        |                     |                      |                     |
-                    |_____________________|                        |_____________________|                      |_____________________|
-                                            B
+                    A                      B
+                    |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|                         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|                 |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+                    |                     |                         |                        |                 |                        |
+    |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|   |        |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|       |  |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|     |
+    |              p1                 |   |        |                p1               |       |  |               p1                |     |
+    |                                 |   |        |                       end_______|_______|  |                                 |     |
+    |                                 |   |        |                                 |          |                                 |     |
+    |                                 |   |        |               case1             |          |             case2        _______|_____|
+    |                                 |   |        |                                 |          |                         |       |
+    |                                 |   |        |                                 |          |                         |       |
+    |                                 |   |        |                                 |          |                         |       |
+    |                                 |   |        |                                 |          |                        end      |
+    |_________________________________|   |        |_________________________________|          |_________________________________|
 
     */
     const p1 = {
         x: fromNode.styleInfo.width / 2 + fromNode.styleInfo.offsetX,
-        y: fromNode.styleInfo.height + fromNode.styleInfo.offsetY
+        y: fromNode.styleInfo.offsetY
     }
-    if (endPoint.x - p1.x < fromNode.styleInfo.width / 2 + breakLineOffsetNode && endPoint.y > fromNode.styleInfo.offsetY - breakLineOffsetNode) {
+    const A = {
+        x: fromNode.styleInfo.width / 2 + fromNode.styleInfo.offsetX
+    }
+    const B = {
+        x: fromNode.styleInfo.width + breakLineOffsetNode + fromNode.styleInfo.offsetX
+    }
+    const p1ToEndWidth = Math.abs(endPoint.x - p1.x);
+    const p1ToEndHeight = Math.abs(endPoint.y - p1.y);
+    result.lineInfo.brokenLinePoints = [];
+    if (endPoint.x > A.x && endPoint.x < B.x) {
         result.width = fromNode.styleInfo.width / 2 + 2 * padding + breakLineOffsetNode;
         result.height = Math.abs(endPoint.y - startPoint.y) + breakLineOffsetNode + 2 * padding;
-        result.x = startPoint.x - padding;
-        result.y = endPoint.y - padding
-        if (Math.abs(endPoint.x - startPoint.x) > Math.abs(endPoint.y - startPoint.y)) { //如图case1
+        result.x = p1.x - padding;
+        result.y = p1.y - padding - breakLineOffsetNode;
+        if (p1ToEndWidth > p1ToEndHeight) { //如图case1
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding - breakLineOffsetNode,
+                y: startPoint.y - result.y,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: fromNode.styleInfo.width / 2 + breakLineOffsetNode + padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: fromNode.styleInfo.width / 2 + breakLineOffsetNode + padding,
                 y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: endPoint.x - result.x,
-                y: padding,
+                y: result.height - padding,
             })
             const arrowList = getDrawArrowInfo({
                 x: endPoint.x - result.x,
-                y: padding
+                y: result.height - padding
             }, {
                 position: "left",
                 arrowLength,
@@ -1119,62 +1125,77 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: endPoint.x - result.x - padding,
+                y: result.height - padding * 2
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: endPoint.x - result.x + padding,
+                y: result.height
+            }
         } else {
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding - breakLineOffsetNode,
+                y: startPoint.y - result.y,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: fromNode.styleInfo.width / 2 + breakLineOffsetNode + padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: fromNode.styleInfo.width / 2 + breakLineOffsetNode + padding,
-                y: padding + breakLineOffsetNode,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: endPoint.x - result.x,
-                y: padding + breakLineOffsetNode,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: endPoint.x - result.x,
                 y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding - breakLineOffsetNode,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: endPoint.x - result.x,
+                y: result.height - padding - breakLineOffsetNode,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: endPoint.x - result.x,
+                y: result.height - padding,
             })
             const arrowList = getDrawArrowInfo({
                 x: endPoint.x - result.x,
-                y: padding
+                y: result.height - padding
             }, {
-                position: "top",
+                position: "bottom",
                 arrowLength,
                 arrowWidth
             });
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: endPoint.x - result.x - padding,
+                y: result.height - padding * 2
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: endPoint.x - result.x + padding,
+                y: result.height
+            }
         }
     } else {
         /*
             示例如下：
 
-                                                    |‾‾‾‾‾‾                                                 |
-                                                    |                                                       |
-        |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|         |             |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|       |
-        |                                 |         |             |                                 |       |
-        |                                 |         |             |                                 |       |
-        |                                 |         |             |                                 |       |
-        |            case1                |         |             |               case2             |       |
-        |                                 |         |             |                                 |       |
-        |                                 |         |             |                                 |       |
-        |                                 |         |             |                                 |       |
-        |                                 |         |             |                                 |       |
-        |_________________________________|         |             |_________________________________|       |
-                        |                           |                             |                         |
-                        |___________________________|                             |_________________________|
-                                                B
+                         |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|                              |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+                         |                           |                              |                             |
+        |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|          |            |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|             |
+        |                p1               |          |            |                p1               |             |
+        |                                 |          |            |                                 |             |
+        |                                 |          |            |                                 |             |
+        |            case1                |          |___         |               case2             |             |
+        |                                 |                       |                                 |             |
+        |                                 |                       |                                 |             |
+        |                                 |                       |                                 |
+        |                                 |                       |                                 |
+        |_________________________________|                       |_________________________________|
 
         */
         result.width = Math.abs(endPoint.x - startPoint.x) + 2 * padding;
