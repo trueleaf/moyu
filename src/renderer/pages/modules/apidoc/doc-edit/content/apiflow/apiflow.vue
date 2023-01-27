@@ -51,7 +51,7 @@ const initWidgets = () => {
             type: "node",
             styleInfo: {
                 offsetX: 100,
-                offsetY: 170,
+                offsetY: 130,
                 width: 220,
                 height: 150,
                 zIndex: getZIndex()
@@ -70,9 +70,9 @@ const initWidgets = () => {
             id: "start2",
             type: "node",
             styleInfo: {
-                offsetX: 500,
-                offsetY: 70,
-                width: 220,
+                offsetX: 550,
+                offsetY: 300,
+                width: 250,
                 height: 150,
                 zIndex: getZIndex()
             },
