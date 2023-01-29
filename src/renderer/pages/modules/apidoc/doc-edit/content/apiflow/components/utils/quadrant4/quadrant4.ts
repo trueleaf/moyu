@@ -1201,31 +1201,31 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
         result.width = Math.abs(endPoint.x - startPoint.x) + 2 * padding;
         result.height = Math.abs(endPoint.y - startPoint.y) + breakLineOffsetNode + 2 * padding;
         result.x = startPoint.x - padding;
-        result.y = endPoint.y - padding;
+        result.y = fromNode.styleInfo.offsetY - padding - breakLineOffsetNode;
         if (Math.abs(endPoint.x - startPoint.x) > Math.abs(endPoint.y - startPoint.y)) { //如图case1
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding - breakLineOffsetNode,
+                y: padding + breakLineOffsetNode,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width - breakLineOffsetNode - padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width - breakLineOffsetNode - padding,
                 y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: result.height - padding,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: result.width - padding,
-                y: padding,
+                y: result.height - padding,
             })
             const arrowList = getDrawArrowInfo({
                 x: result.width - padding,
-                y: padding
+                y: result.height - padding,
             }, {
                 position: "right",
                 arrowLength,
@@ -1234,26 +1234,165 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: result.height - padding * 2
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: result.height
+            }
         } else {
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding - breakLineOffsetNode,
+                y: padding + breakLineOffsetNode,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: padding,
-                y: result.height - padding,
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width - padding,
-                y: result.height - padding,
+                y: padding,
             })
             result.lineInfo.brokenLinePoints.push({
                 x: result.width - padding,
                 y: padding,
             })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding,
+            })
             const arrowList = getDrawArrowInfo({
                 x: result.width - padding,
-                y: padding
+                y: result.height - padding,
+            }, {
+                position: "bottom",
+                arrowLength,
+                arrowWidth
+            });
+            result.lineInfo.arrowInfo.p1 = arrowList[0];
+            result.lineInfo.arrowInfo.p2 = arrowList[1];
+            result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: result.height - padding * 2
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: result.height
+            }
+        }
+    }
+}
+//左侧线条
+const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
+    const { lineConfig: { padding, breakLineOffsetNode, arrowLength, arrowWidth }, fromNode, endPoint, startPoint } = options;
+    /*
+        示例如下：A点到B点范围内，线条方向共2种
+
+            |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|          |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+            |                                 |           |                                 |          |                                 |
+            |                                 |           |                                 |          |                                 |
+            |                                 |           |                                 |          |                                 |
+       A____|                                 |      A____| p1            case1             |     A____| p1          case2               |
+       |    | p1                              |      |    |                                 |     |    |                                 |
+       |    |                                 |      |    |                                 |     |    |    end                          |
+       |    |                                 |      |    |                                 |     |    |     |                           |
+       |    |                                 |      |    |                ______end        |     |    |     |                           |
+       |    |_________________________________|      |    |_______________|_________________|     |    |_____|___________________________|
+       |                                             |                    |                       |          |
+       |________                                     |____________________|                       |__________|
+       B
+    */
+    const P1 = {
+        x: startPoint.x,
+        y: startPoint.y
+    }
+    const A = {
+        y: startPoint.y
+    }
+    const B = {
+        y: fromNode.styleInfo.offsetY + fromNode.styleInfo.height + breakLineOffsetNode
+    }
+    const p1ToEndWidth = endPoint.x - P1.x;
+    const p1ToEndHeight = endPoint.y - P1.y;
+    if (endPoint.y > A.y && endPoint.y <= B.y) {
+        if (p1ToEndWidth > p1ToEndHeight) { //case1
+            result.width = Math.abs(endPoint.x - startPoint.x) + 2 * padding + breakLineOffsetNode;
+            result.height = fromNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
+            result.x = startPoint.x - padding - breakLineOffsetNode;
+            result.y = startPoint.y - padding
+            result.lineInfo.brokenLinePoints.push({
+                x: startPoint.x - result.x,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: endPoint.y - result.y,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: endPoint.y - result.y,
+            })
+            const arrowList = getDrawArrowInfo({
+                x: result.width - padding,
+                y: endPoint.y - result.y
+            }, {
+                position: "right",
+                arrowLength,
+                arrowWidth
+            });
+            result.lineInfo.arrowInfo.p1 = arrowList[0];
+            result.lineInfo.arrowInfo.p2 = arrowList[1];
+            result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: endPoint.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: endPoint.y - result.y + padding
+            }
+        } else {
+            result.width = Math.abs(endPoint.x - startPoint.x) + 2 * padding + breakLineOffsetNode;
+            result.height = fromNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding;
+            result.x = startPoint.x - padding - breakLineOffsetNode;
+            result.y = startPoint.y - padding
+            result.lineInfo.brokenLinePoints.push({
+                x: startPoint.x - result.x,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: endPoint.y - result.y,
+            })
+            const arrowList = getDrawArrowInfo({
+                x: result.width - padding,
+                y: endPoint.y - result.y
             }, {
                 position: "top",
                 arrowLength,
@@ -1262,106 +1401,15 @@ const drawTopLineWhenDrag = (result: ResultRect, options: Options) => {
             result.lineInfo.arrowInfo.p1 = arrowList[0];
             result.lineInfo.arrowInfo.p2 = arrowList[1];
             result.lineInfo.arrowInfo.p3 = arrowList[2];
-        }
-    }
-}
-//左侧线条
-const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
-    const { lineConfig: { padding, arrowLength, arrowWidth }, fromNode, endPoint } = options;
-    /*
-                 示例如下：
-                 |‾‾‾‾‾‾‾‾‾‾‾‾‾|                      |‾‾‾‾‾‾‾‾‾‾‾‾‾|
-                 |             |                      |             |
-           |-----| p  case1    |                |-----| p  case2    |
-           |     |             |                |     |             |
-           |     |_____________|          ______|     |_____________|
-           |                             end
-           |
-          end
-    */
-    const p = {
-        x: fromNode.styleInfo.offsetX,
-        y: fromNode.styleInfo.height / 2 + fromNode.styleInfo.offsetY
-    }
-    const endPWidth = Math.abs(endPoint.x - p.x);
-    const endPHeight = Math.abs(endPoint.y - p.y);
-    if (endPHeight > endPWidth) { //case1
-        result.width = Math.abs(endPoint.x - p.x) + 2 * padding;
-        result.height = Math.abs(endPoint.y - p.y) + 2 * padding;
-        result.x = endPoint.x - padding;
-        result.y = p.y - padding
-        result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
-            y: padding,
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding,
-            y: padding,
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding,
-            y: result.height - padding - arrowLength
-        })
-        const arrowList = getDrawArrowInfo({
-            x: padding,
-            y: result.height - padding - arrowLength
-        }, {
-            position: "bottom",
-            arrowLength,
-            arrowWidth
-        });
-        result.lineInfo.arrowInfo.p1 = arrowList[0];
-        result.lineInfo.arrowInfo.p2 = arrowList[1];
-        result.lineInfo.arrowInfo.p3 = arrowList[2];
-        //修正可拖拽区域
-        result.lineInfo.arrowInfo.leftTopPoint = {
-            x: 0,
-            y: result.height - 2 * padding
-        }
-        result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: 2 * padding,
-            y: result.height
-        }
-    } else {
-        result.width = Math.abs(endPoint.x - p.x) + 2 * padding;
-        result.height = Math.abs(endPoint.y - p.y) + 2 * padding;
-        result.x = endPoint.x - padding;
-        result.y = p.y - padding
-        result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
-            y: padding,
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: result.width / 2,
-            y: padding,
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: result.width / 2,
-            y: result.height - padding,
-        })
-        result.lineInfo.brokenLinePoints.push({
-            x: padding,
-            y: result.height - padding
-        })
-        const arrowList = getDrawArrowInfo({
-            x: padding,
-            y: result.height - padding
-        }, {
-            position: "left",
-            arrowLength,
-            arrowWidth
-        });
-        result.lineInfo.arrowInfo.p1 = arrowList[0];
-        result.lineInfo.arrowInfo.p2 = arrowList[1];
-        result.lineInfo.arrowInfo.p3 = arrowList[2];
-        //修正可拖拽区域
-        result.lineInfo.arrowInfo.leftTopPoint = {
-            x: 0,
-            y: result.height - 2 * padding
-        }
-        result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: 2 * padding,
-            y: result.height
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: endPoint.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: endPoint.y - result.y + padding
+            }
         }
     }
 }
