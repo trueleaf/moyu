@@ -18,7 +18,6 @@ module.exports = {
     ],
     parserOptions: {
         ecmaVersion: 2020,
-        parser: '@typescript-eslint/parser',
     },
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
@@ -32,7 +31,8 @@ module.exports = {
             "off",
             { packageDir: "./build/" },
         ],
-        indent: [2, 4], //强制为4格缩进
+        indent: "off",
+        "@typescript-eslint/indent": ["error"],
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",
         quotes: [
