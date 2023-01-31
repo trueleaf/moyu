@@ -1411,6 +1411,121 @@ const drawLeftLineWhenDrag = (result: ResultRect, options: Options) => {
                 y: endPoint.y - result.y + padding
             }
         }
+    } else if (endPoint.y <= A.y || endPoint.y > B.y) {
+    /*
+        示例如下：A点到B点范围外，线条方向共2种
+
+            |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|           |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|          |‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+            |                                 |           |                                 |          |                                 |
+            |                                 |           |                                 |          |                                 |
+            |                                 |           |                                 |          |                                 |
+       A____|                                 |      A____| p1            case1             |     A____| p1          case2               |
+       |    | p1                              |      |    |                                 |     |    |                                 |
+       |    |                                 |      |    |                                 |     |    |                                 |
+       |    |                                 |      |    |                                 |     |    |                                 |
+       |    |                                 |      |    |                                 |     |    |                                 |
+       |    |_________________________________|      |    |_________________________________|     |    |_________________________________|
+       |                                             |                                            |
+       |________                                     |                                            |
+       B                                             |_____________________________end            |
+                                                                                                  |
+                                                                                                  |______________
+                                                                                                                |
+                                                                                                                |
+                                                                                                                |
+                                                                                                               end
+    */
+        result.width = Math.abs(endPoint.x - startPoint.x) + 2 * padding + breakLineOffsetNode;
+        result.height = Math.abs(endPoint.y - startPoint.y) + 2 * padding;
+        result.x = startPoint.x - padding - breakLineOffsetNode;
+        result.y = startPoint.y - padding
+        if (p1ToEndWidth > p1ToEndHeight) { //case1
+            result.lineInfo.brokenLinePoints.push({
+                x: startPoint.x - result.x,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: result.height - padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding - breakLineOffsetNode,
+                y: endPoint.y - result.y,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: endPoint.y - result.y,
+            })
+            const arrowList = getDrawArrowInfo({
+                x: result.width - padding,
+                y: endPoint.y - result.y
+            }, {
+                position: "right",
+                arrowLength,
+                arrowWidth
+            });
+            result.lineInfo.arrowInfo.p1 = arrowList[0];
+            result.lineInfo.arrowInfo.p2 = arrowList[1];
+            result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: endPoint.y - result.y - padding
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: endPoint.y - result.y + padding
+            }
+        } else {
+            result.lineInfo.brokenLinePoints.push({
+                x: startPoint.x - result.x,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: padding,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: result.height - padding - arrowLength,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding - arrowLength,
+            })
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: endPoint.y - result.y,
+            })
+            const arrowList = getDrawArrowInfo({
+                x: result.width - padding,
+                y: result.height - padding
+            }, {
+                position: "bottom",
+                arrowLength,
+                arrowWidth
+            });
+            result.lineInfo.arrowInfo.p1 = arrowList[0];
+            result.lineInfo.arrowInfo.p2 = arrowList[1];
+            result.lineInfo.arrowInfo.p3 = arrowList[2];
+            //修正可拖拽区域
+            result.lineInfo.arrowInfo.leftTopPoint = {
+                x: result.width - padding * 2,
+                y: result.height - padding * 2
+            }
+            result.lineInfo.arrowInfo.rightBottomPoint = {
+                x: result.width,
+                y: result.height
+            }
+        }
     }
 }
 //底部线条
