@@ -1540,13 +1540,12 @@ const drawBottomLineWhenDrag = (result: ResultRect, options: Options) => {
                |            |                     |             |
                |______p_____|                     |______p______|
                       |                                  |
-        ______________|                                  |
-       end                                               |
-                                           ______________|
-                                           |
-                                           |
-                                           |
-                                          end
+                      |                                  |
+                      |_______________ end               |______
+                                                                |
+                                                                |
+                                                                |
+                                                               end
     */
     const p = {
         x: fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2,
@@ -1554,28 +1553,28 @@ const drawBottomLineWhenDrag = (result: ResultRect, options: Options) => {
     }
     const endPWidth = Math.abs(endPoint.x - p.x);
     const endPHeight = Math.abs(endPoint.y - p.y);
+    result.width = Math.abs(endPoint.x - p.x) + 2 * padding;
+    result.height = Math.abs(endPoint.y - p.y) + 2 * padding;
+    result.x = p.x - padding;
+    result.y = p.y - padding
     if (endPWidth * 0.618 > endPHeight) { //case1
-        result.width = Math.abs(endPoint.x - p.x) + 2 * padding;
-        result.height = Math.abs(endPoint.y - p.y) + 2 * padding;
-        result.x = endPoint.x - padding;
-        result.y = p.y - padding
         result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
+            x: padding,
             y: padding,
         })
         result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
+            x: padding,
             y: result.height - padding,
         })
         result.lineInfo.brokenLinePoints.push({
-            x: padding,
+            x: result.width - padding,
             y: result.height - padding
         })
         const arrowList = getDrawArrowInfo({
-            x: padding,
+            x: result.width - padding,
             y: result.height - padding
         }, {
-            position: "left",
+            position: "right",
             arrowLength,
             arrowWidth
         });
@@ -1584,36 +1583,32 @@ const drawBottomLineWhenDrag = (result: ResultRect, options: Options) => {
         result.lineInfo.arrowInfo.p3 = arrowList[2];
         //修正可拖拽区域
         result.lineInfo.arrowInfo.leftTopPoint = {
-            x: 0,
-            y: result.height - 2 * padding
+            x: result.width - padding * 2,
+            y: result.height - padding * 2
         }
         result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: 2 * padding,
+            x: result.width,
             y: result.height
         }
     } else {
-        result.width = Math.abs(endPoint.x - p.x) + 2 * padding;
-        result.height = Math.abs(endPoint.y - p.y) + 2 * padding;
-        result.x = endPoint.x - padding;
-        result.y = p.y - padding
         result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
+            x: padding,
             y: padding,
         })
         result.lineInfo.brokenLinePoints.push({
-            x: result.width - padding,
+            x: padding,
             y: result.height / 2,
         })
         result.lineInfo.brokenLinePoints.push({
-            x: padding,
+            x: result.width - padding,
             y: result.height / 2
         })
         result.lineInfo.brokenLinePoints.push({
-            x: padding,
+            x: result.width - padding,
             y: result.height - padding
         })
         const arrowList = getDrawArrowInfo({
-            x: padding,
+            x: result.width - padding,
             y: result.height - padding
         }, {
             position: "bottom",
@@ -1625,11 +1620,11 @@ const drawBottomLineWhenDrag = (result: ResultRect, options: Options) => {
         result.lineInfo.arrowInfo.p3 = arrowList[2];
         //修正可拖拽区域
         result.lineInfo.arrowInfo.leftTopPoint = {
-            x: 0,
-            y: result.height - 2 * padding
+            x: result.width - padding * 2,
+            y: result.height - padding * 2
         }
         result.lineInfo.arrowInfo.rightBottomPoint = {
-            x: 2 * padding,
+            x: result.width,
             y: result.height
         }
     }
