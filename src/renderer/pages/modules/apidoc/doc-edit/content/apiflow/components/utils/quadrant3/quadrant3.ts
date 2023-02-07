@@ -344,11 +344,16 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
             y: 0,
         };
         if (stickyNodePosition === "left") {
-            const gapY = toNode.styleInfo.offsetY - fromNode.styleInfo.offsetY
+            const gapY = toNode.styleInfo.offsetY - fromNode.styleInfo.offsetY;
+            const gapX = fromNode.styleInfo.offsetX - toNode.styleInfo.offsetX;
             result.width = Math.abs(stickyArea.leftArea.pointX - startPoint.x) + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.leftArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.leftArea.pointX - padding - breakLineOffsetNode;
             result.y = startPoint.y - padding - breakLineOffsetNode;
+            if (gapX < 0) {
+                result.x = fromNode.styleInfo.offsetX - breakLineOffsetNode - padding;
+                result.width = fromNode.styleInfo.width / 2 + breakLineOffsetNode + padding * 2;
+            }
             result.lineInfo.brokenLinePoints = [];
             if (gapY < 0) {
                 result.y = toNode.styleInfo.offsetY - breakLineOffsetNode - padding;
@@ -371,10 +376,10 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
                 y: result.height - padding
             });
             result.lineInfo.brokenLinePoints.push({
-                x: padding + breakLineOffsetNode - arrowLength,
+                x: stickyArea.leftArea.pointX - result.x - arrowLength,
                 y: result.height - padding
             });
-            lineEndPoint.x = padding + breakLineOffsetNode - arrowLength;
+            lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
             lineEndPoint.y = result.height - padding;
             result.isConnectedNode = true
             result.connectedPosition = "left";
@@ -530,7 +535,7 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
                 lineEndPoint.x = padding + arrowLength;
                 lineEndPoint.y = result.height - padding;
             } else {
-                result.width = fromNode.styleInfo.width + breakLineOffsetNode + 2 * padding;
+                result.width = Math.abs(stickyArea.rightArea.pointX - startPoint.x) + fromNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
                 result.x = stickyArea.rightArea.pointX - padding;
                 if (gapY < 0) {
                     result.y = toNode.styleInfo.offsetY - padding - breakLineOffsetNode;
