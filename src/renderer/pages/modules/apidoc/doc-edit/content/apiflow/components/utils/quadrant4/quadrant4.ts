@@ -303,8 +303,32 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
             result.y = startPoint.y - padding - breakLineOffsetNode;
             result.lineInfo.brokenLinePoints = [];
             if (gapX < 0) {
-                result.y = toNode.styleInfo.offsetY - breakLineOffsetNode - padding;
-                result.height = toNode.styleInfo.height / 2 + 2 * padding + breakLineOffsetNode;
+                result.width = Math.abs(fromNode.styleInfo.offsetX - breakLineOffsetNode - stickyArea.leftArea.pointX) + 2 * padding;
+                result.x = fromNode.styleInfo.offsetX - breakLineOffsetNode - padding;
+                result.y = fromNode.styleInfo.offsetY - breakLineOffsetNode - padding;
+                result.height = Math.abs(fromNode.styleInfo.offsetY - breakLineOffsetNode - stickyArea.leftArea.pointY) + 2 * padding;
+                result.lineInfo.brokenLinePoints.push({
+                    x: startPoint.x - result.x,
+                    y: startPoint.y - result.y
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: startPoint.x - result.x,
+                    y: padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: padding
+                })
+                result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: result.height - padding
+                })
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width - padding - arrowLength,
+                    y: result.height - padding
+                })
+                lineEndPoint.x = result.width - padding - arrowLength;
+                lineEndPoint.y = result.height - padding;
             } else if (gapX > 2 * breakLineOffsetNode) {
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
@@ -357,85 +381,80 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
         } else if (stickyNodePosition === "top") {
             result.width = Math.abs(stickyArea.topArea.pointX - startPoint.x) + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
-            result.x = stickyArea.topArea.pointX - padding;
+            result.x = startPoint.x - padding;
             result.y = startPoint.y - padding - breakLineOffsetNode;
             result.lineInfo.brokenLinePoints = [];
             result.lineInfo.brokenLinePoints.push({
-                x: result.width - padding,
+                x: padding,
                 y: startPoint.y - result.y
             });
             result.lineInfo.brokenLinePoints.push({
-                x: result.width - padding,
+                x: padding,
                 y: padding
             })
             result.lineInfo.brokenLinePoints.push({
-                x: padding,
+                x: result.width - padding,
                 y: padding
             });
             result.lineInfo.brokenLinePoints.push({
-                x: padding,
+                x: result.width - padding,
                 y: result.height - padding - arrowLength
             });
-            lineEndPoint.x = padding;
+            lineEndPoint.x = result.width - padding;
             lineEndPoint.y = result.height - padding - arrowLength;
             result.isConnectedNode = true
             result.connectedPosition = "top";
         } else if (stickyNodePosition === "bottom") {
-            const gapX = fromNode.styleInfo.offsetX - toNode.styleInfo.offsetX - toNode.styleInfo.width
-            const gapY = toNode.styleInfo.offsetY - fromNode.styleInfo.offsetY
+            const gapX = toNode.styleInfo.offsetX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width
             result.width = Math.abs(stickyArea.bottomArea.pointX - startPoint.x) + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.bottomArea.pointY) + 2 * padding + breakLineOffsetNode * 2;
-            result.x = stickyArea.bottomArea.pointX - padding;
+            result.x = startPoint.x - padding;
             result.y = startPoint.y - padding - breakLineOffsetNode;
             result.lineInfo.brokenLinePoints = [];
             if (gapX > 0) {
                 result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
+                    x: padding,
                     y: startPoint.y - result.y
                 });
                 result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width / 2,
+                    y: padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width / 2,
+                    y: result.height - padding
+                });
+                result.lineInfo.brokenLinePoints.push({
                     x: result.width - padding,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width / 2,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width / 2,
                     y: result.height - padding
                 });
                 result.lineInfo.brokenLinePoints.push({
-                    x: padding,
-                    y: result.height - padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding,
+                    x: result.width - padding,
                     y: result.height - padding - breakLineOffsetNode + arrowLength
                 });
-                lineEndPoint.x = padding;
+                lineEndPoint.x = result.width - padding;
                 lineEndPoint.y = result.height - padding - breakLineOffsetNode + arrowLength;
             } else {
-                if (gapY < 0) {
-                    result.height = toNode.styleInfo.height + 2 * padding + 2 * breakLineOffsetNode;
-                    result.y = toNode.styleInfo.offsetY - breakLineOffsetNode - padding;
-                }
-                result.width = Math.abs(startPoint.x - toNode.styleInfo.offsetX + breakLineOffsetNode) + 2 * padding;
-                result.x = toNode.styleInfo.offsetX - breakLineOffsetNode - padding;
+                result.width = Math.abs(toNode.styleInfo.offsetX + toNode.styleInfo.width - startPoint.x + breakLineOffsetNode) + 2 * padding;
+                result.x = startPoint.x - padding;
                 result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
+                    x: padding,
                     y: startPoint.y - result.y
                 });
                 result.lineInfo.brokenLinePoints.push({
+                    x: padding,
+                    y: padding
+                });
+                result.lineInfo.brokenLinePoints.push({
                     x: result.width - padding,
                     y: padding
                 });
                 result.lineInfo.brokenLinePoints.push({
-                    x: padding,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding,
+                    x: result.width - padding,
                     y: result.height - padding
                 });
                 result.lineInfo.brokenLinePoints.push({
@@ -452,94 +471,42 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "bottom";
         } else if (stickyNodePosition === "right") {
-            const gapX = fromNode.styleInfo.offsetX - toNode.styleInfo.offsetX - toNode.styleInfo.width;
+            const gapX = toNode.styleInfo.offsetX + toNode.styleInfo.width - fromNode.styleInfo.offsetX - fromNode.styleInfo.width;
             const gapY = toNode.styleInfo.offsetY - fromNode.styleInfo.offsetY;
-            result.width = Math.abs(stickyArea.rightArea.pointX - startPoint.x) + 2 * padding;
+            result.width = Math.abs(stickyArea.rightArea.pointX - startPoint.x) + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding + breakLineOffsetNode;
-            result.x = stickyArea.rightArea.pointX - padding;
+            result.x = startPoint.x - padding;
             result.y = startPoint.y - padding - breakLineOffsetNode;
-            result.lineInfo.brokenLinePoints = [];
-            if (gapX > 2 * (breakLineOffsetNode + arrowLength)) {
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: breakLineOffsetNode + padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + breakLineOffsetNode + arrowLength,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + breakLineOffsetNode + arrowLength,
-                    y: result.height - padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + arrowLength,
-                    y: result.height - padding
-                });
-                lineEndPoint.x = padding + arrowLength;
-                lineEndPoint.y = result.height - padding;
-            } else if (gapX > 0) {
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: breakLineOffsetNode + padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + gapX / 2,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + gapX / 2,
-                    y: result.height - padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + arrowLength,
-                    y: result.height - padding
-                });
-                lineEndPoint.x = padding + arrowLength;
-                lineEndPoint.y = result.height - padding;
-            } else {
-                result.width = fromNode.styleInfo.width + breakLineOffsetNode + 2 * padding;
-                result.x = stickyArea.rightArea.pointX - padding;
-                if (gapY < 0) {
-                    result.y = toNode.styleInfo.offsetY - padding - breakLineOffsetNode;
-                    result.height = toNode.styleInfo.height / 2 + 2 * padding + breakLineOffsetNode;
-                    result.lineInfo.brokenLinePoints.push({
-                        x: startPoint.x - result.x,
-                        y: fromNode.styleInfo.offsetY - result.y
-                    });
-                } else {
-                    result.lineInfo.brokenLinePoints.push({
-                        x: startPoint.x - result.x,
-                        y: breakLineOffsetNode + padding
-                    });
-                }
-                result.lineInfo.brokenLinePoints.push({
-                    x: startPoint.x - result.x,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: result.width - padding,
-                    y: result.height - padding
-                });
-                result.lineInfo.brokenLinePoints.push({
-                    x: padding + arrowLength,
-                    y: result.height - padding
-                });
-                lineEndPoint.x = padding + arrowLength;
-                lineEndPoint.y = result.height - padding;
+            if (gapX < 0) {
+                result.width = fromNode.styleInfo.width / 2 + 2 * padding + breakLineOffsetNode;
             }
+            if (gapY < 0) {
+                result.y = toNode.styleInfo.offsetY - breakLineOffsetNode - padding
+                result.height = toNode.styleInfo.height / 2 + 2 * padding + breakLineOffsetNode;
+            }
+            result.lineInfo.brokenLinePoints = [];
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: startPoint.y - result.y
+            });
+            result.lineInfo.brokenLinePoints.push({
+                x: padding,
+                y: padding
+            });
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: padding
+            });
+            result.lineInfo.brokenLinePoints.push({
+                x: result.width - padding,
+                y: result.height - padding
+            });
+            result.lineInfo.brokenLinePoints.push({
+                x: stickyArea.rightArea.pointX - startPoint.x + padding + arrowLength,
+                y: result.height - padding
+            });
+            lineEndPoint.x = stickyArea.rightArea.pointX - startPoint.x + padding + arrowLength;
+            lineEndPoint.y = result.height - padding;
             result.isConnectedNode = true
             result.connectedPosition = "right";
         }
