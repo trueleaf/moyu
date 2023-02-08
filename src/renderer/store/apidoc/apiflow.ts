@@ -22,17 +22,21 @@ type AddIncomingInfo = {
     /**
      * 当前需要挂载节点id
      */
-     nodeId: string,
-     /**
-      * 出线id
-      */
-     lineId: string,
+    nodeId: string,
+    /**
+     * 出线id
+     */
+    lineId: string,
 }
 
 const apiflow = {
     namespaced: true,
     state: {
         currentDragLineId: "",
+        mouseIncreateLineDotInfo: {
+            nodeId: "",
+            position: "left"
+        },
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
