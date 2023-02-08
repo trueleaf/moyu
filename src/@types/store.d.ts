@@ -278,23 +278,23 @@ type ApidocProjectBaseInfoState = {
 };
 //=========================================================================//
 type ApidocTabType =
-"doc" |
-"config" |
-"paramsTemplate" |
-"onlineLink" |
-"exportDoc" |
-"importDoc" |
-"history" |
-"variable" |
-"mock" |
-"recycler" |
-"guide" |
-"mindParams" |
-"hook" |
-"package" |
-"commonHeader" |
-"apiflow" |
-"prefix"
+    "doc" |
+    "config" |
+    "paramsTemplate" |
+    "onlineLink" |
+    "exportDoc" |
+    "importDoc" |
+    "history" |
+    "variable" |
+    "mock" |
+    "recycler" |
+    "guide" |
+    "mindParams" |
+    "hook" |
+    "package" |
+    "commonHeader" |
+    "apiflow" |
+    "prefix"
 //tabs导航
 
 type ApidocTab = {
@@ -640,12 +640,27 @@ type ApidocApiflowContainerInfo = {
      * 容器高度
      */
     height: number,
+    /**
+     * 引出线条节点大小
+     */
+    createLineNodeSize: number;
+    /**
+     * 节点放大缩小节点大小
+     */
+    resizeNodeSize: number;
 };
 type ApidocApiflowState = {
     /**
      * 当前被点击dot的节点
      */
     currentSelectedDotId: string,
+    /**
+     * 鼠标在引出线条dot上面信息
+     */
+    mouseIncreateLineDotInfo: {
+        nodeId: string;
+        position: "left" | "top" | "right" | "bottom"
+    };
     /**
      * 鼠标是否在线条箭头上面
      */
