@@ -186,3 +186,7 @@ export const getContraryPosition = (position: Position): Position => {
     }
     return "left"
 }
+//返回节点上下左右四个连接点区域
+export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): void {
+    console.log(nodeInfo)
+}

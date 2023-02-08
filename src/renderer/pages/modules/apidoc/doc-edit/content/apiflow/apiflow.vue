@@ -64,6 +64,8 @@ const initWidgets = () => {
             y: Math.floor(clientRect.y),
             width: clientRect.width,
             height: clientRect.height,
+            createLineNodeSize: 18,
+            resizeNodeSize: 15,
         });
         store.commit("apidoc/apiflow/addNode", startNode)
         store.commit("apidoc/apiflow/addNode", {
@@ -83,11 +85,12 @@ const initWidgets = () => {
         console.warn("容器不存在");
     }
 }
-//线条上面鼠标移动(仅在节点上面生效)
-const handleCheckMouseIsInArrow = (e: MouseEvent) => {
+//鼠标移动时，检测是否到达关键节点
+const handleMouseMove = (e: MouseEvent) => {
     const nodes = apiflowList.value;
     const lines: ApidocApiflowLineInfo[] = [];
     nodes.forEach(node => {
+        console.log(2, node)
         node.outcomings.forEach(line => {
             lines.push(line)
         })
@@ -95,9 +98,9 @@ const handleCheckMouseIsInArrow = (e: MouseEvent) => {
     for (let i = 0; i < lines.length; i += 1) {
         const line = lines[i];
         const { arrowInfo: { leftTopPoint, rightBottomPoint } } = line;
-        const isXIn = e.clientX >= leftTopPoint.clientX && e.clientX <= rightBottomPoint.clientX
-        const isYIn = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY
-        if (isXIn && isYIn) {
+        const isXInLineArrow = e.clientX >= leftTopPoint.clientX && e.clientX <= rightBottomPoint.clientX
+        const isYInLineArrow = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY
+        if (isXInLineArrow && isYInLineArrow) { //鼠标是否在箭头上
             store.commit("apidoc/apiflow/changeIsMouseInLineArrow", true);
             currentDragLineId.value = line.id;
             break
@@ -116,12 +119,12 @@ const handleClearDragLineId = () => {
 }
 onMounted(() => {
     initWidgets();
-    document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseIsInArrow));
+    document.documentElement.addEventListener("mousemove", debounce(handleMouseMove));
     document.documentElement.addEventListener("mousedown", handleConfirmDragLineId);
     document.documentElement.addEventListener("mouseup", handleClearDragLineId);
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener("mousemove", handleCheckMouseIsInArrow);
+    document.documentElement.removeEventListener("mousemove", handleMouseMove);
     document.documentElement.removeEventListener("mousedown", handleConfirmDragLineId);
     document.documentElement.removeEventListener("mouseup", handleClearDragLineId);
 })

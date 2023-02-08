@@ -20,16 +20,100 @@
         @contextmenu="handleOpenContextmenu"
     >
         <template v-if="isSelectedNode">
-            <div class="rect lt" @mousedown.stop="handleResizeNodeMousedown($event, 'leftTop')"></div>
-            <div class="rect rt" @mousedown.stop="handleResizeNodeMousedown($event, 'rightTop')"></div>
-            <div class="rect lb" @mousedown.stop="handleResizeNodeMousedown($event, 'leftBottom')"></div>
-            <div class="rect rb" @mousedown.stop="handleResizeNodeMousedown($event, 'rightBottom')"></div>
+            <div
+                class="rect lt"
+                :style="{
+                    width: containerInfo.resizeNodeSize + 'px',
+                    height: containerInfo.resizeNodeSize + 'px',
+                    left: -containerInfo.resizeNodeSize/2 + 'px',
+                    top: -containerInfo.resizeNodeSize/2 + 'px',
+                }"
+                @mousedown.stop="handleResizeNodeMousedown($event, 'leftTop')"
+            >
+            </div>
+            <div
+                class="rect rt"
+                :style="{
+                    width: containerInfo.resizeNodeSize + 'px',
+                    height: containerInfo.resizeNodeSize + 'px',
+                    top: -containerInfo.resizeNodeSize / 2 + 'px',
+                    right: -containerInfo.resizeNodeSize / 2 + 'px',
+                }"
+                @mousedown.stop="handleResizeNodeMousedown($event, 'rightTop')"
+            >
+            </div>
+            <div
+                class="rect lb"
+                :style="{
+                    width: containerInfo.resizeNodeSize + 'px',
+                    height: containerInfo.resizeNodeSize + 'px',
+                    left: -containerInfo.resizeNodeSize / 2 + 'px',
+                    bottom: -containerInfo.resizeNodeSize / 2 + 'px',
+                }"
+                @mousedown.stop="handleResizeNodeMousedown($event, 'leftBottom')"
+            >
+            </div>
+            <div
+                class="rect rb"
+                :style="{
+                    width: containerInfo.resizeNodeSize + 'px',
+                    height: containerInfo.resizeNodeSize + 'px',
+                    bottom: -containerInfo.resizeNodeSize / 2 + 'px',
+                    right: -containerInfo.resizeNodeSize / 2 + 'px',
+                }"
+                @mousedown.stop="handleResizeNodeMousedown($event, 'rightBottom')"
+            >
+            </div>
         </template>
         <template v-if="1 || isMouseInNode">
-            <div :style="{zIndex: dotZIndex}" class="dot left" @mousedown.stop="handleMouseDownDot($event, 'left')"></div>
-            <div :style="{zIndex: dotZIndex}" class="dot right" @mousedown.stop="handleMouseDownDot($event, 'right')"></div>
-            <div :style="{zIndex: dotZIndex}" class="dot top" @mousedown.stop="handleMouseDownDot($event, 'top')"></div>
-            <div :style="{zIndex: dotZIndex}" class="dot bottom" @mousedown.stop="handleMouseDownDot($event, 'bottom')"></div>
+            <div
+                class="dot left"
+                :style="{
+                    zIndex: dotZIndex,
+                    width: containerInfo.createLineNodeSize + 'px',
+                    height: containerInfo.createLineNodeSize + 'px',
+                    left: -containerInfo.createLineNodeSize / 2 + 'px',
+                    top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                }"
+                @mousedown.stop="handleMouseDownDot($event, 'left')"
+            >
+            </div>
+            <div
+                class="dot right"
+                :style="{
+                    zIndex: dotZIndex,
+                    width: containerInfo.createLineNodeSize + 'px',
+                    height: containerInfo.createLineNodeSize + 'px',
+                    right: -containerInfo.createLineNodeSize / 2 + 'px',
+                    top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                }"
+                @mousedown.stop="handleMouseDownDot($event, 'right')"
+            >
+            </div>
+            <div
+                class="dot top"
+                :style="{
+                    zIndex: dotZIndex,
+                    width: containerInfo.createLineNodeSize + 'px',
+                    height: containerInfo.createLineNodeSize + 'px',
+                    top: -containerInfo.createLineNodeSize / 2 + 'px',
+                    left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                }"
+                @mousedown.stop="handleMouseDownDot($event, 'top')"
+            >
+            </div>
+            <div
+                class="dot bottom"
+                :style="{
+                    zIndex: dotZIndex,
+                    width: containerInfo.createLineNodeSize + 'px',
+                    height: containerInfo.createLineNodeSize + 'px',
+                    bottom: -containerInfo.createLineNodeSize / 2 + 'px',
+                    left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                }"
+                @mousedown.stop="handleMouseDownDot($event, 'bottom')"
+            >
+            </div>
         </template>
         <teleport to="body">
             <!-- 多个节点操作 -->
@@ -54,7 +138,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onUnmounted, ref, Ref, computed, inject } from "vue";
+import { onUnmounted, ref, Ref, computed, inject, onMounted } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
@@ -74,6 +158,7 @@ const props = defineProps({
 |--------------------------------------------------------------------------
 */
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
+const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
@@ -292,24 +377,24 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
     mousedownNodeY.value = nodeOffsetY.value;
     resizeDirection.value = direction;
     switch (direction) {
-    case "leftTop":
-        nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
-        nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
-        break;
-    case "rightTop":
-        nodeFixedX.value = nodeOffsetX.value
-        nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
-        break;
-    case "leftBottom":
-        nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
-        nodeFixedY.value = nodeOffsetY.value
-        break;
-    case "rightBottom":
-        nodeFixedX.value = nodeOffsetX.value
-        nodeFixedY.value = nodeOffsetY.value
-        break;
-    default:
-        break;
+        case "leftTop":
+            nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+            nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
+            break;
+        case "rightTop":
+            nodeFixedX.value = nodeOffsetX.value
+            nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
+            break;
+        case "leftBottom":
+            nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+            nodeFixedY.value = nodeOffsetY.value
+            break;
+        case "rightBottom":
+            nodeFixedX.value = nodeOffsetX.value
+            nodeFixedY.value = nodeOffsetY.value
+            break;
+        default:
+            break;
     }
 }
 //縮放节点鼠标移动(改变大小)
@@ -428,11 +513,13 @@ const handleClickGlobal = () => {
     isSelectedNode.value = false;
     contextmenuVisible.value = false;
 }
-document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
-document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
-document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
-document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
-document.documentElement.addEventListener("click", handleClickGlobal);
+onMounted(() => {
+    document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
+    document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
+    document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
+    document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
+    document.documentElement.addEventListener("click", handleClickGlobal);
+})
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
     document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
@@ -453,59 +540,39 @@ $dotHeight: 18;
     user-select: none;
     background-color: $white;
     .rect {
-        width: size($dotWidth);
-        height: size($dotHeight);
         border: 1px solid $theme-color;
         position: absolute;
         cursor: pointer;
         background-color: $white;
         &.lt { //左上
-            top: -(size(calc($dotWidth/2)));
-            left: -(size(calc($dotWidth/2)));
             cursor: se-resize;
         }
         &.rt { //右上
-            top: -(size(calc($dotWidth/2)));
-            right: -(size(calc($dotWidth/2)));
             cursor: ne-resize;
         }
         &.lb { //左下
-            bottom: -(size(calc($dotWidth/2)));
-            left: -(size(calc($dotWidth/2)));
             cursor: sw-resize;
         }
         &.rb { //右下
-            bottom: -(size(calc($dotWidth/2)));
-            right: -(size(calc($dotWidth/2)));
             cursor: se-resize;
         }
     }
     .dot {
-        width: size($dotWidth);
-        height: size($dotHeight);
         border-radius: 50%;
         border: 1px solid $theme-color;
         position: absolute;
         cursor: pointer;
         background-color: $white;
         &.left { //左
-            top: calc(50% - size(calc($dotHeight / 2)));
-            left: -(size(calc($dotWidth/2)));
             cursor: crosshair;
         }
         &.right { //右
-            top: calc(50% - size(calc($dotHeight / 2)));
-            right: -(size(calc($dotWidth/2)));
             cursor: crosshair;
         }
         &.top { //上
-            top: -(size(calc($dotHeight/2)));
-            left: calc(50% - size(calc($dotHeight / 2)));
             cursor: crosshair;
         }
         &.bottom { //下
-            bottom: -(size(calc($dotWidth/2)));
-            left: calc(50% - size(calc($dotWidth / 2)));;
             cursor: crosshair;
         }
     }

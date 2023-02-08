@@ -68,7 +68,7 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLine
     ctx.beginPath();
     // ctx.fillRect(drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.leftTopPoint.y, drawInfo.lineInfo.arrowInfo.rightBottomPoint.x - drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.rightBottomPoint.y - drawInfo.lineInfo.arrowInfo.leftTopPoint.y)
     ctx.closePath()
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.lineCap = "round";
     for (let i = 0; i < brokenLinePoints.length - 1; i += 1) {
         const point = brokenLinePoints[i];
