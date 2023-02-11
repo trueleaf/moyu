@@ -27,6 +27,7 @@ import type { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
+import { getCreateLineArea } from "./components/utils/common/common";
 
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
@@ -90,7 +91,7 @@ const handleMouseMove = (e: MouseEvent) => {
     const nodes = apiflowList.value;
     const lines: ApidocApiflowLineInfo[] = [];
     nodes.forEach(node => {
-        console.log(2, node)
+        getCreateLineArea(node)
         node.outcomings.forEach(line => {
             lines.push(line)
         })

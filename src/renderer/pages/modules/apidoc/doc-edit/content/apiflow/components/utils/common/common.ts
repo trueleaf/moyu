@@ -4,7 +4,9 @@
 |--------------------------------------------------------------------------
 */
 
+import { store } from "@/store";
 import { ApidocApiflowNodeInfo } from "@@/store";
+import { computed } from "vue";
 import { Coordinate } from "../utils";
 
 type OffsetCoordinate = {
@@ -16,6 +18,8 @@ type StickyAreaPosition = {
     startPoint: Coordinate
 }
 type Position = "left" | "top" | "right" | "bottom"
+
+const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 export type StickyArea = {
     leftArea: {
         pointX: number,
@@ -187,6 +191,44 @@ export const getContraryPosition = (position: Position): Position => {
     return "left"
 }
 //返回节点上下左右四个连接点区域
-export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): void {
-    console.log(nodeInfo)
+export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
+    const { createLineNodeSize } = containerInfo.value
+    const leftArea = {
+        pointX: nodeInfo.styleInfo.offsetX,
+        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
+        offsetX: nodeInfo.styleInfo.offsetX - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + createLineNodeSize,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineNodeSize,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineNodeSize,
+    }
+    const rightArea = {
+        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
+        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineNodeSize,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineNodeSize,
+    }
+    const topArea = {
+        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
+        pointY: nodeInfo.styleInfo.offsetY,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize,
+        offsetY: nodeInfo.styleInfo.offsetY - createLineNodeSize,
+        offsetY2: nodeInfo.styleInfo.offsetY + createLineNodeSize,
+    }
+    const bottomArea = {
+        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
+        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - createLineNodeSize,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + createLineNodeSize,
+    }
+    return {
+        leftArea,
+        rightArea,
+        topArea,
+        bottomArea
+    }
 }
