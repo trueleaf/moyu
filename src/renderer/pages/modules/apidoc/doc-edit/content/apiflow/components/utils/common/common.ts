@@ -210,18 +210,18 @@ export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
         offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineNodeSize,
     }
     const topArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
+        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
         pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineNodeSize,
         offsetY: nodeInfo.styleInfo.offsetY - createLineNodeSize,
         offsetY2: nodeInfo.styleInfo.offsetY + createLineNodeSize,
     }
     const bottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
+        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineNodeSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineNodeSize,
         offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - createLineNodeSize,
         offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + createLineNodeSize,
     }

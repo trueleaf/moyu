@@ -864,15 +864,19 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
             result.connectedPosition = "bottom";
         } else if (stickyNodePosition === "right") {
             const gapX = stickyArea.rightArea.pointX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width
+            const gapY = toNode.styleInfo.offsetY + toNode.styleInfo.height - fromNode.styleInfo.offsetY - fromNode.styleInfo.height;
             result.width = fromNode.styleInfo.width / 2 + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.y = stickyArea.rightArea.pointY - padding;
             result.lineInfo.brokenLinePoints = [];
+            if (gapY > 0) {
+                result.height = toNode.styleInfo.height / 2 + 2 * padding + breakLineOffsetNode
+            }
             if (gapX > 0) {
                 result.width = Math.abs(startPoint.x - stickyArea.rightArea.pointX) + 2 * padding + breakLineOffsetNode;
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
-                    y: result.height - padding - breakLineOffsetNode
+                    y: startPoint.y - result.y
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
@@ -893,7 +897,7 @@ const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
             } else {
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
-                    y: result.height - padding - breakLineOffsetNode
+                    y: startPoint.y - result.y
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: startPoint.x - result.x,

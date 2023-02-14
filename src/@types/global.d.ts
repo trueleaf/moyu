@@ -1031,21 +1031,21 @@ type ApidocOperationRecord = {
      * 操作类型
      */
     operation:
-        | "addFolder"
-        | "addDoc"
-        | "copyDoc"
-        | "copyFolder"
-        | "deleteFolder"
-        | "deleteDoc"
-        | "deleteMany"
-        | "editDoc"
-        | "position"
-        | "rename"
-        | "import"
-        | "export"
-        | "addServer"
-        | "deleteServer"
-        | "editServer";
+    | "addFolder"
+    | "addDoc"
+    | "copyDoc"
+    | "copyFolder"
+    | "deleteFolder"
+    | "deleteDoc"
+    | "deleteMany"
+    | "editDoc"
+    | "position"
+    | "rename"
+    | "import"
+    | "export"
+    | "addServer"
+    | "deleteServer"
+    | "editServer";
     /**
      * 操作者
      */

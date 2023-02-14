@@ -192,11 +192,11 @@ type Config = {
         /**
          * 是否开启控制台欢迎文案
          */
-         consoleWelcome: boolean,
-         /**
-         * 客户端下载相关
-         */
-          download: {
+        consoleWelcome: boolean,
+        /**
+        * 客户端下载相关
+        */
+        download: {
             /**
              * 下载地址
              */
