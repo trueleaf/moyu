@@ -78,6 +78,11 @@ const apiflow = {
         changeCurrentDragLineId(state: ApidocApiflowState, currentDragLineId: string): void {
             state.currentDragLineId = currentDragLineId
         },
+        //当前鼠标是否在创建线条的圆点上面
+        changeMouseIncreateLineDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseIncreateLineDotInfo"]): void {
+            state.mouseIncreateLineDotInfo.nodeId = dotInfo.nodeId;
+            state.mouseIncreateLineDotInfo.position = dotInfo.position;
+        },
         /*
         |--------------------------------------------------------------------------
         | node相关操作

@@ -27,9 +27,10 @@ import type { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
-import { getCreateLineArea } from "./components/utils/common/common";
+import { getCreateLineArea, StickyArea } from "./components/utils/common/common";
 
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
+const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const currentDragLineId = ref("");
 const apiflow: Ref<HTMLElement | null> = ref(null);
@@ -61,8 +62,8 @@ const initWidgets = () => {
             incomings: []
         }
         store.commit("apidoc/apiflow/changeContainerInfo", {
-            x: Math.floor(clientRect.x),
-            y: Math.floor(clientRect.y),
+            clientX: Math.floor(clientRect.x),
+            clientY: Math.floor(clientRect.y),
             width: clientRect.width,
             height: clientRect.height,
             createLineNodeSize: 18,
@@ -86,12 +87,51 @@ const initWidgets = () => {
         console.warn("容器不存在");
     }
 }
+//鼠标是否在创建线条节点上
+const getMouseIsInCreateDot = (createLineArea: StickyArea, { x, y }: { x: number; y: number }) => {
+    const { leftArea, rightArea, topArea, bottomArea } = createLineArea;
+    if (x > leftArea.offsetX && x < leftArea.offsetX2 && y > leftArea.offsetY && y < leftArea.offsetY2) {
+        return "left";
+    }
+    if (x > rightArea.offsetX && x < rightArea.offsetX2 && y > rightArea.offsetY && y < rightArea.offsetY2) {
+        return "right";
+    }
+    if (x > topArea.offsetX && x < topArea.offsetX2 && y > topArea.offsetY && y < topArea.offsetY2) {
+        return "top";
+    }
+    if (x > bottomArea.offsetX && x < bottomArea.offsetX2 && y > bottomArea.offsetY && y < bottomArea.offsetY2) {
+        return "bottom";
+    }
+    return null;
+}
 //鼠标移动时，检测是否到达关键节点
 const handleMouseMove = (e: MouseEvent) => {
+    const mouseOffsetX = e.clientX - containerInfo.value.clientX
+    const mouseOffsetY = e.clientY - containerInfo.value.clientY
     const nodes = apiflowList.value;
     const lines: ApidocApiflowLineInfo[] = [];
+    //鼠标是否在创建线条节点上面
+    for (let i = 0; i < nodes.length; i += 1) {
+        const node = nodes[i];
+        const createLineArea = getCreateLineArea(node);
+        const mouseInCreateDotPosition = getMouseIsInCreateDot(createLineArea, {
+            x: mouseOffsetX,
+            y: mouseOffsetY
+        })
+        if (mouseInCreateDotPosition) {
+            store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
+                nodeId: node.id,
+                position: mouseInCreateDotPosition
+            })
+            break
+        }
+        store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
+            nodeId: "",
+            position: ""
+        })
+    }
+    //鼠标是否在线条上面
     nodes.forEach(node => {
-        getCreateLineArea(node)
         node.outcomings.forEach(line => {
             lines.push(line)
         })
