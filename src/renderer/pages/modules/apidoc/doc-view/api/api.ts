@@ -35,22 +35,22 @@ const axiosPlugin = {
                         code = res.data.code; //自定义请求状态码
                     }
                     switch (code) {
-                    case 0: //正确请求
-                        break;
-                    case 101005: //无效的的id和密码,跳转到验证页面
-                        break;
-                    case 4200: //代理错误
-                        return Promise.reject(new Error(res.data.msg));
-                    case 4002: //暂无权限
-                        ElMessage.warning(res.data.msg || "暂无权限");
-                        return Promise.reject(new Error(res.data.msg || "暂无权限"));
-                    default:
-                        ElMessageBox.confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
-                            confirmButtonText: "确定",
-                            showCancelButton: false,
-                            type: "warning",
-                        });
-                        return Promise.reject(new Error(res.data.msg));
+                        case 0: //正确请求
+                            break;
+                        case 101005: //无效的的id和密码,跳转到验证页面
+                            break;
+                        case 4200: //代理错误
+                            return Promise.reject(new Error(res.data.msg));
+                        case 4002: //暂无权限
+                            ElMessage.warning(res.data.msg || "暂无权限");
+                            return Promise.reject(new Error(res.data.msg || "暂无权限"));
+                        default:
+                            ElMessageBox.confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
+                                confirmButtonText: "确定",
+                                showCancelButton: false,
+                                type: "warning",
+                            });
+                            return Promise.reject(new Error(res.data.msg));
                     }
                     return result;
                 }

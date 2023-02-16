@@ -270,30 +270,30 @@ watch(() => dateRange.value, (val) => {
     let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
     let endTime: number | null = null;
     switch (val) {
-    case "1d":
-        endTime = Date.now();
-        break;
-    case "2d":
-        endTime = Date.now();
-        startTime = endTime - 86400000;
-        break;
-    case "3d":
-        endTime = Date.now();
-        startTime = endTime - 3 * 86400000;
-        break;
-    case "7d":
-        endTime = Date.now();
-        startTime = endTime - 7 * 86400000;
-        break;
-    case "yesterday":
-        endTime = startTime;
-        startTime -= 86400000;
-        break;
-    default: //自定义
-        startTime = null;
-        endTime = null;
-        customDateRange.value = [];
-        break;
+        case "1d":
+            endTime = Date.now();
+            break;
+        case "2d":
+            endTime = Date.now();
+            startTime = endTime - 86400000;
+            break;
+        case "3d":
+            endTime = Date.now();
+            startTime = endTime - 3 * 86400000;
+            break;
+        case "7d":
+            endTime = Date.now();
+            startTime = endTime - 7 * 86400000;
+            break;
+        case "yesterday":
+            endTime = startTime;
+            startTime -= 86400000;
+            break;
+        default: //自定义
+            startTime = null;
+            endTime = null;
+            customDateRange.value = [];
+            break;
     }
     formInfo.value.startTime = startTime;
     formInfo.value.endTime = endTime;

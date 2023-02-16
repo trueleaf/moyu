@@ -61,6 +61,10 @@ const lineCanvasClickOffsetY = ref(0);
 */
 //绘制线条
 const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLineDrawInfo>) => {
+    // if (Math.random() < 0.9) {
+    //     return
+    // }
+    console.log("重回")
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;

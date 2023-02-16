@@ -286,152 +286,152 @@ const handleEmit = (op: ApidocOperations) => {
         return
     }
     switch (op) {
-    case "addRootFolder": //新建文件夹
-        addFolderDialogVisible.value = true;
-        break;
-    case "addRootFile": //新建文件
-        addFileDialogVisible.value = true;
-        break;
-    case "freshBanner": //刷新页面
-        emit("fresh");
-        break;
-    case "generateLink": //在线链接
-        store.commit("apidoc/tabs/addTab", {
-            _id: "onlineLink",
-            projectId,
-            tabType: "onlineLink",
-            label: $t("在线链接"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "exportDoc": //导出文档
-        store.commit("apidoc/tabs/addTab", {
-            _id: "exportDoc",
-            projectId,
-            tabType: "exportDoc",
-            label: $t("导出文档"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "importDoc": //导入文档
-        store.commit("apidoc/tabs/addTab", {
-            _id: "importDoc",
-            projectId,
-            tabType: "importDoc",
-            label: $t("导入文档"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "recycler": //回收站
-        store.commit("apidoc/tabs/addTab", {
-            _id: "recycler",
-            projectId,
-            tabType: "recycler",
-            label: $t("回收站"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "history": //操作审计
-        store.commit("apidoc/tabs/addTab", {
-            _id: "history",
-            projectId,
-            tabType: "history",
-            label: $t("操作审计"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "config": //全局设置
-        store.commit("apidoc/tabs/addTab", {
-            _id: "config",
-            projectId,
-            tabType: "config",
-            label: $t("全局设置"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "hook": //生成代码
-        store.commit("apidoc/tabs/addTab", {
-            _id: "hook",
-            projectId,
-            tabType: "hook",
-            label: $t("生成代码"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "commonHeader": //公共请求头
-        store.commit("apidoc/tabs/addTab", {
-            _id: "commonHeader",
-            projectId,
-            tabType: "commonHeader",
-            label: $t("公共请求头"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    case "apiflow": //接口编排
-        store.commit("apidoc/tabs/addTab", {
-            _id: "apiflow",
-            projectId,
-            tabType: "apiflow",
-            label: $t("接口编排"),
-            head: {
-                icon: "",
-                color: ""
-            },
-            saved: true,
-            fixed: true,
-            selected: true,
-        });
-        break;
-    default:
-        break;
+        case "addRootFolder": //新建文件夹
+            addFolderDialogVisible.value = true;
+            break;
+        case "addRootFile": //新建文件
+            addFileDialogVisible.value = true;
+            break;
+        case "freshBanner": //刷新页面
+            emit("fresh");
+            break;
+        case "generateLink": //在线链接
+            store.commit("apidoc/tabs/addTab", {
+                _id: "onlineLink",
+                projectId,
+                tabType: "onlineLink",
+                label: $t("在线链接"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "exportDoc": //导出文档
+            store.commit("apidoc/tabs/addTab", {
+                _id: "exportDoc",
+                projectId,
+                tabType: "exportDoc",
+                label: $t("导出文档"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "importDoc": //导入文档
+            store.commit("apidoc/tabs/addTab", {
+                _id: "importDoc",
+                projectId,
+                tabType: "importDoc",
+                label: $t("导入文档"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "recycler": //回收站
+            store.commit("apidoc/tabs/addTab", {
+                _id: "recycler",
+                projectId,
+                tabType: "recycler",
+                label: $t("回收站"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "history": //操作审计
+            store.commit("apidoc/tabs/addTab", {
+                _id: "history",
+                projectId,
+                tabType: "history",
+                label: $t("操作审计"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "config": //全局设置
+            store.commit("apidoc/tabs/addTab", {
+                _id: "config",
+                projectId,
+                tabType: "config",
+                label: $t("全局设置"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "hook": //生成代码
+            store.commit("apidoc/tabs/addTab", {
+                _id: "hook",
+                projectId,
+                tabType: "hook",
+                label: $t("生成代码"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "commonHeader": //公共请求头
+            store.commit("apidoc/tabs/addTab", {
+                _id: "commonHeader",
+                projectId,
+                tabType: "commonHeader",
+                label: $t("公共请求头"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        case "apiflow": //接口编排
+            store.commit("apidoc/tabs/addTab", {
+                _id: "apiflow",
+                projectId,
+                tabType: "apiflow",
+                label: $t("接口编排"),
+                head: {
+                    icon: "",
+                    color: ""
+                },
+                saved: true,
+                fixed: true,
+                selected: true,
+            });
+            break;
+        default:
+            break;
     }
     visible.value = false;
 }
@@ -480,30 +480,30 @@ watch(() => dateRange.value, (val) => {
     let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
     let endTime = null;
     switch (val) {
-    case "1d":
-        endTime = Date.now();
-        break;
-    case "2d":
-        endTime = Date.now();
-        startTime = endTime - 86400000;
-        break;
-    case "3d":
-        endTime = Date.now();
-        startTime = endTime - 3 * 86400000;
-        break;
-    case "7d":
-        endTime = Date.now();
-        startTime = endTime - 7 * 86400000;
-        break;
-    case "yesterday":
-        endTime = startTime;
-        startTime -= 86400000;
-        break;
-    default: //自定义
-        startTime = null;
-        endTime = null;
-        customDateRange.value = [];
-        break;
+        case "1d":
+            endTime = Date.now();
+            break;
+        case "2d":
+            endTime = Date.now();
+            startTime = endTime - 86400000;
+            break;
+        case "3d":
+            endTime = Date.now();
+            startTime = endTime - 3 * 86400000;
+            break;
+        case "7d":
+            endTime = Date.now();
+            startTime = endTime - 7 * 86400000;
+            break;
+        case "yesterday":
+            endTime = startTime;
+            startTime -= 86400000;
+            break;
+        default: //自定义
+            startTime = null;
+            endTime = null;
+            customDateRange.value = [];
+            break;
     }
     formInfo.value.startTime = startTime;
     formInfo.value.endTime = endTime;

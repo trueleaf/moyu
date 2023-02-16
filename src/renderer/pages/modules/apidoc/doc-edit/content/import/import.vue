@@ -156,10 +156,10 @@ import PostmanTranslator from "./postman";
 type FormInfo = {
     moyuData: {
         hosts?: {
-        _id: string,
-        url: string,
-        name: string,
-    }[],
+            _id: string,
+            url: string,
+            name: string,
+        }[],
         docs: (ApidocDetail & { children?: ApidocDetail[] })[]
     },
     type: string,

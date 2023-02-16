@@ -377,48 +377,48 @@ class ApidocConverter {
         const { contentType, requestBody } = this.apidoc.item
         let body: string | FormData = "";
         switch (contentType) {
-        case "application/json":
+            case "application/json":
             // eslint-disable-next-line no-useless-escape, no-case-declarations
-            const numberMap: Record<string, string> = {};
-            // eslint-disable-next-line no-useless-escape, no-case-declarations
-            const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{14,})/g, (match, $1, $2) => {
-                numberMap[$2] = $2;
-                return `${$1}"${$2}"`;
-            });
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            body = this.convertMockJsonToRealJson(convertBody);
-            Object.keys(numberMap).forEach(key => {
-                body = (body as string).replace(new RegExp(`:"(${key})"`, "g"), (match, $1) => `:${$1}`);
-            })
-            break;
-        case "application/x-www-form-urlencoded":
-            body = this.convertUrlencodedToBodyString(requestBody.urlencoded);
-            break;
-        case "multipart/form-data":
+                const numberMap: Record<string, string> = {};
+                // eslint-disable-next-line no-useless-escape, no-case-declarations
+                const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{14,})/g, (match, $1, $2) => {
+                    numberMap[$2] = $2;
+                    return `${$1}"${$2}"`;
+                });
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                body = this.convertMockJsonToRealJson(convertBody);
+                Object.keys(numberMap).forEach(key => {
+                    body = (body as string).replace(new RegExp(`:"(${key})"`, "g"), (match, $1) => `:${$1}`);
+                })
+                break;
+            case "application/x-www-form-urlencoded":
+                body = this.convertUrlencodedToBodyString(requestBody.urlencoded);
+                break;
+            case "multipart/form-data":
             // eslint-disable-next-line no-case-declarations
-            const { data, headers } = this.convertFormDataToFormDataString(requestBody.formdata);
-            this.multipartHeaders = headers["content-type"];
-            body = data
-            break;
-        case "text/plain":
-            body = requestBody.raw.data;
-            break;
-        case "text/html":
-            body = requestBody.raw.data;
-            break;
-        case "application/xml":
-            body = requestBody.raw.data;
-            break;
-        case "text/javascript":
-            body = requestBody.raw.data;
-            break;
-        case "":
-            body = requestBody.raw.data;
-            break;
-        default:
-            console.warn(`未知的mime类型${contentType}`)
-            body = requestBody.raw.data;
-            break;
+                const { data, headers } = this.convertFormDataToFormDataString(requestBody.formdata);
+                this.multipartHeaders = headers["content-type"];
+                body = data
+                break;
+            case "text/plain":
+                body = requestBody.raw.data;
+                break;
+            case "text/html":
+                body = requestBody.raw.data;
+                break;
+            case "application/xml":
+                body = requestBody.raw.data;
+                break;
+            case "text/javascript":
+                body = requestBody.raw.data;
+                break;
+            case "":
+                body = requestBody.raw.data;
+                break;
+            default:
+                console.warn(`未知的mime类型${contentType}`)
+                body = requestBody.raw.data;
+                break;
         }
         return body;
     }

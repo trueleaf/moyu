@@ -158,20 +158,20 @@ export default defineComponent({
     methods: {
         handleClickDropdown(command: string) {
             switch (command) {
-            case "logout":
-                this.logout();
-                break;
-            case "user-setting":
-                this.jumpToUserSetting();
-                break;
-            case "update":
-                this.handleCheckUpdate(true);
-                break;
-            case "clear-cache":
-                this.clearAllCache();
-                break;
-            default:
-                break;
+                case "logout":
+                    this.logout();
+                    break;
+                case "user-setting":
+                    this.jumpToUserSetting();
+                    break;
+                case "update":
+                    this.handleCheckUpdate(true);
+                    break;
+                case "clear-cache":
+                    this.clearAllCache();
+                    break;
+                default:
+                    break;
             }
         },
         //初始化自动更新相关事件

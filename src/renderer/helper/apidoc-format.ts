@@ -180,12 +180,12 @@ export const apidocFormatResponseParams = (apidoc: ApidocDetail): ResponseData[]
             dataType: res.value.dataType,
         };
         switch (res.value.dataType) {
-        case "application/json":
-            data.json = apidocConvertParamsToJsonData(res.value.json);
-            break;
-        default:
-            console.warn(`仅解析json类型返回参数,当前返回参数类型为${res.value.dataType}`)
-            break;
+            case "application/json":
+                data.json = apidocConvertParamsToJsonData(res.value.json);
+                break;
+            default:
+                console.warn(`仅解析json类型返回参数,当前返回参数类型为${res.value.dataType}`)
+                break;
         }
         result.push(data)
     })
