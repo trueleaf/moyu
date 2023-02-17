@@ -14,7 +14,7 @@
             zIndex: styleInfo?.zIndex,
         }"
         @click.stop="() => {}"
-        @mousedown.stop="handleNodeMousedown"
+        @mousedown="handleNodeMousedown"
         @mouseenter="handleNodeMouseEnter"
         @mouseleave="handleNodeMouseLeave"
         @contextmenu="handleOpenContextmenu"
@@ -75,7 +75,6 @@
                     left: -containerInfo.createLineNodeSize / 2 + 'px',
                     top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
                 }"
-                @mousedown.stop="handleMouseDownDot($event, 'left')"
             >
             </div>
             <div
@@ -87,7 +86,6 @@
                     right: -containerInfo.createLineNodeSize / 2 + 'px',
                     top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
                 }"
-                @mousedown.stop="handleMouseDownDot($event, 'right')"
             >
             </div>
             <div
@@ -99,7 +97,6 @@
                     top: -containerInfo.createLineNodeSize / 2 + 'px',
                     left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
                 }"
-                @mousedown.stop="handleMouseDownDot($event, 'top')"
             >
             </div>
             <div
@@ -111,7 +108,6 @@
                     bottom: -containerInfo.createLineNodeSize / 2 + 'px',
                     left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
                 }"
-                @mousedown.stop="handleMouseDownDot($event, 'bottom')"
             >
             </div>
         </template>
@@ -128,6 +124,7 @@
                 isInArrow: {{ isMouseInLineArrow }}
                 isMouseDownNode: {{ isMouseDownNode }}
                 currentDragLineId: {{ currentDragLineId }}
+                mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -159,6 +156,7 @@ const props = defineProps({
 */
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
+const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
@@ -207,10 +205,16 @@ const dotStartY = ref(0);
 const lineId = ref("");
 const currentDrawLineInfo: Ref<ApidocApiflowLineInfo | null> = ref(null)
 const mousedownDotPosition: Ref<ApiflowOutComingDirection> = ref("left")
-const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection) => {
+const isMousedownDot = ref(false)
+const handleMouseDownDot = () => {
     if (!currentNode.value) {
         return;
     }
+    if (mouseIncreateLineDotInfo.value.nodeId !== props.nodeId) {
+        return
+    }
+    isMousedownDot.value = true;
+    const direction = mouseIncreateLineDotInfo.value.position
     mousedownDotPosition.value = direction;
     const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     lineId.value = uuid()
@@ -259,10 +263,6 @@ const handleMouseDownDot = (e: MouseEvent, direction: ApiflowOutComingDirection)
         lineId: lineId.value,
         lineInfo: currentDrawLineInfo.value
     })
-    // store.commit("apidoc/apiflow/changeNodeZIndexById", {
-    //     id: currentNode.value?.id,
-    //     zIndex: zIndex + 1,
-    // })
 }
 /*
 |--------------------------------------------------------------------------
@@ -336,6 +336,7 @@ const handleNodeMousedown = (e: MouseEvent) => {
 //鼠标松开
 const handleNodeMouseUp = () => {
     isMouseDownNode.value = false;
+    isMousedownDot.value = false;
     store.commit("apidoc/apiflow/changeCurrentOperatNode", null)
 }
 //鼠标移入
@@ -352,6 +353,9 @@ const handleNodeMouseMove = (e: MouseEvent) => {
         return
     }
     if (currentOperatNode.value?.id !== currentNode.value?.id) {
+        return
+    }
+    if (isMousedownDot.value) {
         return
     }
     const relativeX = e.clientX - nodeMousedownX.value; //相对于mousedown位置移动距离
@@ -519,6 +523,7 @@ onMounted(() => {
     document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
     document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
     document.documentElement.addEventListener("click", handleClickGlobal);
+    document.documentElement.addEventListener("mousedown", handleMouseDownDot);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
@@ -526,6 +531,7 @@ onUnmounted(() => {
     document.documentElement.removeEventListener("mouseup", handleNodeMouseUp);
     document.documentElement.removeEventListener("mouseup", handleResizeNodeMouseUp);
     document.documentElement.removeEventListener("click", handleClickGlobal);
+    document.documentElement.removeEventListener("mousedown", handleMouseDownDot);
 })
 
 </script>
@@ -536,7 +542,7 @@ $dotHeight: 18;
 .node {
     border: 1px solid $gray-700;
     position: absolute;
-    cursor: move;
+    // cursor: move;
     user-select: none;
     background-color: $white;
     .rect {
@@ -561,20 +567,7 @@ $dotHeight: 18;
         border-radius: 50%;
         border: 1px solid $theme-color;
         position: absolute;
-        cursor: pointer;
         background-color: $white;
-        &.left { //左
-            cursor: crosshair;
-        }
-        &.right { //右
-            cursor: crosshair;
-        }
-        &.top { //上
-            cursor: crosshair;
-        }
-        &.bottom { //下
-            cursor: crosshair;
-        }
     }
 }
 </style>

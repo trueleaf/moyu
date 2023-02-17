@@ -14,7 +14,7 @@
             width: lineInfo.width + 'px',
             height: lineInfo.height + 'px',
             zIndex: lineInfo.zIndex,
-            cursor: isMouseInLineArrow ? 'move' : 'default',
+            cursor: isMouseInLineArrow ? 'move' : 'inherit',
         }"
         @mousedown="handleMouseDownCanvas"
     >
@@ -22,10 +22,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, PropType, inject, Ref, onMounted, onUnmounted } from "vue";
+import { ref, PropType, inject, Ref, onMounted, onUnmounted, computed } from "vue";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
 import { debounce } from "@/helper";
-import { computed } from "@vue/reactivity";
 import { store } from "@/store";
 import { getLineDrawInfo } from "../utils/utils";
 
@@ -61,10 +60,7 @@ const lineCanvasClickOffsetY = ref(0);
 */
 //绘制线条
 const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLineDrawInfo>) => {
-    // if (Math.random() < 0.9) {
-    //     return
-    // }
-    console.log("重回")
+    // console.log("重回")
     const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;

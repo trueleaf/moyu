@@ -4,7 +4,12 @@
     备注：
 */
 <template>
-    <div ref="apiflow" class="apiflow" @contextmenu.prevent="() => {}">
+    <div
+        ref="apiflow"
+        class="apiflow"
+        :style="{cursor: mouseIncreateLineDotInfo.nodeId ? 'crosshair' : ''}"
+        @contextmenu.prevent="() => {}"
+    >
         <s-node
             v-for="(item, index) in apiflowList"
             :key="index"
@@ -32,6 +37,7 @@ import { getCreateLineArea, StickyArea } from "./components/utils/common/common"
 const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
+const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
 const currentDragLineId = ref("");
 const apiflow: Ref<HTMLElement | null> = ref(null);
 const wrapX = ref(0);

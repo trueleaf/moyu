@@ -134,6 +134,7 @@ const apiflow = {
         */
         //新增或者更新出线信息
         upsertOutComing(state: ApidocApiflowState, payload: ChangedLineInfo): void {
+            console.log("upOutcomming")
             const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 // matchedNode.styleInfo.zIndex = payload.;
