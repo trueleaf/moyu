@@ -662,6 +662,17 @@ type ApidocApiflowState = {
         position: "left" | "top" | "right" | "bottom"
     };
     /**
+     * 鼠标在节点放大缩小按钮上面信息
+     */
+    mouseInResizeDotInfo: {
+        nodeId: string;
+        position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom"
+    };
+    /**
+     * 鼠标位置在节点上id
+     */
+    mouseInNodeId: string,
+    /**
      * 鼠标是否在线条箭头上面
      */
     isMouseInLineArrow: boolean,
