@@ -37,6 +37,7 @@ const apiflow = {
             nodeId: "",
             position: "left"
         },
+        mouseInNodeId: "",
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
@@ -82,6 +83,15 @@ const apiflow = {
         changeMouseIncreateLineDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseIncreateLineDotInfo"]): void {
             state.mouseIncreateLineDotInfo.nodeId = dotInfo.nodeId;
             state.mouseIncreateLineDotInfo.position = dotInfo.position;
+        },
+        //当前鼠标是否在节点缩放按钮上面
+        changeMouseInResizeDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseInResizeDotInfo"]): void {
+            state.mouseInResizeDotInfo.nodeId = dotInfo.nodeId;
+            state.mouseInResizeDotInfo.position = dotInfo.position;
+        },
+        //当前鼠标是否在节点上面
+        changeMouseInNodeId(state: ApidocApiflowState, mouseInNodeId: string): void {
+            state.mouseInNodeId = mouseInNodeId
         },
         /*
         |--------------------------------------------------------------------------
