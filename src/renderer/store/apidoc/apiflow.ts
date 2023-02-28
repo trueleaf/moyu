@@ -37,6 +37,10 @@ const apiflow = {
             nodeId: "",
             position: "left"
         },
+        mouseInResizeDotInfo: {
+            nodeId: "",
+            position: ""
+        },
         mouseInNodeId: "",
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,

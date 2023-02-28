@@ -67,7 +67,7 @@
         </template>
         <template v-if="1 || isMouseInNode">
             <div
-                class="dot left"
+                class="dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -78,7 +78,7 @@
             >
             </div>
             <div
-                class="dot right"
+                class="dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -89,7 +89,7 @@
             >
             </div>
             <div
-                class="dot top"
+                class="dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -100,7 +100,7 @@
             >
             </div>
             <div
-                class="dot bottom"
+                class="dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -125,6 +125,8 @@
                 isMouseDownNode: {{ isMouseDownNode }}
                 currentDragLineId: {{ currentDragLineId }}
                 mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
+                mouseInNodeId: {{ mouseInNodeId }}
+                mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -157,6 +159,8 @@ const props = defineProps({
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
+const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
+const mouseInNodeId = computed(() => store.state["apidoc/apiflow"].mouseInNodeId)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
@@ -537,31 +541,15 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-$dotWidth: 18;
-$dotHeight: 18;
 .node {
     border: 1px solid $gray-700;
     position: absolute;
-    // cursor: move;
     user-select: none;
     background-color: $white;
     .rect {
         border: 1px solid $theme-color;
         position: absolute;
-        cursor: pointer;
         background-color: $white;
-        &.lt { //左上
-            cursor: se-resize;
-        }
-        &.rt { //右上
-            cursor: ne-resize;
-        }
-        &.lb { //左下
-            cursor: sw-resize;
-        }
-        &.rb { //右下
-            cursor: se-resize;
-        }
     }
     .dot {
         border-radius: 50%;
