@@ -41,20 +41,21 @@ const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
 const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
+const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId); //当前选中节点id
 const cursor = computed(() => {
     if (mouseIncreateLineDotInfo.value.nodeId) {
         return "crosshair"
     }
-    if (mouseInResizeDotInfo.value.position === "leftTop") {
+    if (activeNodeId.value && mouseInResizeDotInfo.value.position === "leftTop") {
         return "se-resize"
     }
-    if (mouseInResizeDotInfo.value.position === "rightTop") {
+    if (activeNodeId.value && mouseInResizeDotInfo.value.position === "rightTop") {
         return "ne-resize"
     }
-    if (mouseInResizeDotInfo.value.position === "leftBottom") {
+    if (activeNodeId.value && mouseInResizeDotInfo.value.position === "leftBottom") {
         return "sw-resize"
     }
-    if (mouseInResizeDotInfo.value.position === "rightBottom") {
+    if (activeNodeId.value && mouseInResizeDotInfo.value.position === "rightBottom") {
         return "se-resize"
     }
     return ""
@@ -229,7 +230,6 @@ const checkMouseIsInResizeDot = (e: MouseEvent) => {
             y: mouseOffsetY
         });
         if (resizeNodeArea) {
-            console.log(resizeNodeArea)
             store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
                 nodeId: node.id,
                 position: resizeNodeArea

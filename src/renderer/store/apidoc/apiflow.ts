@@ -42,6 +42,7 @@ const apiflow = {
             position: ""
         },
         mouseInNodeId: "",
+        activeNodeId: "",
         isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
@@ -140,6 +141,10 @@ const apiflow = {
             if (matchedNode) {
                 matchedNode.styleInfo.zIndex = payload.zIndex;
             }
+        },
+        //改变当前被active的节点id
+        changeActiveNodeId(state: ApidocApiflowState, activeNodeId: string): void {
+            state.activeNodeId = activeNodeId;
         },
         /*
         |--------------------------------------------------------------------------

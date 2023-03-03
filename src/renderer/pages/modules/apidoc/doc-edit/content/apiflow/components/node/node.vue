@@ -19,7 +19,7 @@
         @mouseleave="handleNodeMouseLeave"
         @contextmenu="handleOpenContextmenu"
     >
-        <template v-if="isSelectedNode">
+        <template v-if="activeNodeId === props.nodeId">
             <div
                 class="rect lt"
                 :style="{
@@ -127,6 +127,7 @@
                 mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
                 mouseInNodeId: {{ mouseInNodeId }}
                 mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
+                activeNodeId: {{ activeNodeId }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
@@ -294,7 +295,7 @@ const isMouseDownNode = computed({
 });
 const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const isMouseInNode = ref(false);
-const isSelectedNode = ref(false); //是否选中节点
+const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId); //当前选中节点id
 const styleInfo = computed(() => currentNode.value?.styleInfo)
 
 const mousedownNodeX = ref(0); //鼠标按下时候节点x值
@@ -334,7 +335,7 @@ const handleNodeMousedown = (e: MouseEvent) => {
     mousedownNodeX.value = nodeOffsetX.value;
     mousedownNodeY.value = nodeOffsetY.value;
     isMouseDownNode.value = true;
-    isSelectedNode.value = true;
+    store.commit("apidoc/apiflow/changeActiveNodeId", props.nodeId)
     store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
 }
 //鼠标松开
@@ -518,7 +519,7 @@ const handleAddSiblingNode = () => {
 |--------------------------------------------------------------------------
 */
 const handleClickGlobal = () => {
-    isSelectedNode.value = false;
+    store.commit("apidoc/apiflow/changeActiveNodeId", "")
     contextmenuVisible.value = false;
 }
 onMounted(() => {

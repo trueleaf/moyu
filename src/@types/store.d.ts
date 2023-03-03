@@ -669,6 +669,10 @@ type ApidocApiflowState = {
         position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom"
     };
     /**
+     * 当前被激活的节点
+     */
+    activeNodeId: string,
+    /**
      * 鼠标位置在节点上id
      */
     mouseInNodeId: string,
