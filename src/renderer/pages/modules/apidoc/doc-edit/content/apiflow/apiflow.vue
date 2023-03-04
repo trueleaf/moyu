@@ -23,6 +23,16 @@
                 <s-line :line-info="item2"></s-line>
             </template>
         </template>
+        <teleport to="body">
+            <pre style="position: absolute; right: 720px; top: 40px;">
+                mouseInLineInfo: {{ mouseInLineInfo }}
+                mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
+                hoverNodeId: {{ hoverNodeId }}
+                mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
+                activeNodeId: {{ activeNodeId }}
+            </pre>
+            <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { nodeList } }}</pre>
+        </teleport>
     </div>
 </template>
 
@@ -133,22 +143,24 @@ const handleConfirmDragLineId = () => {
         });
     }
 }
-const handleClearDragLineId = () => {
+const handleMouseUp = () => {
     store.commit("apidoc/apiflow/changeMouseInLineInfo", {
         isMouseDownDragArrow: false,
         dragLineId: ""
     });
+    //清空当前选中节点
+    store.commit("apidoc/apiflow/changeActiveNodeId", "")
 }
 onMounted(() => {
     initWidgets();
     document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseInNodeOrLine));
     document.documentElement.addEventListener("mousedown", handleConfirmDragLineId);
-    document.documentElement.addEventListener("mouseup", handleClearDragLineId);
+    document.documentElement.addEventListener("mouseup", handleMouseUp);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleCheckMouseInNodeOrLine);
     document.documentElement.removeEventListener("mousedown", handleConfirmDragLineId);
-    document.documentElement.removeEventListener("mouseup", handleClearDragLineId);
+    document.documentElement.removeEventListener("mouseup", handleMouseUp);
 })
 </script>
 

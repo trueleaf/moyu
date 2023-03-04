@@ -117,21 +117,6 @@
                 <s-contextmenu-item label="新增子节点" @click="handleAddSubNode"></s-contextmenu-item>
                 <s-contextmenu-item v-if="currentNode?.id !== 'start'" label="新增同级" @click="handleAddSiblingNode"></s-contextmenu-item>
             </s-contextmenu>
-            <!-- <canvas ref="lineCanvas"></canvas> -->
-            <pre style="position: absolute; right: 720px; top: 40px;">
-                isMouseDownResizeDot: {{ isMouseDownResizeDot }}
-                isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
-                mouseInLineInfo: {{ mouseInLineInfo }}
-                isMouseDownNode: {{ isMouseDownNode }}
-                mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
-                hoverNodeId: {{ hoverNodeId }}
-                mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
-                activeNodeId: {{ activeNodeId }}
-            </pre>
-            <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { nodeList } }}</pre>
-            <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
-                {{ currentNode?.outcomings }}
-            </pre> -->
         </teleport>
     </div>
 </template>
@@ -144,8 +129,10 @@ import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection
 import { getZIndex } from "../utils/utils";
 
 type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
-
 const props = defineProps({
+    /**
+     * 当前节点id
+     */
     nodeId: {
         type: String,
         default: ""
@@ -159,11 +146,8 @@ const props = defineProps({
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
-const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
-const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
-const isMouseDownCanvasArrow = ref(false);
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList)
 const currentNode = computed(() => nodeList.value.find(v => v.id === props.nodeId));
 const nodeOffsetX = computed({ //节点x值
@@ -517,7 +501,6 @@ const handleAddSiblingNode = () => {
 |--------------------------------------------------------------------------
 */
 const handleClickGlobal = () => {
-    store.commit("apidoc/apiflow/changeActiveNodeId", "")
     contextmenuVisible.value = false;
 }
 onMounted(() => {
