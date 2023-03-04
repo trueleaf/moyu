@@ -48,7 +48,7 @@ const apiflow = {
         isMouseDownNode: false,
         currentSelectedDotId: "",
         containerInfo: {},
-        apiflowList: [],
+        nodeList: [],
     },
     mutations: {
         /*
@@ -105,39 +105,39 @@ const apiflow = {
         */
         //根据id改变节点x值
         changeNodeOffsetXById(state: ApidocApiflowState, payload: { id: string, x: number }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.id);
+            const matchedNode = state.nodeList.find(v => v.id === payload.id);
             if (matchedNode) {
                 matchedNode.styleInfo.offsetX = payload.x;
             }
         },
         //根据id改变节点y值
         changeNodeOffsetYById(state: ApidocApiflowState, payload: { id: string, y: number }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.id);
+            const matchedNode = state.nodeList.find(v => v.id === payload.id);
             if (matchedNode) {
                 matchedNode.styleInfo.offsetY = payload.y;
             }
         },
         //根据id改变节点宽度
         changeNodeWidthById(state: ApidocApiflowState, payload: { id: string, w: number }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.id);
+            const matchedNode = state.nodeList.find(v => v.id === payload.id);
             if (matchedNode) {
                 matchedNode.styleInfo.width = payload.w;
             }
         },
         //根据id改变节点高度
         changeNodeHeightById(state: ApidocApiflowState, payload: { id: string, h: number }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.id);
+            const matchedNode = state.nodeList.find(v => v.id === payload.id);
             if (matchedNode) {
                 matchedNode.styleInfo.height = payload.h;
             }
         },
         //新增一个节点
         addNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo): void {
-            state.apiflowList.push(payload);
+            state.nodeList.push(payload);
         },
         //根据id改变节点zIndex值
         changeNodeZIndexById(state: ApidocApiflowState, payload: { id: string, zIndex: number }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.id);
+            const matchedNode = state.nodeList.find(v => v.id === payload.id);
             if (matchedNode) {
                 matchedNode.styleInfo.zIndex = payload.zIndex;
             }
@@ -154,21 +154,21 @@ const apiflow = {
         //新增或者更新出线信息
         upsertOutComing(state: ApidocApiflowState, payload: ChangedLineInfo): void {
             console.log("upOutcomming")
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 // matchedNode.styleInfo.zIndex = payload.;
             }
         },
         //新增一条出线
         addOutComing(state: ApidocApiflowState, payload: ChangedLineInfo): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 matchedNode.outcomings.push(payload.lineInfo)
             }
         },
         //改变出线属性
         changeOutComingInfoById(state: ApidocApiflowState, payload: ChangedLineInfo): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (!matchedNode) {
                 return
             }
@@ -179,7 +179,7 @@ const apiflow = {
         },
         //根据id删除出线
         removeOutcomingById(state: ApidocApiflowState, payload: { nodeId: string, lineId: string }): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (!matchedNode) {
                 return
             }
@@ -195,8 +195,8 @@ const apiflow = {
         */
         //新增一条入线
         addIncoming(state: ApidocApiflowState, payload: AddIncomingInfo): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
-            const matchedHostNode = state.apiflowList.find(v => v.id === payload.fromNodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
+            const matchedHostNode = state.nodeList.find(v => v.id === payload.fromNodeId);
             const matchedOutcomingLine = matchedHostNode?.outcomings.find(outcoming => outcoming.id === payload.lineId)
             const matchedIncomingLine = matchedNode?.incomings.find(incoming => incoming.id === payload.lineId)
             const matchedIncomingLineIndex = matchedNode?.incomings.findIndex(incoming => incoming.id === payload.lineId) as number;
@@ -208,8 +208,8 @@ const apiflow = {
         },
         //根据id移除入线
         removeIncomingById(state: ApidocApiflowState, payload: { lineId: string }): void {
-            for (let i = 0; i < state.apiflowList.length; i += 1) {
-                const node = state.apiflowList[i];
+            for (let i = 0; i < state.nodeList.length; i += 1) {
+                const node = state.nodeList[i];
                 const matchedLineIndex = node.incomings.findIndex(v => v.id === payload.lineId);
                 if (matchedLineIndex !== -1) {
                     node.incomings.splice(matchedLineIndex, 1)
@@ -219,7 +219,7 @@ const apiflow = {
         },
         //改变入线属性
         changeInComingInfoById(state: ApidocApiflowState, payload: ChangedLineInfo): void {
-            const matchedNode = state.apiflowList.find(v => v.id === payload.nodeId);
+            const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (!matchedNode) {
                 return
             }

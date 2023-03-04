@@ -13,12 +13,12 @@
         @contextmenu.prevent="() => {}"
     >
         <s-node
-            v-for="(item, index) in apiflowList"
+            v-for="(item, index) in nodeList"
             :key="index"
             :node-id="item.id"
         >
         </s-node>
-        <template v-for="(item, index) in apiflowList" :key="index">
+        <template v-for="(item, index) in nodeList" :key="index">
             <template v-for="(item2, index2) in item.outcomings" :key="index2">
                 <s-line :line-info="item2"></s-line>
             </template>
@@ -36,12 +36,13 @@ import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
 import { getCreateLineArea, getResizeBarArea, StickyArea, ResizeDotArea } from "./components/utils/common/common";
 
-const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList);
+const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
 const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
 const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId); //当前选中节点id
+const mouseInNodeId = computed(() => store.state["apidoc/apiflow"].mouseInNodeId); //当前选中节点id
 const cursor = computed(() => {
     if (mouseIncreateLineDotInfo.value.nodeId) {
         return "crosshair"
@@ -57,6 +58,9 @@ const cursor = computed(() => {
     }
     if (activeNodeId.value && mouseInResizeDotInfo.value.position === "rightBottom") {
         return "se-resize"
+    }
+    if (mouseInNodeId.value) {
+        return "move"
     }
     return ""
 })
@@ -140,7 +144,7 @@ const checkMouseIsInCreateLineDot = (e: MouseEvent) => {
         }
         return null;
     }
-    const nodes = apiflowList.value;
+    const nodes = nodeList.value;
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const createLineArea = getCreateLineArea(node);
@@ -163,7 +167,7 @@ const checkMouseIsInCreateLineDot = (e: MouseEvent) => {
 }
 //检查鼠标是否在线条箭头上面
 const checkMouseIsInLineArrow = (e: MouseEvent) => {
-    const nodes = apiflowList.value;
+    const nodes = nodeList.value;
     const lines: ApidocApiflowLineInfo[] = [];
     nodes.forEach(node => {
         node.outcomings.forEach(line => {
@@ -186,7 +190,7 @@ const checkMouseIsInLineArrow = (e: MouseEvent) => {
 }
 //检查鼠标是否在节点上面
 const checkMouseIsInNode = (e: MouseEvent) => {
-    const nodes = apiflowList.value;
+    const nodes = nodeList.value;
     const mouseOffsetX = e.clientX - containerInfo.value.clientX
     const mouseOffsetY = e.clientY - containerInfo.value.clientY
     for (let i = 0; i < nodes.length; i += 1) {
@@ -203,7 +207,7 @@ const checkMouseIsInNode = (e: MouseEvent) => {
 }
 //当前鼠标是否在节点缩放按钮上面
 const checkMouseIsInResizeDot = (e: MouseEvent) => {
-    const nodes = apiflowList.value;
+    const nodes = nodeList.value;
     const mouseOffsetX = e.clientX - containerInfo.value.clientX
     const mouseOffsetY = e.clientY - containerInfo.value.clientY
     const getResizeDotArea = (resizeDotArea: ResizeDotArea, { x, y }: { x: number; y: number }) => {

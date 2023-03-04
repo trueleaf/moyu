@@ -129,7 +129,7 @@
                 mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
                 activeNodeId: {{ activeNodeId }}
             </pre>
-            <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { apiflowList } }}</pre>
+            <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { nodeList } }}</pre>
             <!-- <pre style="position: absolute; right: 320px; top: 40px;">outcomings
                 {{ currentNode?.outcomings }}
             </pre> -->
@@ -165,8 +165,8 @@ const mouseInNodeId = computed(() => store.state["apidoc/apiflow"].mouseInNodeId
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const isMouseDownCanvasArrow = ref(false);
-const apiflowList = computed(() => store.state["apidoc/apiflow"].apiflowList)
-const currentNode = computed(() => apiflowList.value.find(v => v.id === props.nodeId));
+const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList)
+const currentNode = computed(() => nodeList.value.find(v => v.id === props.nodeId));
 const nodeOffsetX = computed({ //节点x值
     get() {
         return currentNode.value?.styleInfo.offsetX || 0

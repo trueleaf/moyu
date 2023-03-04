@@ -41,8 +41,8 @@ const lineRef: Ref<null | HTMLCanvasElement> = ref(null); //线条dom元素
 const currentSelectedDotId = computed(() => store.state["apidoc/apiflow"].currentSelectedDotId)
 const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const hostNode = computed(() => { //宿主节点(节点出线包含当前线条，才叫做宿主)
-    const { apiflowList } = store.state["apidoc/apiflow"];
-    return apiflowList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
+    const { nodeList } = store.state["apidoc/apiflow"];
+    return nodeList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
 });
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)

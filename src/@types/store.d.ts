@@ -703,7 +703,7 @@ type ApidocApiflowState = {
     /**
      * 元素集合
      */
-    apiflowList: ApidocApiflowNodeInfo[]
+    nodeList: ApidocApiflowNodeInfo[]
 }
 
 /*

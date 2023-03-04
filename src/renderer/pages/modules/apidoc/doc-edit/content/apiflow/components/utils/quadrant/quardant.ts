@@ -78,7 +78,7 @@ const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coor
 }
 //当右侧线条与其他节点吸附时候，改变线条绘制路径
 const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
-    const toNodes = store.state["apidoc/apiflow"].apiflowList;
+    const toNodes = store.state["apidoc/apiflow"].nodeList;
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
@@ -248,7 +248,7 @@ const drawRightLineWhenStick = (result: ResultRect, options: Options) => {
 }
 //当上侧线条与其他节点吸附时候，改变线条绘制路径
 const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
-    const toNodes = store.state["apidoc/apiflow"].apiflowList;
+    const toNodes = store.state["apidoc/apiflow"].nodeList;
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
@@ -422,7 +422,7 @@ const drawTopLineWhenStick = (result: ResultRect, options: Options) => {
 }
 //当左侧线条与其他节点吸附时候，改变线条绘制路径
 const drawLeftLineWhenStick = (result: ResultRect, options: Options) => {
-    const toNodes = store.state["apidoc/apiflow"].apiflowList;
+    const toNodes = store.state["apidoc/apiflow"].nodeList;
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     const fromNodeStyleInfo = fromNode.styleInfo;
     for (let i = 0; i < toNodes.length; i += 1) {
@@ -647,7 +647,7 @@ const drawLeftLineWhenStick = (result: ResultRect, options: Options) => {
 }
 //当底部线条与其他节点吸附时候，改变线条绘制路径
 const drawBottomLineWhenStick = (result: ResultRect, options: Options) => {
-    const toNodes = store.state["apidoc/apiflow"].apiflowList;
+    const toNodes = store.state["apidoc/apiflow"].nodeList;
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
