@@ -14,7 +14,7 @@
             width: lineInfo.width + 'px',
             height: lineInfo.height + 'px',
             zIndex: lineInfo.zIndex,
-            cursor: isMouseInLineArrow ? 'move' : 'inherit',
+            cursor: mouseInLineInfo.isInDragArrow ? 'move' : 'inherit',
         }"
         @mousedown="handleMouseDownCanvas"
     >
@@ -39,7 +39,6 @@ const props = defineProps({
 
 const lineRef: Ref<null | HTMLCanvasElement> = ref(null); //线条dom元素
 const currentSelectedDotId = computed(() => store.state["apidoc/apiflow"].currentSelectedDotId)
-const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const hostNode = computed(() => { //宿主节点(节点出线包含当前线条，才叫做宿主)
     const { nodeList } = store.state["apidoc/apiflow"];
     return nodeList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
@@ -47,7 +46,7 @@ const hostNode = computed(() => { //宿主节点(节点出线包含当前线条�
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
 const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect()
-const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
+const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
 const isResizeNodeMousedown = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
 const isMouseDownNode = computed(() => store.state["apidoc/apiflow"].isMouseDownNode);
 const isMouseDownResizeDot = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
@@ -98,7 +97,7 @@ const repaintLine = (dom: HTMLCanvasElement, drawInfo: ReturnType<typeof getLine
 |--------------------------------------------------------------------------
 */
 //鼠标从节点四个方向绘制出线
-const handleDotMouseMove = (e: MouseEvent) => {
+const handleCreateLine = (e: MouseEvent) => {
     if (!currentSelectedDotId.value || !hostNode.value) {
         return;
     }
@@ -226,7 +225,7 @@ const handleMouseDownCanvas = (e: MouseEvent) => {
 }
 //拖拽箭头
 const handleCanvasMouseMove = (e: MouseEvent) => {
-    if (currentDragLineId.value !== props.lineInfo.id) { //只能拖拽当前节点
+    if (!mouseInLineInfo.value.isMouseDownDragArrow || mouseInLineInfo.value.dragLineId !== props.lineInfo.id) { //只能拖拽当前节点
         return
     }
     if (hostNode.value) {
@@ -509,7 +508,7 @@ const drawLine = () => {
     }
 }
 const handleNodeMouseMove = () => {
-    if (!isMouseDownNode.value || isResizeNodeMousedown.value || isMouseInLineArrow.value || !hostNode.value) {
+    if (!isMouseDownNode.value || isResizeNodeMousedown.value || mouseInLineInfo.value.isInDragArrow || !hostNode.value) {
         return
     }
     drawLine();
@@ -524,7 +523,7 @@ onMounted(() => {
     document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
     document.documentElement.addEventListener("mouseup", handleRemoveTempLine);
     document.documentElement.addEventListener("mousemove", debounce(handleCanvasMouseMove));
-    document.documentElement.addEventListener("mousemove", debounce(handleDotMouseMove));
+    document.documentElement.addEventListener("mousemove", debounce(handleCreateLine));
     document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
     document.documentElement.addEventListener("mouseup", handleCanvasMouseUp);
 })
@@ -532,7 +531,7 @@ onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleCanvasMouseMove);
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
     document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
-    document.documentElement.removeEventListener("mousemove", handleDotMouseMove);
+    document.documentElement.removeEventListener("mousemove", handleCreateLine);
     document.documentElement.removeEventListener("mouseup", handleCanvasMouseUp);
 })
 

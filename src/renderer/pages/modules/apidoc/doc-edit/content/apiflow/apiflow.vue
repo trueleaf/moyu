@@ -30,19 +30,18 @@
 import { onMounted, ref, Ref, provide, computed, onUnmounted } from "vue";
 import { store } from "@/store";
 import { debounce } from "@/helper";
-import type { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store"
+import type { ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
-import { getCreateLineArea, getResizeBarArea, StickyArea, ResizeDotArea } from "./components/utils/common/common";
+import { checkMouseIsInCreateLineDot, checkMouseIsInLineArrow, checkMouseIsInNode, checkMouseIsInResizeDot } from "./checker/checker";
 
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
-const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
-const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
+const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo)
 const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
-const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId); //当前选中节点id
-const mouseInNodeId = computed(() => store.state["apidoc/apiflow"].mouseInNodeId); //当前选中节点id
+const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId);
+const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId);
 const cursor = computed(() => {
     if (mouseIncreateLineDotInfo.value.nodeId) {
         return "crosshair"
@@ -59,15 +58,12 @@ const cursor = computed(() => {
     if (activeNodeId.value && mouseInResizeDotInfo.value.position === "rightBottom") {
         return "se-resize"
     }
-    if (mouseInNodeId.value) {
+    if (hoverNodeId.value) {
         return "move"
     }
     return ""
 })
-const currentDragLineId = ref("");
 const apiflow: Ref<HTMLElement | null> = ref(null);
-const wrapX = ref(0);
-const wrapY = ref(0);
 provide("apiflowWrapper", apiflow)
 
 /*
@@ -78,8 +74,6 @@ provide("apiflowWrapper", apiflow)
 const initWidgets = () => {
     if (apiflow.value) {
         const clientRect = apiflow.value.getBoundingClientRect();
-        wrapX.value = clientRect.x;
-        wrapY.value = clientRect.y;
         const startNode: ApidocApiflowNodeInfo = {
             id: "start",
             type: "node",
@@ -124,151 +118,35 @@ const initWidgets = () => {
 | 鼠标在节点上位置手动判断
 |--------------------------------------------------------------------------
 */
-//检查鼠标是否在创建连线节点上面
-const checkMouseIsInCreateLineDot = (e: MouseEvent) => {
-    const mouseOffsetX = e.clientX - containerInfo.value.clientX
-    const mouseOffsetY = e.clientY - containerInfo.value.clientY
-    const getMouseIsInCreateDot = (createLineArea: StickyArea, { x, y }: { x: number; y: number }) => {
-        const { leftArea, rightArea, topArea, bottomArea } = createLineArea;
-        if (x > leftArea.offsetX && x < leftArea.offsetX2 && y > leftArea.offsetY && y < leftArea.offsetY2) {
-            return "left";
-        }
-        if (x > rightArea.offsetX && x < rightArea.offsetX2 && y > rightArea.offsetY && y < rightArea.offsetY2) {
-            return "right";
-        }
-        if (x > topArea.offsetX && x < topArea.offsetX2 && y > topArea.offsetY && y < topArea.offsetY2) {
-            return "top";
-        }
-        if (x > bottomArea.offsetX && x < bottomArea.offsetX2 && y > bottomArea.offsetY && y < bottomArea.offsetY2) {
-            return "bottom";
-        }
-        return null;
-    }
-    const nodes = nodeList.value;
-    for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i];
-        const createLineArea = getCreateLineArea(node);
-        const mouseInCreateDotPosition = getMouseIsInCreateDot(createLineArea, {
-            x: mouseOffsetX,
-            y: mouseOffsetY
-        })
-        if (mouseInCreateDotPosition) {
-            store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
-                nodeId: node.id,
-                position: mouseInCreateDotPosition
-            })
-            break
-        }
-        store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
-            nodeId: "",
-            position: ""
-        })
-    }
-}
-//检查鼠标是否在线条箭头上面
-const checkMouseIsInLineArrow = (e: MouseEvent) => {
-    const nodes = nodeList.value;
-    const lines: ApidocApiflowLineInfo[] = [];
-    nodes.forEach(node => {
-        node.outcomings.forEach(line => {
-            lines.push(line)
-        })
-    })
-    for (let i = 0; i < lines.length; i += 1) {
-        const line = lines[i];
-        const { arrowInfo: { leftTopPoint, rightBottomPoint } } = line;
-        const isXInLineArrow = e.clientX >= leftTopPoint.clientX && e.clientX <= rightBottomPoint.clientX
-        const isYInLineArrow = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY
-        if (isXInLineArrow && isYInLineArrow) { //鼠标是否在箭头上
-            store.commit("apidoc/apiflow/changeIsMouseInLineArrow", true);
-            currentDragLineId.value = line.id;
-            break
-        }
-        currentDragLineId.value = "";
-        store.commit("apidoc/apiflow/changeIsMouseInLineArrow", false);
-    }
-}
-//检查鼠标是否在节点上面
-const checkMouseIsInNode = (e: MouseEvent) => {
-    const nodes = nodeList.value;
-    const mouseOffsetX = e.clientX - containerInfo.value.clientX
-    const mouseOffsetY = e.clientY - containerInfo.value.clientY
-    for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i];
-        const { offsetX, width, offsetY, height } = node.styleInfo;
-        const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
-        const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
-        if (isInX && isInY) {
-            store.commit("apidoc/apiflow/changeMouseInNodeId", node.id);
-            break;
-        }
-        store.commit("apidoc/apiflow/changeMouseInNodeId", "");
-    }
-}
-//当前鼠标是否在节点缩放按钮上面
-const checkMouseIsInResizeDot = (e: MouseEvent) => {
-    const nodes = nodeList.value;
-    const mouseOffsetX = e.clientX - containerInfo.value.clientX
-    const mouseOffsetY = e.clientY - containerInfo.value.clientY
-    const getResizeDotArea = (resizeDotArea: ResizeDotArea, { x, y }: { x: number; y: number }) => {
-        const { leftTopArea, rightTopArea, leftBottomArea, rightBottomArea } = resizeDotArea;
-        if (x > leftTopArea.offsetX && x < leftTopArea.offsetX2 && y > leftTopArea.offsetY && y < leftTopArea.offsetY2) {
-            return "leftTop";
-        }
-        if (x > rightTopArea.offsetX && x < rightTopArea.offsetX2 && y > rightTopArea.offsetY && y < rightTopArea.offsetY2) {
-            return "rightTop";
-        }
-        if (x > leftBottomArea.offsetX && x < leftBottomArea.offsetX2 && y > leftBottomArea.offsetY && y < leftBottomArea.offsetY2) {
-            return "leftBottom";
-        }
-        if (x > rightBottomArea.offsetX && x < rightBottomArea.offsetX2 && y > rightBottomArea.offsetY && y < rightBottomArea.offsetY2) {
-            return "rightBottom";
-        }
-        return null;
-    }
-    for (let i = 0; i < nodes.length; i += 1) {
-        const node = nodes[i];
-        const resizeArea = getResizeBarArea(node);
-        const resizeNodeArea = getResizeDotArea(resizeArea, {
-            x: mouseOffsetX,
-            y: mouseOffsetY
-        });
-        if (resizeNodeArea) {
-            store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
-                nodeId: node.id,
-                position: resizeNodeArea
-            });
-            break;
-        }
-        store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
-            nodeId: "",
-            position: "",
-        });
-    }
-}
 //鼠标移动时，检测是否到达关键节点
-const handleMouseMove = (e: MouseEvent) => {
+const handleCheckMouseInNodeOrLine = (e: MouseEvent) => {
     checkMouseIsInCreateLineDot(e);
     checkMouseIsInLineArrow(e);
     checkMouseIsInNode(e);
     checkMouseIsInResizeDot(e);
 }
 const handleConfirmDragLineId = () => {
-    if (isMouseInLineArrow.value) {
-        store.commit("apidoc/apiflow/changeCurrentDragLineId", currentDragLineId.value);
+    if (mouseInLineInfo.value.isInDragArrow) {
+        store.commit("apidoc/apiflow/changeMouseInLineInfo", {
+            isMouseDownDragArrow: true,
+            dragLineId: mouseInLineInfo.value.mouseInlineId
+        });
     }
 }
 const handleClearDragLineId = () => {
-    store.commit("apidoc/apiflow/changeCurrentDragLineId", "");
+    store.commit("apidoc/apiflow/changeMouseInLineInfo", {
+        isMouseDownDragArrow: false,
+        dragLineId: ""
+    });
 }
 onMounted(() => {
     initWidgets();
-    document.documentElement.addEventListener("mousemove", debounce(handleMouseMove));
+    document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseInNodeOrLine));
     document.documentElement.addEventListener("mousedown", handleConfirmDragLineId);
     document.documentElement.addEventListener("mouseup", handleClearDragLineId);
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener("mousemove", handleMouseMove);
+    document.documentElement.removeEventListener("mousemove", handleCheckMouseInNodeOrLine);
     document.documentElement.removeEventListener("mousedown", handleConfirmDragLineId);
     document.documentElement.removeEventListener("mouseup", handleClearDragLineId);
 })

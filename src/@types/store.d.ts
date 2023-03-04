@@ -669,21 +669,34 @@ type ApidocApiflowState = {
         position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom"
     };
     /**
+     * 鼠标在线条区域上信息
+     */
+    mouseInLineInfo: {
+        /**
+         * 线条id
+         */
+        mouseInlineId: string;
+        /**
+         * 是否在拖拽箭头上
+         */
+        isInDragArrow: boolean;
+        /**
+         * 当前拖拽节点id
+         */
+        dragLineId: string;
+        /**
+         * 是否mousedown拖拽箭头
+         */
+        isMouseDownDragArrow: boolean;
+    },
+    /**
      * 当前被激活的节点
      */
     activeNodeId: string,
     /**
      * 鼠标位置在节点上id
      */
-    mouseInNodeId: string,
-    /**
-     * 鼠标是否在线条箭头上面
-     */
-    isMouseInLineArrow: boolean,
-    /**
-     * 鼠标目前在那条线上面
-     */
-    currentDragLineId: string,
+    hoverNodeId: string,
     /**
      * 鼠标是否点击元素
      */

@@ -121,11 +121,10 @@
             <pre style="position: absolute; right: 720px; top: 40px;">
                 isMouseDownResizeDot: {{ isMouseDownResizeDot }}
                 isMouseDownCanvasArrow: {{ isMouseDownCanvasArrow }}
-                isInArrow: {{ isMouseInLineArrow }}
+                mouseInLineInfo: {{ mouseInLineInfo }}
                 isMouseDownNode: {{ isMouseDownNode }}
-                currentDragLineId: {{ currentDragLineId }}
                 mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
-                mouseInNodeId: {{ mouseInNodeId }}
+                hoverNodeId: {{ hoverNodeId }}
                 mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
                 activeNodeId: {{ activeNodeId }}
             </pre>
@@ -161,9 +160,9 @@ const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOp
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
 const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
-const mouseInNodeId = computed(() => store.state["apidoc/apiflow"].mouseInNodeId)
+const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
-const isMouseInLineArrow = computed(() => store.state["apidoc/apiflow"].isMouseInLineArrow);
+const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
 const isMouseDownCanvasArrow = ref(false);
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList)
 const currentNode = computed(() => nodeList.value.find(v => v.id === props.nodeId));
@@ -293,7 +292,6 @@ const isMouseDownNode = computed({
         store.commit("apidoc/apiflow/changeIsMouseDownNode", val)
     }
 });
-const currentDragLineId = computed(() => store.state["apidoc/apiflow"].currentDragLineId)
 const isMouseInNode = ref(false);
 const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId); //当前选中节点id
 const styleInfo = computed(() => currentNode.value?.styleInfo)
@@ -354,7 +352,7 @@ const handleNodeMouseLeave = () => {
 }
 //节点移动
 const handleNodeMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownNode.value || isMouseDownResizeDot.value || isMouseInLineArrow.value) {
+    if (!isMouseDownNode.value || isMouseDownResizeDot.value || mouseInLineInfo.value.isInDragArrow) {
         return
     }
     if (currentOperatNode.value?.id !== currentNode.value?.id) {

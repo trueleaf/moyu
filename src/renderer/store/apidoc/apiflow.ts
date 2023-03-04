@@ -32,7 +32,6 @@ type AddIncomingInfo = {
 const apiflow = {
     namespaced: true,
     state: {
-        currentDragLineId: "",
         mouseIncreateLineDotInfo: {
             nodeId: "",
             position: "left"
@@ -41,9 +40,14 @@ const apiflow = {
             nodeId: "",
             position: ""
         },
-        mouseInNodeId: "",
+        mouseInLineInfo: {
+            mouseInlineId: "",
+            dragLineId: "",
+            isInDragArrow: false,
+            isMouseDownDragArrow: false,
+        },
+        hoverNodeId: "",
         activeNodeId: "",
-        isMouseInLineArrow: false,
         isMouseDownResizeDot: false,
         isMouseDownNode: false,
         currentSelectedDotId: "",
@@ -64,10 +68,6 @@ const apiflow = {
         changeCurrentSelectedDotId(state: ApidocApiflowState, payload: string): void {
             state.currentSelectedDotId = payload;
         },
-        //鼠标是否在线条箭头上面
-        changeIsMouseInLineArrow(state: ApidocApiflowState, payload: boolean): void {
-            state.isMouseInLineArrow = payload;
-        },
         //鼠标是否点击元素
         changeIsMouseDownNode(state: ApidocApiflowState, payload: boolean): void {
             state.isMouseDownNode = payload;
@@ -80,10 +80,6 @@ const apiflow = {
         changeCurrentOperatNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
             state.currentOperatNode = payload;
         },
-        //
-        changeCurrentDragLineId(state: ApidocApiflowState, currentDragLineId: string): void {
-            state.currentDragLineId = currentDragLineId
-        },
         //当前鼠标是否在创建线条的圆点上面
         changeMouseIncreateLineDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseIncreateLineDotInfo"]): void {
             state.mouseIncreateLineDotInfo.nodeId = dotInfo.nodeId;
@@ -95,8 +91,23 @@ const apiflow = {
             state.mouseInResizeDotInfo.position = dotInfo.position;
         },
         //当前鼠标是否在节点上面
-        changeMouseInNodeId(state: ApidocApiflowState, mouseInNodeId: string): void {
-            state.mouseInNodeId = mouseInNodeId
+        changehoverNodeId(state: ApidocApiflowState, hoverNodeId: string): void {
+            state.hoverNodeId = hoverNodeId
+        },
+        //改变鼠标在线条上的信息
+        changeMouseInLineInfo(state: ApidocApiflowState, payload: Partial<ApidocApiflowState["mouseInLineInfo"]>): void {
+            if (payload.mouseInlineId != null) {
+                state.mouseInLineInfo.mouseInlineId = payload.mouseInlineId;
+            }
+            if (payload.dragLineId != null) {
+                state.mouseInLineInfo.dragLineId = payload.dragLineId;
+            }
+            if (payload.isInDragArrow != null) {
+                state.mouseInLineInfo.isInDragArrow = payload.isInDragArrow;
+            }
+            if (payload.isMouseDownDragArrow != null) {
+                state.mouseInLineInfo.isMouseDownDragArrow = payload.isMouseDownDragArrow;
+            }
         },
         /*
         |--------------------------------------------------------------------------
