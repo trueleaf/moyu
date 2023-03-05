@@ -143,9 +143,9 @@ const props = defineProps({
 | 公共变量
 |--------------------------------------------------------------------------
 */
-const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
+const currentMouseDownNode = computed(() => store.state["apidoc/apiflow"].currentMouseDownNode)
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
-const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
+const mouseInCreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInCreateLineDotInfo)
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList)
@@ -198,11 +198,11 @@ const handleMouseDownDot = () => {
     if (!currentNode.value) {
         return;
     }
-    if (mouseIncreateLineDotInfo.value.nodeId !== props.nodeId) {
+    if (mouseInCreateLineDotInfo.value.nodeId !== props.nodeId) {
         return
     }
     isMousedownDot.value = true;
-    const direction = mouseIncreateLineDotInfo.value.position
+    const direction = mouseInCreateLineDotInfo.value.position
     mousedownDotPosition.value = direction;
     const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect();
     lineId.value = uuid()
@@ -317,14 +317,11 @@ const handleNodeMousedown = (e: MouseEvent) => {
     mousedownNodeX.value = nodeOffsetX.value;
     mousedownNodeY.value = nodeOffsetY.value;
     isMouseDownNode.value = true;
-    store.commit("apidoc/apiflow/changeActiveNodeId", props.nodeId)
-    store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
 }
 //鼠标松开
 const handleNodeMouseUp = () => {
     isMouseDownNode.value = false;
     isMousedownDot.value = false;
-    store.commit("apidoc/apiflow/changeCurrentOperatNode", null)
 }
 //鼠标移入
 const handleNodeMouseEnter = () => {
@@ -339,7 +336,7 @@ const handleNodeMouseMove = (e: MouseEvent) => {
     if (!isMouseDownNode.value || isMouseDownResizeDot.value || mouseInLineInfo.value.isInDragArrow) {
         return
     }
-    if (currentOperatNode.value?.id !== currentNode.value?.id) {
+    if (currentMouseDownNode.value?.id !== currentNode.value?.id) {
         return
     }
     if (isMousedownDot.value) {
@@ -358,7 +355,6 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 */
 //縮放节点点击
 const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
-    store.commit("apidoc/apiflow/changeCurrentOperatNode", currentNode.value)
     isMouseDownResizeDot.value = true;
     resizeNodeMousedownX.value = e.clientX;
     resizeNodeMousedownY.value = e.clientY;
@@ -390,7 +386,7 @@ const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) =>
 }
 //縮放节点鼠标移动(改变大小)
 const handleResizeNodeMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownResizeDot.value || currentOperatNode.value?.id !== currentNode.value?.id) {
+    if (!isMouseDownResizeDot.value || currentMouseDownNode.value?.id !== currentNode.value?.id) {
         return;
     }
     const relativeX = e.clientX - resizeNodeMousedownX.value; //相对x移动距离

@@ -44,7 +44,7 @@ const hostNode = computed(() => { //宿主节点(节点出线包含当前线条�
     return nodeList.find(node => node.outcomings.find(line => line.id === props.lineInfo.id))
 });
 const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
-const currentOperatNode = computed(() => store.state["apidoc/apiflow"].currentOperatNode)
+const currentMouseDownNode = computed(() => store.state["apidoc/apiflow"].currentMouseDownNode)
 const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect()
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
 const isResizeNodeMousedown = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
@@ -377,12 +377,12 @@ const drawLine = () => {
     if (!hostNode.value) {
         return;
     }
-    const incomings = currentOperatNode.value?.incomings;
-    const outcomings = currentOperatNode.value?.outcomings;
+    const incomings = currentMouseDownNode.value?.incomings;
+    const outcomings = currentMouseDownNode.value?.outcomings;
     const isIncomingLine = incomings && incomings.find(incoming => incoming.id === props.lineInfo.id);
     const isOutcomingLine = outcomings && outcomings.find(outcoming => outcoming.id === props.lineInfo.id);
     const { styleInfo } = hostNode.value;
-    const styleInfo2 = currentOperatNode.value?.styleInfo as ApidocApiflowNodeInfo["styleInfo"];
+    const styleInfo2 = currentMouseDownNode.value?.styleInfo as ApidocApiflowNodeInfo["styleInfo"];
     let lineClientStartX = 0;
     let lineClientStartY = 0;
     let lineClientEndX = 0;

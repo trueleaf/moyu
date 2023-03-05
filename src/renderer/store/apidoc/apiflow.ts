@@ -32,7 +32,7 @@ type AddIncomingInfo = {
 const apiflow = {
     namespaced: true,
     state: {
-        mouseIncreateLineDotInfo: {
+        mouseInCreateLineDotInfo: {
             nodeId: "",
             position: "left"
         },
@@ -76,14 +76,14 @@ const apiflow = {
         changeIsMouseDownResizeDot(state: ApidocApiflowState, payload: boolean): void {
             state.isMouseDownResizeDot = payload;
         },
-        //改变当前操作的node信息
-        changeCurrentOperatNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
-            state.currentOperatNode = payload;
+        //当前被mousedown的节点信息
+        changeCurrentMouseDownNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
+            state.currentMouseDownNode = payload;
         },
         //当前鼠标是否在创建线条的圆点上面
-        changeMouseIncreateLineDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseIncreateLineDotInfo"]): void {
-            state.mouseIncreateLineDotInfo.nodeId = dotInfo.nodeId;
-            state.mouseIncreateLineDotInfo.position = dotInfo.position;
+        changemouseInCreateLineDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseInCreateLineDotInfo"]): void {
+            state.mouseInCreateLineDotInfo.nodeId = dotInfo.nodeId;
+            state.mouseInCreateLineDotInfo.position = dotInfo.position;
         },
         //当前鼠标是否在节点缩放按钮上面
         changeMouseInResizeDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseInResizeDotInfo"]): void {

@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { ApidocApiflowLineInfo } from "@@/store";
+import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
 import { computed } from "vue";
 import { getCreateLineArea, getResizeBarArea, ResizeDotArea, StickyArea } from "../components/utils/common/common";
 
@@ -10,6 +10,7 @@ import { getCreateLineArea, getResizeBarArea, ResizeDotArea, StickyArea } from "
 */
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
+const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId);
 /**
  * 检查鼠标是否在创建连线节点上面
  */
@@ -33,6 +34,7 @@ export function checkMouseIsInCreateLineDot(e: MouseEvent): void {
         return null;
     }
     const nodes = nodeList.value;
+    const matchedNodes: { position: ReturnType<typeof getMouseIsInCreateDot>, node: ApidocApiflowNodeInfo }[] = [];
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const createLineArea = getCreateLineArea(node);
@@ -40,16 +42,28 @@ export function checkMouseIsInCreateLineDot(e: MouseEvent): void {
             x: mouseOffsetX,
             y: mouseOffsetY
         })
-        if (mouseInCreateDotPosition) {
-            store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
-                nodeId: node.id,
+        if (mouseInCreateDotPosition && (!hoverNodeId.value || hoverNodeId.value === node.id)) {
+            matchedNodes.push({
+                node,
                 position: mouseInCreateDotPosition
-            })
-            break
+            });
         }
-        store.commit("apidoc/apiflow/changeMouseIncreateLineDotInfo", {
+    }
+    if (matchedNodes.length === 0) {
+        store.commit("apidoc/apiflow/changemouseInCreateLineDotInfo", {
             nodeId: "",
             position: ""
+        })
+    } else {
+        let maxZIndexNode = matchedNodes[0]
+        for (let i = 1; i < matchedNodes.length; i += 1) {
+            if (matchedNodes[i].node.styleInfo.zIndex > maxZIndexNode.node.styleInfo.zIndex) {
+                maxZIndexNode = matchedNodes[i]
+            }
+        }
+        store.commit("apidoc/apiflow/changemouseInCreateLineDotInfo", {
+            nodeId: maxZIndexNode.node.id,
+            position: maxZIndexNode.position
         })
     }
 }
@@ -89,16 +103,26 @@ export function checkMouseIsInNode(e: MouseEvent): void {
     const nodes = nodeList.value;
     const mouseOffsetX = e.clientX - containerInfo.value.clientX
     const mouseOffsetY = e.clientY - containerInfo.value.clientY
+    const matchedNodes: ApidocApiflowNodeInfo[] = [];
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const { offsetX, width, offsetY, height } = node.styleInfo;
         const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
         const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
         if (isInX && isInY) {
-            store.commit("apidoc/apiflow/changehoverNodeId", node.id);
-            break;
+            matchedNodes.push(node);
         }
-        store.commit("apidoc/apiflow/changehoverNodeId", "");
+    }
+    if (matchedNodes.length === 0) {
+        store.commit("apidoc/apiflow/changehoverNodeId", "")
+    } else {
+        let maxZIndexNode = matchedNodes[0]
+        for (let i = 1; i < matchedNodes.length; i += 1) {
+            if (matchedNodes[i].styleInfo.zIndex > maxZIndexNode.styleInfo.zIndex) {
+                maxZIndexNode = matchedNodes[i]
+            }
+        }
+        store.commit("apidoc/apiflow/changehoverNodeId", maxZIndexNode.id)
     }
 }
 /**
@@ -142,5 +166,36 @@ export function checkMouseIsInResizeDot(e: MouseEvent): void {
             nodeId: "",
             position: "",
         });
+    }
+}
+/**
+ * 当前鼠标点击的节点
+ */
+export function calcMouseDownNode(e: MouseEvent): void {
+    const nodes = nodeList.value;
+    const mouseOffsetX = e.clientX - containerInfo.value.clientX
+    const mouseOffsetY = e.clientY - containerInfo.value.clientY
+    const matchedNodes: ApidocApiflowNodeInfo[] = [];
+    for (let i = 0; i < nodes.length; i += 1) {
+        const node = nodes[i];
+        const { offsetX, width, offsetY, height } = node.styleInfo;
+        const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
+        const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
+        if (isInX && isInY) {
+            matchedNodes.push(node);
+        }
+    }
+    if (matchedNodes.length === 0) {
+        store.commit("apidoc/apiflow/changeCurrentMouseDownNode", null);
+        store.commit("apidoc/apiflow/changeActiveNodeId", "");
+    } else {
+        let maxZIndexNode = matchedNodes[0]
+        for (let i = 1; i < matchedNodes.length; i += 1) {
+            if (matchedNodes[i].styleInfo.zIndex > maxZIndexNode.styleInfo.zIndex) {
+                maxZIndexNode = matchedNodes[i]
+            }
+        }
+        store.commit("apidoc/apiflow/changeCurrentMouseDownNode", maxZIndexNode);
+        store.commit("apidoc/apiflow/changeActiveNodeId", maxZIndexNode.id);
     }
 }

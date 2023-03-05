@@ -657,7 +657,7 @@ type ApidocApiflowState = {
     /**
      * 鼠标在引出线条dot上面信息
      */
-    mouseIncreateLineDotInfo: {
+    mouseInCreateLineDotInfo: {
         nodeId: string;
         position: "left" | "top" | "right" | "bottom"
     };
@@ -708,7 +708,7 @@ type ApidocApiflowState = {
     /**
      * 当前操作的节点信息
      */
-    currentOperatNode: ApidocApiflowNodeInfo | null;
+    currentMouseDownNode: ApidocApiflowNodeInfo | null;
     /**
      * 容器信息
      */

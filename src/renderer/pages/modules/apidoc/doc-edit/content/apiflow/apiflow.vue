@@ -26,10 +26,11 @@
         <teleport to="body">
             <pre style="position: absolute; right: 720px; top: 40px;">
                 mouseInLineInfo: {{ mouseInLineInfo }}
-                mouseIncreateLineDotInfo: {{ mouseIncreateLineDotInfo }}
+                mouseInCreateLineDotInfo: {{ mouseInCreateLineDotInfo }}
                 hoverNodeId: {{ hoverNodeId }}
                 mouseInResizeDotInfo: {{ mouseInResizeDotInfo }}
                 activeNodeId: {{ activeNodeId }}
+                currentMouseDownNode: {{ currentMouseDownNode }}
             </pre>
             <pre style="position: absolute; right: 220px; top: 40px; height: 400px; overflow-y: auto;">{{ { nodeList } }}</pre>
         </teleport>
@@ -44,16 +45,17 @@ import type { ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
-import { checkMouseIsInCreateLineDot, checkMouseIsInLineArrow, checkMouseIsInNode, checkMouseIsInResizeDot } from "./checker/checker";
+import { checkMouseIsInCreateLineDot, checkMouseIsInLineArrow, checkMouseIsInNode, checkMouseIsInResizeDot, calcMouseDownNode } from "./checker/checker";
 
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
-const mouseIncreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseIncreateLineDotInfo)
+const mouseInCreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInCreateLineDotInfo)
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo)
 const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
 const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId);
 const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId);
+const currentMouseDownNode = computed(() => store.state["apidoc/apiflow"].currentMouseDownNode);
 const cursor = computed(() => {
-    if (mouseIncreateLineDotInfo.value.nodeId) {
+    if (mouseInCreateLineDotInfo.value.nodeId) {
         return "crosshair"
     }
     if (activeNodeId.value && mouseInResizeDotInfo.value.position === "leftTop") {
@@ -135,31 +137,32 @@ const handleCheckMouseInNodeOrLine = (e: MouseEvent) => {
     checkMouseIsInNode(e);
     checkMouseIsInResizeDot(e);
 }
-const handleConfirmDragLineId = () => {
+const handleMouseDown = (e: MouseEvent) => {
     if (mouseInLineInfo.value.isInDragArrow) {
         store.commit("apidoc/apiflow/changeMouseInLineInfo", {
             isMouseDownDragArrow: true,
             dragLineId: mouseInLineInfo.value.mouseInlineId
         });
     }
+    calcMouseDownNode(e)
 }
 const handleMouseUp = () => {
     store.commit("apidoc/apiflow/changeMouseInLineInfo", {
         isMouseDownDragArrow: false,
         dragLineId: ""
     });
-    //清空当前选中节点
-    store.commit("apidoc/apiflow/changeActiveNodeId", "")
+    //清空当前mousedown的节点
+    store.commit("apidoc/apiflow/changeCurrentMouseDownNode", null)
 }
 onMounted(() => {
     initWidgets();
     document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseInNodeOrLine));
-    document.documentElement.addEventListener("mousedown", handleConfirmDragLineId);
+    document.documentElement.addEventListener("mousedown", handleMouseDown);
     document.documentElement.addEventListener("mouseup", handleMouseUp);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleCheckMouseInNodeOrLine);
-    document.documentElement.removeEventListener("mousedown", handleConfirmDragLineId);
+    document.documentElement.removeEventListener("mousedown", handleMouseDown);
     document.documentElement.removeEventListener("mouseup", handleMouseUp);
 })
 </script>
