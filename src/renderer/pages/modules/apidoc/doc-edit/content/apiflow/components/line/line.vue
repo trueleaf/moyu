@@ -47,9 +47,8 @@ const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const currentMouseDownNode = computed(() => store.state["apidoc/apiflow"].currentMouseDownNode)
 const apiflowWrapperRect = apiflowWrapper.value.getBoundingClientRect()
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
-const isResizeNodeMousedown = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
 const isMouseDownNode = computed(() => store.state["apidoc/apiflow"].isMouseDownNode);
-const isMouseDownResizeDot = computed(() => store.state["apidoc/apiflow"].isMouseDownResizeDot);
+const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
 const lineCanvasClickOffsetX = ref(0);
 const lineCanvasClickOffsetY = ref(0);
 /*
@@ -225,7 +224,7 @@ const handleMouseDownCanvas = (e: MouseEvent) => {
 }
 //拖拽箭头
 const handleCanvasMouseMove = (e: MouseEvent) => {
-    if (!mouseInLineInfo.value.isMouseDownDragArrow || mouseInLineInfo.value.dragLineId !== props.lineInfo.id) { //只能拖拽当前节点
+    if (!mouseInLineInfo.value.isMouseDown || mouseInLineInfo.value.dragLineId !== props.lineInfo.id) { //只能拖拽当前节点
         return
     }
     if (hostNode.value) {
@@ -508,13 +507,13 @@ const drawLine = () => {
     }
 }
 const handleNodeMouseMove = () => {
-    if (!isMouseDownNode.value || isResizeNodeMousedown.value || mouseInLineInfo.value.isInDragArrow || !hostNode.value) {
+    if (!isMouseDownNode.value || mouseInResizeDotInfo.value.isMouseDown || mouseInLineInfo.value.isInDragArrow || !hostNode.value) {
         return
     }
     drawLine();
 };
 const handleResizeNodeMouseMove = () => {
-    if (!isMouseDownResizeDot.value || !hostNode.value) {
+    if (!mouseInResizeDotInfo.value.isMouseDown || !hostNode.value) {
         return;
     }
     drawLine();

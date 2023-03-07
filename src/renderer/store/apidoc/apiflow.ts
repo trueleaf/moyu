@@ -38,17 +38,19 @@ const apiflow = {
         },
         mouseInResizeDotInfo: {
             nodeId: "",
-            position: ""
+            position: "",
+            isMouseDown: false,
+            clientX: 0,
+            clientY: 0,
         },
         mouseInLineInfo: {
             mouseInlineId: "",
             dragLineId: "",
             isInDragArrow: false,
-            isMouseDownDragArrow: false,
+            isMouseDown: false,
         },
         hoverNodeId: "",
         activeNodeId: "",
-        isMouseDownResizeDot: false,
         isMouseDownNode: false,
         currentSelectedDotId: "",
         containerInfo: {},
@@ -72,10 +74,6 @@ const apiflow = {
         changeIsMouseDownNode(state: ApidocApiflowState, payload: boolean): void {
             state.isMouseDownNode = payload;
         },
-        //鼠标是否点击节点resizedot
-        changeIsMouseDownResizeDot(state: ApidocApiflowState, payload: boolean): void {
-            state.isMouseDownResizeDot = payload;
-        },
         //当前被mousedown的节点信息
         changeCurrentMouseDownNode(state: ApidocApiflowState, payload: ApidocApiflowNodeInfo | null): void {
             state.currentMouseDownNode = payload;
@@ -86,9 +84,28 @@ const apiflow = {
             state.mouseInCreateLineDotInfo.position = dotInfo.position;
         },
         //当前鼠标是否在节点缩放按钮上面
-        changeMouseInResizeDotInfo(state: ApidocApiflowState, dotInfo: ApidocApiflowState["mouseInResizeDotInfo"]): void {
-            state.mouseInResizeDotInfo.nodeId = dotInfo.nodeId;
-            state.mouseInResizeDotInfo.position = dotInfo.position;
+        changeMouseInResizeDotInfo(state: ApidocApiflowState, dotInfo: Partial<ApidocApiflowState["mouseInResizeDotInfo"]>): void {
+            if (dotInfo.nodeId != null) {
+                state.mouseInResizeDotInfo.nodeId = dotInfo.nodeId;
+            }
+            if (dotInfo.position != null) {
+                state.mouseInResizeDotInfo.position = dotInfo.position;
+            }
+            if (dotInfo.isMouseDown != null) {
+                state.mouseInResizeDotInfo.isMouseDown = dotInfo.isMouseDown;
+            }
+            if (dotInfo.clientX != null) {
+                state.mouseInResizeDotInfo.clientX = dotInfo.clientX;
+            }
+            if (dotInfo.clientY != null) {
+                state.mouseInResizeDotInfo.clientY = dotInfo.clientY;
+            }
+            if (dotInfo.mouseDownWidth != null) {
+                state.mouseInResizeDotInfo.mouseDownWidth = dotInfo.mouseDownWidth;
+            }
+            if (dotInfo.mouseDownHeight != null) {
+                state.mouseInResizeDotInfo.mouseDownHeight = dotInfo.mouseDownHeight;
+            }
         },
         //当前鼠标是否在节点上面
         changehoverNodeId(state: ApidocApiflowState, hoverNodeId: string): void {
@@ -105,8 +122,8 @@ const apiflow = {
             if (payload.isInDragArrow != null) {
                 state.mouseInLineInfo.isInDragArrow = payload.isInDragArrow;
             }
-            if (payload.isMouseDownDragArrow != null) {
-                state.mouseInLineInfo.isMouseDownDragArrow = payload.isMouseDownDragArrow;
+            if (payload.isMouseDown != null) {
+                state.mouseInLineInfo.isMouseDown = payload.isMouseDown;
             }
         },
         /*

@@ -140,16 +140,32 @@ const handleCheckMouseInNodeOrLine = (e: MouseEvent) => {
 const handleMouseDown = (e: MouseEvent) => {
     if (mouseInLineInfo.value.isInDragArrow) {
         store.commit("apidoc/apiflow/changeMouseInLineInfo", {
-            isMouseDownDragArrow: true,
+            isMouseDown: true,
             dragLineId: mouseInLineInfo.value.mouseInlineId
+        });
+    }
+    if (mouseInResizeDotInfo.value.nodeId) {
+        store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
+            isMouseDown: true,
+            clientX: e.clientX,
+            clientY: e.clientY,
+            mouseDownWidth: currentMouseDownNode.value?.styleInfo.width,
+            mouseDownHeight: currentMouseDownNode.value?.styleInfo.height,
         });
     }
     calcMouseDownNode(e)
 }
 const handleMouseUp = () => {
     store.commit("apidoc/apiflow/changeMouseInLineInfo", {
-        isMouseDownDragArrow: false,
+        isMouseDown: false,
         dragLineId: ""
+    });
+    store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
+        isMouseDown: false,
+        clientX: 0,
+        clientY: 0,
+        mouseDownWidth: 0,
+        mouseDownHeight: 0,
     });
     //清空当前mousedown的节点
     store.commit("apidoc/apiflow/changeCurrentMouseDownNode", null)

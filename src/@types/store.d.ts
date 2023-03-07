@@ -665,8 +665,34 @@ type ApidocApiflowState = {
      * 鼠标在节点放大缩小按钮上面信息
      */
     mouseInResizeDotInfo: {
+        /**
+         * 当前被缩放节点id
+         */
         nodeId: string;
-        position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom"
+        /**
+         * 缩放方向
+         */
+        position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom",
+        /**
+         * 缩放节点是否被按下
+         */
+        isMouseDown: boolean;
+        /**
+         * 鼠标clientX
+         */
+        clientX: number;
+        /**
+         * 鼠标clientY
+         */
+        clientY: number;
+        /**
+         * 点击时node宽度
+         */
+        mouseDownWidth: number;
+        /**
+         * 点击时node高度
+         */
+        mouseDownHeight: number;
     };
     /**
      * 鼠标在线条区域上信息
@@ -687,7 +713,7 @@ type ApidocApiflowState = {
         /**
          * 是否mousedown拖拽箭头
          */
-        isMouseDownDragArrow: boolean;
+        isMouseDown: boolean;
     },
     /**
      * 当前被激活的节点
@@ -701,10 +727,6 @@ type ApidocApiflowState = {
      * 鼠标是否点击元素
      */
     isMouseDownNode: boolean,
-    /**
-     * 鼠标是否点击节点resizedot
-     */
-    isMouseDownResizeDot: boolean,
     /**
      * 当前操作的节点信息
      */

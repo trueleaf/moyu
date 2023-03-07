@@ -21,53 +21,49 @@
     >
         <template v-if="activeNodeId === props.nodeId">
             <div
-                class="rect lt"
+                class="resize-dot lt"
                 :style="{
                     width: containerInfo.resizeNodeSize + 'px',
                     height: containerInfo.resizeNodeSize + 'px',
                     left: -containerInfo.resizeNodeSize/2 + 'px',
                     top: -containerInfo.resizeNodeSize/2 + 'px',
                 }"
-                @mousedown.stop="handleResizeNodeMousedown($event, 'leftTop')"
             >
             </div>
             <div
-                class="rect rt"
+                class="resize-dot rt"
                 :style="{
                     width: containerInfo.resizeNodeSize + 'px',
                     height: containerInfo.resizeNodeSize + 'px',
                     top: -containerInfo.resizeNodeSize / 2 + 'px',
                     right: -containerInfo.resizeNodeSize / 2 + 'px',
                 }"
-                @mousedown.stop="handleResizeNodeMousedown($event, 'rightTop')"
             >
             </div>
             <div
-                class="rect lb"
+                class="resize-dot lb"
                 :style="{
                     width: containerInfo.resizeNodeSize + 'px',
                     height: containerInfo.resizeNodeSize + 'px',
                     left: -containerInfo.resizeNodeSize / 2 + 'px',
                     bottom: -containerInfo.resizeNodeSize / 2 + 'px',
                 }"
-                @mousedown.stop="handleResizeNodeMousedown($event, 'leftBottom')"
             >
             </div>
             <div
-                class="rect rb"
+                class="resize-dot rb"
                 :style="{
                     width: containerInfo.resizeNodeSize + 'px',
                     height: containerInfo.resizeNodeSize + 'px',
                     bottom: -containerInfo.resizeNodeSize / 2 + 'px',
                     right: -containerInfo.resizeNodeSize / 2 + 'px',
                 }"
-                @mousedown.stop="handleResizeNodeMousedown($event, 'rightBottom')"
             >
             </div>
         </template>
         <template v-if="1 || isMouseInNode">
             <div
-                class="dot"
+                class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -78,7 +74,7 @@
             >
             </div>
             <div
-                class="dot"
+                class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -89,7 +85,7 @@
             >
             </div>
             <div
-                class="dot"
+                class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -100,7 +96,7 @@
             >
             </div>
             <div
-                class="dot"
+                class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
                     width: containerInfo.createLineNodeSize + 'px',
@@ -128,7 +124,6 @@ import { store } from "@/store";
 import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getZIndex } from "../utils/utils";
 
-type ResizeDirection = "leftTop" | "rightTop" | "leftBottom" | "rightBottom";
 const props = defineProps({
     /**
      * 当前节点id
@@ -150,6 +145,7 @@ const apiflowWrapper = inject("apiflowWrapper") as Ref<HTMLElement>;
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo);
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList)
 const currentNode = computed(() => nodeList.value.find(v => v.id === props.nodeId));
+const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo)
 const nodeOffsetX = computed({ //节点x值
     get() {
         return currentNode.value?.styleInfo.offsetX || 0
@@ -292,19 +288,8 @@ const nodeMinHeight = 50; //最小高度
 | 拖拽节点
 |--------------------------------------------------------------------------
 */
-const resizeNodeMousedownX = ref(0); //鼠标按下时候resize节点x值
-const resizeNodeMousedownY = ref(0); //鼠标按下时候resize节点y值
-const isMouseDownResizeDot = computed({
-    get() {
-        return store.state["apidoc/apiflow"].isMouseDownResizeDot;
-    },
-    set(val) {
-        store.commit("apidoc/apiflow/changeIsMouseDownResizeDot", val)
-    }
-});
 const nodeStartResizeWidth = ref(0); //节点开始resize时候宽度
 const nodeStartResizeHeight = ref(0); //节点开始resize时候高度
-const resizeDirection: Ref<ResizeDirection> = ref("leftTop");
 /*
 |--------------------------------------------------------------------------
 | 节点移动相关事件
@@ -333,7 +318,7 @@ const handleNodeMouseLeave = () => {
 }
 //节点移动
 const handleNodeMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownNode.value || isMouseDownResizeDot.value || mouseInLineInfo.value.isInDragArrow) {
+    if (!isMouseDownNode.value || mouseInResizeDotInfo.value.isMouseDown || mouseInLineInfo.value.isInDragArrow) {
         return
     }
     if (currentMouseDownNode.value?.id !== currentNode.value?.id) {
@@ -354,50 +339,50 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 |--------------------------------------------------------------------------
 */
 //縮放节点点击
-const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
-    isMouseDownResizeDot.value = true;
-    resizeNodeMousedownX.value = e.clientX;
-    resizeNodeMousedownY.value = e.clientY;
-    nodeStartResizeWidth.value = nodeWidth.value;
-    nodeStartResizeHeight.value = nodeHeight.value;
-    mousedownNodeX.value = nodeOffsetX.value;
-    mousedownNodeY.value = nodeOffsetY.value;
-    resizeDirection.value = direction;
-    switch (direction) {
-        case "leftTop":
-            nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
-            nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
-            break;
-        case "rightTop":
-            nodeFixedX.value = nodeOffsetX.value
-            nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
-            break;
-        case "leftBottom":
-            nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
-            nodeFixedY.value = nodeOffsetY.value
-            break;
-        case "rightBottom":
-            nodeFixedX.value = nodeOffsetX.value
-            nodeFixedY.value = nodeOffsetY.value
-            break;
-        default:
-            break;
-    }
-}
+// const handleResizeNodeMousedown = (e: MouseEvent, direction: ResizeDirection) => {
+//     isMouseDownResizeDot.value = true;
+//     resizeNodeMousedownX.value = e.clientX;
+//     resizeNodeMousedownY.value = e.clientY;
+//     nodeStartResizeWidth.value = nodeWidth.value;
+//     nodeStartResizeHeight.value = nodeHeight.value;
+//     mousedownNodeX.value = nodeOffsetX.value;
+//     mousedownNodeY.value = nodeOffsetY.value;
+//     mouseInResizeDotInfo.value.position = direction;
+//     switch (direction) {
+//         case "leftTop":
+//             nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+//             nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
+//             break;
+//         case "rightTop":
+//             nodeFixedX.value = nodeOffsetX.value
+//             nodeFixedY.value = nodeOffsetY.value + (nodeHeight.value - nodeMinHeight)
+//             break;
+//         case "leftBottom":
+//             nodeFixedX.value = nodeOffsetX.value + (nodeWidth.value - nodeMinWidth)
+//             nodeFixedY.value = nodeOffsetY.value
+//             break;
+//         case "rightBottom":
+//             nodeFixedX.value = nodeOffsetX.value
+//             nodeFixedY.value = nodeOffsetY.value
+//             break;
+//         default:
+//             break;
+//     }
+// }
 //縮放节点鼠标移动(改变大小)
 const handleResizeNodeMouseMove = (e: MouseEvent) => {
-    if (!isMouseDownResizeDot.value || currentMouseDownNode.value?.id !== currentNode.value?.id) {
+    if (!mouseInResizeDotInfo.value.isMouseDown || currentMouseDownNode.value?.id !== currentNode.value?.id) {
         return;
     }
-    const relativeX = e.clientX - resizeNodeMousedownX.value; //相对x移动距离
-    const relativeY = e.clientY - resizeNodeMousedownY.value; //相对y移动距离
-    if (resizeDirection.value === "leftTop") {
+    const relativeX = e.clientX - mouseInResizeDotInfo.value.clientX; //相对x移动距离
+    const relativeY = e.clientY - mouseInResizeDotInfo.value.clientY; //相对y移动距离
+    if (mouseInResizeDotInfo.value.position === "leftTop") {
         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
             nodeOffsetX.value = nodeFixedX.value
         } else {
-            nodeOffsetX.value = mousedownNodeX.value + relativeX;
             nodeWidth.value = nodeStartResizeWidth.value - relativeX
+            nodeOffsetX.value = mousedownNodeX.value + relativeX;
         }
         if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
             nodeHeight.value = nodeMinHeight;
@@ -406,7 +391,7 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeHeight.value = nodeStartResizeHeight.value - relativeY
             nodeOffsetY.value = mousedownNodeY.value + relativeY;
         }
-    } else if (resizeDirection.value === "rightTop") {
+    } else if (mouseInResizeDotInfo.value.position === "rightTop") {
         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
             nodeOffsetX.value = nodeFixedX.value
@@ -420,7 +405,7 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeHeight.value = nodeStartResizeHeight.value - relativeY
             nodeOffsetY.value = mousedownNodeY.value + relativeY;
         }
-    } else if (resizeDirection.value === "leftBottom") {
+    } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
             nodeOffsetX.value = nodeFixedX.value
@@ -435,7 +420,7 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeHeight.value = nodeStartResizeHeight.value + relativeY
             nodeOffsetY.value = mousedownNodeY.value;
         }
-    } else if (resizeDirection.value === "rightBottom") {
+    } else if (mouseInResizeDotInfo.value.position === "rightBottom") {
         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
             nodeWidth.value = nodeMinWidth;
             nodeOffsetX.value = nodeFixedX.value
@@ -449,10 +434,6 @@ const handleResizeNodeMouseMove = (e: MouseEvent) => {
             nodeOffsetY.value = mousedownNodeY.value;
         }
     }
-}
-//縮放节点鼠标松开
-const handleResizeNodeMouseUp = () => {
-    isMouseDownResizeDot.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -503,7 +484,6 @@ onMounted(() => {
     document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
     document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
     document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
-    document.documentElement.addEventListener("mouseup", handleResizeNodeMouseUp);
     document.documentElement.addEventListener("click", handleClickGlobal);
     document.documentElement.addEventListener("mousedown", handleMouseDownDot);
 })
@@ -511,7 +491,6 @@ onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
     document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
     document.documentElement.removeEventListener("mouseup", handleNodeMouseUp);
-    document.documentElement.removeEventListener("mouseup", handleResizeNodeMouseUp);
     document.documentElement.removeEventListener("click", handleClickGlobal);
     document.documentElement.removeEventListener("mousedown", handleMouseDownDot);
 })
@@ -524,12 +503,12 @@ onUnmounted(() => {
     position: absolute;
     user-select: none;
     background-color: $white;
-    .rect {
+    .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
         background-color: $white;
     }
-    .dot {
+    .create-line-dot {
         border-radius: 50%;
         border: 1px solid $theme-color;
         position: absolute;
