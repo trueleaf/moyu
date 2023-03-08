@@ -11,6 +11,8 @@ import { getCreateLineArea, getResizeBarArea, ResizeDotArea, StickyArea } from "
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
 const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId);
+const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId);
+const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInResizeDotInfo);
 /**
  * 检查鼠标是否在创建连线节点上面
  */
@@ -155,7 +157,7 @@ export function checkMouseIsInResizeDot(e: MouseEvent): void {
             x: mouseOffsetX,
             y: mouseOffsetY
         });
-        if (resizeNodeArea) {
+        if (resizeNodeArea && activeNodeId.value === node.id) {
             store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
                 nodeId: node.id,
                 position: resizeNodeArea
@@ -181,7 +183,7 @@ export function calcMouseDownNode(e: MouseEvent): void {
         const { offsetX, width, offsetY, height } = node.styleInfo;
         const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
         const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
-        if (isInX && isInY) {
+        if ((isInX && isInY) || mouseInResizeDotInfo.value.nodeId === node.id) {
             matchedNodes.push(node);
         }
     }

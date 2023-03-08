@@ -278,18 +278,18 @@ const styleInfo = computed(() => currentNode.value?.styleInfo)
 
 const mousedownNodeX = ref(0); //鼠标按下时候节点x值
 const mousedownNodeY = ref(0); //鼠标按下时候节点y值
-const nodeFixedX = ref(0);
-const nodeFixedY = ref(0);
-const nodeMinWidth = 100; //最小宽度
-const nodeMinHeight = 50; //最小高度
+// const nodeFixedX = ref(0);
+// const nodeFixedY = ref(0);
+// const nodeMinWidth = 100; //最小宽度
+// const nodeMinHeight = 50; //最小高度
 
 /*
 |--------------------------------------------------------------------------
 | 拖拽节点
 |--------------------------------------------------------------------------
 */
-const nodeStartResizeWidth = ref(0); //节点开始resize时候宽度
-const nodeStartResizeHeight = ref(0); //节点开始resize时候高度
+// const nodeStartResizeWidth = ref(0); //节点开始resize时候宽度
+// const nodeStartResizeHeight = ref(0); //节点开始resize时候高度
 /*
 |--------------------------------------------------------------------------
 | 节点移动相关事件
@@ -370,71 +370,71 @@ const handleNodeMouseMove = (e: MouseEvent) => {
 //     }
 // }
 //縮放节点鼠标移动(改变大小)
-const handleResizeNodeMouseMove = (e: MouseEvent) => {
-    if (!mouseInResizeDotInfo.value.isMouseDown || currentMouseDownNode.value?.id !== currentNode.value?.id) {
-        return;
-    }
-    const relativeX = e.clientX - mouseInResizeDotInfo.value.clientX; //相对x移动距离
-    const relativeY = e.clientY - mouseInResizeDotInfo.value.clientY; //相对y移动距离
-    if (mouseInResizeDotInfo.value.position === "leftTop") {
-        if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
-            nodeWidth.value = nodeMinWidth;
-            nodeOffsetX.value = nodeFixedX.value
-        } else {
-            nodeWidth.value = nodeStartResizeWidth.value - relativeX
-            nodeOffsetX.value = mousedownNodeX.value + relativeX;
-        }
-        if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
-            nodeHeight.value = nodeMinHeight;
-            nodeOffsetY.value = nodeFixedY.value
-        } else {
-            nodeHeight.value = nodeStartResizeHeight.value - relativeY
-            nodeOffsetY.value = mousedownNodeY.value + relativeY;
-        }
-    } else if (mouseInResizeDotInfo.value.position === "rightTop") {
-        if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
-            nodeWidth.value = nodeMinWidth;
-            nodeOffsetX.value = nodeFixedX.value
-        } else {
-            nodeWidth.value = nodeStartResizeWidth.value + relativeX
-        }
-        if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
-            nodeHeight.value = nodeMinHeight;
-            nodeOffsetY.value = nodeFixedY.value
-        } else {
-            nodeHeight.value = nodeStartResizeHeight.value - relativeY
-            nodeOffsetY.value = mousedownNodeY.value + relativeY;
-        }
-    } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
-        if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
-            nodeWidth.value = nodeMinWidth;
-            nodeOffsetX.value = nodeFixedX.value
-        } else {
-            nodeWidth.value = nodeStartResizeWidth.value - relativeX;
-            nodeOffsetX.value = mousedownNodeX.value + relativeX;
-        }
-        if (nodeStartResizeHeight.value + relativeY < nodeMinHeight) {
-            nodeHeight.value = nodeMinHeight;
-            nodeOffsetY.value = nodeFixedY.value
-        } else {
-            nodeHeight.value = nodeStartResizeHeight.value + relativeY
-            nodeOffsetY.value = mousedownNodeY.value;
-        }
-    } else if (mouseInResizeDotInfo.value.position === "rightBottom") {
-        if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
-            nodeWidth.value = nodeMinWidth;
-            nodeOffsetX.value = nodeFixedX.value
-        } else {
-            nodeWidth.value = nodeStartResizeWidth.value + relativeX;
-        }
-        if (nodeStartResizeHeight.value + relativeY < nodeMinHeight) {
-            nodeHeight.value = nodeMinHeight;
-        } else {
-            nodeHeight.value = nodeStartResizeHeight.value + relativeY
-            nodeOffsetY.value = mousedownNodeY.value;
-        }
-    }
-}
+// const handleResizeNodeMouseMove = (e: MouseEvent) => {
+//     if (!mouseInResizeDotInfo.value.isMouseDown || currentMouseDownNode.value?.id !== currentNode.value?.id) {
+//         return;
+//     }
+//     const relativeX = e.clientX - mouseInResizeDotInfo.value.clientX; //相对x移动距离
+//     const relativeY = e.clientY - mouseInResizeDotInfo.value.clientY; //相对y移动距离
+//     if (mouseInResizeDotInfo.value.position === "leftTop") {
+//         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
+//             nodeWidth.value = nodeMinWidth;
+//             nodeOffsetX.value = nodeFixedX.value
+//         } else {
+//             nodeWidth.value = nodeStartResizeWidth.value - relativeX
+//             nodeOffsetX.value = mousedownNodeX.value + relativeX;
+//         }
+//         if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
+//             nodeHeight.value = nodeMinHeight;
+//             nodeOffsetY.value = nodeFixedY.value
+//         } else {
+//             nodeHeight.value = nodeStartResizeHeight.value - relativeY
+//             nodeOffsetY.value = mousedownNodeY.value + relativeY;
+//         }
+//     } else if (mouseInResizeDotInfo.value.position === "rightTop") {
+//         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
+//             nodeWidth.value = nodeMinWidth;
+//             nodeOffsetX.value = nodeFixedX.value
+//         } else {
+//             nodeWidth.value = nodeStartResizeWidth.value + relativeX
+//         }
+//         if (nodeStartResizeHeight.value - relativeY < nodeMinHeight) {
+//             nodeHeight.value = nodeMinHeight;
+//             nodeOffsetY.value = nodeFixedY.value
+//         } else {
+//             nodeHeight.value = nodeStartResizeHeight.value - relativeY
+//             nodeOffsetY.value = mousedownNodeY.value + relativeY;
+//         }
+//     } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
+//         if (nodeStartResizeWidth.value - relativeX < nodeMinWidth) {
+//             nodeWidth.value = nodeMinWidth;
+//             nodeOffsetX.value = nodeFixedX.value
+//         } else {
+//             nodeWidth.value = nodeStartResizeWidth.value - relativeX;
+//             nodeOffsetX.value = mousedownNodeX.value + relativeX;
+//         }
+//         if (nodeStartResizeHeight.value + relativeY < nodeMinHeight) {
+//             nodeHeight.value = nodeMinHeight;
+//             nodeOffsetY.value = nodeFixedY.value
+//         } else {
+//             nodeHeight.value = nodeStartResizeHeight.value + relativeY
+//             nodeOffsetY.value = mousedownNodeY.value;
+//         }
+//     } else if (mouseInResizeDotInfo.value.position === "rightBottom") {
+//         if (nodeStartResizeWidth.value + relativeX < nodeMinWidth) {
+//             nodeWidth.value = nodeMinWidth;
+//             nodeOffsetX.value = nodeFixedX.value
+//         } else {
+//             nodeWidth.value = nodeStartResizeWidth.value + relativeX;
+//         }
+//         if (nodeStartResizeHeight.value + relativeY < nodeMinHeight) {
+//             nodeHeight.value = nodeMinHeight;
+//         } else {
+//             nodeHeight.value = nodeStartResizeHeight.value + relativeY
+//             nodeOffsetY.value = mousedownNodeY.value;
+//         }
+//     }
+// }
 /*
 |--------------------------------------------------------------------------
 | 鼠标右键事件
@@ -482,14 +482,14 @@ const handleClickGlobal = () => {
 }
 onMounted(() => {
     document.documentElement.addEventListener("mousemove", debounce(handleNodeMouseMove));
-    document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
+    // document.documentElement.addEventListener("mousemove", debounce(handleResizeNodeMouseMove));
     document.documentElement.addEventListener("mouseup", handleNodeMouseUp);
     document.documentElement.addEventListener("click", handleClickGlobal);
     document.documentElement.addEventListener("mousedown", handleMouseDownDot);
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleNodeMouseMove);
-    document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
+    // document.documentElement.removeEventListener("mousemove", handleResizeNodeMouseMove);
     document.documentElement.removeEventListener("mouseup", handleNodeMouseUp);
     document.documentElement.removeEventListener("click", handleClickGlobal);
     document.documentElement.removeEventListener("mousedown", handleMouseDownDot);

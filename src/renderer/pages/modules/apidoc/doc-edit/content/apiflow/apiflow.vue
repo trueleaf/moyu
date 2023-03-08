@@ -131,19 +131,21 @@ const initWidgets = () => {
 |--------------------------------------------------------------------------
 */
 //鼠标移动时，检测是否到达关键节点
-const handleCheckMouseInNodeOrLine = (e: MouseEvent) => {
+const handleMouseMove = (e: MouseEvent) => {
     checkMouseIsInCreateLineDot(e);
     checkMouseIsInLineArrow(e);
     checkMouseIsInNode(e);
     checkMouseIsInResizeDot(e);
 }
 const handleMouseDown = (e: MouseEvent) => {
+    calcMouseDownNode(e)
     if (mouseInLineInfo.value.isInDragArrow) {
         store.commit("apidoc/apiflow/changeMouseInLineInfo", {
             isMouseDown: true,
             dragLineId: mouseInLineInfo.value.mouseInlineId
         });
     }
+    console.log(currentMouseDownNode.value)
     if (mouseInResizeDotInfo.value.nodeId) {
         store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
             isMouseDown: true,
@@ -153,7 +155,6 @@ const handleMouseDown = (e: MouseEvent) => {
             mouseDownHeight: currentMouseDownNode.value?.styleInfo.height,
         });
     }
-    calcMouseDownNode(e)
 }
 const handleMouseUp = () => {
     store.commit("apidoc/apiflow/changeMouseInLineInfo", {
@@ -172,12 +173,12 @@ const handleMouseUp = () => {
 }
 onMounted(() => {
     initWidgets();
-    document.documentElement.addEventListener("mousemove", debounce(handleCheckMouseInNodeOrLine));
+    document.documentElement.addEventListener("mousemove", debounce(handleMouseMove));
     document.documentElement.addEventListener("mousedown", handleMouseDown);
     document.documentElement.addEventListener("mouseup", handleMouseUp);
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener("mousemove", handleCheckMouseInNodeOrLine);
+    document.documentElement.removeEventListener("mousemove", handleMouseMove);
     document.documentElement.removeEventListener("mousedown", handleMouseDown);
     document.documentElement.removeEventListener("mouseup", handleMouseUp);
 })
