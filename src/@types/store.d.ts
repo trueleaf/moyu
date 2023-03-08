@@ -680,11 +680,11 @@ type ApidocApiflowState = {
         /**
          * 鼠标clientX
          */
-        clientX: number;
+        mouseDownclientX: number;
         /**
          * 鼠标clientY
          */
-        clientY: number;
+        mouseDownclientY: number;
         /**
          * 点击时node宽度
          */
@@ -693,6 +693,14 @@ type ApidocApiflowState = {
          * 点击时node高度
          */
         mouseDownHeight: number;
+        /**
+         * 缩放时候，节点相对于某个点固定位置
+         */
+        nodeFixedX: number;
+        /**
+         * 缩放时候，节点相对于某个点固定位置
+         */
+        nodeFixedY: number;
     };
     /**
      * 鼠标在线条区域上信息

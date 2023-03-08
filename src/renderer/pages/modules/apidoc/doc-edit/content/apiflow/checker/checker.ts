@@ -164,10 +164,12 @@ export function checkMouseIsInResizeDot(e: MouseEvent): void {
             });
             break;
         }
-        store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
-            nodeId: "",
-            position: "",
-        });
+        if (!mouseInResizeDotInfo.value.isMouseDown) { //click状态保持不变
+            store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
+                nodeId: "",
+                position: "",
+            });
+        }
     }
 }
 /**

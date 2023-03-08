@@ -40,8 +40,12 @@ const apiflow = {
             nodeId: "",
             position: "",
             isMouseDown: false,
-            clientX: 0,
-            clientY: 0,
+            mouseDownclientX: 0,
+            mouseDownclientY: 0,
+            mouseDownWidth: 0,
+            mouseDownHeight: 0,
+            nodeFixedX: 0,
+            nodeFixedY: 0,
         },
         mouseInLineInfo: {
             mouseInlineId: "",
@@ -94,17 +98,23 @@ const apiflow = {
             if (dotInfo.isMouseDown != null) {
                 state.mouseInResizeDotInfo.isMouseDown = dotInfo.isMouseDown;
             }
-            if (dotInfo.clientX != null) {
-                state.mouseInResizeDotInfo.clientX = dotInfo.clientX;
+            if (dotInfo.mouseDownclientX != null) {
+                state.mouseInResizeDotInfo.mouseDownclientX = dotInfo.mouseDownclientX;
             }
-            if (dotInfo.clientY != null) {
-                state.mouseInResizeDotInfo.clientY = dotInfo.clientY;
+            if (dotInfo.mouseDownclientY != null) {
+                state.mouseInResizeDotInfo.mouseDownclientY = dotInfo.mouseDownclientY;
             }
             if (dotInfo.mouseDownWidth != null) {
                 state.mouseInResizeDotInfo.mouseDownWidth = dotInfo.mouseDownWidth;
             }
             if (dotInfo.mouseDownHeight != null) {
                 state.mouseInResizeDotInfo.mouseDownHeight = dotInfo.mouseDownHeight;
+            }
+            if (dotInfo.nodeFixedX != null) {
+                state.mouseInResizeDotInfo.nodeFixedX = dotInfo.nodeFixedX;
+            }
+            if (dotInfo.nodeFixedY != null) {
+                state.mouseInResizeDotInfo.nodeFixedY = dotInfo.nodeFixedY;
             }
         },
         //当前鼠标是否在节点上面

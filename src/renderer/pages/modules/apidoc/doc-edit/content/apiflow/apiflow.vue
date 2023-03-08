@@ -40,13 +40,15 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, provide, computed, onUnmounted } from "vue";
 import { store } from "@/store";
-import { debounce } from "@/helper";
+// import { debounce } from "@/helper";
 import type { ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
 import { checkMouseIsInCreateLineDot, checkMouseIsInLineArrow, checkMouseIsInNode, checkMouseIsInResizeDot, calcMouseDownNode } from "./checker/checker";
 
+const nodeMinWidth = 100; //最小宽度
+const nodeMinHeight = 50; //最小高度
 const nodeList = computed(() => store.state["apidoc/apiflow"].nodeList);
 const mouseInCreateLineDotInfo = computed(() => store.state["apidoc/apiflow"].mouseInCreateLineDotInfo)
 const mouseInLineInfo = computed(() => store.state["apidoc/apiflow"].mouseInLineInfo)
@@ -136,6 +138,77 @@ const handleMouseMove = (e: MouseEvent) => {
     checkMouseIsInLineArrow(e);
     checkMouseIsInNode(e);
     checkMouseIsInResizeDot(e);
+    if (mouseInResizeDotInfo.value.isMouseDown) {
+        const relativeX = e.clientX - mouseInResizeDotInfo.value.mouseDownclientX; //相对x移动距离
+        const relativeY = e.clientY - mouseInResizeDotInfo.value.mouseDownclientY; //相对y移动距离
+        const { mouseDownWidth, mouseDownHeight, nodeFixedX, nodeFixedY, mouseDownclientX, mouseDownclientY } = mouseInResizeDotInfo.value
+        let width = 0;
+        let height = 0;
+        let x = 0;
+        let y = 0;
+        if (mouseInResizeDotInfo.value.position === "leftTop") {
+            if (mouseDownWidth - relativeX < nodeMinWidth) {
+                width = nodeMinWidth;
+                x = nodeFixedX
+            } else {
+                width = mouseDownWidth - relativeX
+                x = mouseDownclientX + relativeX;
+            }
+            if (mouseDownHeight - relativeY < nodeMinHeight) {
+                height = nodeMinHeight;
+                y = nodeFixedY
+            } else {
+                height = mouseDownHeight - relativeY
+                y = mouseDownclientY + relativeY;
+            }
+        } else if (mouseInResizeDotInfo.value.position === "rightTop") {
+            if (mouseDownWidth + relativeX < nodeMinWidth) {
+                width = nodeMinWidth;
+                x = nodeFixedX
+            } else {
+                width = mouseDownWidth + relativeX
+            }
+            if (mouseDownHeight - relativeY < nodeMinHeight) {
+                height = nodeMinHeight;
+                y = nodeFixedY
+            } else {
+                height = mouseDownHeight - relativeY
+                y = mouseDownclientY + relativeY;
+            }
+        } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
+            if (mouseDownWidth - relativeX < nodeMinWidth) {
+                width = nodeMinWidth;
+                x = nodeFixedX
+            } else {
+                width = mouseDownWidth - relativeX;
+                x = mouseDownclientX + relativeX;
+            }
+            if (mouseDownHeight + relativeY < nodeMinHeight) {
+                height = nodeMinHeight;
+                y = nodeFixedY
+            } else {
+                height = mouseDownHeight + relativeY
+                y = mouseDownclientY;
+            }
+        } else if (mouseInResizeDotInfo.value.position === "rightBottom") {
+            if (mouseDownWidth + relativeX < nodeMinWidth) {
+                width = nodeMinWidth;
+                x = nodeFixedX
+            } else {
+                width = mouseDownWidth + relativeX;
+            }
+            if (mouseDownHeight + relativeY < nodeMinHeight) {
+                height = nodeMinHeight;
+            } else {
+                height = mouseDownHeight + relativeY
+                y = mouseDownclientY;
+            }
+        }
+        store.commit("apidoc/apiflow/changeNodeOffsetXById", { id: mouseInResizeDotInfo.value.nodeId, x })
+        store.commit("apidoc/apiflow/changeNodeOffsetYById", { id: mouseInResizeDotInfo.value.nodeId, y })
+        store.commit("apidoc/apiflow/changeNodeWidthById", { id: mouseInResizeDotInfo.value.nodeId, w: width })
+        store.commit("apidoc/apiflow/changeNodeHeightById", { id: mouseInResizeDotInfo.value.nodeId, h: height })
+    }
 }
 const handleMouseDown = (e: MouseEvent) => {
     calcMouseDownNode(e)
@@ -145,14 +218,41 @@ const handleMouseDown = (e: MouseEvent) => {
             dragLineId: mouseInLineInfo.value.mouseInlineId
         });
     }
-    console.log(currentMouseDownNode.value)
-    if (mouseInResizeDotInfo.value.nodeId) {
+    if (mouseInResizeDotInfo.value.nodeId && currentMouseDownNode.value) {
+        let nodeFixedX = 0;
+        let nodeFixedY = 0;
+        const nodeOffsetX = currentMouseDownNode.value.styleInfo.offsetX;
+        const nodeOffsetY = currentMouseDownNode.value.styleInfo.offsetY;
+        const nodeWidth = currentMouseDownNode.value.styleInfo.width;
+        const nodeHeight = currentMouseDownNode.value.styleInfo.height;
+        switch (mouseInResizeDotInfo.value.position) {
+            case "leftTop":
+                nodeFixedX = nodeOffsetX + (nodeWidth - nodeMinWidth)
+                nodeFixedY = nodeOffsetY + (nodeHeight - nodeMinHeight)
+                break;
+            case "rightTop":
+                nodeFixedX = nodeOffsetX
+                nodeFixedY = nodeOffsetY + (nodeHeight - nodeMinHeight)
+                break;
+            case "leftBottom":
+                nodeFixedX = nodeOffsetX + (nodeWidth - nodeMinWidth)
+                nodeFixedY = nodeOffsetY
+                break;
+            case "rightBottom":
+                nodeFixedX = nodeOffsetX
+                nodeFixedY = nodeOffsetY
+                break;
+            default:
+                break;
+        }
         store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
             isMouseDown: true,
-            clientX: e.clientX,
-            clientY: e.clientY,
+            mouseDownclientX: e.clientX,
+            mouseDownclientY: e.clientY,
             mouseDownWidth: currentMouseDownNode.value?.styleInfo.width,
             mouseDownHeight: currentMouseDownNode.value?.styleInfo.height,
+            nodeFixedX,
+            nodeFixedY,
         });
     }
 }
@@ -163,8 +263,8 @@ const handleMouseUp = () => {
     });
     store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
         isMouseDown: false,
-        clientX: 0,
-        clientY: 0,
+        mouseDownclientX: 0,
+        mouseDownclientY: 0,
         mouseDownWidth: 0,
         mouseDownHeight: 0,
     });
@@ -173,7 +273,7 @@ const handleMouseUp = () => {
 }
 onMounted(() => {
     initWidgets();
-    document.documentElement.addEventListener("mousemove", debounce(handleMouseMove));
+    document.documentElement.addEventListener("mousemove", handleMouseMove);
     document.documentElement.addEventListener("mousedown", handleMouseDown);
     document.documentElement.addEventListener("mouseup", handleMouseUp);
 })
