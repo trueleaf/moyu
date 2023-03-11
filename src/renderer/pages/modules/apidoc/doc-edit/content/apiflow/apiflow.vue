@@ -40,7 +40,7 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref, provide, computed, onUnmounted } from "vue";
 import { store } from "@/store";
-// import { debounce } from "@/helper";
+import { debounce } from "@/helper";
 import type { ApidocApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
@@ -56,6 +56,7 @@ const mouseInResizeDotInfo = computed(() => store.state["apidoc/apiflow"].mouseI
 const activeNodeId = computed(() => store.state["apidoc/apiflow"].activeNodeId);
 const hoverNodeId = computed(() => store.state["apidoc/apiflow"].hoverNodeId);
 const currentMouseDownNode = computed(() => store.state["apidoc/apiflow"].currentMouseDownNode);
+const containerInfo = computed(() => store.state["apidoc/apiflow"].containerInfo)
 const cursor = computed(() => {
     if (mouseInCreateLineDotInfo.value.nodeId) {
         return "crosshair"
@@ -152,14 +153,14 @@ const handleMouseMove = (e: MouseEvent) => {
                 x = nodeFixedX
             } else {
                 width = mouseDownWidth - relativeX
-                x = mouseDownclientX + relativeX;
+                x = mouseDownclientX + relativeX - containerInfo.value.clientX;
             }
             if (mouseDownHeight - relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
                 y = nodeFixedY
             } else {
                 height = mouseDownHeight - relativeY
-                y = mouseDownclientY + relativeY;
+                y = mouseDownclientY + relativeY - containerInfo.value.clientY;
             }
         } else if (mouseInResizeDotInfo.value.position === "rightTop") {
             if (mouseDownWidth + relativeX < nodeMinWidth) {
@@ -173,7 +174,7 @@ const handleMouseMove = (e: MouseEvent) => {
                 y = nodeFixedY
             } else {
                 height = mouseDownHeight - relativeY
-                y = mouseDownclientY + relativeY;
+                y = mouseDownclientY + relativeY - containerInfo.value.clientY;
             }
         } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
             if (mouseDownWidth - relativeX < nodeMinWidth) {
@@ -181,7 +182,7 @@ const handleMouseMove = (e: MouseEvent) => {
                 x = nodeFixedX
             } else {
                 width = mouseDownWidth - relativeX;
-                x = mouseDownclientX + relativeX;
+                x = mouseDownclientX + relativeX - containerInfo.value.clientX;
             }
             if (mouseDownHeight + relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
@@ -204,6 +205,7 @@ const handleMouseMove = (e: MouseEvent) => {
                 y = mouseDownclientY;
             }
         }
+        // console.log(x, width)
         store.commit("apidoc/apiflow/changeNodeOffsetXById", { id: mouseInResizeDotInfo.value.nodeId, x })
         store.commit("apidoc/apiflow/changeNodeOffsetYById", { id: mouseInResizeDotInfo.value.nodeId, y })
         store.commit("apidoc/apiflow/changeNodeWidthById", { id: mouseInResizeDotInfo.value.nodeId, w: width })
@@ -271,16 +273,32 @@ const handleMouseUp = () => {
     //清空当前mousedown的节点
     store.commit("apidoc/apiflow/changeCurrentMouseDownNode", null)
 }
+const changeContainerInfo = debounce(() => {
+    if (apiflow.value) {
+        const clientRect = apiflow.value.getBoundingClientRect();
+        store.commit("apidoc/apiflow/changeContainerInfo", {
+            clientX: Math.floor(clientRect.x),
+            clientY: Math.floor(clientRect.y),
+            width: clientRect.width,
+            height: clientRect.height,
+            createLineNodeSize: 18,
+            resizeNodeSize: 15,
+        });
+    }
+})
 onMounted(() => {
+    changeContainerInfo();
     initWidgets();
     document.documentElement.addEventListener("mousemove", handleMouseMove);
     document.documentElement.addEventListener("mousedown", handleMouseDown);
     document.documentElement.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener("resize", changeContainerInfo)
 })
 onUnmounted(() => {
     document.documentElement.removeEventListener("mousemove", handleMouseMove);
     document.documentElement.removeEventListener("mousedown", handleMouseDown);
     document.documentElement.removeEventListener("mouseup", handleMouseUp);
+    window.removeEventListener("resize", changeContainerInfo)
 })
 </script>
 
