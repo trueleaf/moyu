@@ -157,7 +157,7 @@ export function checkMouseIsInResizeDot(e: MouseEvent): void {
             x: mouseOffsetX,
             y: mouseOffsetY
         });
-        if (resizeNodeArea && activeNodeId.value === node.id) {
+        if (!mouseInResizeDotInfo.value.isMouseDown && resizeNodeArea && activeNodeId.value === node.id) {
             store.commit("apidoc/apiflow/changeMouseInResizeDotInfo", {
                 nodeId: node.id,
                 position: resizeNodeArea
