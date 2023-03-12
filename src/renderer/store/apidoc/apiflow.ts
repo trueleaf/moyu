@@ -42,8 +42,8 @@ const apiflow = {
             isMouseDown: false,
             mouseDownclientX: 0,
             mouseDownclientY: 0,
-            mouseDownWidth: 0,
-            mouseDownHeight: 0,
+            mouseDownNodeWidth: 0,
+            mouseDownNodeHeight: 0,
             nodeFixedX: 0,
             nodeFixedY: 0,
         },
@@ -104,11 +104,11 @@ const apiflow = {
             if (dotInfo.mouseDownclientY != null) {
                 state.mouseInResizeDotInfo.mouseDownclientY = dotInfo.mouseDownclientY;
             }
-            if (dotInfo.mouseDownWidth != null) {
-                state.mouseInResizeDotInfo.mouseDownWidth = dotInfo.mouseDownWidth;
+            if (dotInfo.mouseDownNodeWidth != null) {
+                state.mouseInResizeDotInfo.mouseDownNodeWidth = dotInfo.mouseDownNodeWidth;
             }
-            if (dotInfo.mouseDownHeight != null) {
-                state.mouseInResizeDotInfo.mouseDownHeight = dotInfo.mouseDownHeight;
+            if (dotInfo.mouseDownNodeHeight != null) {
+                state.mouseInResizeDotInfo.mouseDownNodeHeight = dotInfo.mouseDownNodeHeight;
             }
             if (dotInfo.nodeFixedX != null) {
                 state.mouseInResizeDotInfo.nodeFixedX = dotInfo.nodeFixedX;

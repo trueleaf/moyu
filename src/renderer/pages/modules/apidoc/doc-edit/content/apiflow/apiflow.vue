@@ -140,72 +140,71 @@ const handleMouseMove = (e: MouseEvent) => {
     checkMouseIsInNode(e);
     checkMouseIsInResizeDot(e);
     if (mouseInResizeDotInfo.value.isMouseDown) {
-        const relativeX = e.clientX - mouseInResizeDotInfo.value.mouseDownclientX; //相对x移动距离
-        const relativeY = e.clientY - mouseInResizeDotInfo.value.mouseDownclientY; //相对y移动距离
-        const { mouseDownWidth, mouseDownHeight, nodeFixedX, nodeFixedY, mouseDownclientX, mouseDownclientY } = mouseInResizeDotInfo.value
+        const { mouseDownNodeWidth, mouseDownNodeHeight, nodeFixedX, nodeFixedY, mouseDownclientX, mouseDownclientY } = mouseInResizeDotInfo.value
+        const relativeX = e.clientX - mouseDownclientX; //相对x移动距离
+        const relativeY = e.clientY - mouseDownclientY; //相对y移动距离
         let width = 0;
         let height = 0;
         let x = 0;
         let y = 0;
         if (mouseInResizeDotInfo.value.position === "leftTop") {
-            if (mouseDownWidth - relativeX < nodeMinWidth) {
+            if (mouseDownNodeWidth - relativeX < nodeMinWidth) {
                 width = nodeMinWidth;
                 x = nodeFixedX
             } else {
-                width = mouseDownWidth - relativeX
-                x = mouseDownclientX + relativeX - containerInfo.value.clientX;
+                width = mouseDownNodeWidth - relativeX
+                x = mouseDownclientX - containerInfo.value.clientX + relativeX;
             }
-            if (mouseDownHeight - relativeY < nodeMinHeight) {
+            if (mouseDownNodeHeight - relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
                 y = nodeFixedY
             } else {
-                height = mouseDownHeight - relativeY
+                height = mouseDownNodeHeight - relativeY
                 y = mouseDownclientY + relativeY - containerInfo.value.clientY;
             }
         } else if (mouseInResizeDotInfo.value.position === "rightTop") {
-            if (mouseDownWidth + relativeX < nodeMinWidth) {
+            if (mouseDownNodeWidth + relativeX < nodeMinWidth) {
                 width = nodeMinWidth;
                 x = nodeFixedX
             } else {
-                width = mouseDownWidth + relativeX
+                width = mouseDownNodeWidth + relativeX
             }
-            if (mouseDownHeight - relativeY < nodeMinHeight) {
+            if (mouseDownNodeHeight - relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
                 y = nodeFixedY
             } else {
-                height = mouseDownHeight - relativeY
+                height = mouseDownNodeHeight - relativeY
                 y = mouseDownclientY + relativeY - containerInfo.value.clientY;
             }
         } else if (mouseInResizeDotInfo.value.position === "leftBottom") {
-            if (mouseDownWidth - relativeX < nodeMinWidth) {
+            if (mouseDownNodeWidth - relativeX < nodeMinWidth) {
                 width = nodeMinWidth;
                 x = nodeFixedX
             } else {
-                width = mouseDownWidth - relativeX;
+                width = mouseDownNodeWidth - relativeX;
                 x = mouseDownclientX + relativeX - containerInfo.value.clientX;
             }
-            if (mouseDownHeight + relativeY < nodeMinHeight) {
+            if (mouseDownNodeHeight + relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
                 y = nodeFixedY
             } else {
-                height = mouseDownHeight + relativeY
+                height = mouseDownNodeHeight + relativeY
                 y = mouseDownclientY;
             }
         } else if (mouseInResizeDotInfo.value.position === "rightBottom") {
-            if (mouseDownWidth + relativeX < nodeMinWidth) {
+            if (mouseDownNodeWidth + relativeX < nodeMinWidth) {
                 width = nodeMinWidth;
                 x = nodeFixedX
             } else {
-                width = mouseDownWidth + relativeX;
+                width = mouseDownNodeWidth + relativeX;
             }
-            if (mouseDownHeight + relativeY < nodeMinHeight) {
+            if (mouseDownNodeHeight + relativeY < nodeMinHeight) {
                 height = nodeMinHeight;
             } else {
-                height = mouseDownHeight + relativeY
+                height = mouseDownNodeHeight + relativeY
                 y = mouseDownclientY;
             }
         }
-        // console.log(x, width)
         store.commit("apidoc/apiflow/changeNodeOffsetXById", { id: mouseInResizeDotInfo.value.nodeId, x })
         store.commit("apidoc/apiflow/changeNodeOffsetYById", { id: mouseInResizeDotInfo.value.nodeId, y })
         store.commit("apidoc/apiflow/changeNodeWidthById", { id: mouseInResizeDotInfo.value.nodeId, w: width })
@@ -251,8 +250,8 @@ const handleMouseDown = (e: MouseEvent) => {
             isMouseDown: true,
             mouseDownclientX: e.clientX,
             mouseDownclientY: e.clientY,
-            mouseDownWidth: currentMouseDownNode.value?.styleInfo.width,
-            mouseDownHeight: currentMouseDownNode.value?.styleInfo.height,
+            mouseDownNodeWidth: currentMouseDownNode.value?.styleInfo.width,
+            mouseDownNodeHeight: currentMouseDownNode.value?.styleInfo.height,
             nodeFixedX,
             nodeFixedY,
         });
@@ -267,8 +266,8 @@ const handleMouseUp = () => {
         isMouseDown: false,
         mouseDownclientX: 0,
         mouseDownclientY: 0,
-        mouseDownWidth: 0,
-        mouseDownHeight: 0,
+        mouseDownNodeWidth: 0,
+        mouseDownNodeHeight: 0,
     });
     //清空当前mousedown的节点
     store.commit("apidoc/apiflow/changeCurrentMouseDownNode", null)

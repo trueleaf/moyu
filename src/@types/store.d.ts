@@ -688,11 +688,11 @@ type ApidocApiflowState = {
         /**
          * 点击时node宽度
          */
-        mouseDownWidth: number;
+        mouseDownNodeWidth: number;
         /**
          * 点击时node高度
          */
-        mouseDownHeight: number;
+        mouseDownNodeHeight: number;
         /**
          * 缩放时候，节点相对于某个点固定位置
          */
