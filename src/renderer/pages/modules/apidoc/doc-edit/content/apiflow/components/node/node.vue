@@ -23,40 +23,40 @@
             <div
                 class="resize-dot lt"
                 :style="{
-                    width: containerInfo.resizeNodeSize + 'px',
-                    height: containerInfo.resizeNodeSize + 'px',
-                    left: -containerInfo.resizeNodeSize/2 + 'px',
-                    top: -containerInfo.resizeNodeSize/2 + 'px',
+                    width: containerInfo.resizeNodeBarSize + 'px',
+                    height: containerInfo.resizeNodeBarSize + 'px',
+                    left: -containerInfo.resizeNodeBarSize/2 + 'px',
+                    top: -containerInfo.resizeNodeBarSize/2 + 'px',
                 }"
             >
             </div>
             <div
                 class="resize-dot rt"
                 :style="{
-                    width: containerInfo.resizeNodeSize + 'px',
-                    height: containerInfo.resizeNodeSize + 'px',
-                    top: -containerInfo.resizeNodeSize / 2 + 'px',
-                    right: -containerInfo.resizeNodeSize / 2 + 'px',
+                    width: containerInfo.resizeNodeBarSize + 'px',
+                    height: containerInfo.resizeNodeBarSize + 'px',
+                    top: -containerInfo.resizeNodeBarSize / 2 + 'px',
+                    right: -containerInfo.resizeNodeBarSize / 2 + 'px',
                 }"
             >
             </div>
             <div
                 class="resize-dot lb"
                 :style="{
-                    width: containerInfo.resizeNodeSize + 'px',
-                    height: containerInfo.resizeNodeSize + 'px',
-                    left: -containerInfo.resizeNodeSize / 2 + 'px',
-                    bottom: -containerInfo.resizeNodeSize / 2 + 'px',
+                    width: containerInfo.resizeNodeBarSize + 'px',
+                    height: containerInfo.resizeNodeBarSize + 'px',
+                    left: -containerInfo.resizeNodeBarSize / 2 + 'px',
+                    bottom: -containerInfo.resizeNodeBarSize / 2 + 'px',
                 }"
             >
             </div>
             <div
                 class="resize-dot rb"
                 :style="{
-                    width: containerInfo.resizeNodeSize + 'px',
-                    height: containerInfo.resizeNodeSize + 'px',
-                    bottom: -containerInfo.resizeNodeSize / 2 + 'px',
-                    right: -containerInfo.resizeNodeSize / 2 + 'px',
+                    width: containerInfo.resizeNodeBarSize + 'px',
+                    height: containerInfo.resizeNodeBarSize + 'px',
+                    bottom: -containerInfo.resizeNodeBarSize / 2 + 'px',
+                    right: -containerInfo.resizeNodeBarSize / 2 + 'px',
                 }"
             >
             </div>
@@ -66,10 +66,10 @@
                 class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
-                    width: containerInfo.createLineNodeSize + 'px',
-                    height: containerInfo.createLineNodeSize + 'px',
-                    left: -containerInfo.createLineNodeSize / 2 + 'px',
-                    top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                    width: containerInfo.createLineDotSize + 'px',
+                    height: containerInfo.createLineDotSize + 'px',
+                    left: -containerInfo.createLineDotSize / 2 + 'px',
+                    top: `calc(50% - ${containerInfo.createLineDotSize / 2}px)`,
                 }"
             >
             </div>
@@ -77,10 +77,10 @@
                 class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
-                    width: containerInfo.createLineNodeSize + 'px',
-                    height: containerInfo.createLineNodeSize + 'px',
-                    right: -containerInfo.createLineNodeSize / 2 + 'px',
-                    top: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                    width: containerInfo.createLineDotSize + 'px',
+                    height: containerInfo.createLineDotSize + 'px',
+                    right: -containerInfo.createLineDotSize / 2 + 'px',
+                    top: `calc(50% - ${containerInfo.createLineDotSize / 2}px)`,
                 }"
             >
             </div>
@@ -88,10 +88,10 @@
                 class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
-                    width: containerInfo.createLineNodeSize + 'px',
-                    height: containerInfo.createLineNodeSize + 'px',
-                    top: -containerInfo.createLineNodeSize / 2 + 'px',
-                    left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                    width: containerInfo.createLineDotSize + 'px',
+                    height: containerInfo.createLineDotSize + 'px',
+                    top: -containerInfo.createLineDotSize / 2 + 'px',
+                    left: `calc(50% - ${containerInfo.createLineDotSize / 2}px)`,
                 }"
             >
             </div>
@@ -99,10 +99,10 @@
                 class="create-line-dot"
                 :style="{
                     zIndex: dotZIndex,
-                    width: containerInfo.createLineNodeSize + 'px',
-                    height: containerInfo.createLineNodeSize + 'px',
-                    bottom: -containerInfo.createLineNodeSize / 2 + 'px',
-                    left: `calc(50% - ${containerInfo.createLineNodeSize / 2}px)`,
+                    width: containerInfo.createLineDotSize + 'px',
+                    height: containerInfo.createLineDotSize + 'px',
+                    bottom: -containerInfo.createLineDotSize / 2 + 'px',
+                    left: `calc(50% - ${containerInfo.createLineDotSize / 2}px)`,
                 }"
             >
             </div>
@@ -121,7 +121,7 @@
 import { onUnmounted, ref, Ref, computed, inject, onMounted } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
-import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
+import { ApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getZIndex } from "../utils/utils";
 
 const props = defineProps({
@@ -187,7 +187,7 @@ const nodeHeight = computed({ //节点高度
 const dotStartX = ref(0);
 const dotStartY = ref(0);
 const lineId = ref("");
-const currentDrawLineInfo: Ref<ApidocApiflowLineInfo | null> = ref(null)
+const currentDrawLineInfo: Ref<ApiflowLineInfo | null> = ref(null)
 const mousedownDotPosition: Ref<ApiflowOutComingDirection> = ref("left")
 const isMousedownDot = ref(false)
 const handleMouseDownDot = () => {
@@ -219,7 +219,6 @@ const handleMouseDownDot = () => {
     }
     currentDrawLineInfo.value = {
         id: lineId.value,
-        type: "line",
         fromPosition: direction,
         toPosition: null,
         offsetX: 0,
@@ -455,7 +454,6 @@ const handleAddSubNode = () => {
     }
     const node: ApidocApiflowNodeInfo = {
         id: uuid(),
-        type: "node",
         styleInfo: {
             offsetX: currentNode.value.styleInfo.offsetX + currentNode.value.styleInfo.width + 200,
             offsetY: currentNode.value.styleInfo.offsetY - 150,

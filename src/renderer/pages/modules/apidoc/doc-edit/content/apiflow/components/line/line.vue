@@ -23,14 +23,14 @@
 
 <script lang="ts" setup>
 import { ref, PropType, inject, Ref, onMounted, onUnmounted, computed } from "vue";
-import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
+import { ApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
 import { debounce } from "@/helper";
 import { store } from "@/store";
 import { getLineDrawInfo } from "../utils/utils";
 
 const props = defineProps({
     lineInfo: { //节点信息
-        type: Object as PropType<ApidocApiflowLineInfo>,
+        type: Object as PropType<ApiflowLineInfo>,
         default() {
             return {};
         }
@@ -179,7 +179,6 @@ const handleCreateLine = (e: MouseEvent) => {
         lineId: props.lineInfo.id,
         lineInfo: {
             id: props.lineInfo.id,
-            type: "line",
             lineClientEndX: e.clientX,
             lineClientEndY: e.clientY,
             offsetX: drawInfo.x,
@@ -338,7 +337,6 @@ const handleCanvasMouseMove = (e: MouseEvent) => {
                 lineId: props.lineInfo.id,
                 lineInfo: {
                     id: props.lineInfo.id,
-                    type: "line",
                     lineClientEndX: e.clientX,
                     lineClientEndY: e.clientY,
                     offsetX: drawInfo.x,

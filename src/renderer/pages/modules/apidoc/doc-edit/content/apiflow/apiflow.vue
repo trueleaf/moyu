@@ -91,7 +91,6 @@ const initWidgets = () => {
         const clientRect = apiflow.value.getBoundingClientRect();
         const startNode: ApidocApiflowNodeInfo = {
             id: "start",
-            type: "node",
             styleInfo: {
                 offsetX: 100,
                 offsetY: 130,
@@ -107,13 +106,12 @@ const initWidgets = () => {
             clientY: Math.floor(clientRect.y),
             width: clientRect.width,
             height: clientRect.height,
-            createLineNodeSize: 18,
-            resizeNodeSize: 15,
+            createLineDotSize: 18,
+            resizeNodeBarSize: 15,
         });
         store.commit("apidoc/apiflow/addNode", startNode)
         store.commit("apidoc/apiflow/addNode", {
             id: "start2",
-            type: "node",
             styleInfo: {
                 offsetX: 550,
                 offsetY: 300,
@@ -280,8 +278,8 @@ const changeContainerInfo = debounce(() => {
             clientY: Math.floor(clientRect.y),
             width: clientRect.width,
             height: clientRect.height,
-            createLineNodeSize: 18,
-            resizeNodeSize: 15,
+            createLineDotSize: 18,
+            resizeNodeBarSize: 15,
         });
     }
 })

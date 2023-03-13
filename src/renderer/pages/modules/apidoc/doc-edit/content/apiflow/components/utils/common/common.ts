@@ -226,38 +226,38 @@ export const getContraryPosition = (position: Position): Position => {
 }
 //返回节点上下左右四个连接点区域
 export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
-    const { createLineNodeSize } = containerInfo.value
+    const { createLineDotSize } = containerInfo.value
     const leftArea = {
         pointX: nodeInfo.styleInfo.offsetX,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
-        offsetX: nodeInfo.styleInfo.offsetX - createLineNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + createLineNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineDotSize / 2,
     }
     const rightArea = {
         pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineDotSize / 2,
     }
     const topArea = {
         pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
         pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - createLineNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + createLineNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + createLineDotSize / 2,
     }
     const bottomArea = {
         pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineNodeSize,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineNodeSize,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - createLineNodeSize,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + createLineNodeSize,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineDotSize,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineDotSize,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - createLineDotSize,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + createLineDotSize,
     }
     return {
         leftArea,
@@ -268,38 +268,38 @@ export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
 }
 //返回节点resize按钮区域
 export function getResizeBarArea(nodeInfo: ApidocApiflowNodeInfo): ResizeDotArea {
-    const { resizeNodeSize } = containerInfo.value
+    const { resizeNodeBarSize } = containerInfo.value
     const leftTopArea = {
         pointX: nodeInfo.styleInfo.offsetX,
         pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX - resizeNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + resizeNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - resizeNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + resizeNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX - resizeNodeBarSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + resizeNodeBarSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY - resizeNodeBarSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + resizeNodeBarSize / 2,
     }
     const rightTopArea = {
         pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
         pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - resizeNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + resizeNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeNodeBarSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeNodeBarSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY - resizeNodeBarSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + resizeNodeBarSize / 2,
     }
     const leftBottomArea = {
         pointX: nodeInfo.styleInfo.offsetX,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX - resizeNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + resizeNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX - resizeNodeBarSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + resizeNodeBarSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeNodeBarSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeNodeBarSize / 2,
     }
     const rightBottomArea = {
         pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
         pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeNodeSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeNodeSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeNodeSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeNodeSize / 2,
+        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeNodeBarSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeNodeBarSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeNodeBarSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeNodeBarSize / 2,
     }
     return {
         leftTopArea,

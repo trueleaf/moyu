@@ -1,4 +1,4 @@
-import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
+import { ApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getQuardantInfo } from "./quadrant/quardant";
 import { getQuardantInfo2 } from "./quadrant2/quadrant2";
 import { getQuardantInfo3 } from "./quadrant3/quadrant3";
@@ -47,7 +47,7 @@ export type ResultRect = {
 }
 export type LineDrawInfoOptions = {
     fromNode: ApidocApiflowNodeInfo,
-    currendLine?: ApidocApiflowLineInfo,
+    currendLine?: ApiflowLineInfo,
     fromPosition: ApiflowOutComingDirection
 }
 export type LineConfig = {

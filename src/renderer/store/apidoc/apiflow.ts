@@ -1,4 +1,4 @@
-import type { ApidocApiflowState, ApidocApiflowNodeInfo, ApidocApiflowContainerInfo, ApidocApiflowLineInfo } from "@@/store"
+import type { ApidocApiflowState, ApidocApiflowNodeInfo, ApiflowContainerInfo, ApiflowLineInfo } from "@@/store"
 
 type ChangedLineInfo = {
     /**
@@ -12,7 +12,7 @@ type ChangedLineInfo = {
     /**
      * 出线信息
      */
-    lineInfo: ApidocApiflowLineInfo
+    lineInfo: ApiflowLineInfo
 }
 type AddIncomingInfo = {
     /**
@@ -67,7 +67,7 @@ const apiflow = {
         |--------------------------------------------------------------------------
         */
         //改变容器大小
-        changeContainerInfo(state: ApidocApiflowState, payload: ApidocApiflowContainerInfo): void {
+        changeContainerInfo(state: ApidocApiflowState, payload: ApiflowContainerInfo): void {
             state.containerInfo = payload;
         },
         //当前选中dot所对应的id

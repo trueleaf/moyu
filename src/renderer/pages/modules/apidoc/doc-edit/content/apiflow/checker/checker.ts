@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { ApidocApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
+import { ApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
 import { computed } from "vue";
 import { getCreateLineArea, getResizeBarArea, ResizeDotArea, StickyArea } from "../components/utils/common/common";
 
@@ -74,7 +74,7 @@ export function checkMouseIsInCreateLineDot(e: MouseEvent): void {
  */
 export function checkMouseIsInLineArrow(e: MouseEvent): void {
     const nodes = nodeList.value;
-    const lines: ApidocApiflowLineInfo[] = [];
+    const lines: ApiflowLineInfo[] = [];
     nodes.forEach(node => {
         node.outcomings.forEach(line => {
             lines.push(line)

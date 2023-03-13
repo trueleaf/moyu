@@ -512,12 +512,15 @@ type ApidocWorkerState = {
 */
 type ApiflowNodeType = "node" | "line";
 type ApiflowOutComingDirection = "left" | "top" | "right" | "bottom"
+/**
+ * 坐标信息
+ */
 type ApiflowCoordinate = {
     clientX: number,
     clientY: number
 }
 //线条信息
-type ApidocApiflowLineInfo = {
+type ApiflowLineInfo = {
     /**
      * 线条id
      */
@@ -531,12 +534,8 @@ type ApidocApiflowLineInfo = {
      */
     toPosition: ApiflowOutComingDirection | null,
     /**
-     * 节点类型
-     */
-    type: "line",
-    /**
-     * 相对于窗口开始位置x值
-     */
+ * 相对于窗口开始位置x值
+ */
     lineClientStartX: number,
     /**
      * 相对于窗口开始位置y值
@@ -585,10 +584,6 @@ type ApidocApiflowNodeInfo = {
      */
     id: string,
     /**
-     * 节点类型
-     */
-    type: "node",
-    /**
      * 样式信息
      */
     styleInfo: {
@@ -616,14 +611,14 @@ type ApidocApiflowNodeInfo = {
     /**
      * 出线
      */
-    outcomings: ApidocApiflowLineInfo[],
+    outcomings: ApiflowLineInfo[],
     /**
      * 入线
      */
-    incomings: ApidocApiflowLineInfo[],
+    incomings: ApiflowLineInfo[],
 };
-//节点包裹框信息
-type ApidocApiflowContainerInfo = {
+//画布容器信息
+type ApiflowContainerInfo = {
     /**
      * 距离左侧距离
      */
@@ -641,13 +636,21 @@ type ApidocApiflowContainerInfo = {
      */
     height: number,
     /**
-     * 引出线条节点大小
+     * 引出线条圆点大小
      */
-    createLineNodeSize: number;
+    createLineDotSize: number;
     /**
-     * 节点放大缩小节点大小
+     * 节点缩放按钮大小
      */
-    resizeNodeSize: number;
+    resizeNodeBarSize: number;
+    /**
+     * 节点最小宽度
+     */
+    nodeMinWidth: number;
+    /**
+     * 节点最小高度
+     */
+    nodeMinHeight: number;
 };
 type ApidocApiflowState = {
     /**
@@ -742,7 +745,7 @@ type ApidocApiflowState = {
     /**
      * 容器信息
      */
-    containerInfo: ApidocApiflowContainerInfo,
+    containerInfo: ApiflowContainerInfo,
     /**
      * 元素集合
      */
@@ -788,8 +791,8 @@ export {
     ApidocProjectVariable,
     ApidocWorkerState,
     ApidocApiflowState,
-    ApidocApiflowContainerInfo,
-    ApidocApiflowLineInfo,
+    ApiflowContainerInfo,
+    ApiflowLineInfo,
     ApiflowOutComingDirection,
     State,
 }
