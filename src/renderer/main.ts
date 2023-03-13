@@ -1,5 +1,6 @@
 import { createApp } from "vue"
 import ElementPlus from "element-plus";
+import { createPinia } from "pinia"
 import zhCn from "element-plus/es/locale/lang/zh-cn"
 import config from "@/../config/config"
 import { axiosPlugin } from "@/api/api"
@@ -19,6 +20,7 @@ import db from "./cache/database";
 
 mockServer();
 const app = createApp(App)
+const pinia = createPinia()
 
 app.config.globalProperties.$helper = helper; //挂载全局辅助函数
 app.config.globalProperties.config = config; //挂载全局辅助函数
@@ -26,6 +28,7 @@ app.config.globalProperties.db = db; //挂载全局数据库
 
 registeGlobalComponent(app); //注册全局组件
 registeDirective(app); //注册全局指令
+app.use(pinia)
 app.use(store, key);
 app.use(axiosPlugin).use(ElementPlus, { locale: zhCn }).use(router).use(i18n);
 app.mount("#app")
