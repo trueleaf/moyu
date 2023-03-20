@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import { ref, PropType, inject, Ref, onMounted, onUnmounted, computed } from "vue";
-import { ApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
+import { ApiflowLineInfo, ApiflowNodeInfo } from "@@/store";
 import { debounce } from "@/helper";
 import { store } from "@/store";
 import { getLineDrawInfo } from "../utils/utils";
@@ -379,7 +379,7 @@ const drawLine = () => {
     const isIncomingLine = incomings && incomings.find(incoming => incoming.id === props.lineInfo.id);
     const isOutcomingLine = outcomings && outcomings.find(outcoming => outcoming.id === props.lineInfo.id);
     const { styleInfo } = hostNode.value;
-    const styleInfo2 = currentMouseDownNode.value?.styleInfo as ApidocApiflowNodeInfo["styleInfo"];
+    const styleInfo2 = currentMouseDownNode.value?.styleInfo as ApiflowNodeInfo["styleInfo"];
     let lineClientStartX = 0;
     let lineClientStartY = 0;
     let lineClientEndX = 0;

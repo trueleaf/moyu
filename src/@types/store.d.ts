@@ -519,7 +519,9 @@ type ApiflowCoordinate = {
     clientX: number,
     clientY: number
 }
-//线条信息
+/**
+ * 线条信息
+ */
 type ApiflowLineInfo = {
     /**
      * 线条id
@@ -577,8 +579,10 @@ type ApiflowLineInfo = {
         rightBottomPoint: ApiflowCoordinate,
     },
 }
-//节点信息
-type ApidocApiflowNodeInfo = {
+/**
+ * 节点信息
+ */
+type ApiflowNodeInfo = {
     /**
      * 节点id
      */
@@ -617,6 +621,79 @@ type ApidocApiflowNodeInfo = {
      */
     incomings: ApiflowLineInfo[],
 };
+/**
+ * resizebar状态
+ */
+type ApiflowResizeBarState = {
+    hoverNodeId: string;
+    /**
+     * 缩放方向
+     */
+    hoverPosition: "leftTop" | "rightTop" | "leftBottom" | "rightBottom",
+    /**
+     * 缩放节点是否被按下
+     */
+    isMouseDown: boolean;
+    /**
+     * 鼠标clientX
+     */
+    mouseDownclientX: number;
+    /**
+     * 鼠标clientY
+     */
+    mouseDownclientY: number;
+    /**
+     * 点击时node宽度
+     */
+    mouseDownNodeWidth: number;
+    /**
+     * 点击时node高度
+     */
+    mouseDownNodeHeight: number;
+    /**
+     * 缩放时候，节点相对于某个点固定位置
+     */
+    nodeFixedX: number;
+    /**
+     * 缩放时候，节点相对于某个点固定位置
+     */
+    nodeFixedY: number;
+}
+/**
+ * createLineDot状态
+ */
+type ApiflowCreateLineDotState = {
+    hoverNodeId: string;
+    /**
+     * 缩放方向
+     */
+    hoverPosition: "left" | "top" | "right" | "bottom",
+    /**
+     * 是否被点击
+     */
+    isMouseDown: boolean;
+}
+/**
+ * 线条状态
+ */
+type ApiflowLineState = {
+    /**
+     * 鼠标hover线条id
+     */
+    hoverLineId: string;
+    /**
+     * 当前拖拽节点id
+     */
+    dragLineId: string;
+    /**
+     * 是否在拖拽箭头上
+     */
+    isHoverDragArrow: boolean;
+    /**
+     * 是否mousedown拖拽箭头
+     */
+    isMouseDown: boolean;
+}
 //画布容器信息
 type ApiflowContainerInfo = {
     /**
@@ -652,7 +729,7 @@ type ApiflowContainerInfo = {
      */
     nodeMinHeight: number;
 };
-type ApidocApiflowState = {
+type ApiflowState = {
     /**
      * 当前被点击dot的节点
      */
@@ -741,7 +818,7 @@ type ApidocApiflowState = {
     /**
      * 当前操作的节点信息
      */
-    currentMouseDownNode: ApidocApiflowNodeInfo | null;
+    currentMouseDownNode: ApiflowNodeInfo | null;
     /**
      * 容器信息
      */
@@ -749,7 +826,7 @@ type ApidocApiflowState = {
     /**
      * 元素集合
      */
-    nodeList: ApidocApiflowNodeInfo[]
+    nodeList: ApiflowNodeInfo[]
 }
 
 /*
@@ -769,7 +846,7 @@ type State = {
     "apidoc/mock": ApidocMockState,
     "apidoc/request": ApidocRequest,
     "apidoc/workerState": ApidocWorkerState,
-    "apidoc/apiflow": ApidocApiflowState,
+    "apidoc/apiflow": ApiflowState,
 }
 export {
     PermissionState,
@@ -786,11 +863,11 @@ export {
     ApidocProjectRules,
     ApidocMockState,
     ApidocMockMapInfo,
-    ApidocApiflowNodeInfo,
+    ApiflowNodeInfo,
     ApidocRequest,
     ApidocProjectVariable,
     ApidocWorkerState,
-    ApidocApiflowState,
+    ApiflowState,
     ApiflowContainerInfo,
     ApiflowLineInfo,
     ApiflowOutComingDirection,

@@ -1,5 +1,5 @@
 import { store } from "@/store";
-import { ApiflowLineInfo, ApidocApiflowNodeInfo } from "@@/store";
+import { ApiflowLineInfo, ApiflowNodeInfo } from "@@/store";
 import { computed } from "vue";
 import { getCreateLineArea, getResizeBarArea, ResizeDotArea, StickyArea } from "../components/utils/common/common";
 
@@ -36,7 +36,7 @@ export function checkMouseIsInCreateLineDot(e: MouseEvent): void {
         return null;
     }
     const nodes = nodeList.value;
-    const matchedNodes: { position: ReturnType<typeof getMouseIsInCreateDot>, node: ApidocApiflowNodeInfo }[] = [];
+    const matchedNodes: { position: ReturnType<typeof getMouseIsInCreateDot>, node: ApiflowNodeInfo }[] = [];
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const createLineArea = getCreateLineArea(node);
@@ -105,7 +105,7 @@ export function checkMouseIsInNode(e: MouseEvent): void {
     const nodes = nodeList.value;
     const mouseOffsetX = e.clientX - containerInfo.value.clientX
     const mouseOffsetY = e.clientY - containerInfo.value.clientY
-    const matchedNodes: ApidocApiflowNodeInfo[] = [];
+    const matchedNodes: ApiflowNodeInfo[] = [];
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const { offsetX, width, offsetY, height } = node.styleInfo;
@@ -179,7 +179,7 @@ export function calcMouseDownNode(e: MouseEvent): void {
     const nodes = nodeList.value;
     const mouseOffsetX = e.clientX - containerInfo.value.clientX
     const mouseOffsetY = e.clientY - containerInfo.value.clientY
-    const matchedNodes: ApidocApiflowNodeInfo[] = [];
+    const matchedNodes: ApiflowNodeInfo[] = [];
     for (let i = 0; i < nodes.length; i += 1) {
         const node = nodes[i];
         const { offsetX, width, offsetY, height } = node.styleInfo;

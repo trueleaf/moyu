@@ -5,7 +5,7 @@
 */
 
 import { store } from "@/store";
-import { ApidocApiflowNodeInfo } from "@@/store";
+import { ApiflowNodeInfo } from "@@/store";
 import { computed } from "vue";
 import { Coordinate } from "../utils";
 
@@ -89,7 +89,7 @@ export type ResizeDotArea = {
     },
 }
 //返回节点上下左右四个连接点吸附区域
-export function getNodeStickyArea(toNode: ApidocApiflowNodeInfo, options: StickyAreaPosition): StickyArea {
+export function getNodeStickyArea(toNode: ApiflowNodeInfo, options: StickyAreaPosition): StickyArea {
     const { styleInfo } = toNode;
     const { stickySize = 10, startPoint } = options
     const leftMidPoint: OffsetCoordinate = {
@@ -225,7 +225,7 @@ export const getContraryPosition = (position: Position): Position => {
     return "left"
 }
 //返回节点上下左右四个连接点区域
-export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
+export function getCreateLineArea(nodeInfo: ApiflowNodeInfo): StickyArea {
     const { createLineDotSize } = containerInfo.value
     const leftArea = {
         pointX: nodeInfo.styleInfo.offsetX,
@@ -267,7 +267,7 @@ export function getCreateLineArea(nodeInfo: ApidocApiflowNodeInfo): StickyArea {
     }
 }
 //返回节点resize按钮区域
-export function getResizeBarArea(nodeInfo: ApidocApiflowNodeInfo): ResizeDotArea {
+export function getResizeBarArea(nodeInfo: ApiflowNodeInfo): ResizeDotArea {
     const { resizeNodeBarSize } = containerInfo.value
     const leftTopArea = {
         pointX: nodeInfo.styleInfo.offsetX,

@@ -121,7 +121,7 @@
 import { onUnmounted, ref, Ref, computed, inject, onMounted } from "vue";
 import { uuid, debounce } from "@/helper";
 import { store } from "@/store";
-import { ApiflowLineInfo, ApidocApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
+import { ApiflowLineInfo, ApiflowNodeInfo, ApiflowOutComingDirection } from "@@/store";
 import { getZIndex } from "../utils/utils";
 
 const props = defineProps({
@@ -452,7 +452,7 @@ const handleAddSubNode = () => {
     if (!currentNode.value) {
         return
     }
-    const node: ApidocApiflowNodeInfo = {
+    const node: ApiflowNodeInfo = {
         id: uuid(),
         styleInfo: {
             offsetX: currentNode.value.styleInfo.offsetX + currentNode.value.styleInfo.width + 200,

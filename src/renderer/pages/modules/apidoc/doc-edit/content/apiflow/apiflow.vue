@@ -41,7 +41,7 @@
 import { onMounted, ref, Ref, provide, computed, onUnmounted } from "vue";
 import { store } from "@/store";
 import { debounce } from "@/helper";
-import type { ApidocApiflowNodeInfo } from "@@/store"
+import type { ApiflowNodeInfo } from "@@/store"
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { getZIndex } from "./components/utils/utils";
@@ -89,7 +89,7 @@ provide("apiflowWrapper", apiflow)
 const initWidgets = () => {
     if (apiflow.value) {
         const clientRect = apiflow.value.getBoundingClientRect();
-        const startNode: ApidocApiflowNodeInfo = {
+        const startNode: ApiflowNodeInfo = {
             id: "start",
             styleInfo: {
                 offsetX: 100,
