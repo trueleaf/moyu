@@ -133,11 +133,9 @@ export type FlowContainerInfo = {
 |--------------------------------------------------------------------------
 */
 export type FLowCreateLineDotState = {
-    createLineDotState: {
-        isMouseDown: boolean;
-        hoverNodeId: string;
-        hoverPosition: FlowLinePosition;
-    };
+    isMouseDown: boolean;
+    hoverNodeId: string;
+    hoverPosition: FlowLinePosition;
 };
 /*
 |--------------------------------------------------------------------------

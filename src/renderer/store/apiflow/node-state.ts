@@ -1,7 +1,18 @@
-import { defineStore } from "pinia"
+import { FlowNodeState } from "@@/apiflow";
+import { defineStore } from "pinia";
 
 export const useFlowNodeStateStore = defineStore("nodeState", {
-    state: () => {
-        return {}
-    }
-})
+    state: (): FlowNodeState => {
+        return {
+            hoverNodeId: "",
+            dragNodeId: "",
+            isMouseDown: false,
+            activeNodeId: "",
+            mouseDownClientX: 0,
+            mouseDownClientY: 0,
+            isMove: false,
+            nodeOffsetXWhenMouseDown: 0,
+            nodeOffsetYWhenMouseDown: 0,
+        };
+    },
+});
