@@ -9,5 +9,5 @@ export const useFlowContainerStore = defineStore("container", {
             width: 0,
             height: 0,
         }
-    }
+    },
 })

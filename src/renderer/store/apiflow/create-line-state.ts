@@ -1,7 +1,7 @@
 import { FLowCreateLineDotState } from "@@/apiflow";
 import { defineStore } from "pinia";
 
-export const useFlowCreateLineStateStore = defineStore("createLineState", {
+export const useFlowCreateLineDotStateStore = defineStore("createLineDotState", {
     state: (): FLowCreateLineDotState => {
         return {
             hoverNodeId: "",
