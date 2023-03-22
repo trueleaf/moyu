@@ -71,6 +71,7 @@ module.exports = {
         "import/no-cycle": "off",
         "no-continue": "off",
         "array-callback-return": "off",
-        "arrow-body-style": "off"
+        "arrow-body-style": "off",
+        "prefer-destructuring": "off"
     },
 };
