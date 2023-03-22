@@ -7,6 +7,13 @@ export const useFlowNodesStore = defineStore("nodes", {
             nodeList: []
         }
     },
+    getters: {
+        getNodeById(state) {
+            return (nodeId: string) => {
+                return state.nodeList.find(node => node.id === nodeId)
+            }
+        }
+    },
     actions: {
         changeNodeStyleInfoById(id: string, payload: Partial<FlowNodeInfo["styleInfo"]>) {
             const matchedNode = this.nodeList.find(node => node.id === id);
