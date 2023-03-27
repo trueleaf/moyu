@@ -16,6 +16,19 @@
 |--------------------------------------------------------------------------
 */
 /**
+ * 线条可hover区域
+ */
+export type LineCanHoverPosition = {
+    leftTopPosition: {
+        clientX: number;
+        clientY: number;
+    };
+    rightBottomPosition: {
+        clientX: number;
+        clientY: number;
+    };
+}
+/**
  * 线条位置信息，可以从节点的四个方向(上下左右)引出，也可以没有位置信息，代表独立存在的线条
  */
 export type FlowLinePosition = "left" | "top" | "right" | "bottom" | "";
