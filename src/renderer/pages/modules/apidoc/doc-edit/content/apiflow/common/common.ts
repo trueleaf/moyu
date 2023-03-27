@@ -1,5 +1,8 @@
 import { useFlowConfigStore } from "@/store/apiflow/config";
-import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from "@@/apiflow";
+import { useFlowContainerStore } from "@/store/apiflow/container";
+import { useFlowLinesStore } from "@/store/apiflow/lines";
+import { useFlowNodesStore } from "@/store/apiflow/nodes";
+import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from "@@/apiflow";
 import { getQuardantInfo } from "./quadrant/quardant";
 import { getQuardantInfo2 } from "./quadrant2/quadrant2";
 import { getQuardantInfo3 } from "./quadrant3/quadrant3";
@@ -478,4 +481,263 @@ export const mouseIsInLine = (e: MouseEvent, lineInfo: FlowLineInfo): boolean =>
         }
     }
     return false;
+}
+export const getHoverPosition = (lineInfo: FlowLineInfo, drawInfo: DrawInfo): LineCanHoverPosition[] => {
+    const containerStore = useFlowContainerStore()
+    const { brokenLinePoints } = drawInfo.lineInfo;
+    const hoverPosition: LineCanHoverPosition[] = [];
+    const validLineAreaSize = 10
+    for (let i = 0; i < brokenLinePoints.length - 1; i += 1) {
+        const point = brokenLinePoints[i];
+        const point2 = brokenLinePoints[i + 1];
+        if (point.x === point2.x && point.y < point2.y) { //竖线,从上到下
+            hoverPosition.push({
+                leftTopPosition: {
+                    clientX: point.x + lineInfo.offsetX + containerStore.clientX - validLineAreaSize,
+                    clientY: point.y + lineInfo.offsetY + containerStore.clientY,
+                },
+                rightBottomPosition: {
+                    clientX: point2.x + lineInfo.offsetX + containerStore.clientX + validLineAreaSize,
+                    clientY: point2.y + lineInfo.offsetY + containerStore.clientY + validLineAreaSize,
+                }
+            });
+        } else if (point.x === point2.x && point.y >= point2.y) { //竖线,从下到上
+            hoverPosition.push({
+                leftTopPosition: {
+                    clientX: point2.x + lineInfo.offsetX + containerStore.clientX - validLineAreaSize,
+                    clientY: point2.y + lineInfo.offsetY + containerStore.clientY,
+                },
+                rightBottomPosition: {
+                    clientX: point.x + lineInfo.offsetX + containerStore.clientX + validLineAreaSize,
+                    clientY: point.y + lineInfo.offsetY + containerStore.clientY + validLineAreaSize,
+                }
+            });
+        } else if (point.y === point2.y && point.x < point2.x) { //横线，从左到右
+            hoverPosition.push({
+                leftTopPosition: {
+                    clientX: point.x + lineInfo.offsetX + containerStore.clientX,
+                    clientY: point.y + lineInfo.offsetY + containerStore.clientY - validLineAreaSize,
+                },
+                rightBottomPosition: {
+                    clientX: point2.x + lineInfo.offsetX + containerStore.clientX,
+                    clientY: point2.y + lineInfo.offsetY + containerStore.clientY + validLineAreaSize,
+                }
+            });
+        } else if (point.y === point2.y && point.x >= point2.x) { //横线，从右到左
+            hoverPosition.push({
+                leftTopPosition: {
+                    clientX: point2.x + lineInfo.offsetX + containerStore.clientX,
+                    clientY: point2.y + lineInfo.offsetY + containerStore.clientY - validLineAreaSize,
+                },
+                rightBottomPosition: {
+                    clientX: point.x + lineInfo.offsetX + containerStore.clientX,
+                    clientY: point.y + lineInfo.offsetY + containerStore.clientY + validLineAreaSize,
+                }
+            });
+        }
+    }
+    return hoverPosition;
+}
+export const repaintLine = (drawInfo: DrawInfo): void => {
+    const canvas = document.querySelector("#apiflowCanvas") as HTMLCanvasElement;
+    const canvasRect = canvas.getBoundingClientRect()
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    const { brokenLinePoints, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo;
+    ctx.clearRect(0, 0, canvasRect.width, canvasRect.height)
+    ctx.beginPath();
+    // ctx.fillRect(drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.leftTopPoint.y, drawInfo.lineInfo.arrowInfo.rightBottomPoint.x - drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.rightBottomPoint.y - drawInfo.lineInfo.arrowInfo.leftTopPoint.y)
+    ctx.closePath()
+    ctx.lineWidth = 1;
+    ctx.fillStyle = drawInfo.lineInfo.activeColor || "#333";
+    ctx.strokeStyle = drawInfo.lineInfo.activeColor || "#333";
+    ctx.lineCap = "round";
+    for (let i = 0; i < brokenLinePoints.length - 1; i += 1) {
+        const point = brokenLinePoints[i];
+        const point2 = brokenLinePoints[i + 1];
+        if (point.x === point2.x) { //画竖线
+            ctx.moveTo(point.x + drawInfo.x + 0.5, point.y + drawInfo.y);
+            ctx.lineTo(point2.x + drawInfo.x + 0.5, point2.y + drawInfo.y);
+        } else if (point.y === point2.y) { //画横线
+            ctx.moveTo(point.x + drawInfo.x, point.y + 0.5 + drawInfo.y);
+            ctx.lineTo(point2.x + drawInfo.x, point2.y + 0.5 + drawInfo.y);
+        }
+        ctx.moveTo(point.x + drawInfo.x, point.y + drawInfo.y);
+        ctx.lineTo(point2.x + drawInfo.x, point2.y + drawInfo.y);
+        ctx.stroke()
+    }
+    ctx.closePath()
+    ctx.beginPath()
+    ctx.moveTo(p1.x + drawInfo.x, p1.y + drawInfo.y)
+    ctx.lineTo(p2.x + drawInfo.x, p2.y + drawInfo.y)
+    ctx.lineTo(p3.x + drawInfo.x, p3.y + drawInfo.y)
+    ctx.fill();
+    ctx.closePath()
+}
+export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
+    const linesStore = useFlowLinesStore()
+    const nodesStore = useFlowNodesStore()
+    const matchedLine = linesStore.lineList.find(line => line.id === lineId)
+    const matchedNode = nodesStore.nodeList.find(node => node.outcomingIds.includes(lineId))
+    if (!matchedNode || !matchedLine) {
+        return null
+    }
+    const startPoint = {
+        x: 0,
+        y: 0,
+    }
+    const endPoint = {
+        x: matchedLine.lineEndOffsetX,
+        y: matchedLine.lineEndOffsetY,
+    }
+    if (matchedLine.fromPosition === "left") {
+        startPoint.x = matchedNode.styleInfo.offsetX;
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
+    } else if (matchedLine.fromPosition === "top") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
+        startPoint.y = matchedNode.styleInfo.offsetY;
+    } else if (matchedLine.fromPosition === "right") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
+    } else if (matchedLine.fromPosition === "bottom") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
+    }
+    const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
+        fromNode: matchedNode,
+        fromPosition: matchedLine.fromPosition,
+    });
+    return drawInfo;
+}
+export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
+    const { incomingIds, outcomingIds, styleInfo: nodeStyleInfo } = node;
+    const containerStore = useFlowContainerStore()
+    const linesStore = useFlowLinesStore()
+    const nodesStore = useFlowNodesStore()
+    if (incomingIds.length === 0 && outcomingIds.length === 0) {
+        return
+    }
+    //节点移动过程中，出现startPoint会发生改变
+    outcomingIds.forEach(lineId => {
+        const line = linesStore.lineList.find(item => item.id === lineId)
+        if (!line) {
+            return
+        }
+        const startPoint = {
+            x: 0,
+            y: 0,
+        }
+        const endPoint = {
+            x: line.lineEndOffsetX,
+            y: line.lineEndOffsetY,
+        }
+        if (line.fromPosition === "left") {
+            startPoint.x = nodeStyleInfo.offsetX;
+            startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height / 2;
+        } else if (line.fromPosition === "top") {
+            startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
+            startPoint.y = nodeStyleInfo.offsetY;
+        } else if (line.fromPosition === "right") {
+            startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width
+            startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height / 2;
+        } else if (line.fromPosition === "bottom") {
+            startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
+            startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height;
+        }
+        const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
+            fromNode: node,
+            fromPosition: line.fromPosition,
+        });
+        const hoverPosition = getHoverPosition(line, drawInfo);
+        linesStore.changeLineInfoById(line.id, {
+            lineStartOffsetX: startPoint.x,
+            lineStartOffsetY: startPoint.y,
+            offsetX: drawInfo.x,
+            offsetY: drawInfo.y,
+            width: drawInfo.width,
+            height: drawInfo.height,
+            canHoverPosition: hoverPosition,
+            arrowInfo: {
+                leftTopPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+                rightBottomPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+            }
+        })
+        repaintLine(drawInfo);
+    })
+    incomingIds.forEach(lineId => {
+        const line = linesStore.lineList.find(item => item.id === lineId)
+        if (!line) {
+            return
+        }
+        const fromNode = nodesStore.nodeList.find(nodeInfo => {
+            return nodeInfo.outcomingIds.includes(lineId)
+        })
+        if (!fromNode) {
+            return
+        }
+        const startPoint = {
+            x: 0,
+            y: 0,
+        }
+        const endPoint = {
+            x: 0,
+            y: 0,
+        }
+        if (line.fromPosition === "left") {
+            startPoint.x = fromNode.styleInfo.offsetX;
+            startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height / 2;
+        } else if (line.fromPosition === "top") {
+            startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2;
+            startPoint.y = fromNode.styleInfo.offsetY;
+        } else if (line.fromPosition === "right") {
+            startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width
+            startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height / 2;
+        } else if (line.fromPosition === "bottom") {
+            startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2;
+            startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height;
+        }
+        if (line.toPosition === "left") {
+            endPoint.x = node.styleInfo.offsetX;
+            endPoint.y = node.styleInfo.offsetY + node.styleInfo.height / 2;
+        } else if (line.toPosition === "top") {
+            endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
+            endPoint.y = node.styleInfo.offsetY;
+        } else if (line.toPosition === "right") {
+            endPoint.x = node.styleInfo.offsetX + node.styleInfo.width
+            endPoint.y = node.styleInfo.offsetY + node.styleInfo.height / 2;
+        } else if (line.toPosition === "bottom") {
+            endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
+            endPoint.y = node.styleInfo.offsetY + node.styleInfo.height;
+        }
+        const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
+            fromNode,
+            fromPosition: line.fromPosition,
+        });
+        const hoverPosition = getHoverPosition(line, drawInfo);
+        linesStore.changeLineInfoById(line.id, {
+            lineEndOffsetX: endPoint.x,
+            lineEndOffsetY: endPoint.y,
+            offsetX: drawInfo.x,
+            offsetY: drawInfo.y,
+            width: drawInfo.width,
+            height: drawInfo.height,
+            canHoverPosition: hoverPosition,
+            arrowInfo: {
+                leftTopPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+                rightBottomPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+            }
+        })
+        repaintLine(drawInfo);
+    })
 }
