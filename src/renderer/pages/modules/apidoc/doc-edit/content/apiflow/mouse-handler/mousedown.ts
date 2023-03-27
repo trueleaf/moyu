@@ -8,6 +8,7 @@ import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { FlowLineInfo, FlowNodeInfo } from "@@/apiflow";
 import { uniqueId } from "lodash";
+import { getDrawInfoByLineId, repaintLine } from "../common/common";
 
 /**
  * 点击Node
@@ -75,12 +76,33 @@ export function changeLineStateWhenMouseDown(): void {
         });
     }
     const lines = linesStore.lineList;
-    console.log(lines);
+    lines.forEach(line => {
+        const drawInfo = getDrawInfoByLineId(line.id);
+        if (drawInfo) {
+            drawInfo.lineInfo.activeColor = "#333"
+            repaintLine(drawInfo);
+        }
+    })
+    if (lineStateStore.hoverLineId) {
+        // const nodeAndLine = getNodeAndLineFromOutcomingLineId(lineStateStore.hoverLineId, state);
+        const drawInfo = getDrawInfoByLineId(lineStateStore.hoverLineId);
+        if (drawInfo) {
+            drawInfo.lineInfo.activeColor = "rgb(6, 123, 239)"
+            repaintLine(drawInfo);
+            lineStateStore.$patch({
+                selectedLineId: lineStateStore.hoverLineId,
+            })
+        }
+    } else {
+        lineStateStore.$patch({
+            selectedLineId: "",
+        })
+    }
 }
 /**
  * 点击resizeDot
  */
-export function changeResizeDotWhenMouseDown(e: MouseEvent): void {
+export function changeResizeDotStateWhenMouseDown(e: MouseEvent): void {
     const nodesStore = useFlowNodesStore();
     const nodeState = useFlowNodeStateStore();
     const configStore = useFlowConfigStore();
@@ -176,7 +198,9 @@ export function changeCreateLineDotWhenMouseDown(): void {
         })
         nodesStore.$patch((state) => {
             const matchedNode = state.nodeList.find(node => node.id === createLineDotState.hoverNodeId);
-            matchedNode?.outcomingIds.push(createLineDotState.hoverNodeId)
+            if (matchedNode && !matchedNode.outcomingIds.includes(createLineDotState.hoverNodeId)) {
+                matchedNode.outcomingIds.push(lineId)
+            }
         })
         lineStateStore.$patch({
             dragLineId: lineId,

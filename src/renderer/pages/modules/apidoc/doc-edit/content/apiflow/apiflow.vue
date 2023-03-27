@@ -12,11 +12,13 @@
         }"
     >
         <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
+        <!-- <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line> -->
         <teleport to="body">
             <pre style="position: absolute; right: 720px; top: 40px;">
-                {{ createLineDotStore }}
+                lineState: {{ lineStateStore }}
             </pre>
         </teleport>
+        <canvas id="apiflowCanvas" ref="apiflowCanvas"></canvas>
     </div>
 </template>
 
@@ -29,14 +31,19 @@ import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
 import { useFlowLineStateStore } from "@/store/apiflow/line-state";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotWhenMouseDown } from "./mouse-handler/mousedown";
+// import { useFlowLinesStore } from "@/store/apiflow/lines";
+import { FlowNodeInfo } from "@@/apiflow";
+import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown } from "./mouse-handler/mousedown";
 import sNode from "./components/node/node.vue"
-import { changeCreateLineDotStateWhenMouseMove, changeNodeStateWhenMouseMove, changeResizeDotStateWhenMouseMove } from "./mouse-handler/mousemove";
+// import sLine from "./components/line/line.vue"
+import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove } from "./mouse-handler/mousemove";
+import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
 
-const apiflow = ref<HTMLDivElement | null>(null)
+const apiflow = ref<HTMLDivElement | null>(null);
+const apiflowCanvas = ref<HTMLCanvasElement | null>(null);
 const containerStore = useFlowContainerStore();
 const nodesStore = useFlowNodesStore();
-// const resizeNodeStore = useFlowResizeNodeStateStore()
+// const linesStore = useFlowLinesStore()
 const createLineDotStore = useFlowCreateLineDotStateStore()
 const lineStateStore = useFlowLineStateStore()
 const nodeStateStore = useFlowNodeStateStore()
@@ -44,12 +51,16 @@ const resizeNodeStateStore = useFlowResizeNodeStateStore()
 
 //初始化容器信息
 const changeContainerInfo = () => {
-    if (apiflow.value !== null) {
+    if (apiflow.value !== null && apiflowCanvas.value !== null) {
         const apiflowRect = apiflow.value.getBoundingClientRect();
         containerStore.width = apiflowRect.width;
         containerStore.height = apiflowRect.height;
         containerStore.clientX = Math.ceil(apiflowRect.x);
         containerStore.clientY = Math.ceil(apiflowRect.y);
+        apiflowCanvas.value.style.width = `${apiflowRect.width}px`
+        apiflowCanvas.value.style.height = `${apiflowRect.height}px`
+        apiflowCanvas.value.width = apiflowRect.width
+        apiflowCanvas.value.height = apiflowRect.height
     }
 }
 const handleResize = debounce(() => {
@@ -66,23 +77,28 @@ const handleMouseMove = (e: MouseEvent) => {
     changeCreateLineDotStateWhenMouseMove(e);
     changeResizeDotStateWhenMouseMove(e);
     changeNodeStateWhenMouseMove(e);
+    changeNodeWhenMouseMove(e);
+    resizeNodeWhenMouseMove(e);
+    drawLineWhenMouseMove(e);
+    changeLineStateWhenMouseMove(e);
 }
 const handleMouseDown = (e: MouseEvent) => {
     changeNodeStateWhenMouseDown(e);
     changeLineStateWhenMouseDown();
-    changeResizeDotWhenMouseDown(e);
+    changeResizeDotStateWhenMouseDown(e);
     changeCreateLineDotWhenMouseDown();
 }
 const handleMouseUp = () => {
-    // console.log(1)
+    changeStateWhenMouseUp()
 }
-onMounted(() => {
-    nodesStore.$patch((state) => {
-        state.nodeList.push({
-            id: "start",
+const initNodes = () => {
+    const nodeList: FlowNodeInfo[] = []
+    for (let i = 0; i < 2; i += 1) {
+        nodeList.push({
+            id: `start${i}`,
             nodeType: "rect",
             styleInfo: {
-                offsetX: 200,
+                offsetX: 230 * (i + 1),
                 offsetY: 200,
                 width: 200,
                 height: 100,
@@ -92,7 +108,13 @@ onMounted(() => {
             outcomingIds: [],
             incomingIds: []
         })
+    }
+    nodesStore.$patch((state) => {
+        state.nodeList = nodeList
     })
+}
+onMounted(() => {
+    initNodes();
     changeContainerInfo();
     window.addEventListener("resize", handleResize)
     document.documentElement.addEventListener("mousemove", handleMouseMove);
@@ -124,6 +146,9 @@ const cursor = computed(() => {
         return "se-resize"
     }
     if (nodeStateStore.hoverNodeId) {
+        return "move"
+    }
+    if (lineStateStore.hoverDragLineId) {
         return "move"
     }
     return ""

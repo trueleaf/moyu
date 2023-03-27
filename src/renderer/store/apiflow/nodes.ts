@@ -1,5 +1,11 @@
-import { FlowNodeInfo } from "@@/apiflow"
+import { FlowLineInfo, FlowNodeInfo } from "@@/apiflow"
 import { defineStore } from "pinia"
+
+type AddIncomingPayload = {
+    fromNodeId: string;
+    toNodeId: string;
+    lineInfo: FlowLineInfo;
+}
 
 export const useFlowNodesStore = defineStore("nodes", {
     state: (): { nodeList: FlowNodeInfo[] } => {
@@ -32,6 +38,19 @@ export const useFlowNodesStore = defineStore("nodes", {
             if (matchedNode && payload.dragZIndex != null) {
                 matchedNode.styleInfo.dragZIndex = payload.dragZIndex
             }
-        }
+        },
+        addIncoming(payload: AddIncomingPayload) {
+            const { fromNodeId, toNodeId, lineInfo } = payload;
+            const matchedToNode = this.nodeList.find(v => v.id === toNodeId);
+            const matchedFromNode = this.nodeList.find(v => v.id === fromNodeId);
+            const matchedOutcomingLine = matchedFromNode?.outcomingIds.find(outcomingId => outcomingId === lineInfo.id)
+            const matchedIncomingLine = matchedToNode?.incomingIds.find(incomingId => incomingId === lineInfo.id)
+            const matchedIncomingLineIndex = matchedToNode?.incomingIds.findIndex(incomingId => incomingId === lineInfo.id) as number;
+            if (matchedToNode && !matchedIncomingLine && matchedOutcomingLine) {
+                matchedToNode.incomingIds.push(matchedOutcomingLine)
+            } else if (matchedToNode && matchedIncomingLine && matchedIncomingLineIndex !== -1 && matchedOutcomingLine) {
+                matchedToNode.incomingIds[matchedIncomingLineIndex] = matchedOutcomingLine;
+            }
+        },
     }
 })

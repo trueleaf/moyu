@@ -7,6 +7,7 @@
             width: nodeInfo?.styleInfo.width + 'px',
             height: nodeInfo?.styleInfo.height + 'px',
             zIndex: nodeInfo?.styleInfo.zIndex,
+            // border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #aaa' : '1px solid transparent')
         }"
     >
         <template v-if="nodeStateStore.activeNodeId === props.nodeId">
@@ -126,10 +127,10 @@ const nodeInfo = nodesStore.getNodeById(props.nodeId);
 
 <style lang="scss" scoped>
 .node {
-    border: 1px solid $gray-700;
     position: absolute;
     user-select: none;
     background-color: $white;
+    border: 1px solid $gray-500;
     .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
@@ -145,10 +146,10 @@ const nodeInfo = nodesStore.getNodeById(props.nodeId);
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
         z-index: -1;
-        height: 100%;
         border: 1px solid #409EFF;
+        width: 100%;
+        height: 100%;
     }
     .position-info {
         position: absolute;

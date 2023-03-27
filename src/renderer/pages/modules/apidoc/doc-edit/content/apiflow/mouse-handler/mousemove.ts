@@ -1,3 +1,4 @@
+import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
 import { useFlowLineStateStore } from "@/store/apiflow/line-state";
@@ -6,7 +7,7 @@ import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from "@@/apiflow";
-import { getCreateLineArea, getResizeBarArea, mouseIsInLine } from "../common/common";
+import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getResizeBarArea, mouseIsInLine, repaintLine } from "../common/common";
 
 /**
  * createLineDot上面移动
@@ -166,19 +167,20 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
 export function changeLineStateWhenMouseMove(e: MouseEvent): void {
     const linesStore = useFlowLinesStore()
     const lineStateStore = useFlowLineStateStore()
+    const nodeStateStore = useFlowNodeStateStore()
     for (let i = 0; i < linesStore.lineList.length; i += 1) {
         const line = linesStore.lineList[i];
         const { arrowInfo: { leftTopPoint, rightBottomPoint } } = line;
         const isXInLineArrow = e.clientX >= leftTopPoint.clientX && e.clientX <= rightBottomPoint.clientX;
         const isYInLineArrow = e.clientY >= leftTopPoint.clientY && e.clientY <= rightBottomPoint.clientY;
-        if (isXInLineArrow && isYInLineArrow) { //鼠标是否在箭头上
+        if (isXInLineArrow && isYInLineArrow && !nodeStateStore.isMove) { //鼠标是否在箭头上
             lineStateStore.$patch({
                 hoverDragLineId: line.id,
                 isHoverDragArrow: true,
             })
             break
         }
-        if (mouseIsInLine(e, line)) {
+        if (mouseIsInLine(e, line) && !nodeStateStore.isMove) {
             lineStateStore.$patch({
                 hoverDragLineId: "",
                 hoverLineId: line.id,
@@ -195,7 +197,7 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
 }
 
 /**
- * 拖拽node移动
+ * node移动
  */
 export function changeNodeWhenMouseMove(e: MouseEvent): void {
     const createLineStateStore = useFlowCreateLineDotStateStore();
@@ -220,6 +222,225 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
         nodeStateStore.$patch({
             isMove: true
         })
-        // getDrawInfoWhenMoveOrResize(matchedNode)
+        drawLineWhenMoveOrResize(matchedNode)
     }
+}
+/**
+ * node放大缩小
+ */
+export function resizeNodeWhenMouseMove(e: MouseEvent): void {
+    const resizeNodeDotStateStore = useFlowResizeNodeStateStore();
+    const nodesStore = useFlowNodesStore();
+    const configStore = useFlowConfigStore();
+    if (!resizeNodeDotStateStore.isMouseDown) {
+        return
+    }
+    const matchedNode = nodesStore.nodeList.find(node => node.id === resizeNodeDotStateStore.hoverNodeId)
+    if (matchedNode) {
+        const relativeX = e.clientX - resizeNodeDotStateStore.mouseDownClientX; //相对x移动距离
+        const relativeY = e.clientY - resizeNodeDotStateStore.mouseDownClientY; //相对y移动距离
+        if (resizeNodeDotStateStore.hoverPosition === "leftTop") {
+            if (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX < configStore.nodeMinWidth) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: configStore.nodeMinWidth,
+                    offsetX: resizeNodeDotStateStore.nodeFixedX
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX,
+                    offsetX: resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX
+                });
+            }
+            if (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY < configStore.nodeMinHeight) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: configStore.nodeMinHeight,
+                    offsetY: resizeNodeDotStateStore.nodeFixedY
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY,
+                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY
+                });
+            }
+        } else if (resizeNodeDotStateStore.hoverPosition === "rightTop") {
+            if (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX < configStore.nodeMinWidth) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: configStore.nodeMinWidth,
+                    offsetX: resizeNodeDotStateStore.nodeFixedX
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX
+                });
+            }
+            if (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY < configStore.nodeMinHeight) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: configStore.nodeMinHeight,
+                    offsetY: resizeNodeDotStateStore.nodeFixedY,
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY,
+                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY,
+                });
+            }
+        } else if (resizeNodeDotStateStore.hoverPosition === "leftBottom") {
+            if (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX < configStore.nodeMinWidth) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: configStore.nodeMinWidth,
+                    offsetX: resizeNodeDotStateStore.nodeFixedX,
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX,
+                    offsetX: resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX,
+                });
+            }
+            if (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY < configStore.nodeMinHeight) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: configStore.nodeMinHeight,
+                    offsetY: resizeNodeDotStateStore.nodeFixedY,
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY,
+                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown,
+                });
+            }
+        } else if (resizeNodeDotStateStore.hoverPosition === "rightBottom") {
+            if (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX < configStore.nodeMinWidth) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: configStore.nodeMinWidth,
+                    offsetX: resizeNodeDotStateStore.nodeFixedX,
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX,
+                });
+            }
+            if (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY < configStore.nodeMinHeight) {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: configStore.nodeMinHeight,
+                });
+            } else {
+                nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
+                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY,
+                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown,
+                });
+            }
+        }
+        drawLineWhenMoveOrResize(matchedNode)
+    }
+}
+/**
+ * 绘制线条
+ */
+export function drawLineWhenMouseMove(e: MouseEvent): void {
+    const createLineDotState = useFlowCreateLineDotStateStore();
+    const nodesStore = useFlowNodesStore();
+    const containerStore = useFlowContainerStore()
+    const linesStore = useFlowLinesStore()
+    const lineStateStore = useFlowLineStateStore()
+    if (!createLineDotState.isMouseDown && !lineStateStore.isMouseDownDragArrow) {
+        return
+    }
+    const dragLineId = lineStateStore.dragLineId;
+    const matchedLine = linesStore.lineList.find(line => line.id === dragLineId)
+    const matchedNode = nodesStore.nodeList.find(node => node.outcomingIds.includes(dragLineId))
+    if (!matchedLine || !matchedNode) {
+        return
+    }
+    const { fromPosition } = matchedLine
+    const startPoint = {
+        x: 0,
+        y: 0,
+    }
+    if (fromPosition === "left") {
+        startPoint.x = matchedNode.styleInfo.offsetX;
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
+    } else if (fromPosition === "top") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
+        startPoint.y = matchedNode.styleInfo.offsetY;
+    } else if (fromPosition === "right") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width;
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
+    } else if (fromPosition === "bottom") {
+        startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
+        startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
+    }
+    const endPoint = {
+        x: e.clientX - Math.ceil(containerStore.clientX),
+        y: e.clientY - Math.ceil(containerStore.clientY),
+    }
+    const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
+        fromNode: matchedNode,
+        fromPosition,
+    });
+    const hoverPosition = getHoverPosition(matchedLine, drawInfo);
+    if (drawInfo.isConnectedNode) {
+        linesStore.changeLineInfoById(matchedLine.id, {
+            toPosition: drawInfo.connectedPosition,
+            arrowInfo: {
+                leftTopPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+                rightBottomPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+            }
+        });
+        nodesStore.addIncoming({
+            fromNodeId: matchedNode.id,
+            toNodeId: drawInfo.connectedNodeId,
+            lineInfo: matchedLine,
+        })
+    } else {
+        linesStore.changeLineInfoById(matchedLine.id, {
+            toPosition: "",
+            arrowInfo: {
+                leftTopPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+                rightBottomPoint: {
+                    clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                    clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+                },
+            }
+        });
+        nodesStore.$patch((state) => {
+            const matched = state.nodeList.find(node => node.id === matchedNode.id)
+            if (matched) {
+                const delIndex = matched.incomingIds.findIndex(lineId => lineId === matchedLine.id);
+                matched.incomingIds.splice(delIndex, 1)
+            }
+        })
+    }
+    linesStore.changeLineInfoById(matchedLine.id, {
+        id: matchedLine.id,
+        offsetX: drawInfo.x,
+        offsetY: drawInfo.y,
+        width: drawInfo.width,
+        height: drawInfo.height,
+        lineStartOffsetX: startPoint.x,
+        lineStartOffsetY: startPoint.y,
+        lineEndOffsetX: e.clientX - containerStore.clientX,
+        lineEndOffsetY: e.clientY - containerStore.clientY,
+        canHoverPosition: hoverPosition,
+        arrowInfo: {
+            leftTopPoint: {
+                clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                clientY: drawInfo.lineInfo.arrowInfo.leftTopPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+            },
+            rightBottomPoint: {
+                clientX: drawInfo.lineInfo.arrowInfo.rightBottomPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
+                clientY: drawInfo.lineInfo.arrowInfo.rightBottomPoint.y + drawInfo.y + Math.ceil(containerStore.clientY),
+            },
+        }
+    });
+    // const canvasDom = document.querySelector(`#line__${matchedLine.id}`) as HTMLCanvasElement;
+    // console.log(drawInfo)
+    repaintLine(drawInfo);
 }
