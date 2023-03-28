@@ -16,14 +16,25 @@
         <teleport to="body">
             <pre style="position: absolute; right: 720px; top: 40px;">
                 lineState: {{ lineStateStore }}
+                renderAreaStore: {{ renderAreaStore }}
             </pre>
         </teleport>
-        <canvas id="apiflowCanvas" ref="apiflowCanvas"></canvas>
     </div>
+    <canvas
+        id="renderArea"
+        ref="renderArea"
+        :width="renderAreaStore.width"
+        :height="renderAreaStore.height"
+        :style="{
+            width: `${renderAreaStore.width}px`,
+            height: `${renderAreaStore.height}px`,
+        }"
+    >
+    </canvas>
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 import { debounce } from "@/helper";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
@@ -33,17 +44,19 @@ import { useFlowLineStateStore } from "@/store/apiflow/line-state";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 // import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { FlowNodeInfo } from "@@/apiflow";
+import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
 import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown } from "./mouse-handler/mousedown";
 import sNode from "./components/node/node.vue"
 // import sLine from "./components/line/line.vue"
 import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
+import { repaintRenderArea } from "./common/common";
 
 const apiflow = ref<HTMLDivElement | null>(null);
-const apiflowCanvas = ref<HTMLCanvasElement | null>(null);
+const renderArea = ref<HTMLCanvasElement | null>(null);
 const containerStore = useFlowContainerStore();
 const nodesStore = useFlowNodesStore();
-// const linesStore = useFlowLinesStore()
+const renderAreaStore = useFlowRenderAreaStore()
 const createLineDotStore = useFlowCreateLineDotStateStore()
 const lineStateStore = useFlowLineStateStore()
 const nodeStateStore = useFlowNodeStateStore()
@@ -51,20 +64,32 @@ const resizeNodeStateStore = useFlowResizeNodeStateStore()
 
 //初始化容器信息
 const changeContainerInfo = () => {
-    if (apiflow.value !== null && apiflowCanvas.value !== null) {
+    if (apiflow.value !== null) {
         const apiflowRect = apiflow.value.getBoundingClientRect();
         containerStore.width = apiflowRect.width;
         containerStore.height = apiflowRect.height;
         containerStore.clientX = Math.ceil(apiflowRect.x);
         containerStore.clientY = Math.ceil(apiflowRect.y);
-        apiflowCanvas.value.style.width = `${apiflowRect.width}px`
-        apiflowCanvas.value.style.height = `${apiflowRect.height}px`
-        apiflowCanvas.value.width = apiflowRect.width
-        apiflowCanvas.value.height = apiflowRect.height
+    }
+}
+//初始化renderArea
+const changeRenderAreaInfo = () => {
+    if (apiflow.value !== null && renderArea.value !== null) {
+        const apiflowRect = apiflow.value.getBoundingClientRect();
+        renderAreaStore.$patch({
+            width: Math.ceil(apiflowRect.width),
+            height: Math.ceil(apiflowRect.height),
+            offsetX: apiflowRect.x,
+            offsetY: apiflowRect.y,
+        })
+        nextTick(() => {
+            repaintRenderArea();
+        })
     }
 }
 const handleResize = debounce(() => {
     changeContainerInfo()
+    changeRenderAreaInfo()
 }, 300)
 
 /*
@@ -116,6 +141,7 @@ const initNodes = () => {
 onMounted(() => {
     initNodes();
     changeContainerInfo();
+    changeRenderAreaInfo();
     window.addEventListener("resize", handleResize)
     document.documentElement.addEventListener("mousemove", handleMouseMove);
     document.documentElement.addEventListener("mousedown", handleMouseDown);
@@ -157,8 +183,12 @@ const cursor = computed(() => {
 
 <style lang="scss" scoped>
 .apiflow {
-    height: calc(100vh - #{size(100)});
     overflow: auto;
-    position: relative;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+#renderArea {
+    position: absolute;
 }
 </style>

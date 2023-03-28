@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-    <div class="wrap">
+    <div class="container-test">
         <apiflow />
     </div>
 </template>
@@ -16,10 +16,10 @@ import apiflow from "../modules/apidoc/doc-edit/content/apiflow/apiflow.vue";
 </script>
 
 <style lang="scss">
-.wrap {
+.container-test {
    width: 80vw;
    height: 80vh;
-   background-color: #f2f2f2;
+   background-color: #fefefe;
    position: absolute;
    top: 10vh;
    left: 10vw;

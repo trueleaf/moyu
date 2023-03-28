@@ -2,6 +2,7 @@ import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
+import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
 import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from "@@/apiflow";
 import { getQuardantInfo } from "./quadrant/quardant";
 import { getQuardantInfo2 } from "./quadrant2/quadrant2";
@@ -539,7 +540,7 @@ export const getHoverPosition = (lineInfo: FlowLineInfo, drawInfo: DrawInfo): Li
     return hoverPosition;
 }
 export const repaintLine = (drawInfo: DrawInfo): void => {
-    const canvas = document.querySelector("#apiflowCanvas") as HTMLCanvasElement;
+    const canvas = document.querySelector("#renderArea") as HTMLCanvasElement;
     const canvasRect = canvas.getBoundingClientRect()
     const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     const { brokenLinePoints, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo;
@@ -572,6 +573,38 @@ export const repaintLine = (drawInfo: DrawInfo): void => {
     ctx.lineTo(p3.x + drawInfo.x, p3.y + drawInfo.y)
     ctx.fill();
     ctx.closePath()
+}
+export const repaintRenderArea = (): void => {
+    const canvas = document.querySelector("#renderArea") as HTMLCanvasElement;
+    const canvasRect = canvas.getBoundingClientRect()
+    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    const flowRenderAreaStore = useFlowRenderAreaStore()
+    const width = Math.ceil(flowRenderAreaStore.width / flowRenderAreaStore.gridUnit);
+    const height = Math.ceil(flowRenderAreaStore.height / flowRenderAreaStore.gridUnit);
+    for (let i = 0; i < width; i += 1) {
+        ctx.beginPath()
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#eee";
+        if (i % 5 === 0) {
+            ctx.strokeStyle = "#ccc"
+        }
+        ctx.moveTo(i * flowRenderAreaStore.gridUnit + 0.5, 0)
+        ctx.lineTo(i * flowRenderAreaStore.gridUnit + 0.5, canvasRect.height)
+        ctx.stroke()
+        ctx.closePath()
+    }
+    for (let j = 0; j < height; j += 1) {
+        ctx.beginPath()
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#eee"
+        if (j % 5 === 0) {
+            ctx.strokeStyle = "#ccc"
+        }
+        ctx.moveTo(0, j * flowRenderAreaStore.gridUnit + 0.5)
+        ctx.lineTo(canvasRect.width, j * flowRenderAreaStore.gridUnit + 0.5)
+        ctx.stroke()
+        ctx.closePath()
+    }
 }
 export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
     const linesStore = useFlowLinesStore()
