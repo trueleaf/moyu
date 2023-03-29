@@ -774,3 +774,14 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
         repaintLine(drawInfo);
     })
 }
+export const getAlignmentInfo = (): void => {
+    // const nodesStore = useFlowNodesStore();
+    // const nodeStateStore = useFlowNodeStateStore();
+    // const alignmentInfo: FlowAlignmentInfo = {
+    //     xRange: [],
+    //     yRange: [],
+    // }
+    // for (let i = 0; i < nodesStore.nodeList.length; i += 1) {
+
+    // }
+}

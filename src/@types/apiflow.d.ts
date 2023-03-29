@@ -155,6 +155,27 @@ export type FlowContainerInfo = {
     width: number;
     height: number;
 };
+/**
+ * 辅助对齐
+ */
+export type FlowAlignmentInfo = {
+    xRange: {
+        nodeId: string;
+        offsetYOfTop: number;
+        offsetYOfBottom: number;
+        offsetXOfLeft: number;
+        offsetXOfMid: number;
+        offsetXOfRight: number;
+    }[],
+    yRange: {
+        nodeId: string;
+        offsetXOfTop: number;
+        offsetXOfBottom: number;
+        offsetYOfLeft: number;
+        offsetYOfMid: number;
+        offsetYOfRight: number;
+    }[],
+}
 /*
 |--------------------------------------------------------------------------
 | 节点上创建线条原圆点状态
