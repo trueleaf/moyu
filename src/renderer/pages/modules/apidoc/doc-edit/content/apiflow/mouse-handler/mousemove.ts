@@ -195,7 +195,6 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
         })
     }
 }
-
 /**
  * node移动
  */
@@ -333,7 +332,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
     }
 }
 /**
- * 绘制线条
+ * 绘制线条(创建线条或者拖拽线条箭头)
  */
 export function drawLineWhenMouseMove(e: MouseEvent): void {
     const createLineDotState = useFlowCreateLineDotStateStore();
@@ -347,6 +346,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
     const dragLineId = lineStateStore.dragLineId;
     const matchedLine = linesStore.lineList.find(line => line.id === dragLineId)
     const matchedNode = nodesStore.nodeList.find(node => node.outcomingIds.includes(dragLineId))
+    const matchedToNode = nodesStore.nodeList.find(node => node.incomingIds.includes(dragLineId))
     if (!matchedLine || !matchedNode) {
         return
     }
@@ -411,7 +411,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
             }
         });
         nodesStore.$patch((state) => {
-            const matched = state.nodeList.find(node => node.id === matchedNode.id)
+            const matched = state.nodeList.find(node => node.id === matchedToNode?.id)
             if (matched) {
                 const delIndex = matched.incomingIds.findIndex(lineId => lineId === matchedLine.id);
                 matched.incomingIds.splice(delIndex, 1)
@@ -440,7 +440,9 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
             },
         }
     });
-    // const canvasDom = document.querySelector(`#line__${matchedLine.id}`) as HTMLCanvasElement;
+    const canvasDom = document.querySelector(`#line__${matchedLine.id}`) as HTMLCanvasElement;
     // console.log(drawInfo)
-    repaintLine(drawInfo);
+    if (canvasDom) {
+        repaintLine(canvasDom, drawInfo);
+    }
 }
