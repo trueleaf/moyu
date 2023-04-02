@@ -100,27 +100,52 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
         if (stickyNodePosition === "left") {
             result.width = Math.abs(stickyArea.leftArea.pointX - startPoint.x) + 2 * padding;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
-            result.x = startPoint.x - padding;
-            result.y = startPoint.y - padding;
-            result.lineInfo.brokenLinePoints = [];
-            result.lineInfo.brokenLinePoints.push({
-                x: startPoint.x - result.x,
-                y: startPoint.y - result.y
-            });
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width / 2,
-                y: startPoint.y - result.y
-            })
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width / 2,
-                y: result.height - padding
-            });
-            result.lineInfo.brokenLinePoints.push({
-                x: result.width - padding - arrowLength,
-                y: result.height - padding
-            })
-            lineEndPoint.x = result.width - padding - arrowLength;
-            lineEndPoint.y = result.height - padding;
+            if (startPoint.y > stickyArea.leftArea.pointY) { //保持和第一象限一致
+                result.width = stickyArea.leftArea.pointX - startPoint.x + 2 * padding;
+                result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
+                result.y = stickyArea.leftArea.pointY - padding;
+                result.lineInfo.brokenLinePoints = [];
+                result.lineInfo.brokenLinePoints.push({
+                    x: startPoint.x - result.x,
+                    y: result.height - padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: (stickyArea.leftArea.pointX - startPoint.x) / 2 + padding,
+                    y: result.height - padding
+                })
+                result.lineInfo.brokenLinePoints.push({
+                    x: (stickyArea.leftArea.pointX - startPoint.x) / 2 + padding,
+                    y: stickyArea.leftArea.pointY - result.y
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: stickyArea.leftArea.pointX - result.x - arrowLength,
+                    y: stickyArea.leftArea.pointY - result.y
+                });
+                lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
+                lineEndPoint.y = stickyArea.leftArea.pointY - result.y;
+            } else {
+                result.x = startPoint.x - padding;
+                result.y = startPoint.y - padding;
+                result.lineInfo.brokenLinePoints = [];
+                result.lineInfo.brokenLinePoints.push({
+                    x: startPoint.x - result.x,
+                    y: startPoint.y - result.y
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width / 2,
+                    y: startPoint.y - result.y
+                })
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width / 2,
+                    y: result.height - padding
+                });
+                result.lineInfo.brokenLinePoints.push({
+                    x: result.width - padding - arrowLength,
+                    y: result.height - padding
+                })
+                lineEndPoint.x = result.width - padding - arrowLength;
+                lineEndPoint.y = result.height - padding;
+            }
             result.isConnectedNode = true
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
