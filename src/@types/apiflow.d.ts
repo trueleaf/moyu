@@ -143,6 +143,10 @@ export type FlowConfig = {
      * 拖拽节点默认zIndex
      */
     dragNodeZIndex: number;
+    /**
+     * 放大倍数
+     */
+    zoom: number;
 };
 /*
 |--------------------------------------------------------------------------
