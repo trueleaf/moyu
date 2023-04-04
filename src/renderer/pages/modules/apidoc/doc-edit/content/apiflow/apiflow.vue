@@ -11,12 +11,33 @@
             cursor: cursor,
         }"
     >
+        <div class="toolbar">
+            <div class="op-item">
+                <i class="iconfont iconbaocun"></i>
+            </div>
+            <div class="op-item">
+                <i class="iconfont iconshangyibu"></i>
+            </div>
+            <div class="op-item">
+                <i class="iconfont iconxiayibu"></i>
+            </div>
+            <el-divider direction="vertical" />
+            <div class="op-item">
+                <i class="iconfont iconjianhao"></i>
+            </div>
+            <div class="mx-1 f-xs">{{ configStore.zoom * 100 }}%</div>
+            <div class="op-item">
+                <i class="iconfont iconjiahao"></i>
+            </div>
+        </div>
         <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
-        <!-- <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line> -->
+        <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
         <teleport to="body">
-            <pre style="position: absolute; right: 720px; top: 40px;">
-                lineState: {{ lineStateStore }}
-                renderAreaStore: {{ renderAreaStore }}
+            <pre v-if="1" style="position: absolute; right: 720px; top: 40px;">
+                resizeNodeDotState: {{ resizeNodeDotState }}
+                <!-- nodeStateStore: {{ nodeStateStore }} -->
+                nodesStore: {{ nodesStore }}
+                <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>
     </div>
@@ -42,12 +63,13 @@ import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
 import { useFlowLineStateStore } from "@/store/apiflow/line-state";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-// import { useFlowLinesStore } from "@/store/apiflow/lines";
+import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { FlowNodeInfo } from "@@/apiflow";
+import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
 import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown } from "./mouse-handler/mousedown";
 import sNode from "./components/node/node.vue"
-// import sLine from "./components/line/line.vue"
+import sLine from "./components/line/line.vue"
 import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
 import { repaintRenderArea } from "./common/common";
@@ -61,6 +83,9 @@ const createLineDotStore = useFlowCreateLineDotStateStore()
 const lineStateStore = useFlowLineStateStore()
 const nodeStateStore = useFlowNodeStateStore()
 const resizeNodeStateStore = useFlowResizeNodeStateStore()
+const linesStore = useFlowLinesStore()
+const configStore = useFlowConfigStore();
+const resizeNodeDotState = useFlowResizeNodeStateStore()
 
 //初始化容器信息
 const changeContainerInfo = () => {
@@ -74,7 +99,7 @@ const changeContainerInfo = () => {
 }
 //初始化renderArea
 const changeRenderAreaInfo = () => {
-    if (apiflow.value !== null && renderArea.value !== null) {
+    if (!Date && apiflow.value !== null && renderArea.value !== null) {
         const apiflowRect = apiflow.value.getBoundingClientRect();
         renderAreaStore.$patch({
             width: Math.ceil(apiflowRect.width),
@@ -118,15 +143,15 @@ const handleMouseUp = () => {
 }
 const initNodes = () => {
     const nodeList: FlowNodeInfo[] = []
-    for (let i = 0; i < 2; i += 1) {
+    for (let i = 0; i < 1; i += 1) {
         nodeList.push({
             id: `start${i}`,
             nodeType: "rect",
             styleInfo: {
-                offsetX: 230 * (i + 1),
+                offsetX: 240 * (i + 1),
                 offsetY: 200,
                 width: 200,
-                height: 100,
+                height: 130,
                 zIndex: 1,
                 dragZIndex: 1,
             },
@@ -186,7 +211,31 @@ const cursor = computed(() => {
     overflow: auto;
     position: absolute;
     width: 100%;
-    height: 100%;
+    height: calc(100vh - #{size(100)});
+    .toolbar {
+        position: absolute;
+        background-color: #fff;
+        box-shadow: 1px 1px 5px $gray-500;
+        // width: 40%;
+        top: size(1);
+        // transform: translate(-50%, 0);
+        padding: 0 size(20);
+        height: size(30);
+        display: flex;
+        align-items: center;
+        cursor: move;
+        .op-item {
+            height: 100%;
+            width: size(30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            &:hover {
+                background-color: $gray-200;
+            }
+        }
+    }
 }
 #renderArea {
     position: absolute;
