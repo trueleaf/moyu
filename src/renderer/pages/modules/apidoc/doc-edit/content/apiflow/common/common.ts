@@ -299,36 +299,36 @@ export function getCreateLineArea(nodeInfo: FlowNodeInfo): FlowValidCreateLineAr
     const configStore = useFlowConfigStore()
     const { createLineDotSize } = configStore
     const leftArea = {
-        pointX: nodeInfo.styleInfo.offsetX,
-        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
-        offsetX: nodeInfo.styleInfo.offsetX - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 + createLineDotSize / 2,
     }
     const rightArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
-        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height / 2 + createLineDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 + createLineDotSize / 2,
     }
     const topArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
-        pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + createLineDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 - createLineDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 + createLineDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - createLineDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + createLineDotSize / 2,
     }
     const bottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2,
-        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 - createLineDotSize,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width / 2 + createLineDotSize,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - createLineDotSize,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + createLineDotSize,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 - createLineDotSize,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 + createLineDotSize,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - createLineDotSize,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + createLineDotSize,
     }
     return {
         leftArea,
@@ -341,36 +341,36 @@ export function getResizeBarArea(nodeInfo: FlowNodeInfo): FlowValidResizeArea {
     const configStore = useFlowConfigStore()
     const { resizeDotSize } = configStore
     const leftTopArea = {
-        pointX: nodeInfo.styleInfo.offsetX,
-        pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + resizeDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - resizeDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + resizeDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - resizeDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + resizeDotSize / 2,
     }
     const rightTopArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
-        pointY: nodeInfo.styleInfo.offsetY,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + resizeDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - resizeDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + resizeDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - resizeDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + resizeDotSize / 2,
     }
     const leftBottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX,
-        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - resizeDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + resizeDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - resizeDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + resizeDotSize / 2,
     }
     const rightBottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width,
-        pointY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height,
-        offsetX: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX + nodeInfo.styleInfo.width + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY + nodeInfo.styleInfo.height + resizeDotSize / 2,
+        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
+        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
+        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - resizeDotSize / 2,
+        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + resizeDotSize / 2,
+        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - resizeDotSize / 2,
+        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + resizeDotSize / 2,
     }
     return {
         leftTopArea,
@@ -539,12 +539,11 @@ export const getHoverPosition = (lineInfo: FlowLineInfo, drawInfo: DrawInfo): Li
     }
     return hoverPosition;
 }
-export const repaintLine = (drawInfo: DrawInfo): void => {
-    const canvas = document.querySelector("#renderArea") as HTMLCanvasElement;
-    const canvasRect = canvas.getBoundingClientRect()
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+export const repaintLine = (dom: HTMLCanvasElement, drawInfo: DrawInfo): void => {
+    const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
+    dom.width = drawInfo.width;
+    dom.height = drawInfo.height;
     const { brokenLinePoints, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo;
-    ctx.clearRect(0, 0, canvasRect.width, canvasRect.height)
     ctx.beginPath();
     // ctx.fillRect(drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.leftTopPoint.y, drawInfo.lineInfo.arrowInfo.rightBottomPoint.x - drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.rightBottomPoint.y - drawInfo.lineInfo.arrowInfo.leftTopPoint.y)
     ctx.closePath()
@@ -556,21 +555,21 @@ export const repaintLine = (drawInfo: DrawInfo): void => {
         const point = brokenLinePoints[i];
         const point2 = brokenLinePoints[i + 1];
         if (point.x === point2.x) { //画竖线
-            ctx.moveTo(point.x + drawInfo.x + 0.5, point.y + drawInfo.y);
-            ctx.lineTo(point2.x + drawInfo.x + 0.5, point2.y + drawInfo.y);
+            ctx.moveTo(point.x + 0.5, point.y);
+            ctx.lineTo(point2.x + 0.5, point2.y);
         } else if (point.y === point2.y) { //画横线
-            ctx.moveTo(point.x + drawInfo.x, point.y + 0.5 + drawInfo.y);
-            ctx.lineTo(point2.x + drawInfo.x, point2.y + 0.5 + drawInfo.y);
+            ctx.moveTo(point.x, point.y + 0.5);
+            ctx.lineTo(point2.x, point2.y + 0.5);
         }
-        ctx.moveTo(point.x + drawInfo.x, point.y + drawInfo.y);
-        ctx.lineTo(point2.x + drawInfo.x, point2.y + drawInfo.y);
+        ctx.moveTo(point.x, point.y);
+        ctx.lineTo(point2.x, point2.y);
         ctx.stroke()
     }
     ctx.closePath()
     ctx.beginPath()
-    ctx.moveTo(p1.x + drawInfo.x, p1.y + drawInfo.y)
-    ctx.lineTo(p2.x + drawInfo.x, p2.y + drawInfo.y)
-    ctx.lineTo(p3.x + drawInfo.x, p3.y + drawInfo.y)
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
+    ctx.lineTo(p3.x, p3.y)
     ctx.fill();
     ctx.closePath()
 }
@@ -700,7 +699,10 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
                 },
             }
         })
-        repaintLine(drawInfo);
+        const canvasDom = document.querySelector(`#line__${lineId}`) as HTMLCanvasElement;
+        if (canvasDom) {
+            repaintLine(canvasDom, drawInfo);
+        }
     })
     incomingIds.forEach(lineId => {
         const line = linesStore.lineList.find(item => item.id === lineId)
@@ -771,7 +773,11 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
                 },
             }
         })
-        repaintLine(drawInfo);
+        const canvasDom = document.querySelector(`#line__${lineId}`) as HTMLCanvasElement;
+        if (canvasDom) {
+            repaintLine(canvasDom, drawInfo);
+        }
+        // repaintLine(drawInfo);
     })
 }
 export const getAlignmentInfo = (): void => {
