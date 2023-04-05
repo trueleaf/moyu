@@ -30,8 +30,8 @@ export function changeNodeStateWhenMouseDown(e: MouseEvent): void {
     for (let i = 0; i < nodeListStore.nodeList.length; i += 1) {
         const node = nodeListStore.nodeList[i];
         const { offsetX, width, offsetY, height } = node.styleInfo;
-        const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
-        const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
+        const isInX = mouseOffsetX >= offsetX * configStore.zoom && mouseOffsetX < (offsetX + width) * configStore.zoom;
+        const isInY = mouseOffsetY >= offsetY * configStore.zoom && mouseOffsetY < (offsetY + height) * configStore.zoom;
         if ((isInX && isInY) || resizeNodeDotStateStore.hoverNodeId === node.id) {
             matchedNodes.push(node);
         }
@@ -80,15 +80,20 @@ export function changeLineStateWhenMouseDown(): void {
         const drawInfo = getDrawInfoByLineId(line.id);
         if (drawInfo) {
             drawInfo.lineInfo.activeColor = "#333"
-            repaintLine(drawInfo);
+            const canvasDom = document.querySelector(`#line__${line.id}`) as HTMLCanvasElement;
+            if (canvasDom) {
+                repaintLine(canvasDom, drawInfo);
+            }
         }
     })
     if (lineStateStore.hoverLineId) {
-        // const nodeAndLine = getNodeAndLineFromOutcomingLineId(lineStateStore.hoverLineId, state);
         const drawInfo = getDrawInfoByLineId(lineStateStore.hoverLineId);
         if (drawInfo) {
             drawInfo.lineInfo.activeColor = "rgb(6, 123, 239)"
-            repaintLine(drawInfo);
+            const canvasDom = document.querySelector(`#line__${lineStateStore.hoverLineId}`) as HTMLCanvasElement;
+            if (canvasDom) {
+                repaintLine(canvasDom, drawInfo);
+            }
             lineStateStore.$patch({
                 selectedLineId: lineStateStore.hoverLineId,
             })

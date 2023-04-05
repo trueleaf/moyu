@@ -1,3 +1,4 @@
+import { cloneDeep } from "@/helper";
 import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowLinesStore } from "@/store/apiflow/lines";
@@ -610,6 +611,7 @@ export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
     const nodesStore = useFlowNodesStore()
     const matchedLine = linesStore.lineList.find(line => line.id === lineId)
     const matchedNode = nodesStore.nodeList.find(node => node.outcomingIds.includes(lineId))
+    const configStore = useFlowConfigStore()
     if (!matchedNode || !matchedLine) {
         return null
     }
@@ -634,8 +636,15 @@ export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
     }
+    startPoint.x *= configStore.zoom;
+    startPoint.y *= configStore.zoom;
+    const clonedNode = cloneDeep(matchedNode)
+    clonedNode.styleInfo.width *= configStore.zoom;
+    clonedNode.styleInfo.height *= configStore.zoom;
+    clonedNode.styleInfo.offsetX *= configStore.zoom;
+    clonedNode.styleInfo.offsetY *= configStore.zoom;
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-        fromNode: matchedNode,
+        fromNode: clonedNode,
         fromPosition: matchedLine.fromPosition,
     });
     return drawInfo;

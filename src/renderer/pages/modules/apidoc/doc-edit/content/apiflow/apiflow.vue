@@ -36,7 +36,8 @@
             <pre v-if="1" style="position: absolute; right: 720px; top: 40px;">
                 resizeNodeDotState: {{ resizeNodeDotState }}
                 <!-- nodeStateStore: {{ nodeStateStore }} -->
-                nodesStore: {{ nodesStore }}
+                <!-- nodesStore: {{ nodesStore }} -->
+                linesStore: {{ linesStore }}
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>

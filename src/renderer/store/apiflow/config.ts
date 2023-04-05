@@ -8,10 +8,11 @@ export const useFlowConfigStore = defineStore("flowConfig", {
             minLineHeight: 40,
             createLineDotSize: 12,
             resizeDotSize: 12,
-            nodeMinWidth: 100,
-            nodeMinHeight: 50,
+            nodeMinWidth: 200,
+            nodeMinHeight: 130,
             lineZIndex: 299,
             dragNodeZIndex: 298,
+            zoom: 0.5,
         }
     }
 })
