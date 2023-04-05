@@ -2,12 +2,12 @@
     <div
         class="node"
         :style="{
-            left: nodeInfo?.styleInfo.offsetX + 'px',
-            top: nodeInfo?.styleInfo.offsetY + 'px',
-            width: nodeInfo?.styleInfo.width + 'px',
-            height: nodeInfo?.styleInfo.height + 'px',
-            zIndex: nodeInfo?.styleInfo.zIndex,
-            // border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #aaa' : '1px solid transparent')
+            left: nodeInfo.styleInfo.offsetX * configStore.zoom + 'px',
+            top: nodeInfo.styleInfo.offsetY * configStore.zoom + 'px',
+            width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
+            height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
+            zIndex: nodeInfo.styleInfo.zIndex,
+            border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #aaa' : '1px solid transparent')
         }"
     >
         <template v-if="nodeStateStore.activeNodeId === props.nodeId">
@@ -99,8 +99,8 @@
         </template>
         <template v-if="nodeStateStore.activeNodeId === props.nodeId && nodeStateStore.isMove">
             <div className="position-info">
-                <span>X: {{ nodeInfo?.styleInfo.offsetX }}&nbsp;&nbsp;&nbsp;</span>
-                <span>Y: {{ nodeInfo?.styleInfo.offsetY }}</span>
+                <span>X: {{ Math.ceil(nodeInfo.styleInfo.offsetX * configStore.zoom) }}&nbsp;&nbsp;&nbsp;</span>
+                <span>Y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}</span>
             </div>
         </template>
     </div>
@@ -110,6 +110,7 @@
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowConfigStore } from "@/store/apiflow/config";
+import { FlowNodeInfo } from "@@/apiflow";
 
 const props = defineProps({
     nodeId: {
@@ -121,7 +122,7 @@ const props = defineProps({
 const nodesStore = useFlowNodesStore();
 const nodeStateStore = useFlowNodeStateStore();
 const configStore = useFlowConfigStore();
-const nodeInfo = nodesStore.getNodeById(props.nodeId);
+const nodeInfo = nodesStore.getNodeById(props.nodeId) as FlowNodeInfo;
 
 </script>
 
@@ -130,7 +131,7 @@ const nodeInfo = nodesStore.getNodeById(props.nodeId);
     position: absolute;
     user-select: none;
     background-color: $white;
-    border: 1px solid $gray-500;
+    // border: 1px solid $gray-500;
     .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
