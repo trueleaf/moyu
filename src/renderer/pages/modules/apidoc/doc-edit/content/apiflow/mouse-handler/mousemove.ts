@@ -1,3 +1,4 @@
+import { cloneDeep } from "@/helper";
 import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
@@ -133,14 +134,15 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
     const containerStore = useFlowContainerStore()
     const nodesStore = useFlowNodesStore()
     const nodeStateStore = useFlowNodeStateStore()
-    const mouseOffsetX = e.clientX - containerStore.clientX
-    const mouseOffsetY = e.clientY - containerStore.clientY
+    const configStore = useFlowConfigStore();
+    const mouseOffsetX = (e.clientX - containerStore.clientX);
+    const mouseOffsetY = (e.clientY - containerStore.clientY);
     const matchedNodes: FlowNodeInfo[] = [];
     for (let i = 0; i < nodesStore.nodeList.length; i += 1) {
         const node = nodesStore.nodeList[i];
         const { offsetX, width, offsetY, height } = node.styleInfo;
-        const isInX = mouseOffsetX >= offsetX && mouseOffsetX < offsetX + width;
-        const isInY = mouseOffsetY >= offsetY && mouseOffsetY < offsetY + height;
+        const isInX = mouseOffsetX >= offsetX * configStore.zoom && mouseOffsetX < (offsetX + width) * configStore.zoom;
+        const isInY = mouseOffsetY >= offsetY * configStore.zoom && mouseOffsetY < (offsetY + height) * configStore.zoom;
         if (isInX && isInY) {
             matchedNodes.push(node);
         }
@@ -168,6 +170,7 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
     const linesStore = useFlowLinesStore()
     const lineStateStore = useFlowLineStateStore()
     const nodeStateStore = useFlowNodeStateStore()
+    // const configStore = useFlowConfigStore();
     for (let i = 0; i < linesStore.lineList.length; i += 1) {
         const line = linesStore.lineList[i];
         const { arrowInfo: { leftTopPoint, rightBottomPoint } } = line;
@@ -204,6 +207,7 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
     const nodeStateStore = useFlowNodeStateStore();
     const nodesStore = useFlowNodesStore();
     const lineStateStore = useFlowLineStateStore();
+    const configStore = useFlowConfigStore();
     if (!nodeStateStore.isMouseDown || resizeNodeDotStateStore.isMouseDown || lineStateStore.isHoverDragArrow || createLineStateStore.isMouseDown) {
         return
     }
@@ -214,8 +218,8 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
         nodesStore.$patch((state) => {
             const matched = state.nodeList.find(node => node.id === matchedNode.id)
             if (matched) {
-                matched.styleInfo.offsetX = nodeStateStore.nodeOffsetXWhenMouseDown + relativeX;
-                matched.styleInfo.offsetY = nodeStateStore.nodeOffsetYWhenMouseDown + relativeY;
+                matched.styleInfo.offsetX = Math.ceil(nodeStateStore.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom);
+                matched.styleInfo.offsetY = Math.ceil(nodeStateStore.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom);
             }
         })
         nodeStateStore.$patch({
@@ -236,8 +240,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
     }
     const matchedNode = nodesStore.nodeList.find(node => node.id === resizeNodeDotStateStore.hoverNodeId)
     if (matchedNode) {
-        const relativeX = e.clientX - resizeNodeDotStateStore.mouseDownClientX; //相对x移动距离
-        const relativeY = e.clientY - resizeNodeDotStateStore.mouseDownClientY; //相对y移动距离
+        const relativeX = Math.ceil((e.clientX - resizeNodeDotStateStore.mouseDownClientX) / configStore.zoom); //相对x移动距离
+        const relativeY = Math.ceil((e.clientY - resizeNodeDotStateStore.mouseDownClientY) / configStore.zoom); //相对y移动距离
         if (resizeNodeDotStateStore.hoverPosition === "leftTop") {
             if (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX < configStore.nodeMinWidth) {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
@@ -246,8 +250,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX,
-                    offsetX: resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX
+                    width: (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX),
+                    offsetX: (resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX),
                 });
             }
             if (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY < configStore.nodeMinHeight) {
@@ -257,8 +261,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY,
-                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY
+                    height: (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY),
+                    offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY)
                 });
             }
         } else if (resizeNodeDotStateStore.hoverPosition === "rightTop") {
@@ -269,7 +273,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX
+                    width: (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX)
                 });
             }
             if (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY < configStore.nodeMinHeight) {
@@ -279,8 +283,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY,
-                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY,
+                    height: (resizeNodeDotStateStore.nodeHeightWhenMouseDown - relativeY),
+                    offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY),
                 });
             }
         } else if (resizeNodeDotStateStore.hoverPosition === "leftBottom") {
@@ -291,8 +295,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX,
-                    offsetX: resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX,
+                    width: (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX),
+                    offsetX: (resizeNodeDotStateStore.nodeOffsetXWhenMouseDown + relativeX),
                 });
             }
             if (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY < configStore.nodeMinHeight) {
@@ -302,8 +306,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY,
-                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown,
+                    height: (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY),
+                    offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown),
                 });
             }
         } else if (resizeNodeDotStateStore.hoverPosition === "rightBottom") {
@@ -314,7 +318,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    width: resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX,
+                    width: (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX),
                 });
             }
             if (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY < configStore.nodeMinHeight) {
@@ -323,8 +327,8 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                 });
             } else {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
-                    height: resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY,
-                    offsetY: resizeNodeDotStateStore.nodeOffsetYWhenMouseDown,
+                    height: (resizeNodeDotStateStore.nodeHeightWhenMouseDown + relativeY),
+                    offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown),
                 });
             }
         }
@@ -340,6 +344,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
     const containerStore = useFlowContainerStore()
     const linesStore = useFlowLinesStore()
     const lineStateStore = useFlowLineStateStore()
+    const configStore = useFlowConfigStore()
     if (!createLineDotState.isMouseDown && !lineStateStore.isMouseDownDragArrow) {
         return
     }
@@ -372,8 +377,15 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
         x: e.clientX - Math.ceil(containerStore.clientX),
         y: e.clientY - Math.ceil(containerStore.clientY),
     }
+    startPoint.x *= configStore.zoom;
+    startPoint.y *= configStore.zoom;
+    const clonedNode = cloneDeep(matchedNode)
+    clonedNode.styleInfo.width *= configStore.zoom;
+    clonedNode.styleInfo.height *= configStore.zoom;
+    clonedNode.styleInfo.offsetX *= configStore.zoom;
+    clonedNode.styleInfo.offsetY *= configStore.zoom;
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-        fromNode: matchedNode,
+        fromNode: clonedNode,
         fromPosition,
     });
     const hoverPosition = getHoverPosition(matchedLine, drawInfo);
