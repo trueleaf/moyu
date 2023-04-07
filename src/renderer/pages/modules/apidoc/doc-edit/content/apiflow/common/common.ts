@@ -654,6 +654,7 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
     const containerStore = useFlowContainerStore()
     const linesStore = useFlowLinesStore()
     const nodesStore = useFlowNodesStore()
+    const configStore = useFlowConfigStore()
     if (incomingIds.length === 0 && outcomingIds.length === 0) {
         return
     }
@@ -684,8 +685,15 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
             startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height;
         }
+        startPoint.x *= configStore.zoom;
+        startPoint.y *= configStore.zoom;
+        const clonedNode = cloneDeep(node)
+        clonedNode.styleInfo.width *= configStore.zoom;
+        clonedNode.styleInfo.height *= configStore.zoom;
+        clonedNode.styleInfo.offsetX *= configStore.zoom;
+        clonedNode.styleInfo.offsetY *= configStore.zoom;
         const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-            fromNode: node,
+            fromNode: clonedNode,
             fromPosition: line.fromPosition,
         });
         const hoverPosition = getHoverPosition(line, drawInfo);
@@ -758,8 +766,15 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
             endPoint.y = node.styleInfo.offsetY + node.styleInfo.height;
         }
+        startPoint.x *= configStore.zoom;
+        startPoint.y *= configStore.zoom;
+        const clonedNode = cloneDeep(fromNode)
+        clonedNode.styleInfo.width *= configStore.zoom;
+        clonedNode.styleInfo.height *= configStore.zoom;
+        clonedNode.styleInfo.offsetX *= configStore.zoom;
+        clonedNode.styleInfo.offsetY *= configStore.zoom;
         const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-            fromNode,
+            fromNode: clonedNode,
             fromPosition: line.fromPosition,
         });
         const hoverPosition = getHoverPosition(line, drawInfo);
