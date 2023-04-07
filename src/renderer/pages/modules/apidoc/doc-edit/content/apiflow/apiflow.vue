@@ -22,11 +22,11 @@
                 <i class="iconfont iconxiayibu"></i>
             </div>
             <el-divider direction="vertical" />
-            <div class="op-item">
+            <div class="op-item" @click="handleZoomOut">
                 <i class="iconfont iconjianhao"></i>
             </div>
-            <div class="mx-1 f-xs">{{ configStore.zoom * 100 }}%</div>
-            <div class="op-item">
+            <div class="mx-1 f-xs">{{ (configStore.zoom * 100).toFixed(0) }}%</div>
+            <div class="op-item" @click="handleZoomIn">
                 <i class="iconfont iconjiahao"></i>
             </div>
         </div>
@@ -205,6 +205,29 @@ const cursor = computed(() => {
     }
     return ""
 })
+/*
+|--------------------------------------------------------------------------
+| 操作栏
+|--------------------------------------------------------------------------
+*/
+//放大
+const handleZoomIn = () => {
+    if (configStore.zoom >= 2) {
+        return;
+    }
+    configStore.$patch({
+        zoom: configStore.zoom + 0.1
+    })
+}
+//缩小
+const handleZoomOut = () => {
+    if (configStore.zoom <= 0.5) {
+        return;
+    }
+    configStore.$patch({
+        zoom: configStore.zoom - 0.1
+    })
+}
 </script>
 
 <style lang="scss" scoped>
