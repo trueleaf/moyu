@@ -50,7 +50,6 @@ function getPathParamsMap(pathParams) {
 function convertPlaceholder(value) {
     const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
     const allVariables = Object.assign({}, JSON.parse(JSON.stringify(collectionVariables)), JSON.parse(JSON.stringify(tempVariables)));
-    // console.log(33, value, collectionVariables.age)
     let convertValue = value;
     if (matchdVariable) {
         const realValue = allVariables[matchdVariable[1]];

@@ -577,7 +577,6 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "bottom";
         } else if (stickyNodePosition === "right") {
-            console.log("right")
             const gapY = Math.abs(clonedNode.styleInfo.offsetY - fromNode.styleInfo.offsetY) - fromNode.styleInfo.height;
             result.width = stickyArea.rightArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode * 2;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding;
