@@ -588,11 +588,11 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
                 result.y = stickyArea.rightArea.pointY - padding;
                 result.lineInfo.brokenLinePoints.push({
                     x: breakLineOffsetNode + padding,
-                    y: Math.abs(endPoint.y - startPoint.y) + padding
+                    y: Math.abs(stickyArea.rightArea.pointY - startPoint.y) + padding
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
-                    y: Math.abs(endPoint.y - startPoint.y) + padding
+                    y: Math.abs(stickyArea.rightArea.pointY - startPoint.y) + padding
                 });
                 result.lineInfo.brokenLinePoints.push({
                     x: padding,
