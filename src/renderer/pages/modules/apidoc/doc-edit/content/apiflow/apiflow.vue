@@ -33,11 +33,12 @@
         <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
         <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
         <teleport to="body">
-            <pre v-if="1" style="position: absolute; right: 720px; top: 40px;">
-                resizeNodeDotState: {{ resizeNodeDotState }}
+            <pre v-if="1" style="position: absolute; right: 720px; top: 40px;max-height: 500px;overflow-y: auto;">
+                <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
                 <!-- nodeStateStore: {{ nodeStateStore }} -->
                 <!-- nodesStore: {{ nodesStore }} -->
-                linesStore: {{ linesStore }}
+                linesStore: {{ linesStore.lineList?.[0]?.canHoverPosition }}
+                containerStore: {{ containerStore.clientY }}
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>
@@ -73,7 +74,7 @@ import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
 import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
-import { repaintRenderArea } from "./common/common";
+import { drawLineWhenMoveOrResize, repaintRenderArea } from "./common/common";
 
 const apiflow = ref<HTMLDivElement | null>(null);
 const renderArea = ref<HTMLCanvasElement | null>(null);
@@ -86,8 +87,34 @@ const nodeStateStore = useFlowNodeStateStore()
 const resizeNodeStateStore = useFlowResizeNodeStateStore()
 const linesStore = useFlowLinesStore()
 const configStore = useFlowConfigStore();
-const resizeNodeDotState = useFlowResizeNodeStateStore()
-
+// const resizeNodeDotState = useFlowResizeNodeStateStore()
+const cursor = computed(() => {
+    if (createLineDotStore.hoverNodeId) {
+        return "crosshair"
+    }
+    if (lineStateStore.hoverLineId) {
+        return "pointer"
+    }
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftTop") {
+        return "se-resize"
+    }
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightTop") {
+        return "ne-resize"
+    }
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftBottom") {
+        return "sw-resize"
+    }
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightBottom") {
+        return "se-resize"
+    }
+    if (nodeStateStore.hoverNodeId) {
+        return "move"
+    }
+    if (lineStateStore.hoverDragLineId) {
+        return "move"
+    }
+    return ""
+})
 //初始化容器信息
 const changeContainerInfo = () => {
     if (apiflow.value !== null) {
@@ -117,7 +144,6 @@ const handleResize = debounce(() => {
     changeContainerInfo()
     changeRenderAreaInfo()
 }, 300)
-
 /*
 |--------------------------------------------------------------------------
 | 鼠标事件
@@ -178,33 +204,6 @@ onUnmounted(() => {
     document.documentElement.removeEventListener("mousedown", handleMouseDown);
     document.documentElement.removeEventListener("mouseup", handleMouseUp);
 })
-const cursor = computed(() => {
-    if (createLineDotStore.hoverNodeId) {
-        return "crosshair"
-    }
-    if (lineStateStore.hoverLineId) {
-        return "pointer"
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftTop") {
-        return "se-resize"
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightTop") {
-        return "ne-resize"
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftBottom") {
-        return "sw-resize"
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightBottom") {
-        return "se-resize"
-    }
-    if (nodeStateStore.hoverNodeId) {
-        return "move"
-    }
-    if (lineStateStore.hoverDragLineId) {
-        return "move"
-    }
-    return ""
-})
 /*
 |--------------------------------------------------------------------------
 | 操作栏
@@ -218,6 +217,9 @@ const handleZoomIn = () => {
     configStore.$patch({
         zoom: configStore.zoom + 0.1
     })
+    nodesStore.nodeList.forEach(node => {
+        drawLineWhenMoveOrResize(node)
+    })
 }
 //缩小
 const handleZoomOut = () => {
@@ -226,6 +228,9 @@ const handleZoomOut = () => {
     }
     configStore.$patch({
         zoom: configStore.zoom - 0.1
+    })
+    nodesStore.nodeList.forEach(node => {
+        drawLineWhenMoveOrResize(node)
     })
 }
 </script>
