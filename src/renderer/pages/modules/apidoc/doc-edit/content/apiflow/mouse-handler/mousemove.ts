@@ -345,6 +345,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
     const linesStore = useFlowLinesStore()
     const lineStateStore = useFlowLineStateStore()
     const configStore = useFlowConfigStore()
+    const nodeStateStore = useFlowNodeStateStore()
     if (!createLineDotState.isMouseDown && !lineStateStore.isMouseDownDragArrow) {
         return
     }
@@ -377,19 +378,21 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
         x: e.clientX - Math.ceil(containerStore.clientX),
         y: e.clientY - Math.ceil(containerStore.clientY),
     }
-    startPoint.x *= configStore.zoom;
-    startPoint.y *= configStore.zoom;
+    startPoint.x = Math.floor(startPoint.x * configStore.zoom);
+    startPoint.y = Math.floor(startPoint.y * configStore.zoom);
     const clonedNode = cloneDeep(matchedNode)
-    clonedNode.styleInfo.width *= configStore.zoom;
-    clonedNode.styleInfo.height *= configStore.zoom;
-    clonedNode.styleInfo.offsetX *= configStore.zoom;
-    clonedNode.styleInfo.offsetY *= configStore.zoom;
+    clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+    clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+    clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+    clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
         fromNode: clonedNode,
         fromPosition,
     });
-    const hoverPosition = getHoverPosition(matchedLine, drawInfo);
     if (drawInfo.isConnectedNode) {
+        nodeStateStore.$patch({
+            hoverNodeId: drawInfo.connectedNodeId
+        })
         linesStore.changeLineInfoById(matchedLine.id, {
             toPosition: drawInfo.connectedPosition,
             arrowInfo: {
@@ -430,6 +433,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
             }
         })
     }
+    const hoverPosition = getHoverPosition(matchedLine, drawInfo);
     linesStore.changeLineInfoById(matchedLine.id, {
         id: matchedLine.id,
         offsetX: drawInfo.x,
@@ -453,7 +457,6 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
         }
     });
     const canvasDom = document.querySelector(`#line__${matchedLine.id}`) as HTMLCanvasElement;
-    // console.log(drawInfo)
     if (canvasDom) {
         repaintLine(canvasDom, drawInfo);
     }
