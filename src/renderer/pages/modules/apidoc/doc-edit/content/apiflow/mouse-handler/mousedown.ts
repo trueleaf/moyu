@@ -69,6 +69,7 @@ export function changeNodeStateWhenMouseDown(e: MouseEvent): void {
 export function changeLineStateWhenMouseDown(): void {
     const lineStateStore = useFlowLineStateStore();
     const linesStore = useFlowLinesStore();
+    const createLineDotState = useFlowCreateLineDotStateStore()
     if (lineStateStore.isHoverDragArrow) {
         lineStateStore.$patch({
             isMouseDownDragArrow: true,
@@ -86,7 +87,7 @@ export function changeLineStateWhenMouseDown(): void {
             }
         }
     })
-    if (lineStateStore.hoverLineId) {
+    if (lineStateStore.hoverLineId && !createLineDotState.hoverNodeId && !lineStateStore.isHoverDragArrow) {
         const drawInfo = getDrawInfoByLineId(lineStateStore.hoverLineId);
         if (drawInfo) {
             drawInfo.lineInfo.activeColor = "rgb(6, 123, 239)"
