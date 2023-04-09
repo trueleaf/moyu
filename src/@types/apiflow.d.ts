@@ -144,9 +144,29 @@ export type FlowConfig = {
      */
     dragNodeZIndex: number;
     /**
+     * 选中区域zIndex
+     */
+    selectionZIndex: number;
+    /**
      * 放大倍数
      */
     zoom: number;
+};
+/*
+|--------------------------------------------------------------------------
+| 框选信息
+|--------------------------------------------------------------------------
+*/
+export type FlowSelection = {
+    isMouseDown: boolean;
+    startOffsetX: number;
+    startOffsetY: number;
+    endOffsetX: number;
+    endOffsetY: number;
+    width: number;
+    height: number;
+    offsetX: number;
+    offsetY: number;
 };
 /*
 |--------------------------------------------------------------------------

@@ -300,36 +300,36 @@ export function getCreateLineArea(nodeInfo: FlowNodeInfo): FlowValidCreateLineAr
     const configStore = useFlowConfigStore()
     const { createLineDotSize } = configStore
     const leftArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 + createLineDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2,
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) - createLineDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + createLineDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2 - createLineDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2 + createLineDotSize / 2,
     }
     const rightArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + (nodeInfo.styleInfo.height * configStore.zoom) / 2 + createLineDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2,
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) - createLineDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) + createLineDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2 - createLineDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(Math.floor(nodeInfo.styleInfo.height * configStore.zoom)) / 2 + createLineDotSize / 2,
     }
     const topArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 - createLineDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 + createLineDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - createLineDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + createLineDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2,
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2 - createLineDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2 + createLineDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) - createLineDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + createLineDotSize / 2,
     }
     const bottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 - createLineDotSize,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + (nodeInfo.styleInfo.width * configStore.zoom) / 2 + createLineDotSize,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - createLineDotSize,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + createLineDotSize,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2,
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2 - createLineDotSize,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + (Math.floor(nodeInfo.styleInfo.width * configStore.zoom)) / 2 + createLineDotSize,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) - createLineDotSize,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) + createLineDotSize,
     }
     return {
         leftArea,
@@ -342,36 +342,36 @@ export function getResizeBarArea(nodeInfo: FlowNodeInfo): FlowValidResizeArea {
     const configStore = useFlowConfigStore()
     const { resizeDotSize } = configStore
     const leftTopArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + resizeDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) - resizeDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + resizeDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) - resizeDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + resizeDotSize / 2,
     }
     const rightTopArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + resizeDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) - resizeDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) + resizeDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) - resizeDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + resizeDotSize / 2,
     }
     const leftBottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + resizeDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) - resizeDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + resizeDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) - resizeDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) + resizeDotSize / 2,
     }
     const rightBottomArea = {
-        pointX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom,
-        pointY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom,
-        offsetX: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom - resizeDotSize / 2,
-        offsetX2: nodeInfo.styleInfo.offsetX * configStore.zoom + nodeInfo.styleInfo.width * configStore.zoom + resizeDotSize / 2,
-        offsetY: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom - resizeDotSize / 2,
-        offsetY2: nodeInfo.styleInfo.offsetY * configStore.zoom + nodeInfo.styleInfo.height * configStore.zoom + resizeDotSize / 2,
+        pointX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom),
+        pointY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom),
+        offsetX: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) - resizeDotSize / 2,
+        offsetX2: Math.floor(nodeInfo.styleInfo.offsetX * configStore.zoom) + Math.floor(nodeInfo.styleInfo.width * configStore.zoom) + resizeDotSize / 2,
+        offsetY: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) - resizeDotSize / 2,
+        offsetY2: Math.floor(nodeInfo.styleInfo.offsetY * configStore.zoom) + Math.floor(nodeInfo.styleInfo.height * configStore.zoom) + resizeDotSize / 2,
     }
     return {
         leftTopArea,
@@ -470,6 +470,7 @@ export function getZIndex(): number {
     zIndex += 1;
     return zIndex;
 }
+//鼠标是否在线条上面
 export const mouseIsInLine = (e: MouseEvent, lineInfo: FlowLineInfo): boolean => {
     const { canHoverPosition } = lineInfo;
     for (let i = 0; i < canHoverPosition.length; i += 1) {
@@ -636,13 +637,13 @@ export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
     }
-    startPoint.x *= configStore.zoom;
-    startPoint.y *= configStore.zoom;
+    startPoint.x = Math.floor(startPoint.x * configStore.zoom);
+    startPoint.y = Math.floor(startPoint.y * configStore.zoom);
     const clonedNode = cloneDeep(matchedNode)
-    clonedNode.styleInfo.width *= configStore.zoom;
-    clonedNode.styleInfo.height *= configStore.zoom;
-    clonedNode.styleInfo.offsetX *= configStore.zoom;
-    clonedNode.styleInfo.offsetY *= configStore.zoom;
+    clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+    clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+    clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+    clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
         fromNode: clonedNode,
         fromPosition: matchedLine.fromPosition,
@@ -685,18 +686,17 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
             startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height;
         }
-        startPoint.x *= configStore.zoom;
-        startPoint.y *= configStore.zoom;
+        startPoint.x = Math.floor(startPoint.x * configStore.zoom);
+        startPoint.y = Math.floor(startPoint.y * configStore.zoom);
         const clonedNode = cloneDeep(node)
-        clonedNode.styleInfo.width *= configStore.zoom;
-        clonedNode.styleInfo.height *= configStore.zoom;
-        clonedNode.styleInfo.offsetX *= configStore.zoom;
-        clonedNode.styleInfo.offsetY *= configStore.zoom;
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
         const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
             fromNode: clonedNode,
             fromPosition: line.fromPosition,
         });
-        const hoverPosition = getHoverPosition(line, drawInfo);
         linesStore.changeLineInfoById(line.id, {
             lineStartOffsetX: startPoint.x,
             lineStartOffsetY: startPoint.y,
@@ -704,7 +704,6 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             offsetY: drawInfo.y,
             width: drawInfo.width,
             height: drawInfo.height,
-            canHoverPosition: hoverPosition,
             arrowInfo: {
                 leftTopPoint: {
                     clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
@@ -716,9 +715,13 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
                 },
             }
         })
+        const hoverPosition = getHoverPosition(line, drawInfo);
+        linesStore.changeLineInfoById(line.id, {
+            canHoverPosition: hoverPosition,
+        })
         const canvasDom = document.querySelector(`#line__${lineId}`) as HTMLCanvasElement;
         if (canvasDom) {
-            repaintLine(canvasDom, drawInfo);
+            repaintLine(canvasDom, drawInfo,);
         }
     })
     incomingIds.forEach(lineId => {
@@ -766,18 +769,19 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
             endPoint.y = node.styleInfo.offsetY + node.styleInfo.height;
         }
-        startPoint.x *= configStore.zoom;
-        startPoint.y *= configStore.zoom;
+        startPoint.x = Math.floor(startPoint.x * configStore.zoom);
+        startPoint.y = Math.floor(startPoint.y * configStore.zoom);
+        endPoint.x = Math.floor(endPoint.x * configStore.zoom);
+        endPoint.y = Math.floor(endPoint.y * configStore.zoom);
         const clonedNode = cloneDeep(fromNode)
-        clonedNode.styleInfo.width *= configStore.zoom;
-        clonedNode.styleInfo.height *= configStore.zoom;
-        clonedNode.styleInfo.offsetX *= configStore.zoom;
-        clonedNode.styleInfo.offsetY *= configStore.zoom;
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
         const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
             fromNode: clonedNode,
             fromPosition: line.fromPosition,
         });
-        const hoverPosition = getHoverPosition(line, drawInfo);
         linesStore.changeLineInfoById(line.id, {
             lineEndOffsetX: endPoint.x,
             lineEndOffsetY: endPoint.y,
@@ -785,7 +789,6 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             offsetY: drawInfo.y,
             width: drawInfo.width,
             height: drawInfo.height,
-            canHoverPosition: hoverPosition,
             arrowInfo: {
                 leftTopPoint: {
                     clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
@@ -797,11 +800,14 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
                 },
             }
         })
+        const hoverPosition = getHoverPosition(line, drawInfo);
+        linesStore.changeLineInfoById(line.id, {
+            canHoverPosition: hoverPosition,
+        })
         const canvasDom = document.querySelector(`#line__${lineId}`) as HTMLCanvasElement;
         if (canvasDom) {
-            repaintLine(canvasDom, drawInfo);
+            repaintLine(canvasDom, drawInfo,);
         }
-        // repaintLine(drawInfo);
     })
 }
 export const getAlignmentInfo = (): void => {
@@ -814,4 +820,23 @@ export const getAlignmentInfo = (): void => {
     // for (let i = 0; i < nodesStore.nodeList.length; i += 1) {
 
     // }
+}
+export const getQuardantByPoint = (point: Coordinate, point2: Coordinate): "1" | "2" | "3" | "4" => {
+    const pointX = point.x;
+    const pointY = point.y;
+    const pointX2 = point2.x;
+    const pointY2 = point2.y;
+    if (pointX2 > pointX && pointY2 < pointY) {
+        return "1"
+    }
+    if (pointX2 < pointX && pointY2 < pointY) {
+        return "2"
+    }
+    if (pointX2 <= pointX && pointY2 >= pointY) {
+        return "3"
+    }
+    if (pointX2 >= pointX && pointY2 >= pointY) {
+        return "4"
+    }
+    return "1"
 }
