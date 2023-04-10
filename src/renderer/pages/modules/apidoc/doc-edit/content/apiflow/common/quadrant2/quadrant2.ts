@@ -1,4 +1,6 @@
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
+import { cloneDeep } from "@/helper";
+import { useFlowConfigStore } from "@/store/apiflow/config";
 import { getNodeStickyArea, getLineStickyPosition, getContraryPosition } from "../common";
 import type { DrawInfo, Coordinate, DrawInfoOptions, LineConfig } from "../common"
 
@@ -80,13 +82,19 @@ const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coor
 const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
     const nodesSotre = useFlowNodesStore()
     const toNodes = nodesSotre.nodeList
+    const configStore = useFlowConfigStore()
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode, {
+        const clonedNode = cloneDeep(toNode)
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+        const stickyArea = getNodeStickyArea(clonedNode, {
             startPoint,
         });
         const stickyNodePosition = getLineStickyPosition({
@@ -98,8 +106,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             y: 0,
         };
         if (stickyNodePosition === "left") {
-            const gapY = fromNode.styleInfo.offsetY - toNode.styleInfo.offsetY - toNode.styleInfo.height;
-            const gapX = startPoint.x - toNode.styleInfo.offsetX - toNode.styleInfo.width
+            const gapY = fromNode.styleInfo.offsetY - clonedNode.styleInfo.offsetY - clonedNode.styleInfo.height;
+            const gapX = startPoint.x - clonedNode.styleInfo.offsetX - clonedNode.styleInfo.width
             result.width = Math.abs(stickyArea.leftArea.pointX - startPoint.x) + 2 * breakLineOffsetNode + 2 * padding;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
             result.x = stickyArea.leftArea.pointX - padding - breakLineOffsetNode;
@@ -131,8 +139,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
                     y: padding
                 });
             } else if (gapX > 0) {
-                result.height = Math.abs(toNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
-                result.y = toNode.styleInfo.offsetY - padding - breakLineOffsetNode;
+                result.height = Math.abs(clonedNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
+                result.y = clonedNode.styleInfo.offsetY - padding - breakLineOffsetNode;
                 result.lineInfo.brokenLinePoints.push({
                     x: result.width - breakLineOffsetNode - padding,
                     y: result.height - padding
@@ -158,9 +166,9 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
                     y: stickyArea.leftArea.pointY - result.y
                 });
             } else if (gapX <= 0) {
-                result.width = toNode.styleInfo.width + 2 * padding + breakLineOffsetNode * 2;
-                result.height = Math.abs(toNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
-                result.y = toNode.styleInfo.offsetY - padding - breakLineOffsetNode;
+                result.width = clonedNode.styleInfo.width + 2 * padding + breakLineOffsetNode * 2;
+                result.height = Math.abs(clonedNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
+                result.y = clonedNode.styleInfo.offsetY - padding - breakLineOffsetNode;
                 result.lineInfo.brokenLinePoints.push({
                     x: startPoint.x - result.x,
                     y: result.height - padding
@@ -191,8 +199,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
-            const gapX = startPoint.x - toNode.styleInfo.offsetX - toNode.styleInfo.width;
-            const gapY = fromNode.styleInfo.offsetY - toNode.styleInfo.offsetY;
+            const gapX = startPoint.x - clonedNode.styleInfo.offsetX - clonedNode.styleInfo.width;
+            const gapY = fromNode.styleInfo.offsetY - clonedNode.styleInfo.offsetY;
             result.width = Math.abs(stickyArea.topArea.pointX - startPoint.x) + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.topArea.pointX - padding;
@@ -222,7 +230,7 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
                 lineEndPoint.x = padding;
                 lineEndPoint.y = padding + breakLineOffsetNode - arrowLength;
             } else if (gapX <= 0 && gapY > 0) {
-                result.width = toNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
+                result.width = clonedNode.styleInfo.width / 2 + breakLineOffsetNode + 2 * padding;
                 result.lineInfo.brokenLinePoints.push({
                     x: startPoint.x - result.x,
                     y: result.height - padding
@@ -356,7 +364,7 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             result.connectedPosition = "right";
         }
         if (result.isConnectedNode) {
-            result.connectedNodeId = toNode.id;
+            result.connectedNodeId = clonedNode.id;
             const arrowList = getDrawArrowInfo({
                 x: lineEndPoint.x,
                 y: lineEndPoint.y
@@ -386,13 +394,19 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
 const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
     const nodesSotre = useFlowNodesStore()
     const toNodes = nodesSotre.nodeList
+    const configStore = useFlowConfigStore()
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode, {
+        const clonedNode = cloneDeep(toNode)
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+        const stickyArea = getNodeStickyArea(clonedNode, {
             startPoint,
         });
         const stickyNodePosition = getLineStickyPosition({
@@ -405,9 +419,9 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
         };
         if (stickyNodePosition === "left") {
             result.width = Math.abs(stickyArea.leftArea.pointX - startPoint.x) + 2 * padding + breakLineOffsetNode;
-            result.height = Math.abs(toNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
+            result.height = Math.abs(clonedNode.styleInfo.offsetY - startPoint.y) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.leftArea.pointX - padding - breakLineOffsetNode;
-            result.y = toNode.styleInfo.offsetY - padding - breakLineOffsetNode;
+            result.y = clonedNode.styleInfo.offsetY - padding - breakLineOffsetNode;
             result.lineInfo.brokenLinePoints = [];
             result.lineInfo.brokenLinePoints.push({
                 x: result.width - padding,
@@ -509,7 +523,7 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             result.connectedPosition = "right";
         }
         if (result.isConnectedNode) {
-            result.connectedNodeId = toNode.id;
+            result.connectedNodeId = clonedNode.id;
             const arrowList = getDrawArrowInfo({
                 x: lineEndPoint.x,
                 y: lineEndPoint.y
@@ -539,13 +553,19 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
 const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
     const nodesSotre = useFlowNodesStore()
     const toNodes = nodesSotre.nodeList
+    const configStore = useFlowConfigStore()
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode, {
+        const clonedNode = cloneDeep(toNode)
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+        const stickyArea = getNodeStickyArea(clonedNode, {
             startPoint,
         });
         const stickyNodePosition = getLineStickyPosition({
@@ -583,7 +603,7 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
-            const gapX = startPoint.x - toNode.styleInfo.offsetX - toNode.styleInfo.width;
+            const gapX = startPoint.x - clonedNode.styleInfo.offsetX - clonedNode.styleInfo.width;
             result.width = Math.abs(stickyArea.topArea.pointX - startPoint.x) + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.topArea.pointX - padding;
@@ -632,9 +652,9 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
                     y: padding + breakLineOffsetNode - arrowLength
                 });
             } else {
-                result.width = Math.abs(toNode.styleInfo.offsetX - startPoint.x) + 2 * padding + breakLineOffsetNode;
+                result.width = Math.abs(clonedNode.styleInfo.offsetX - startPoint.x) + 2 * padding + breakLineOffsetNode;
                 result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
-                result.x = toNode.styleInfo.offsetX - padding - breakLineOffsetNode;
+                result.x = clonedNode.styleInfo.offsetX - padding - breakLineOffsetNode;
                 result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
                 result.lineInfo.brokenLinePoints.push({
                     x: result.width - padding,
@@ -711,7 +731,7 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             result.connectedPosition = "right";
         }
         if (result.isConnectedNode) {
-            result.connectedNodeId = toNode.id;
+            result.connectedNodeId = clonedNode.id;
             const arrowList = getDrawArrowInfo({
                 x: lineEndPoint.x,
                 y: lineEndPoint.y
@@ -741,13 +761,19 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
 const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
     const nodesSotre = useFlowNodesStore()
     const toNodes = nodesSotre.nodeList
+    const configStore = useFlowConfigStore()
     const { lineConfig: { padding, arrowLength, breakLineOffsetNode, arrowWidth }, endPoint, startPoint, fromNode } = options;
     for (let i = 0; i < toNodes.length; i += 1) {
         const toNode = toNodes[i]
         if (toNode.id === options.fromNode.id) {
             continue;
         }
-        const stickyArea = getNodeStickyArea(toNode, {
+        const clonedNode = cloneDeep(toNode)
+        clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
+        clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
+        clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
+        clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+        const stickyArea = getNodeStickyArea(clonedNode, {
             startPoint,
         });
         const stickyNodePosition = getLineStickyPosition({
@@ -763,9 +789,9 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding + breakLineOffsetNode;
             result.x = stickyArea.leftArea.pointX - padding - breakLineOffsetNode;
             result.y = stickyArea.leftArea.pointY - padding;
-            const gapY = startPoint.y - toNode.styleInfo.offsetY - toNode.styleInfo.height;
+            const gapY = startPoint.y - clonedNode.styleInfo.offsetY - clonedNode.styleInfo.height;
             if (gapY < 0) {
-                result.height = toNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding
+                result.height = clonedNode.styleInfo.height / 2 + breakLineOffsetNode + 2 * padding
             }
             result.lineInfo.brokenLinePoints = [];
             result.lineInfo.brokenLinePoints.push({
@@ -793,7 +819,7 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             result.isConnectedNode = true
             result.connectedPosition = "left";
         } else if (stickyNodePosition === "top") {
-            const gapX = fromNode.styleInfo.offsetX - toNode.styleInfo.offsetX - toNode.styleInfo.width
+            const gapX = fromNode.styleInfo.offsetX - clonedNode.styleInfo.offsetX - clonedNode.styleInfo.width
             result.width = Math.abs(stickyArea.topArea.pointX - startPoint.x) + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + 2 * breakLineOffsetNode;
             result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
@@ -938,7 +964,7 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             result.connectedPosition = "right";
         }
         if (result.isConnectedNode) {
-            result.connectedNodeId = toNode.id;
+            result.connectedNodeId = clonedNode.id;
             const arrowList = getDrawArrowInfo({
                 x: lineEndPoint.x,
                 y: lineEndPoint.y
