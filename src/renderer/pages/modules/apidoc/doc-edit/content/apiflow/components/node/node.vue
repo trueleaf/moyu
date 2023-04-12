@@ -103,6 +103,10 @@
                 <span>Y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}</span>
             </div>
         </template>
+        x: {{ Math.ceil(nodeInfo.styleInfo.offsetX * configStore.zoom) }}
+        y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}
+        w: {{ Math.ceil(nodeInfo.styleInfo.width * configStore.zoom) }}
+        h: {{ Math.ceil(nodeInfo.styleInfo.height * configStore.zoom) }}
     </div>
 </template>
 
@@ -131,6 +135,7 @@ const nodeInfo = nodesStore.getNodeById(props.nodeId) as FlowNodeInfo;
     position: absolute;
     user-select: none;
     background-color: $white;
+    user-select: none;
     // border: 1px solid $gray-500;
     .resize-dot {
         border: 1px solid $theme-color;
