@@ -32,13 +32,13 @@
         </div>
         <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
         <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
+        <s-selection v-if="selectionStore.isMouseDown"></s-selection>
         <teleport to="body">
             <pre v-if="1" style="position: absolute; right: 720px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
-                <!-- nodeStateStore: {{ nodeStateStore }} -->
-                <!-- nodesStore: {{ nodesStore }} -->
-                linesStore: {{ linesStore.lineList?.[0]?.canHoverPosition }}
-                containerStore: {{ containerStore.clientY }}
+                nodeStateStore: {{ nodeStateStore }}
+                historyStore: {{ historyStore }}
+                selectionStore: {{ selectionStore }}
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>
@@ -69,10 +69,13 @@ import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { FlowNodeInfo } from "@@/apiflow";
 import { useFlowConfigStore } from "@/store/apiflow/config";
 import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
-import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown } from "./mouse-handler/mousedown";
+import { useFlowSelectionStore } from "@/store/apiflow/selection";
+import { useFlowHistoryStore } from "@/store/apiflow/history";
+import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown, changeSelectionWhenMouseDown } from "./mouse-handler/mousedown";
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
-import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove } from "./mouse-handler/mousemove";
+import sSelection from "./components/selection/selection.vue"
+import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
 import { drawLineWhenMoveOrResize, repaintRenderArea } from "./common/common";
 
@@ -87,6 +90,8 @@ const nodeStateStore = useFlowNodeStateStore()
 const resizeNodeStateStore = useFlowResizeNodeStateStore()
 const linesStore = useFlowLinesStore()
 const configStore = useFlowConfigStore();
+const selectionStore = useFlowSelectionStore()
+const historyStore = useFlowHistoryStore()
 // const resizeNodeDotState = useFlowResizeNodeStateStore()
 const cursor = computed(() => {
     if (createLineDotStore.hoverNodeId) {
@@ -158,12 +163,14 @@ const handleMouseMove = (e: MouseEvent) => {
     resizeNodeWhenMouseMove(e);
     drawLineWhenMouseMove(e);
     changeLineStateWhenMouseMove(e);
+    createSelectionWhenMouseMove(e);
 }
 const handleMouseDown = (e: MouseEvent) => {
     changeNodeStateWhenMouseDown(e);
     changeLineStateWhenMouseDown();
     changeResizeDotStateWhenMouseDown(e);
     changeCreateLineDotWhenMouseDown();
+    changeSelectionWhenMouseDown(e);
 }
 const handleMouseUp = () => {
     changeStateWhenMouseUp()
@@ -245,9 +252,8 @@ const handleZoomOut = () => {
         position: absolute;
         background-color: #fff;
         box-shadow: 1px 1px 5px $gray-500;
-        // width: 40%;
         top: size(1);
-        // transform: translate(-50%, 0);
+        user-select: none;
         padding: 0 size(20);
         height: size(30);
         display: flex;
