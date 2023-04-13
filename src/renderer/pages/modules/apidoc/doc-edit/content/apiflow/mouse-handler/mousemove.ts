@@ -7,8 +7,9 @@ import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
+import { useFlowSelectionStore } from "@/store/apiflow/selection";
 import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from "@@/apiflow";
-import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getResizeBarArea, mouseIsInLine, repaintLine } from "../common/common";
+import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getQuardantByPoint, getResizeBarArea, mouseIsInLine, repaintLine } from "../common/common";
 
 /**
  * createLineDot上面移动
@@ -459,5 +460,60 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
     const canvasDom = document.querySelector(`#line__${matchedLine.id}`) as HTMLCanvasElement;
     if (canvasDom) {
         repaintLine(canvasDom, drawInfo);
+    }
+}
+/**
+ * 创建选中区域
+ */
+export function createSelectionWhenMouseMove(e: MouseEvent): void {
+    const selectionStore = useFlowSelectionStore();
+    const containerStore = useFlowContainerStore();
+    if (!selectionStore.isMouseDown) {
+        return
+    }
+    const startOffsetX = selectionStore.startOffsetX;
+    const startOffsetY = selectionStore.startOffsetY;
+    const endOffsetX = e.clientX - containerStore.clientX;
+    const endOffsetY = e.clientY - containerStore.clientY;
+    selectionStore.$patch({
+        isMouseDown: true,
+        endOffsetX,
+        endOffsetY,
+    })
+    const coordinate = getQuardantByPoint({
+        x: selectionStore.startOffsetX,
+        y: selectionStore.startOffsetY
+    }, {
+        x: endOffsetX,
+        y: endOffsetY
+    });
+    if (coordinate === "1") { //第一象限
+        selectionStore.$patch({
+            width: Math.abs(endOffsetX - startOffsetX),
+            height: Math.abs(endOffsetY - startOffsetY),
+            offsetX: startOffsetX,
+            offsetY: endOffsetY,
+        })
+    } else if (coordinate === "2") {
+        selectionStore.$patch({
+            width: Math.abs(endOffsetX - startOffsetX),
+            height: Math.abs(endOffsetY - startOffsetY),
+            offsetX: endOffsetX,
+            offsetY: endOffsetY,
+        })
+    } else if (coordinate === "3") {
+        selectionStore.$patch({
+            width: Math.abs(endOffsetX - startOffsetX),
+            height: Math.abs(endOffsetY - startOffsetY),
+            offsetX: endOffsetX,
+            offsetY: startOffsetY,
+        })
+    } else if (coordinate === "4") {
+        selectionStore.$patch({
+            width: Math.abs(endOffsetX - startOffsetX),
+            height: Math.abs(endOffsetY - startOffsetY),
+            offsetX: startOffsetX,
+            offsetY: startOffsetY,
+        })
     }
 }

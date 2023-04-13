@@ -6,6 +6,7 @@ import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
+import { useFlowSelectionStore } from "@/store/apiflow/selection";
 import { FlowLineInfo, FlowNodeInfo } from "@@/apiflow";
 import { uniqueId } from "lodash";
 import { getDrawInfoByLineId, repaintLine } from "../common/common";
@@ -213,4 +214,24 @@ export function changeCreateLineDotWhenMouseDown(): void {
             isMouseDownDragArrow: true,
         })
     }
+}
+/**
+ * 框选区域
+ */
+export function changeSelectionWhenMouseDown(e: MouseEvent): void {
+    const createLineDotState = useFlowCreateLineDotStateStore()
+    // const configStore = useFlowConfigStore()
+    const resizeNodeDotState = useFlowResizeNodeStateStore()
+    const lineStateStore = useFlowLineStateStore()
+    const nodeStateStore = useFlowNodeStateStore();
+    const selectionStore = useFlowSelectionStore();
+    const containerStore = useFlowContainerStore();
+    if (createLineDotState.hoverNodeId || lineStateStore.hoverLineId || lineStateStore.isHoverDragArrow || nodeStateStore.hoverNodeId || resizeNodeDotState.hoverNodeId) {
+        return
+    }
+    selectionStore.$patch({
+        isMouseDown: true,
+        startOffsetX: e.clientX - containerStore.clientX,
+        startOffsetY: e.clientY - containerStore.clientY,
+    })
 }
