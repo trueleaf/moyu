@@ -3,13 +3,15 @@ import { defineStore } from "pinia"
 
 type FlowHistoryStore = {
     readonly maxHistory: number;
+    doingList: FlowHistory[];
     undoList: FlowHistory[];
     redoList: FlowHistory[];
 }
 export const useFlowHistoryStore = defineStore("flowHistory", {
     state: (): FlowHistoryStore => {
         return {
-            maxHistory: 0,
+            maxHistory: 1000,
+            doingList: [],
             undoList: [],
             redoList: [],
         }

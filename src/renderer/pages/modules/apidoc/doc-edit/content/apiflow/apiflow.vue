@@ -15,18 +15,18 @@
             <div class="op-item">
                 <i class="iconfont iconbaocun"></i>
             </div>
-            <div class="op-item">
+            <div class="op-item" :class="{disabled: historyStore.doingList.length === 0}" @click.stop="handleUndo">
                 <i class="iconfont iconshangyibu"></i>
             </div>
-            <div class="op-item">
+            <div class="op-item" :class="{disabled: historyStore.redoList.length === 0}" @click.stop="handleRedo">
                 <i class="iconfont iconxiayibu"></i>
             </div>
             <el-divider direction="vertical" />
-            <div class="op-item" @click="handleZoomOut">
+            <div class="op-item" @click.stop="handleZoomOut">
                 <i class="iconfont iconjianhao"></i>
             </div>
             <div class="mx-1 f-xs">{{ (configStore.zoom * 100).toFixed(0) }}%</div>
-            <div class="op-item" @click="handleZoomIn">
+            <div class="op-item" @click.stop="handleZoomIn">
                 <i class="iconfont iconjiahao"></i>
             </div>
         </div>
@@ -36,9 +36,9 @@
         <teleport to="body">
             <pre v-if="1" style="position: absolute; right: 720px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
-                nodeStateStore: {{ nodeStateStore }}
-                historyStore: {{ historyStore }}
-                selectionStore: {{ selectionStore }}
+                nodesStore: {{ nodesStore }}
+                historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }}
+                <!-- selectionStore: {{ selectionStore }} -->
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>
@@ -186,7 +186,7 @@ const initNodes = () => {
                 offsetY: 200,
                 width: 200,
                 height: 130,
-                zIndex: 1,
+                zIndex: i + 1,
                 dragZIndex: 1,
             },
             outcomingIds: [],
@@ -240,6 +240,31 @@ const handleZoomOut = () => {
         drawLineWhenMoveOrResize(node)
     })
 }
+//撤销
+const handleUndo = () => {
+    const popedItem = historyStore.doingList.pop()
+    const last = historyStore.doingList[historyStore.doingList.length - 1];
+    if (popedItem) {
+        historyStore.redoList.push(popedItem)
+    }
+    if (last) {
+        nodesStore.$patch(state => {
+            console.log(3)
+            state.nodeList[0].styleInfo.offsetX = 100
+            // state.nodeList.splice(0, nodesStore.nodeList.length, ...last.nodeList)
+        })
+    }
+}
+//重做
+const handleRedo = () => {
+    const popedItem = historyStore.redoList.pop();
+    if (popedItem) {
+        historyStore.doingList.push(popedItem);
+        nodesStore.$patch({
+            nodeList: popedItem.nodeList
+        })
+    }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -266,6 +291,13 @@ const handleZoomOut = () => {
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            &.disabled {
+                color: $gray-300;
+                cursor: default;
+                &:hover {
+                    background-color: inherit;
+                }
+            }
             &:hover {
                 background-color: $gray-200;
             }
