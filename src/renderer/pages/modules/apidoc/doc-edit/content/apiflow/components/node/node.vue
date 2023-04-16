@@ -115,6 +115,7 @@ import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowConfigStore } from "@/store/apiflow/config";
 import { FlowNodeInfo } from "@@/apiflow";
+import { computed } from "vue";
 
 const props = defineProps({
     nodeId: {
@@ -126,7 +127,9 @@ const props = defineProps({
 const nodesStore = useFlowNodesStore();
 const nodeStateStore = useFlowNodeStateStore();
 const configStore = useFlowConfigStore();
-const nodeInfo = nodesStore.getNodeById(props.nodeId) as FlowNodeInfo;
+const nodeInfo = computed(() => {
+    return nodesStore.nodeList.find(node => node.id === props.nodeId)as FlowNodeInfo
+})
 
 </script>
 
