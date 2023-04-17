@@ -13,6 +13,13 @@ export const useFlowSelectionStore = defineStore("flowSelection", {
             height: 0,
             offsetX: 0,
             offsetY: 0,
+            selectedNodeArea: {
+                width: 0,
+                height: 0,
+                offsetX: 0,
+                offsetY: 0,
+            },
+            selectedNodeIds: [],
         }
     }
 })

@@ -151,6 +151,10 @@ export type FlowConfig = {
      * 放大倍数
      */
     zoom: number;
+    /**
+     * 框选节点区域边距
+     */
+    selectedNodeAreaPadding: number;
 };
 /*
 |--------------------------------------------------------------------------
@@ -167,6 +171,16 @@ export type FlowSelection = {
     height: number;
     offsetX: number;
     offsetY: number;
+    /**
+     * 选中节点后，框选区域矩形范围
+     */
+    selectedNodeArea: {
+        offsetX: number;
+        offsetY: number;
+        width: number;
+        height: number;
+    },
+    selectedNodeIds: string[];
 };
 /*
 |--------------------------------------------------------------------------
@@ -256,6 +270,7 @@ export type FlowLineState = {
     dragLineId: string;
     isHoverDragArrow: boolean;
     isMouseDownDragArrow: boolean;
+    isMove: boolean;
 };
 /*
 |--------------------------------------------------------------------------
