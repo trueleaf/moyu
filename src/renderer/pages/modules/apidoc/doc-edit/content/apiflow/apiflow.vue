@@ -11,34 +11,20 @@
             cursor: cursor,
         }"
     >
-        <div class="toolbar">
-            <div class="op-item">
-                <i class="iconfont iconbaocun"></i>
-            </div>
-            <div class="op-item" :class="{disabled: historyStore.doingList.length === 0}" @click.stop="handleUndo">
-                <i class="iconfont iconshangyibu"></i>
-            </div>
-            <div class="op-item" :class="{disabled: historyStore.redoList.length === 0}" @click.stop="handleRedo">
-                <i class="iconfont iconxiayibu"></i>
-            </div>
-            <el-divider direction="vertical" />
-            <div class="op-item" @click.stop="handleZoomOut">
-                <i class="iconfont iconjianhao"></i>
-            </div>
-            <div class="mx-1 f-xs">{{ (configStore.zoom * 100).toFixed(0) }}%</div>
-            <div class="op-item" @click.stop="handleZoomIn">
-                <i class="iconfont iconjiahao"></i>
-            </div>
-        </div>
         <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
         <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
+        <s-tools></s-tools>
         <s-selection v-if="selectionStore.isMouseDown"></s-selection>
+        <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
         <teleport to="body">
             <pre v-if="1" style="position: absolute; right: 720px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
-                nodesStore: {{ nodesStore }}
-                historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }}
-                <!-- selectionStore: {{ selectionStore }} -->
+                <!-- nodesStore: {{ nodesStore }} -->
+                <!-- nodeStateStore: {{ nodeStateStore }} -->
+                <!-- linesStore: {{ linesStore }} -->
+                <!-- lineStateStore: {{ lineStateStore }} -->
+                <!-- historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }} -->
+                selectionStore: {{ selectionStore }}
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>
@@ -57,7 +43,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, toRaw } from "vue";
 import { debounce } from "@/helper";
 import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
@@ -74,10 +60,12 @@ import { useFlowHistoryStore } from "@/store/apiflow/history";
 import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown, changeSelectionWhenMouseDown } from "./mouse-handler/mousedown";
 import sNode from "./components/node/node.vue"
 import sLine from "./components/line/line.vue"
+import sTools from "./components/tools/tools.vue"
 import sSelection from "./components/selection/selection.vue"
+import sSelectedNodeArea from "./components/selection/selected-node-area.vue"
 import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
-import { drawLineWhenMoveOrResize, repaintRenderArea } from "./common/common";
+import { repaintRenderArea } from "./common/common";
 
 const apiflow = ref<HTMLDivElement | null>(null);
 const renderArea = ref<HTMLCanvasElement | null>(null);
@@ -177,13 +165,13 @@ const handleMouseUp = () => {
 }
 const initNodes = () => {
     const nodeList: FlowNodeInfo[] = []
-    for (let i = 0; i < 1; i += 1) {
+    for (let i = 0; i < 2; i += 1) {
         nodeList.push({
             id: `start${i}`,
             nodeType: "rect",
             styleInfo: {
                 offsetX: 240 * (i + 1),
-                offsetY: 200,
+                offsetY: 150 + Math.ceil(Math.random() * 100 + 50),
                 width: 200,
                 height: 130,
                 zIndex: i + 1,
@@ -193,6 +181,11 @@ const initNodes = () => {
             incomingIds: []
         })
     }
+    historyStore.doingList.push({
+        nodeList: JSON.parse(JSON.stringify(nodeList)),
+        lineList: [],
+        configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
+    })
     nodesStore.$patch((state) => {
         state.nodeList = nodeList
     })
@@ -211,60 +204,6 @@ onUnmounted(() => {
     document.documentElement.removeEventListener("mousedown", handleMouseDown);
     document.documentElement.removeEventListener("mouseup", handleMouseUp);
 })
-/*
-|--------------------------------------------------------------------------
-| 操作栏
-|--------------------------------------------------------------------------
-*/
-//放大
-const handleZoomIn = () => {
-    if (configStore.zoom >= 2) {
-        return;
-    }
-    configStore.$patch({
-        zoom: configStore.zoom + 0.1
-    })
-    nodesStore.nodeList.forEach(node => {
-        drawLineWhenMoveOrResize(node)
-    })
-}
-//缩小
-const handleZoomOut = () => {
-    if (configStore.zoom <= 0.5) {
-        return;
-    }
-    configStore.$patch({
-        zoom: configStore.zoom - 0.1
-    })
-    nodesStore.nodeList.forEach(node => {
-        drawLineWhenMoveOrResize(node)
-    })
-}
-//撤销
-const handleUndo = () => {
-    const popedItem = historyStore.doingList.pop()
-    const last = historyStore.doingList[historyStore.doingList.length - 1];
-    if (popedItem) {
-        historyStore.redoList.push(popedItem)
-    }
-    if (last) {
-        nodesStore.$patch(state => {
-            console.log(3)
-            state.nodeList[0].styleInfo.offsetX = 100
-            // state.nodeList.splice(0, nodesStore.nodeList.length, ...last.nodeList)
-        })
-    }
-}
-//重做
-const handleRedo = () => {
-    const popedItem = historyStore.redoList.pop();
-    if (popedItem) {
-        historyStore.doingList.push(popedItem);
-        nodesStore.$patch({
-            nodeList: popedItem.nodeList
-        })
-    }
-}
 </script>
 
 <style lang="scss" scoped>
@@ -273,36 +212,7 @@ const handleRedo = () => {
     position: absolute;
     width: 100%;
     height: calc(100vh - #{size(100)});
-    .toolbar {
-        position: absolute;
-        background-color: #fff;
-        box-shadow: 1px 1px 5px $gray-500;
-        top: size(1);
-        user-select: none;
-        padding: 0 size(20);
-        height: size(30);
-        display: flex;
-        align-items: center;
-        cursor: move;
-        .op-item {
-            height: 100%;
-            width: size(30);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            &.disabled {
-                color: $gray-300;
-                cursor: default;
-                &:hover {
-                    background-color: inherit;
-                }
-            }
-            &:hover {
-                background-color: $gray-200;
-            }
-        }
-    }
+
 }
 #renderArea {
     position: absolute;
