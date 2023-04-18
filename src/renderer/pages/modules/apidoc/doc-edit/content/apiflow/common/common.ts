@@ -4,6 +4,7 @@ import { useFlowContainerStore } from "@/store/apiflow/container";
 import { useFlowLinesStore } from "@/store/apiflow/lines";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
+import { useFlowSelectionStore } from "@/store/apiflow/selection";
 import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from "@@/apiflow";
 import { getQuardantInfo } from "./quadrant/quardant";
 import { getQuardantInfo2 } from "./quadrant2/quadrant2";
@@ -839,4 +840,26 @@ export const getQuardantByPoint = (point: Coordinate, point2: Coordinate): "1" |
         return "4"
     }
     return "1"
+}
+//节点是否在选中区域
+export const getNodesInSelection = (): string[] => {
+    const selectionStore = useFlowSelectionStore()
+    const nodeListStore = useFlowNodesStore();
+    const minSelectionOffsetLeft = selectionStore.offsetX;
+    const maxSelectionOffsetLeft = selectionStore.offsetX + selectionStore.width;
+    const minSelectionOffsetTop = selectionStore.offsetY
+    const maxSelectionOffsetTop = selectionStore.offsetY + selectionStore.height;
+    const matchedNodeIds: string[] = [];
+    nodeListStore.nodeList.forEach(node => {
+        const minOffsetLeft = node.styleInfo.offsetX;
+        const maxOffsetLeft = node.styleInfo.offsetX + node.styleInfo.width;
+        const minOffsetTop = node.styleInfo.offsetY
+        const maxOffsetTop = node.styleInfo.offsetY + node.styleInfo.height;
+        const isXIn = minOffsetLeft >= minSelectionOffsetLeft && maxOffsetLeft <= maxSelectionOffsetLeft;
+        const isYIn = minOffsetTop >= minSelectionOffsetTop && maxOffsetTop <= maxSelectionOffsetTop;
+        if (isXIn && isYIn) {
+            matchedNodeIds.push(node.id);
+        }
+    })
+    return matchedNodeIds;
 }
