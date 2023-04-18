@@ -10,6 +10,7 @@ export const useFlowLineStateStore = defineStore("lineState", {
             dragLineId: "",
             isHoverDragArrow: false,
             isMouseDownDragArrow: false,
+            isMove: false,
         };
     },
 });
