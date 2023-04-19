@@ -229,9 +229,13 @@ export function changeSelectionWhenMouseDown(e: MouseEvent): void {
     if (createLineDotState.hoverNodeId || lineStateStore.hoverLineId || lineStateStore.isHoverDragArrow || nodeStateStore.hoverNodeId || resizeNodeDotState.hoverNodeId) {
         return
     }
+    if (e.clientX - containerStore.clientX < 0 || e.clientY - containerStore.clientY < 0) {
+        return
+    }
     selectionStore.$patch({
         isMouseDown: true,
         startOffsetX: e.clientX - containerStore.clientX,
         startOffsetY: e.clientY - containerStore.clientY,
+        selectedNodeIds: []
     })
 }

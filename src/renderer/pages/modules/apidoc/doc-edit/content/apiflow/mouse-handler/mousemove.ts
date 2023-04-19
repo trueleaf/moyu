@@ -461,6 +461,9 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
     if (canvasDom) {
         repaintLine(canvasDom, drawInfo);
     }
+    lineStateStore.$patch({
+        isMove: true
+    })
 }
 /**
  * 创建选中区域

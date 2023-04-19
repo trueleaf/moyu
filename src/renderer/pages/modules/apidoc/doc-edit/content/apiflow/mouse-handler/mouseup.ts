@@ -8,6 +8,7 @@ import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { useFlowSelectionStore } from "@/store/apiflow/selection";
 import { toRaw } from "vue";
+import { getNodesInSelection } from "../common/common";
 
 export function changeStateWhenMouseUp(): void {
     const createLineStateStore = useFlowCreateLineDotStateStore();
@@ -20,7 +21,8 @@ export function changeStateWhenMouseUp(): void {
     const selectionStore = useFlowSelectionStore()
     const historyStore = useFlowHistoryStore()
     const dragLineId = lineStateStore.dragLineId;
-    if (nodeStateStore.dragNodeId && nodeStateStore.isMove) {
+    //历史记录
+    if ((nodeStateStore.dragNodeId && nodeStateStore.isMove) || (lineStateStore.isMove)) {
         if (historyStore.doingList.length > historyStore.maxHistory) {
             historyStore.doingList.shift();
         }
@@ -30,6 +32,43 @@ export function changeStateWhenMouseUp(): void {
             configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
         })
         historyStore.redoList = [];
+    }
+    // 框选区域
+    if (selectionStore.isMouseDown && selectionStore.width) { //存在框选
+        const selectedNodeIds = getNodesInSelection()
+        selectionStore.selectedNodeIds = selectedNodeIds;
+        const selectionNodes = nodeListStore.nodeList.filter(node => selectedNodeIds.includes(node.id))
+        if (selectionNodes.length > 0) {
+            let offsetX = Infinity;
+            let offsetY = Infinity;
+            let width = 0;
+            let height = 0;
+            selectionNodes.forEach(node => {
+                if (offsetX > node.styleInfo.offsetX) {
+                    offsetX = node.styleInfo.offsetX
+                }
+                if (offsetY > node.styleInfo.offsetY) {
+                    offsetY = node.styleInfo.offsetY
+                }
+            })
+            selectionNodes.forEach(node => {
+                if ((node.styleInfo.offsetX + node.styleInfo.width - offsetX > 0) && width < node.styleInfo.offsetX + node.styleInfo.width - offsetX) {
+                    width = node.styleInfo.offsetX + node.styleInfo.width - offsetX
+                }
+                if ((node.styleInfo.offsetY + node.styleInfo.height - offsetY > 0) && height < node.styleInfo.offsetY + node.styleInfo.height - offsetY) {
+                    height = node.styleInfo.offsetY + node.styleInfo.height - offsetY
+                }
+            })
+            selectionStore.$patch({
+                selectedNodeArea: {
+                    offsetX,
+                    offsetY,
+                    width,
+                    height
+                },
+            })
+            console.log(offsetX, offsetY, width, height)
+        }
     }
     lineStateStore.$patch({
         isMouseDownDragArrow: false,
@@ -82,5 +121,18 @@ export function changeStateWhenMouseUp(): void {
         height: 0,
         offsetX: 0,
         offsetY: 0,
+    })
+    if (selectionStore.selectedNodeIds.length === 0) {
+        selectionStore.$patch({
+            selectedNodeArea: {
+                width: 0,
+                height: 0,
+                offsetX: 0,
+                offsetY: 0,
+            }
+        })
+    }
+    lineStateStore.$patch({
+        isMove: false
     })
 }
