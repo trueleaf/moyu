@@ -155,6 +155,10 @@ export type FlowConfig = {
      * 框选节点区域边距
      */
     selectedNodeAreaPadding: number;
+    /**
+     * 选中区域zIndex值
+     */
+    selectedNodeAreaZIndex: number;
 };
 /*
 |--------------------------------------------------------------------------
