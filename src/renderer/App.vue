@@ -28,7 +28,7 @@ export default defineComponent({
 
                ${this.$t("GitHub地址")}：https://github.com/trueleaf/moyu
 
-               ${this.$t("Gitee地址")}：https://gitee.com/shuzhikai/moyu
+               ${this.$t("Gitee地址")}：https://gitee.com/shuzhikai/apiflow
 
                ${this.$t("最近一次更新")}：${process.env.VUE_APP_BUILD_TIME}
             `)

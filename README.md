@@ -32,15 +32,15 @@
 
 [客户端下载](https://gitee.com/shuzhikai/moyu/releases)
 
-[客户端 GitHub 地址](https://github.com/trueleaf/moyu) | [服务端 GitHub 地址](https://github.com/trueleaf/moyu-server) | [客户端 Gitee 地址](https://gitee.com/shuzhikai/moyu) | 
-[服务端 Gitee 地址](https://gitee.com/shuzhikai/moyu-server)
+[客户端 GitHub 地址](https://github.com/trueleaf/moyu) | [服务端 GitHub 地址](https://github.com/trueleaf/moyu-server) | [客户端 Gitee 地址](https://gitee.com/shuzhikai/apiflow) | 
+[服务端 Gitee 地址](https://gitee.com/shuzhikai/apiflow-server)
 
 
 ## 客户端部署
 * Node.js 14.x 或 以上
 
 ```
-git clone https://github.com/trueleaf/moyu   //国内建议：git clone https://gitee.com/shuzhikai/moyu
+git clone https://github.com/trueleaf/moyu   //国内建议：git clone https://gitee.com/shuzhikai/apiflow
 cd moyu
 npm install  //安装依赖，推荐使用yarn
 npm run electron:build   //打包并且生成相应系统安装包(Mac、Linux、Windows)
