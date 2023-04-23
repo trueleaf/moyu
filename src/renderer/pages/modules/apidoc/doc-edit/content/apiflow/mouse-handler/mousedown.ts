@@ -22,8 +22,12 @@ export function changeNodeStateWhenMouseDown(e: MouseEvent): void {
     const nodeStateStore = useFlowNodeStateStore();
     const nodesStore = useFlowNodesStore();
     const configStore = useFlowConfigStore();
+    const selectionStore = useFlowSelectionStore()
     if (createLineStateStore.hoverNodeId) {
         return;
+    }
+    if (selectionStore.isHover) {
+        return
     }
     const mouseOffsetX = e.clientX - containerInfoStore.clientX;
     const mouseOffsetY = e.clientY - containerInfoStore.clientY;
@@ -230,6 +234,16 @@ export function changeSelectionWhenMouseDown(e: MouseEvent): void {
         return
     }
     if (e.clientX - containerStore.clientX < 0 || e.clientY - containerStore.clientY < 0) {
+        return
+    }
+    if (selectionStore.isHover) {
+        selectionStore.$patch({
+            isMouseDownSelectedArea: true,
+            startOffsetX: e.clientX - containerStore.clientX,
+            startOffsetY: e.clientY - containerStore.clientY,
+            nodeOffsetXWhenMouseDown: selectionStore.selectedNodeArea.offsetX,
+            nodeOffsetYWhenMouseDown: selectionStore.selectedNodeArea.offsetY,
+        })
         return
     }
     selectionStore.$patch({
