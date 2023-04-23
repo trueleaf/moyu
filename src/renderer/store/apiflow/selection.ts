@@ -5,10 +5,15 @@ export const useFlowSelectionStore = defineStore("flowSelection", {
     state: (): FlowSelection => {
         return {
             isMouseDown: false,
+            isMouseDownSelectedArea: false,
+            isHover: false,
+            isMove: false,
             startOffsetX: 0,
             startOffsetY: 0,
             endOffsetX: 0,
             endOffsetY: 0,
+            nodeOffsetXWhenMouseDown: 0,
+            nodeOffsetYWhenMouseDown: 0,
             width: 0,
             height: 0,
             offsetX: 0,
@@ -20,6 +25,7 @@ export const useFlowSelectionStore = defineStore("flowSelection", {
                 offsetY: 0,
             },
             selectedNodeIds: [],
+            selectedNodeMouseDownOffsetInfo: [],
         }
     }
 })
