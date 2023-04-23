@@ -167,6 +167,12 @@ export type FlowConfig = {
 */
 export type FlowSelection = {
     isMouseDown: boolean;
+    /**
+     * 是否点击选中区域
+     */
+    isMouseDownSelectedArea: boolean;
+    isHover: boolean;
+    isMove: boolean;
     startOffsetX: number;
     startOffsetY: number;
     endOffsetX: number;
@@ -175,6 +181,8 @@ export type FlowSelection = {
     height: number;
     offsetX: number;
     offsetY: number;
+    nodeOffsetXWhenMouseDown: number;
+    nodeOffsetYWhenMouseDown: number;
     /**
      * 选中节点后，框选区域矩形范围
      */
@@ -185,6 +193,11 @@ export type FlowSelection = {
         height: number;
     },
     selectedNodeIds: string[];
+    selectedNodeMouseDownOffsetInfo: {
+        id: string;
+        nodeOffsetXWhenMouseDown: number;
+        nodeOffsetYWhenMouseDown: number;
+    }[]
 };
 /*
 |--------------------------------------------------------------------------
