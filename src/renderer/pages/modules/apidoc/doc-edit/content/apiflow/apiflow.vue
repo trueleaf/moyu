@@ -17,7 +17,7 @@
         <s-selection v-if="selectionStore.isMouseDown"></s-selection>
         <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
         <teleport to="body">
-            <pre v-if="1" style="position: absolute; right: 720px; top: 40px;max-height: 500px;overflow-y: auto;">
+            <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
                 <!-- nodesStore: {{ nodesStore }} -->
                 <!-- nodeStateStore: {{ nodeStateStore }} -->
@@ -63,7 +63,7 @@ import sLine from "./components/line/line.vue"
 import sTools from "./components/tools/tools.vue"
 import sSelection from "./components/selection/selection.vue"
 import sSelectedNodeArea from "./components/selection/selected-node-area.vue"
-import { changeCreateLineDotStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove } from "./mouse-handler/mousemove";
+import { changeCreateLineDotStateWhenMouseMove, changeSelectionStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove, moveSelectedAreaWhenMouseMove } from "./mouse-handler/mousemove";
 import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
 import { repaintRenderArea } from "./common/common";
 
@@ -99,6 +99,9 @@ const cursor = computed(() => {
     }
     if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightBottom") {
         return "se-resize"
+    }
+    if (selectionStore.isHover) {
+        return "move"
     }
     if (nodeStateStore.hoverNodeId) {
         return "move"
@@ -144,6 +147,7 @@ const handleResize = debounce(() => {
 |
 */
 const handleMouseMove = (e: MouseEvent) => {
+    changeSelectionStateWhenMouseMove(e);
     changeCreateLineDotStateWhenMouseMove(e);
     changeResizeDotStateWhenMouseMove(e);
     changeNodeStateWhenMouseMove(e);
@@ -152,6 +156,7 @@ const handleMouseMove = (e: MouseEvent) => {
     drawLineWhenMouseMove(e);
     changeLineStateWhenMouseMove(e);
     createSelectionWhenMouseMove(e);
+    moveSelectedAreaWhenMouseMove(e);
 }
 const handleMouseDown = (e: MouseEvent) => {
     changeNodeStateWhenMouseDown(e);
@@ -171,7 +176,7 @@ const initNodes = () => {
             nodeType: "rect",
             styleInfo: {
                 offsetX: 240 * (i + 1),
-                offsetY: 150 + Math.ceil(Math.random() * 100 + 50),
+                offsetY: 30 + Math.ceil(Math.random() * 100 + 50),
                 width: 200,
                 height: 130,
                 zIndex: i + 1,
