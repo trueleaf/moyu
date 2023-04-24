@@ -136,6 +136,10 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
     const nodesStore = useFlowNodesStore()
     const nodeStateStore = useFlowNodeStateStore()
     const configStore = useFlowConfigStore();
+    const selectionStore = useFlowSelectionStore();
+    if (selectionStore.isHover) {
+        return
+    }
     const mouseOffsetX = (e.clientX - containerStore.clientX);
     const mouseOffsetY = (e.clientY - containerStore.clientY);
     const matchedNodes: FlowNodeInfo[] = [];
@@ -474,6 +478,9 @@ export function createSelectionWhenMouseMove(e: MouseEvent): void {
     if (!selectionStore.isMouseDown) {
         return
     }
+    if (selectionStore.isHover && selectionStore.isMouseDown) {
+        return
+    }
     const startOffsetX = selectionStore.startOffsetX;
     const startOffsetY = selectionStore.startOffsetY;
     const endOffsetX = e.clientX - containerStore.clientX;
@@ -519,4 +526,56 @@ export function createSelectionWhenMouseMove(e: MouseEvent): void {
             offsetY: startOffsetY,
         })
     }
+}
+/**
+ * 在创建区域移动
+ */
+export function changeSelectionStateWhenMouseMove(e: MouseEvent): void {
+    const selectionStore = useFlowSelectionStore();
+    const containerStore = useFlowContainerStore();
+    selectionStore.$patch({
+        isHover: false
+    })
+    if (selectionStore.selectedNodeIds.length === 0) {
+        return
+    }
+    const mouseOffsetX = (e.clientX - containerStore.clientX);
+    const mouseOffsetY = (e.clientY - containerStore.clientY);
+    const { offsetX, width, offsetY, height } = selectionStore.selectedNodeArea;
+    const configStore = useFlowConfigStore();
+    const isInX = mouseOffsetX >= offsetX * configStore.zoom && mouseOffsetX < (offsetX + width) * configStore.zoom;
+    const isInY = mouseOffsetY >= offsetY * configStore.zoom && mouseOffsetY < (offsetY + height) * configStore.zoom;
+    if (isInX && isInY) {
+        selectionStore.$patch({
+            isHover: true,
+        })
+    }
+}
+/**
+ * 选中区域移动
+ */
+export function moveSelectedAreaWhenMouseMove(e: MouseEvent): void {
+    const selectionStore = useFlowSelectionStore();
+    const containerStore = useFlowContainerStore();
+    const nodesStore = useFlowNodesStore();
+    if (!selectionStore.isMouseDownSelectedArea) {
+        return
+    }
+    const relativeX = e.clientX - selectionStore.startOffsetX - containerStore.clientX; //相对于mousedown位置移动距离
+    const relativeY = e.clientY - selectionStore.startOffsetY - containerStore.clientY; //相对于mousedown位置移动距离
+    const selectedNodes = nodesStore.nodeList.filter(node => selectionStore.selectedNodeIds.includes(node.id));
+    const configStore = useFlowConfigStore();
+    selectedNodes.forEach(node => {
+        const matched = selectionStore.selectedNodeMouseDownOffsetInfo.find(info => info.id === node.id)
+        if (matched) {
+            node.styleInfo.offsetX = Math.ceil(matched.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom);
+            node.styleInfo.offsetY = Math.ceil(matched.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom);
+        }
+    })
+    selectionStore.$patch({
+        selectedNodeArea: {
+            offsetX: Math.ceil(selectionStore.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom),
+            offsetY: Math.ceil(selectionStore.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom),
+        },
+    })
 }

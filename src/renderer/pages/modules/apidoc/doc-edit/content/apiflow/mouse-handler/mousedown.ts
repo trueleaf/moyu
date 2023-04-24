@@ -7,7 +7,7 @@ import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
 import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { FlowLineInfo, FlowNodeInfo } from "@@/apiflow";
+import { FlowLineInfo, FlowNodeInfo, FlowSelection } from "@@/apiflow";
 import { uniqueId } from "lodash";
 import { getDrawInfoByLineId, repaintLine } from "../common/common";
 
@@ -229,6 +229,7 @@ export function changeSelectionWhenMouseDown(e: MouseEvent): void {
     const lineStateStore = useFlowLineStateStore()
     const nodeStateStore = useFlowNodeStateStore();
     const selectionStore = useFlowSelectionStore();
+    const nodeListStore = useFlowNodesStore();
     const containerStore = useFlowContainerStore();
     if (createLineDotState.hoverNodeId || lineStateStore.hoverLineId || lineStateStore.isHoverDragArrow || nodeStateStore.hoverNodeId || resizeNodeDotState.hoverNodeId) {
         return
@@ -237,7 +238,18 @@ export function changeSelectionWhenMouseDown(e: MouseEvent): void {
         return
     }
     if (selectionStore.isHover) {
+        const selectedNodeMouseDownOffsetInfo: FlowSelection["selectedNodeMouseDownOffsetInfo"] = [];
+        const selectionNodes = nodeListStore.nodeList.filter(node => selectionStore.selectedNodeIds.includes(node.id))
+        selectionNodes.forEach(node => {
+            selectedNodeMouseDownOffsetInfo.push({
+                id: node.id,
+                nodeOffsetXWhenMouseDown: node.styleInfo.offsetX,
+                nodeOffsetYWhenMouseDown: node.styleInfo.offsetY,
+            })
+        })
+
         selectionStore.$patch({
+            selectedNodeMouseDownOffsetInfo,
             isMouseDownSelectedArea: true,
             startOffsetX: e.clientX - containerStore.clientX,
             startOffsetY: e.clientY - containerStore.clientY,

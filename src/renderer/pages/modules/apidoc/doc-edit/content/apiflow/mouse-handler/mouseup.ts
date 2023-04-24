@@ -67,7 +67,6 @@ export function changeStateWhenMouseUp(): void {
                     height
                 },
             })
-            console.log(offsetX, offsetY, width, height)
         }
     }
     lineStateStore.$patch({
@@ -113,6 +112,7 @@ export function changeStateWhenMouseUp(): void {
     }
     selectionStore.$patch({
         isMouseDown: false,
+        isMouseDownSelectedArea: false,
         startOffsetX: 0,
         startOffsetY: 0,
         endOffsetX: 0,
@@ -129,7 +129,10 @@ export function changeStateWhenMouseUp(): void {
                 height: 0,
                 offsetX: 0,
                 offsetY: 0,
-            }
+            },
+            nodeOffsetXWhenMouseDown: 0,
+            nodeOffsetYWhenMouseDown: 0,
+            selectedNodeMouseDownOffsetInfo: []
         })
     }
     lineStateStore.$patch({
