@@ -44,27 +44,29 @@ export function changeStateWhenMouseUp(): void {
             let width = 0;
             let height = 0;
             selectionNodes.forEach(node => {
-                if (offsetX > node.styleInfo.offsetX) {
-                    offsetX = node.styleInfo.offsetX
+                if (offsetX > node.styleInfo.offsetX * configStore.zoom) {
+                    offsetX = node.styleInfo.offsetX * configStore.zoom
                 }
-                if (offsetY > node.styleInfo.offsetY) {
-                    offsetY = node.styleInfo.offsetY
+                if (offsetY > node.styleInfo.offsetY * configStore.zoom) {
+                    offsetY = node.styleInfo.offsetY * configStore.zoom
                 }
             })
             selectionNodes.forEach(node => {
-                if ((node.styleInfo.offsetX + node.styleInfo.width - offsetX > 0) && width < node.styleInfo.offsetX + node.styleInfo.width - offsetX) {
-                    width = node.styleInfo.offsetX + node.styleInfo.width - offsetX
+                const nodeMaxWidth = (node.styleInfo.offsetX + node.styleInfo.width) * configStore.zoom - offsetX;
+                const nodeMaxHeight = (node.styleInfo.offsetY + node.styleInfo.height) * configStore.zoom - offsetY;
+                if (width < nodeMaxWidth) {
+                    width = nodeMaxWidth
                 }
-                if ((node.styleInfo.offsetY + node.styleInfo.height - offsetY > 0) && height < node.styleInfo.offsetY + node.styleInfo.height - offsetY) {
-                    height = node.styleInfo.offsetY + node.styleInfo.height - offsetY
+                if (height < nodeMaxHeight) {
+                    height = nodeMaxHeight
                 }
             })
             selectionStore.$patch({
                 selectedNodeArea: {
-                    offsetX,
-                    offsetY,
-                    width,
-                    height
+                    offsetX: Math.ceil(offsetX),
+                    offsetY: Math.ceil(offsetY),
+                    width: Math.abs(Math.ceil(width)),
+                    height: Math.abs(Math.ceil(height)),
                 },
             })
         }
