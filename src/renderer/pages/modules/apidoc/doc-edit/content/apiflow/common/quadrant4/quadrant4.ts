@@ -1,5 +1,6 @@
 import { useFlowNodesStore } from "@/store/apiflow/nodes";
 import { useFlowConfigStore } from "@/store/apiflow/config";
+import { useFlowSelectionStore } from "@/store/apiflow/selection";
 import { cloneDeep } from "@/helper";
 import { getNodeStickyArea, getLineStickyPosition, getContraryPosition } from "../common";
 import type { DrawInfo, Coordinate, DrawInfoOptions, LineConfig } from "../common"
@@ -1689,6 +1690,7 @@ const drawBottomLineWhenDrag = (result: DrawInfo, options: Options) => {
 */
 export const getQuardantInfo4 = (result: DrawInfo, options: Options): void => {
     const { startPoint, endPoint, lineConfig: { padding }, fromPosition } = options;
+    const selectionStore = useFlowSelectionStore()
     //第一步，确定canvas位置和宽高
     result.x = startPoint.x - padding;
     result.y = endPoint.y - padding
@@ -1706,15 +1708,23 @@ export const getQuardantInfo4 = (result: DrawInfo, options: Options): void => {
     //第三步，根据线条引出时候位置，绘制线条
     if (fromPosition === "right") { //第一象限，从节点右侧引出线条
         drawRightLineWhenDrag(result, options);
-        drawRightLineWhenStick(result, options);
+        if (!selectionStore.isMouseDownSelectedArea) {
+            drawRightLineWhenStick(result, options);
+        }
     } else if (fromPosition === "top") { //第一象限，从节点顶部引出线条
         drawTopLineWhenDrag(result, options);
-        drawTopLineWhenStick(result, options);
+        if (!selectionStore.isMouseDownSelectedArea) {
+            drawTopLineWhenStick(result, options);
+        }
     } else if (fromPosition === "left") { //第一象限，从节点左侧引出线条
         drawLeftLineWhenDrag(result, options);
-        drawLeftLineWhenStick(result, options);
+        if (!selectionStore.isMouseDownSelectedArea) {
+            drawLeftLineWhenStick(result, options);
+        }
     } else if (fromPosition === "bottom") { //第一象限，从节点下侧引出线条
         drawBottomLineWhenDrag(result, options);
-        drawBottomLineWhenStick(result, options);
+        if (!selectionStore.isMouseDownSelectedArea) {
+            drawBottomLineWhenStick(result, options);
+        }
     }
 }
