@@ -844,6 +844,7 @@ export const getQuardantByPoint = (point: Coordinate, point2: Coordinate): "1" |
 //节点是否在选中区域
 export const getNodesInSelection = (): string[] => {
     const selectionStore = useFlowSelectionStore()
+    const configStore = useFlowConfigStore();
     const nodeListStore = useFlowNodesStore();
     const minSelectionOffsetLeft = selectionStore.offsetX;
     const maxSelectionOffsetLeft = selectionStore.offsetX + selectionStore.width;
@@ -855,8 +856,8 @@ export const getNodesInSelection = (): string[] => {
         const maxOffsetLeft = node.styleInfo.offsetX + node.styleInfo.width;
         const minOffsetTop = node.styleInfo.offsetY
         const maxOffsetTop = node.styleInfo.offsetY + node.styleInfo.height;
-        const isXIn = minOffsetLeft >= minSelectionOffsetLeft && maxOffsetLeft <= maxSelectionOffsetLeft;
-        const isYIn = minOffsetTop >= minSelectionOffsetTop && maxOffsetTop <= maxSelectionOffsetTop;
+        const isXIn = minOffsetLeft * configStore.zoom >= minSelectionOffsetLeft && maxOffsetLeft * configStore.zoom <= maxSelectionOffsetLeft;
+        const isYIn = minOffsetTop * configStore.zoom >= minSelectionOffsetTop && maxOffsetTop * configStore.zoom <= maxSelectionOffsetTop;
         if (isXIn && isYIn) {
             matchedNodeIds.push(node.id);
         }
