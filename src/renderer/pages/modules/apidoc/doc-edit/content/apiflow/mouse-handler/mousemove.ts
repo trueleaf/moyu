@@ -19,6 +19,17 @@ export function changeCreateLineDotStateWhenMouseMove(e: MouseEvent): void {
     const containerStore = useFlowContainerStore()
     const nodesStore = useFlowNodesStore()
     const nodeStateStore = useFlowNodeStateStore()
+    const selectionStore = useFlowSelectionStore()
+    if (selectionStore.isHover) {
+        createLineDotState.$patch({
+            hoverNodeId: "",
+            hoverPosition: "",
+        })
+        nodeStateStore.$patch({
+            hoverNodeId: "",
+        })
+        return
+    }
     if (nodeStateStore.isMouseDown) {
         return;
     }
@@ -87,6 +98,14 @@ export function changeResizeDotStateWhenMouseMove(e: MouseEvent): void {
     const containerStore = useFlowContainerStore()
     const nodesStore = useFlowNodesStore()
     const nodeStateStore = useFlowNodeStateStore()
+    const selectionStore = useFlowSelectionStore()
+    if (selectionStore.isHover) {
+        resizeNodeDotStore.$patch({
+            hoverNodeId: "",
+            hoverPosition: ""
+        })
+        return
+    }
     const mouseOffsetX = e.clientX - containerStore.clientX
     const mouseOffsetY = e.clientY - containerStore.clientY
     const getResizeDotArea = (resizeDotArea: FlowValidResizeArea, { x, y }: { x: number; y: number }) => {
@@ -542,9 +561,8 @@ export function changeSelectionStateWhenMouseMove(e: MouseEvent): void {
     const mouseOffsetX = (e.clientX - containerStore.clientX);
     const mouseOffsetY = (e.clientY - containerStore.clientY);
     const { offsetX, width, offsetY, height } = selectionStore.selectedNodeArea;
-    const configStore = useFlowConfigStore();
-    const isInX = mouseOffsetX >= offsetX * configStore.zoom && mouseOffsetX < (offsetX + width) * configStore.zoom;
-    const isInY = mouseOffsetY >= offsetY * configStore.zoom && mouseOffsetY < (offsetY + height) * configStore.zoom;
+    const isInX = mouseOffsetX >= offsetX && mouseOffsetX < (offsetX + width);
+    const isInY = mouseOffsetY >= offsetY && mouseOffsetY < (offsetY + height);
     if (isInX && isInY) {
         selectionStore.$patch({
             isHover: true,
@@ -574,8 +592,11 @@ export function moveSelectedAreaWhenMouseMove(e: MouseEvent): void {
     })
     selectionStore.$patch({
         selectedNodeArea: {
-            offsetX: Math.ceil(selectionStore.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom),
-            offsetY: Math.ceil(selectionStore.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom),
+            offsetX: Math.ceil(selectionStore.nodeOffsetXWhenMouseDown + relativeX),
+            offsetY: Math.ceil(selectionStore.nodeOffsetYWhenMouseDown + relativeY),
         },
+    })
+    nodesStore.nodeList.forEach(node => {
+        drawLineWhenMoveOrResize(node)
     })
 }
