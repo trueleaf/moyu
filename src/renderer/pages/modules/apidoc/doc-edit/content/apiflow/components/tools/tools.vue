@@ -35,7 +35,7 @@ const historyStore = useFlowHistoryStore()
 const nodeListStore = useFlowNodesStore()
 //放大
 const handleZoomIn = () => {
-    if (configStore.zoom >= 2) {
+    if (configStore.zoom >= 1.5) {
         return;
     }
     configStore.$patch({
@@ -52,7 +52,7 @@ const handleZoomIn = () => {
 }
 //缩小
 const handleZoomOut = () => {
-    if (configStore.zoom <= 0.5) {
+    if (configStore.zoom <= 0.8) {
         return;
     }
     configStore.$patch({
