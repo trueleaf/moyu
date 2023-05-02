@@ -7,7 +7,7 @@
             width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
             height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
             zIndex: nodeInfo.styleInfo.zIndex,
-            border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #aaa' : '1px solid transparent')
+            border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #dfdfdf' : '1px solid transparent'),
         }"
     >
         <template v-if="nodeStateStore.activeNodeId === props.nodeId">
@@ -103,10 +103,29 @@
                 <span>Y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}</span>
             </div>
         </template>
-        x: {{ Math.ceil(nodeInfo.styleInfo.offsetX * configStore.zoom) }}
-        y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}
-        w: {{ Math.ceil(nodeInfo.styleInfo.width * configStore.zoom) }}
-        h: {{ Math.ceil(nodeInfo.styleInfo.height * configStore.zoom) }}
+        <div class="header">
+            <el-tooltip
+                effect="light"
+                :show-after="1500"
+                content="用户登录"
+                placement="top-start"
+            >
+                用户登录用户登录用户登录用户登录用户登录
+            </el-tooltip>
+        </div>
+        <div class="api-info">
+            <div class="orange">POST</div>
+        </div>
+        <div class="api-info2">/api/gatway/user_info</div>
+        <div class="api-info3">
+            <div class="f-xs cursor-pointer op">前置</div>
+            <el-divider direction="vertical" />
+            <div class="f-xs cursor-pointer op">后置</div>
+            <el-divider direction="vertical" />
+            <div class="f-xs cursor-pointer op">日志</div>
+            <el-divider direction="vertical" />
+            <div class="f-xs cursor-pointer op">详情</div>
+        </div>
     </div>
 </template>
 
@@ -139,23 +158,24 @@ const nodeInfo = computed(() => {
     user-select: none;
     background-color: $white;
     user-select: none;
-    // border: 1px solid $gray-500;
     .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
         background-color: $white;
+        z-index: 2;
     }
     .create-line-dot {
         border-radius: 50%;
         border: 1px solid $theme-color;
         position: absolute;
         background-color: $white;
+        z-index: 2;
     }
     .resize-border {
         position: absolute;
         left: 0;
         top: 0;
-        z-index: -1;
+        z-index: 1;
         border: 1px solid #409EFF;
         width: 100%;
         height: 100%;
@@ -169,6 +189,42 @@ const nodeInfo = computed(() => {
         padding: 5px 10px;
         border: 1px solid #d0d0d0;
         background-color: #f2f2f2;
+    }
+    .header {
+        height: size(30);
+        line-height: size(30);
+        font-size: fz(15);
+        background-color: $gray-200;
+        padding: 0 size(5);
+        overflow-x: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .api-info {
+        display: flex;
+        align-items: center;
+        height: size(20);
+        line-height: size(20);
+        padding: size(0) size(5);
+        justify-content: space-between;
+    }
+    .api-info2 {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: size(0) size(5);
+    }
+    .api-info3 {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        position: absolute;
+        padding: size(5);
+        bottom: 0;
+        .op {
+            white-space: nowrap;
+        }
     }
 }
 </style>
