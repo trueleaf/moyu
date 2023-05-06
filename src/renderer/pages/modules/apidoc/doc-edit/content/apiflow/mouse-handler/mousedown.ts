@@ -224,7 +224,6 @@ export function changeCreateLineDotWhenMouseDown(): void {
  */
 export function changeSelectionWhenMouseDown(e: MouseEvent): void {
     const createLineDotState = useFlowCreateLineDotStateStore()
-    // const configStore = useFlowConfigStore()
     const resizeNodeDotState = useFlowResizeNodeStateStore()
     const lineStateStore = useFlowLineStateStore()
     const nodeStateStore = useFlowNodeStateStore();

@@ -20,11 +20,12 @@
             <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
                 <!-- nodesStore: {{ nodesStore }} -->
-                <!-- nodeStateStore: {{ nodeStateStore }} -->
+                nodeStateStore: {{ nodeStateStore }}
                 <!-- linesStore: {{ linesStore }} -->
                 <!-- lineStateStore: {{ lineStateStore }} -->
+                <!-- createLineDotStore: {{ createLineDotStore }} -->
                 <!-- historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }} -->
-                selectionStore: {{ selectionStore }}
+                <!-- selectionStore: {{ selectionStore }} -->
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
         </teleport>

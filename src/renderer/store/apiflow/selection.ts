@@ -6,6 +6,8 @@ export const useFlowSelectionStore = defineStore("flowSelection", {
         return {
             isMouseDown: false,
             isMouseDownSelectedArea: false,
+            isMouseDownResizeDot: false,
+            isMouseHoverResizeDot: false,
             isHover: false,
             isMove: false,
             startOffsetX: 0,

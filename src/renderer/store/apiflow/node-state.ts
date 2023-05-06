@@ -7,6 +7,7 @@ export const useFlowNodeStateStore = defineStore("nodeState", {
             hoverNodeId: "",
             dragNodeId: "",
             isMouseDown: false,
+            isMouseDownHeader: false,
             activeNodeId: "",
             mouseDownClientX: 0,
             mouseDownClientY: 0,

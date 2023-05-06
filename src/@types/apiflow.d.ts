@@ -171,6 +171,8 @@ export type FlowSelection = {
      * 是否点击选中区域
      */
     isMouseDownSelectedArea: boolean;
+    isMouseDownResizeDot: boolean;
+    isMouseHoverResizeDot: boolean;
     isHover: boolean;
     isMove: boolean;
     startOffsetX: number;
@@ -298,6 +300,7 @@ export type FlowNodeState = {
     hoverNodeId: string;
     dragNodeId: string;
     isMouseDown: boolean;
+    isMouseDownHeader: boolean;
     activeNodeId: string;
     isMove: boolean;
     mouseDownClientX: number;
