@@ -48,8 +48,9 @@
             </div>
         </div>
         <div class="params-wrap">
+            {{ rawJsonData }}
             <!-- <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree> -->
-            <s-json-editor v-if="bodyType === 'json'" v-model="rawJsonData"></s-json-editor>
+            <!-- <s-json-editor v-if="bodyType === 'json'" v-model="rawJsonData"></s-json-editor> -->
             <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
             <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
         </div>
@@ -78,26 +79,6 @@ import { store } from "@/pages/modules/apidoc/doc-view/store/index"
 import { $t } from "@/i18n/i18n"
 // import importParams from "./dialog/import-params/import-params.vue"
 
-/*
-|--------------------------------------------------------------------------
-| 操作区域，导入参数、应用模板、保存为模板、预览参数
-|--------------------------------------------------------------------------
-|
-*/
-// const importParamsdialogVisible = ref(false);
-//打开导入参数弹窗
-// const handleOpenImportParams = () => {
-//     importParamsdialogVisible.value = true;
-// }
-//处理导入成功回调
-// const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-//     const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
-//     store.commit("apidoc/apidoc/changePropertyValue", {
-//         data: jsonData[0],
-//         field: "children",
-//         value: result[0].children,
-//     });
-// }
 const paramsTemplatedialogVisible = ref(false);
 //打开保存参数模板弹窗
 const handleOpenTemplateDialog = () => {

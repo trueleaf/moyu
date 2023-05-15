@@ -51,6 +51,7 @@ export default defineComponent({
         }
         onMounted(() => {
             if (isBuildHtml) {
+                // eslint-disable-next-line max-len
                 const result = [];
                 const mapedData = (window as any).SHARE_DATA.docs.map((val: { isFolder: any; _id: any; pid: any; sort: any; info: { name: any; type: any; maintainer: any; }; updatedAt: any; item: { method: any; url: { path: any; }; }; }) => {
                     if (val.isFolder) {

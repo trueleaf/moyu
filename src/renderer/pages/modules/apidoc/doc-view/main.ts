@@ -16,6 +16,7 @@ import sEllipsis from "@/components/common/ellipsis-content/g-ellipsis-content.v
 import sFieldset from "@/components/common/fieldset/g-fieldset.vue"
 import sValidInput from "@/components/common/valid-input/g-valid-input.vue"
 import sDownload from "@/components/common/download/g-download.vue"
+import config from "@/../config/config"
 import sLabelValue from "@/components/common/label-value/g-label-value.vue"
 import sContextmenu from "@/components/common/contextmenu/g-contextmenu.vue"
 import sContextmenuItem from "@/components/common/contextmenu/g-contextmenu-item.vue"
@@ -30,7 +31,7 @@ import { axiosPlugin } from "./api/api"
 import App from "./App.vue"
 //=========================================================================//
 const app = createApp(App)
-
+app.config.globalProperties.config = config; //挂载全局辅助函数
 //组件注册
 app.component("SLoading", sLoading);
 app.component("SResizeX", sResizeX);
