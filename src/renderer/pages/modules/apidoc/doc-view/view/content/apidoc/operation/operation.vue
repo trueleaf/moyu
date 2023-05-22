@@ -20,7 +20,7 @@
                     </template>
                 </el-popover>
             </el-radio-group>
-            <div v-if="!config.isElectron" class="proxy-wrap">
+            <div v-if="0" class="proxy-wrap">
                 <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
                 <el-switch v-model="isProxy"></el-switch>
             </div>
@@ -51,7 +51,7 @@
                     </div>
                 </template>
             </el-input>
-            <el-button
+            <!-- <el-button
                 v-if="!loading"
                 :loading="loading"
                 :title="config.isElectron ? '' : $t('由于浏览器限制，非electron环境无法模拟发送请求')"
@@ -62,7 +62,7 @@
             </el-button>
             <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
             <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
-            <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
+            <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button> -->
         </div>
         <pre class="pre-url">
             <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
@@ -72,7 +72,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from "vue"
-import { Refresh } from "@element-plus/icons-vue"
+// import { Refresh } from "@element-plus/icons-vue"
 import type { Config } from "@@/config"
 import globalConfig from "@/../config/config"
 import { useStore } from "@/pages/modules/apidoc/doc-view/store/index"
@@ -81,12 +81,11 @@ import router from "@/pages/modules/apidoc/doc-view/router/index"
 import getHostPart from "./composables/host"
 import { handleFormatUrl, handleChangeUrl } from "./composables/url"
 import getMethodPart from "./composables/method"
-import getOperationPart from "./composables/operation"
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();
 //当前工作区状态
-const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
+// const isView = computed(() => store.state["apidoc/baseInfo"].mode === "view")
 /*
 |--------------------------------------------------------------------------
 | web代理相关
@@ -129,13 +128,6 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 | 发送请求、保存接口、刷新接口
 |--------------------------------------------------------------------------
 */
-const loading = computed(() => store.state["apidoc/response"].loading)
-const operationPart = getOperationPart();
-const loading2 = computed(() => store.state["apidoc/apidoc"].saveLoading)
-const handleSaveApidoc = () => {
-    store.dispatch("apidoc/apidoc/saveApidoc");
-}
-const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
     get() {

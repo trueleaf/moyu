@@ -59,28 +59,28 @@
             <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
         </template>
         <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
-            <s-raw-editor
+            <!-- <s-raw-editor
                 :model-value="htmlResponse"
                 readonly
                 type="text/html"
             >
-            </s-raw-editor>
+            </s-raw-editor> -->
         </div>
         <div v-show="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
-            <s-raw-editor
+            <!-- <s-raw-editor
                 :model-value="textResponse"
                 readonly
                 type="text/plain"
             >
-            </s-raw-editor>
+            </s-raw-editor> -->
         </div>
         <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
-            <s-raw-editor
+            <!-- <s-raw-editor
                 :model-value="jsonResponse"
                 readonly
                 type="application/json"
             >
-            </s-raw-editor>
+            </s-raw-editor> -->
         </div>
         <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
             <span>

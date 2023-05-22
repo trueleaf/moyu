@@ -17,8 +17,7 @@
             </template>
             <template v-if="hasJsonBodyParams">
                 <div class="title">{{ $t("Body参数") }}(application/json)</div>
-                <s-json-editor :value="apidocInfo.requestBody.rawJson" read-only></s-json-editor>
-                <!-- <s-params-view :data="apidocInfo.requestBody.json"></s-params-view> -->
+                <pre>{{ apidocInfo.requestBody.rawJson }}</pre>
             </template>
             <template v-if="hasFormDataParams">
                 <div class="title">{{ $t("Body参数") }}(multipart/formdata)</div>
@@ -46,7 +45,8 @@
                     <span>{{ $t("返回格式") }}：</span>
                     <span>{{ item.value.dataType }}</span>
                 </div>
-                <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view>
+                <!-- <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view> -->
+                <pre v-if="item.value.dataType === 'application/json'">{{ item.value.json }}</pre>
                 <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'" class="h-150px">
                     <s-raw-editor :data="item.value.json" :type="item.value.dataType" readonly></s-raw-editor>
                 </div>
