@@ -79,11 +79,8 @@
                 <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
             </div>
             <!-- json -->
-            <div v-show="remoteResponse.data.type.includes('application/json')">
+            <div v-if="remoteResponse.data.type.includes('application/json')">
                 <div class="json-wrap">
-                    <!-- <pre>{{ jsonResponse }}</pre> -->
-                    <!-- <s-json-editor :model-value="jsonResponse" read-only></s-json-editor>
-                    <div class="tip">由于性能原因，只能展示5kb(1024*5个字符)数据</div> -->
                     <s-raw-editor :model-value="jsonResponse" readonly type="application/json"></s-raw-editor>
                     <div v-show="showTip" class="tip">
                         <span>由于性能原因，只能展示40kb数据</span>
