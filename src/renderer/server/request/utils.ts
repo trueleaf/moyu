@@ -7,6 +7,7 @@ import { store } from "@/store"
 import { router } from "@/router"
 import { axios } from "@/api/api"
 import html2canvas from "html2canvas";
+import { filters } from "./filters"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -450,15 +451,32 @@ class ApidocConverter {
                     if (stringValue.startsWith("$")) {
                         return Mock.mock(value.replace(/^\$/, "@"));
                     }
-                    const replacedStr = stringValue.replace(/\{\{\s*([^} ]+)\s*\}\}/g, ($1: string, varStr: string) => {
-                        // let realValue = "";
-                        if (varStr.startsWith("@")) {
-                            return Mock.mock(varStr);
+                    const replacedStr = stringValue.replace(/\{\{([^}]+)\}\}/g, ($1: string, varStr: string) => {
+                        const trimedStr = varStr.replace(/\s/g, "");
+                        const strChainList = trimedStr.split("|");
+                        let convertedStr = trimedStr;
+                        if (strChainList.length > 1) {
+                            const matchedValue = variables.find(v => v.name === strChainList[0])
+                            if (matchedValue) {
+                                convertedStr = matchedValue.value;
+                                for (let i = 1; i < strChainList.length; i += 1) {
+                                    const filterName = strChainList[i]
+                                    if (filterName === "toJsonStr") {
+                                        const matchedFilter = filters[filterName];
+                                        convertedStr = matchedFilter(convertedStr);
+                                    }
+                                }
+                                return convertedStr;
+                            }
+                            return $1;
                         }
-                        if (varStr.startsWith("$")) {
-                            return Mock.mock(varStr.replace(/^\$/, "@"));
+                        if (convertedStr.startsWith("@")) {
+                            return Mock.mock(convertedStr);
                         }
-                        const matchedValue = variables.find(v => v.name === varStr)
+                        if (convertedStr.startsWith("$")) {
+                            return Mock.mock(convertedStr.replace(/^\$/, "@"));
+                        }
+                        const matchedValue = variables.find(v => v.name === convertedStr)
                         if (matchedValue) {
                             return matchedValue.value
                         }
