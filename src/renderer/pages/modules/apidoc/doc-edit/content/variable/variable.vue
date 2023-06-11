@@ -43,10 +43,15 @@
                         <span v-else>{{ scope.row.name }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column :label="$t('变量值')" align="center" show-overflow-tooltip>
+                <el-table-column :label="$t('变量值')" align="center">
                     <template #default="scope">
                         <el-input v-if="scope.row.__active" v-model="scope.row.value" type="textarea" :autosize="{ minRows: 2, maxRows: 10 }" :size="config.renderConfig.layout.size" class="w-100" maxlength="9999" clearable></el-input>
-                        <span v-else>{{ scope.row.value }}</span>
+                        <el-tooltip v-else placement="top" popper-class="w-50">
+                            <template #content>
+                                <div>{{ scope.row.value }}</div>
+                            </template>
+                            <span class="text-ellipsis">{{ scope.row.value }}</span>
+                        </el-tooltip>
                     </template>
                 </el-table-column>
                 <el-table-column :label="$t('变量类型')" align="center">
