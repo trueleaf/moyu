@@ -90,7 +90,7 @@ async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
         const headerFileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
         const matchedUrlFileName = path.match(/[^/]+.[^.]$/);
         const urlName = matchedUrlFileName ? matchedUrlFileName[0] : ""
-        const fileName = headerFileName || urlName;
+        const fileName = headerFileName?.[1] || urlName;
         store.commit("apidoc/response/changeResponseFileInfo", {
             url: blobUrl,
             fileName,
