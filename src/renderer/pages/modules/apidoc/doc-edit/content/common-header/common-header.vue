@@ -10,6 +10,7 @@
             <p>1. 公共请求头针对目录内所有接口生效</p>
             <p>2. 针对嵌套目录，子目录优先级高于父目录</p>
             <p>3. 接口本身请求头优先级高于公共请求头</p>
+            <p>4. 全局公共请求头可以在左侧banner空白区域右键添加</p>
         </s-fieldset>
         <s-fieldset title="公共请求头">
             <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
