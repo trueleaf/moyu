@@ -160,6 +160,9 @@ export default defineComponent({
             if (formatCode.length > 1024 * 40) {
                 return formatCode.slice(0, 1024 * 40);
             }
+            if (!formatCode) {
+                return ""
+            }
             return JSON.stringify(JSON.parse(formatCode), null, 4);
         },
         //json数据过大是否显示提示

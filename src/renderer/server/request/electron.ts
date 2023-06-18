@@ -87,10 +87,11 @@ async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
         const { path } = store.state["apidoc/apidoc"].apidoc.item.url;
         const headers = store.state["apidoc/response"].header;
         const contentDisposition = headers["content-disposition"] as string;
-        const headerFileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
+        const matched = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
+        const headerFileName = matched?.[1] ? decodeURIComponent(matched?.[1]) : ""
         const matchedUrlFileName = path.match(/[^/]+.[^.]$/);
         const urlName = matchedUrlFileName ? matchedUrlFileName[0] : ""
-        const fileName = headerFileName?.[1] || urlName;
+        const fileName = headerFileName || urlName;
         store.commit("apidoc/response/changeResponseFileInfo", {
             url: blobUrl,
             fileName,
