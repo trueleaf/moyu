@@ -21,7 +21,7 @@ module.exports = {
     },
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
-        "vue/html-indent": ["error", 4],
+        "vue/html-indent": ["error", 2],
         "vue/max-attributes-per-line": "off",
         "vue/html-self-closing": "off",
         "vue/singleline-html-element-content-newline": "off",
@@ -35,14 +35,7 @@ module.exports = {
         "@typescript-eslint/indent": ["error"],
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",
-        quotes: [
-            2,
-            "double",
-            {
-                avoidEscape: true,
-                allowTemplateLiterals: true,
-            },
-        ],
+        "quotes": ["error", "single"],
         "max-len": ["error", { code: 400 }], //最大代码长度为400行
         "no-param-reassign": ["error", { props: false }], //函数参数非对象情况不允许直接改变
         "linebreak-style": ["off", "windows"],
