@@ -1,7 +1,7 @@
-import { FlowContainerInfo } from "@@/apiflow"
-import { defineStore } from "pinia"
+import { FlowContainerInfo } from '@@/apiflow'
+import { defineStore } from 'pinia'
 
-export const useFlowContainerStore = defineStore("container", {
+export const useFlowContainerStore = defineStore('container', {
     state: (): FlowContainerInfo => {
         return {
             clientX: 0,

@@ -5,19 +5,19 @@
     备注：
 */
 <template>
-    <div ref="monacoDom" class="s-json-editor"></div>
+  <div ref="monacoDom" class="s-json-editor"></div>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch } from "vue"
-import beautify from "js-beautify"
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { useCompletionItem } from "./registerCompletionItem"
+import { ref, Ref, onMounted, onBeforeUnmount, onActivated, watch } from 'vue'
+import beautify from 'js-beautify'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { useCompletionItem } from './registerCompletionItem'
 
 const props = defineProps({
     modelValue: {
         type: String,
-        default: ""
+        default: ''
     },
     readOnly: {
         type: Boolean,
@@ -30,7 +30,7 @@ const props = defineProps({
         }
     },
 });
-const emits = defineEmits(["update:modelValue", "change", "ready"])
+const emits = defineEmits(['update:modelValue', 'change', 'ready'])
 
 const monacoDom: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -51,8 +51,8 @@ onMounted(() => {
     monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
         allowComments: true,
         validate: true,
-        trailingCommas: "ignore",
-        schemaValidation: "warning"
+        trailingCommas: 'ignore',
+        schemaValidation: 'warning'
     })
     monaco.languages.json.jsonDefaults.setModeConfiguration({
         completionItems: false,
@@ -63,7 +63,7 @@ onMounted(() => {
     })
     monacoInstance = monaco.editor.create(monacoDom.value as HTMLElement, {
         value: props.modelValue,
-        language: "json",
+        language: 'json',
         automaticLayout: true,
         parameterHints: {
             enabled: true
@@ -71,7 +71,7 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
-        wrappingStrategy: "advanced",
+        wrappingStrategy: 'advanced',
         scrollBeyondLastLine: false,
         overviewRulerLanes: 0,
         scrollbar: {
@@ -81,17 +81,17 @@ onMounted(() => {
             enabled: true,
             above: false,
         },
-        renderLineHighlight: "none",
+        renderLineHighlight: 'none',
         fontSize: 14,
         readOnly: props.readOnly,
         ...props.config
     })
     completionInstance = useCompletionItem();
     monacoInstance.onDidChangeModelContent(() => {
-        emits("update:modelValue", monacoInstance?.getValue())
-        emits("change", monacoInstance?.getValue())
+        emits('update:modelValue', monacoInstance?.getValue())
+        emits('change', monacoInstance?.getValue())
     })
-    emits("ready")
+    emits('ready')
 })
 onActivated(() => {
     monacoInstance?.focus()

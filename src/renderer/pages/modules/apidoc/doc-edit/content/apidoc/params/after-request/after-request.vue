@@ -5,22 +5,22 @@
     备注：
 */
 <template>
-    <div class="editor-wrap">
-        <after-editor v-model="afterRequest"></after-editor>
-    </div>
+  <div class="editor-wrap">
+    <after-editor v-model="afterRequest"></after-editor>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue"
-import { store } from "@/store/index"
-import afterEditor from "./editor/after-editor.vue"
+import { computed } from 'vue'
+import { store } from '@/store/index'
+import afterEditor from './editor/after-editor.vue'
 
 const afterRequest = computed<string>({
     get() {
-        return store.state["apidoc/apidoc"].apidoc?.afterRequest.raw;
+        return store.state['apidoc/apidoc'].apidoc?.afterRequest.raw;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changeAfterRequest", val);
+        store.commit('apidoc/apidoc/changeAfterRequest', val);
     },
 })
 

@@ -5,28 +5,28 @@
     备注：
 */
 <template>
-    <div class="s-fieldset">
-        <div class="legend">
-            <slot v-if="$slots.title" name="title"></slot>
-            <span v-else>{{ title }}</span>
-        </div>
-        <div class="content" :style="{height: height, 'maxHeight': maxHeight}">
-            <slot></slot>
-        </div>
-        <div class="operation">
-            <slot name="operation"></slot>
-        </div>
+  <div class="s-fieldset">
+    <div class="legend">
+      <slot v-if="$slots.title" name="title"></slot>
+      <span v-else>{{ title }}</span>
     </div>
+    <div class="content" :style="{height: height, 'maxHeight': maxHeight}">
+      <slot></slot>
+    </div>
+    <div class="operation">
+      <slot name="operation"></slot>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
         title: {
             type: String,
-            default: "",
+            default: '',
         },
         height: {
             type: String,

@@ -23,7 +23,7 @@ import {
     lodashIsEqual,
     apidocConvertParamsToJsonStr,
     apidocGenerateApidoc,
-} from "@/helper/index"
+} from '@/helper/index'
 
 type Helper = {
     /**

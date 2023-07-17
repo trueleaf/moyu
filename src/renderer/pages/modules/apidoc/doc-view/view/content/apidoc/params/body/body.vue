@@ -5,77 +5,77 @@
     备注：
 */
 <template>
-    <div class="body-params">
-        <!-- <pre>{{ bodyType }}</pre> -->
-        <div class="body-type d-flex a-center mb-1">
-            <!-- body类型选择 -->
-            <el-radio-group v-model="bodyType" @change="changeBodyType">
-                <el-radio label="json">json</el-radio>
-                <el-radio label="formdata">form-data</el-radio>
-                <el-radio label="urlencoded">x-www-form-urlencoded</el-radio>
-                <el-radio label="raw">raw</el-radio>
-                <el-radio label="none">none</el-radio>
-            </el-radio-group>
-            <div v-show="bodyType === 'json'" class="operation">
-                <!-- <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
+  <div class="body-params">
+    <!-- <pre>{{ bodyType }}</pre> -->
+    <div class="body-type d-flex a-center mb-1">
+      <!-- body类型选择 -->
+      <el-radio-group v-model="bodyType" @change="changeBodyType">
+        <el-radio label="json">json</el-radio>
+        <el-radio label="formdata">form-data</el-radio>
+        <el-radio label="urlencoded">x-www-form-urlencoded</el-radio>
+        <el-radio label="raw">raw</el-radio>
+        <el-radio label="none">none</el-radio>
+      </el-radio-group>
+      <div v-show="bodyType === 'json'" class="operation">
+        <!-- <div class="active cursor-pointer" @click="handleOpenImportParams">{{ $t("导入参数") }}</div>
                 <el-divider direction="vertical"></el-divider> -->
-                <div class="p-relative no-select">
-                    <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
-                    <div v-if="showTemplate" class="template-wrap">
-                        <div class="header">
-                            <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" class="w-100" :prefix-icon="Search" maxlength="100" clearable></el-input>
-                            <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
-                        </div>
-                        <template v-if="bodyTemplateList.length > 0">
-                            <div
-                                v-for="(item, index) in bodyTemplateList"
-                                :key="index"
-                                class="select-item"
-                            >
-                                <span class="head">
-                                    <s-emphasize :value="item.name" :keyword="templateFilterString"></s-emphasize>
-                                </span>
-                                <span class="tail">{{ item.creatorName }}</span>
-                            </div>
-                        </template>
-                        <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
-                    </div>
-                </div>
-                <el-divider direction="vertical"></el-divider>
-                <div class="cursor-pointer" @click="handleOpenTemplateDialog">{{ $t("保存为模板") }}</div>
-                <!-- <el-divider direction="vertical"></el-divider>
+        <div class="p-relative no-select">
+          <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
+          <div v-if="showTemplate" class="template-wrap">
+            <div class="header">
+              <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" class="w-100" :prefix-icon="Search" maxlength="100" clearable></el-input>
+              <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
+            </div>
+            <template v-if="bodyTemplateList.length > 0">
+              <div
+                v-for="(item, index) in bodyTemplateList"
+                :key="index"
+                class="select-item"
+              >
+                <span class="head">
+                  <s-emphasize :value="item.name" :keyword="templateFilterString"></s-emphasize>
+                </span>
+                <span class="tail">{{ item.creatorName }}</span>
+              </div>
+            </template>
+            <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
+          </div>
+        </div>
+        <el-divider direction="vertical"></el-divider>
+        <div class="cursor-pointer" @click="handleOpenTemplateDialog">{{ $t("保存为模板") }}</div>
+        <!-- <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">预览参数 </div> -->
-            </div>
-        </div>
-        <div class="params-wrap">
-            <!-- <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree> -->
-            <s-json-editor v-if="bodyType === 'json'" v-model="rawJsonData"></s-json-editor>
-            <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
-            <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
-        </div>
-        <div v-show="bodyType === 'raw'" class="raw">
-            <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
-            <div class="raw-type">
-                <el-select v-model="rawType" class="w-100" :size="config.renderConfig.layout.size" @change="handleChangeRawType">
-                    <el-option label="text" value="text/plain"></el-option>
-                    <el-option label="html" value="text/html"></el-option>
-                    <el-option label="xml" value="application/xml"></el-option>
-                    <el-option label="javascript" value="text/javascript"></el-option>
-                </el-select>
-            </div>
-        </div>
-        <!-- <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params> -->
+      </div>
     </div>
+    <div class="params-wrap">
+      <!-- <s-params-tree v-if="bodyType === 'json'" :mind-params="mindBodyData" nest show-checkbox :data="jsonBodyData" @change="checkContentType"></s-params-tree> -->
+      <s-json-editor v-if="bodyType === 'json'" v-model="rawJsonData"></s-json-editor>
+      <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData" @change="checkContentType"></s-params-tree>
+      <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData" @change="checkContentType"></s-params-tree>
+    </div>
+    <div v-show="bodyType === 'raw'" class="raw">
+      <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
+      <div class="raw-type">
+        <el-select v-model="rawType" class="w-100" :size="config.renderConfig.layout.size" @change="handleChangeRawType">
+          <el-option label="text" value="text/plain"></el-option>
+          <el-option label="html" value="text/html"></el-option>
+          <el-option label="xml" value="application/xml"></el-option>
+          <el-option label="javascript" value="text/javascript"></el-option>
+        </el-select>
+      </div>
+    </div>
+    <!-- <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params> -->
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, onMounted, onBeforeUnmount } from "vue"
-import { Search } from "@element-plus/icons-vue"
-import type { ApidocBodyMode, ApidocBodyRawType } from "@@/global"
-import { router } from "@/router/index"
-import { apidocConvertParamsToJsonData, apidocConvertParamsToJsonStr } from "@/helper/index"
-import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import { $t } from "@/i18n/i18n"
+import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { Search } from '@element-plus/icons-vue'
+import type { ApidocBodyMode, ApidocBodyRawType } from '@@/global'
+import { router } from '@/router/index'
+import { apidocConvertParamsToJsonData, apidocConvertParamsToJsonStr } from '@/helper/index'
+import { store } from '@/pages/modules/apidoc/doc-view/store/index'
+import { $t } from '@/i18n/i18n'
 // import importParams from "./dialog/import-params/import-params.vue"
 
 /*
@@ -108,11 +108,11 @@ const handleOpenTemplateDialog = () => {
 //是否显示模板
 const showTemplate = ref(false);
 //模板过滤参数
-const templateFilterString = ref("");
+const templateFilterString = ref('');
 //模板列表
 const bodyTemplateList = computed(() => {
-    const templates = store.state["apidoc/baseInfo"].paramsTemplate;
-    const result = templates.filter(template => template.presetParamsType === "bodyParams").filter(template => {
+    const templates = store.state['apidoc/baseInfo'].paramsTemplate;
+    const result = templates.filter(template => template.presetParamsType === 'bodyParams').filter(template => {
         if (!templateFilterString.value) {
             return true;
         }
@@ -123,14 +123,14 @@ const bodyTemplateList = computed(() => {
 //打开模板维护tab页面
 const projectId = router.currentRoute.value.query.id as string;
 const handleOpenTempateTab = () => {
-    store.commit("apidoc/tabs/addTab", {
-        _id: "paramsTemplate",
+    store.commit('apidoc/tabs/addTab', {
+        _id: 'paramsTemplate',
         projectId,
-        tabType: "paramsTemplate",
-        label: $t("模板维护"),
+        tabType: 'paramsTemplate',
+        label: $t('模板维护'),
         head: {
-            icon: "iconvariable",
-            color: ""
+            icon: 'iconvariable',
+            color: ''
         },
         saved: true,
         fixed: true,
@@ -142,41 +142,41 @@ const bindClick = () => {
     showTemplate.value = false;
 }
 onMounted(() => {
-    document.documentElement.addEventListener("click", bindClick)
+    document.documentElement.addEventListener('click', bindClick)
 })
 onBeforeUnmount(() => {
-    document.documentElement.removeEventListener("click", bindClick)
+    document.documentElement.removeEventListener('click', bindClick)
 })
 
 //=========================================================================//
 
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
-    const type = store.state["apidoc/apidoc"].apidoc.item.requestBody.mode
-    const { json, formdata, urlencoded, raw } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+    const type = store.state['apidoc/apidoc'].apidoc.item.requestBody.mode
+    const { json, formdata, urlencoded, raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
     const converJsonData = apidocConvertParamsToJsonData(json, true);
     const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
     const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
     const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
     const hasRawData = raw.data;
-    if (type === "raw" && hasRawData) {
-        store.commit("apidoc/apidoc/changeContentType", raw.dataType || "text/plain");
-    } else if (type === "raw" && !hasRawData) {
-        store.commit("apidoc/apidoc/changeContentType", "");
-    } else if (type === "none") {
-        store.commit("apidoc/apidoc/changeContentType", "");
-    } else if (type === "urlencoded" && hasUrlencodedData) {
-        store.commit("apidoc/apidoc/changeContentType", "application/x-www-form-urlencoded");
-    } else if (type === "urlencoded" && !hasUrlencodedData) {
-        store.commit("apidoc/apidoc/changeContentType", "");
-    } else if (type === "json" && hasJsonData) {
-        store.commit("apidoc/apidoc/changeContentType", "application/json");
-    } else if (type === "json" && !hasJsonData) {
-        store.commit("apidoc/apidoc/changeContentType", "");
-    } else if (type === "formdata" && hasFormData) {
-        store.commit("apidoc/apidoc/changeContentType", "multipart/form-data");
-    } else if (type === "formdata" && !hasFormData) {
-        store.commit("apidoc/apidoc/changeContentType", "");
+    if (type === 'raw' && hasRawData) {
+        store.commit('apidoc/apidoc/changeContentType', raw.dataType || 'text/plain');
+    } else if (type === 'raw' && !hasRawData) {
+        store.commit('apidoc/apidoc/changeContentType', '');
+    } else if (type === 'none') {
+        store.commit('apidoc/apidoc/changeContentType', '');
+    } else if (type === 'urlencoded' && hasUrlencodedData) {
+        store.commit('apidoc/apidoc/changeContentType', 'application/x-www-form-urlencoded');
+    } else if (type === 'urlencoded' && !hasUrlencodedData) {
+        store.commit('apidoc/apidoc/changeContentType', '');
+    } else if (type === 'json' && hasJsonData) {
+        store.commit('apidoc/apidoc/changeContentType', 'application/json');
+    } else if (type === 'json' && !hasJsonData) {
+        store.commit('apidoc/apidoc/changeContentType', '');
+    } else if (type === 'formdata' && hasFormData) {
+        store.commit('apidoc/apidoc/changeContentType', 'multipart/form-data');
+    } else if (type === 'formdata' && !hasFormData) {
+        store.commit('apidoc/apidoc/changeContentType', '');
     }
 }
 //改变bodytype类型
@@ -187,10 +187,10 @@ const changeBodyType = () => {
 //body类型
 const bodyType = computed<ApidocBodyMode>({
     get() {
-        return store.state["apidoc/apidoc"].apidoc.item.requestBody.mode;
+        return store.state['apidoc/apidoc'].apidoc.item.requestBody.mode;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changeBodyMode", val);
+        store.commit('apidoc/apidoc/changeBodyMode', val);
     },
 });
 //body参数联想值
@@ -205,7 +205,7 @@ const bodyType = computed<ApidocBodyMode>({
 //json格式body参数
 const rawJsonData = computed({
     get() {
-        const { json, rawJson } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+        const { json, rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
         let finalJsonData = rawJson;
         if (!rawJson) {
             finalJsonData = apidocConvertParamsToJsonStr(json)
@@ -213,7 +213,7 @@ const rawJsonData = computed({
         return finalJsonData;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changeRawJson", val);
+        store.commit('apidoc/apidoc/changeRawJson', val);
     }
 })
 /*
@@ -221,7 +221,7 @@ const rawJsonData = computed({
 | x-www-form-urlencoded类型操作
 |--------------------------------------------------------------------------
 */
-const urlencodedData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.urlencoded)
+const urlencodedData = computed(() => store.state['apidoc/apidoc'].apidoc.item.requestBody.urlencoded)
 /*
 |--------------------------------------------------------------------------
 | raw类型数据处理
@@ -230,19 +230,19 @@ const urlencodedData = computed(() => store.state["apidoc/apidoc"].apidoc.item.r
 //raw类型
 const rawType = computed<ApidocBodyRawType>({
     get() {
-        return store.state["apidoc/apidoc"].apidoc.item.requestBody.raw.dataType;
+        return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.dataType;
     },
     set(val) {
-        store.commit("apidoc/apidoc/changeBodyRawType", val);
+        store.commit('apidoc/apidoc/changeBodyRawType', val);
     },
 })
 //raw类型数据值
 const rawValue = computed({
     get() {
-        return store.state["apidoc/apidoc"].apidoc.item.requestBody.raw.data;
+        return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.data;
     },
     set(value: string) {
-        store.commit("apidoc/apidoc/changeBodyRawValue", value);
+        store.commit('apidoc/apidoc/changeBodyRawValue', value);
     },
 })
 //改变raw数据值
@@ -251,23 +251,23 @@ const handleChangeRawData = () => {
 }
 //切换raw参数类型
 const handleChangeRawType = () => {
-    const { raw } = store.state["apidoc/apidoc"].apidoc.item.requestBody;
+    const { raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
     if (!raw.data) {
-        store.commit("apidoc/apidoc/changeContentType", "");
+        store.commit('apidoc/apidoc/changeContentType', '');
         return
     }
-    if (rawType.value === "text/plain") {
-        store.commit("apidoc/apidoc/changeContentType", "text/plain");
-    } else if (rawType.value === "text/html") {
-        store.commit("apidoc/apidoc/changeContentType", "text/html");
-    } else if (rawType.value === "application/xml") {
-        store.commit("apidoc/apidoc/changeContentType", "application/xml");
-    } else if (rawType.value === "text/javascript") {
-        store.commit("apidoc/apidoc/changeContentType", "text/javascript");
-    } else if (rawType.value === "application/json") {
-        store.commit("apidoc/apidoc/changeContentType", "application/json");
+    if (rawType.value === 'text/plain') {
+        store.commit('apidoc/apidoc/changeContentType', 'text/plain');
+    } else if (rawType.value === 'text/html') {
+        store.commit('apidoc/apidoc/changeContentType', 'text/html');
+    } else if (rawType.value === 'application/xml') {
+        store.commit('apidoc/apidoc/changeContentType', 'application/xml');
+    } else if (rawType.value === 'text/javascript') {
+        store.commit('apidoc/apidoc/changeContentType', 'text/javascript');
+    } else if (rawType.value === 'application/json') {
+        store.commit('apidoc/apidoc/changeContentType', 'application/json');
     } else {
-        console.warn($t("未知请求类型"));
+        console.warn($t('未知请求类型'));
     }
 }
 
@@ -277,7 +277,7 @@ const handleChangeRawType = () => {
 |--------------------------------------------------------------------------
 */
 //formData格式body参数
-const formData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.formdata)
+const formData = computed(() => store.state['apidoc/apidoc'].apidoc.item.requestBody.formdata)
 
 </script>
 

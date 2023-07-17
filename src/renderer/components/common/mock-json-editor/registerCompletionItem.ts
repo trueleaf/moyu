@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 type Suggestions = {
     label: {
@@ -13,17 +13,17 @@ type Suggestions = {
 
 const suggestions: Suggestions = [{
     label: {
-        label: "@name",
-        description: "中文名称"
+        label: '@name',
+        description: '中文名称'
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: `"@name"`,
-    keyword: "@name",
+    insertText: '"@name"',
+    keyword: '@name',
 }]
 
 export function useCompletionItem(): monaco.IDisposable {
-    return monaco.languages.registerCompletionItemProvider("json", {
-        triggerCharacters: ["."],
+    return monaco.languages.registerCompletionItemProvider('json', {
+        triggerCharacters: ['.'],
         provideCompletionItems(model, position) {
             const currentLineStr = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -31,11 +31,11 @@ export function useCompletionItem(): monaco.IDisposable {
                 endLineNumber: position.lineNumber,
                 endColumn: position.column
             });
-            const lineStrArr = currentLineStr.replace("\t", "").split(" ");
+            const lineStrArr = currentLineStr.replace('\t', '').split(' ');
             const activeStr = lineStrArr[lineStrArr.length - 1];
             const matchedSuggestions = suggestions.filter(v => {
-                const activeStrArr = activeStr.split(".");
-                const keywordArr = v.keyword.split(".");
+                const activeStrArr = activeStr.split('.');
+                const keywordArr = v.keyword.split('.');
                 for (let i = 0; i < activeStrArr.length - 1; i += 1) {
                     if (activeStrArr[i] !== keywordArr[i]) {
                         return false;

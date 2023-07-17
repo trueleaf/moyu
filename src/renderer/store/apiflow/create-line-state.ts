@@ -1,12 +1,12 @@
-import { FLowCreateLineDotState } from "@@/apiflow";
-import { defineStore } from "pinia";
+import { FLowCreateLineDotState } from '@@/apiflow';
+import { defineStore } from 'pinia';
 
-export const useFlowCreateLineDotStateStore = defineStore("createLineDotState", {
+export const useFlowCreateLineDotStateStore = defineStore('createLineDotState', {
     state: (): FLowCreateLineDotState => {
         return {
-            hoverNodeId: "",
+            hoverNodeId: '',
             isMouseDown: false,
-            hoverPosition: "left",
+            hoverPosition: 'left',
         };
     },
 });

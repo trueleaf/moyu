@@ -5,56 +5,56 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading">
-        <el-table
-            ref="table"
-            v-bind="$attrs"
-            :data="tableData"
-            stripe
-            border
-            :size="config.renderConfig.layout.size"
-            :height="tableHeight"
-            @selection-change="handleSelectionChange"
-        >
-            <el-table-column v-if="selection || deleteMany" type="selection" align="center" :reserve-selection="reserveSelection"></el-table-column>
-            <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
-            <slot />
-        </el-table>
-        <div v-if="!plain" class="d-flex j-end mt-1">
-            <slot name="operation" />
-            <el-button :loading="loading" type="primary" :icon="Refresh" :size="config.renderConfig.layout.size" @click="getData">{{ $t("刷新") }}</el-button>
-            <el-button
-                v-if="deleteMany"
-                :loading="loading2"
-                :disabled="selectData.length === 0"
-                :title="disableTip"
-                type="danger"
-                :icon="Delete"
-                :size="config.renderConfig.layout.size"
-                @click="deleteData"
-            >
-                {{ $t("批量删除") }}
-            </el-button>
-            <el-pagination
-                v-model:currentPage="formInfo.pageNum"
-                class="ml-4"
-                :layout="paging ? 'total, sizes, prev, pager, next, jumper' : 'total'"
-                :total="total"
-                background
-                :page-sizes="config.renderConfig.components.tableConfig.pageSizes"
-                :page-size="config.renderConfig.components.tableConfig.pageSize"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-            >
-            </el-pagination>
-        </div>
-    </s-loading>
+  <s-loading :loading="loading">
+    <el-table
+      ref="table"
+      v-bind="$attrs"
+      :data="tableData"
+      stripe
+      border
+      :size="config.renderConfig.layout.size"
+      :height="tableHeight"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column v-if="selection || deleteMany" type="selection" align="center" :reserve-selection="reserveSelection"></el-table-column>
+      <el-table-column v-if="index" type="index" label="序号" align="center"></el-table-column>
+      <slot />
+    </el-table>
+    <div v-if="!plain" class="d-flex j-end mt-1">
+      <slot name="operation" />
+      <el-button :loading="loading" type="primary" :icon="Refresh" :size="config.renderConfig.layout.size" @click="getData">{{ $t("刷新") }}</el-button>
+      <el-button
+        v-if="deleteMany"
+        :loading="loading2"
+        :disabled="selectData.length === 0"
+        :title="disableTip"
+        type="danger"
+        :icon="Delete"
+        :size="config.renderConfig.layout.size"
+        @click="deleteData"
+      >
+        {{ $t("批量删除") }}
+      </el-button>
+      <el-pagination
+        v-model:currentPage="formInfo.pageNum"
+        class="ml-4"
+        :layout="paging ? 'total, sizes, prev, pager, next, jumper' : 'total'"
+        :total="total"
+        background
+        :page-sizes="config.renderConfig.components.tableConfig.pageSizes"
+        :page-size="config.renderConfig.components.tableConfig.pageSize"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      >
+      </el-pagination>
+    </div>
+  </s-loading>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { Delete, Refresh } from "@element-plus/icons-vue"
-import config from "@/../config/config"
+import { defineComponent } from 'vue'
+import { Delete, Refresh } from '@element-plus/icons-vue'
+import config from '@/../config/config'
 
 export default defineComponent({
     props: {
@@ -126,21 +126,21 @@ export default defineComponent({
          */
         deleteUrl: {
             type: String,
-            default: ""
+            default: ''
         },
         /**
          * 批量删除key值
          */
         deleteKey: {
             type: String,
-            default: "ids"
+            default: 'ids'
         },
         /**
          * 表格数据的key值
          */
         deleteDataKey: {
             type: String,
-            default: "_id"
+            default: '_id'
         },
         /**
          * 批量删除额外参数
@@ -164,7 +164,7 @@ export default defineComponent({
             default: true
         },
     },
-    emits: ["finish", "select", "deleteMany"],
+    emits: ['finish', 'select', 'deleteMany'],
     setup() {
         return {
             Delete,
@@ -179,7 +179,7 @@ export default defineComponent({
                 pageNum: 1, //-------------------------------------------------------当前页数
             },
             tableData: [], //--------------------------------------------------------表格数据
-            tableHeight: "100", //-----------------------------------------------------表格高度
+            tableHeight: '100', //-----------------------------------------------------表格高度
             selectData: [] as Record<string, unknown>[], //-------------------------------------------------------选中的表格数据
             total: 0, //-------------------------------------------------------------数据总数
             responseData: null, //---------------------------------------------------表格返回数据
@@ -195,9 +195,9 @@ export default defineComponent({
         },
         disableTip(): string { //禁止提示信息
             if (this.selectData.length === 0) {
-                return "在左侧进行数据选择后方可删除数据";
+                return '在左侧进行数据选择后方可删除数据';
             }
-            return ""
+            return ''
         }
     },
     mounted() {
@@ -210,7 +210,7 @@ export default defineComponent({
                 this.getData();
             }
             this.initTableHeight();
-            window.addEventListener("resize", this.$helper.debounce(() => {
+            window.addEventListener('resize', this.$helper.debounce(() => {
                 this.initTableHeight();
             }, 300))
         },
@@ -219,7 +219,7 @@ export default defineComponent({
             return new Promise((resolve, reject) => {
                 this.$nextTick(() => {
                     let p = {};
-                    if (Object.prototype.toString.call(searchParams).slice(8, -1) !== "MouseEvent") { //修复鼠标事件导致第一个参数数据错误
+                    if (Object.prototype.toString.call(searchParams).slice(8, -1) !== 'MouseEvent') { //修复鼠标事件导致第一个参数数据错误
                         p = JSON.parse(JSON.stringify(searchParams || {})); //防止数据变化产生递归
                     }
                     const params = this.paging ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
@@ -243,7 +243,7 @@ export default defineComponent({
                     }).finally(() => {
                         this.loading = false;
                         this.$nextTick(() => {
-                            this.$emit("finish", this.responseData, this);
+                            this.$emit('finish', this.responseData, this);
                         })
                     });
                 })
@@ -269,35 +269,35 @@ export default defineComponent({
                 setTimeout(() => {
                     const { top } = tableDom.getBoundingClientRect(); //表格距离顶部距离
                     const height = this.height || window.innerHeight - top - 70; //100是试出来
-                    this.tableHeight = height < 200 ? "200px" : `${height}px`; //高度至少200px
+                    this.tableHeight = height < 200 ? '200px' : `${height}px`; //高度至少200px
                 })
             }
         },
         //选择了数据
         handleSelectionChange(val: Record<string, unknown>[]) {
             this.selectData = val;
-            this.$emit("select", val);
+            this.$emit('select', val);
         },
         //批量删除
         deleteData() {
-            this.$confirm(this.$t("此操作将删除条记录, 是否继续?", { msg: this.selectData.length.toString() }), this.$t("提示"), {
-                confirmButtonText: this.$t("确定"),
-                cancelButtonText: this.$t("取消"),
-                type: "warning"
+            this.$confirm(this.$t('此操作将删除条记录, 是否继续?', { msg: this.selectData.length.toString() }), this.$t('提示'), {
+                confirmButtonText: this.$t('确定'),
+                cancelButtonText: this.$t('取消'),
+                type: 'warning'
             }).then(() => {
                 const params = {} as Record<string, unknown>;
                 params[this.deleteKey] = this.selectData.map((val) => val[this.deleteDataKey]);
                 Object.assign(params, this.deleteParams);
                 this.loading2 = true;
                 this.axios.delete(this.deleteUrl, { data: params }).then(() => {
-                    this.$emit("deleteMany", params.ids);
+                    this.$emit('deleteMany', params.ids);
                 }).catch((err) => {
                     console.error(err);
                 }).finally(() => {
                     this.loading2 = false;
                 });
             }).catch((err: Error | string) => {
-                if (err === "cancel" || err === "close") {
+                if (err === 'cancel' || err === 'close') {
                     return;
                 }
                 console.error(err);

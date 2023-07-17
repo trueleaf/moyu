@@ -162,7 +162,7 @@ type PermissionClientMenu = {
     /**
      * 菜单类型，inline:内联菜单  link:外链跳转
      */
-    type: "inline" | "link";
+    type: 'inline' | 'link';
     /**
      * 子菜单
      */
@@ -186,14 +186,14 @@ type PermissionClientMenu = {
 */
 //http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
 type ApidocHttpRequestMethod =
-    | "GET"
-    | "POST"
-    | "PUT"
-    | "PATCH"
-    | "HEAD"
-    | "DELETE"
-    | "OPTIONS"
-    | "TRACE";
+    | 'GET'
+    | 'POST'
+    | 'PUT'
+    | 'PATCH'
+    | 'HEAD'
+    | 'DELETE'
+    | 'OPTIONS'
+    | 'TRACE';
 
 //项目枚举信息
 type ApidocProjectEnum = {
@@ -201,7 +201,7 @@ type ApidocProjectEnum = {
     _id: string;
 };
 //项目权限枚举
-type ApidocProjectPermission = "readAndWrite" | "readOnly" | "admin";
+type ApidocProjectPermission = 'readAndWrite' | 'readOnly' | 'admin';
 //项目成员基本信息
 type ApidocProjectMemberInfo = {
     /**
@@ -276,19 +276,19 @@ type ApidocProjectListInfo = {
 };
 //接口文档相关类型声明
 type ApidocPropertyType =
-    | "string"
-    | "number"
-    | "boolean"
-    | "array"
-    | "object"
-    | "file";
+    | 'string'
+    | 'number'
+    | 'boolean'
+    | 'array'
+    | 'object'
+    | 'file';
 //文档参数类型
 type ApidocParamsType =
-    | "pathParams"
-    | "queryParams"
-    | "bodyParams"
-    | "responseParams"
-    | "headerParams";
+    | 'pathParams'
+    | 'queryParams'
+    | 'bodyParams'
+    | 'responseParams'
+    | 'headerParams';
 //接口参数信息， header pathParams queryParams bodyParams
 type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
     /**
@@ -334,14 +334,14 @@ type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
 };
 //联想参数
 type ApidocMindParam = ApidocProperty & {
-    paramsPosition: "paths" | "queryParams" | "requestBody" | "responseParams";
+    paramsPosition: 'paths' | 'queryParams' | 'requestBody' | 'responseParams';
     projectId: string;
 };
 //=========================================================================//
 //=========================================================================//
 //=========================================================================//
 //文档基础信息
-type ApidocType = "folder" | "api" | "markdown";
+type ApidocType = 'folder' | 'api' | 'markdown';
 type ApidocBaseInfo = {
     /**
      * 文档名称
@@ -390,65 +390,65 @@ type ApidocBaseInfo = {
 };
 //api文档ContentType
 type ApidocContentType =
-    | ""
-    | "application/json"
-    | "application/x-www-form-urlencoded"
-    | "text/javascript"
-    | "multipart/form-data"
-    | "text/plain"
-    | "application/xml"
-    | "text/html";
+    | ''
+    | 'application/json'
+    | 'application/x-www-form-urlencoded'
+    | 'text/javascript'
+    | 'multipart/form-data'
+    | 'text/plain'
+    | 'application/xml'
+    | 'text/html';
 // eslint-disable-next-line max-len
 type ApidocResponseContentType =
     | ApidocContentType
-    | "application/xml"
-    | "application/json"
-    | "text/html"
-    | "text/csv"
-    | "image/png"
-    | "application/pdf"
-    | "application/octet-stream"
-    | "text/plain"
-    | "application/msword"
-    | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    | "application/vnd.ms-excel"
-    | "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    | "text/plain"
-    | "text/css"
-    | "text/javascript"
-    | "image/gif"
-    | "image/jpeg"
-    | "image/png"
-    | "image/svg+xml"
-    | "audio/webm"
-    | "video/webm"
-    | "audio/ogg"
-    | "video/ogg"
-    | "application/ogg";
+    | 'application/xml'
+    | 'application/json'
+    | 'text/html'
+    | 'text/csv'
+    | 'image/png'
+    | 'application/pdf'
+    | 'application/octet-stream'
+    | 'text/plain'
+    | 'application/msword'
+    | 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    | 'application/vnd.ms-excel'
+    | 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    | 'text/plain'
+    | 'text/css'
+    | 'text/javascript'
+    | 'image/gif'
+    | 'image/jpeg'
+    | 'image/png'
+    | 'image/svg+xml'
+    | 'audio/webm'
+    | 'video/webm'
+    | 'audio/ogg'
+    | 'video/ogg'
+    | 'application/ogg';
 type ApidocBodyMode =
-    | "json"
-    | "raw"
-    | "formdata"
-    | "urlencoded"
-    | "binary"
-    | "none";
+    | 'json'
+    | 'raw'
+    | 'formdata'
+    | 'urlencoded'
+    | 'binary'
+    | 'none';
 type ApidocBodyRawType =
-    | "application/xml"
-    | "text/javascript"
-    | "text/plain"
-    | "text/html"
-    | "application/json";
+    | 'application/xml'
+    | 'text/javascript'
+    | 'text/plain'
+    | 'text/html'
+    | 'application/json';
 //文档请求允许传参方式
 type ApidocRequestParamTypes = (
-    | "path"
-    | "params"
-    | "json"
-    | "x-www-form-urlencoded"
-    | "formData"
-    | "text/javascript"
-    | "text/plain"
-    | "text/html"
-    | "application/xml"
+    | 'path'
+    | 'params'
+    | 'json'
+    | 'x-www-form-urlencoded'
+    | 'formData'
+    | 'text/javascript'
+    | 'text/plain'
+    | 'text/html'
+    | 'application/xml'
 )[];
 //api文档请求body
 type ApidocBodyParams = {
@@ -468,11 +468,11 @@ type ApidocBodyParams = {
     /**
      * formData类型参数
      */
-    formdata: ApidocProperty<"string" | "file">[];
+    formdata: ApidocProperty<'string' | 'file'>[];
     /**
      * urlencoded类型参数
      */
-    urlencoded: ApidocProperty<"string">[];
+    urlencoded: ApidocProperty<'string'>[];
     /**
      * raw类型参数
      */
@@ -590,11 +590,11 @@ type ApidocDetail = {
         /**
          * restful请求路径
          */
-        paths: ApidocProperty<"string">[];
+        paths: ApidocProperty<'string'>[];
         /**
          * 查询字符串
          */
-        queryParams: ApidocProperty<"string">[];
+        queryParams: ApidocProperty<'string'>[];
         /**
          * 请求body
          */
@@ -606,7 +606,7 @@ type ApidocDetail = {
         /**
          * 请求头
          */
-        headers: ApidocProperty<"string">[];
+        headers: ApidocProperty<'string'>[];
         /**
          * ContentType类型
          */
@@ -665,11 +665,11 @@ type ApidocDetail = {
         /**
          * 返回数据类型
          */
-        responseType: "json" | "image" | "file" | "text" | "customJson";
+        responseType: 'json' | 'image' | 'file' | 'text' | 'customJson';
         /**
          * 自定义返回头
          */
-        responseHeaders: ApidocProperty<"string">[];
+        responseHeaders: ApidocProperty<'string'>[];
         /**
          * json数据信息
          */
@@ -681,7 +681,7 @@ type ApidocDetail = {
             /**
              * 图片类型
              */
-            type: "png" | "jpg" | "gif" | "svg";
+            type: 'png' | 'jpg' | 'gif' | 'svg';
             /**
              * 图片宽度
              */
@@ -714,7 +714,7 @@ type ApidocDetail = {
             /**
              * 文件类型
              */
-            type: "doc" | "docx" | "xls" | "xlsx" | "pdf" | "zip" | "custom";
+            type: 'doc' | 'docx' | 'xls' | 'xlsx' | 'pdf' | 'zip' | 'custom';
             /**
              * 文件地址
              */
@@ -747,7 +747,7 @@ type ApidocBanner = {
     /**
      * 文档类型
      */
-    type: "folder" | "api" | "markdown";
+    type: 'folder' | 'api' | 'markdown';
     /**
      * 排序值
      */
@@ -795,19 +795,19 @@ type ApidocBanner = {
 };
 //工具栏操作
 type ApidocOperations =
-    | "addRootFolder"
-    | "addRootFile"
-    | "freshBanner"
-    | "generateLink"
-    | "recycler"
-    | "viewDoc"
-    | "exportDoc"
-    | "importDoc"
-    | "history"
-    | "config"
-    | "hook"
-    | "commonHeader"
-    | "apiflow";
+    | 'addRootFolder'
+    | 'addRootFile'
+    | 'freshBanner'
+    | 'generateLink'
+    | 'recycler'
+    | 'viewDoc'
+    | 'exportDoc'
+    | 'importDoc'
+    | 'history'
+    | 'config'
+    | 'hook'
+    | 'commonHeader'
+    | 'apiflow';
 
 /*
 |--------------------------------------------------------------------------
@@ -927,7 +927,7 @@ type ApidocVariable = {
     /**
      * 变量类型
      */
-    type: "string" | "number" | "boolean";
+    type: 'string' | 'number' | 'boolean';
     /**
      * 变量值
      */
@@ -993,7 +993,7 @@ type ApidocOperationRecord = {
         /**
          * 节点快照
          */
-        nodeSnapshot?: ApidocDetail["item"];
+        nodeSnapshot?: ApidocDetail['item'];
         /**
          * 拖拽到的节点id
          */
@@ -1001,7 +1001,7 @@ type ApidocOperationRecord = {
         /**
          * 拖拽到的节点名称
          */
-        dropNodeName?: "before" | "after" | "inner";
+        dropNodeName?: 'before' | 'after' | 'inner';
         /**
          * 拖拽方式
          */
@@ -1031,21 +1031,21 @@ type ApidocOperationRecord = {
      * 操作类型
      */
     operation:
-    | "addFolder"
-    | "addDoc"
-    | "copyDoc"
-    | "copyFolder"
-    | "deleteFolder"
-    | "deleteDoc"
-    | "deleteMany"
-    | "editDoc"
-    | "position"
-    | "rename"
-    | "import"
-    | "export"
-    | "addServer"
-    | "deleteServer"
-    | "editServer";
+    | 'addFolder'
+    | 'addDoc'
+    | 'copyDoc'
+    | 'copyFolder'
+    | 'deleteFolder'
+    | 'deleteDoc'
+    | 'deleteMany'
+    | 'editDoc'
+    | 'position'
+    | 'rename'
+    | 'import'
+    | 'export'
+    | 'addServer'
+    | 'deleteServer'
+    | 'editServer';
     /**
      * 操作者
      */
@@ -1120,7 +1120,7 @@ type GlobalConfig = {
 | i18n相关
 |--------------------------------------------------------------------------
 */
-type Language = "zh-cn" | "zh-tw" | "en" | "ja";
+type Language = 'zh-cn' | 'zh-tw' | 'en' | 'ja';
 
 /*
 |--------------------------------------------------------------------------

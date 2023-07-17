@@ -5,11 +5,11 @@
     备注：
 */
 <template>
-    <div>aa</div>
+  <div>aa</div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     data() {

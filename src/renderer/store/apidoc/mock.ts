@@ -1,15 +1,15 @@
-import { ApidocDetail } from "@@/global";
-import { ApidocMockState, ApidocMockMapInfo } from "@@/store"
-import { uniqueByKey } from "@/helper/index"
-import config from "@/../config/config"
-import { store } from "../index";
+import { ApidocDetail } from '@@/global';
+import { ApidocMockState, ApidocMockMapInfo } from '@@/store'
+import { uniqueByKey } from '@/helper/index'
+import config from '@/../config/config'
+import { store } from '../index';
 // import { apidocCache } from "@/cache/apidoc";
 // import { router } from "@/router/index"
 
 const mock = {
     namespaced: true,
     state: {
-        serverState: "disconnect", //服务器状态
+        serverState: 'disconnect', //服务器状态
         mockServerPort: config.renderConfig.mock.port, // 端口
         httpStatusCode: 200, //http状态码
         urlMap: [],
@@ -17,7 +17,7 @@ const mock = {
     mutations: {
         //改变mock映射
         changeMockUrlMap(state: ApidocMockState, payload: ApidocMockMapInfo[]): void {
-            state.urlMap = uniqueByKey(state.urlMap.concat(payload), "id")
+            state.urlMap = uniqueByKey(state.urlMap.concat(payload), 'id')
         },
         //新增一条mock映射
         addMockUrl(state: ApidocMockState, payload: ApidocMockMapInfo): void {
@@ -53,11 +53,11 @@ const mock = {
         },
         //改变mock端口
         changeMockServerPort(state: ApidocMockState, port: number): void {
-            store.commit("apidoc/apidoc/changeApidocHost", `http://${config.renderConfig.mock.ip}:${port}`);
+            store.commit('apidoc/apidoc/changeApidocHost', `http://${config.renderConfig.mock.ip}:${port}`);
             state.mockServerPort = port;
         },
         //改变服务器启动状态
-        changeMockServerState(state: ApidocMockState, payload: "disconnection" | "connecting" | "connection" | "closing" | "error"): void{
+        changeMockServerState(state: ApidocMockState, payload: 'disconnection' | 'connecting' | 'connection' | 'closing' | 'error'): void{
             state.serverState = payload;
         },
     },

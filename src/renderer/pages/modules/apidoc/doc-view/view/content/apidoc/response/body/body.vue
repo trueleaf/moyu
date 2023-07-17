@@ -5,105 +5,105 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
-        <template v-if="remoteResponse.data.type">
-            <!-- 图片类型 -->
-            <el-image
-                v-if="remoteResponse.data.type.includes('image/')"
-                class="img-view"
-                :src="remoteResponse.data.file.url"
-                :preview-src-list="[remoteResponse.data.file.url]"
-                fit="scale-down"
-            >
-            </el-image>
-            <!-- 音频类型 -->
-            <!-- 视频类型 -->
-            <!-- 强制下载类型 -->
-            <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')">
-                <i class="iconicon_weizhiwenjian"></i>
-                <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
-                </s-download>
-            </div>
-            <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
-                <i class="iconicon_weizhiwenjian"></i>
-                <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
-                </s-download>
-            </div>
-            <!-- excel -->
-            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')">
-                <svg class="res-icon" aria-hidden="true" title="Excel">
-                    <use xlink:href="#iconexcel"></use>
-                </svg>
-                <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
-                </s-download>
-            </div>
-            <!-- word -->
-            <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')">
-                <svg class="res-icon" aria-hidden="true" title="Excel">
-                    <use xlink:href="#iconWORD"></use>
-                </svg>
-                <s-download :url="remoteResponse.data.file.url" static>
-                    <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
-                </s-download>
-            </div>
-            <!-- pdf -->
-            <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
-            <!-- xml -->
-            <pre v-else-if="remoteResponse.data.type.includes('application/xml')">{{ remoteResponse.data.text }}</pre>
-            <!-- javascript -->
-            <pre v-else-if="remoteResponse.data.type.includes('application/javascript')">{{ remoteResponse.data.text }}</pre>
-            <!-- 请求错误 -->
-            <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
-        </template>
-        <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
-            <s-raw-editor
-                :model-value="htmlResponse"
-                readonly
-                type="text/html"
-            >
-            </s-raw-editor>
-        </div>
-        <div v-show="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
-            <s-raw-editor
-                :model-value="textResponse"
-                readonly
-                type="text/plain"
-            >
-            </s-raw-editor>
-        </div>
-        <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
-            <s-raw-editor
-                :model-value="jsonResponse"
-                readonly
-                type="application/json"
-            >
-            </s-raw-editor>
-        </div>
-        <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
-            <span>
-                <span>{{ $t("应用为响应值") }}</span>
-            </span>
-            <template #dropdown>
-                <el-dropdown-menu>
-                    <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
-                        <span class="mr-1">{{ $t("应用为") }}</span>
-                        <span>{{ item.title }}</span>
-                    </el-dropdown-item>
-                </el-dropdown-menu>
-            </template>
-        </el-dropdown>
-        <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
-    </s-loading>
+  <s-loading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
+    <template v-if="remoteResponse.data.type">
+      <!-- 图片类型 -->
+      <el-image
+        v-if="remoteResponse.data.type.includes('image/')"
+        class="img-view"
+        :src="remoteResponse.data.file.url"
+        :preview-src-list="[remoteResponse.data.file.url]"
+        fit="scale-down"
+      >
+      </el-image>
+      <!-- 音频类型 -->
+      <!-- 视频类型 -->
+      <!-- 强制下载类型 -->
+      <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')">
+        <i class="iconicon_weizhiwenjian"></i>
+        <s-download :url="remoteResponse.data.file.url" static>
+          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+        </s-download>
+      </div>
+      <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
+        <i class="iconicon_weizhiwenjian"></i>
+        <s-download :url="remoteResponse.data.file.url" static>
+          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+        </s-download>
+      </div>
+      <!-- excel -->
+      <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')">
+        <svg class="res-icon" aria-hidden="true" title="Excel">
+          <use xlink:href="#iconexcel"></use>
+        </svg>
+        <s-download :url="remoteResponse.data.file.url" static>
+          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+        </s-download>
+      </div>
+      <!-- word -->
+      <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')">
+        <svg class="res-icon" aria-hidden="true" title="Excel">
+          <use xlink:href="#iconWORD"></use>
+        </svg>
+        <s-download :url="remoteResponse.data.file.url" static>
+          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+        </s-download>
+      </div>
+      <!-- pdf -->
+      <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
+      <!-- xml -->
+      <pre v-else-if="remoteResponse.data.type.includes('application/xml')">{{ remoteResponse.data.text }}</pre>
+      <!-- javascript -->
+      <pre v-else-if="remoteResponse.data.type.includes('application/javascript')">{{ remoteResponse.data.text }}</pre>
+      <!-- 请求错误 -->
+      <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
+    </template>
+    <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
+      <s-raw-editor
+        :model-value="htmlResponse"
+        readonly
+        type="text/html"
+      >
+      </s-raw-editor>
+    </div>
+    <div v-show="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
+      <s-raw-editor
+        :model-value="textResponse"
+        readonly
+        type="text/plain"
+      >
+      </s-raw-editor>
+    </div>
+    <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
+      <s-raw-editor
+        :model-value="jsonResponse"
+        readonly
+        type="application/json"
+      >
+      </s-raw-editor>
+    </div>
+    <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
+      <span>
+        <span>{{ $t("应用为响应值") }}</span>
+      </span>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
+            <span class="mr-1">{{ $t("应用为") }}</span>
+            <span>{{ item.title }}</span>
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+    <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
+  </s-loading>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import beautify from "js-beautify"
-import { ApidocProperty } from "@@/global";
-import { apidocConvertJsonDataToParams } from "@/helper/index"
+import { defineComponent } from 'vue'
+import beautify from 'js-beautify'
+import { ApidocProperty } from '@@/global';
+import { apidocConvertJsonDataToParams } from '@/helper/index'
 
 type ResponseApplyEnum = {
     index: number,
@@ -119,34 +119,34 @@ export default defineComponent({
     computed: {
         //远端返回数据结果
         remoteResponse() {
-            return this.$store.state["apidoc/response"]
+            return this.$store.state['apidoc/response']
         },
         //发送请求状态
         loading() {
-            return this.$store.state["apidoc/response"].loading;
+            return this.$store.state['apidoc/response'].loading;
         },
         //布局
         layout() {
-            return this.$store.state["apidoc/baseInfo"].layout;
+            return this.$store.state['apidoc/baseInfo'].layout;
         },
         //json返回参数
         jsonResponse() {
-            const data = this.$store.state["apidoc/response"].data.text
+            const data = this.$store.state['apidoc/response'].data.text
             return beautify(data, { indent_size: 4 });
         },
         //HTML返回参数
         htmlResponse() {
-            const data = this.$store.state["apidoc/response"].data.text;
+            const data = this.$store.state['apidoc/response'].data.text;
             return beautify.html(data, { indent_size: 4 });
         },
         //纯文本返回参数
         textResponse() {
-            const data = this.$store.state["apidoc/response"].data.text;
+            const data = this.$store.state['apidoc/response'].data.text;
             return data;
         },
         //返回值类型
         responseApplyEnum() {
-            return this.$store.state["apidoc/apidoc"].apidoc.item.responseParams.map((v, index) => ({
+            return this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.map((v, index) => ({
                 index,
                 title: v.title,
                 contentType: v.value.dataType
@@ -161,15 +161,15 @@ export default defineComponent({
         //应用为响应值
         handleApplyResponse(item: ResponseApplyEnum, index: number) {
             const convertData = apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
-                const mindData = this.$store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "responseParams");
+                const mindData = this.$store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'responseParams');
                 const matchedData = mindData.find(v => v.key === p.key);
                 if (matchedData) {
                     p.description = matchedData.description;
                     p.value = matchedData.value;
                 }
-                return "";
+                return '';
             });
-            this.$store.commit("apidoc/apidoc/changeResponseByIndex", { index, value: convertData })
+            this.$store.commit('apidoc/apidoc/changeResponseByIndex', { index, value: convertData })
         },
     },
 })

@@ -4,20 +4,20 @@
     备注：
 */
 <template>
-    <div
-        ref="apiflow"
-        class="apiflow"
-        :style="{
-            cursor: cursor,
-        }"
-    >
-        <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
-        <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
-        <s-tools></s-tools>
-        <s-selection v-if="selectionStore.isMouseDown"></s-selection>
-        <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
-        <teleport to="body">
-            <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
+  <div
+    ref="apiflow"
+    class="apiflow"
+    :style="{
+      cursor: cursor,
+    }"
+  >
+    <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
+    <s-line v-for="(item, index) in linesStore.lineList" :key="index" :line-info="item"></s-line>
+    <s-tools></s-tools>
+    <s-selection v-if="selectionStore.isMouseDown"></s-selection>
+    <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
+    <teleport to="body">
+      <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
                 <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
                 <!-- nodesStore: {{ nodesStore }} -->
                 nodeStateStore: {{ nodeStateStore }}
@@ -28,45 +28,45 @@
                 <!-- selectionStore: {{ selectionStore }} -->
                 <!-- renderAreaStore: {{ renderAreaStore }} -->
             </pre>
-        </teleport>
-    </div>
-    <canvas
-        id="renderArea"
-        ref="renderArea"
-        :width="renderAreaStore.width"
-        :height="renderAreaStore.height"
-        :style="{
-            width: `${renderAreaStore.width}px`,
-            height: `${renderAreaStore.height}px`,
-        }"
-    >
-    </canvas>
+    </teleport>
+  </div>
+  <canvas
+    id="renderArea"
+    ref="renderArea"
+    :width="renderAreaStore.width"
+    :height="renderAreaStore.height"
+    :style="{
+      width: `${renderAreaStore.width}px`,
+      height: `${renderAreaStore.height}px`,
+    }"
+  >
+  </canvas>
 </template>
 
 <script lang="ts" setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, toRaw } from "vue";
-import { debounce } from "@/helper";
-import { useFlowContainerStore } from "@/store/apiflow/container";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
-import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
-import { useFlowLineStateStore } from "@/store/apiflow/line-state";
-import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { FlowNodeInfo } from "@@/apiflow";
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { useFlowHistoryStore } from "@/store/apiflow/history";
-import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown, changeSelectionWhenMouseDown } from "./mouse-handler/mousedown";
-import sNode from "./components/node/node.vue"
-import sLine from "./components/line/line.vue"
-import sTools from "./components/tools/tools.vue"
-import sSelection from "./components/selection/selection.vue"
-import sSelectedNodeArea from "./components/selection/selected-node-area.vue"
-import { changeCreateLineDotStateWhenMouseMove, changeSelectionStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove, moveSelectedAreaWhenMouseMove } from "./mouse-handler/mousemove";
-import { changeStateWhenMouseUp } from "./mouse-handler/mouseup";
-import { repaintRenderArea } from "./common/common";
+import { computed, nextTick, onMounted, onUnmounted, ref, toRaw } from 'vue';
+import { debounce } from '@/helper';
+import { useFlowContainerStore } from '@/store/apiflow/container';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
+import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-state';
+import { useFlowLineStateStore } from '@/store/apiflow/line-state';
+import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { FlowNodeInfo } from '@@/apiflow';
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowRenderAreaStore } from '@/store/apiflow/render-area';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { useFlowHistoryStore } from '@/store/apiflow/history';
+import { changeCreateLineDotWhenMouseDown, changeLineStateWhenMouseDown, changeNodeStateWhenMouseDown, changeResizeDotStateWhenMouseDown, changeSelectionWhenMouseDown } from './mouse-handler/mousedown';
+import sNode from './components/node/node.vue'
+import sLine from './components/line/line.vue'
+import sTools from './components/tools/tools.vue'
+import sSelection from './components/selection/selection.vue'
+import sSelectedNodeArea from './components/selection/selected-node-area.vue'
+import { changeCreateLineDotStateWhenMouseMove, changeSelectionStateWhenMouseMove, drawLineWhenMouseMove, changeNodeStateWhenMouseMove, changeNodeWhenMouseMove, changeResizeDotStateWhenMouseMove, resizeNodeWhenMouseMove, changeLineStateWhenMouseMove, createSelectionWhenMouseMove, moveSelectedAreaWhenMouseMove } from './mouse-handler/mousemove';
+import { changeStateWhenMouseUp } from './mouse-handler/mouseup';
+import { repaintRenderArea } from './common/common';
 
 const apiflow = ref<HTMLDivElement | null>(null);
 const renderArea = ref<HTMLCanvasElement | null>(null);
@@ -84,33 +84,33 @@ const historyStore = useFlowHistoryStore()
 // const resizeNodeDotState = useFlowResizeNodeStateStore()
 const cursor = computed(() => {
     if (createLineDotStore.hoverNodeId) {
-        return "crosshair"
+        return 'crosshair'
     }
     if (lineStateStore.hoverLineId) {
-        return "pointer"
+        return 'pointer'
     }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftTop") {
-        return "se-resize"
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftTop') {
+        return 'se-resize'
     }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightTop") {
-        return "ne-resize"
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightTop') {
+        return 'ne-resize'
     }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "leftBottom") {
-        return "sw-resize"
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftBottom') {
+        return 'sw-resize'
     }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === "rightBottom") {
-        return "se-resize"
+    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightBottom') {
+        return 'se-resize'
     }
     if (selectionStore.isHover) {
-        return "move"
+        return 'move'
     }
     if (nodeStateStore.hoverNodeId) {
-        return "move"
+        return 'move'
     }
     if (lineStateStore.hoverDragLineId) {
-        return "move"
+        return 'move'
     }
-    return ""
+    return ''
 })
 //初始化容器信息
 const changeContainerInfo = () => {
@@ -174,7 +174,7 @@ const initNodes = () => {
     for (let i = 0; i < 2; i += 1) {
         nodeList.push({
             id: `start${i}`,
-            nodeType: "rect",
+            nodeType: 'rect',
             styleInfo: {
                 offsetX: 240 * (i + 1),
                 offsetY: 30 + Math.ceil(Math.random() * 100 + 50),
@@ -200,15 +200,15 @@ onMounted(() => {
     initNodes();
     changeContainerInfo();
     changeRenderAreaInfo();
-    window.addEventListener("resize", handleResize)
-    document.documentElement.addEventListener("mousemove", handleMouseMove);
-    document.documentElement.addEventListener("mousedown", handleMouseDown);
-    document.documentElement.addEventListener("mouseup", handleMouseUp);
+    window.addEventListener('resize', handleResize)
+    document.documentElement.addEventListener('mousemove', handleMouseMove);
+    document.documentElement.addEventListener('mousedown', handleMouseDown);
+    document.documentElement.addEventListener('mouseup', handleMouseUp);
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener("mousemove", handleMouseMove);
-    document.documentElement.removeEventListener("mousedown", handleMouseDown);
-    document.documentElement.removeEventListener("mouseup", handleMouseUp);
+    document.documentElement.removeEventListener('mousemove', handleMouseMove);
+    document.documentElement.removeEventListener('mousedown', handleMouseDown);
+    document.documentElement.removeEventListener('mouseup', handleMouseUp);
 })
 </script>
 

@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-    <div class="s-download mr-2" @click.stop="downloadFile">
-        <slot></slot>
-    </div>
+  <div class="s-download mr-2" @click.stop="downloadFile">
+    <slot></slot>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 type DownloadResponse = {
     fileName?: string,
@@ -27,14 +27,14 @@ export default defineComponent({
         url: { //文件下载地址
             type: String,
             required: true,
-            default: "",
+            default: '',
         },
         params: { //额外参数
             type: Object,
             default: () => ({}),
         },
     },
-    emits: ["finish", "start"],
+    emits: ['finish', 'start'],
     data() {
         return {
         };
@@ -42,21 +42,21 @@ export default defineComponent({
     methods: {
         //导出任务明细
         downloadFile() {
-            this.$emit("start");
+            this.$emit('start');
             if (this.static) {
                 window.open(this.url);
-                this.$emit("finish");
+                this.$emit('finish');
                 return;
             }
             this.axios.get<DownloadResponse, DownloadResponse>(this.url, {
-                responseType: "blob",
+                responseType: 'blob',
                 params: this.params,
             }).then((res) => {
-                let blobUrl = "";
+                let blobUrl = '';
                 blobUrl = URL.createObjectURL(res.data as Blob);
-                const downloadElement = document.createElement("a");
+                const downloadElement = document.createElement('a');
                 downloadElement.href = blobUrl;
-                downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : this.$t("未命名"); //下载后文件名
+                downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : this.$t('未命名'); //下载后文件名
                 document.body.appendChild(downloadElement);
                 downloadElement.click(); //点击下载
                 document.body.removeChild(downloadElement); //下载完成移除元素
@@ -64,7 +64,7 @@ export default defineComponent({
             }).catch((err) => {
                 console.error(err);
             }).finally(() => {
-                this.$emit("finish");
+                this.$emit('finish');
             });
         },
     },

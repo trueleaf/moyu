@@ -2,8 +2,8 @@
  * 获取banner数据
  */
 
-import { useRoute } from "vue-router"
-import { useStore } from "@/store/index"
+import { useRoute } from 'vue-router'
+import { useStore } from '@/store/index'
 
 type ReturnData = {
     /**
@@ -17,12 +17,12 @@ export function useBannerData(): ReturnData {
     const route = useRoute()
     const projectId = route.query.id;
     const getBannerData = async () => {
-        if (store.state["apidoc/banner"].loading) {
+        if (store.state['apidoc/banner'].loading) {
             return
         }
-        store.commit("apidoc/banner/changeBannerLoading", true)
-        await store.dispatch("apidoc/banner/getDocBanner", { projectId });
-        store.commit("apidoc/banner/changeBannerLoading", false)
+        store.commit('apidoc/banner/changeBannerLoading', true)
+        await store.dispatch('apidoc/banner/getDocBanner', { projectId });
+        store.commit('apidoc/banner/changeBannerLoading', false)
     }
     getBannerData();
     return {

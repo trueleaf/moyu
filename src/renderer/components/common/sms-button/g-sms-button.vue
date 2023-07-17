@@ -5,12 +5,12 @@
     备注：
 */
 <template>
-    <el-button :disabled="disableBtn" @click="handleClickButton">{{ tip }}</el-button>
+  <el-button :disabled="disableBtn" @click="handleClickButton">{{ tip }}</el-button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { $t } from "@/i18n/i18n"
+import { defineComponent } from 'vue'
+import { $t } from '@/i18n/i18n'
 
 export default defineComponent({
     props: {
@@ -19,21 +19,21 @@ export default defineComponent({
          */
         startLabel: {
             type: String,
-            default: $t("获取验证码"),
+            default: $t('获取验证码'),
         },
         /**
          * 发送中文案，最终文案 数字+秒+后+发送
          */
         waitLabel: {
             type: String,
-            default: $t("重新发送")
+            default: $t('重新发送')
         },
         /**
          * 发送完成后
          */
         endLabel: {
             type: String,
-            default: $t("重新获取")
+            default: $t('重新获取')
         },
         /**
          * 点击按钮前钩子
@@ -50,7 +50,7 @@ export default defineComponent({
             default: 60
         },
     },
-    emits: ["click"],
+    emits: ['click'],
     data() {
         return {
             tip: this.startLabel, //获取验证码提示文案
@@ -73,10 +73,10 @@ export default defineComponent({
         },
         //处理倒计时
         changeState() {
-            const speed = process.env.NODE_ENV === "development" ? 100 : 1000;
+            const speed = process.env.NODE_ENV === 'development' ? 100 : 1000;
             clearInterval(this.timer); //清除上次的定时器
             this.disableBtn = true;
-            this.$emit("click");
+            this.$emit('click');
             this.tip = `${this.time}秒后${this.endLabel}`
             this.timer = window.setInterval(() => {
                 this.time -= 1;

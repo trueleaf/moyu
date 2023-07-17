@@ -3,7 +3,7 @@
  * @author             shuxiaokai
  * @create             2021-7-13 22:50
  */
-import Dexie from "dexie";
+import Dexie from 'dexie';
 
 type ScriptInfo = {
     id?: number,
@@ -14,9 +14,9 @@ class MoyuDatabase extends Dexie {
     scriptList!: Dexie.Table<ScriptInfo>
 
     public constructor() {
-        super("moyuDataBase");
+        super('moyuDataBase');
         this.version(1).stores({
-            scriptList: "++id, name, code"
+            scriptList: '++id, name, code'
         });
     }
 }

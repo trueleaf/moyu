@@ -5,21 +5,21 @@
     备注：
 */
 <template>
-    <div ref="leftRight" class="left-right">
-        <!-- 左侧 -->
-        <div ref="leftDom" class="left-wrap">
-            <slot name="left" />
-        </div>
-        <div ref="resizeBar" class="resize-bar" @mousedown="handleResizeMousedown"></div>
-        <!-- 右侧 -->
-        <div ref="rightDom" class="right-wrap">
-            <slot name="right" />
-        </div>
+  <div ref="leftRight" class="left-right">
+    <!-- 左侧 -->
+    <div ref="leftDom" class="left-wrap">
+      <slot name="left" />
     </div>
+    <div ref="resizeBar" class="resize-bar" @mousedown="handleResizeMousedown"></div>
+    <!-- 右侧 -->
+    <div ref="rightDom" class="right-wrap">
+      <slot name="right" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
@@ -49,8 +49,8 @@ export default defineComponent({
         this.init();
     },
     beforeUnmount() {
-        document.documentElement.removeEventListener("mouseup", this.handleMouseup); //清除事件
-        document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove); //清除事件
+        document.documentElement.removeEventListener('mouseup', this.handleMouseup); //清除事件
+        document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove); //清除事件
     },
     methods: {
         //初始化
@@ -59,19 +59,19 @@ export default defineComponent({
             this.rightDom = this.$refs.rightDom as HTMLElement;
             this.leftDom.style.width = `${this.leftDomWidth}px`;
             this.resizeBarDom = this.$refs.resizeBar as HTMLElement;
-            document.documentElement.addEventListener("mouseup", this.handleMouseup)
+            document.documentElement.addEventListener('mouseup', this.handleMouseup)
         },
         //处理全局鼠标松开
         handleMouseup(e: MouseEvent) {
             e.stopPropagation()
             this.leftDomWidth = this.leftDom?.getBoundingClientRect().width || this.minLeftWidth;
-            document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
         },
         //处理鼠标按下事件
         handleResizeMousedown(e: MouseEvent) {
             this.mousedownLeft = e.clientX;
             this.mousedownTop = e.clientY;
-            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+            document.documentElement.addEventListener('mousemove', this.handleResizeMousemove);
         },
         //处理鼠标移动事件
         handleResizeMousemove(e: MouseEvent) {

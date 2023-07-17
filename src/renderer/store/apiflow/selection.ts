@@ -1,7 +1,7 @@
-import { FlowSelection } from "@@/apiflow"
-import { defineStore } from "pinia"
+import { FlowSelection } from '@@/apiflow'
+import { defineStore } from 'pinia'
 
-export const useFlowSelectionStore = defineStore("flowSelection", {
+export const useFlowSelectionStore = defineStore('flowSelection', {
     state: (): FlowSelection => {
         return {
             isMouseDown: false,

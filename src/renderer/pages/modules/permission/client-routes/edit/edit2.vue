@@ -5,20 +5,20 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" :title="$t('批量修改前端路由类型')" @close="handleClose">
-        <s-form ref="form">
-            <s-form-item :label="$t('分组名称')" prop="groupName" required one-line></s-form-item>
-        </s-form>
-        <template #footer>
-            <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ $t("确定") }}</el-button>
-            <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" top="10vh" :title="$t('批量修改前端路由类型')" @close="handleClose">
+    <s-form ref="form">
+      <s-form-item :label="$t('分组名称')" prop="groupName" required one-line></s-form-item>
+    </s-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ $t("确定") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
-import { PermissionClientRoute } from "@@/global"
+import { defineComponent, PropType } from 'vue'
+import { PermissionClientRoute } from '@@/global'
 
 export default defineComponent({
     props: {
@@ -31,7 +31,7 @@ export default defineComponent({
             default: () => ({})
         },
     },
-    emits: ["update:modelValue", "success"],
+    emits: ['update:modelValue', 'success'],
     data() {
         return {
             //=========================================================================//
@@ -48,8 +48,8 @@ export default defineComponent({
                         groupName: formInfo.groupName,
                     };
                     this.loading = true;
-                    this.axios.put("/api/security/client_routes_type", params).then(() => {
-                        this.$emit("success");
+                    this.axios.put('/api/security/client_routes_type', params).then(() => {
+                        this.$emit('success');
                         this.handleClose();
                     }).catch((err) => {
                         console.error(err);
@@ -58,7 +58,7 @@ export default defineComponent({
                     });
                 } else {
                     this.$nextTick(() => {
-                        const input = document.querySelector(".el-form-item.is-error input");
+                        const input = document.querySelector('.el-form-item.is-error input');
                         if (input) {
                             (input as HTMLInputElement).focus();
                         }
@@ -69,7 +69,7 @@ export default defineComponent({
         },
         //关闭弹窗
         handleClose() {
-            this.$emit("update:modelValue", false);
+            this.$emit('update:modelValue', false);
         },
     },
 })

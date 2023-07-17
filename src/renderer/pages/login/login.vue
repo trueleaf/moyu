@@ -5,17 +5,17 @@
     备注：
 */
 <template>
-    <div class="login-container d-flex a-center j-center">
-        <div class="login-box d-flex">
-            <div ref="left" tabindex="-1" class="left hidden-md-and-down">
-                <!-- <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
+  <div class="login-container d-flex a-center j-center">
+    <div class="login-box d-flex">
+      <div ref="left" tabindex="-1" class="left hidden-md-and-down">
+        <!-- <h2 class="text-center mt-5">下载客户端获得完整功能</h2>
                 <el-carousel trigger="click" height="340px" :autoplay="false">
                     <el-carousel-item v-for="item in 4" :key="item">
                         <div class="d-flex a-center j-center h-300px">项目特色功能视频演示</div>
                         <img :src="require('@/assets/imgs/login/a.gif')" width="460" height="340">
                     </el-carousel-item>
                 </el-carousel> -->
-                <!-- <div class="w-100 d-flex j-center">
+        <!-- <div class="w-100 d-flex j-center">
                     <div class="download-wrap">
                         <a href="https://gitee.com/shuzhikai/moyu/releases" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
                             <i class="iconfont iconwindows theme-color"></i>
@@ -33,68 +33,68 @@
                         </a>
                     </div>
                 </div> -->
-            </div>
-            <div class="right">
-                <h2 class="text-center">
-                    <span>{{ config.localization.title }}</span>
-                    <span v-if="config.localization.version">({{ config.localization.version }})</span>
-                </h2>
-                <el-tabs v-model="activeName" class="w-100">
-                    <!-- 账号登录 -->
-                    <el-tab-pane :label="$t('账号登录')" name="loginAccount">
-                        <s-login-account @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></s-login-account>
-                    </el-tab-pane>
-                    <!-- 手机号登录 -->
-                    <el-tab-pane v-if="0" :label="$t('手机登录')" name="loginPassword">
-                        <s-login-phone></s-login-phone>
-                    </el-tab-pane>
-                    <!-- 注册 -->
-                    <el-tab-pane v-if="config.localization.enableRegister" :label="$t('账号注册')" name="register">
-                        <s-register></s-register>
-                    </el-tab-pane>
-                    <!-- 忘记密码 -->
-                    <el-tab-pane :label="$t('忘记密码')" name="reset">
-                        <s-reset-password @jumpToLogin="handleJumpToLogin"></s-reset-password>
-                    </el-tab-pane>
-                </el-tabs>
-            </div>
-        </div>
+      </div>
+      <div class="right">
+        <h2 class="text-center">
+          <span>{{ config.localization.title }}</span>
+          <span v-if="config.localization.version">({{ config.localization.version }})</span>
+        </h2>
+        <el-tabs v-model="activeName" class="w-100">
+          <!-- 账号登录 -->
+          <el-tab-pane :label="$t('账号登录')" name="loginAccount">
+            <s-login-account @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></s-login-account>
+          </el-tab-pane>
+          <!-- 手机号登录 -->
+          <el-tab-pane v-if="0" :label="$t('手机登录')" name="loginPassword">
+            <s-login-phone></s-login-phone>
+          </el-tab-pane>
+          <!-- 注册 -->
+          <el-tab-pane v-if="config.localization.enableRegister" :label="$t('账号注册')" name="register">
+            <s-register></s-register>
+          </el-tab-pane>
+          <!-- 忘记密码 -->
+          <el-tab-pane :label="$t('忘记密码')" name="reset">
+            <s-reset-password @jumpToLogin="handleJumpToLogin"></s-reset-password>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import config from "@/../config/config"
-import loginAccount from "./components/login-account.vue";
-import loginPhone from "./components/login-phone.vue";
-import register from "./components/register.vue";
-import resetPassword from "./components/reset-password.vue";
+import { defineComponent } from 'vue'
+import config from '@/../config/config'
+import loginAccount from './components/login-account.vue';
+import loginPhone from './components/login-phone.vue';
+import register from './components/register.vue';
+import resetPassword from './components/reset-password.vue';
 
 export default defineComponent({
     components: {
-        "s-login-account": loginAccount,
-        "s-login-phone": loginPhone,
-        "s-register": register,
-        "s-reset-password": resetPassword,
+        's-login-account': loginAccount,
+        's-login-phone': loginPhone,
+        's-register': register,
+        's-reset-password': resetPassword,
     },
     data() {
         return {
             config,
-            activeName: "loginAccount", //tabs切换
+            activeName: 'loginAccount', //tabs切换
         };
     },
     methods: {
         //跳转注册页面
         handleJumpToRegister() {
-            this.activeName = "register";
+            this.activeName = 'register';
         },
         //跳转到重置密码
         handleJumpToResetPassword() {
-            this.activeName = "reset";
+            this.activeName = 'reset';
         },
         //跳转到登录页面
         handleJumpToLogin() {
-            this.activeName = "login";
+            this.activeName = 'login';
         },
     },
 })

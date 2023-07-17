@@ -5,16 +5,16 @@
     备注：
 */
 <template>
-    <div class="s-ellipsis">
-        <el-tooltip :effect="Effect.LIGHT" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
-            <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
-        </el-tooltip>
-    </div>
+  <div class="s-ellipsis">
+    <el-tooltip :effect="Effect.LIGHT" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
+      <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
+    </el-tooltip>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { Effect } from "element-plus";
+import { defineComponent } from 'vue'
+import { Effect } from 'element-plus';
 
 export default defineComponent({
     props: {
@@ -23,7 +23,7 @@ export default defineComponent({
          */
         value: {
             type: [String, Number, Boolean],
-            default: "",
+            default: '',
         },
         /**
          * 最大宽度
@@ -69,9 +69,9 @@ export default defineComponent({
             if (!textDom) {
                 return;
             }
-            if (typeof this.maxWidth === "number") {
+            if (typeof this.maxWidth === 'number') {
                 textDom.style.maxWidth = `${this.maxWidth}px`;
-            } else if (typeof this.maxWidth === "string") {
+            } else if (typeof this.maxWidth === 'string') {
                 textDom.style.maxWidth = this.maxWidth;
             }
         },

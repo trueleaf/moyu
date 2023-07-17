@@ -2,12 +2,12 @@
  * apidoc文档缓存
  */
 
-import { GlobalConfig } from "@@/global";
+import { GlobalConfig } from '@@/global';
 
 class GlobalCache {
     constructor() {
-        if (!localStorage.getItem("cache/globalConfig")) {
-            localStorage.setItem("cache/globalConfig", "{}");
+        if (!localStorage.getItem('cache/globalConfig')) {
+            localStorage.setItem('cache/globalConfig', '{}');
         }
     }
 
@@ -18,11 +18,11 @@ class GlobalCache {
      */
     getGlobalConfig(): Partial<GlobalConfig> {
         try {
-            const localData: Partial<GlobalConfig> = JSON.parse(localStorage.getItem("cache/globalConfig") || "{}");
+            const localData: Partial<GlobalConfig> = JSON.parse(localStorage.getItem('cache/globalConfig') || '{}');
             return localData;
         } catch (error) {
             console.error(error);
-            localStorage.setItem("cache/globalConfig", "{}")
+            localStorage.setItem('cache/globalConfig', '{}')
             return {};
         }
     }
@@ -35,10 +35,10 @@ class GlobalCache {
      */
     changeGlobalConfig(config: GlobalConfig): void {
         try {
-            localStorage.setItem("cache/globalConfig", JSON.stringify(config));
+            localStorage.setItem('cache/globalConfig', JSON.stringify(config));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("cache/globalConfig", "{}");
+            localStorage.setItem('cache/globalConfig', '{}');
         }
     }
 }

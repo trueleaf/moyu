@@ -1,15 +1,15 @@
 /**
  * tabs导航
  */
-import type { ActionContext } from "vuex"
-import { ElMessageBox } from "element-plus"
-import type { State as RootState, ApidocTabsState, ApidocTab } from "@@/store"
-import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import { findNodeById, event } from "@/helper/index"
-import { $t } from "@/i18n/i18n"
-import { apidocCache } from "@/cache/apidoc"
-import { axios } from "../../api/api"
-import router from "../../router/index"
+import type { ActionContext } from 'vuex'
+import { ElMessageBox } from 'element-plus'
+import type { State as RootState, ApidocTabsState, ApidocTab } from '@@/store'
+import { store } from '@/pages/modules/apidoc/doc-view/store/index'
+import { findNodeById, event } from '@/helper/index'
+import { $t } from '@/i18n/i18n'
+import { apidocCache } from '@/cache/apidoc'
+import { axios } from '../../api/api'
+import router from '../../router/index'
 
 type EditTabPayload<K extends keyof ApidocTab> = {
     id: string,
@@ -27,11 +27,11 @@ const storeTabs = {
         //初始化本地tab
         initLocalTabs(state: ApidocTabsState, payload: { projectId: string }): void {
             const { projectId } = payload;
-            const localEditTabs = localStorage.getItem("apidoc/editTabs");
-            const tabs: ApidocTabsState["tabs"] = localEditTabs ? JSON.parse(localEditTabs) : {};
+            const localEditTabs = localStorage.getItem('apidoc/editTabs');
+            const tabs: ApidocTabsState['tabs'] = localEditTabs ? JSON.parse(localEditTabs) : {};
             const selectedTab = tabs[projectId]?.find((val) => val.selected);
             if (selectedTab) {
-                store.commit("apidoc/banner/changeExpandItems", [selectedTab._id]);
+                store.commit('apidoc/banner/changeExpandItems', [selectedTab._id]);
             }
             state.tabs[projectId] = tabs[projectId];
         },
@@ -39,7 +39,7 @@ const storeTabs = {
         updateAllTabs(state: ApidocTabsState, payload: { tabs: ApidocTab[], projectId: string }): void {
             const { tabs, projectId } = payload;
             state.tabs[projectId] = tabs;
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
         },
         //新增一个tab
         addTab(state: ApidocTabsState, payload: ApidocTab): void {
@@ -65,9 +65,9 @@ const storeTabs = {
 
             const matchedTab = state.tabs[projectId].find((val) => val._id === _id) as ApidocTab;
             matchedTab.selected = true;
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
-            event.emit("apidoc/tabs/addOrDeleteTab")
-            store.commit("apidoc/banner/changeExpandItems", [_id]);
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
+            event.emit('apidoc/tabs/addOrDeleteTab')
+            store.commit('apidoc/banner/changeExpandItems', [_id]);
         },
         //固定一个tab
         fixedTab(state: ApidocTabsState, payload: ApidocTab): void {
@@ -76,12 +76,12 @@ const storeTabs = {
             if (matchedTab) {
                 matchedTab.fixed = true;
             }
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
         },
         //在异步回调中无法直接改变state的值
         deleteTabByIndex(state: ApidocTabsState, payload: { deleteIndex: number, projectId: string }): void {
             state.tabs[payload.projectId].splice(payload.deleteIndex, 1);
-            event.emit("apidoc/tabs/addOrDeleteTab")
+            event.emit('apidoc/tabs/addOrDeleteTab')
         },
         //根据id选中tab
         selectTabById(state: ApidocTabsState, payload: { id: string, projectId: string }): void {
@@ -96,8 +96,8 @@ const storeTabs = {
                     tab.selected = false;
                 }
             })
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
-            store.commit("apidoc/banner/changeExpandItems", [id]);
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
+            store.commit('apidoc/banner/changeExpandItems', [id]);
         },
         //根据id改变节点属性
         changeTabInfoById<K extends keyof ApidocTab>(state: ApidocTabsState, payload: EditTabPayload<K>): void {
@@ -105,20 +105,20 @@ const storeTabs = {
             const projectId = router.currentRoute.value.query.id as string;
             const tabs = state.tabs[projectId];
             const editData = findNodeById(tabs, id, {
-                idKey: "_id",
+                idKey: '_id',
             }) as ApidocTab;
             editData[field] = value;
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
         },
         //强制关闭所有节点
         forceDeleteAllTab(state: ApidocTabsState, projectId: string): void {
-            const deleteIds = store.state["apidoc/tabs"].tabs[projectId].map(v => v._id);
+            const deleteIds = store.state['apidoc/tabs'].tabs[projectId].map(v => v._id);
             deleteIds.forEach((id) => {
                 const deleteIndex = state.tabs[projectId].findIndex((tab) => tab._id === id);
                 state.tabs[projectId].splice(deleteIndex, 1);
-                event.emit("apidoc/tabs/addOrDeleteTab")
+                event.emit('apidoc/tabs/addOrDeleteTab')
             })
-            localStorage.setItem("apidoc/editTabs", JSON.stringify(state.tabs));
+            localStorage.setItem('apidoc/editTabs', JSON.stringify(state.tabs));
         },
     },
     actions: {
@@ -130,17 +130,17 @@ const storeTabs = {
                 const hasTab = context.state.tabs[projectId].length > 0;
                 if (!selectTab && hasTab) {
                     const selectTabIndex = context.state.tabs[projectId].length - 1;
-                    context.commit("changeTabInfoById", {
+                    context.commit('changeTabInfoById', {
                         id: context.state.tabs[projectId][selectTabIndex]._id,
-                        field: "selected",
+                        field: 'selected',
                         value: true,
                     });
                     context.state.tabs[projectId][selectTabIndex].selected = true;
                 }
-                localStorage.setItem("apidoc/editTabs", JSON.stringify(context.state.tabs));
+                localStorage.setItem('apidoc/editTabs', JSON.stringify(context.state.tabs));
                 const activeTab = context.state.tabs[projectId].find((tab) => tab.selected);
                 if (activeTab) {
-                    store.commit("apidoc/banner/changeExpandItems", [activeTab._id]);
+                    store.commit('apidoc/banner/changeExpandItems', [activeTab._id]);
                 }
             }
             //=========================================================================//
@@ -150,9 +150,9 @@ const storeTabs = {
             const unsavedTabs: ApidocTab[] = context.state.tabs[projectId].filter(tab => !tab.saved && ids.find(v => v === tab._id));
             for (let i = 0; i < unsavedTabs.length; i += 1) {
                 //预览模式直接删除
-                if (store.state["apidoc/baseInfo"].mode === "view") {
+                if (store.state['apidoc/baseInfo'].mode === 'view') {
                     const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === unsavedTabs[i]._id);
-                    context.commit("deleteTabByIndex", {
+                    context.commit('deleteTabByIndex', {
                         projectId,
                         deleteIndex,
                     });
@@ -161,10 +161,10 @@ const storeTabs = {
                 const unsavedTab = unsavedTabs[i];
                 try {
                     // eslint-disable-next-line no-await-in-loop
-                    await ElMessageBox.confirm($t("是否要保存对接口的修改", { msg: unsavedTab.label }), $t("提示"), {
-                        confirmButtonText: $t("保存"),
-                        cancelButtonText: $t("不保存"),
-                        type: "warning",
+                    await ElMessageBox.confirm($t('是否要保存对接口的修改', { msg: unsavedTab.label }), $t('提示'), {
+                        confirmButtonText: $t('保存'),
+                        cancelButtonText: $t('不保存'),
+                        type: 'warning',
                         distinguishCancelAndClose: true,
                     })
                     const apidoc = apidocCache.getApidoc(unsavedTab._id)
@@ -180,9 +180,9 @@ const storeTabs = {
                         afterRequest: apidoc.afterRequest,
                         mockInfo: apidoc.mockInfo,
                     };
-                    axios.post("/api/project/fill_doc", params).then(() => {
+                    axios.post('/api/project/fill_doc', params).then(() => {
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === apidoc._id);
-                        context.commit("deleteTabByIndex", {
+                        context.commit('deleteTabByIndex', {
                             projectId,
                             deleteIndex,
                         });
@@ -191,12 +191,12 @@ const storeTabs = {
                         console.error(err);
                     })
                 } catch (error) {
-                    if (error === "close") {
+                    if (error === 'close') {
                         return;
                     }
-                    if (error === "cancel") { //不保存，异步方法无法直接改变state值
+                    if (error === 'cancel') { //不保存，异步方法无法直接改变state值
                         const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === unsavedTab._id);
-                        context.commit("deleteTabByIndex", {
+                        context.commit('deleteTabByIndex', {
                             projectId,
                             deleteIndex,
                         });
@@ -207,7 +207,7 @@ const storeTabs = {
                 const deleteIndex = context.state.tabs[projectId].findIndex((tab) => tab._id === id);
                 const deleteTab = context.state.tabs[projectId].find((tab) => tab._id === id);
                 if (deleteTab?.saved) { //只删除保存的
-                    context.commit("deleteTabByIndex", {
+                    context.commit('deleteTabByIndex', {
                         projectId,
                         deleteIndex,
                     });

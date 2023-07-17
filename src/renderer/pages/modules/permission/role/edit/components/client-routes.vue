@@ -5,28 +5,28 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="client-routes">
-        <div v-for="(item, title) in clientRoutes" :key="title">
-            <el-divider content-position="left">{{ title }}</el-divider>
-            <div class="pl-5">
-                <el-checkbox
-                    v-model="item.selected"
-                    :indeterminate="checkClientRoutesIsIndeterminate(item)"
-                    :label="$t('全选')"
-                    @change="handleSelectAllClientRoutes(item)"
-                >
-                </el-checkbox>
-                <el-checkbox-group v-model="selectedData" @change="handleSelectClientRoutes(item)">
-                    <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
-                </el-checkbox-group>
-            </div>
-        </div>
-    </s-loading>
+  <s-loading :loading="loading" class="client-routes">
+    <div v-for="(item, title) in clientRoutes" :key="title">
+      <el-divider content-position="left">{{ title }}</el-divider>
+      <div class="pl-5">
+        <el-checkbox
+          v-model="item.selected"
+          :indeterminate="checkClientRoutesIsIndeterminate(item)"
+          :label="$t('全选')"
+          @change="handleSelectAllClientRoutes(item)"
+        >
+        </el-checkbox>
+        <el-checkbox-group v-model="selectedData" @change="handleSelectClientRoutes(item)">
+          <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+    </div>
+  </s-loading>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { PermissionClientRoute, Response } from "@@/global"
+import { defineComponent } from 'vue'
+import { PermissionClientRoute, Response } from '@@/global'
 
 type RouteInfo = {
     selected: boolean,
@@ -37,7 +37,7 @@ type ClientGroupRoutes = {
 }
 
 export default defineComponent({
-    emits: ["change"],
+    emits: ['change'],
     data() {
         return {
             selectedData: [] as string[], //------------当前选中的前端路由
@@ -48,7 +48,7 @@ export default defineComponent({
     watch: {
         selectedData: {
             handler(val: string[]) {
-                this.$emit("change", val);
+                this.$emit('change', val);
             },
             deep: true,
         },
@@ -60,15 +60,15 @@ export default defineComponent({
         //获取前端路由
         getClientRoutes() {
             this.loading = true;
-            this.axios.get<Response<PermissionClientRoute[]>, Response<PermissionClientRoute[]>>("/api/security/client_routes").then((res) => {
+            this.axios.get<Response<PermissionClientRoute[]>, Response<PermissionClientRoute[]>>('/api/security/client_routes').then((res) => {
                 res.data.forEach((val) => {
-                    if (!this.clientRoutes[val.groupName || "__default"]) {
-                        this.clientRoutes[val.groupName || "__default"] = {
+                    if (!this.clientRoutes[val.groupName || '__default']) {
+                        this.clientRoutes[val.groupName || '__default'] = {
                             selected: false,
                             values: [],
                         };
                     }
-                    this.clientRoutes[val.groupName || "__default"].values.push({
+                    this.clientRoutes[val.groupName || '__default'].values.push({
                         ...val,
                     });
                 });

@@ -5,38 +5,38 @@
     备注：
 */
 <template>
-    <div class="config-item">
-        <div v-if="hasCheck && !$slots.label">
-            <el-checkbox v-model="enabled" :disabled="disabled" @change="handleEnabled">
-                <span class="label">{{ label }}</span>
-            </el-checkbox>
-        </div>
-        <div v-else-if="!hasCheck && !$slots.label" class="label">
-            <span v-if="required" class="required">*</span>
-            <span>{{ label }}</span>
-        </div>
-        <div v-else-if="$slots.label">
-            <slot name="label" />
-        </div>
-        <div v-show="description" class="mt-1 description">{{ description }}</div>
-        <div class="mt-2">
-            <slot :enabled="enabled" />
-        </div>
+  <div class="config-item">
+    <div v-if="hasCheck && !$slots.label">
+      <el-checkbox v-model="enabled" :disabled="disabled" @change="handleEnabled">
+        <span class="label">{{ label }}</span>
+      </el-checkbox>
     </div>
+    <div v-else-if="!hasCheck && !$slots.label" class="label">
+      <span v-if="required" class="required">*</span>
+      <span>{{ label }}</span>
+    </div>
+    <div v-else-if="$slots.label">
+      <slot name="label" />
+    </div>
+    <div v-show="description" class="mt-1 description">{{ description }}</div>
+    <div class="mt-2">
+      <slot :enabled="enabled" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
         label: { //标题信息
             type: String,
-            default: "",
+            default: '',
         },
         description: { //额外描述信息
             type: String,
-            default: "",
+            default: '',
         },
         hasCheck: { //是否显示选中
             type: Boolean,
@@ -51,7 +51,7 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: ["change"],
+    emits: ['change'],
     data() {
         return {
             enabled: false,
@@ -59,7 +59,7 @@ export default defineComponent({
     },
     methods: {
         handleEnabled() {
-            this.$emit("change", this.enabled);
+            this.$emit('change', this.enabled);
         },
     },
 })

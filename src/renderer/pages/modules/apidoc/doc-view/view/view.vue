@@ -5,31 +5,31 @@
     备注：
 */
 <template>
-    <div class="doc-view">
-        <s-banner></s-banner>
-        <div class="doc-wrap">
-            <s-nav></s-nav>
-            <s-content></s-content>
-        </div>
+  <div class="doc-view">
+    <s-banner></s-banner>
+    <div class="doc-wrap">
+      <s-nav></s-nav>
+      <s-content></s-content>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { defineComponent, onMounted } from "vue"
-import { useRoute } from "vue-router"
-import banner from "./banner/banner.vue";
-import nav from "./nav/nav.vue";
-import content from "./content/content.vue";
-import { useStore } from "../store/index"
+import { defineComponent, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import banner from './banner/banner.vue';
+import nav from './nav/nav.vue';
+import content from './content/content.vue';
+import { useStore } from '../store/index'
 
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
 export default defineComponent({
     components: {
-        "s-banner": banner,
-        "s-nav": nav,
-        "s-content": content,
+        's-banner': banner,
+        's-nav': nav,
+        's-content': content,
     },
     setup() {
         const store = useStore();
@@ -38,16 +38,16 @@ export default defineComponent({
         //获取项目基本信息
         const getProjectInfo = () => {
             const shareId = route.query.share_id as string;
-            const password = localStorage.getItem("share/password") || ""
-            store.dispatch("apidoc/baseInfo/getSharedProjectBaseInfo", { shareId, password });
+            const password = localStorage.getItem('share/password') || ''
+            store.dispatch('apidoc/baseInfo/getSharedProjectBaseInfo', { shareId, password });
         }
         //初始化cookie
         const initCookies = () => {
-            store.commit("apidoc/baseInfo/initCookies")
+            store.commit('apidoc/baseInfo/initCookies')
         }
         //初始化布局
         const initLayout = () => {
-            store.commit("apidoc/baseInfo/initLayout")
+            store.commit('apidoc/baseInfo/initLayout')
         }
         onMounted(() => {
             if (isBuildHtml) {
@@ -73,7 +73,7 @@ export default defineComponent({
                         name: val.info.name,
                         type: val.info.type,
                         method: val.item.method,
-                        url: val.item.url ? val.item.url.path : "",
+                        url: val.item.url ? val.item.url.path : '',
                         maintainer: val.info.maintainer,
                         updatedAt: val.updatedAt,
                         isFolder: val.isFolder,
@@ -97,15 +97,15 @@ export default defineComponent({
                         }
                     }
                 }
-                store.commit("apidoc/baseInfo/changeProjectBaseInfo", (window as any).SHARE_DATA.projectInfo)
-                store.commit("apidoc/banner/changeAllDocBanner", result)
+                store.commit('apidoc/baseInfo/changeProjectBaseInfo', (window as any).SHARE_DATA.projectInfo)
+                store.commit('apidoc/banner/changeAllDocBanner', result)
             } else {
                 getProjectInfo();
             }
             initCookies();
             initLayout();
         })
-        store.commit("apidoc/baseInfo/changeMode", "view");
+        store.commit('apidoc/baseInfo/changeMode', 'view');
     }
 })
 </script>

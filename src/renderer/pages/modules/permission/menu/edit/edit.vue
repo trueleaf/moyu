@@ -5,21 +5,21 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" :title="$t('编辑菜单')" @close="handleClose">
-        <s-form ref="form" show-tips :edit-data="data">
-            <s-form-item :label="$t('菜单名称')" prop="name" one-line required></s-form-item>
-            <s-form-item :label="$t('路径')" prop="path" one-line required></s-form-item>
-        </s-form>
-        <template #footer>
-            <el-button :loading="loading" type="primary" @click="handleEditMenu">{{ $t('确定') }}</el-button>
-            <el-button type="warning" @click="handleClose">{{ $t('取消') }}</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" top="10vh" :title="$t('编辑菜单')" @close="handleClose">
+    <s-form ref="form" show-tips :edit-data="data">
+      <s-form-item :label="$t('菜单名称')" prop="name" one-line required></s-form-item>
+      <s-form-item :label="$t('路径')" prop="path" one-line required></s-form-item>
+    </s-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleEditMenu">{{ $t('确定') }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ $t('取消') }}</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
-import type { PermissionClientMenu } from "@@/global"
+import { defineComponent, PropType } from 'vue'
+import type { PermissionClientMenu } from '@@/global'
 
 export default defineComponent({
     props: {
@@ -29,14 +29,14 @@ export default defineComponent({
         },
         pid: {
             type: String,
-            default: "",
+            default: '',
         },
         data: {
             type: Object as PropType<PermissionClientMenu | null>,
             default: () => null,
         },
     },
-    emits: ["update:modelValue", "success"],
+    emits: ['update:modelValue', 'success'],
     data() {
         return {
             //=========================================================================//
@@ -47,7 +47,7 @@ export default defineComponent({
     methods: {
         //关闭弹窗
         handleClose() {
-            this.$emit("update:modelValue", false);
+            this.$emit('update:modelValue', false);
         },
         //编辑菜单
         handleEditMenu() {
@@ -60,9 +60,9 @@ export default defineComponent({
                         path: formData.path,
                         _id: formData._id,
                     };
-                    this.axios.put("/api/security/client_menu", params).then(() => {
+                    this.axios.put('/api/security/client_menu', params).then(() => {
                         this.handleClose();
-                        this.$emit("success");
+                        this.$emit('success');
                     }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
@@ -70,7 +70,7 @@ export default defineComponent({
                     });
                 } else {
                     this.$nextTick(() => {
-                        const input = document.querySelector(".el-form-item.is-error input");
+                        const input = document.querySelector('.el-form-item.is-error input');
                         if (input) {
                             (input as HTMLInputElement).focus();
                         }

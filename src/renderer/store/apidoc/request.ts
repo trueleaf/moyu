@@ -1,12 +1,12 @@
-import { ApidocRequest } from "@@/store";
+import { ApidocRequest } from '@@/store';
 
 const request = {
     namespaced: true,
     state: {
-        url: "",
+        url: '',
         headers: {},
-        method: "",
-        body: "",
+        method: '',
+        body: '',
     },
     mutations: {
         //改变最终发送请求信息

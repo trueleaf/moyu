@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-    <div class="container-test">
-        <apiflow />
-    </div>
+  <div class="container-test">
+    <apiflow />
+  </div>
 </template>
 
 <script lang="ts" setup>
-import apiflow from "../modules/apidoc/doc-edit/content/apiflow/apiflow.vue";
+import apiflow from '../modules/apidoc/doc-edit/content/apiflow/apiflow.vue';
 
 </script>
 

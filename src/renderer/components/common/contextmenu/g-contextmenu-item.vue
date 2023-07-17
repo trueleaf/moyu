@@ -5,15 +5,15 @@
     备注：
 */
 <template>
-    <div v-if="type === 'divider'" class="s-contextmenu-divider"></div>
-    <div v-else class="s-contextmenu-item" :class="{disabled: disabled}" @click="handleClickItem">
-        <span>{{ label }}</span>
-        <span class="hot-key">{{ hotKey }}</span>
-    </div>
+  <div v-if="type === 'divider'" class="s-contextmenu-divider"></div>
+  <div v-else class="s-contextmenu-item" :class="{disabled: disabled}" @click="handleClickItem">
+    <span>{{ label }}</span>
+    <span class="hot-key">{{ hotKey }}</span>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
     props: {
@@ -22,21 +22,21 @@ export default defineComponent({
          */
         label: {
             type: String,
-            default: "",
+            default: '',
         },
         /**
          * 快捷键
          */
         hotKey: {
             type: String,
-            default: "",
+            default: '',
         },
         /**
          * 类型，divider代表分割线
          */
         type: {
-            type: String as PropType<"divider" | "">,
-            default: "",
+            type: String as PropType<'divider' | ''>,
+            default: '',
         },
         /**
          * 是否禁用
@@ -46,7 +46,7 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: ["click"],
+    emits: ['click'],
     data() {
         return {
         };
@@ -56,7 +56,7 @@ export default defineComponent({
             if (this.disabled) {
                 return;
             }
-            this.$emit("click", e)
+            this.$emit('click', e)
         },
     },
 })

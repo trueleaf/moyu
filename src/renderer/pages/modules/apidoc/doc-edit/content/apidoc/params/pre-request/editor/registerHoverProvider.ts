@@ -1,10 +1,10 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 export function useHoverProvider(): monaco.IDisposable {
-    return monaco.languages.registerHoverProvider("javascript", {
+    return monaco.languages.registerHoverProvider('javascript', {
         provideHover(model, position) {
             const wordInfo = model.getWordAtPosition(position);
-            if (wordInfo?.word !== "pm") {
+            if (wordInfo?.word !== 'pm') {
                 return null;
             }
             return {
@@ -15,7 +15,7 @@ export function useHoverProvider(): monaco.IDisposable {
                     model.getLineMaxColumn(model.getLineCount())
                 ),
                 contents: [
-                    { value: "**标题**" },
+                    { value: '**标题**' },
                 ]
             };
         }

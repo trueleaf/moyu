@@ -5,23 +5,23 @@
     备注：
 */
 <template>
-    <el-input
-        ref="ipt"
-        v-bind="$attrs"
-        :model-value="value"
-        :placeholder="placeholder"
-        :maxlength="9999"
-        :size="config.renderConfig.layout.size"
-        :class="className"
-        clearable
-        @update:modelValue="handleInput"
-    >
-    </el-input>
+  <el-input
+    ref="ipt"
+    v-bind="$attrs"
+    :model-value="value"
+    :placeholder="placeholder"
+    :maxlength="9999"
+    :size="config.renderConfig.layout.size"
+    :class="className"
+    clearable
+    @update:modelValue="handleInput"
+  >
+  </el-input>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import config from "@/../config/config"
+import { defineComponent } from 'vue'
+import config from '@/../config/config'
 
 export default defineComponent({
     props: {
@@ -30,21 +30,21 @@ export default defineComponent({
          */
         value: {
             type: [String, Number],
-            default: "",
+            default: '',
         },
         /**
          * 自定义class值
          */
         className: {
             type: String,
-            default: "w-100",
+            default: 'w-100',
         },
         /**
          * placeholder(翻译为占位符)
          */
         placeholder: {
             type: String,
-            default: "",
+            default: '',
         },
         /**
          * 是否默认focus
@@ -54,7 +54,7 @@ export default defineComponent({
             default: false,
         },
     },
-    emits: ["update:value"],
+    emits: ['update:value'],
     data() {
         return {
             config, //全局配置
@@ -72,7 +72,7 @@ export default defineComponent({
     },
     methods: {
         handleInput(value: string) {
-            this.$emit("update:value", value);
+            this.$emit('update:value', value);
         },
     },
 })

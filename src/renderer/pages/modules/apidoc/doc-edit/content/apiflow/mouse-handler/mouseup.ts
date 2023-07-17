@@ -1,14 +1,14 @@
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
-import { useFlowHistoryStore } from "@/store/apiflow/history";
-import { useFlowLineStateStore } from "@/store/apiflow/line-state";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { toRaw } from "vue";
-import { getNodesInSelection } from "../common/common";
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-state';
+import { useFlowHistoryStore } from '@/store/apiflow/history';
+import { useFlowLineStateStore } from '@/store/apiflow/line-state';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { toRaw } from 'vue';
+import { getNodesInSelection } from '../common/common';
 
 export function changeStateWhenMouseUp(): void {
     const createLineStateStore = useFlowCreateLineDotStateStore();
@@ -73,7 +73,7 @@ export function changeStateWhenMouseUp(): void {
     }
     lineStateStore.$patch({
         isMouseDownDragArrow: false,
-        dragLineId: ""
+        dragLineId: ''
     })
     createLineStateStore.$patch({
         isMouseDown: false,
@@ -91,7 +91,7 @@ export function changeStateWhenMouseUp(): void {
     })
     nodeStateStore.$patch({
         isMouseDown: false,
-        dragNodeId: "",
+        dragNodeId: '',
         isMove: false,
     })
     nodeListStore.$patch((state) => {

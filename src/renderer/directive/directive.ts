@@ -1,18 +1,18 @@
-import { App, DirectiveBinding } from "vue"
-import scssData from "@/scss/variables/_variables.scss"
+import { App, DirectiveBinding } from 'vue'
+import scssData from '@/scss/variables/_variables.scss'
 
 let domList: HTMLElement[] = [];
 
 function createTipDom(left: number, top: number): HTMLElement {
     let tipDom: HTMLElement | null = null;
-    tipDom = document.createElement("div");
-    tipDom.style.position = "fixed";
+    tipDom = document.createElement('div');
+    tipDom.style.position = 'fixed';
     tipDom.style.left = `${left}px`;
     tipDom.style.top = `${top}px`;
-    tipDom.style.color = "#4c4";
-    tipDom.style.zIndex = "99999";
+    tipDom.style.color = '#4c4';
+    tipDom.style.zIndex = '99999';
     // tipDom.style.display = "none";
-    tipDom.innerHTML = "操作成功";
+    tipDom.innerHTML = '操作成功';
     document.body.appendChild(tipDom);
     domList.push(tipDom);
     return tipDom
@@ -20,7 +20,7 @@ function createTipDom(left: number, top: number): HTMLElement {
 
 export default (app: App): void => {
     //=====================================成功提示指令====================================//
-    app.directive("success", {
+    app.directive('success', {
         unmounted() {
             domList = [];
         },
@@ -29,8 +29,8 @@ export default (app: App): void => {
                 const { left, top } = el.getBoundingClientRect();
                 const tipDom = createTipDom(left, top);
                 setTimeout(() => {
-                    tipDom.style.transition = "transform .5s";
-                    tipDom.style.transform = "translate3D(0, -30px, 0)";
+                    tipDom.style.transition = 'transform .5s';
+                    tipDom.style.transform = 'translate3D(0, -30px, 0)';
                 })
                 setTimeout(() => {
                     document.body.removeChild(tipDom);
@@ -39,13 +39,13 @@ export default (app: App): void => {
         },
     });
     //=====================================flex指令====================================//
-    app.directive("flex1", {
+    app.directive('flex1', {
         mounted(el: HTMLElement, binding) {
             setTimeout(() => {
                 const offsetY = el.getBoundingClientRect().y;
                 const { value } = binding;
                 el.style.height = `calc(100vh - ${offsetY + value}px)`;
-                el.style.overflowY = `auto`;
+                el.style.overflowY = 'auto';
             });
         },
         updated(el: HTMLElement, binding) {
@@ -53,7 +53,7 @@ export default (app: App): void => {
                 const offsetY = el.getBoundingClientRect().y;
                 const { value } = binding;
                 el.style.height = `calc(100vh - ${offsetY + value}px)`;
-                el.style.overflowY = `auto`;
+                el.style.overflowY = 'auto';
             });
         },
     });
@@ -62,43 +62,43 @@ export default (app: App): void => {
     const runCopy = (e: MouseEvent, el: HTMLElement) => {
         const x = e.clientX;
         const y = e.clientY;
-        const dom = document.createElement("textarea");
-        dom.value = el.dataset.value || "";
-        dom.style.position = "fixed";
-        dom.style.top = "-9999px";
-        dom.style.left = "-9999px";
+        const dom = document.createElement('textarea');
+        dom.value = el.dataset.value || '';
+        dom.style.position = 'fixed';
+        dom.style.top = '-9999px';
+        dom.style.left = '-9999px';
         document.body.appendChild(dom);
         dom.select();
-        document.execCommand("Copy", false);
+        document.execCommand('Copy', false);
         document.body.removeChild(dom);
         //提示
-        const span = document.createElement("span");
-        span.innerHTML = "复制成功";
-        span.style.transition = "all .6s";
-        span.style.color = "#2c2";
-        span.style.position = "fixed";
+        const span = document.createElement('span');
+        span.innerHTML = '复制成功';
+        span.style.transition = 'all .6s';
+        span.style.color = '#2c2';
+        span.style.position = 'fixed';
         span.style.left = `${x}px`;
         span.style.top = `${y}px`;
-        span.style.whiteSpace = "nowrap";
+        span.style.whiteSpace = 'nowrap';
         span.style.zIndex = scssData.zIndexCopy;
-        span.style.transform = `translate3D(0, -1em, 0)`;
+        span.style.transform = 'translate3D(0, -1em, 0)';
         document.documentElement.appendChild(span);
         requestAnimationFrame(() => {
-            span.style.transform = `translate3D(0, -2.5em, 0)`;
+            span.style.transform = 'translate3D(0, -2.5em, 0)';
         });
         setTimeout(() => {
             document.documentElement.removeChild(span);
         }, 800);
     };
     let bindCopyFn: ((e: MouseEvent) => void) | null = null;
-    app.directive("copy", {
+    app.directive('copy', {
         mounted(el: HTMLElement, binding) {
             // copyValue.value = binding.value;
             el.dataset.value = binding.value
             bindCopyFn = (e: MouseEvent) => {
                 runCopy(e, el);
             }
-            el.addEventListener("click", bindCopyFn)
+            el.addEventListener('click', bindCopyFn)
         },
         updated(el: HTMLElement, binding) {
             // copyValue.value = binding.value;
@@ -106,7 +106,7 @@ export default (app: App): void => {
         },
         unmounted(el: HTMLElement) {
             if (bindCopyFn) {
-                el.removeEventListener("click", bindCopyFn)
+                el.removeEventListener('click', bindCopyFn)
             }
         }
     })
@@ -115,7 +115,7 @@ export default (app: App): void => {
     const countdown = (el: HTMLElement, binding: DirectiveBinding<number>) => {
         let restTime = (binding.value - Date.now()) > 0 ? (binding.value - Date.now()) : 0;
         if (restTime === 0) {
-            el.innerHTML = "已过期";
+            el.innerHTML = '已过期';
             countdownTimers.forEach(t => {
                 clearInterval(t);
             })
@@ -147,7 +147,7 @@ export default (app: App): void => {
 
         countdownTimers.push(timer);
     }
-    app.directive("countdown", {
+    app.directive('countdown', {
         mounted(el: HTMLElement, binding) {
             bindCountdown(el, binding);
         },
@@ -164,13 +164,13 @@ export default (app: App): void => {
         }
     })
     //=====================================focus指令====================================//
-    app.directive("focus-select", { //如果当前元素不是input则递归查找
+    app.directive('focus-select', { //如果当前元素不是input则递归查找
         mounted(el: HTMLElement) {
-            if (el.tagName === "INPUT") {
+            if (el.tagName === 'INPUT') {
                 el.focus();
                 (el as HTMLInputElement).select();
             } else {
-                const ipt = el.querySelector("input");
+                const ipt = el.querySelector('input');
                 setTimeout(() => {
                     ipt?.select()
                     ipt?.focus()

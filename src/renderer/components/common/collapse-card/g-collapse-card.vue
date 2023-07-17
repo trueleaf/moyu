@@ -5,57 +5,57 @@
     备注：
 */
 <template>
-    <div class="collapse-card" :class="{shadow: shadow}" :style="{ width: width }">
-        <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
-            <div class="head">
-                <div class="control" @click="toggleCollapse">
-                    <template v-if="!disabled">
-                        <el-icon v-if="!showContent">
-                            <icon-care-right></icon-care-right>
-                        </el-icon>
-                        <el-icon v-else>
-                            <icon-care-bottom></icon-care-bottom>
-                        </el-icon>
-                    </template>
-                    <template v-else>
-                        <svg class="disabled-icon" aria-hidden="true">
-                            <use xlink:href="#iconweibiaoti-"></use>
-                        </svg>
-                    </template>
-                </div>
-                <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
-                <slot v-else name="head">{{ title }}</slot>
-            </div>
-            <div v-show="!disabled" class="operation">
-                <slot name="operation"></slot>
-            </div>
-            <div class="tail">
-                <slot name="tail"></slot>
-            </div>
-        </header>
-        <section v-show="!disabled && showContent" ref="content" class="content">
-            <slot></slot>
-        </section>
-    </div>
+  <div class="collapse-card" :class="{shadow: shadow}" :style="{ width: width }">
+    <header v-if="$slots.operation || title || $slots.head" :class="{disabled: disabled}" :title="disabled ? disabledTip : ''">
+      <div class="head">
+        <div class="control" @click="toggleCollapse">
+          <template v-if="!disabled">
+            <el-icon v-if="!showContent">
+              <icon-care-right></icon-care-right>
+            </el-icon>
+            <el-icon v-else>
+              <icon-care-bottom></icon-care-bottom>
+            </el-icon>
+          </template>
+          <template v-else>
+            <svg class="disabled-icon" aria-hidden="true">
+              <use xlink:href="#iconweibiaoti-"></use>
+            </svg>
+          </template>
+        </div>
+        <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+        <slot v-else name="head">{{ title }}</slot>
+      </div>
+      <div v-show="!disabled" class="operation">
+        <slot name="operation"></slot>
+      </div>
+      <div class="tail">
+        <slot name="tail"></slot>
+      </div>
+    </header>
+    <section v-show="!disabled && showContent" ref="content" class="content">
+      <slot></slot>
+    </section>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { CaretRight, CaretBottom } from "@element-plus/icons-vue"
+import { defineComponent } from 'vue'
+import { CaretRight, CaretBottom } from '@element-plus/icons-vue'
 
 export default defineComponent({
     components: {
-        "icon-care-right": CaretRight,
-        "icon-care-bottom": CaretBottom,
+        'icon-care-right': CaretRight,
+        'icon-care-bottom': CaretBottom,
     },
     props: {
         title: { // card头部标题
             type: String,
-            default: "",
+            default: '',
         },
         width: { //宽度
             type: String,
-            default: "100%",
+            default: '100%',
         },
         inline: {
             type: Boolean,
@@ -63,7 +63,7 @@ export default defineComponent({
         },
         titleColor: {
             type: String,
-            default: "#444",
+            default: '#444',
         },
         fold: { //默认是否折叠
             type: Boolean,
@@ -79,10 +79,10 @@ export default defineComponent({
         },
         disabledTip: {
             type: String,
-            default: "",
+            default: '',
         },
     },
-    emits: ["change"],
+    emits: ['change'],
     data() {
         return {
             showContent: true,
@@ -102,7 +102,7 @@ export default defineComponent({
         },
         toggleCollapse() {
             this.showContent = !this.showContent
-            this.$emit("change", this.showContent);
+            this.$emit('change', this.showContent);
         }
     },
 })

@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 type Suggestions = {
     label: {
@@ -13,26 +13,26 @@ type Suggestions = {
 
 const suggestions: Suggestions = [{
     label: {
-        label: "pm",
-        description: "全局对象"
+        label: 'pm',
+        description: '全局对象'
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "pm",
-    keyword: "pm",
+    insertText: 'pm',
+    keyword: 'pm',
 },
 {
     label: {
-        label: "console",
-        description: "控制台输出"
+        label: 'console',
+        description: '控制台输出'
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "console.log()",
-    keyword: "console",
+    insertText: 'console.log()',
+    keyword: 'console',
 }]
 
 export function useCompletionItem(): monaco.IDisposable {
-    return monaco.languages.registerCompletionItemProvider("javascript", {
-        triggerCharacters: [".", "("],
+    return monaco.languages.registerCompletionItemProvider('javascript', {
+        triggerCharacters: ['.', '('],
         provideCompletionItems(model, position) {
             const currentLineStr = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -40,12 +40,12 @@ export function useCompletionItem(): monaco.IDisposable {
                 endLineNumber: position.lineNumber,
                 endColumn: position.column
             });
-            const lineStrArr = currentLineStr.replace("\t", "").split(" ");
+            const lineStrArr = currentLineStr.replace('\t', '').split(' ');
             const activeStr = lineStrArr[lineStrArr.length - 1];
             const matchedSuggestions = suggestions.filter(v => {
-                const replacedStr = activeStr.replace(/^[^(]+\(\s*/, "")
-                const activeStrArr = replacedStr.split(".");
-                const keywordArr = v.keyword.split(".");
+                const replacedStr = activeStr.replace(/^[^(]+\(\s*/, '')
+                const activeStrArr = replacedStr.split('.');
+                const keywordArr = v.keyword.split('.');
                 for (let i = 0; i < activeStrArr.length - 1; i += 1) {
                     if (activeStrArr[i] !== keywordArr[i]) {
                         return false;

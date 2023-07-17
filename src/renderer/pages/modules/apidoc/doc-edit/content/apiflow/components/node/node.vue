@@ -1,147 +1,147 @@
 <template>
-    <div
-        class="node"
+  <div
+    class="node"
+    :style="{
+      left: nodeInfo.styleInfo.offsetX * configStore.zoom + 'px',
+      top: nodeInfo.styleInfo.offsetY * configStore.zoom + 'px',
+      width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
+      height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
+      zIndex: nodeInfo.styleInfo.zIndex,
+      border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #dfdfdf' : '1px solid transparent'),
+    }"
+  >
+    <template v-if="nodeStateStore.activeNodeId === props.nodeId">
+      <div
+        class="resize-dot lt"
         :style="{
-            left: nodeInfo.styleInfo.offsetX * configStore.zoom + 'px',
-            top: nodeInfo.styleInfo.offsetY * configStore.zoom + 'px',
-            width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
-            height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
-            zIndex: nodeInfo.styleInfo.zIndex,
-            border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #dfdfdf' : '1px solid transparent'),
+          width: configStore.resizeDotSize + 'px',
+          height: configStore.resizeDotSize + 'px',
+          left: -configStore.resizeDotSize/2 + 'px',
+          top: -configStore.resizeDotSize/2 + 'px',
         }"
-    >
-        <template v-if="nodeStateStore.activeNodeId === props.nodeId">
-            <div
-                class="resize-dot lt"
-                :style="{
-                    width: configStore.resizeDotSize + 'px',
-                    height: configStore.resizeDotSize + 'px',
-                    left: -configStore.resizeDotSize/2 + 'px',
-                    top: -configStore.resizeDotSize/2 + 'px',
-                }"
-            >
-            </div>
-            <div
-                class="resize-dot rt"
-                :style="{
-                    width: configStore.resizeDotSize + 'px',
-                    height: configStore.resizeDotSize + 'px',
-                    top: -configStore.resizeDotSize / 2 + 'px',
-                    right: -configStore.resizeDotSize / 2 + 'px',
-                }"
-            >
-            </div>
-            <div
-                class="resize-dot lb"
-                :style="{
-                    width: configStore.resizeDotSize + 'px',
-                    height: configStore.resizeDotSize + 'px',
-                    left: -configStore.resizeDotSize / 2 + 'px',
-                    bottom: -configStore.resizeDotSize / 2 + 'px',
-                }"
-            >
-            </div>
-            <div
-                class="resize-dot rb"
-                :style="{
-                    width: configStore.resizeDotSize + 'px',
-                    height: configStore.resizeDotSize + 'px',
-                    bottom: -configStore.resizeDotSize / 2 + 'px',
-                    right: -configStore.resizeDotSize / 2 + 'px',
-                }"
-            >
-            </div>
-        </template>
-        <template v-if="nodeStateStore.hoverNodeId === props.nodeId || nodeStateStore.activeNodeId === props.nodeId">
-            <div
-                class="create-line-dot"
-                :style="{
-                    width: configStore.createLineDotSize + 'px',
-                    height: configStore.createLineDotSize + 'px',
-                    left: -configStore.createLineDotSize / 2 + 'px',
-                    top: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
-                }"
-            >
-            </div>
-            <div
-                class="create-line-dot"
-                :style="{
-                    width: configStore.createLineDotSize + 'px',
-                    height: configStore.createLineDotSize + 'px',
-                    right: -configStore.createLineDotSize / 2 + 'px',
-                    top: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
-                }"
-            >
-            </div>
-            <div
-                class="create-line-dot"
-                :style="{
-                    width: configStore.createLineDotSize + 'px',
-                    height: configStore.createLineDotSize + 'px',
-                    top: -configStore.createLineDotSize / 2 + 'px',
-                    left: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
-                }"
-            >
-            </div>
-            <div
-                class="create-line-dot"
-                :style="{
-                    width: configStore.createLineDotSize + 'px',
-                    height: configStore.createLineDotSize + 'px',
-                    bottom: -configStore.createLineDotSize / 2 + 'px',
-                    left: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
-                }"
-            >
-            </div>
-        </template>
-        <template v-if="nodeStateStore.activeNodeId === props.nodeId">
-            <div className="resize-border"></div>
-        </template>
-        <template v-if="nodeStateStore.activeNodeId === props.nodeId && nodeStateStore.isMove">
-            <div className="position-info">
-                <span>X: {{ Math.ceil(nodeInfo.styleInfo.offsetX * configStore.zoom) }}&nbsp;&nbsp;&nbsp;</span>
-                <span>Y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}</span>
-            </div>
-        </template>
-        <div class="node-inner">
-            <div class="header">
-                <el-tooltip
-                    effect="light"
-                    :show-after="1500"
-                    content="用户登录"
-                    placement="top-start"
-                >
-                    用户登录用户登录用户登录用户登录用户登录
-                </el-tooltip>
-            </div>
-            <div class="api-info">
-                <div class="orange">POST</div>
-            </div>
-            <div class="api-info2">/api/gatway/user_info</div>
-            <div class="api-info3">
-                <div class="f-xs cursor-pointer op">前置</div>
-                <el-divider direction="vertical" />
-                <div class="f-xs cursor-pointer op">后置</div>
-                <el-divider direction="vertical" />
-                <div class="f-xs cursor-pointer op">日志</div>
-                <el-divider direction="vertical" />
-                <div class="f-xs cursor-pointer op">详情</div>
-            </div>
-        </div>
+      >
+      </div>
+      <div
+        class="resize-dot rt"
+        :style="{
+          width: configStore.resizeDotSize + 'px',
+          height: configStore.resizeDotSize + 'px',
+          top: -configStore.resizeDotSize / 2 + 'px',
+          right: -configStore.resizeDotSize / 2 + 'px',
+        }"
+      >
+      </div>
+      <div
+        class="resize-dot lb"
+        :style="{
+          width: configStore.resizeDotSize + 'px',
+          height: configStore.resizeDotSize + 'px',
+          left: -configStore.resizeDotSize / 2 + 'px',
+          bottom: -configStore.resizeDotSize / 2 + 'px',
+        }"
+      >
+      </div>
+      <div
+        class="resize-dot rb"
+        :style="{
+          width: configStore.resizeDotSize + 'px',
+          height: configStore.resizeDotSize + 'px',
+          bottom: -configStore.resizeDotSize / 2 + 'px',
+          right: -configStore.resizeDotSize / 2 + 'px',
+        }"
+      >
+      </div>
+    </template>
+    <template v-if="nodeStateStore.hoverNodeId === props.nodeId || nodeStateStore.activeNodeId === props.nodeId">
+      <div
+        class="create-line-dot"
+        :style="{
+          width: configStore.createLineDotSize + 'px',
+          height: configStore.createLineDotSize + 'px',
+          left: -configStore.createLineDotSize / 2 + 'px',
+          top: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
+        }"
+      >
+      </div>
+      <div
+        class="create-line-dot"
+        :style="{
+          width: configStore.createLineDotSize + 'px',
+          height: configStore.createLineDotSize + 'px',
+          right: -configStore.createLineDotSize / 2 + 'px',
+          top: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
+        }"
+      >
+      </div>
+      <div
+        class="create-line-dot"
+        :style="{
+          width: configStore.createLineDotSize + 'px',
+          height: configStore.createLineDotSize + 'px',
+          top: -configStore.createLineDotSize / 2 + 'px',
+          left: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
+        }"
+      >
+      </div>
+      <div
+        class="create-line-dot"
+        :style="{
+          width: configStore.createLineDotSize + 'px',
+          height: configStore.createLineDotSize + 'px',
+          bottom: -configStore.createLineDotSize / 2 + 'px',
+          left: `calc(50% - ${configStore.createLineDotSize / 2}px)`,
+        }"
+      >
+      </div>
+    </template>
+    <template v-if="nodeStateStore.activeNodeId === props.nodeId">
+      <div className="resize-border"></div>
+    </template>
+    <template v-if="nodeStateStore.activeNodeId === props.nodeId && nodeStateStore.isMove">
+      <div className="position-info">
+        <span>X: {{ Math.ceil(nodeInfo.styleInfo.offsetX * configStore.zoom) }}&nbsp;&nbsp;&nbsp;</span>
+        <span>Y: {{ Math.ceil(nodeInfo.styleInfo.offsetY * configStore.zoom) }}</span>
+      </div>
+    </template>
+    <div class="node-inner">
+      <div class="header">
+        <el-tooltip
+          effect="light"
+          :show-after="1500"
+          content="用户登录"
+          placement="top-start"
+        >
+          用户登录用户登录用户登录用户登录用户登录
+        </el-tooltip>
+      </div>
+      <div class="api-info">
+        <div class="orange">POST</div>
+      </div>
+      <div class="api-info2">/api/gatway/user_info</div>
+      <div class="api-info3">
+        <div class="f-xs cursor-pointer op">前置</div>
+        <el-divider direction="vertical" />
+        <div class="f-xs cursor-pointer op">后置</div>
+        <el-divider direction="vertical" />
+        <div class="f-xs cursor-pointer op">日志</div>
+        <el-divider direction="vertical" />
+        <div class="f-xs cursor-pointer op">详情</div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { FlowNodeInfo } from "@@/apiflow";
-import { computed } from "vue";
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { FlowNodeInfo } from '@@/apiflow';
+import { computed } from 'vue';
 
 const props = defineProps({
     nodeId: {
         type: String,
-        default: ""
+        default: ''
     }
 });
 

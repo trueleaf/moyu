@@ -4,13 +4,13 @@
 |--------------------------------------------------------------------------
 |
 */
-import { ref, Ref, computed, WritableComputedRef, ComputedRef } from "vue"
+import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
 // import { handleFormatUrl } from "./url"
-import type { ApidocProjectHost } from "@@/store"
-import { useStore } from "@/store/index"
-import globalConfig from "@/../config/config"
-import { apidocCache } from "@/cache/apidoc"
-import { router } from "@/router/index"
+import type { ApidocProjectHost } from '@@/store'
+import { useStore } from '@/store/index'
+import globalConfig from '@/../config/config'
+import { apidocCache } from '@/cache/apidoc'
+import { router } from '@/router/index'
 
 type HostReturn = {
     /**
@@ -38,16 +38,16 @@ type HostReturn = {
 export default (): HostReturn => {
     const store = useStore();
     //mock服务器地址
-    const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`);
+    const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state['apidoc/mock'].mockServerPort}`);
     //host弹窗
     const hostDialogVisible = ref(false);
     //host值
     const host = computed<string>({
         get() {
-            return store.state["apidoc/apidoc"].apidoc.item.url.host
+            return store.state['apidoc/apidoc'].apidoc.item.url.host
         },
         set(val) {
-            store.commit("apidoc/apidoc/changeApidocHost", val);
+            store.commit('apidoc/apidoc/changeApidocHost', val);
         },
     });
     //改变host的值
@@ -60,7 +60,7 @@ export default (): HostReturn => {
         const projectId = router.currentRoute.value.query.id as string;
         const localData: Ref<ApidocProjectHost[]> = ref([])
         localData.value = apidocCache.getApidocServer(projectId)
-        return store.state["apidoc/baseInfo"].hosts.concat(localData.value)
+        return store.state['apidoc/baseInfo'].hosts.concat(localData.value)
     })
     return {
         mockServer,

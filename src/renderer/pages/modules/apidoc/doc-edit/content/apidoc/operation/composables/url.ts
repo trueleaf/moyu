@@ -2,11 +2,11 @@
  * host相关处理
  */
 
-import { computed } from "vue"
-import type { ApidocProperty, ApidocPropertyType } from "@@/global"
+import { computed } from 'vue'
+import type { ApidocProperty, ApidocPropertyType } from '@@/global'
 // import type { ApidocProjectHost } from "@@/store"
-import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/index"
+import { store } from '@/store/index'
+import { apidocGenerateProperty, apidocConvertJsonDataToParams } from '@/helper/index'
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"
 // import { apidocCache } from "@/cache/apidoc"
@@ -15,19 +15,19 @@ import { apidocGenerateProperty, apidocConvertJsonDataToParams } from "@/helper/
  * 从url中找出path参数
  */
 export const handleChangeUrl = (): void => {
-    const requestPath = store.state["apidoc/apidoc"].apidoc.item.url.path;
+    const requestPath = store.state['apidoc/apidoc'].apidoc.item.url.path;
     const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
     let matchedPathParams = requestPath.match(pathParamsReg);
     if (matchedPathParams) {
-        matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, "")) as RegExpMatchArray
+        matchedPathParams = matchedPathParams.map((val) => val.replace(/[{}]+/g, '')) as RegExpMatchArray
         const result = matchedPathParams.map((param) => {
             const property = apidocGenerateProperty();
             property.key = param;
             return property;
         });
-        store.commit("apidoc/apidoc/changePathParams", result)
+        store.commit('apidoc/apidoc/changePathParams', result)
     } else {
-        store.commit("apidoc/apidoc/changePathParams", [])
+        store.commit('apidoc/apidoc/changePathParams', [])
     }
 };
 
@@ -35,19 +35,19 @@ export const handleChangeUrl = (): void => {
  * 将请求url后面查询参数转换为params
  */
 const convertQueryToParams = (requestPath: string): void => {
-    const stringParams = requestPath.split("?")[1] || "";
+    const stringParams = requestPath.split('?')[1] || '';
     const urlSearchParams = new URLSearchParams(stringParams);
     const queryParams = Object.fromEntries(urlSearchParams.entries());
     const params = apidocConvertJsonDataToParams(queryParams);
     const unshiftData = params[0].children;
     const uniqueData: ApidocProperty<ApidocPropertyType>[] = [];
-    const arrParams = store.state["apidoc/apidoc"].apidoc.item.queryParams;
+    const arrParams = store.state['apidoc/apidoc'].apidoc.item.queryParams;
     unshiftData.forEach(item => { //过滤重复的query值
         if (arrParams.every(v => v.key !== item.key)) {
             uniqueData.push(item);
         }
     })
-    store.commit("apidoc/apidoc/unshiftQueryParams", uniqueData)
+    store.commit('apidoc/apidoc/unshiftQueryParams', uniqueData)
 };
 
 /**
@@ -57,10 +57,10 @@ export function handleFormatUrl():void {
     // const projectId = router.currentRoute.value.query.id as string;
     const requestPath = computed<string>({
         get() {
-            return store.state["apidoc/apidoc"].apidoc.item.url.path;
+            return store.state['apidoc/apidoc'].apidoc.item.url.path;
         },
         set(path) {
-            store.commit("apidoc/apidoc/changeApidocUrl", path)
+            store.commit('apidoc/apidoc/changeApidocUrl', path)
         },
     });
     // const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);
@@ -90,13 +90,13 @@ export function handleFormatUrl():void {
         // const mockServer = `http://${globalConfig.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`;
         // const pathReg = /\/(?!\/)[^#\\?:]+/; //查询路径正则
         //路径处理
-        if (formatPath.trim() === "") {
-            formatPath = "/";
-        } else if (!formatPath.startsWith("/")) {
+        if (formatPath.trim() === '') {
+            formatPath = '/';
+        } else if (!formatPath.startsWith('/')) {
             formatPath = `/${formatPath}`;
         }
     }
     const queryReg = /(\?.*$)|(\/*$)/;
-    formatPath = formatPath.replace(queryReg, "");
+    formatPath = formatPath.replace(queryReg, '');
     requestPath.value = formatPath;
 }

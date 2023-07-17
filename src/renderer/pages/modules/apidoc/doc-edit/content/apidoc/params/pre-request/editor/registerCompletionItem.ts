@@ -1,4 +1,4 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
 type Suggestions = {
     label: {
@@ -13,244 +13,244 @@ type Suggestions = {
 
 const requestSuggestions = [{
     label: {
-        label: "request",
-        description: "请求参数"
+        label: 'request',
+        description: '请求参数'
     },
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: "request",
-    sortText: "3",
-    keyword: "pm.request",
+    insertText: 'request',
+    sortText: '3',
+    keyword: 'pm.request',
 }, {
     label: {
-        label: "url",
-        description: "请求url信息(prefix、path、url)"
+        label: 'url',
+        description: '请求url信息(prefix、path、url)'
     },
-    sortText: "a",
+    sortText: 'a',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: "url",
-    keyword: "pm.request.url",
+    insertText: 'url',
+    keyword: 'pm.request.url',
 }, {
     label: {
-        label: "prefix",
-        description: "请求前缀"
+        label: 'prefix',
+        description: '请求前缀'
     },
-    sortText: "1",
+    sortText: '1',
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "prefix",
-    keyword: "pm.request.url.prefix",
+    insertText: 'prefix',
+    keyword: 'pm.request.url.prefix',
 }, {
     label: {
-        label: "path",
-        description: "请求路径"
+        label: 'path',
+        description: '请求路径'
     },
-    sortText: "2",
+    sortText: '2',
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "path",
-    keyword: "pm.request.url.path",
+    insertText: 'path',
+    keyword: 'pm.request.url.path',
 }, {
     label: {
-        label: "url",
-        description: "完整请求路径"
+        label: 'url',
+        description: '完整请求路径'
     },
-    sortText: "3",
+    sortText: '3',
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "url",
-    keyword: "pm.request.url.url",
+    insertText: 'url',
+    keyword: 'pm.request.url.url',
 }, {
     label: {
-        label: "headers",
-        description: "请求头"
+        label: 'headers',
+        description: '请求头'
     },
-    sortText: "3c",
+    sortText: '3c',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `headers`,
-    keyword: "pm.request.headers",
+    insertText: 'headers',
+    keyword: 'pm.request.headers',
 }, {
     label: {
-        label: "queryParams",
-        description: "请求query参数"
+        label: 'queryParams',
+        description: '请求query参数'
     },
-    sortText: "d",
+    sortText: 'd',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `queryParams`,
-    keyword: "pm.request.queryParams",
+    insertText: 'queryParams',
+    keyword: 'pm.request.queryParams',
 }, {
     label: {
-        label: "pathParams",
-        description: "请求path参数"
+        label: 'pathParams',
+        description: '请求path参数'
     },
-    sortText: "e",
+    sortText: 'e',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: "pathParams",
-    keyword: "pm.request.pathParams",
+    insertText: 'pathParams',
+    keyword: 'pm.request.pathParams',
 }, {
     label: {
-        label: "body",
-        description: "请求body参数"
+        label: 'body',
+        description: '请求body参数'
     },
-    sortText: "f",
+    sortText: 'f',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `body`,
-    keyword: "pm.request.body",
+    insertText: 'body',
+    keyword: 'pm.request.body',
 }, {
     label: {
-        label: "json",
-        description: "json参数"
+        label: 'json',
+        description: 'json参数'
     },
-    sortText: "1",
+    sortText: '1',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `json`,
-    keyword: "pm.request.body.json",
+    insertText: 'json',
+    keyword: 'pm.request.body.json',
 }, {
     label: {
-        label: "formdata",
-        description: "formdata参数"
+        label: 'formdata',
+        description: 'formdata参数'
     },
-    sortText: "2",
+    sortText: '2',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `formdata`,
-    keyword: "pm.request.body.formdata",
+    insertText: 'formdata',
+    keyword: 'pm.request.body.formdata',
 }, {
     label: {
-        label: "urlencoded",
-        description: "urlencoded参数"
+        label: 'urlencoded',
+        description: 'urlencoded参数'
     },
-    sortText: "3",
+    sortText: '3',
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: `urlencoded`,
-    keyword: "pm.request.body.urlencoded",
+    insertText: 'urlencoded',
+    keyword: 'pm.request.body.urlencoded',
 }, {
     label: {
-        label: "raw",
-        description: "raw参数"
+        label: 'raw',
+        description: 'raw参数'
     },
-    sortText: "4",
+    sortText: '4',
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `raw`,
-    keyword: "pm.request.body.raw",
+    insertText: 'raw',
+    keyword: 'pm.request.body.raw',
 }, {
     label: {
-        label: "method",
-        description: "请求方法(GET|POST|PUT...)"
+        label: 'method',
+        description: '请求方法(GET|POST|PUT...)'
     },
-    sortText: "g",
+    sortText: 'g',
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: "method",
-    keyword: "pm.request.method",
+    insertText: 'method',
+    keyword: 'pm.request.method',
 }, {
     label: {
-        label: "envs",
-        description: "所有环境信息"
-    },
-    kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `envs`,
-    sortText: "h",
-    keyword: "pm.request.envs",
-}, {
-    label: {
-        label: "currentEnv",
-        description: "当前环境"
+        label: 'envs',
+        description: '所有环境信息'
     },
     kind: monaco.languages.CompletionItemKind.Property,
-    insertText: `currentEnv`,
-    sortText: "i",
-    keyword: "pm.request.currentEnv",
+    insertText: 'envs',
+    sortText: 'h',
+    keyword: 'pm.request.envs',
 }, {
     label: {
-        label: "replaceUrl",
-        description: "替换url(最终发送替换后的url)"
+        label: 'currentEnv',
+        description: '当前环境'
     },
-    sortText: "j",
+    kind: monaco.languages.CompletionItemKind.Property,
+    insertText: 'currentEnv',
+    sortText: 'i',
+    keyword: 'pm.request.currentEnv',
+}, {
+    label: {
+        label: 'replaceUrl',
+        description: '替换url(最终发送替换后的url)'
+    },
+    sortText: 'j',
     kind: monaco.languages.CompletionItemKind.Method,
-    insertText: `replaceUrl("替换后的url eg:https://www.baidu.com")`,
-    keyword: "pm.request.replaceUrl",
+    insertText: 'replaceUrl("替换后的url eg:https://www.baidu.com")',
+    keyword: 'pm.request.replaceUrl',
 }]
 const httpSuggestions = [
     {
         label: {
-            label: "http",
-            description: "发送http请求"
+            label: 'http',
+            description: '发送http请求'
         },
-        sortText: "2",
+        sortText: '2',
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `http`,
-        keyword: "pm.http",
+        insertText: 'http',
+        keyword: 'pm.http',
     }, {
         label: {
-            label: "get",
-            description: "发送get请求"
+            label: 'get',
+            description: '发送get请求'
         },
-        sortText: "1",
+        sortText: '1',
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `get("请求url", { headers: {}, params: {}, body: {} })`,
-        keyword: "pm.http.get",
+        insertText: 'get("请求url", { headers: {}, params: {}, body: {} })',
+        keyword: 'pm.http.get',
     }, {
         label: {
-            label: "post",
-            description: "发送post请求"
+            label: 'post',
+            description: '发送post请求'
         },
-        sortText: "2",
+        sortText: '2',
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `post("请求url", { headers: {}, params: {}, body: {} })`,
-        keyword: "pm.http.post",
+        insertText: 'post("请求url", { headers: {}, params: {}, body: {} })',
+        keyword: 'pm.http.post',
     }, {
         label: {
-            label: "put",
-            description: "发送put请求"
+            label: 'put',
+            description: '发送put请求'
         },
-        sortText: "3",
+        sortText: '3',
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `put("请求url", { headers: {}, params: {}, body: {} })`,
-        keyword: "pm.http.put",
+        insertText: 'put("请求url", { headers: {}, params: {}, body: {} })',
+        keyword: 'pm.http.put',
     }, {
         label: {
-            label: "delete",
-            description: "发送delete请求"
+            label: 'delete',
+            description: '发送delete请求'
         },
-        sortText: "4",
+        sortText: '4',
         kind: monaco.languages.CompletionItemKind.Method,
-        insertText: `delete("请求url", { headers: {}, params: {}, body: {} })`,
-        keyword: "pm.http.delete",
+        insertText: 'delete("请求url", { headers: {}, params: {}, body: {} })',
+        keyword: 'pm.http.delete',
     }
 ]
 const sessionStateSuggestions = [{
     label: {
-        label: "sessionState",
-        description: "会话数据(刷新后消失)"
+        label: 'sessionState',
+        description: '会话数据(刷新后消失)'
     },
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: "sessionState",
-    sortText: "4",
-    keyword: "pm.sessionState",
+    insertText: 'sessionState',
+    sortText: '4',
+    keyword: 'pm.sessionState',
 }]
 const localStateSuggestions = [{
     label: {
-        label: "localState",
-        description: "持久数据(清空缓存后消失)"
+        label: 'localState',
+        description: '持久数据(清空缓存后消失)'
     },
     kind: monaco.languages.CompletionItemKind.Module,
-    insertText: "localState",
-    sortText: "5",
-    keyword: "pm.localState",
+    insertText: 'localState',
+    sortText: '5',
+    keyword: 'pm.localState',
 }]
 
 const suggestions: Suggestions = [{
     label: {
-        label: "pm",
-        description: "全局对象"
+        label: 'pm',
+        description: '全局对象'
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "pm",
-    keyword: "pm",
+    insertText: 'pm',
+    keyword: 'pm',
 },
 {
     label: {
-        label: "console",
-        description: "控制台输出"
+        label: 'console',
+        description: '控制台输出'
     },
     kind: monaco.languages.CompletionItemKind.Function,
-    insertText: "console.log()",
-    keyword: "console",
+    insertText: 'console.log()',
+    keyword: 'console',
 },
 ...httpSuggestions,
 ...sessionStateSuggestions,
@@ -258,8 +258,8 @@ const suggestions: Suggestions = [{
 ...requestSuggestions]
 
 export function useCompletionItem(): monaco.IDisposable {
-    return monaco.languages.registerCompletionItemProvider("javascript", {
-        triggerCharacters: [".", "("],
+    return monaco.languages.registerCompletionItemProvider('javascript', {
+        triggerCharacters: ['.', '('],
         provideCompletionItems(model, position) {
             const currentLineStr = model.getValueInRange({
                 startLineNumber: position.lineNumber,
@@ -267,12 +267,12 @@ export function useCompletionItem(): monaco.IDisposable {
                 endLineNumber: position.lineNumber,
                 endColumn: position.column
             });
-            const lineStrArr = currentLineStr.replace("\t", "").split(" ");
+            const lineStrArr = currentLineStr.replace('\t', '').split(' ');
             const activeStr = lineStrArr[lineStrArr.length - 1];
             const matchedSuggestions = suggestions.filter(v => {
-                const replacedStr = activeStr.replace(/^[^(]+\(\s*/, "")
-                const activeStrArr = replacedStr.split(".");
-                const keywordArr = v.keyword.split(".");
+                const replacedStr = activeStr.replace(/^[^(]+\(\s*/, '')
+                const activeStrArr = replacedStr.split('.');
+                const keywordArr = v.keyword.split('.');
                 for (let i = 0; i < activeStrArr.length - 1; i += 1) {
                     if (activeStrArr[i] !== keywordArr[i]) {
                         return false;

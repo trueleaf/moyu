@@ -5,151 +5,151 @@
     备注：
 */
 <template>
-    <div class="api-params" :class="{ vertical: layout === 'vertical' }">
-        <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-            <div class="cursor-pointer" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">{{ $t("预览") }}</div>
-            <el-divider direction="vertical"></el-divider>
-            <div class="cursor-pointer mr-5" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">{{ $t("编辑") }}</div>
-            <!-- <el-divider direction="vertical"></el-divider> -->
-            <el-dropdown trigger="click">
-                <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
-                    <span class="mr-1 f-sm iconfont iconbuju"></span>
-                    <span>{{ $t("布局") }}</span>
-                </div>
-                <template #dropdown>
-                    <el-dropdown-menu>
-                        <el-dropdown-item @click="handleChangeLayout('horizontal')">
-                            <span :class="{ 'theme-color': layout === 'horizontal' }">{{ $t("左右布局") }}</span>
-                        </el-dropdown-item>
-                        <el-dropdown-item @click="handleChangeLayout('vertical')">
-                            <span :class="{ 'theme-color': layout === 'vertical' }">{{ $t('上下布局') }}</span>
-                        </el-dropdown-item>
-                    </el-dropdown-menu>
-                </template>
-            </el-dropdown>
+  <div class="api-params" :class="{ vertical: layout === 'vertical' }">
+    <div class="view-type" :class="{ vertical: layout === 'vertical' }">
+      <div class="cursor-pointer" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">{{ $t("预览") }}</div>
+      <el-divider direction="vertical"></el-divider>
+      <div class="cursor-pointer mr-5" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">{{ $t("编辑") }}</div>
+      <!-- <el-divider direction="vertical"></el-divider> -->
+      <el-dropdown trigger="click">
+        <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
+          <span class="mr-1 f-sm iconfont iconbuju"></span>
+          <span>{{ $t("布局") }}</span>
         </div>
-        <div v-show="workMode === 'edit'">
-            <el-tabs v-model="activeName">
-                <el-tab-pane label="Params" name="s-params">
-                    <template #label>
-                        <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
-                    </template>
-                </el-tab-pane>
-                <el-tab-pane label="Body" name="s-request-body">
-                    <template #label>
-                        <el-badge :is-dot="hasBodyParams">Body</el-badge>
-                    </template>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('返回参数')" name="s-response-params">
-                    <template #label>
-                        <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
-                        <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
-                        <el-badge v-else>返回参数</el-badge> -->
-                    </template>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('请求头')" name="s-request-headers">
-                    <template #label>
-                        <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
-                    </template>
-                </el-tab-pane>
-                <el-tab-pane :label="$t('备注信息')" name="s-f"></el-tab-pane>
-            </el-tabs>
-            <keep-alive>
-                <component :is="activeName" class="workbench"></component>
-            </keep-alive>
-        </div>
-        <div v-show="workMode === 'view'">
-            <s-view></s-view>
-        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="handleChangeLayout('horizontal')">
+              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ $t("左右布局") }}</span>
+            </el-dropdown-item>
+            <el-dropdown-item @click="handleChangeLayout('vertical')">
+              <span :class="{ 'theme-color': layout === 'vertical' }">{{ $t('上下布局') }}</span>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
+    <div v-show="workMode === 'edit'">
+      <el-tabs v-model="activeName">
+        <el-tab-pane label="Params" name="s-params">
+          <template #label>
+            <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+          </template>
+        </el-tab-pane>
+        <el-tab-pane label="Body" name="s-request-body">
+          <template #label>
+            <el-badge :is-dot="hasBodyParams">Body</el-badge>
+          </template>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('返回参数')" name="s-response-params">
+          <template #label>
+            <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
+            <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
+                        <el-badge v-else>返回参数</el-badge> -->
+          </template>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('请求头')" name="s-request-headers">
+          <template #label>
+            <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
+          </template>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('备注信息')" name="s-f"></el-tab-pane>
+      </el-tabs>
+      <keep-alive>
+        <component :is="activeName" class="workbench"></component>
+      </keep-alive>
+    </div>
+    <div v-show="workMode === 'view'">
+      <s-view></s-view>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import type { ApidocTab } from "@@/store"
-import type { ApidocDetail, ApidocProperty } from "@@/global"
-import { apidocConvertParamsToJsonData } from "@/helper/index"
-import { apidocCache } from "@/cache/apidoc"
-import params from "./params/params.vue";
-import requestBody from "./body/body.vue";
-import requestHeaders from "./headers/headers.vue";
-import responseParams from "./response/response.vue";
-import view from "./view/view.vue"
+import { defineComponent } from 'vue'
+import type { ApidocTab } from '@@/store'
+import type { ApidocDetail, ApidocProperty } from '@@/global'
+import { apidocConvertParamsToJsonData } from '@/helper/index'
+import { apidocCache } from '@/cache/apidoc'
+import params from './params/params.vue';
+import requestBody from './body/body.vue';
+import requestHeaders from './headers/headers.vue';
+import responseParams from './response/response.vue';
+import view from './view/view.vue'
 
 export default defineComponent({
     components: {
-        "s-params": params,
-        "s-request-body": requestBody,
-        "s-request-headers": requestHeaders,
-        "s-response-params": responseParams,
-        "s-view": view,
+        's-params': params,
+        's-request-body': requestBody,
+        's-request-headers': requestHeaders,
+        's-response-params': responseParams,
+        's-view': view,
     },
     data() {
-        const mode = (this.$route.query.mode as "edit" | "view") || "view";
+        const mode = (this.$route.query.mode as 'edit' | 'view') || 'view';
         return {
             workMode: mode, //是否开启预览模式
-            activeName: "s-params",
+            activeName: 's-params',
         };
     },
     computed: {
         //是否存在查询参数
         hasQueryOrPathsParams() {
-            const { queryParams, paths } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const { queryParams, paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
             const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
             const hasPathsParams = paths.some((data) => data.key);
             return hasQueryParams || hasPathsParams;
         },
         //是否存在body参数
         hasBodyParams() {
-            const { contentType } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
             return !!contentType;
         },
         //返回参数个数
         responseNum() {
             let resNum = 0;
-            this.$store.state["apidoc/apidoc"].apidoc.item.responseParams.forEach(response => {
+            this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.forEach(response => {
                 const resValue = response.value;
                 const { dataType } = resValue;
-                if (dataType === "application/json") {
+                if (dataType === 'application/json') {
                     const converJsonData = apidocConvertParamsToJsonData(resValue.json);
                     const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
                     if (hasJsonData) {
                         resNum += 1;
                     }
-                } else if (dataType === "text/javascript" || dataType === "text/plain" || dataType === "text/html" || dataType === "application/xml") {
+                } else if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
                     if (resValue.text.length > 0) {
                         resNum += 1;
                     }
                 } else {
-                    console.warn(`${this.$t("未实现的返回类型")}: ${dataType}`);
+                    console.warn(`${this.$t('未实现的返回类型')}: ${dataType}`);
                 }
             });
             return resNum;
         },
         //是否存在headers
         hasHeaders() {
-            const { headers } = this.$store.state["apidoc/apidoc"].apidoc.item;
+            const { headers } = this.$store.state['apidoc/apidoc'].apidoc.item;
             const hasHeaders = headers.filter(p => p.select).some((data) => data.key);
             return hasHeaders;
         },
         //当前选中tab
         currentSelectTab(): ApidocTab | null { //当前选中的doc
             const projectId = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
             const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
             return currentSelectTab;
         },
         //布局
         layout() {
-            return this.$store.state["apidoc/baseInfo"].layout;
+            return this.$store.state['apidoc/baseInfo'].layout;
         },
         //apidoc
         apidoc() {
-            return this.$store.state["apidoc/apidoc"].apidoc;
+            return this.$store.state['apidoc/apidoc'].apidoc;
         },
         //当前工作区状态
         isView() {
-            return this.$store.state["apidoc/baseInfo"].mode === "view"
+            return this.$store.state['apidoc/baseInfo'].mode === 'view'
         },
     },
     watch: {
@@ -163,18 +163,18 @@ export default defineComponent({
         },
         apidoc: {
             handler(apidoc: ApidocDetail) {
-                const { originApidoc } = this.$store.state["apidoc/apidoc"];
+                const { originApidoc } = this.$store.state['apidoc/apidoc'];
                 const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
                 if (!isEqual) {
-                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                    this.$store.commit('apidoc/tabs/changeTabInfoById', {
                         id: this.currentSelectTab?._id,
-                        field: "saved",
+                        field: 'saved',
                         value: false,
                     })
                 } else {
-                    this.$store.commit("apidoc/tabs/changeTabInfoById", {
+                    this.$store.commit('apidoc/tabs/changeTabInfoById', {
                         id: this.currentSelectTab?._id,
-                        field: "saved",
+                        field: 'saved',
                         value: true,
                     })
                 }
@@ -191,12 +191,12 @@ export default defineComponent({
         //初始化tab缓存
         initTabCache() {
             if (this.currentSelectTab) {
-                this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || "s-params";
+                this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || 's-params';
             }
         },
         //切换布局
-        handleChangeLayout(layout: "vertical" | "horizontal") {
-            this.$store.commit("apidoc/baseInfo/changeLayout", layout);
+        handleChangeLayout(layout: 'vertical' | 'horizontal') {
+            this.$store.commit('apidoc/baseInfo/changeLayout', layout);
         },
         //=========================================================================//
         //判断apidoc是否发生改变
@@ -215,22 +215,22 @@ export default defineComponent({
                 return false;
             }
             // const { requestBody } = cpApidoc.item.requestBody;
-            if (cpApidoc.item.requestBody.mode === "json") {
+            if (cpApidoc.item.requestBody.mode === 'json') {
                 const jsonBodyIsEqual = cpApidoc.item.requestBody.rawJson === cpOriginApidoc.item.requestBody.rawJson;
                 if (!jsonBodyIsEqual) {
                     return false;
                 }
-            } else if (cpApidoc.item.requestBody.mode === "formdata") {
+            } else if (cpApidoc.item.requestBody.mode === 'formdata') {
                 const formDataIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.formdata, cpOriginApidoc.item.requestBody.formdata);
                 if (!formDataIsEqual) {
                     return false;
                 }
-            } else if (cpApidoc.item.requestBody.mode === "urlencoded") {
+            } else if (cpApidoc.item.requestBody.mode === 'urlencoded') {
                 const urlencodedIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.urlencoded, cpOriginApidoc.item.requestBody.urlencoded);
                 if (!urlencodedIsEqual) {
                     return false;
                 }
-            } else if (cpApidoc.item.requestBody.mode === "raw") {
+            } else if (cpApidoc.item.requestBody.mode === 'raw') {
                 const rawDataIsEqual = cpApidoc.item.requestBody.raw.data === cpOriginApidoc.item.requestBody.raw.data
                 const rawTypeIsEqual = cpApidoc.item.requestBody.raw.dataType === cpOriginApidoc.item.requestBody.raw.dataType
                 if (!rawTypeIsEqual) {
@@ -313,19 +313,19 @@ export default defineComponent({
         },
         //=========================================================================//
         //切换工作模式
-        toggleWorkMode(mode: "edit" | "view") {
+        toggleWorkMode(mode: 'edit' | 'view') {
             this.workMode = mode;
         },
         //打开变量维护页面
         handleOpenVariable() {
-            this.$store.commit("apidoc/tabs/addTab", {
-                _id: "variable",
+            this.$store.commit('apidoc/tabs/addTab', {
+                _id: 'variable',
                 projectId: this.$route.query.id,
-                tabType: "variable",
-                label: this.$t("变量维护"),
+                tabType: 'variable',
+                label: this.$t('变量维护'),
                 head: {
-                    icon: "iconvariable",
-                    color: ""
+                    icon: 'iconvariable',
+                    color: ''
                 },
                 saved: true,
                 fixed: true,
@@ -334,14 +334,14 @@ export default defineComponent({
         },
         //打开联想参数
         handleOpenMindParams() {
-            this.$store.commit("apidoc/tabs/addTab", {
-                _id: "mindParams",
+            this.$store.commit('apidoc/tabs/addTab', {
+                _id: 'mindParams',
                 projectId: this.$route.query.id,
-                tabType: "mindParams",
-                label: this.$t("联想参数"),
+                tabType: 'mindParams',
+                label: this.$t('联想参数'),
                 head: {
-                    icon: "iconmindParams",
-                    color: ""
+                    icon: 'iconmindParams',
+                    color: ''
                 },
                 saved: true,
                 fixed: true,

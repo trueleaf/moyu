@@ -1,9 +1,9 @@
-import { ActionContext } from "vuex"
-import type { State as RootState, ApidocBannerState } from "@@/store"
-import type { ApidocBanner, Response } from "@@/global"
-import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
-import { forEachForest, findNodeById } from "@/helper/index"
-import router from "../../router/index"
+import { ActionContext } from 'vuex'
+import type { State as RootState, ApidocBannerState } from '@@/store'
+import type { ApidocBanner, Response } from '@@/global'
+import { axios } from '@/pages/modules/apidoc/doc-view/api/api'
+import { forEachForest, findNodeById } from '@/helper/index'
+import router from '../../router/index'
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -34,7 +34,7 @@ const banner = {
         changeBannerInfoById<K extends keyof ApidocBanner>(state: ApidocBannerState, payload: EditBannerPayload<K>): void {
             const { id, field, value } = payload;
             const editData = findNodeById(state.banner, id, {
-                idKey: "_id",
+                idKey: '_id',
             }) as ApidocBanner;
             editData[field] = value
         },
@@ -81,10 +81,10 @@ const banner = {
                     shareId: payload.shareId,
                     password: payload.password,
                 };
-                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/export/share_banner", { params }).then((res) => {
+                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/export/share_banner', { params }).then((res) => {
                     if (res.code === 101005) {
                         router.replace({
-                            path: "/check",
+                            path: '/check',
                             query: {
                                 share_id: router.currentRoute.value.query.share_id,
                                 id: router.currentRoute.value.query.id,
@@ -93,7 +93,7 @@ const banner = {
                         return;
                     }
                     const result = res.data;
-                    context.commit("changeAllDocBanner", result);
+                    context.commit('changeAllDocBanner', result);
                     resolve(result);
                 }).catch((err) => {
                     reject(err);

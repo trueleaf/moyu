@@ -5,22 +5,22 @@
     备注：
 */
 <template>
-    <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap-y">
-        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleReset"></div>
-        <div v-if="isDragging" class="indicator">
-            <div class="top"></div>
-            <div class="ct">
-                <div>{{ realTimeHeight }}px({{ $t("双击还原") }})</div>
-                <!-- <div></div> -->
-            </div>
-            <div class="bottom"></div>
-        </div>
-        <slot />
+  <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap-y">
+    <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleReset"></div>
+    <div v-if="isDragging" class="indicator">
+      <div class="top"></div>
+      <div class="ct">
+        <div>{{ realTimeHeight }}px({{ $t("双击还原") }})</div>
+        <!-- <div></div> -->
+      </div>
+      <div class="bottom"></div>
     </div>
+    <slot />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
@@ -60,7 +60,7 @@ export default defineComponent({
             required: true,
         },
     },
-    emits: ["dragStart", "dragEnd"],
+    emits: ['dragStart', 'dragEnd'],
     data() {
         return {
             realTimeHeight: 0, //---------------实时高度
@@ -73,22 +73,22 @@ export default defineComponent({
         this.initDrag();
     },
     unmounted() {
-        document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-        document.documentElement.removeEventListener("mouseup", this.handleResizeMouseup)
+        document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
+        document.documentElement.removeEventListener('mouseup', this.handleResizeMouseup)
     },
     methods: {
         //初始化拖拽相关事件
         initDrag() {
-            document.documentElement.addEventListener("mouseup", this.handleResizeMouseup);
+            document.documentElement.addEventListener('mouseup', this.handleResizeMouseup);
             const { wrapper, bar } = this.$refs;
             const height = this.height ? `${this.height}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().height}px`;
             if (this.remember) {
                 const wrapperHeight = localStorage.getItem(`dragBar/${this.name}`) || height;
-                (bar as HTMLElement).style.top = "-3px";
+                (bar as HTMLElement).style.top = '-3px';
                 (wrapper as HTMLElement).style.height = `${wrapperHeight}`;
                 this.realTimeHeight = parseFloat(wrapperHeight);
             } else {
-                (bar as HTMLElement).style.top = "-3px";
+                (bar as HTMLElement).style.top = '-3px';
                 (wrapper as HTMLElement).style.height = height;
                 this.realTimeHeight = parseFloat(height);
             }
@@ -96,16 +96,16 @@ export default defineComponent({
         //处理鼠标弹起事件
         handleResizeMouseup() {
             this.isDragging = false;
-            document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-            this.$emit("dragEnd");
+            document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
+            this.$emit('dragEnd');
         },
         //处理鼠标按下事件
         handleResizeMousedown(e: MouseEvent) {
             this.mousedownTop = e.clientY;
             this.wrapperHeight = (this.$refs.wrapper as HTMLElement).getBoundingClientRect().height;
             this.isDragging = true;
-            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
-            this.$emit("dragStart")
+            document.documentElement.addEventListener('mousemove', this.handleResizeMousemove);
+            this.$emit('dragStart')
         },
         //处理鼠标移动事件
         handleResizeMousemove(e: MouseEvent) {
@@ -116,7 +116,7 @@ export default defineComponent({
             if (wrapperHeight < this.min || wrapperHeight > this.max) {
                 return;
             }
-            (bar as HTMLElement).style.top = "-3px";
+            (bar as HTMLElement).style.top = '-3px';
             (wrapper as HTMLElement).style.height = `${moveTop + this.wrapperHeight}px`;
             if (this.remember) {
                 localStorage.setItem(`dragBar/${this.name}`, `${moveTop + this.wrapperHeight}px`);
@@ -127,7 +127,7 @@ export default defineComponent({
         handleReset() {
             const { bar, wrapper } = this.$refs;
             const height = this.height ? `${this.height}px` : `${(wrapper as HTMLElement).getBoundingClientRect().height}px`;
-            (bar as HTMLElement).style.height = "-3px";
+            (bar as HTMLElement).style.height = '-3px';
             (wrapper as HTMLElement).style.height = height;
             this.realTimeHeight = parseFloat(height);
             if (this.remember) {

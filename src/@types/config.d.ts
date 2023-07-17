@@ -1,4 +1,4 @@
-import type { ComponentSize } from "element-plus/es/constants";
+import type { ComponentSize } from 'element-plus/es/constants';
 
 /*
 |--------------------------------------------------------------------------

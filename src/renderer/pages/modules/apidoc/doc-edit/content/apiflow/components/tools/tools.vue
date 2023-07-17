@@ -1,38 +1,42 @@
 <template>
-    <div class="toolbar">
-        <div class="op-item">
-            <i class="iconfont iconbaocun"></i>
-        </div>
-        <div class="op-item" :class="{disabled: historyStore.doingList.length <= 1}" @click.stop="handleUndo">
-            <i class="iconfont iconshangyibu"></i>
-        </div>
-        <div class="op-item" :class="{disabled: historyStore.redoList.length === 0}" @click.stop="handleRedo">
-            <i class="iconfont iconxiayibu"></i>
-        </div>
-        <el-divider direction="vertical" />
-        <div class="op-item" @click.stop="handleZoomOut">
-            <i class="iconfont iconjianhao"></i>
-        </div>
-        <div class="mx-1 f-xs">{{ (configStore.zoom * 100).toFixed(0) }}%</div>
-        <div class="op-item" @click.stop="handleZoomIn">
-            <i class="iconfont iconjiahao"></i>
-        </div>
+  <div class="toolbar">
+    <div class="op-item" @click.stop="handleSave">
+      <i class="iconfont iconbaocun"></i>
     </div>
+    <div class="op-item" :class="{disabled: historyStore.doingList.length <= 1}" @click.stop="handleUndo">
+      <i class="iconfont iconshangyibu"></i>
+    </div>
+    <div class="op-item" :class="{disabled: historyStore.redoList.length === 0}" @click.stop="handleRedo">
+      <i class="iconfont iconxiayibu"></i>
+    </div>
+    <el-divider direction="vertical" />
+    <div class="op-item" @click.stop="handleZoomOut">
+      <i class="iconfont iconjianhao"></i>
+    </div>
+    <div class="mx-1 f-xs">{{ (configStore.zoom * 100).toFixed(0) }}%</div>
+    <div class="op-item" @click.stop="handleZoomIn">
+      <i class="iconfont iconjiahao"></i>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowHistoryStore } from "@/store/apiflow/history";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { nextTick, toRaw } from "vue";
-import { drawLineWhenMoveOrResize } from "../../common/common";
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowHistoryStore } from '@/store/apiflow/history';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { nextTick, toRaw } from 'vue';
+import { drawLineWhenMoveOrResize } from '../../common/common';
 
 const nodesStore = useFlowNodesStore();
 const linesStore = useFlowLinesStore()
 const configStore = useFlowConfigStore();
 const historyStore = useFlowHistoryStore()
 const nodeListStore = useFlowNodesStore()
+//保存数据
+const handleSave = () => {
+    console.log(22)
+}
 //放大
 const handleZoomIn = () => {
     if (configStore.zoom >= 1.5) {
@@ -120,7 +124,7 @@ const handleRedo = () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .toolbar {
     position: absolute;
     background-color: #fff;

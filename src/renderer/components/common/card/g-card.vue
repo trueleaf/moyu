@@ -5,32 +5,32 @@
     备注：
 */
 <template>
-    <div class="s-card" :class="{shadow: shadow}" :style="{ width: width }">
-        <header v-if="$slots.operation || title">
-            <div class="title">{{ title }}</div>
-            <div>
-                <slot name="operation"></slot>
-            </div>
-        </header>
-        <!-- 搜索 -->
-        <section ref="content" class="content" :style="{padding: padding}">
-            <slot></slot>
-        </section>
-    </div>
+  <div class="s-card" :class="{shadow: shadow}" :style="{ width: width }">
+    <header v-if="$slots.operation || title">
+      <div class="title">{{ title }}</div>
+      <div>
+        <slot name="operation"></slot>
+      </div>
+    </header>
+    <!-- 搜索 -->
+    <section ref="content" class="content" :style="{padding: padding}">
+      <slot></slot>
+    </section>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
         title: { // card头部标题
             type: String,
-            default: "",
+            default: '',
         },
         width: { //宽度
             type: String,
-            default: "100%",
+            default: '100%',
         },
         shadow: { //是否显示阴影
             type: Boolean,
@@ -38,7 +38,7 @@ export default defineComponent({
         },
         padding: { //内容区域内边距
             type: String,
-            default: "5px 10px",
+            default: '5px 10px',
         },
     },
     data() {

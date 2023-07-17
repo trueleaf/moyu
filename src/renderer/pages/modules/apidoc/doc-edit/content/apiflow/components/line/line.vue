@@ -1,24 +1,24 @@
 <template>
-    <canvas
-        :id="`line__${props.lineInfo.id}`"
-        class="line"
-        :data-id="props.lineInfo.id"
-        :style="{
-            left: props.lineInfo.offsetX + 'px',
-            top: props.lineInfo.offsetY + 'px',
-            width: props.lineInfo.width + 'px',
-            height: props.lineInfo.height + 'px',
-            zIndex: props.lineInfo.zIndex,
-            cursor: lineStateStore.isHoverDragArrow ? 'move' : 'inherit',
-        }"
-    >
-    </canvas>
+  <canvas
+    :id="`line__${props.lineInfo.id}`"
+    class="line"
+    :data-id="props.lineInfo.id"
+    :style="{
+      left: props.lineInfo.offsetX + 'px',
+      top: props.lineInfo.offsetY + 'px',
+      width: props.lineInfo.width + 'px',
+      height: props.lineInfo.height + 'px',
+      zIndex: props.lineInfo.zIndex,
+      cursor: lineStateStore.isHoverDragArrow ? 'move' : 'inherit',
+    }"
+  >
+  </canvas>
 </template>
 
 <script lang="ts" setup>
-import { PropType } from "vue"
-import { FlowLineInfo } from "@@/apiflow";
-import { useFlowLineStateStore } from "@/store/apiflow/line-state";
+import { PropType } from 'vue'
+import { FlowLineInfo } from '@@/apiflow';
+import { useFlowLineStateStore } from '@/store/apiflow/line-state';
 
 const props = defineProps({
     lineInfo: {

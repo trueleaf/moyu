@@ -5,72 +5,72 @@
     备注：
 */
 <template>
-    <div ref="inputWrap" class="valid-input" tabindex="-1" @keydown="handleInputKeydown" @mouseenter="handleMouseoverWrap">
-        <div class="ipt-wrap">
-            <input
-                v-show="!isShowTextarea"
-                v-bind="$attrs"
-                :disabled="disabled"
-                :value="modelValue"
-                type="textarea"
-                class="ipt-inner"
-                :class="{ error, disabled }"
-                :placeholder="placeholder"
-                @input="handleInput"
-                @focus="handleFocus"
-            >
-            <el-input
-                v-if="isShowTextarea"
-                ref="textarea"
-                :disabled="disabled"
-                :model-value="modelValue"
-                class="textarea-wrap"
-                :placeholder="placeholder"
-                type="textarea"
-                :size="config.renderConfig.layout.size"
-                :autosize="{ minRows: 1, maxRows: 10 }"
-                resize="none"
-                @input="handleInput2"
-                @blur="handleBlur"
-                @focus="handleFocus2"
-            />
-        </div>
-        <div v-if="error" class="ipt-error">{{ errorTip }}</div>
-        <div v-if="isInput && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
-            <div
-                v-for="(item, index) in realSelectData"
-                :key="index"
-                class="select-item"
-                :class="{ active: currentSelectIndex === index }"
-                @mouseover="handleMouseoverItem(index)"
-                @click.stop="handleSelectItem"
-            >
-                <span class="head">
-                    <s-emphasize :value="item.key" :keyword="modelValue"></s-emphasize>
-                </span>
-                <span class="tail">{{ item.type }}</span>
-            </div>
-        </div>
+  <div ref="inputWrap" class="valid-input" tabindex="-1" @keydown="handleInputKeydown" @mouseenter="handleMouseoverWrap">
+    <div class="ipt-wrap">
+      <input
+        v-show="!isShowTextarea"
+        v-bind="$attrs"
+        :disabled="disabled"
+        :value="modelValue"
+        type="textarea"
+        class="ipt-inner"
+        :class="{ error, disabled }"
+        :placeholder="placeholder"
+        @input="handleInput"
+        @focus="handleFocus"
+      >
+      <el-input
+        v-if="isShowTextarea"
+        ref="textarea"
+        :disabled="disabled"
+        :model-value="modelValue"
+        class="textarea-wrap"
+        :placeholder="placeholder"
+        type="textarea"
+        :size="config.renderConfig.layout.size"
+        :autosize="{ minRows: 1, maxRows: 10 }"
+        resize="none"
+        @input="handleInput2"
+        @blur="handleBlur"
+        @focus="handleFocus2"
+      />
     </div>
+    <div v-if="error" class="ipt-error">{{ errorTip }}</div>
+    <div v-if="isInput && realSelectData.length > 0" ref="mindWrap" class="mind-wrap" :style="{ left: focusX + 'px', top: focusY + 'px' }">
+      <div
+        v-for="(item, index) in realSelectData"
+        :key="index"
+        class="select-item"
+        :class="{ active: currentSelectIndex === index }"
+        @mouseover="handleMouseoverItem(index)"
+        @click.stop="handleSelectItem"
+      >
+        <span class="head">
+          <s-emphasize :value="item.key" :keyword="modelValue"></s-emphasize>
+        </span>
+        <span class="tail">{{ item.type }}</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
-import type Schema from "async-validator";
-import type { ApidocProperty } from "@@/global"
+import { defineComponent, PropType } from 'vue'
+import type Schema from 'async-validator';
+import type { ApidocProperty } from '@@/global'
 
 export default defineComponent({
     props: {
         modelValue: {
             type: String,
-            default: "",
+            default: '',
         },
         /**
          * placeholder
          */
         placeholder: {
             type: String,
-            default: "",
+            default: '',
         },
         error: {
             type: Boolean,
@@ -78,7 +78,7 @@ export default defineComponent({
         },
         errorTip: {
             type: String,
-            default: "",
+            default: '',
         },
         disabled: {
             type: Boolean,
@@ -93,7 +93,7 @@ export default defineComponent({
             default: () => []
         },
     },
-    emits: ["update:modelValue", "remote-select", "focus", "blur"],
+    emits: ['update:modelValue', 'remote-select', 'focus', 'blur'],
     data() {
         return {
             focusX: 0,
@@ -114,21 +114,21 @@ export default defineComponent({
         },
     },
     mounted() {
-        document.documentElement.addEventListener("click", this.bindClick)
+        document.documentElement.addEventListener('click', this.bindClick)
     },
     beforeUnmount() {
-        document.documentElement.removeEventListener("click", this.bindClick)
+        document.documentElement.removeEventListener('click', this.bindClick)
     },
     methods: {
         //=====================================input事件====================================//
         //键盘输入
         handleInput(e: Event) {
-            this.$emit("update:modelValue", (e.target as HTMLInputElement).value);
+            this.$emit('update:modelValue', (e.target as HTMLInputElement).value);
             this.isInput = true;
         },
         //键盘输入
         handleInput2(value: string) {
-            this.$emit("update:modelValue", value);
+            this.$emit('update:modelValue', value);
             this.isInput = true;
         },
         //处理focus
@@ -146,7 +146,7 @@ export default defineComponent({
             if (hasData && !exactMatchData) {
                 this.isFocus = true;
             }
-            this.$emit("focus");
+            this.$emit('focus');
             // this.$nextTick(() => {
             //     (this.$refs.textarea as HTMLInputElement).focus();
             // })
@@ -155,30 +155,30 @@ export default defineComponent({
             })
         },
         handleFocus2() {
-            this.$emit("focus");
+            this.$emit('focus');
         },
         //处理blur
         handleBlur() {
             this.isFocus = false;
             this.isShowTextarea = false;
-            this.$emit("blur")
+            this.$emit('blur')
         },
         //=========================================================================//
         //处理键盘事件
         handleInputKeydown(e: KeyboardEvent) {
-            if (e.code === "ArrowDown") {
+            if (e.code === 'ArrowDown') {
                 e.preventDefault();
                 this.currentSelectIndex = (this.currentSelectIndex + 1) % this.realSelectData.length;
                 this.$nextTick(() => {
                     const mindWrap = this.$refs.mindWrap as HTMLElement | null;
-                    const activeDom = mindWrap?.querySelector(".select-item.active");
+                    const activeDom = mindWrap?.querySelector('.select-item.active');
                     if (activeDom && mindWrap) {
                         activeDom.scrollIntoView({
-                            block: "end"
+                            block: 'end'
                         })
                     }
                 })
-            } else if (e.code === "ArrowUp") {
+            } else if (e.code === 'ArrowUp') {
                 e.preventDefault();
                 let index = this.currentSelectIndex - 1;
                 if (index < 0) {
@@ -187,24 +187,24 @@ export default defineComponent({
                 this.currentSelectIndex = index;
                 this.$nextTick(() => {
                     const mindWrap = this.$refs.mindWrap as HTMLElement | null;
-                    const activeDom = mindWrap?.querySelector(".select-item.active");
+                    const activeDom = mindWrap?.querySelector('.select-item.active');
                     if (activeDom && mindWrap) {
                         activeDom.scrollIntoView({
-                            block: "end"
+                            block: 'end'
                         })
                     }
                 })
-            } else if (e.key === "Enter") {
+            } else if (e.key === 'Enter') {
                 e.preventDefault();
                 if (this.realSelectData && this.realSelectData.length > 0) {
                     this.handleSelectItem();
                 }
             }
-            if (e.ctrlKey && (e.key === "v" || e.key === "V")) {
+            if (e.ctrlKey && (e.key === 'v' || e.key === 'V')) {
                 setTimeout(() => {
                     const exactMatchData = this.selectData.find(v => v.key === this.modelValue);
                     if (exactMatchData) {
-                        this.$emit("remote-select", exactMatchData);
+                        this.$emit('remote-select', exactMatchData);
                     }
                 })
             }
@@ -212,8 +212,8 @@ export default defineComponent({
         //选择参数
         handleSelectItem() {
             const selectData = this.realSelectData[this.currentSelectIndex];
-            this.$emit("update:modelValue", selectData.key || "");
-            this.$emit("remote-select", selectData);
+            this.$emit('update:modelValue', selectData.key || '');
+            this.$emit('remote-select', selectData);
             this.isInput = false;
         },
         //鼠标移入选项默认选中当前选项

@@ -5,19 +5,19 @@
     备注：
 */
 <template>
-    <el-upload
-        class="s-download-plain"
-        :action="url"
-        :http-request="upload"
-        :show-file-list="false"
-        :before-upload="checkFileSizeAndType"
-    >
-        <slot />
-    </el-upload>
+  <el-upload
+    class="s-download-plain"
+    :action="url"
+    :http-request="upload"
+    :show-file-list="false"
+    :before-upload="checkFileSizeAndType"
+  >
+    <slot />
+  </el-upload>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType } from 'vue'
 // import { UploadFile } from "element-plus/lib/components/upload/src/upload.type";
 
 export default defineComponent({
@@ -27,7 +27,7 @@ export default defineComponent({
          */
         url: {
             type: String,
-            default: "",
+            default: '',
             required: true
         },
         /**
@@ -84,7 +84,7 @@ export default defineComponent({
             default: () => ({} as Record<string, unknown>),
         },
     },
-    emits: ["start", "finish", "success"],
+    emits: ['start', 'finish', 'success'],
     data() {
         return {
         };
@@ -92,20 +92,20 @@ export default defineComponent({
     methods: {
         //上传文件
         upload(file: { file: File }) {
-            this.$emit("start");
+            this.$emit('start');
             const formData = new FormData();
-            formData.append("file", file.file);
+            formData.append('file', file.file);
             Object.keys(this.params).forEach((key) => {
                 formData.append(key, this.params[key]);
             })
             let response: string;
             this.axios.post<{ data: string }, { data: string }>(this.url, formData).then((res) => {
                 response = res.data;
-                this.$emit("success", response);
+                this.$emit('success', response);
             }).catch((err) => {
                 console.error(err);
             }).finally(() => {
-                this.$emit("finish", response);
+                this.$emit('finish', response);
             });
         },
         checkFileSizeAndType() {

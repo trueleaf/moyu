@@ -5,116 +5,116 @@
     备注：
 */
 <template>
-    <s-fieldset :title="$t('将当前项目指定文档导出到其他项目')" class="fork">
-        <!-- 选择区域 -->
-        <div class="fork-wrap">
-            <div v-flex1="30" class="left">
-                <span class="orange">
-                    <span>{{ $t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
-                </span>
-                <el-divider></el-divider>
-                <el-tree
-                    ref="sourceTree"
-                    class="mt-2"
-                    :data="sourceTreeData"
-                    node-key="_id"
-                    draggable
-                    :allow-drop="() => false"
-                    :expand-on-click-node="true"
-                    @node-drag-start="handleSourceDragstart"
-                    @node-drag-over="handleSourceNodeDragOver"
-                    @node-drag-end="handleSourceDragend"
-                >
-                    <template #default="scope">
-                        <div class="custom-tree-node" tabindex="0">
-                            <!-- file渲染 -->
-                            <template v-if="!scope.data.isFolder">
-                                <template v-for="(req) in projectInfo.rules.requestMethods">
-                                    <span v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
-                                </template>
-                                <div class="node-label-wrap">
-                                    <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
-                                </div>
-                            </template>
-                            <!-- 文件夹渲染 -->
-                            <template v-if="scope.data.isFolder">
-                                <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
-                                <div class="node-label-wrap">
-                                    <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
-                                </div>
-                            </template>
-                        </div>
-                    </template>
-                </el-tree>
-            </div>
-            <div ref="target" v-flex1="30" class="right">
-                <div>
-                    <div class="orange">
-                        <span>{{ $t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
-                    </div>
-                    <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
-                        <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
-                    </el-radio-group>
-                    <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable @change="handleChangeProject">
-                        <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
-                    </el-select>
-                    <el-divider></el-divider>
-                    <s-loading :loading="loading" class="project-nav mt-2">
-                        <el-tree
-                            ref="targetTree"
-                            :data="targetTreeData"
-                            node-key="_id"
-                            draggable
-                            :allow-drop="checkTargetCouldDrop"
-                            :expand-on-click-node="true"
-                            :empty-text="$t('暂无文档，请在项目中添加至少一个文档')"
-                            @node-drag-over="handleTargetNodeOver"
-                            @node-drag-start="handleTargetDragStart"
-                            @node-drop="handleTargetDrop"
-                            @node-expand="clearContextmenu"
-                            @node-collapse="clearContextmenu"
-                        >
-                            <template #default="scope">
-                                <div class="custom-tree-node" tabindex="0">
-                                    <!-- file渲染 -->
-                                    <template v-if="!scope.data.isFolder">
-                                        <template v-for="(req) in projectInfo.rules.requestMethods">
-                                            <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
-                                        </template>
-                                        <div class="node-label-wrap">
-                                            <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
-                                        </div>
-                                    </template>
-                                    <!-- 文件夹渲染 -->
-                                    <template v-if="scope.data.isFolder">
-                                        <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
-                                        <div class="node-label-wrap">
-                                            <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
-                                        </div>
-                                    </template>
-                                </div>
-                            </template>
-                        </el-tree>
-                    </s-loading>
+  <s-fieldset :title="$t('将当前项目指定文档导出到其他项目')" class="fork">
+    <!-- 选择区域 -->
+    <div class="fork-wrap">
+      <div v-flex1="30" class="left">
+        <span class="orange">
+          <span>{{ $t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
+        </span>
+        <el-divider></el-divider>
+        <el-tree
+          ref="sourceTree"
+          class="mt-2"
+          :data="sourceTreeData"
+          node-key="_id"
+          draggable
+          :allow-drop="() => false"
+          :expand-on-click-node="true"
+          @node-drag-start="handleSourceDragstart"
+          @node-drag-over="handleSourceNodeDragOver"
+          @node-drag-end="handleSourceDragend"
+        >
+          <template #default="scope">
+            <div class="custom-tree-node" tabindex="0">
+              <!-- file渲染 -->
+              <template v-if="!scope.data.isFolder">
+                <template v-for="(req) in projectInfo.rules.requestMethods">
+                  <span v-if="scope.data && scope.data.method && scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                </template>
+                <div class="node-label-wrap">
+                  <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
                 </div>
+              </template>
+              <!-- 文件夹渲染 -->
+              <template v-if="scope.data.isFolder">
+                <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+                <div class="node-label-wrap">
+                  <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                </div>
+              </template>
             </div>
+          </template>
+        </el-tree>
+      </div>
+      <div ref="target" v-flex1="30" class="right">
+        <div>
+          <div class="orange">
+            <span>{{ $t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
+          </div>
+          <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
+            <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
+          </el-radio-group>
+          <el-select v-else v-model="targetProjectId" :size="config.renderConfig.layout.size" class="mt-2" filterable @change="handleChangeProject">
+            <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
+          </el-select>
+          <el-divider></el-divider>
+          <s-loading :loading="loading" class="project-nav mt-2">
+            <el-tree
+              ref="targetTree"
+              :data="targetTreeData"
+              node-key="_id"
+              draggable
+              :allow-drop="checkTargetCouldDrop"
+              :expand-on-click-node="true"
+              :empty-text="$t('暂无文档，请在项目中添加至少一个文档')"
+              @node-drag-over="handleTargetNodeOver"
+              @node-drag-start="handleTargetDragStart"
+              @node-drop="handleTargetDrop"
+              @node-expand="clearContextmenu"
+              @node-collapse="clearContextmenu"
+            >
+              <template #default="scope">
+                <div class="custom-tree-node" tabindex="0">
+                  <!-- file渲染 -->
+                  <template v-if="!scope.data.isFolder">
+                    <template v-for="(req) in projectInfo.rules.requestMethods">
+                      <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                    </template>
+                    <div class="node-label-wrap">
+                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                    </div>
+                  </template>
+                  <!-- 文件夹渲染 -->
+                  <template v-if="scope.data.isFolder">
+                    <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
+                    <div class="node-label-wrap">
+                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </el-tree>
+          </s-loading>
         </div>
-        <!-- <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :project-id="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog> -->
-    </s-fieldset>
+      </div>
+    </div>
+    <!-- <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :project-id="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog> -->
+  </s-fieldset>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from "vue"
-import { ElMessage } from "element-plus";
-import type { ApidocBanner, ApidocProjectEnum, Response } from "@@/global"
-import type TreeStore from "element-plus/lib/components/tree/src/model/tree-store"
-import type { DropType } from "element-plus/lib/components/tree/src/tree.type"
-import type Node from "element-plus/lib/components/tree/src/model/node"
-import { store } from "@/store/index"
-import { axios } from "@/api/api"
-import { router } from "@/router/index"
-import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from "@/helper"
-import { $t } from "@/i18n/i18n"
+import { ref, Ref, onMounted, computed, ComponentPublicInstance, nextTick } from 'vue'
+import { ElMessage } from 'element-plus';
+import type { ApidocBanner, ApidocProjectEnum, Response } from '@@/global'
+import type TreeStore from 'element-plus/lib/components/tree/src/model/tree-store'
+import type { DropType } from 'element-plus/lib/components/tree/src/tree.type'
+import type Node from 'element-plus/lib/components/tree/src/model/node'
+import { store } from '@/store/index'
+import { axios } from '@/api/api'
+import { router } from '@/router/index'
+import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
+import { $t } from '@/i18n/i18n'
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 
 type DragState = {
@@ -123,7 +123,7 @@ type DragState = {
         allowDrop: boolean,
         draggingNode: Node | null,
         dropNode: Node | null,
-        dropType: "before" | "after" | "inner" | "none" | null,
+        dropType: 'before' | 'after' | 'inner' | 'none' | null,
     }
 }
 type TreeInstance = DragState & TreeStore & ComponentPublicInstance
@@ -135,7 +135,7 @@ type TreeInstance = DragState & TreeStore & ComponentPublicInstance
 */
 //项目id
 const projectId = router.currentRoute.value.query.id as string;
-const projectInfo = computed(() => store.state["apidoc/baseInfo"])
+const projectInfo = computed(() => store.state['apidoc/baseInfo'])
 /*
 |--------------------------------------------------------------------------
 | 项目列表信息
@@ -146,14 +146,14 @@ const loading = ref(false);
 //目标树数据
 const targetTreeData: Ref<ApidocBanner[]> = ref([]);
 //目标项目 项目id
-const targetProjectId = ref("");
+const targetProjectId = ref('');
 //根据id获取目标项目详情数据
 const handleChangeProject = (pid: string | number | boolean) => {
     loading.value = true;
     const params = {
         projectId: pid,
     };
-    axios.get("/api/project/doc_tree_node", { params }).then((res) => {
+    axios.get('/api/project/doc_tree_node', { params }).then((res) => {
         targetTreeData.value = res.data;
     }).catch((err) => {
         console.error(err);
@@ -164,7 +164,7 @@ const handleChangeProject = (pid: string | number | boolean) => {
 //项目列表枚举
 const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
-    axios.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>("/api/project/project_enum").then((res) => {
+    axios.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
         res.data.forEach((val) => {
             if (val._id !== projectId) { //过滤掉当前项目
                 projectEnum.value.push(val);
@@ -195,7 +195,7 @@ const sourceTree: Ref<(TreeInstance) | null> = ref(null);
 
 //源树数据
 const sourceTreeData = computed(() => {
-    const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(store.state["apidoc/banner"].banner));
+    const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(store.state['apidoc/banner'].banner));
     forEachForest(copyData, (data) => {
         data._isSource = true;
     });
@@ -227,19 +227,19 @@ const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType
 
 //目标树dragStart
 const handleTargetDragStart = (event: Event, node: Node) => {
-    console.log("target start", node, event)
+    console.log('target start', node, event)
     isInSource.value = false;
 }
 //在目标树上拖拽
 const handleTargetNodeOver = () => {
-    console.log("target over")
+    console.log('target over')
     isInSource.value = false;
 }
 //排序目标树
 const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
     const params = {
         _id: node.data._id, //当前节点id
-        pid: "", //父元素
+        pid: '', //父元素
         sort: 0, //当前节点排序效果
         projectId,
         dropInfo: {
@@ -250,25 +250,25 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
             dropType: type,
         },
     };
-    const pData = findParentById(targetTreeData.value, node.data._id, { idKey: "_id" });
-    params.pid = pData ? pData._id : "";
-    if (type === "inner") {
+    const pData = findParentById(targetTreeData.value, node.data._id, { idKey: '_id' });
+    params.pid = pData ? pData._id : '';
+    if (type === 'inner') {
         params.sort = Date.now();
     } else {
-        const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
-        const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: "_id" }) || { sort: 0 };
+        const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
+        const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
         const previousSiblingSort = previousSibling.sort || 0;
         const nextSiblingSort = nextSibling.sort || Date.now();
         params.sort = (nextSiblingSort + previousSiblingSort) / 2;
         node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
     }
-    axios.put("/api/project/change_doc_pos", params).catch((err) => {
+    axios.put('/api/project/change_doc_pos', params).catch((err) => {
         console.error(err)
     });
 }
 //目标树drop
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
-    console.log("drop111")
+    console.log('drop111')
     if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
         targetTree.value?.remove(dragNode.data);
         return;
@@ -279,12 +279,12 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
         let targetMountedId = null;
         const dropNodeId = dropNode.data._id2 || dropNode.data._id;
         const dragNodeId = dragNode.data._id2 || dragNode.data._id;
-        if (type === "inner") { //拖放至内部则选择dropNode
+        if (type === 'inner') { //拖放至内部则选择dropNode
             targetMountedId = dropNodeId;
         } else {
-            const dropNodeParentNode = findParentById(targetTreeData.value, dropNodeId, { idKey: "_id" });
-            const nextSibling = findNextSiblingById(targetTreeData.value, dragNodeId, { idKey: "_id" }) || { sort: 0 };
-            const previousSibling = findPreviousSiblingById(targetTreeData.value, dragNodeId, { idKey: "_id" }) || { sort: 0 };
+            const dropNodeParentNode = findParentById(targetTreeData.value, dropNodeId, { idKey: '_id' });
+            const nextSibling = findNextSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
+            const previousSibling = findPreviousSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
             const previousSiblingSort = previousSibling.sort || 0;
             const nextSiblingSort = nextSibling.sort || Date.now();
             targetNodeSort = (nextSiblingSort + previousSiblingSort) / 2;
@@ -305,7 +305,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
             targetMountedId, //目标挂载节点id
             targetNodeSort,
         };
-        axios.post("/api/project/export/fork", params).then((res) => {
+        axios.post('/api/project/export/fork', params).then((res) => {
             const docsIdMap = res.data;
             forEachForest(targetTreeData.value, (data) => {
                 const { _id } = data;
@@ -314,7 +314,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
                     data._id = newId;
                 }
             });
-            ElMessage.success($t("导入成功"));
+            ElMessage.success($t('导入成功'));
         }).catch((err) => {
             console.error(err);
         });
@@ -327,7 +327,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
 
 //拖拽开始(源)
 const handleSourceDragstart = (node: Node, event: Event) => {
-    console.log("drag start", targetTree.value, event, node)
+    console.log('drag start', targetTree.value, event, node)
     if (targetTree.value) {
         // targetTree.value.dragState.draggingNode = { node };
     }
@@ -343,7 +343,7 @@ const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unkno
         _id: uuid(),
     };
     sourceTree.value?.insertBefore(emptyData, draggingNode);
-    targetTree.value?.$emit("node-drag-end", event);
+    targetTree.value?.$emit('node-drag-end', event);
     nextTick(() => {
         if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
             sourceTree.value?.remove(emptyData);

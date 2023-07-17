@@ -5,20 +5,20 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="$t('新增文件夹')" @close="handleClose">
-        <s-form ref="form" @submit.prevent="handleAddFolder">
-            <s-form-item :label="$t('文件夹名称')" prop="name" focus one-line></s-form-item>
-        </s-form>
-        <template #footer>
-            <el-button :loading="loading" type="primary" @click="handleAddFolder">{{ $t("确定") }}</el-button>
-            <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="$t('新增文件夹')" @close="handleClose">
+    <s-form ref="form" @submit.prevent="handleAddFolder">
+      <s-form-item :label="$t('文件夹名称')" prop="name" focus one-line></s-form-item>
+    </s-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleAddFolder">{{ $t("确定") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { Response, ApidocBanner } from "@@/global"
+import { defineComponent } from 'vue'
+import { Response, ApidocBanner } from '@@/global'
 
 export default defineComponent({
     props: {
@@ -31,10 +31,10 @@ export default defineComponent({
          */
         pid: {
             type: String,
-            default: "",
+            default: '',
         },
     },
-    emits: ["update:modelValue", "success"],
+    emits: ['update:modelValue', 'success'],
     data() {
         return {
             loading: false,
@@ -48,12 +48,12 @@ export default defineComponent({
                     const { formInfo } = this.$refs.form;
                     const params = {
                         name: formInfo.name,
-                        type: "folder",
+                        type: 'folder',
                         projectId: this.$route.query.id,
                         pid: this.pid,
                     };
-                    this.axios.post<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/new_doc", params).then((res) => {
-                        this.$emit("success", res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+                    this.axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
+                        this.$emit('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
                         this.handleClose();
                     }).catch((err) => {
                         console.error(err)
@@ -61,14 +61,14 @@ export default defineComponent({
                         this.loading = false;
                     });
                 } else {
-                    this.$message.warning(this.$t("请完善必填信息"));
+                    this.$message.warning(this.$t('请完善必填信息'));
                     this.loading = false;
                 }
             });
         },
         //关闭弹窗
         handleClose() {
-            this.$emit("update:modelValue", false);
+            this.$emit('update:modelValue', false);
         },
     },
 })

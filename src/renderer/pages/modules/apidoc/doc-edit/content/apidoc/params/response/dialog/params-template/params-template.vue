@@ -5,19 +5,19 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" width="30%" :title="$t('保存参数为模板')" @close="handleClose">
-        <s-form ref="form">
-            <s-form-item label="模板名称" prop="name" one-line required></s-form-item>
-        </s-form>
-        <template #footer>
-            <el-button :loading="loading" type="primary" @click="handleSave">{{ $t("保存") }}</el-button>
-            <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" width="30%" :title="$t('保存参数为模板')" @close="handleClose">
+    <s-form ref="form">
+      <s-form-item label="模板名称" prop="name" one-line required></s-form-item>
+    </s-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleSave">{{ $t("保存") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
@@ -30,7 +30,7 @@ export default defineComponent({
             default: 0,
         },
     },
-    emits: ["update:modelValue"],
+    emits: ['update:modelValue'],
     data() {
         return {
             loading: false
@@ -42,19 +42,19 @@ export default defineComponent({
             this.$refs.form.validate((valid) => {
                 if (valid) {
                     const { formInfo } = this.$refs.form;
-                    const responseParam = this.$store.state["apidoc/apidoc"].apidoc.item.responseParams[this.index];
+                    const responseParam = this.$store.state['apidoc/apidoc'].apidoc.item.responseParams[this.index];
                     if (!responseParam) {
                         return
                     }
                     const params = {
                         name: formInfo.name,
-                        presetParamsType: "responseParams",
+                        presetParamsType: 'responseParams',
                         projectId: this.$route.query.id,
                         items: responseParam.value.json,
                     };
                     this.loading = true;
-                    this.axios.post("/api/project/doc_preset_params", params).then((res) => {
-                        this.$store.commit("apidoc/baseInfo/addParamsTemplate", res.data);
+                    this.axios.post('/api/project/doc_preset_params', params).then((res) => {
+                        this.$store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
                         this.handleClose();
                     }).catch((err) => {
                         console.error(err);
@@ -63,7 +63,7 @@ export default defineComponent({
                     });
                 } else {
                     this.$nextTick(() => {
-                        const input = document.querySelector(".el-form-item.is-error input");
+                        const input = document.querySelector('.el-form-item.is-error input');
                         if (input) {
                             (input as HTMLElement).focus();
                         }
@@ -73,7 +73,7 @@ export default defineComponent({
         },
         //关闭弹窗
         handleClose() {
-            this.$emit("update:modelValue", false);
+            this.$emit('update:modelValue', false);
         },
     },
 })

@@ -1,10 +1,10 @@
-import { ActionContext } from "vuex"
-import type { State as RootState, ApidocBannerState, ApidocMockState } from "@@/store"
-import { ApidocBanner, Response } from "@@/global"
-import { axios } from "@/api/api"
-import { forEachForest, findNodeById } from "@/helper/index"
-import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
-import { store } from "../index"
+import { ActionContext } from 'vuex'
+import type { State as RootState, ApidocBannerState, ApidocMockState } from '@@/store'
+import { ApidocBanner, Response } from '@@/global'
+import { axios } from '@/api/api'
+import { forEachForest, findNodeById } from '@/helper/index'
+import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
+import { store } from '../index'
 
 type SplicePayload = {
     opData?: ApidocBanner[],
@@ -36,7 +36,7 @@ const banner = {
         changeBannerInfoById<K extends keyof ApidocBanner>(state: ApidocBannerState, payload: EditBannerPayload<K>): void {
             const { id, field, value } = payload;
             const editData = findNodeById(state.banner, id, {
-                idKey: "_id",
+                idKey: '_id',
             }) as ApidocBanner;
             editData[field] = value
         },
@@ -86,10 +86,10 @@ const banner = {
                 const params = {
                     projectId: payload.projectId,
                 };
-                axios.get("/api/project/doc_tree_node", { params }).then((res) => {
+                axios.get('/api/project/doc_tree_node', { params }).then((res) => {
                     const result = res.data;
-                    context.commit("changeAllDocBanner", result);
-                    const urlMap: ApidocMockState["urlMap"] = [];
+                    context.commit('changeAllDocBanner', result);
+                    const urlMap: ApidocMockState['urlMap'] = [];
                     forEachForest(res.data, (data) => {
                         if (!data.isFolder) {
                             urlMap.push({
@@ -101,7 +101,7 @@ const banner = {
                             });
                         }
                     })
-                    store.commit("apidoc/mock/changeMockUrlMap", urlMap);
+                    store.commit('apidoc/mock/changeMockUrlMap', urlMap);
                     resolve(result);
                 }).catch((err) => {
                     reject(err);
@@ -117,10 +117,10 @@ const banner = {
                     shareId: payload.shareId,
                     password: payload.password,
                 };
-                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>("/api/project/export/share_banner", { params }).then((res) => {
+                axios.get<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/export/share_banner', { params }).then((res) => {
                     if (res.code === 101005) {
                         shareRouter.replace({
-                            path: "/check",
+                            path: '/check',
                             query: {
                                 share_id: shareRouter.currentRoute.value.query.share_id,
                                 id: shareRouter.currentRoute.value.query.id,
@@ -129,7 +129,7 @@ const banner = {
                         return;
                     }
                     const result = res.data;
-                    context.commit("changeAllDocBanner", result);
+                    context.commit('changeAllDocBanner', result);
                     resolve(result);
                 }).catch((err) => {
                     reject(err);

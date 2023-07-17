@@ -5,28 +5,28 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="server-routes">
-        <div v-for="(item, title) in serverRoutes" :key="title">
-            <el-divider content-position="left">{{ title }}</el-divider>
-            <div class="pl-5">
-                <el-checkbox
-                    v-model="item.selected"
-                    :indeterminate="checkServerRoutesIsIndeterminate(item)"
-                    :label="$t('全选')"
-                    @change="handleSelectAllServerRoutes(item)"
-                >
-                </el-checkbox>
-                <el-checkbox-group v-model="selectedData" @change="handleSelectServerRoutes(item)">
-                    <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
-                </el-checkbox-group>
-            </div>
-        </div>
-    </s-loading>
+  <s-loading :loading="loading" class="server-routes">
+    <div v-for="(item, title) in serverRoutes" :key="title">
+      <el-divider content-position="left">{{ title }}</el-divider>
+      <div class="pl-5">
+        <el-checkbox
+          v-model="item.selected"
+          :indeterminate="checkServerRoutesIsIndeterminate(item)"
+          :label="$t('全选')"
+          @change="handleSelectAllServerRoutes(item)"
+        >
+        </el-checkbox>
+        <el-checkbox-group v-model="selectedData" @change="handleSelectServerRoutes(item)">
+          <el-checkbox v-for="(item2, index) in item.values" :key="index" :label="item2._id">{{ item2.name }}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+    </div>
+  </s-loading>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import type { PermissionServerRoute, Response } from "@@/global"
+import { defineComponent } from 'vue'
+import type { PermissionServerRoute, Response } from '@@/global'
 
 type RouteInfo = {
     selected: boolean,
@@ -37,7 +37,7 @@ type ServerGroupRoutes = {
 }
 
 export default defineComponent({
-    emits: ["change"],
+    emits: ['change'],
     data() {
         return {
             selectedData: [] as string[], //------------当前选中的后端路由
@@ -48,7 +48,7 @@ export default defineComponent({
     watch: {
         selectedData: {
             handler(val) {
-                this.$emit("change", val);
+                this.$emit('change', val);
             },
             deep: true,
         },
@@ -60,15 +60,15 @@ export default defineComponent({
         //获取后端路由信息
         getServerRoutes() {
             this.loading = true;
-            this.axios.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>("/api/security/server_routes").then((res) => {
+            this.axios.get<Response<PermissionServerRoute[]>, Response<PermissionServerRoute[]>>('/api/security/server_routes').then((res) => {
                 res.data.forEach((val) => {
-                    if (!this.serverRoutes[val.groupName || "__default"]) {
-                        this.serverRoutes[val.groupName || "__default"] = {
+                    if (!this.serverRoutes[val.groupName || '__default']) {
+                        this.serverRoutes[val.groupName || '__default'] = {
                             selected: false,
                             values: [],
                         };
                     }
-                    this.serverRoutes[val.groupName || "__default"].values.push({
+                    this.serverRoutes[val.groupName || '__default'].values.push({
                         ...val,
                     });
                 });

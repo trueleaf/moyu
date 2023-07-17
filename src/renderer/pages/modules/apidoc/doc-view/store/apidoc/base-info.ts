@@ -1,15 +1,15 @@
-import { ActionContext } from "vuex"
-import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from "@@/store"
-import type { Response, ApidocMindParam, ApidocProperty, ApidocPropertyType } from "@@/global"
-import { axios } from "@/pages/modules/apidoc/doc-view/api/api"
-import router from "../../router/index"
+import { ActionContext } from 'vuex'
+import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate } from '@@/store'
+import type { Response, ApidocMindParam, ApidocProperty, ApidocPropertyType } from '@@/global'
+import { axios } from '@/pages/modules/apidoc/doc-view/api/api'
+import router from '../../router/index'
 
 type CommonHeaderResult = {
     matched: boolean,
-    data: Pick<ApidocProperty, "key" | "value" | "description">[]
+    data: Pick<ApidocProperty, 'key' | 'value' | 'description'>[]
 };
 
-const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], id: string | undefined, preCommonHeaders: Pick<ApidocProperty, "key" | "value" | "description">[], result: CommonHeaderResult) => {
+const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], id: string | undefined, preCommonHeaders: Pick<ApidocProperty, 'key' | 'value' | 'description'>[], result: CommonHeaderResult) => {
     const loopList = [];
     for (let i = 0; i < data.length; i += 1) {
         if (result.matched) {
@@ -54,21 +54,21 @@ const getMatchedHeaders = (data: ApidocProjectBaseInfoState["commonHeaders"], id
 const baseInfo = {
     namespaced: true,
     state: {
-        _id: "",
-        projectName: "",
+        _id: '',
+        projectName: '',
         variables: [],
         mindParams: [],
         paramsTemplate: [],
         rules: {},
         hosts: [],
         globalCookies: {},
-        layout: "horizontal",
+        layout: 'horizontal',
         webProxy: true,
         proxy: {
-            path: "",
+            path: '',
             enabled: false,
         },
-        mode: "view",
+        mode: 'view',
         commonHeaders: [],
     },
     mutations: {
@@ -92,30 +92,30 @@ const baseInfo = {
             state.mindParams.splice(delIndex, 1)
         },
         //改变hosts
-        changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState["hosts"]): void {
+        changeProjectHosts(state: ApidocProjectBaseInfoState, payload: ApidocProjectBaseInfoState['hosts']): void {
             state.hosts = payload;
         },
         //初始化cookie值
         initCookies(state: ApidocProjectBaseInfoState): void {
-            const localCookies = localStorage.getItem("apidoc/globalCookies") || "{}";
+            const localCookies = localStorage.getItem('apidoc/globalCookies') || '{}';
             try {
                 const jsonCookies = JSON.parse(localCookies)
                 state.globalCookies = jsonCookies;
             } catch (error) {
                 console.error(error);
-                localStorage.setItem("apidoc/globalCookies", "{}")
+                localStorage.setItem('apidoc/globalCookies', '{}')
             }
         },
         //改变布局方式
-        changeLayout(state: ApidocProjectBaseInfoState, layout: "horizontal" | "vertical"): void {
+        changeLayout(state: ApidocProjectBaseInfoState, layout: 'horizontal' | 'vertical'): void {
             state.layout = layout;
-            localStorage.setItem("apidoc/layout", layout)
+            localStorage.setItem('apidoc/layout', layout)
         },
         //初始化布局
         initLayout(state: ApidocProjectBaseInfoState): void {
-            const localLayout = localStorage.getItem("apidoc/layout");
-            if (localLayout !== "horizontal" && localLayout !== "vertical") {
-                state.layout = "horizontal";
+            const localLayout = localStorage.getItem('apidoc/layout');
+            if (localLayout !== 'horizontal' && localLayout !== 'vertical') {
+                state.layout = 'horizontal';
             } else {
                 state.layout = localLayout;
             }
@@ -129,17 +129,17 @@ const baseInfo = {
             state.webProxy = isProxy;
         },
         //改变操作模式
-        changeMode(state: ApidocProjectBaseInfoState, mode: "edit" | "view"): void {
+        changeMode(state: ApidocProjectBaseInfoState, mode: 'edit' | 'view'): void {
             state.mode = mode;
         },
         //改变公共请求头信息
-        changeCommonHeaders(state: ApidocProjectBaseInfoState, headers: ApidocProjectBaseInfoState["commonHeaders"]): void {
+        changeCommonHeaders(state: ApidocProjectBaseInfoState, headers: ApidocProjectBaseInfoState['commonHeaders']): void {
             state.commonHeaders = headers
         },
         //根据id获取公共请求头
-        getCommonHeadersById(state: ApidocProjectBaseInfoState, id: string): Pick<ApidocProperty<ApidocPropertyType>, "key" | "value" | "description">[] {
+        getCommonHeadersById(state: ApidocProjectBaseInfoState, id: string): Pick<ApidocProperty<ApidocPropertyType>, 'key' | 'value' | 'description'>[] {
             if (!id) {
-                console.warn("必须传递id");
+                console.warn('必须传递id');
                 return [];
             }
             const result: CommonHeaderResult = {
@@ -159,8 +159,8 @@ const baseInfo = {
                 const params = {
                     _id: payload.projectId,
                 }
-                axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/project_full_info", { params }).then((res) => {
-                    context.commit("changeProjectBaseInfo", res.data)
+                axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/project_full_info', { params }).then((res) => {
+                    context.commit('changeProjectBaseInfo', res.data)
                     resolve()
                 }).catch((err) => {
                     console.error(err);
@@ -177,10 +177,10 @@ const baseInfo = {
                     shareId: payload.shareId,
                     password: payload.password,
                 };
-                axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>("/api/project/export/share_project_info", { params }).then((res) => {
+                axios.get<Response<ApidocProjectBaseInfoState>, Response<ApidocProjectBaseInfoState>>('/api/project/export/share_project_info', { params }).then((res) => {
                     if (res.code === 101005) {
                         router.replace({
-                            path: "/check",
+                            path: '/check',
                             query: {
                                 share_id: router.currentRoute.value.query.share_id,
                                 id: router.currentRoute.value.query.id,
@@ -188,7 +188,7 @@ const baseInfo = {
                         });
                         return;
                     }
-                    context.commit("changeProjectBaseInfo", res.data)
+                    context.commit('changeProjectBaseInfo', res.data)
                     resolve()
                 }).catch((err) => {
                     console.error(err);
@@ -205,8 +205,8 @@ const baseInfo = {
                 const params = {
                     projectId
                 }
-                axios.get<Response<ApidocProjectBaseInfoState["commonHeaders"][]>, Response<ApidocProjectBaseInfoState["commonHeaders"][]>>("/api/project/common_headers", { params }).then((res) => {
-                    context.commit("changeCommonHeaders", res.data)
+                axios.get<Response<ApidocProjectBaseInfoState['commonHeaders'][]>, Response<ApidocProjectBaseInfoState['commonHeaders'][]>>('/api/project/common_headers', { params }).then((res) => {
+                    context.commit('changeCommonHeaders', res.data)
                     resolve();
                 }).catch((err) => {
                     console.error(err);

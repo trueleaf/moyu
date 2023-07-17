@@ -1,8 +1,8 @@
-import { ref, Ref, computed, ComputedRef, onMounted, onBeforeUnmount } from "vue"
-import { ApidocProjectParamsTemplate } from "@@/store"
-import { router } from "@/router/index"
-import { store } from "@/store/index"
-import { $t } from "@/i18n/i18n"
+import { ref, Ref, computed, ComputedRef, onMounted, onBeforeUnmount } from 'vue'
+import { ApidocProjectParamsTemplate } from '@@/store'
+import { router } from '@/router/index'
+import { store } from '@/store/index'
+import { $t } from '@/i18n/i18n'
 
 type Response = {
     showTemplateIndex: Ref<number>;
@@ -16,13 +16,13 @@ type Response = {
 
 export default function useImportParams(): Response {
     const showTemplateIndex = ref(-1);//是否显示模板
-    const templateFilterString = ref("");//模板过滤参数
+    const templateFilterString = ref('');//模板过滤参数
     const paramsTemplatedialogVisible = ref(false); //模板维护弹窗
     const curentOperationIndex = ref(0); //当前操作数据index值
     //模板列表
     const jsonTemplateList = computed(() => {
-        const templates = store.state["apidoc/baseInfo"].paramsTemplate;
-        const result = templates.filter(template => template.presetParamsType === "responseParams").filter(template => {
+        const templates = store.state['apidoc/baseInfo'].paramsTemplate;
+        const result = templates.filter(template => template.presetParamsType === 'responseParams').filter(template => {
             if (!templateFilterString.value) {
                 return true;
             }
@@ -32,14 +32,14 @@ export default function useImportParams(): Response {
     })
     const projectId = router.currentRoute.value.query.id as string;
     const handleOpenTempateTab = () => {
-        store.commit("apidoc/tabs/addTab", {
-            _id: "paramsTemplate",
+        store.commit('apidoc/tabs/addTab', {
+            _id: 'paramsTemplate',
             projectId,
-            tabType: "paramsTemplate",
-            label: $t("模板维护"),
+            tabType: 'paramsTemplate',
+            label: $t('模板维护'),
             head: {
-                icon: "iconvariable",
-                color: ""
+                icon: 'iconvariable',
+                color: ''
             },
             saved: true,
             fixed: true,
@@ -56,10 +56,10 @@ export default function useImportParams(): Response {
         showTemplateIndex.value = -1;
     }
     onMounted(() => {
-        document.documentElement.addEventListener("click", bindClick)
+        document.documentElement.addEventListener('click', bindClick)
     })
     onBeforeUnmount(() => {
-        document.documentElement.removeEventListener("click", bindClick)
+        document.documentElement.removeEventListener('click', bindClick)
     })
     return {
         showTemplateIndex,

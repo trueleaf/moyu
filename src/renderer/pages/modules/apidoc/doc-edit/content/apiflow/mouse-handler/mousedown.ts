@@ -1,15 +1,15 @@
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowContainerStore } from "@/store/apiflow/container";
-import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
-import { useFlowLineStateStore } from "@/store/apiflow/line-state";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { FlowLineInfo, FlowNodeInfo, FlowSelection } from "@@/apiflow";
-import { uniqueId } from "lodash";
-import { getDrawInfoByLineId, repaintLine } from "../common/common";
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowContainerStore } from '@/store/apiflow/container';
+import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-state';
+import { useFlowLineStateStore } from '@/store/apiflow/line-state';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { FlowLineInfo, FlowNodeInfo, FlowSelection } from '@@/apiflow';
+import { uniqueId } from 'lodash';
+import { getDrawInfoByLineId, repaintLine } from '../common/common';
 
 /**
  * 点击Node
@@ -44,8 +44,8 @@ export function changeNodeStateWhenMouseDown(e: MouseEvent): void {
     if (matchedNodes.length === 0) {
         nodeStateStore.$patch({
             isMouseDown: false,
-            activeNodeId: "",
-            dragNodeId: "",
+            activeNodeId: '',
+            dragNodeId: '',
         });
     } else {
         let maxZIndexNode = matchedNodes[0];
@@ -85,7 +85,7 @@ export function changeLineStateWhenMouseDown(): void {
     lines.forEach(line => {
         const drawInfo = getDrawInfoByLineId(line.id);
         if (drawInfo) {
-            drawInfo.lineInfo.activeColor = "#333"
+            drawInfo.lineInfo.activeColor = '#333'
             const canvasDom = document.querySelector(`#line__${line.id}`) as HTMLCanvasElement;
             if (canvasDom) {
                 repaintLine(canvasDom, drawInfo);
@@ -95,7 +95,7 @@ export function changeLineStateWhenMouseDown(): void {
     if (lineStateStore.hoverLineId && !createLineDotState.hoverNodeId && !lineStateStore.isHoverDragArrow) {
         const drawInfo = getDrawInfoByLineId(lineStateStore.hoverLineId);
         if (drawInfo) {
-            drawInfo.lineInfo.activeColor = "rgb(6, 123, 239)"
+            drawInfo.lineInfo.activeColor = 'rgb(6, 123, 239)'
             const canvasDom = document.querySelector(`#line__${lineStateStore.hoverLineId}`) as HTMLCanvasElement;
             if (canvasDom) {
                 repaintLine(canvasDom, drawInfo);
@@ -106,7 +106,7 @@ export function changeLineStateWhenMouseDown(): void {
         }
     } else {
         lineStateStore.$patch({
-            selectedLineId: "",
+            selectedLineId: '',
         })
     }
 }
@@ -132,19 +132,19 @@ export function changeResizeDotStateWhenMouseDown(e: MouseEvent): void {
         const nodeWidth = matchedNode.styleInfo.width;
         const nodeHeight = matchedNode.styleInfo.height;
         switch (resizeNodeDotState.hoverPosition) {
-            case "leftTop":
+            case 'leftTop':
                 nodeFixedX = nodeOffsetX + (nodeWidth - configStore.nodeMinWidth);
                 nodeFixedY = nodeOffsetY + (nodeHeight - configStore.nodeMinHeight);
                 break;
-            case "rightTop":
+            case 'rightTop':
                 nodeFixedX = nodeOffsetX;
                 nodeFixedY = nodeOffsetY + (nodeHeight - configStore.nodeMinHeight);
                 break;
-            case "leftBottom":
+            case 'leftBottom':
                 nodeFixedX = nodeOffsetX + (nodeWidth - configStore.nodeMinWidth);
                 nodeFixedY = nodeOffsetY;
                 break;
-            case "rightBottom":
+            case 'rightBottom':
                 nodeFixedX = nodeOffsetX;
                 nodeFixedY = nodeOffsetY;
                 break;
@@ -182,7 +182,7 @@ export function changeCreateLineDotWhenMouseDown(): void {
         const lineInfo: FlowLineInfo = {
             id: lineId,
             fromPosition: direction,
-            toPosition: "",
+            toPosition: '',
             offsetX: 0,
             offsetY: 0,
             width: 0,
@@ -237,7 +237,7 @@ export function changeSelectionWhenMouseDown(e: MouseEvent): void {
         return
     }
     if (selectionStore.isHover) {
-        const selectedNodeMouseDownOffsetInfo: FlowSelection["selectedNodeMouseDownOffsetInfo"] = [];
+        const selectedNodeMouseDownOffsetInfo: FlowSelection['selectedNodeMouseDownOffsetInfo'] = [];
         const selectionNodes = nodeListStore.nodeList.filter(node => selectionStore.selectedNodeIds.includes(node.id))
         selectionNodes.forEach(node => {
             selectedNodeMouseDownOffsetInfo.push({

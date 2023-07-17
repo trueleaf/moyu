@@ -1,4 +1,4 @@
-import type { ApiflowState, ApiflowNodeInfo, ApiflowContainerInfo, ApiflowLineInfo } from "@@/store"
+import type { ApiflowState, ApiflowNodeInfo, ApiflowContainerInfo, ApiflowLineInfo } from '@@/store'
 
 type ChangedLineInfo = {
     /**
@@ -33,12 +33,12 @@ const apiflow = {
     namespaced: true,
     state: {
         mouseInCreateLineDotInfo: {
-            nodeId: "",
-            position: "left"
+            nodeId: '',
+            position: 'left'
         },
         mouseInResizeDotInfo: {
-            nodeId: "",
-            position: "",
+            nodeId: '',
+            position: '',
             isMouseDown: false,
             mouseDownclientX: 0,
             mouseDownclientY: 0,
@@ -48,15 +48,15 @@ const apiflow = {
             nodeFixedY: 0,
         },
         mouseInLineInfo: {
-            mouseInlineId: "",
-            dragLineId: "",
+            mouseInlineId: '',
+            dragLineId: '',
             isInDragArrow: false,
             isMouseDown: false,
         },
-        hoverNodeId: "",
-        activeNodeId: "",
+        hoverNodeId: '',
+        activeNodeId: '',
         isMouseDownNode: false,
-        currentSelectedDotId: "",
+        currentSelectedDotId: '',
         containerInfo: {},
         nodeList: [],
     },
@@ -83,12 +83,12 @@ const apiflow = {
             state.currentMouseDownNode = payload;
         },
         //当前鼠标是否在创建线条的圆点上面
-        changemouseInCreateLineDotInfo(state: ApiflowState, dotInfo: ApiflowState["mouseInCreateLineDotInfo"]): void {
+        changemouseInCreateLineDotInfo(state: ApiflowState, dotInfo: ApiflowState['mouseInCreateLineDotInfo']): void {
             state.mouseInCreateLineDotInfo.nodeId = dotInfo.nodeId;
             state.mouseInCreateLineDotInfo.position = dotInfo.position;
         },
         //当前鼠标是否在节点缩放按钮上面
-        changeMouseInResizeDotInfo(state: ApiflowState, dotInfo: Partial<ApiflowState["mouseInResizeDotInfo"]>): void {
+        changeMouseInResizeDotInfo(state: ApiflowState, dotInfo: Partial<ApiflowState['mouseInResizeDotInfo']>): void {
             if (dotInfo.nodeId != null) {
                 state.mouseInResizeDotInfo.nodeId = dotInfo.nodeId;
             }
@@ -122,7 +122,7 @@ const apiflow = {
             state.hoverNodeId = hoverNodeId
         },
         //改变鼠标在线条上的信息
-        changeMouseInLineInfo(state: ApiflowState, payload: Partial<ApiflowState["mouseInLineInfo"]>): void {
+        changeMouseInLineInfo(state: ApiflowState, payload: Partial<ApiflowState['mouseInLineInfo']>): void {
             if (payload.mouseInlineId != null) {
                 state.mouseInLineInfo.mouseInlineId = payload.mouseInlineId;
             }
@@ -191,7 +191,7 @@ const apiflow = {
         */
         //新增或者更新出线信息
         upsertOutComing(state: ApiflowState, payload: ChangedLineInfo): void {
-            console.log("upOutcomming")
+            console.log('upOutcomming')
             const matchedNode = state.nodeList.find(v => v.id === payload.nodeId);
             if (matchedNode) {
                 // matchedNode.styleInfo.zIndex = payload.;

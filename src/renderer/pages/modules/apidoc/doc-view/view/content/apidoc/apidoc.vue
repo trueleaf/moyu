@@ -5,43 +5,43 @@
     备注：
 */
 <template>
-    <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
-        <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
-            <s-operation></s-operation>
-            <s-params></s-params>
-        </div>
-        <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
-        <s-resize-y
-            v-show="layout === 'vertical'"
-            :min="150"
-            :max="550"
-            :height="350"
-            name="response-y"
-            tabindex="1"
-            @dragStart="isVerticalDrag = true"
-            @dragEnd="isVerticalDrag = false"
-        >
-            <s-response></s-response>
-        </s-resize-y>
-        <s-resize-x v-show="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
-            <s-response></s-response>
-        </s-resize-x>
+  <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
+    <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
+      <s-operation></s-operation>
+      <s-params></s-params>
     </div>
+    <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
+    <s-resize-y
+      v-show="layout === 'vertical'"
+      :min="150"
+      :max="550"
+      :height="350"
+      name="response-y"
+      tabindex="1"
+      @dragStart="isVerticalDrag = true"
+      @dragEnd="isVerticalDrag = false"
+    >
+      <s-response></s-response>
+    </s-resize-y>
+    <s-resize-x v-show="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
+      <s-response></s-response>
+    </s-resize-x>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import type { ApidocTab } from "@@/store"
-import { apidocCache } from "@/cache/apidoc"
-import operation from "./operation/operation.vue"
-import params from "./params/params.vue"
-import response from "./response/response.vue"
+import { defineComponent } from 'vue'
+import type { ApidocTab } from '@@/store'
+import { apidocCache } from '@/cache/apidoc'
+import operation from './operation/operation.vue'
+import params from './params/params.vue'
+import response from './response/response.vue'
 
 export default defineComponent({
     components: {
-        "s-operation": operation,
-        "s-params": params,
-        "s-response": response,
+        's-operation': operation,
+        's-params': params,
+        's-response': response,
     },
     data() {
         return {
@@ -51,21 +51,21 @@ export default defineComponent({
     computed: {
         currentSelectTab(): ApidocTab | null { //当前选中的doc
             const projectId = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
+            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
             const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
             return currentSelectTab;
         },
         loading() {
-            return this.$store.state["apidoc/apidoc"].loading;
+            return this.$store.state['apidoc/apidoc'].loading;
         },
         layout() {
-            return this.$store.state["apidoc/baseInfo"].layout;
+            return this.$store.state['apidoc/baseInfo'].layout;
         },
     },
     watch: {
         currentSelectTab: {
             handler(val: ApidocTab | null, oldVal: ApidocTab | null) {
-                const isApidoc = val?.tabType === "doc";
+                const isApidoc = val?.tabType === 'doc';
                 if (isApidoc && val?._id !== oldVal?._id) {
                     this.getApidocInfo();
                 }
@@ -80,10 +80,10 @@ export default defineComponent({
             if (!this.currentSelectTab) {
                 return
             }
-            const password = localStorage.getItem("share/password") || ""
+            const password = localStorage.getItem('share/password') || ''
             const shareId = this.$route.query.share_id;
             if (this.currentSelectTab.saved) { //取最新值
-                this.$store.dispatch("apidoc/apidoc/getSharedApidocDetail", {
+                this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
                     id: this.currentSelectTab?._id,
                     password,
                     shareId,
@@ -92,12 +92,12 @@ export default defineComponent({
             } else { //取缓存值
                 const catchedApidoc = apidocCache.getApidoc(this.currentSelectTab._id);
                 if (!catchedApidoc) {
-                    this.$store.dispatch("apidoc/apidoc/getSharedApidocDetail", {
+                    this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
                         id: this.currentSelectTab?._id,
                         projectId: this.$route.query.id,
                     })
                 } else {
-                    this.$store.commit("apidoc/apidoc/changeApidoc", catchedApidoc);
+                    this.$store.commit('apidoc/apidoc/changeApidoc', catchedApidoc);
                 }
             }
         },

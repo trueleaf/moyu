@@ -5,12 +5,12 @@
     备注：
 */
 <template>
-    <router-view></router-view>
+  <router-view></router-view>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import config from "@/../config/config"
+import { defineComponent } from 'vue'
+import config from '@/../config/config'
 
 export default defineComponent({
     created() {
@@ -24,13 +24,13 @@ export default defineComponent({
                 / /       \\ \\  / /       \\ \\    \\ \\_ _ _ _ _ _/ /       /   /       \\ _|_ _ _ _| _/
                /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
 
-               ${this.$t("基于Vue和Electron的接口文档工具")}
+               ${this.$t('基于Vue和Electron的接口文档工具')}
 
-               ${this.$t("GitHub地址")}：https://github.com/trueleaf/moyu
+               ${this.$t('GitHub地址')}：https://github.com/trueleaf/moyu
 
-               ${this.$t("Gitee地址")}：https://gitee.com/shuzhikai/apiflow
+               ${this.$t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
 
-               ${this.$t("最近一次更新")}：${process.env.VUE_APP_BUILD_TIME}
+               ${this.$t('最近一次更新')}：${process.env.VUE_APP_BUILD_TIME}
             `)
         }
         if (!config.localization.consoleWelcome) {

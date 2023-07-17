@@ -1,11 +1,11 @@
-import { FLowResizeNodeDotState } from "@@/apiflow";
-import { defineStore } from "pinia";
+import { FLowResizeNodeDotState } from '@@/apiflow';
+import { defineStore } from 'pinia';
 
-export const useFlowResizeNodeStateStore = defineStore("resizeNodeState", {
+export const useFlowResizeNodeStateStore = defineStore('resizeNodeState', {
     state: (): FLowResizeNodeDotState => {
         return {
-            hoverNodeId: "",
-            hoverPosition: "leftTop",
+            hoverNodeId: '',
+            hoverPosition: 'leftTop',
             isMouseDown: false,
             mouseDownClientX: 0,
             mouseDownClientY: 0,

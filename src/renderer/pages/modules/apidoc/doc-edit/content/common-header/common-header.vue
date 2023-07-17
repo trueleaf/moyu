@@ -5,31 +5,31 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="common-header">
-        <s-fieldset title="说明">
-            <p>1. 公共请求头针对目录内所有接口生效</p>
-            <p>2. 针对嵌套目录，子目录优先级高于父目录</p>
-            <p>3. 接口本身请求头优先级高于公共请求头</p>
-        </s-fieldset>
-        <s-fieldset title="公共请求头">
-            <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
-            <div class="d-flex a-center j-center mt-5">
-                <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">确认修改</el-button>
-                <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">刷新</el-button>
-            </div>
-        </s-fieldset>
-    </s-loading>
+  <s-loading :loading="loading" class="common-header">
+    <s-fieldset title="说明">
+      <p>1. 公共请求头针对目录内所有接口生效</p>
+      <p>2. 针对嵌套目录，子目录优先级高于父目录</p>
+      <p>3. 接口本身请求头优先级高于公共请求头</p>
+    </s-fieldset>
+    <s-fieldset title="公共请求头">
+      <s-params-tree :drag="false" show-checkbox :data="headerData" :mind-params="mindHeaderParams"></s-params-tree>
+      <div class="d-flex a-center j-center mt-5">
+        <el-button type="success" :loading="loading2" @click="handleEditCommonHeader">确认修改</el-button>
+        <el-button type="primary" :loading="loading" @click="getCommonHeaderInfo">刷新</el-button>
+      </div>
+    </s-fieldset>
+  </s-loading>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, Ref, computed, watch } from "vue"
-import { ElMessage } from "element-plus";
-import { router } from "@/router"
-import { store } from "@/store/index"
-import { ApidocProperty, Response } from "@@/global";
-import { axios } from "@/api/api";
-import { apidocGenerateProperty } from "@/helper";
-import mindHeaders from "../apidoc/params/headers/mind-headers";
+import { onMounted, ref, Ref, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus';
+import { router } from '@/router'
+import { store } from '@/store/index'
+import { ApidocProperty, Response } from '@@/global';
+import { axios } from '@/api/api';
+import { apidocGenerateProperty } from '@/helper';
+import mindHeaders from '../apidoc/params/headers/mind-headers';
 
 type CommonHeaderResponse = {
     _id: string,
@@ -39,7 +39,7 @@ type CommonHeaderResponse = {
 const headerData = ref<ApidocProperty[]>([]);
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
-    const tabs = store.state["apidoc/tabs"].tabs[projectId];
+    const tabs = store.state['apidoc/tabs'].tabs[projectId];
     return tabs?.find((tab) => tab.selected) || null;
 })
 
@@ -51,7 +51,7 @@ const getCommonHeaderInfo = () => {
         projectId,
         id: currentSelectTab.value?._id
     }
-    axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>("/api/project/common_header_by_id", { params }).then((res) => {
+    axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
         headerData.value = res.data.commonHeaders || [];
         if (!headerData.value.length) {
             headerData.value.push(apidocGenerateProperty())
@@ -76,9 +76,9 @@ const handleEditCommonHeader = () => {
             select: v.select,
         })),
     }
-    axios.put("/api/project/common_header", params).then(() => {
-        ElMessage.success("修改成功");
-        store.dispatch("apidoc/baseInfo/getCommonHeaders")
+    axios.put('/api/project/common_header', params).then(() => {
+        ElMessage.success('修改成功');
+        store.dispatch('apidoc/baseInfo/getCommonHeaders')
     }).catch((err) => {
         console.error(err);
     }).finally(() => {
@@ -86,7 +86,7 @@ const handleEditCommonHeader = () => {
     });
 }
 watch(currentSelectTab, (newVal) => {
-    if (newVal?.tabType === "commonHeader") {
+    if (newVal?.tabType === 'commonHeader') {
         getCommonHeaderInfo();
     }
 }, {

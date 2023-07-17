@@ -1,14 +1,14 @@
-import { ActionContext } from "vuex"
-import axios, { Canceler } from "axios"
-import { ElMessageBox } from "element-plus"
-import type { State as RootState, ApidocState, } from "@@/store"
-import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from "@@/global"
-import { axios as axiosInstance } from "@/api/api"
-import { router } from "@/router/index"
-import { store } from "@/store/index"
-import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr, event } from "@/helper/index"
-import shareRouter from "@/pages/modules/apidoc/doc-view/router/index"
-import { apidocCache } from "@/cache/apidoc"
+import { ActionContext } from 'vuex'
+import axios, { Canceler } from 'axios'
+import { ElMessageBox } from 'element-plus'
+import type { State as RootState, ApidocState, } from '@@/store'
+import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from '@@/global'
+import { axios as axiosInstance } from '@/api/api'
+import { router } from '@/router/index'
+import { store } from '@/store/index'
+import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr, event } from '@/helper/index'
+import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
+import { apidocCache } from '@/cache/apidoc'
 // import config from "@/../config/config"
 
 type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
@@ -19,17 +19,17 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 
 //接口删除提示用户
 function confirmInvalidDoc(projectId: string, delId: string) {
-    ElMessageBox.confirm("当前接口不存在，可能已经被删除!", "提示", {
-        confirmButtonText: "关闭接口",
-        cancelButtonText: "取消",
-        type: "warning",
+    ElMessageBox.confirm('当前接口不存在，可能已经被删除!', '提示', {
+        confirmButtonText: '关闭接口',
+        cancelButtonText: '取消',
+        type: 'warning',
     }).then(() => {
-        store.dispatch("apidoc/tabs/deleteTabByIds", {
+        store.dispatch('apidoc/tabs/deleteTabByIds', {
             projectId,
             ids: [delId]
         });
     }).catch((err) => {
-        if (err === "cancel" || err === "close") {
+        if (err === 'cancel' || err === 'close') {
             return;
         }
         console.error(err);
@@ -37,57 +37,57 @@ function confirmInvalidDoc(projectId: string, delId: string) {
 }
 //添加默认请求头
 function getDefaultHeaders(contentType: ApidocContentType) {
-    const defaultHeaders: ApidocProperty<"string">[] = [];
+    const defaultHeaders: ApidocProperty<'string'>[] = [];
     const params = apidocGenerateProperty();
-    params.key = "Content-Length";
-    params.value = "<发送请求时候自动计算>";
-    params.description = "<消息的长度>";
+    params.key = 'Content-Length';
+    params.value = '<发送请求时候自动计算>';
+    params.description = '<消息的长度>';
     defaultHeaders.push(params);
     //=========================================================================//
     const params2 = apidocGenerateProperty();
-    params2.key = "User-Agent";
-    params2.value = "<发送请求时候自动处理>";
-    params2.description = "<用户代理软件信息>";
+    params2.key = 'User-Agent';
+    params2.value = '<发送请求时候自动处理>';
+    params2.description = '<用户代理软件信息>';
     defaultHeaders.push(params2);
     //=========================================================================//
     const params3 = apidocGenerateProperty();
-    params3.key = "Host";
-    params3.value = "<发送请求时候自动处理>";
-    params3.description = "<主机信息>";
+    params3.key = 'Host';
+    params3.value = '<发送请求时候自动处理>';
+    params3.description = '<主机信息>';
     defaultHeaders.push(params3);
     //=========================================================================//
     const params4 = apidocGenerateProperty();
-    params4.key = "Accept-Encoding";
-    params4.value = "gzip, deflate, br";
-    params4.description = "<客户端理解的编码方式>";
+    params4.key = 'Accept-Encoding';
+    params4.value = 'gzip, deflate, br';
+    params4.description = '<客户端理解的编码方式>';
     defaultHeaders.push(params4);
     //=========================================================================//
     const params5 = apidocGenerateProperty();
-    params5.key = "Connection";
-    params5.value = "keep-alive";
-    params5.description = "<当前的事务完成后，是否会关闭网络连接>";
+    params5.key = 'Connection';
+    params5.value = 'keep-alive';
+    params5.description = '<当前的事务完成后，是否会关闭网络连接>';
     defaultHeaders.push(params5);
     if (contentType) {
         const params6 = apidocGenerateProperty();
-        params6.key = "Content-type";
+        params6.key = 'Content-type';
         params6.value = contentType;
-        params6.description = "<根据body类型自动处理>";
+        params6.description = '<根据body类型自动处理>';
         defaultHeaders.push(params6);
     }
     return defaultHeaders;
 }
 //过滤合法的联想参数(string、number)
-function filterValidParams(arrayParams: ApidocProperty[], type: ApidocMindParam["paramsPosition"]) {
+function filterValidParams(arrayParams: ApidocProperty[], type: ApidocMindParam['paramsPosition']) {
     const result: ApidocMindParam[] = [];
     const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
     forEachForest(arrayParams, (data) => {
-        const isComplex = data.type === "object" || data.type === "array";
+        const isComplex = data.type === 'object' || data.type === 'array';
         const copyData = cloneDeep(data) as ApidocMindParam;
         copyData.paramsPosition = type;
         copyData.projectId = projectId;
-        if (!isComplex && data.key !== "" && data.value !== "" && data.description !== "") { //常规数据
+        if (!isComplex && data.key !== '' && data.value !== '' && data.description !== '') { //常规数据
             result.push(copyData);
-        } else if (isComplex && data.key !== "" && data.description !== "") {
+        } else if (isComplex && data.key !== '' && data.description !== '') {
             result.push(copyData);
         }
     });
@@ -125,7 +125,7 @@ const apidoc = {
         /**
          * 需要保存接口的id
          */
-        savedDocId: ""
+        savedDocId: ''
     },
     mutations: {
         /*
@@ -163,11 +163,11 @@ const apidoc = {
         |--------------------------------------------------------------------------
         */
         //改变path参数
-        changePathParams(state: ApidocState, paths: ApidocProperty<"string">[]): void {
+        changePathParams(state: ApidocState, paths: ApidocProperty<'string'>[]): void {
             state.apidoc.item.paths = paths
         },
         //在头部插入查询参数
-        unshiftQueryParams(state: ApidocState, queryParams: ApidocProperty<"string">[]): void {
+        unshiftQueryParams(state: ApidocState, queryParams: ApidocProperty<'string'>[]): void {
             queryParams.forEach((params) => {
                 state.apidoc.item.queryParams.unshift(params);
             })
@@ -202,15 +202,15 @@ const apidoc = {
         //改变contentType值
         changeContentType(state: ApidocState, contentType: ApidocContentType): void {
             state.apidoc.item.contentType = contentType;
-            const matchedValue = state.defaultHeaders.find((val) => val.key === "Content-type");
-            const matchedIndex = state.defaultHeaders.findIndex((val) => val.key === "Content-type");
+            const matchedValue = state.defaultHeaders.find((val) => val.key === 'Content-type');
+            const matchedIndex = state.defaultHeaders.findIndex((val) => val.key === 'Content-type');
             if (contentType && matchedValue) { //存在contentType并且默认header值也有
                 matchedValue.value = contentType
             } else if (contentType && !matchedValue) { //存在contentType但是默认header没有
                 const params = apidocGenerateProperty();
-                params.key = "Content-type";
+                params.key = 'Content-type';
                 params.value = contentType;
-                params.description = "<根据body类型自动处理>";
+                params.description = '<根据body类型自动处理>';
                 state.defaultHeaders.push(params);
             } else if (!contentType && matchedIndex !== -1) {
                 state.defaultHeaders.splice(matchedIndex, 1)
@@ -260,20 +260,20 @@ const apidoc = {
         },
         //新增一个response
         addResponseParam(state: ApidocState): void {
-            const objectParams = apidocGenerateProperty("object");
+            const objectParams = apidocGenerateProperty('object');
             objectParams.children[0] = apidocGenerateProperty();
             state.apidoc.item.responseParams.push({
                 _id: uuid(),
-                title: "返回参数名称",
+                title: '返回参数名称',
                 statusCode: 200,
                 value: {
-                    strJson: "",
-                    dataType: "application/json",
+                    strJson: '',
+                    dataType: 'application/json',
                     json: [objectParams],
-                    text: "",
+                    text: '',
                     file: {
-                        url: "",
-                        raw: "",
+                        url: '',
+                        raw: '',
                     },
                 },
                 isMock: false,
@@ -316,8 +316,8 @@ const apidoc = {
             state.defaultHeaders = getDefaultHeaders(payload.item.contentType);
             //返回参数为json的如果没有数据则默认添加一条空数据
             payload.item.responseParams.forEach((params) => {
-                if (params.value.dataType === "application/json" && params.value.json.length === 0) {
-                    const objectParams = apidocGenerateProperty("object");
+                if (params.value.dataType === 'application/json' && params.value.json.length === 0) {
+                    const objectParams = apidocGenerateProperty('object');
                     objectParams.children[0] = apidocGenerateProperty();
                     params.value.json.push(objectParams);
                 }
@@ -340,7 +340,7 @@ const apidoc = {
             }
             //替换返回json数据，把以前数组类型数据替换为字符串类型
             payload.item.responseParams.forEach(response => {
-                if (response.value.dataType === "application/json" && !response.value.strJson) {
+                if (response.value.dataType === 'application/json' && !response.value.strJson) {
                     response.value.strJson = apidocConvertParamsToJsonStr(response.value.json);
                 }
             })
@@ -417,7 +417,7 @@ const apidoc = {
             state.apidoc.mockInfo.responseDelay = delay;
         },
         //更改返回数据类型
-        changeMockResponseType(state: ApidocState, responseType: ApidocDetail["mockInfo"]["responseType"]): void {
+        changeMockResponseType(state: ApidocState, responseType: ApidocDetail['mockInfo']['responseType']): void {
             state.apidoc.mockInfo.responseType = responseType;
         },
         //改变json数据
@@ -425,7 +425,7 @@ const apidoc = {
             state.apidoc.mockInfo.json = jsonData;
         },
         //改变图片类型
-        changeMockImageType(state: ApidocState, type: ApidocDetail["mockInfo"]["image"]["type"]): void {
+        changeMockImageType(state: ApidocState, type: ApidocDetail['mockInfo']['image']['type']): void {
             state.apidoc.mockInfo.image.type = type;
         },
         //改变图片宽度
@@ -453,7 +453,7 @@ const apidoc = {
             state.apidoc.mockInfo.image.fontSize = fontSize;
         },
         //改变返回文件类型
-        changeMockFileType(state: ApidocState, type: ApidocDetail["mockInfo"]["file"]["type"]): void {
+        changeMockFileType(state: ApidocState, type: ApidocDetail['mockInfo']['file']['type']): void {
             state.apidoc.mockInfo.file.type = type;
         },
         //改变返回text类型数据
@@ -476,16 +476,16 @@ const apidoc = {
         getApidocDetail(context: ActionContext<ApidocState, RootState>, payload: { id: string, projectId: string }): Promise<void> {
             if (cancel.length > 0) {
                 cancel.forEach((c) => {
-                    c("取消请求");
+                    c('取消请求');
                 })
             }
             return new Promise((resolve, reject) => {
-                context.commit("changeApidocLoading", true);
+                context.commit('changeApidocLoading', true);
                 const params = {
                     projectId: payload.projectId,
                     _id: payload.id,
                 }
-                axiosInstance.get<Response<ApidocDetail>, Response<ApidocDetail>>("/api/project/doc_detail", {
+                axiosInstance.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', {
                     params,
                     cancelToken: new axios.CancelToken((c) => {
                         cancel.push(c);
@@ -495,19 +495,19 @@ const apidoc = {
                         confirmInvalidDoc(payload.projectId, payload.id);
                         return;
                     }
-                    context.commit("changeApidoc", res.data)
-                    context.commit("changeOriginApidoc");
+                    context.commit('changeApidoc', res.data)
+                    context.commit('changeOriginApidoc');
                     const cachedServer = apidocCache.getPreviousServer(payload.projectId);
                     const { path } = context.state.apidoc.item.url
-                    if (cachedServer && !path.startsWith("http") && !path.startsWith("https")) {
-                        store.commit("apidoc/apidoc/changeApidocHost", cachedServer)
+                    if (cachedServer && !path.startsWith('http') && !path.startsWith('https')) {
+                        store.commit('apidoc/apidoc/changeApidocHost', cachedServer)
                     }
                     resolve()
                 }).catch((err) => {
                     console.error(err);
                     reject(err);
                 }).finally(() => {
-                    context.commit("changeApidocLoading", false);
+                    context.commit('changeApidocLoading', false);
                 })
             });
         },
@@ -517,15 +517,15 @@ const apidoc = {
         saveApidoc(context: ActionContext<ApidocState, RootState>): Promise<void> {
             return new Promise((resolve, reject) => {
                 const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
-                const tabs = store.state["apidoc/tabs"].tabs[projectId];
+                const tabs = store.state['apidoc/tabs'].tabs[projectId];
                 const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
                 if (!currentSelectTab) {
-                    console.warn("缺少tab信息");
+                    console.warn('缺少tab信息');
                     return;
                 }
                 const apidocDetail = context.state.apidoc;
-                context.commit("changeApidocSaveLoading", true);
-                context.dispatch("saveMindParams");
+                context.commit('changeApidocSaveLoading', true);
+                context.dispatch('saveMindParams');
                 const params = {
                     _id: currentSelectTab._id,
                     projectId,
@@ -535,32 +535,32 @@ const apidoc = {
                     afterRequest: apidocDetail.afterRequest,
                     mockInfo: apidocDetail.mockInfo,
                 };
-                axiosInstance.post("/api/project/fill_doc", params).then(() => {
+                axiosInstance.post('/api/project/fill_doc', params).then(() => {
                     //改变tab请求方法
-                    store.commit("apidoc/tabs/changeTabInfoById", {
+                    store.commit('apidoc/tabs/changeTabInfoById', {
                         id: currentSelectTab._id,
-                        field: "head",
+                        field: 'head',
                         value: {
                             icon: params.item.method,
-                            color: "",
+                            color: '',
                         },
                     });
                     //改变banner请求方法
-                    store.commit("apidoc/banner/changeBannerInfoById", {
+                    store.commit('apidoc/banner/changeBannerInfoById', {
                         id: currentSelectTab._id,
-                        field: "method",
+                        field: 'method',
                         value: params.item.method,
                     })
                     //改变origindoc的值
-                    store.commit("apidoc/apidoc/changeOriginApidoc");
+                    store.commit('apidoc/apidoc/changeOriginApidoc');
                     //改变tab未保存小圆点
-                    store.commit("apidoc/tabs/changeTabInfoById", {
+                    store.commit('apidoc/tabs/changeTabInfoById', {
                         id: currentSelectTab._id,
-                        field: "saved",
+                        field: 'saved',
                         value: true,
                     });
                     //新增一个mock映射
-                    store.commit("apidoc/mock/addMockUrl", {
+                    store.commit('apidoc/mock/addMockUrl', {
                         id: currentSelectTab._id,
                         projectId,
                         url: apidocDetail.item.url.path,
@@ -569,15 +569,15 @@ const apidoc = {
                     resolve();
                 }).catch((err) => {
                     //改变tab未保存小圆点
-                    store.commit("apidoc/tabs/changeTabInfoById", {
+                    store.commit('apidoc/tabs/changeTabInfoById', {
                         id: currentSelectTab._id,
-                        field: "saved",
+                        field: 'saved',
                         value: false,
                     });
                     console.error(err);
                     reject(err);
                 }).finally(() => {
-                    context.commit("changeApidocSaveLoading", false)
+                    context.commit('changeApidocSaveLoading', false)
                 });
             })
         },
@@ -587,33 +587,33 @@ const apidoc = {
         saveMindParams(context: ActionContext<ApidocState, RootState>): void {
             const apidocDetail = context.state.apidoc;
             const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
-            const paths = filterValidParams(apidocDetail.item.paths, "paths");
-            const queryParams = filterValidParams(apidocDetail.item.queryParams, "queryParams").filter(v => v.description && v.value);
-            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, "requestBody").filter(v => v.description && v.value);
-            const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, "responseParams").filter(v => v.description && v.value);
+            const paths = filterValidParams(apidocDetail.item.paths, 'paths');
+            const queryParams = filterValidParams(apidocDetail.item.queryParams, 'queryParams').filter(v => v.description && v.value);
+            const requestBody = filterValidParams(apidocDetail.item.requestBody.json, 'requestBody').filter(v => v.description && v.value);
+            const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, 'responseParams').filter(v => v.description && v.value);
             const params = {
                 projectId,
                 mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
             };
-            axiosInstance.post("/api/project/doc_params_mind", params).then((res) => {
+            axiosInstance.post('/api/project/doc_params_mind', params).then((res) => {
                 if (res.data != null) {
-                    store.commit("apidoc/baseInfo/changeMindParams", res.data);
+                    store.commit('apidoc/baseInfo/changeMindParams', res.data);
                 }
             }).catch((err) => {
                 console.error(err);
             });
         },
         //改变保存apidoc弹窗状态
-        openSaveDocDialog(context: ActionContext<ApidocState, RootState>, id: string): Promise<"save" | "cancel"> {
-            context.commit("changeSaveDocDialogVisible", true)
-            context.commit("changeSavedDocId", id)
+        openSaveDocDialog(context: ActionContext<ApidocState, RootState>, id: string): Promise<'save' | 'cancel'> {
+            context.commit('changeSaveDocDialogVisible', true)
+            context.commit('changeSavedDocId', id)
             return new Promise((resolve, reject) => {
                 try {
-                    event.on("tabs/saveTabSuccess", () => {
-                        resolve("save");
+                    event.on('tabs/saveTabSuccess', () => {
+                        resolve('save');
                     })
-                    event.on("tabs/cancelSaveTab", () => {
-                        resolve("cancel");
+                    event.on('tabs/cancelSaveTab', () => {
+                        resolve('cancel');
                     })
                 } catch (error) {
                     reject(error)

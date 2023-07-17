@@ -5,27 +5,27 @@
     备注：
 */
 <template>
-    <el-form ref="form" v-bind="$attrs" :model="formInfo" :label-width="labelWidth" :rules="rules">
-        <div v-if="config.isDev && showTips">
-            {{ formInfo }}
-        </div>
-        <div v-if="config.isDev && showRules">
-            {{ rules }}
-        </div>
-        <el-row>
-            <slot />
-        </el-row>
-        <div class="d-flex a-center j-center">
-            <slot name="operation" />
-        </div>
-    </el-form>
+  <el-form ref="form" v-bind="$attrs" :model="formInfo" :label-width="labelWidth" :rules="rules">
+    <div v-if="config.isDev && showTips">
+      {{ formInfo }}
+    </div>
+    <div v-if="config.isDev && showRules">
+      {{ rules }}
+    </div>
+    <el-row>
+      <slot />
+    </el-row>
+    <div class="d-flex a-center j-center">
+      <slot name="operation" />
+    </div>
+  </el-form>
 </template>
 
 <script lang="ts">
-import { defineComponent, VNode } from "vue"
+import { defineComponent, VNode } from 'vue'
 
-import config from "@/../config/config"
-import initRules from "./composables/rules"
+import config from '@/../config/config'
+import initRules from './composables/rules'
 
 export default defineComponent({
     provide() {
@@ -66,7 +66,7 @@ export default defineComponent({
         return {
             formInfo: {} as Record<string, unknown>, //---搜索参数
             config, //------------------------------------配置信息
-            labelWidth: "100px", //-----------------------表单label宽度
+            labelWidth: '100px', //-----------------------表单label宽度
         };
     },
     watch: {
@@ -92,19 +92,19 @@ export default defineComponent({
                 const allSlots = this.$slots.default();
                 this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
                     const slotType = slot.type;
-                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
+                    if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
                         formItems.push(slot);
                     }
                 })
             }
             const formDom: HTMLElement = this.$el;
-            const labelDom = formDom.querySelector(".el-form-item__label") || document.body;
+            const labelDom = formDom.querySelector('.el-form-item__label') || document.body;
             const styleList = window.getComputedStyle(labelDom);
             const { font } = styleList;
             // eslint-disable-next-line prefer-spread
             const maxLabelWidth = Math.max.apply(Math, formItems.map((val) => {
                 const { props } = val;
-                const label: string = props ? (props.label || "") : "";
+                const label: string = props ? (props.label || '') : '';
                 const labelWidth = this.$helper.getTextWidth(label, font)
                 return labelWidth;
             }));
@@ -118,7 +118,7 @@ export default defineComponent({
                 this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
                     const slotType = slot.type;
                     const { props } = slot;
-                    if (typeof slotType === "object" && (slotType as Record<string, unknown>).name) {
+                    if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
                         if (props && props.prop && !this.formInfo[props.prop]) {
                             this.formInfo[props.prop] = null;
                         }

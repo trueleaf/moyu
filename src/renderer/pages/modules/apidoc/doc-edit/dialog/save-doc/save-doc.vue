@@ -5,53 +5,53 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" title="保存接口" width="40%" @close="handleClose">
-        <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc" @submit.prevent="handleSaveDoc">
-            <el-form-item label="接口名称" prop="name">
-                <el-input v-model="formInfo.name" name="name" placeholder="请输入接口名称" class="w-100" maxlength="100" show-word-limit clearable></el-input>
-            </el-form-item>
-            <div class="pt-1"></div>
-            <s-fieldset title="选择需要挂载的节点">
-                <div class="gray-500 f-sm mb-1">若不选择，则会挂载在根节点</div>
-                <s-loading :loading="loading2">
-                    <el-tree
-                        ref="docTree"
-                        :data="navTreeData"
-                        node-key="_id"
-                        show-checkbox
-                        :expand-on-click-node="true"
-                        :check-strictly="true"
-                        @check="handleCheckChange"
-                    >
-                        <template #default="scope">
-                            <div
-                                class="custom-tree-node"
-                                tabindex="0"
-                            >
-                                <!-- 文件夹渲染 -->
-                                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
-                                <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
-                            </div>
-                        </template>
-                    </el-tree>
-                </s-loading>
-            </s-fieldset>
-        </el-form>
-        <template #footer>
-            <el-button :loading="loading" :title="!formInfo.name ? '请输入接口名称' : ''" :disabled="!formInfo.name" type="primary" @click="handleSaveDoc">保存</el-button>
-            <el-button type="warning" @click="handleClose">取消</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" top="10vh" title="保存接口" width="40%" @close="handleClose">
+    <el-form ref="form" :model="formInfo" :rules="rules" label-width="100px" class="save-doc" @submit.prevent="handleSaveDoc">
+      <el-form-item label="接口名称" prop="name">
+        <el-input v-model="formInfo.name" name="name" placeholder="请输入接口名称" class="w-100" maxlength="100" show-word-limit clearable></el-input>
+      </el-form-item>
+      <div class="pt-1"></div>
+      <s-fieldset title="选择需要挂载的节点">
+        <div class="gray-500 f-sm mb-1">若不选择，则会挂载在根节点</div>
+        <s-loading :loading="loading2">
+          <el-tree
+            ref="docTree"
+            :data="navTreeData"
+            node-key="_id"
+            show-checkbox
+            :expand-on-click-node="true"
+            :check-strictly="true"
+            @check="handleCheckChange"
+          >
+            <template #default="scope">
+              <div
+                class="custom-tree-node"
+                tabindex="0"
+              >
+                <!-- 文件夹渲染 -->
+                <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
+                <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
+              </div>
+            </template>
+          </el-tree>
+        </s-loading>
+      </s-fieldset>
+    </el-form>
+    <template #footer>
+      <el-button :loading="loading" :title="!formInfo.name ? '请输入接口名称' : ''" :disabled="!formInfo.name" type="primary" @click="handleSaveDoc">保存</el-button>
+      <el-button type="warning" @click="handleClose">取消</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, nextTick } from "vue"
-import { ApidocDetail } from "@@/global";
-import { TreeNodeOptions } from "element-plus/es/components/tree/src/tree.type";
-import { router } from "@/router";
-import { axios } from "@/api/api"
-import { store } from "@/store";
-import { event } from "@/helper";
+import { ref, Ref, onMounted, nextTick } from 'vue'
+import { ApidocDetail } from '@@/global';
+import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
+import { router } from '@/router';
+import { axios } from '@/api/api'
+import { store } from '@/store';
+import { event } from '@/helper';
 
 type FormInfo = {
     name: string, //接口名称
@@ -64,13 +64,13 @@ defineProps({
         default: false,
     },
 })
-const emit = defineEmits(["update:modelValue", "success"]);
+const emit = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
-    name: "",
-    pid: ""
+    name: '',
+    pid: ''
 })
 const rules = ref({
-    name: [{ required: true, message: "接口名称必填", trigger: "blur" }],
+    name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
 });
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +82,7 @@ const loading = ref(false); //保存按钮loading状态
 const loading2 = ref(false);
 const navTreeData = ref([]);
 //目标树
-const docTree: Ref<TreeNodeOptions["store"] | null> = ref(null);
+const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
 //节点选中状态改变时候
 const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
@@ -97,7 +97,7 @@ onMounted(() => {
     const params = {
         projectId,
     };
-    axios.get("/api/project/doc_tree_folder_node", { params }).then((res) => {
+    axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
         navTreeData.value = res.data;
     }).catch((err) => {
         console.error(err);
@@ -106,11 +106,11 @@ onMounted(() => {
     });
 })
 const handleClose = () => {
-    emit("update:modelValue", false)
-    event.emit("tabs/cancelSaveTab")
+    emit('update:modelValue', false)
+    event.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = () => {
-    const docInfo = JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc))
+    const docInfo = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
     docInfo.info.name = formInfo.value.name;
     docInfo.info.creator = store.state.permission.userInfo.realName
     docInfo.pid = currentMountedNode.value?._id;
@@ -120,32 +120,32 @@ const handleSaveDoc = () => {
         docInfo
     }
     loading.value = true;
-    axios.post("/api/project/save_doc", params).then((res) => {
-        store.dispatch("apidoc/banner/getDocBanner", { projectId })
-        store.commit("apidoc/apidoc/changeApidocId", res.data);
-        store.commit("apidoc/apidoc/changeApidocName", formInfo.value.name);
-        store.commit("apidoc/tabs/changeTabInfoById", {
-            id: store.state["apidoc/apidoc"].savedDocId,
-            field: "label",
+    axios.post('/api/project/save_doc', params).then((res) => {
+        store.dispatch('apidoc/banner/getDocBanner', { projectId })
+        store.commit('apidoc/apidoc/changeApidocId', res.data);
+        store.commit('apidoc/apidoc/changeApidocName', formInfo.value.name);
+        store.commit('apidoc/tabs/changeTabInfoById', {
+            id: store.state['apidoc/apidoc'].savedDocId,
+            field: 'label',
             value: formInfo.value.name,
         })
-        store.commit("apidoc/tabs/changeTabInfoById", {
-            id: store.state["apidoc/apidoc"].savedDocId,
-            field: "_id",
+        store.commit('apidoc/tabs/changeTabInfoById', {
+            id: store.state['apidoc/apidoc'].savedDocId,
+            field: '_id',
             value: res.data,
         })
         nextTick(() => {
-            store.commit("apidoc/tabs/changeTabInfoById", {
+            store.commit('apidoc/tabs/changeTabInfoById', {
                 id: res.data,
-                field: "saved",
+                field: 'saved',
                 value: true,
             })
-            event.emit("tabs/saveTabSuccess")
+            event.emit('tabs/saveTabSuccess')
         })
-        emit("update:modelValue", false)
+        emit('update:modelValue', false)
     }).catch((err) => {
         console.error(err);
-        event.emit("tabs/saveTabError")
+        event.emit('tabs/saveTabError')
     }).finally(() => {
         loading.value = false;
     });

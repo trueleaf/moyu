@@ -5,40 +5,40 @@
     备注：
 */
 <template>
-    <div v-if="codeInfo && codeInfo._id" class="hook-edit-wrap d-flex">
-        <s-fieldset title="代码编写" class="w-50">
-            <s-editor v-model="code" class="editor"></s-editor>
-            <div class="operation">
-                <el-button type="primary" class="mb-2" @click="executeCode">执行代码</el-button>
-                <el-button type="primary" class="mb-2" @click="dialogVisible = true">确认修改</el-button>
-                <el-button @click="handleResetCode">重置代码</el-button>
-            </div>
-        </s-fieldset>
-        <s-fieldset title="结果值" class="w-50">
-            <div class="json-view-wrap">
-                <s-json-editor :model-value="result" read-only></s-json-editor>
-            </div>
-        </s-fieldset>
-        <s-dialog v-model="dialogVisible" title="修改代码">
-            <s-form ref="form" :edit-data="editData">
-                <s-form-item label="脚本名称" prop="codeName" one-line required></s-form-item>
-                <s-form-item label="备注" prop="remark" one-line></s-form-item>
-            </s-form>
-            <template #footer>
-                <div>
-                    <el-button :loading="loading" type="primary" @click="handleSaveCode">确定</el-button>
-                    <el-button type="warning" @click="dialogVisible = false">取消</el-button>
-                </div>
-            </template>
-        </s-dialog>
-    </div>
-    <el-empty description="代码列表中点击修改按钮进行修改"></el-empty>
+  <div v-if="codeInfo && codeInfo._id" class="hook-edit-wrap d-flex">
+    <s-fieldset title="代码编写" class="w-50">
+      <s-editor v-model="code" class="editor"></s-editor>
+      <div class="operation">
+        <el-button type="primary" class="mb-2" @click="executeCode">执行代码</el-button>
+        <el-button type="primary" class="mb-2" @click="dialogVisible = true">确认修改</el-button>
+        <el-button @click="handleResetCode">重置代码</el-button>
+      </div>
+    </s-fieldset>
+    <s-fieldset title="结果值" class="w-50">
+      <div class="json-view-wrap">
+        <s-json-editor :model-value="result" read-only></s-json-editor>
+      </div>
+    </s-fieldset>
+    <s-dialog v-model="dialogVisible" title="修改代码">
+      <s-form ref="form" :edit-data="editData">
+        <s-form-item label="脚本名称" prop="codeName" one-line required></s-form-item>
+        <s-form-item label="备注" prop="remark" one-line></s-form-item>
+      </s-form>
+      <template #footer>
+        <div>
+          <el-button :loading="loading" type="primary" @click="handleSaveCode">确定</el-button>
+          <el-button type="warning" @click="dialogVisible = false">取消</el-button>
+        </div>
+      </template>
+    </s-dialog>
+  </div>
+  <el-empty description="代码列表中点击修改按钮进行修改"></el-empty>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, PropType, onMounted } from "vue"
-import { ElMessage } from "element-plus";
-import { store } from "@/store";
+import { ref, Ref, PropType, onMounted } from 'vue'
+import { ElMessage } from 'element-plus';
+import { store } from '@/store';
 import {
     apidocFormatUrl,
     apidocFormatQueryParams,
@@ -48,12 +48,12 @@ import {
     apidocFormatUrlencodedParams,
     apidocFormatHeaderParams,
     apidocFormatResponseParams,
-} from "@/helper";
-import type { ApidocCodeInfo } from "@@/global"
-import { axios } from "@/api/api";
-import { router } from "@/router";
+} from '@/helper';
+import type { ApidocCodeInfo } from '@@/global'
+import { axios } from '@/api/api';
+import { router } from '@/router';
 // import { apidocCache } from "@/cache/apidoc";
-import sEditor from "../editor/editor.vue"
+import sEditor from '../editor/editor.vue'
 
 type CodeInfo = {
     codeName: string,
@@ -69,7 +69,7 @@ const props = defineProps({
     }
 })
 
-const worker = new Worker("/sandbox/hook/worker.js");
+const worker = new Worker('/sandbox/hook/worker.js');
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const defaultCode = `/**
  * 请勿修改函数名,返回值即为处理后结果值
@@ -81,19 +81,19 @@ function codeHook(docInfo) {
 `
 const code = ref(defaultCode); //脚本源码
 const editData: Ref<ApidocCodeInfo | null> = ref(null); //编辑中数据
-const result = ref(""); //结果值
+const result = ref(''); //结果值
 //错误处理
-worker.addEventListener("error", (error) => {
+worker.addEventListener('error', (error) => {
     result.value = error.message;
     console.error(error);
 });
 //执行代码
 const executeCode = () => {
-    const { apidoc } = store.state["apidoc/apidoc"]
+    const { apidoc } = store.state['apidoc/apidoc']
     worker.postMessage({
-        type: "init",
+        type: 'init',
         value: {
-            raw: JSON.parse(JSON.stringify(store.state["apidoc/apidoc"].apidoc)),
+            raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
             url: apidocFormatUrl(apidoc),
             queryParams: apidocFormatQueryParams(apidoc),
             pathParams: apidocFormatPathParams(apidoc),
@@ -106,14 +106,14 @@ const executeCode = () => {
         },
     });
     worker.postMessage({
-        type: "generate-code",
+        type: 'generate-code',
         value: code.value
     });
-    worker.addEventListener("message", (e) => {
-        if (typeof e.data !== "object") {
+    worker.addEventListener('message', (e) => {
+        if (typeof e.data !== 'object') {
             return;
         }
-        if (e.data.type === "success") {
+        if (e.data.type === 'success') {
             result.value = e.data.value;
         }
     })
@@ -135,8 +135,8 @@ const handleSaveCode = () => {
         remark: form.value?.formInfo.remark,
         code: code.value
     };
-    axios.put("/api/apidoc/project/code", params).then(() => {
-        ElMessage.success("修改成功")
+    axios.put('/api/apidoc/project/code', params).then(() => {
+        ElMessage.success('修改成功')
         dialogVisible.value = false;
     }).catch((err) => {
         console.error(err);

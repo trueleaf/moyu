@@ -1,15 +1,15 @@
-import { cloneDeep } from "@/helper";
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowContainerStore } from "@/store/apiflow/container";
-import { useFlowCreateLineDotStateStore } from "@/store/apiflow/create-line-state";
-import { useFlowLineStateStore } from "@/store/apiflow/line-state";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { useFlowNodeStateStore } from "@/store/apiflow/node-state";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowResizeNodeStateStore } from "@/store/apiflow/resize-node-state";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from "@@/apiflow";
-import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getQuardantByPoint, getResizeBarArea, mouseIsInLine, repaintLine } from "../common/common";
+import { cloneDeep } from '@/helper';
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowContainerStore } from '@/store/apiflow/container';
+import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-state';
+import { useFlowLineStateStore } from '@/store/apiflow/line-state';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from '@@/apiflow';
+import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getQuardantByPoint, getResizeBarArea, mouseIsInLine, repaintLine } from '../common/common';
 
 /**
  * createLineDot上面移动
@@ -22,11 +22,11 @@ export function changeCreateLineDotStateWhenMouseMove(e: MouseEvent): void {
     const selectionStore = useFlowSelectionStore()
     if (selectionStore.isHover) {
         createLineDotState.$patch({
-            hoverNodeId: "",
-            hoverPosition: "",
+            hoverNodeId: '',
+            hoverPosition: '',
         })
         nodeStateStore.$patch({
-            hoverNodeId: "",
+            hoverNodeId: '',
         })
         return
     }
@@ -38,18 +38,18 @@ export function changeCreateLineDotStateWhenMouseMove(e: MouseEvent): void {
     const getMouseIsInCreateDot = (createLineArea: FlowValidCreateLineArea, { x, y }: { x: number; y: number }) => {
         const { leftArea, rightArea, topArea, bottomArea } = createLineArea;
         if (x > leftArea.offsetX && x < leftArea.offsetX2 && y > leftArea.offsetY && y < leftArea.offsetY2) {
-            return "left";
+            return 'left';
         }
         if (x > rightArea.offsetX && x < rightArea.offsetX2 && y > rightArea.offsetY && y < rightArea.offsetY2) {
-            return "right";
+            return 'right';
         }
         if (x > topArea.offsetX && x < topArea.offsetX2 && y > topArea.offsetY && y < topArea.offsetY2) {
-            return "top";
+            return 'top';
         }
         if (x > bottomArea.offsetX && x < bottomArea.offsetX2 && y > bottomArea.offsetY && y < bottomArea.offsetY2) {
-            return "bottom";
+            return 'bottom';
         }
-        return "";
+        return '';
     };
     const matchedNodes: {
         position: ReturnType<typeof getMouseIsInCreateDot>;
@@ -71,8 +71,8 @@ export function changeCreateLineDotStateWhenMouseMove(e: MouseEvent): void {
     }
     if (matchedNodes.length === 0) {
         createLineDotState.$patch({
-            hoverNodeId: "",
-            hoverPosition: "",
+            hoverNodeId: '',
+            hoverPosition: '',
         })
     } else {
         let maxZIndexNode = matchedNodes[0];
@@ -101,8 +101,8 @@ export function changeResizeDotStateWhenMouseMove(e: MouseEvent): void {
     const selectionStore = useFlowSelectionStore()
     if (selectionStore.isHover) {
         resizeNodeDotStore.$patch({
-            hoverNodeId: "",
-            hoverPosition: ""
+            hoverNodeId: '',
+            hoverPosition: ''
         })
         return
     }
@@ -111,18 +111,18 @@ export function changeResizeDotStateWhenMouseMove(e: MouseEvent): void {
     const getResizeDotArea = (resizeDotArea: FlowValidResizeArea, { x, y }: { x: number; y: number }) => {
         const { leftTopArea, rightTopArea, leftBottomArea, rightBottomArea } = resizeDotArea;
         if (x > leftTopArea.offsetX && x < leftTopArea.offsetX2 && y > leftTopArea.offsetY && y < leftTopArea.offsetY2) {
-            return "leftTop";
+            return 'leftTop';
         }
         if (x > rightTopArea.offsetX && x < rightTopArea.offsetX2 && y > rightTopArea.offsetY && y < rightTopArea.offsetY2) {
-            return "rightTop";
+            return 'rightTop';
         }
         if (x > leftBottomArea.offsetX && x < leftBottomArea.offsetX2 && y > leftBottomArea.offsetY && y < leftBottomArea.offsetY2) {
-            return "leftBottom";
+            return 'leftBottom';
         }
         if (x > rightBottomArea.offsetX && x < rightBottomArea.offsetX2 && y > rightBottomArea.offsetY && y < rightBottomArea.offsetY2) {
-            return "rightBottom";
+            return 'rightBottom';
         }
-        return "";
+        return '';
     }
     for (let i = 0; i < nodesStore.nodeList.length; i += 1) {
         const node = nodesStore.nodeList[i];
@@ -140,8 +140,8 @@ export function changeResizeDotStateWhenMouseMove(e: MouseEvent): void {
         }
         if (!resizeNodeDotStore.isMouseDown) { //click状态保持不变
             resizeNodeDotStore.$patch({
-                hoverNodeId: "",
-                hoverPosition: ""
+                hoverNodeId: '',
+                hoverPosition: ''
             })
         }
     }
@@ -173,7 +173,7 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
     }
     if (matchedNodes.length === 0 && !createLineDotState.hoverNodeId) {
         nodeStateStore.$patch({
-            hoverNodeId: ""
+            hoverNodeId: ''
         })
     } else if (matchedNodes.length !== 0) {
         let maxZIndexNode = matchedNodes[0]
@@ -209,16 +209,16 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
         }
         if (mouseIsInLine(e, line) && !nodeStateStore.isMove) {
             lineStateStore.$patch({
-                hoverDragLineId: "",
+                hoverDragLineId: '',
                 hoverLineId: line.id,
                 isHoverDragArrow: false,
             })
             break
         }
         lineStateStore.$patch({
-            hoverDragLineId: "",
+            hoverDragLineId: '',
             isHoverDragArrow: false,
-            hoverLineId: "",
+            hoverLineId: '',
         })
     }
 }
@@ -266,7 +266,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
     if (matchedNode) {
         const relativeX = Math.ceil((e.clientX - resizeNodeDotStateStore.mouseDownClientX) / configStore.zoom); //相对x移动距离
         const relativeY = Math.ceil((e.clientY - resizeNodeDotStateStore.mouseDownClientY) / configStore.zoom); //相对y移动距离
-        if (resizeNodeDotStateStore.hoverPosition === "leftTop") {
+        if (resizeNodeDotStateStore.hoverPosition === 'leftTop') {
             if (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX < configStore.nodeMinWidth) {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
                     width: configStore.nodeMinWidth,
@@ -289,7 +289,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                     offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY)
                 });
             }
-        } else if (resizeNodeDotStateStore.hoverPosition === "rightTop") {
+        } else if (resizeNodeDotStateStore.hoverPosition === 'rightTop') {
             if (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX < configStore.nodeMinWidth) {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
                     width: configStore.nodeMinWidth,
@@ -311,7 +311,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                     offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown + relativeY),
                 });
             }
-        } else if (resizeNodeDotStateStore.hoverPosition === "leftBottom") {
+        } else if (resizeNodeDotStateStore.hoverPosition === 'leftBottom') {
             if (resizeNodeDotStateStore.nodeWidthWhenMouseDown - relativeX < configStore.nodeMinWidth) {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
                     width: configStore.nodeMinWidth,
@@ -334,7 +334,7 @@ export function resizeNodeWhenMouseMove(e: MouseEvent): void {
                     offsetY: (resizeNodeDotStateStore.nodeOffsetYWhenMouseDown),
                 });
             }
-        } else if (resizeNodeDotStateStore.hoverPosition === "rightBottom") {
+        } else if (resizeNodeDotStateStore.hoverPosition === 'rightBottom') {
             if (resizeNodeDotStateStore.nodeWidthWhenMouseDown + relativeX < configStore.nodeMinWidth) {
                 nodesStore.changeNodeStyleInfoById(resizeNodeDotStateStore.hoverNodeId, {
                     width: configStore.nodeMinWidth,
@@ -385,16 +385,16 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
         x: 0,
         y: 0,
     }
-    if (fromPosition === "left") {
+    if (fromPosition === 'left') {
         startPoint.x = matchedNode.styleInfo.offsetX;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
-    } else if (fromPosition === "top") {
+    } else if (fromPosition === 'top') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY;
-    } else if (fromPosition === "right") {
+    } else if (fromPosition === 'right') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
-    } else if (fromPosition === "bottom") {
+    } else if (fromPosition === 'bottom') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
     }
@@ -437,7 +437,7 @@ export function drawLineWhenMouseMove(e: MouseEvent): void {
         })
     } else {
         linesStore.changeLineInfoById(matchedLine.id, {
-            toPosition: "",
+            toPosition: '',
             arrowInfo: {
                 leftTopPoint: {
                     clientX: drawInfo.lineInfo.arrowInfo.leftTopPoint.x + drawInfo.x + Math.ceil(containerStore.clientX),
@@ -516,28 +516,28 @@ export function createSelectionWhenMouseMove(e: MouseEvent): void {
         x: endOffsetX,
         y: endOffsetY
     });
-    if (coordinate === "1") { //第一象限
+    if (coordinate === '1') { //第一象限
         selectionStore.$patch({
             width: Math.abs(endOffsetX - startOffsetX),
             height: Math.abs(endOffsetY - startOffsetY),
             offsetX: startOffsetX,
             offsetY: endOffsetY,
         })
-    } else if (coordinate === "2") {
+    } else if (coordinate === '2') {
         selectionStore.$patch({
             width: Math.abs(endOffsetX - startOffsetX),
             height: Math.abs(endOffsetY - startOffsetY),
             offsetX: endOffsetX,
             offsetY: endOffsetY,
         })
-    } else if (coordinate === "3") {
+    } else if (coordinate === '3') {
         selectionStore.$patch({
             width: Math.abs(endOffsetX - startOffsetX),
             height: Math.abs(endOffsetY - startOffsetY),
             offsetX: endOffsetX,
             offsetY: startOffsetY,
         })
-    } else if (coordinate === "4") {
+    } else if (coordinate === '4') {
         selectionStore.$patch({
             width: Math.abs(endOffsetX - startOffsetX),
             height: Math.abs(endOffsetY - startOffsetY),

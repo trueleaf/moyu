@@ -1,7 +1,7 @@
-import { FlowConfig } from "@@/apiflow"
-import { defineStore } from "pinia"
+import { FlowConfig } from '@@/apiflow'
+import { defineStore } from 'pinia'
 
-export const useFlowConfigStore = defineStore("flowConfig", {
+export const useFlowConfigStore = defineStore('flowConfig', {
     state: (): FlowConfig => {
         return {
             minLineWidth: 40,

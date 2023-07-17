@@ -1,7 +1,7 @@
-import type { ApidocResponseState, ApidocCookieInfo } from "@@/store"
-import setCookieParser from "set-cookie-parser"
-import { formatDate } from "@/helper/index"
-import { store } from "@/pages/modules/apidoc/doc-view/store/index"
+import type { ApidocResponseState, ApidocCookieInfo } from '@@/store'
+import setCookieParser from 'set-cookie-parser'
+import { formatDate } from '@/helper/index'
+import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 
 type ResponseBaseInfo = {
     httpVersion: string,
@@ -27,11 +27,11 @@ const response = {
     namespaced: true,
     state: {
         header: {},
-        contentType: "",
-        httpVersion: "",
-        ip: "",
+        contentType: '',
+        httpVersion: '',
+        ip: '',
         statusCode: 0,
-        statusMessage: "",
+        statusMessage: '',
         rt: 0,
         size: 0,
         loading: false,
@@ -43,11 +43,11 @@ const response = {
         },
         data: {
             file: {
-                url: "",
-                raw: "",
+                url: '',
+                raw: '',
             },
-            type: "",
-            text: "",
+            type: '',
+            text: '',
         },
     },
     mutations: {
@@ -70,11 +70,11 @@ const response = {
         //清空response值
         clearResponseInfo(state: ApidocResponseState): void {
             state.header = {};
-            state.contentType = "";
-            state.httpVersion = "";
-            state.ip = "";
+            state.contentType = '';
+            state.httpVersion = '';
+            state.ip = '';
             state.statusCode = 0;
-            state.statusMessage = "";
+            state.statusMessage = '';
             state.rt = 0;
             state.size = 0;
             state.cookies = [];
@@ -85,30 +85,30 @@ const response = {
             };
             state.data = {
                 file: {
-                    url: "",
-                    raw: "",
-                    mime: "",
-                    ext: "",
-                    name: "",
+                    url: '',
+                    raw: '',
+                    mime: '',
+                    ext: '',
+                    name: '',
                 },
-                type: "",
-                text: "",
+                type: '',
+                text: '',
             };
         },
         //改变返回值进度
-        changeResponseProgress(state: ApidocResponseState, progress: ApidocResponseState["process"]): void {
+        changeResponseProgress(state: ApidocResponseState, progress: ApidocResponseState['process']): void {
             state.process = progress;
         },
         //=====================================返回值====================================//
         //字符串类型返回值
         changeResponseTextValue(state: ApidocResponseState, textValue: string): void {
             state.data.text = textValue;
-            state.data.file.url = ""; //清空url
+            state.data.file.url = ''; //清空url
         },
         //文件类型返回值
         changeResponseFileUrl(state: ApidocResponseState, url: string): void {
             state.data.file.url = url;
-            state.data.text = ""; //清空文字
+            state.data.text = ''; //清空文字
         },
         //改变返回data类型
         changeResponseContentType(state: ApidocResponseState, type: string): void {
@@ -124,7 +124,7 @@ const response = {
         },
         //改变cookie值
         changeResponseCookies(state: ApidocResponseState, cookies: string[]): void {
-            const urlInfo = store.state["apidoc/apidoc"].apidoc.item.url
+            const urlInfo = store.state['apidoc/apidoc'].apidoc.item.url
             const fullPatth = urlInfo.host + urlInfo.path;
             const dominReg = /([^./]{1,62}\.){1,}[^./]{1,62}/;
             const matchedDomin = fullPatth.match(dominReg);
@@ -132,26 +132,26 @@ const response = {
             cookies.forEach((cookieStr) => {
                 const parsedCookie = setCookieParser.parse(cookieStr)
                 const cookieInfo: ApidocCookieInfo = {
-                    name: "",
-                    value: "",
-                    domin: "",
-                    path: "",
-                    expires: "",
+                    name: '',
+                    value: '',
+                    domin: '',
+                    path: '',
+                    expires: '',
                     httpOnly: false,
                     secure: false,
-                    sameSite: "",
+                    sameSite: '',
                 };
-                const realDomin = parsedCookie[0].domain || (matchedDomin ? matchedDomin[0] : "")
+                const realDomin = parsedCookie[0].domain || (matchedDomin ? matchedDomin[0] : '')
                 cookieInfo.name = parsedCookie[0].name;
                 cookieInfo.value = parsedCookie[0].value;
                 cookieInfo.domin = realDomin;
-                cookieInfo.path = parsedCookie[0].path || "";
+                cookieInfo.path = parsedCookie[0].path || '';
                 cookieInfo.expires = formatDate(parsedCookie[0].expires);
                 cookieInfo.httpOnly = parsedCookie[0].httpOnly || false;
                 cookieInfo.secure = parsedCookie[0].secure || false;
-                cookieInfo.sameSite = parsedCookie[0].sameSite || "";
+                cookieInfo.sameSite = parsedCookie[0].sameSite || '';
                 state.cookies.push(cookieInfo);
-                const { globalCookies } = store.state["apidoc/baseInfo"];
+                const { globalCookies } = store.state['apidoc/baseInfo'];
                 if (!globalCookies[realDomin]) {
                     globalCookies[realDomin] = [];
                 }
@@ -162,7 +162,7 @@ const response = {
                     globalCookies[realDomin][matchedCookieIndex] = JSON.parse(JSON.stringify(cookieInfo));
                 }
             })
-            localStorage.setItem("apidoc/globalCookies", JSON.stringify(store.state["apidoc/baseInfo"].globalCookies))
+            localStorage.setItem('apidoc/globalCookies', JSON.stringify(store.state['apidoc/baseInfo'].globalCookies))
         },
     },
 }

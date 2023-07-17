@@ -46,7 +46,7 @@ export type LineCanHoverPosition = {
 /**
  * 线条位置信息，可以从节点的四个方向(上下左右)引出，也可以没有位置信息，代表独立存在的线条
  */
-export type FlowLinePosition = "left" | "top" | "right" | "bottom" | "";
+export type FlowLinePosition = 'left' | 'top' | 'right' | 'bottom' | '';
 /**
  * 鼠标移动到线条上时候，由于是通过canvas绘制的折线，所以需要计算出一组有效hover区域
  */
@@ -93,7 +93,7 @@ export type FlowLineInfo = {
 | 节点信息
 |--------------------------------------------------------------------------
 */
-export type FlowNodeType = "rect";
+export type FlowNodeType = 'rect';
 export type FlowNodeInfo = {
     id: string;
     styleInfo: {
@@ -259,11 +259,11 @@ export type FLowCreateLineDotState = {
 |--------------------------------------------------------------------------
 */
 type FlowResizeNodePosition =
-    | "leftTop"
-    | "rightTop"
-    | "leftBottom"
-    | "rightBottom"
-    | "";
+    | 'leftTop'
+    | 'rightTop'
+    | 'leftBottom'
+    | 'rightBottom'
+    | '';
 export type FLowResizeNodeDotState = {
     hoverNodeId: string;
     hoverPosition: FlowResizeNodePosition;

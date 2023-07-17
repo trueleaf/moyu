@@ -5,32 +5,32 @@
     备注：
 */
 <template>
-    <div class="status">
-        <template v-for="(item, index) in mimeTypes" :key="index">
-            <div class="text-bold mt-1">{{ item.title }}</div>
-            <div class="px-3 d-flex flex-wrap">
-                <el-tooltip v-for="(mime, index2) in item.values" :key="index2" :show-after="800" :content="mime.mimeType" placement="top" :effect="Effect.LIGHT">
-                    <div class="item" @click="handleSelect(mime.mimeType)">{{ mime.alias }}</div>
-                </el-tooltip>
-            </div>
-        </template>
-        <div class="close" @click="emit('close')">
-            <el-icon>
-                <Close />
-            </el-icon>
-        </div>
+  <div class="status">
+    <template v-for="(item, index) in mimeTypes" :key="index">
+      <div class="text-bold mt-1">{{ item.title }}</div>
+      <div class="px-3 d-flex flex-wrap">
+        <el-tooltip v-for="(mime, index2) in item.values" :key="index2" :show-after="800" :content="mime.mimeType" placement="top" :effect="Effect.LIGHT">
+          <div class="item" @click="handleSelect(mime.mimeType)">{{ mime.alias }}</div>
+        </el-tooltip>
+      </div>
+    </template>
+    <div class="close" @click="emit('close')">
+      <el-icon>
+        <Close />
+      </el-icon>
     </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { Effect } from "element-plus";
-import { Close } from "@element-plus/icons-vue"
-import mimeTypes from "./mime"
+import { Effect } from 'element-plus';
+import { Close } from '@element-plus/icons-vue'
+import mimeTypes from './mime'
 
-const emit = defineEmits(["close", "select"]);
+const emit = defineEmits(['close', 'select']);
 const handleSelect = (mimeType: string) => {
-    emit("select", mimeType);
-    emit("close");
+    emit('select', mimeType);
+    emit('close');
 }
 </script>
 

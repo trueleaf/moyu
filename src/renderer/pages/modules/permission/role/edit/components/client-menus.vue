@@ -5,32 +5,32 @@
     备注：
 */
 <template>
-    <s-loading :loading="loading" class="client-menus">
-        <el-tree
-            ref="tree"
-            :data="clientMenu"
-            show-checkbox
-            node-key="_id"
-            :draggable="false"
-            :empty-text="$t('暂无数据')"
-            :expand-on-click-node="false"
-            :highlight-current="true"
-            @check-change="handleSelectClientMenu"
-        >
-            <template #default="{ data }">
-                <div class="custom-tree-node">
-                    <span>{{ data.name }}</span>
-                </div>
-            </template>
-        </el-tree>
-    </s-loading>
+  <s-loading :loading="loading" class="client-menus">
+    <el-tree
+      ref="tree"
+      :data="clientMenu"
+      show-checkbox
+      node-key="_id"
+      :draggable="false"
+      :empty-text="$t('暂无数据')"
+      :expand-on-click-node="false"
+      :highlight-current="true"
+      @check-change="handleSelectClientMenu"
+    >
+      <template #default="{ data }">
+        <div class="custom-tree-node">
+          <span>{{ data.name }}</span>
+        </div>
+      </template>
+    </el-tree>
+  </s-loading>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    emits: ["change"],
+    emits: ['change'],
     data() {
         return {
             clientMenu: [] as string[],
@@ -44,7 +44,7 @@ export default defineComponent({
         //获取树形菜单结构
         getClientMenu() {
             this.loading = true;
-            this.axios.get("/api/security/client_menu_tree").then((res) => {
+            this.axios.get('/api/security/client_menu_tree').then((res) => {
                 this.$helper.forEachForest(res.data, (val) => {
                     val.id = val._id;
                 })
@@ -59,7 +59,7 @@ export default defineComponent({
         handleSelectClientMenu() {
             const checkKeys = this.$refs.tree.getCheckedKeys();
             const halfCheckKeys = this.$refs.tree.getHalfCheckedKeys();
-            this.$emit("change", checkKeys.concat(halfCheckKeys));
+            this.$emit('change', checkKeys.concat(halfCheckKeys));
         },
     },
 })

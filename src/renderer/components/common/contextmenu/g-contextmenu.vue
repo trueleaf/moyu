@@ -5,14 +5,14 @@
     备注：
 */
 <template>
-    <div ref="contextmenu" class="s-contextmenu" :style="{width: width, left: left + 'px', top: realTop + 'px'}">
-        <slot></slot>
-    </div>
-    <!-- <div class="contextmenu-shadow"></div> -->
+  <div ref="contextmenu" class="s-contextmenu" :style="{width: width, left: left + 'px', top: realTop + 'px'}">
+    <slot></slot>
+  </div>
+  <!-- <div class="contextmenu-shadow"></div> -->
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
@@ -21,7 +21,7 @@ export default defineComponent({
          */
         width: {
             type: String,
-            default: "200px",
+            default: '200px',
         },
         /**
          * 左侧距离
@@ -50,11 +50,11 @@ export default defineComponent({
                     const contextmenuDom = this.$refs.contextmenu as HTMLElement;
                     const { innerHeight } = window;
                     const { height } = contextmenuDom.getBoundingClientRect();
-                    const contextPosition = height + topVal > innerHeight ? "top" : "bottom";
-                    if (contextPosition === "top" && height > topVal) { //显示在上面但是contextmenu高度小于上面可用空间高度
+                    const contextPosition = height + topVal > innerHeight ? 'top' : 'bottom';
+                    if (contextPosition === 'top' && height > topVal) { //显示在上面但是contextmenu高度小于上面可用空间高度
                         contextmenuDom.style.height = `${topVal}px`;
-                        contextmenuDom.style.overflowY = "auto";
-                    } else if (contextPosition === "top") {
+                        contextmenuDom.style.overflowY = 'auto';
+                    } else if (contextPosition === 'top') {
                         this.realTop = topVal - height;
                     } else {
                         this.realTop = topVal;

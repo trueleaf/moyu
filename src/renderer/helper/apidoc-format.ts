@@ -3,10 +3,10 @@
 | apidoc转换为更易读数据
 |--------------------------------------------------------------------------
 */
-import { store } from "@/store";
-import { ApidocResponseContentType, ApidocDetail } from "@@/global";
-import { ApidocProjectVariable } from "@@/store";
-import { apidocConvertParamsToJsonData } from "./index"
+import { store } from '@/store';
+import { ApidocResponseContentType, ApidocDetail } from '@@/global';
+import { ApidocProjectVariable } from '@@/store';
+import { apidocConvertParamsToJsonData } from './index'
 
 type UrlInfo = {
     host: string,
@@ -48,7 +48,7 @@ type ResponseData = {
  */
 function convertPlaceholder(value: string) {
     const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-    const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(store.state["apidoc/baseInfo"].variables));
+    const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(store.state['apidoc/baseInfo'].variables));
     let convertValue = value;
     if (matchdVariable) {
         const realValue = allVariables.find(v => v.name === matchdVariable[1]);
@@ -68,7 +68,7 @@ export const apidocFormatQueryParams = (apidoc: ApidocDetail): Record<string, st
     queryParams.forEach(param => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             result[key] = convertPlaceholder(value);
         }
     })
@@ -83,7 +83,7 @@ export const apidocFormatPathParams = (apidoc: ApidocDetail): Record<string, str
     paths.forEach(param => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             result[key] = value;
         }
     })
@@ -106,7 +106,7 @@ export const apidocFormatFormdataParams = (apidoc: ApidocDetail): Record<string,
     formdata.forEach(param => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             result[key] = convertPlaceholder(value);
         }
     })
@@ -121,7 +121,7 @@ export const apidocFormatUrlencodedParams = (apidoc: ApidocDetail): Record<strin
     urlencoded.forEach(param => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             result[key] = convertPlaceholder(value);
         }
     })
@@ -136,7 +136,7 @@ export const apidocFormatHeaderParams = (apidoc: ApidocDetail): Record<string, s
     headers.forEach(param => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             result[key] = convertPlaceholder(value);
         }
     })
@@ -146,18 +146,18 @@ export const apidocFormatHeaderParams = (apidoc: ApidocDetail): Record<string, s
  * 转换URL信息
  */
 export const apidocFormatUrl = (apidoc: ApidocDetail): UrlInfo => {
-    let queryString = "";
+    let queryString = '';
     const { queryParams } = apidoc.item;
     const { path, host } = apidoc.item.url
     //query参数解析
     queryParams.forEach((param) => {
         const key = param.key.trim();
         const value = param.value.trim();
-        if (key !== "") {
+        if (key !== '') {
             queryString += `${key}=${convertPlaceholder(value)}&`
         }
     })
-    queryString = queryString.replace(/&$/, "");
+    queryString = queryString.replace(/&$/, '');
     if (queryString) {
         queryString = `?${queryString}`;
     }
@@ -180,7 +180,7 @@ export const apidocFormatResponseParams = (apidoc: ApidocDetail): ResponseData[]
             dataType: res.value.dataType,
         };
         switch (res.value.dataType) {
-            case "application/json":
+            case 'application/json':
                 data.json = apidocConvertParamsToJsonData(res.value.json);
                 break;
             default:

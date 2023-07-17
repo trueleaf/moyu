@@ -1,9 +1,9 @@
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { cloneDeep } from "@/helper";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { getNodeStickyArea, getLineStickyPosition, getContraryPosition } from "../common";
-import type { DrawInfo, Coordinate, DrawInfoOptions, LineConfig } from "../common"
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { cloneDeep } from '@/helper';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { getNodeStickyArea, getLineStickyPosition, getContraryPosition } from '../common';
+import type { DrawInfo, Coordinate, DrawInfoOptions, LineConfig } from '../common'
 
 type Options = DrawInfoOptions & {
     startPoint: Coordinate,
@@ -11,7 +11,7 @@ type Options = DrawInfoOptions & {
     lineConfig: LineConfig
 }
 type GetArrowInfoOptions = {
-    position: "left"| "right" | "top" | "bottom";
+    position: 'left'| 'right' | 'top' | 'bottom';
     arrowLength: number;
     arrowWidth: number;
 }
@@ -24,7 +24,7 @@ type GetArrowInfoOptions = {
 const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coordinate[] => {
     const arrowList: Coordinate[] = [];
     const { position, arrowLength, arrowWidth } = options;
-    if (position === "right") {
+    if (position === 'right') {
         arrowList[0] = {
             x: point.x,
             y: point.y - arrowWidth
@@ -37,7 +37,7 @@ const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coor
             x: point.x + arrowLength,
             y: point.y
         }
-    } else if (position === "bottom") {
+    } else if (position === 'bottom') {
         arrowList[0] = {
             x: point.x - arrowWidth,
             y: point.y
@@ -50,7 +50,7 @@ const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coor
             x: point.x,
             y: point.y + arrowLength
         }
-    } else if (position === "left") {
+    } else if (position === 'left') {
         arrowList[0] = {
             x: point.x,
             y: point.y - arrowWidth
@@ -63,7 +63,7 @@ const getDrawArrowInfo = (point: Coordinate, options: GetArrowInfoOptions): Coor
             x: point.x - arrowLength,
             y: point.y
         }
-    } else if (position === "top") {
+    } else if (position === 'top') {
         arrowList[0] = {
             x: point.x - arrowWidth,
             y: point.y
@@ -106,7 +106,7 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             x: 0,
             y: 0,
         };
-        if (stickyNodePosition === "left") {
+        if (stickyNodePosition === 'left') {
             result.width = stickyArea.leftArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
             result.y = stickyArea.leftArea.pointY - padding;
@@ -130,8 +130,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
             lineEndPoint.y = stickyArea.leftArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "left";
-        } else if (stickyNodePosition === "top") {
+            result.connectedPosition = 'left';
+        } else if (stickyNodePosition === 'top') {
             const gapX = clonedNode.styleInfo.offsetX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width; //fromNode右侧距离clonedNode左侧距离
             result.width = stickyArea.topArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
@@ -181,8 +181,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.topArea.pointX - result.x;
             lineEndPoint.y = stickyArea.topArea.pointY - result.y - padding;
             result.isConnectedNode = true
-            result.connectedPosition = "top";
-        } else if (stickyNodePosition === "bottom") {
+            result.connectedPosition = 'top';
+        } else if (stickyNodePosition === 'bottom') {
             result.width = stickyArea.bottomArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.bottomArea.pointY) + 2 * padding;
             result.y = stickyArea.bottomArea.pointY - padding;
@@ -202,8 +202,8 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.bottomArea.pointX - startPoint.x + padding;
             lineEndPoint.y = stickyArea.bottomArea.pointY - result.y + arrowLength
             result.isConnectedNode = true
-            result.connectedPosition = "bottom";
-        } else if (stickyNodePosition === "right") {
+            result.connectedPosition = 'bottom';
+        } else if (stickyNodePosition === 'right') {
             result.width = stickyArea.rightArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding;
             result.y = stickyArea.rightArea.pointY - padding;
@@ -227,7 +227,7 @@ const drawRightLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.rightArea.pointX - startPoint.x + padding * 2;
             lineEndPoint.y = stickyArea.rightArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "right";
+            result.connectedPosition = 'right';
         }
         if (result.isConnectedNode) {
             result.connectedNodeId = clonedNode.id;
@@ -283,7 +283,7 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             x: 0,
             y: 0,
         };
-        if (stickyNodePosition === "left") {
+        if (stickyNodePosition === 'left') {
             result.width = stickyArea.leftArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
             result.y = stickyArea.leftArea.pointY - padding;
@@ -303,8 +303,8 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
             lineEndPoint.y = stickyArea.leftArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "left";
-        } else if (stickyNodePosition === "top") {
+            result.connectedPosition = 'left';
+        } else if (stickyNodePosition === 'top') {
             result.width = stickyArea.topArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
@@ -328,8 +328,8 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.topArea.pointX - result.x;
             lineEndPoint.y = stickyArea.topArea.pointY - result.y - padding;
             result.isConnectedNode = true
-            result.connectedPosition = "top";
-        } else if (stickyNodePosition === "bottom") {
+            result.connectedPosition = 'top';
+        } else if (stickyNodePosition === 'bottom') {
             result.width = stickyArea.bottomArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.bottomArea.pointY) + 2 * padding;
             result.y = stickyArea.bottomArea.pointY - padding;
@@ -353,8 +353,8 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.bottomArea.pointX - startPoint.x + padding;
             lineEndPoint.y = stickyArea.bottomArea.pointY - result.y + arrowLength
             result.isConnectedNode = true
-            result.connectedPosition = "bottom";
-        } else if (stickyNodePosition === "right") {
+            result.connectedPosition = 'bottom';
+        } else if (stickyNodePosition === 'right') {
             const gapY = Math.abs(clonedNode.styleInfo.offsetY - fromNode.styleInfo.offsetY) - fromNode.styleInfo.height; //fromNode右侧距离clonedNode左侧距离
             result.width = stickyArea.rightArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding;
@@ -408,7 +408,7 @@ const drawTopLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.rightArea.pointX - startPoint.x + padding * 2;
             lineEndPoint.y = stickyArea.rightArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "right";
+            result.connectedPosition = 'right';
         }
         if (result.isConnectedNode) {
             result.connectedNodeId = clonedNode.id;
@@ -465,7 +465,7 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             x: 0,
             y: 0,
         };
-        if (stickyNodePosition === "left") {
+        if (stickyNodePosition === 'left') {
             result.width = stickyArea.leftArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding;
             result.y = stickyArea.leftArea.pointY - padding;
@@ -518,8 +518,8 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
             lineEndPoint.y = stickyArea.leftArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "left";
-        } else if (stickyNodePosition === "top") {
+            result.connectedPosition = 'left';
+        } else if (stickyNodePosition === 'top') {
             result.width = stickyArea.topArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.y = stickyArea.topArea.pointY - padding - breakLineOffsetNode;
@@ -547,8 +547,8 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.topArea.pointX - result.x;
             lineEndPoint.y = stickyArea.topArea.pointY - result.y - padding;
             result.isConnectedNode = true
-            result.connectedPosition = "top";
-        } else if (stickyNodePosition === "bottom") {
+            result.connectedPosition = 'top';
+        } else if (stickyNodePosition === 'bottom') {
             result.width = stickyArea.bottomArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode;
             result.height = Math.abs(startPoint.y - stickyArea.bottomArea.pointY) + 2 * padding;
             result.y = stickyArea.bottomArea.pointY - padding;
@@ -576,8 +576,8 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.bottomArea.pointX - startPoint.x + padding + breakLineOffsetNode;
             lineEndPoint.y = stickyArea.bottomArea.pointY - result.y + arrowLength
             result.isConnectedNode = true
-            result.connectedPosition = "bottom";
-        } else if (stickyNodePosition === "right") {
+            result.connectedPosition = 'bottom';
+        } else if (stickyNodePosition === 'right') {
             const gapY = Math.abs(clonedNode.styleInfo.offsetY - fromNode.styleInfo.offsetY) - fromNode.styleInfo.height;
             result.width = stickyArea.rightArea.pointX - startPoint.x + 2 * padding + breakLineOffsetNode * 2;
             result.height = Math.abs(startPoint.y - stickyArea.rightArea.pointY) + 2 * padding;
@@ -639,7 +639,7 @@ const drawLeftLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = result.width - padding - breakLineOffsetNode + arrowLength;
             lineEndPoint.y = stickyArea.rightArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "right";
+            result.connectedPosition = 'right';
         }
         if (result.isConnectedNode) {
             result.connectedNodeId = clonedNode.id;
@@ -695,7 +695,7 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             x: 0,
             y: 0,
         };
-        if (stickyNodePosition === "left") {
+        if (stickyNodePosition === 'left') {
             result.width = stickyArea.leftArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(stickyArea.leftArea.pointY - startPoint.y) + 2 * padding + breakLineOffsetNode;
             result.y = stickyArea.leftArea.pointY - padding;
@@ -771,8 +771,8 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.leftArea.pointX - result.x - arrowLength;
             lineEndPoint.y = stickyArea.leftArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "left";
-        } else if (stickyNodePosition === "top") {
+            result.connectedPosition = 'left';
+        } else if (stickyNodePosition === 'top') {
             const gapX = clonedNode.styleInfo.offsetX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width; //fromNode右侧距离clonedNode左侧距离
             result.width = stickyArea.topArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.topArea.pointY) + 2 * padding + 2 * breakLineOffsetNode;
@@ -865,8 +865,8 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.topArea.pointX - result.x;
             lineEndPoint.y = stickyArea.topArea.pointY - result.y - padding;
             result.isConnectedNode = true
-            result.connectedPosition = "top";
-        } else if (stickyNodePosition === "bottom") {
+            result.connectedPosition = 'top';
+        } else if (stickyNodePosition === 'bottom') {
             result.width = stickyArea.bottomArea.pointX - startPoint.x + 2 * padding;
             result.height = Math.abs(startPoint.y - stickyArea.bottomArea.pointY) + 2 * padding + breakLineOffsetNode;
             result.y = stickyArea.bottomArea.pointY - padding;
@@ -890,8 +890,8 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.bottomArea.pointX - startPoint.x + padding;
             lineEndPoint.y = stickyArea.bottomArea.pointY - result.y + arrowLength
             result.isConnectedNode = true
-            result.connectedPosition = "bottom";
-        } else if (stickyNodePosition === "right") {
+            result.connectedPosition = 'bottom';
+        } else if (stickyNodePosition === 'right') {
             const gapX = stickyArea.rightArea.pointX - fromNode.styleInfo.offsetX - fromNode.styleInfo.width
             const gapY = clonedNode.styleInfo.offsetY + clonedNode.styleInfo.height - fromNode.styleInfo.offsetY - fromNode.styleInfo.height;
             result.width = fromNode.styleInfo.width / 2 + 2 * padding + breakLineOffsetNode;
@@ -948,7 +948,7 @@ const drawBottomLineWhenStick = (result: DrawInfo, options: Options) => {
             lineEndPoint.x = stickyArea.rightArea.pointX - startPoint.x + padding * 2;
             lineEndPoint.y = stickyArea.rightArea.pointY - result.y;
             result.isConnectedNode = true
-            result.connectedPosition = "right";
+            result.connectedPosition = 'right';
         }
         if (result.isConnectedNode) {
             result.connectedNodeId = clonedNode.id;
@@ -1010,7 +1010,7 @@ const drawRightLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: result.height - padding
             }, {
-                position: "right",
+                position: 'right',
                 arrowLength,
                 arrowWidth
             });
@@ -1030,7 +1030,7 @@ const drawRightLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "right",
+                position: 'right',
                 arrowLength,
                 arrowWidth
             });
@@ -1063,7 +1063,7 @@ const drawRightLineWhenDrag = (result: DrawInfo, options: Options) => {
             x: result.width - padding,
             y: padding
         }, {
-            position: "top",
+            position: 'top',
             arrowLength,
             arrowWidth
         });
@@ -1100,7 +1100,7 @@ const drawTopLineWhenDrag = (result: DrawInfo, options: Options) => {
             x: result.width - 2 * padding,
             y: padding
         }, {
-            position: "right",
+            position: 'right',
             arrowLength,
             arrowWidth
         });
@@ -1134,7 +1134,7 @@ const drawTopLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: padding,
                 y: padding
             }, {
-                position: "top",
+                position: 'top',
                 arrowLength,
                 arrowWidth
             });
@@ -1154,7 +1154,7 @@ const drawTopLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "top",
+                position: 'top',
                 arrowLength,
                 arrowWidth
             });
@@ -1207,7 +1207,7 @@ const drawLeftLineWhenDrag = (result: DrawInfo, options: Options) => {
             x: result.width - padding,
             y: endPoint.y - result.y - arrowLength
         }, {
-            position: "bottom",
+            position: 'bottom',
             arrowLength,
             arrowWidth
         });
@@ -1266,7 +1266,7 @@ const drawLeftLineWhenDrag = (result: DrawInfo, options: Options) => {
             x: result.width - padding,
             y: endPoint.y - result.y
         }, {
-            position: "right",
+            position: 'right',
             arrowLength,
             arrowWidth
         });
@@ -1322,7 +1322,7 @@ const drawLeftLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "right",
+                position: 'right',
                 arrowLength,
                 arrowWidth
             });
@@ -1363,7 +1363,7 @@ const drawLeftLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "top",
+                position: 'top',
                 arrowLength,
                 arrowWidth
             });
@@ -1439,7 +1439,7 @@ const drawBottomLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: endPoint.x - result.x,
                 y: padding
             }, {
-                position: "left",
+                position: 'left',
                 arrowLength,
                 arrowWidth
             });
@@ -1475,7 +1475,7 @@ const drawBottomLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: endPoint.x - result.x,
                 y: padding
             }, {
-                position: "top",
+                position: 'top',
                 arrowLength,
                 arrowWidth
             });
@@ -1533,7 +1533,7 @@ const drawBottomLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "right",
+                position: 'right',
                 arrowLength,
                 arrowWidth
             });
@@ -1561,7 +1561,7 @@ const drawBottomLineWhenDrag = (result: DrawInfo, options: Options) => {
                 x: result.width - padding,
                 y: padding
             }, {
-                position: "top",
+                position: 'top',
                 arrowLength,
                 arrowWidth
             });
@@ -1594,22 +1594,22 @@ export const getQuardantInfo = (result: DrawInfo, options: Options): void => {
         y: padding * 2
     }
     //第三步，根据线条引出时候位置，绘制线条
-    if (fromPosition === "right") { //第一象限，从节点右侧引出线条
+    if (fromPosition === 'right') { //第一象限，从节点右侧引出线条
         drawRightLineWhenDrag(result, options);
         if (!selectionStore.isMouseDownSelectedArea) {
             drawRightLineWhenStick(result, options);
         }
-    } else if (fromPosition === "top") { //第一象限，从节点顶部引出线条
+    } else if (fromPosition === 'top') { //第一象限，从节点顶部引出线条
         drawTopLineWhenDrag(result, options);
         if (!selectionStore.isMouseDownSelectedArea) {
             drawTopLineWhenStick(result, options);
         }
-    } else if (fromPosition === "left") { //第一象限，从节点左侧引出线条
+    } else if (fromPosition === 'left') { //第一象限，从节点左侧引出线条
         drawLeftLineWhenDrag(result, options);
         if (!selectionStore.isMouseDownSelectedArea) {
             drawLeftLineWhenStick(result, options);
         }
-    } else if (fromPosition === "bottom") { //第一象限，从节点下侧引出线条
+    } else if (fromPosition === 'bottom') { //第一象限，从节点下侧引出线条
         drawBottomLineWhenDrag(result, options);
         if (!selectionStore.isMouseDownSelectedArea) {
             drawBottomLineWhenStick(result, options);

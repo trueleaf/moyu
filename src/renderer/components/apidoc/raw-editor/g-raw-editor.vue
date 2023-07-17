@@ -5,46 +5,46 @@
     备注：
 */
 <template>
-    <pre id="editor"></pre>
+  <pre id="editor"></pre>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, WatchStopHandle } from "vue"
-import ace, { Editor } from "brace";
-import "brace/mode/json";
-import "brace/mode/javascript";
-import "brace/mode/html";
-import "brace/mode/xml";
-import "brace/mode/text";
-import "brace/mode/css";
-import "brace/theme/github";
-import type { ApidocBodyRawType } from "@@/global"
+import { defineComponent, PropType, WatchStopHandle } from 'vue'
+import ace, { Editor } from 'brace';
+import 'brace/mode/json';
+import 'brace/mode/javascript';
+import 'brace/mode/html';
+import 'brace/mode/xml';
+import 'brace/mode/text';
+import 'brace/mode/css';
+import 'brace/theme/github';
+import type { ApidocBodyRawType } from '@@/global'
 
 const TYPE_MAP = {
-    "text/plain": "text",
-    "text/css": "css",
-    "text/html": "html",
-    "application/xml": "xml",
-    "application/json": "json",
-    "text/javascript": "javascript"
+    'text/plain': 'text',
+    'text/css': 'css',
+    'text/html': 'html',
+    'application/xml': 'xml',
+    'application/json': 'json',
+    'text/javascript': 'javascript'
 }
 
 export default defineComponent({
     props: {
         type: {
             type: String as PropType<ApidocBodyRawType>,
-            default: "javascript",
+            default: 'javascript',
         },
         modelValue: {
             type: String,
-            default: "",
+            default: '',
         },
         readonly: {
             type: Boolean,
             default: false,
         }
     },
-    emits: ["change", "ready", "update:modelValue"],
+    emits: ['change', 'ready', 'update:modelValue'],
     data() {
         return {
             editorInstance: null as null | Editor,
@@ -58,7 +58,7 @@ export default defineComponent({
                     if (TYPE_MAP[type]) {
                         this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[type]}`);
                     } else {
-                        this.editorInstance.getSession().setMode(`ace/mode/text}`);
+                        this.editorInstance.getSession().setMode('ace/mode/text}');
                     }
                 }
             },
@@ -75,7 +75,7 @@ export default defineComponent({
     },
     mounted() {
         this.initEditor();
-        this.watchStoper = this.$watch("modelValue", (value: string) => {
+        this.watchStoper = this.$watch('modelValue', (value: string) => {
             this.setValue(value)
         }, {
             immediate: true,
@@ -88,26 +88,26 @@ export default defineComponent({
         initEditor() {
             this.editorInstance = ace.edit(this.$el);
             this.editorInstance.$blockScrolling = Infinity;
-            this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || "text"}`);
-            this.editorInstance.setTheme("ace/theme/github");
+            this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || 'text'}`);
+            this.editorInstance.setTheme('ace/theme/github');
             // console.log(33, this.editorInstance.getOptions())
             this.editorInstance.getSession().setUseWrapMode(true);
             this.editorInstance.setOptions({
-                fontSize: "13px",
+                fontSize: '13px',
                 wrapBehavioursEnabled: true
             });
             if (this.readonly) {
                 this.editorInstance.setReadOnly(true);
             }
-            this.editorInstance.on("change", () => {
+            this.editorInstance.on('change', () => {
                 if (this.watchStoper && !this.readonly) {
                     this.watchStoper();
                 }
                 const content = this.editorInstance?.getValue();
-                this.$emit("update:modelValue", content);
-                this.$emit("change", content);
+                this.$emit('update:modelValue', content);
+                this.$emit('change', content);
             });
-            this.$emit("ready", this.editorInstance);
+            this.$emit('ready', this.editorInstance);
         },
         setValue(value: string) {
             this.editorInstance?.setValue(value);

@@ -5,34 +5,34 @@
     备注：
 */
 <template>
-    <div class="guide">
-        <div class="wrap">
-            <!-- <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo图片" class="logo"> -->
-            <h2>{{ $t("当前版本") }}{{ config.localization.version }}</h2>
-            <div class="d-flex a-center f-base">
-                <div class="d-flex a-center mr-5">
-                    <div>{{ $t("今日新增") }}：</div>
-                    <div class="green">{{ docsOfToday.length }}</div>
-                </div>
-                <div class="d-flex a-center mr-5">
-                    <div>{{ $t("接口总数") }}：</div>
-                    <div>{{ allDocs.length }}</div>
-                </div>
-            </div>
+  <div class="guide">
+    <div class="wrap">
+      <!-- <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo图片" class="logo"> -->
+      <h2>{{ $t("当前版本") }}{{ config.localization.version }}</h2>
+      <div class="d-flex a-center f-base">
+        <div class="d-flex a-center mr-5">
+          <div>{{ $t("今日新增") }}：</div>
+          <div class="green">{{ docsOfToday.length }}</div>
         </div>
+        <div class="d-flex a-center mr-5">
+          <div>{{ $t("接口总数") }}：</div>
+          <div>{{ allDocs.length }}</div>
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue"
-import { ApidocBanner } from "@@/global"
-import { store } from "@/pages/modules/apidoc/doc-view/store/index"
-import { forEachForest } from "@/helper"
-import config from "@/../config/config"
+import { computed } from 'vue'
+import { ApidocBanner } from '@@/global'
+import { store } from '@/pages/modules/apidoc/doc-view/store/index'
+import { forEachForest } from '@/helper'
+import config from '@/../config/config'
 
 //所有节点
 const allNodes = computed(() => {
-    const allBanner = store.state["apidoc/banner"].banner;
+    const allBanner = store.state['apidoc/banner'].banner;
     const docs: ApidocBanner[] = [];
     forEachForest(allBanner, (v) => {
         const data = {

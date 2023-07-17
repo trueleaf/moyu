@@ -5,19 +5,19 @@
     备注：
 */
 <template>
-    <div class="remote-select">
-        <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
-        <div v-if="query" class="select-panel">
-            <div v-if="dataLoading" class="loading">{{ $t("加载中") }}...</div>
-            <div v-if="!dataLoading && !$slots.default" class="empty">{{ $t("暂无数据") }}</div>
-            <slot v-if="!dataLoading && $slots.default" />
-        </div>
+  <div class="remote-select">
+    <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
+    <div v-if="query" class="select-panel">
+      <div v-if="dataLoading" class="loading">{{ $t("加载中") }}...</div>
+      <div v-if="!dataLoading && !$slots.default" class="empty">{{ $t("暂无数据") }}</div>
+      <slot v-if="!dataLoading && $slots.default" />
     </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
-import { $t } from "@/i18n/i18n"
+import { defineComponent, PropType } from 'vue'
+import { $t } from '@/i18n/i18n'
 
 type DebounceFn = (query: string) => void;
 
@@ -28,7 +28,7 @@ export default defineComponent({
          */
         placeholder: {
             type: String,
-            default: `${$t("请输入")}...`,
+            default: `${$t('请输入')}...`,
         },
         /**
          * 远程搜索方法
@@ -49,13 +49,13 @@ export default defineComponent({
          */
         modelValue: {
             type: String,
-            default: "",
+            default: '',
         },
     },
-    emits: ["update:modelValue"],
+    emits: ['update:modelValue'],
     data() {
         return {
-            query: "", //-------------------------------输入值
+            query: '', //-------------------------------输入值
             selectData: [], //--------------------------搜索项目
             debounceFn: null as null | DebounceFn, //---节流函数
             dataLoading: false, //----------------------加载效果
@@ -63,7 +63,7 @@ export default defineComponent({
     },
     watch: {
         query(val) {
-            if (val != null || val === "") {
+            if (val != null || val === '') {
                 this.dataLoading = true;
                 if (!this.debounceFn) {
                     this.debounceFn = this.$helper.debounce<DebounceFn>((query) => {
@@ -89,7 +89,7 @@ export default defineComponent({
         },
         //处理搜索
         handleInput() {
-            this.$emit("update:modelValue", this.query);
+            this.$emit('update:modelValue', this.query);
         },
     },
 })

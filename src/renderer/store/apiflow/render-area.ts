@@ -1,7 +1,7 @@
-import { FlowRenderArea } from "@@/apiflow";
-import { defineStore } from "pinia";
+import { FlowRenderArea } from '@@/apiflow';
+import { defineStore } from 'pinia';
 
-export const useFlowRenderAreaStore = defineStore("renderArea", {
+export const useFlowRenderAreaStore = defineStore('renderArea', {
     state: (): FlowRenderArea => {
         return {
             width: 0,

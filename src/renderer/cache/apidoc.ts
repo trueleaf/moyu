@@ -2,8 +2,8 @@
  * apidoc文档缓存
  */
 
-import { ApidocDetail } from "@@/global";
-import type { ApidocProjectHost, ApidocResponseState } from "@@/store"
+import { ApidocDetail } from '@@/global';
+import type { ApidocProjectHost, ApidocResponseState } from '@@/store'
 
 type ServerInfo = ApidocProjectHost & {
     isLocal?: boolean,
@@ -11,11 +11,11 @@ type ServerInfo = ApidocProjectHost & {
 
 class ApidocCache {
     constructor() {
-        if (!localStorage.getItem("apidoc/paramsConfig")) {
-            localStorage.setItem("apidoc/paramsConfig", "{}");
+        if (!localStorage.getItem('apidoc/paramsConfig')) {
+            localStorage.setItem('apidoc/paramsConfig', '{}');
         }
-        if (!localStorage.getItem("apidoc/apidoc")) {
-            localStorage.setItem("apidoc/apidoc", "{}");
+        if (!localStorage.getItem('apidoc/apidoc')) {
+            localStorage.setItem('apidoc/apidoc', '{}');
         }
     }
 
@@ -27,14 +27,14 @@ class ApidocCache {
      */
     getActiveParamsTab(id: string): string | null {
         try {
-            const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem("apidoc/paramsActiveTab") || "{}");
+            const localActiveTab: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
             if (!localActiveTab[id]) {
                 return null;
             }
             return localActiveTab[id];
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/paramsActiveTab", "{}")
+            localStorage.setItem('apidoc/paramsActiveTab', '{}')
             return null;
         }
     }
@@ -48,14 +48,14 @@ class ApidocCache {
      */
     setActiveParamsTab(id: string, val: string) {
         try {
-            const localActiveTab = JSON.parse(localStorage.getItem("apidoc/paramsActiveTab") || "{}");
+            const localActiveTab = JSON.parse(localStorage.getItem('apidoc/paramsActiveTab') || '{}');
             localActiveTab[id] = val;
-            localStorage.setItem("apidoc/paramsActiveTab", JSON.stringify(localActiveTab));
+            localStorage.setItem('apidoc/paramsActiveTab', JSON.stringify(localActiveTab));
         } catch (error) {
             console.error(error);
             const data: Record<string, string> = {};
             data[id] = val;
-            localStorage.setItem("apidoc/paramsActiveTab", JSON.stringify(data));
+            localStorage.setItem('apidoc/paramsActiveTab', JSON.stringify(data));
         }
     }
 
@@ -66,14 +66,14 @@ class ApidocCache {
      */
     setApidoc(val: ApidocDetail) {
         try {
-            const localApidoc = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
+            const localApidoc = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
             localApidoc[val._id] = val;
-            localStorage.setItem("apidoc/apidoc", JSON.stringify(localApidoc));
+            localStorage.setItem('apidoc/apidoc', JSON.stringify(localApidoc));
         } catch (error) {
             console.error(error);
             const data: Record<string, ApidocDetail> = {};
             data[val._id] = val;
-            localStorage.setItem("apidoc/apidoc", JSON.stringify(data));
+            localStorage.setItem('apidoc/apidoc', JSON.stringify(data));
         }
     }
 
@@ -85,14 +85,14 @@ class ApidocCache {
      */
     getApidoc(id: string): ApidocDetail | null {
         try {
-            const localApidoc: Record<string, ApidocDetail> = JSON.parse(localStorage.getItem("apidoc/apidoc") || "{}");
+            const localApidoc: Record<string, ApidocDetail> = JSON.parse(localStorage.getItem('apidoc/apidoc') || '{}');
             if (!localApidoc[id]) {
                 return null;
             }
             return localApidoc[id];
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/apidoc", "{}")
+            localStorage.setItem('apidoc/apidoc', '{}')
             return null;
         }
     }
@@ -104,7 +104,7 @@ class ApidocCache {
      */
     addApidocServer(serverInfo: ServerInfo, projectId: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
             if (!localData[projectId]) {
                 localData[projectId] = [];
             }
@@ -112,12 +112,12 @@ class ApidocCache {
             //     return
             // }
             localData[projectId].push(serverInfo);
-            localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
+            localStorage.setItem('apidoc/apidocServer', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
             const data: Record<string, ServerInfo[]> = {};
             data[projectId] = [serverInfo];
-            localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
+            localStorage.setItem('apidoc/apidocServer', JSON.stringify(data));
         }
     }
 
@@ -128,7 +128,7 @@ class ApidocCache {
      */
     deleteApidocServer(host: string, projectId: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
             if (!localData[projectId]) {
                 localData[projectId] = [];
             }
@@ -136,12 +136,12 @@ class ApidocCache {
             if (delIndex !== -1) {
                 localData[projectId].splice(delIndex, 1);
             }
-            localStorage.setItem("apidoc/apidocServer", JSON.stringify(localData));
+            localStorage.setItem('apidoc/apidocServer', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
             const data: Record<string, ServerInfo[]> = {};
             data[projectId] = [];
-            localStorage.setItem("apidoc/apidocServer", JSON.stringify(data));
+            localStorage.setItem('apidoc/apidocServer', JSON.stringify(data));
         }
     }
 
@@ -174,14 +174,14 @@ class ApidocCache {
      */
     getApidocServer(projectId: string): ServerInfo[] | [] {
         try {
-            const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem("apidoc/apidocServer") || "{}");
+            const localData: Record<string, ServerInfo[]> = JSON.parse(localStorage.getItem('apidoc/apidocServer') || '{}');
             if (!localData[projectId]) {
                 return [];
             }
             return localData[projectId];
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/apidocServer", "{}")
+            localStorage.setItem('apidoc/apidocServer', '{}')
             return [];
         }
     }
@@ -194,14 +194,14 @@ class ApidocCache {
      */
     getApidocProxyState(projectId: string): boolean | null {
         try {
-            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem("apidoc/apidocCacheState") || "{}");
+            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
             if (localData[projectId] == null) {
                 return null;
             }
             return localData[projectId] === true;
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/apidocCacheState", "{}")
+            localStorage.setItem('apidoc/apidocCacheState', '{}')
             return false;
         }
     }
@@ -213,12 +213,12 @@ class ApidocCache {
      */
     setApidocProxyState(cacheState: boolean, projectId: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/apidocCacheState") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/apidocCacheState') || '{}');
             localData[projectId] = cacheState;
-            localStorage.setItem("apidoc/apidocCacheState", JSON.stringify(localData));
+            localStorage.setItem('apidoc/apidocCacheState', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/apidocCacheState", "{}");
+            localStorage.setItem('apidoc/apidocCacheState', '{}');
         }
     }
 
@@ -229,12 +229,12 @@ class ApidocCache {
          */
     setResponse(id: string, response: ApidocResponseState) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
             localData[id] = response;
-            localStorage.setItem("apidoc/response", JSON.stringify(localData));
+            localStorage.setItem('apidoc/response', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/response", "{}");
+            localStorage.setItem('apidoc/response', '{}');
         }
     }
 
@@ -246,14 +246,14 @@ class ApidocCache {
      */
     getResponse(id: string): ApidocResponseState | null {
         try {
-            const localData: Record<string, ApidocResponseState> = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            const localData: Record<string, ApidocResponseState> = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
             if (localData[id] == null) {
                 return null;
             }
             return localData[id];
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/response", "{}")
+            localStorage.setItem('apidoc/response', '{}')
             return null;
         }
     }
@@ -265,12 +265,12 @@ class ApidocCache {
      */
     deleteResponse(id: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/response") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/response') || '{}');
             delete localData[id]
-            localStorage.setItem("apidoc/response", JSON.stringify(localData));
+            localStorage.setItem('apidoc/response', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/response", "{}");
+            localStorage.setItem('apidoc/response', '{}');
         }
     }
 
@@ -282,12 +282,12 @@ class ApidocCache {
      */
     setPreviousServer(projectId: string, server: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/previousServer") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
             localData[projectId] = server;
-            localStorage.setItem("apidoc/previousServer", JSON.stringify(localData));
+            localStorage.setItem('apidoc/previousServer', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/previousServer", "{}");
+            localStorage.setItem('apidoc/previousServer', '{}');
         }
     }
 
@@ -299,14 +299,14 @@ class ApidocCache {
      */
     getPreviousServer(projectId: string): string | null {
         try {
-            const localData: Record<string, string> = JSON.parse(localStorage.getItem("apidoc/previousServer") || "{}");
+            const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/previousServer') || '{}');
             if (localData[projectId] == null) {
                 return null;
             }
             return localData[projectId];
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/previousServer", "{}")
+            localStorage.setItem('apidoc/previousServer', '{}')
             return null;
         }
     }
@@ -319,7 +319,7 @@ class ApidocCache {
      */
     getAllResponseCollapseState(): Record<string, boolean> {
         try {
-            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem("apidoc/responseCollapse") || "{}");
+            const localData: Record<string, boolean> = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
             return localData;
         } catch (error) {
             console.error(error);
@@ -336,12 +336,12 @@ class ApidocCache {
      */
     setResponseCollapseState(id: string, isShow: boolean) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/responseCollapse") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/responseCollapse') || '{}');
             localData[id] = isShow;
-            localStorage.setItem("apidoc/responseCollapse", JSON.stringify(localData));
+            localStorage.setItem('apidoc/responseCollapse', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/responseCollapse", "{}");
+            localStorage.setItem('apidoc/responseCollapse', '{}');
         }
     }
 
@@ -354,7 +354,7 @@ class ApidocCache {
      */
     getHookCodeById(projectId: string): string | null {
         try {
-            const localData: Record<string, string> = JSON.parse(localStorage.getItem("apidoc/hookCode") || "{}");
+            const localData: Record<string, string> = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
             if (localData[projectId] == null) {
                 return null;
             }
@@ -374,12 +374,12 @@ class ApidocCache {
      */
     setHookCode(projectId: string, code: string) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/hookCode") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/hookCode') || '{}');
             localData[projectId] = code;
-            localStorage.setItem("apidoc/hookCode", JSON.stringify(localData));
+            localStorage.setItem('apidoc/hookCode', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/hookCode", "{}");
+            localStorage.setItem('apidoc/hookCode', '{}');
         }
     }
 
@@ -390,10 +390,10 @@ class ApidocCache {
      */
     hideJsonBodyTip() {
         try {
-            localStorage.setItem("apidoc/hideJsonBodyTip", JSON.stringify(true));
+            localStorage.setItem('apidoc/hideJsonBodyTip', JSON.stringify(true));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/hideJsonBodyTip", "false");
+            localStorage.setItem('apidoc/hideJsonBodyTip', 'false');
         }
     }
 
@@ -404,7 +404,7 @@ class ApidocCache {
      */
     getCouldShowJsonBodyTip(): boolean {
         try {
-            const isHidden = JSON.parse(localStorage.getItem("apidoc/hideJsonBodyTip") || "false");
+            const isHidden = JSON.parse(localStorage.getItem('apidoc/hideJsonBodyTip') || 'false');
             return !isHidden;
         } catch (error) {
             console.error(error);
@@ -417,7 +417,7 @@ class ApidocCache {
      */
     getApidocWorkerLocalStateById(projectId: string): null | Record<string, unknown> {
         try {
-            const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem("apidoc/worker/localState") || "{}");
+            const localData: Record<string, Record<string, unknown>> = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
             if (localData[projectId] == null) {
                 return null;
             }
@@ -433,12 +433,12 @@ class ApidocCache {
      */
     setApidocWorkerLocalState(projectId: string, state: Record<string, unknown>) {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/worker/localState") || "{}");
+            const localData = JSON.parse(localStorage.getItem('apidoc/worker/localState') || '{}');
             localData[projectId] = state;
-            localStorage.setItem("apidoc/worker/localState", JSON.stringify(localData));
+            localStorage.setItem('apidoc/worker/localState', JSON.stringify(localData));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/worker/localState", "{}");
+            localStorage.setItem('apidoc/worker/localState', '{}');
         }
     }
 
@@ -447,7 +447,7 @@ class ApidocCache {
      */
     getIsShowApidocMockParamsJsonTip(): boolean {
         try {
-            const localData = JSON.parse(localStorage.getItem("apidoc/mock/isShowJsonTip") || "true");
+            const localData = JSON.parse(localStorage.getItem('apidoc/mock/isShowJsonTip') || 'true');
             return localData;
         } catch (error) {
             console.error(error);
@@ -460,10 +460,10 @@ class ApidocCache {
      */
     setIsShowApidocMockParamsJsonTip(isShow: boolean) {
         try {
-            localStorage.setItem("apidoc/mock/isShowJsonTip", JSON.stringify(isShow));
+            localStorage.setItem('apidoc/mock/isShowJsonTip', JSON.stringify(isShow));
         } catch (error) {
             console.error(error);
-            localStorage.setItem("apidoc/mock/isShowJsonTip", "true");
+            localStorage.setItem('apidoc/mock/isShowJsonTip', 'true');
         }
     }
 }

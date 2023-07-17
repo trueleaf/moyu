@@ -5,92 +5,92 @@
     备注：
 */
 <template>
-    <div class="s-content">
-        <div class="s-header">
-            <div class="ml-5 header-left">
-                <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">
-                    <span>{{ config.localization.title }}</span>
-                    <span v-if="config.isDev">(本地)</span>
-                </span>
-                <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
-                    <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
-                        {{ $t(item.name) }}
-                    </el-menu-item>
-                </el-menu>
-            </div>
-            <div class="header-right mr-5 ml-auto">
-                <div class="operation">
-                    <div :title="$t('刷新')" class="op_item" @click="freshPage">
-                        <el-icon :size="20">
-                            <RefreshRight />
-                        </el-icon>
-                    </div>
-                    <div :title="$t('后退')" class="op_item" @click="goBack">
-                        <el-icon :size="20">
-                            <Back />
-                        </el-icon>
-                    </div>
-                    <div :title="$t('前进')" class="op_item" @click="goForward">
-                        <el-icon :size="20">
-                            <Right />
-                        </el-icon>
-                    </div>
-                    <el-dropdown>
-                        <i class="iconfont iconyuyan language"></i>
-                        <template #dropdown>
-                            <el-dropdown-menu>
-                                <el-dropdown-item @click="changeLocale('zh-cn')">中文简体</el-dropdown-item>
-                                <el-dropdown-item @click="changeLocale('zh-tw')">中文繁體</el-dropdown-item>
-                                <el-dropdown-item @click="changeLocale('en')">English</el-dropdown-item>
-                            </el-dropdown-menu>
-                        </template>
-                    </el-dropdown>
-                </div>
-                <div v-if="downloading" class="process">
-                    <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
-                    <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ $t('安装') }}</span>
-                </div>
-                <el-dropdown @command="handleClickDropdown">
-                    <span class="d-flex a-center cursor-pointer">
-                        <span>{{ userInfo.realName || userInfo.loginName }}</span>
-                        <el-icon :size="16" class="ml-1">
-                            <ArrowDown />
-                        </el-icon>
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item command="user-setting">{{ $t('个人中心') }}</el-dropdown-item>
-                            <el-dropdown-item v-if="config.isElectron" :disabled="downloading" command="update">{{ $t('检查更新') }}</el-dropdown-item>
-                            <el-dropdown-item command="version">{{ $t('版本') }}{{ $store.state.permission.globalConfig.version }}</el-dropdown-item>
-                            <el-dropdown-item command="clear-cache">{{ $t('清除所有缓存') }}</el-dropdown-item>
-                            <el-dropdown-item command="logout">{{ $t('退出登录') }}</el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
-            </div>
+  <div class="s-content">
+    <div class="s-header">
+      <div class="ml-5 header-left">
+        <span class="flex0 f-lg mr-5 gray-200 cursor-pointer" @click="jumpToHome">
+          <span>{{ config.localization.title }}</span>
+          <span v-if="config.isDev">(本地)</span>
+        </span>
+        <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff" active-text-color="#ffd04b" :router="true">
+          <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
+            {{ $t(item.name) }}
+          </el-menu-item>
+        </el-menu>
+      </div>
+      <div class="header-right mr-5 ml-auto">
+        <div class="operation">
+          <div :title="$t('刷新')" class="op_item" @click="freshPage">
+            <el-icon :size="20">
+              <RefreshRight />
+            </el-icon>
+          </div>
+          <div :title="$t('后退')" class="op_item" @click="goBack">
+            <el-icon :size="20">
+              <Back />
+            </el-icon>
+          </div>
+          <div :title="$t('前进')" class="op_item" @click="goForward">
+            <el-icon :size="20">
+              <Right />
+            </el-icon>
+          </div>
+          <el-dropdown>
+            <i class="iconfont iconyuyan language"></i>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="changeLocale('zh-cn')">中文简体</el-dropdown-item>
+                <el-dropdown-item @click="changeLocale('zh-tw')">中文繁體</el-dropdown-item>
+                <el-dropdown-item @click="changeLocale('en')">English</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
-        <div class="page-wrap">
-            <router-view></router-view>
+        <div v-if="downloading" class="process">
+          <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
+          <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ $t('安装') }}</span>
         </div>
+        <el-dropdown @command="handleClickDropdown">
+          <span class="d-flex a-center cursor-pointer">
+            <span>{{ userInfo.realName || userInfo.loginName }}</span>
+            <el-icon :size="16" class="ml-1">
+              <ArrowDown />
+            </el-icon>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="user-setting">{{ $t('个人中心') }}</el-dropdown-item>
+              <el-dropdown-item v-if="config.isElectron" :disabled="downloading" command="update">{{ $t('检查更新') }}</el-dropdown-item>
+              <el-dropdown-item command="version">{{ $t('版本') }}{{ $store.state.permission.globalConfig.version }}</el-dropdown-item>
+              <el-dropdown-item command="clear-cache">{{ $t('清除所有缓存') }}</el-dropdown-item>
+              <el-dropdown-item command="logout">{{ $t('退出登录') }}</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </div>
+    <div class="page-wrap">
+      <router-view></router-view>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { IpcRenderer } from "electron"
-import { defineComponent } from "vue";
-import { useRouter } from "vue-router"
-import { RefreshRight, Back, Right, ArrowDown } from "@element-plus/icons-vue"
-import { PermissionMenu, PermissionUserInfo } from "@@/global"
-import type { Language } from "@@/global"
-import { changeLanguage } from "@/i18n/i18n"
-import { useStore } from "@/store/index";
-import config from "@/../config/config"
+import { IpcRenderer } from 'electron'
+import { defineComponent } from 'vue';
+import { useRouter } from 'vue-router'
+import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
+import { PermissionMenu, PermissionUserInfo } from '@@/global'
+import type { Language } from '@@/global'
+import { changeLanguage } from '@/i18n/i18n'
+import { useStore } from '@/store/index';
+import config from '@/../config/config'
 
 let ipcRenderer: IpcRenderer;
 if (window.require) {
     // eslint-disable-next-line prefer-destructuring
-    ipcRenderer = window.require("electron").ipcRenderer;
+    ipcRenderer = window.require('electron').ipcRenderer;
 }
 
 export default defineComponent({
@@ -108,12 +108,12 @@ export default defineComponent({
         const goForward = () => router.forward();
         const freshPage = () => window.location.reload();
         //个人中心
-        const jumpToHome = () => router.push("/v1/apidoc/doc-list");
-        const jumpToUserSetting = () => router.push("/v1/settings/user");
+        const jumpToHome = () => router.push('/v1/apidoc/doc-list');
+        const jumpToUserSetting = () => router.push('/v1/settings/user');
         const logout = () => {
-            store.commit("permission/clearAllPermission");
+            store.commit('permission/clearAllPermission');
             sessionStorage.clear();
-            router.push("/login");
+            router.push('/login');
         };
         //国际化
         const changeLocale = (language: Language) => {
@@ -137,7 +137,7 @@ export default defineComponent({
             isManual: false, //---------------是否手动更新
             //=====================================其他参数====================================//
             config, //------------------------配置相关
-            activeMenuPath: "", //------------当前路由路径
+            activeMenuPath: '', //------------当前路由路径
         };
     },
     computed: {
@@ -158,16 +158,16 @@ export default defineComponent({
     methods: {
         handleClickDropdown(command: string) {
             switch (command) {
-                case "logout":
+                case 'logout':
                     this.logout();
                     break;
-                case "user-setting":
+                case 'user-setting':
                     this.jumpToUserSetting();
                     break;
-                case "update":
+                case 'update':
                     this.handleCheckUpdate(true);
                     break;
-                case "clear-cache":
+                case 'clear-cache':
                     this.clearAllCache();
                     break;
                 default:
@@ -178,31 +178,31 @@ export default defineComponent({
         initUploadEvent() {
             if (config.isElectron) {
                 //存在可用更新
-                ipcRenderer.on("vue-update-available", () => {
-                    console.log("存在可用更新");
+                ipcRenderer.on('vue-update-available', () => {
+                    console.log('存在可用更新');
                 });
                 //没有可用更新
-                ipcRenderer.on("vue-update-not-available", () => {
-                    console.log(`${this.$t("没有可用更新")}`);
+                ipcRenderer.on('vue-update-not-available', () => {
+                    console.log(`${this.$t('没有可用更新')}`);
                     this.downloading = false;
                     if (this.isManual) {
-                        this.$message.warning(`${this.$t("暂无可用更新")}`);
+                        this.$message.warning(`${this.$t('暂无可用更新')}`);
                     }
                 });
                 //下载中
-                ipcRenderer.on("vue-download-progress", (e, progressObj) => {
-                    console.log(`${this.$t("下载中")}`, e, progressObj);
+                ipcRenderer.on('vue-download-progress', (e, progressObj) => {
+                    console.log(`${this.$t('下载中')}`, e, progressObj);
                     this.downloading = true;
                     this.progress = progressObj.percent;
                 });
                 //下载完成
-                ipcRenderer.on("vue-update-downloaded", (e, upload) => {
+                ipcRenderer.on('vue-update-downloaded', (e, upload) => {
                     this.progress = 100;
-                    console.log(`${this.$t("下载完成")}`, e, upload);
+                    console.log(`${this.$t('下载完成')}`, e, upload);
                 });
-                ipcRenderer.on("vue-download-error", (e, error) => {
+                ipcRenderer.on('vue-download-error', (e, error) => {
                     if (this.isManual) {
-                        this.$message.warning(`${this.$t("更新异常请稍后再试")}`);
+                        this.$message.warning(`${this.$t('更新异常请稍后再试')}`);
                     }
                     this.downloading = false;
                     console.error(error);
@@ -212,7 +212,7 @@ export default defineComponent({
         //安装更新
         handleInstall() {
             if (config.isElectron) {
-                ipcRenderer.send("vue-quit-and-install");
+                ipcRenderer.send('vue-quit-and-install');
             }
         },
         //检查更新
@@ -220,18 +220,18 @@ export default defineComponent({
             this.downloading = true;
             this.isManual = isManual;
             if (config.isElectron) {
-                ipcRenderer.send("vue-check-update");
+                ipcRenderer.send('vue-check-update');
             }
         },
         //清空缓存
         clearAllCache() {
-            this.$confirm("此操作将清空所有本地缓存, 是否继续?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
+            this.$confirm('此操作将清空所有本地缓存, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
             }).then(() => {
                 //移除serviceworker
-                if ("serviceWorker" in navigator) {
+                if ('serviceWorker' in navigator) {
                     navigator.serviceWorker.getRegistrations().then((registrations) => {
                         registrations.forEach(registration => {
                             console.log(registration.unregister())
@@ -244,9 +244,9 @@ export default defineComponent({
                 //清空indexedDB
                 indexedDB.deleteDatabase(this.config.renderConfig.indexedDB.dbName)
                 //刷新页面
-                this.$router.replace("/login")
-            }).catch((err: Error | "cancel" | "close") => {
-                if (err === "cancel" || err === "close") {
+                this.$router.replace('/login')
+            }).catch((err: Error | 'cancel' | 'close') => {
+                if (err === 'cancel' || err === 'close') {
                     return;
                 }
                 console.error(err);

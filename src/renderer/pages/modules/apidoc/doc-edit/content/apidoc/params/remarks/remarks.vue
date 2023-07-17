@@ -5,19 +5,19 @@
     备注：
 */
 <template>
-    <el-input v-model="description" :size="config.renderConfig.layout.size" rows="4" type="textarea" show-word-limit name="name" placeholder="在此处输入备注信息" class="w-100" maxlength="255" clearable></el-input>
+  <el-input v-model="description" :size="config.renderConfig.layout.size" rows="4" type="textarea" show-word-limit name="name" placeholder="在此处输入备注信息" class="w-100" maxlength="255" clearable></el-input>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue"
-import { store } from "@/store/index"
+import { computed } from 'vue'
+import { store } from '@/store/index'
 
 const description = computed({
     get() {
-        return store.state["apidoc/apidoc"].apidoc.info.description
+        return store.state['apidoc/apidoc'].apidoc.info.description
     },
     set(val: string) {
-        store.commit("apidoc/apidoc/changeDescription", val)
+        store.commit('apidoc/apidoc/changeDescription', val)
     }
 })
 </script>

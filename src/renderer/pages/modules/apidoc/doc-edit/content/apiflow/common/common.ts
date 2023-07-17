@@ -1,15 +1,15 @@
-import { cloneDeep } from "@/helper";
-import { useFlowConfigStore } from "@/store/apiflow/config";
-import { useFlowContainerStore } from "@/store/apiflow/container";
-import { useFlowLinesStore } from "@/store/apiflow/lines";
-import { useFlowNodesStore } from "@/store/apiflow/nodes";
-import { useFlowRenderAreaStore } from "@/store/apiflow/render-area";
-import { useFlowSelectionStore } from "@/store/apiflow/selection";
-import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from "@@/apiflow";
-import { getQuardantInfo } from "./quadrant/quardant";
-import { getQuardantInfo2 } from "./quadrant2/quadrant2";
-import { getQuardantInfo3 } from "./quadrant3/quadrant3";
-import { getQuardantInfo4 } from "./quadrant4/quadrant4";
+import { cloneDeep } from '@/helper';
+import { useFlowConfigStore } from '@/store/apiflow/config';
+import { useFlowContainerStore } from '@/store/apiflow/container';
+import { useFlowLinesStore } from '@/store/apiflow/lines';
+import { useFlowNodesStore } from '@/store/apiflow/nodes';
+import { useFlowRenderAreaStore } from '@/store/apiflow/render-area';
+import { useFlowSelectionStore } from '@/store/apiflow/selection';
+import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from '@@/apiflow';
+import { getQuardantInfo } from './quadrant/quardant';
+import { getQuardantInfo2 } from './quadrant2/quadrant2';
+import { getQuardantInfo3 } from './quadrant3/quadrant3';
+import { getQuardantInfo4 } from './quadrant4/quadrant4';
 
 export type Coordinate = {
     x: number,
@@ -52,7 +52,7 @@ export type DrawInfo = {
     /**
      * 连接到节点位置
      */
-    connectedPosition: "left" | "top" | "right" | "bottom"
+    connectedPosition: 'left' | 'top' | 'right' | 'bottom'
     /**
      * 被连接的节点id
      */
@@ -93,7 +93,7 @@ type StickyAreaPosition = {
     stickySize?: number,
     startPoint: Coordinate
 }
-type Position = "left" | "top" | "right" | "bottom"
+type Position = 'left' | 'top' | 'right' | 'bottom'
 
 export type StickyArea = {
     leftArea: {
@@ -268,33 +268,33 @@ export const getLineStickyPosition = (point: Coordinate, stickyArea: StickyArea)
     const isLineXInRightStickyArea = point.x >= stickyArea.rightArea.offsetX && point.x <= stickyArea.rightArea.offsetX2;
     const isLineYInRightStickyArea = point.y >= stickyArea.rightArea.offsetY && point.y <= stickyArea.rightArea.offsetY2;
     if (isLineXInLeftStickyArea && isLineYInLeftStickyArea) {
-        return "left"
+        return 'left'
     }
     if (isLineXInTopStickyArea && isLineYInTopStickyArea) {
-        return "top"
+        return 'top'
     }
     if (isLineXInBottomStickyArea && isLineYInBottomStickyArea) {
-        return "bottom"
+        return 'bottom'
     }
     if (isLineXInRightStickyArea && isLineYInRightStickyArea) {
-        return "right"
+        return 'right'
     }
     return null;
 }
 export const getContraryPosition = (position: Position): Position => {
-    if (position === "left") {
-        return "right"
+    if (position === 'left') {
+        return 'right'
     }
-    if (position === "right") {
-        return "left"
+    if (position === 'right') {
+        return 'left'
     }
-    if (position === "top") {
-        return "bottom"
+    if (position === 'top') {
+        return 'bottom'
     }
-    if (position === "bottom") {
-        return "top"
+    if (position === 'bottom') {
+        return 'top'
     }
-    return "left"
+    return 'left'
 }
 
 export function getCreateLineArea(nodeInfo: FlowNodeInfo): FlowValidCreateLineArea {
@@ -392,7 +392,7 @@ export function getDrawInfoByPoint(startPoint: Coordinate, endPoint: Coordinate,
             cpx: 0,
             cpy: 0,
             startX: 0,
-            activeColor: "#333",
+            activeColor: '#333',
             startY: 0,
             endX: 0,
             endY: 0,
@@ -421,8 +421,8 @@ export function getDrawInfoByPoint(startPoint: Coordinate, endPoint: Coordinate,
             brokenLinePoints: [],
         },
         isConnectedNode: false,
-        connectedPosition: "left",
-        connectedNodeId: ""
+        connectedPosition: 'left',
+        connectedNodeId: ''
     }
     const lineConfig: LineConfig = {
         padding: 15, //绘制图形边距
@@ -543,7 +543,7 @@ export const getHoverPosition = (lineInfo: FlowLineInfo, drawInfo: DrawInfo): Li
     return hoverPosition;
 }
 export const repaintLine = (dom: HTMLCanvasElement, drawInfo: DrawInfo): void => {
-    const ctx = dom.getContext("2d") as CanvasRenderingContext2D;
+    const ctx = dom.getContext('2d') as CanvasRenderingContext2D;
     dom.width = drawInfo.width;
     dom.height = drawInfo.height;
     const { brokenLinePoints, arrowInfo: { p1, p2, p3 } } = drawInfo.lineInfo;
@@ -551,9 +551,9 @@ export const repaintLine = (dom: HTMLCanvasElement, drawInfo: DrawInfo): void =>
     // ctx.fillRect(drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.leftTopPoint.y, drawInfo.lineInfo.arrowInfo.rightBottomPoint.x - drawInfo.lineInfo.arrowInfo.leftTopPoint.x, drawInfo.lineInfo.arrowInfo.rightBottomPoint.y - drawInfo.lineInfo.arrowInfo.leftTopPoint.y)
     ctx.closePath()
     ctx.lineWidth = 1;
-    ctx.fillStyle = drawInfo.lineInfo.activeColor || "#333";
-    ctx.strokeStyle = drawInfo.lineInfo.activeColor || "#333";
-    ctx.lineCap = "round";
+    ctx.fillStyle = drawInfo.lineInfo.activeColor || '#333';
+    ctx.strokeStyle = drawInfo.lineInfo.activeColor || '#333';
+    ctx.lineCap = 'round';
     for (let i = 0; i < brokenLinePoints.length - 1; i += 1) {
         const point = brokenLinePoints[i];
         const point2 = brokenLinePoints[i + 1];
@@ -577,18 +577,18 @@ export const repaintLine = (dom: HTMLCanvasElement, drawInfo: DrawInfo): void =>
     ctx.closePath()
 }
 export const repaintRenderArea = (): void => {
-    const canvas = document.querySelector("#renderArea") as HTMLCanvasElement;
+    const canvas = document.querySelector('#renderArea') as HTMLCanvasElement;
     const canvasRect = canvas.getBoundingClientRect()
-    const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+    const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const flowRenderAreaStore = useFlowRenderAreaStore()
     const width = Math.ceil(flowRenderAreaStore.width / flowRenderAreaStore.gridUnit);
     const height = Math.ceil(flowRenderAreaStore.height / flowRenderAreaStore.gridUnit);
     for (let i = 0; i < width; i += 1) {
         ctx.beginPath()
         ctx.lineWidth = 1;
-        ctx.strokeStyle = "#eee";
+        ctx.strokeStyle = '#eee';
         if (i % 5 === 0) {
-            ctx.strokeStyle = "#ccc"
+            ctx.strokeStyle = '#ccc'
         }
         ctx.moveTo(i * flowRenderAreaStore.gridUnit + 0.5, 0)
         ctx.lineTo(i * flowRenderAreaStore.gridUnit + 0.5, canvasRect.height)
@@ -598,9 +598,9 @@ export const repaintRenderArea = (): void => {
     for (let j = 0; j < height; j += 1) {
         ctx.beginPath()
         ctx.lineWidth = 1;
-        ctx.strokeStyle = "#eee"
+        ctx.strokeStyle = '#eee'
         if (j % 5 === 0) {
-            ctx.strokeStyle = "#ccc"
+            ctx.strokeStyle = '#ccc'
         }
         ctx.moveTo(0, j * flowRenderAreaStore.gridUnit + 0.5)
         ctx.lineTo(canvasRect.width, j * flowRenderAreaStore.gridUnit + 0.5)
@@ -625,16 +625,16 @@ export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
         x: matchedLine.lineEndOffsetX,
         y: matchedLine.lineEndOffsetY,
     }
-    if (matchedLine.fromPosition === "left") {
+    if (matchedLine.fromPosition === 'left') {
         startPoint.x = matchedNode.styleInfo.offsetX;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
-    } else if (matchedLine.fromPosition === "top") {
+    } else if (matchedLine.fromPosition === 'top') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY;
-    } else if (matchedLine.fromPosition === "right") {
+    } else if (matchedLine.fromPosition === 'right') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height / 2;
-    } else if (matchedLine.fromPosition === "bottom") {
+    } else if (matchedLine.fromPosition === 'bottom') {
         startPoint.x = matchedNode.styleInfo.offsetX + matchedNode.styleInfo.width / 2;
         startPoint.y = matchedNode.styleInfo.offsetY + matchedNode.styleInfo.height;
     }
@@ -674,16 +674,16 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             x: line.lineEndOffsetX,
             y: line.lineEndOffsetY,
         }
-        if (line.fromPosition === "left") {
+        if (line.fromPosition === 'left') {
             startPoint.x = nodeStyleInfo.offsetX;
             startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height / 2;
-        } else if (line.fromPosition === "top") {
+        } else if (line.fromPosition === 'top') {
             startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
             startPoint.y = nodeStyleInfo.offsetY;
-        } else if (line.fromPosition === "right") {
+        } else if (line.fromPosition === 'right') {
             startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width
             startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height / 2;
-        } else if (line.fromPosition === "bottom") {
+        } else if (line.fromPosition === 'bottom') {
             startPoint.x = nodeStyleInfo.offsetX + nodeStyleInfo.width / 2;
             startPoint.y = nodeStyleInfo.offsetY + nodeStyleInfo.height;
         }
@@ -744,29 +744,29 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
             x: 0,
             y: 0,
         }
-        if (line.fromPosition === "left") {
+        if (line.fromPosition === 'left') {
             startPoint.x = fromNode.styleInfo.offsetX;
             startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height / 2;
-        } else if (line.fromPosition === "top") {
+        } else if (line.fromPosition === 'top') {
             startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2;
             startPoint.y = fromNode.styleInfo.offsetY;
-        } else if (line.fromPosition === "right") {
+        } else if (line.fromPosition === 'right') {
             startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width
             startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height / 2;
-        } else if (line.fromPosition === "bottom") {
+        } else if (line.fromPosition === 'bottom') {
             startPoint.x = fromNode.styleInfo.offsetX + fromNode.styleInfo.width / 2;
             startPoint.y = fromNode.styleInfo.offsetY + fromNode.styleInfo.height;
         }
-        if (line.toPosition === "left") {
+        if (line.toPosition === 'left') {
             endPoint.x = node.styleInfo.offsetX;
             endPoint.y = node.styleInfo.offsetY + node.styleInfo.height / 2;
-        } else if (line.toPosition === "top") {
+        } else if (line.toPosition === 'top') {
             endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
             endPoint.y = node.styleInfo.offsetY;
-        } else if (line.toPosition === "right") {
+        } else if (line.toPosition === 'right') {
             endPoint.x = node.styleInfo.offsetX + node.styleInfo.width
             endPoint.y = node.styleInfo.offsetY + node.styleInfo.height / 2;
-        } else if (line.toPosition === "bottom") {
+        } else if (line.toPosition === 'bottom') {
             endPoint.x = node.styleInfo.offsetX + node.styleInfo.width / 2;
             endPoint.y = node.styleInfo.offsetY + node.styleInfo.height;
         }
@@ -822,24 +822,24 @@ export const getAlignmentInfo = (): void => {
 
     // }
 }
-export const getQuardantByPoint = (point: Coordinate, point2: Coordinate): "1" | "2" | "3" | "4" => {
+export const getQuardantByPoint = (point: Coordinate, point2: Coordinate): '1' | '2' | '3' | '4' => {
     const pointX = point.x;
     const pointY = point.y;
     const pointX2 = point2.x;
     const pointY2 = point2.y;
     if (pointX2 > pointX && pointY2 < pointY) {
-        return "1"
+        return '1'
     }
     if (pointX2 < pointX && pointY2 < pointY) {
-        return "2"
+        return '2'
     }
     if (pointX2 <= pointX && pointY2 >= pointY) {
-        return "3"
+        return '3'
     }
     if (pointX2 >= pointX && pointY2 >= pointY) {
-        return "4"
+        return '4'
     }
-    return "1"
+    return '1'
 }
 //节点是否在选中区域
 export const getNodesInSelection = (): string[] => {

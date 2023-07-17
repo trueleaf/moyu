@@ -1,5 +1,5 @@
 /* eslint-disable import/extensions */
-import type FormData from "form-data"
+import type FormData from 'form-data'
 import type {
     ApidocParamsType,
     PermissionClientRoute,
@@ -8,14 +8,14 @@ import type {
     ApidocRequestParamTypes,
     ApidocHttpRequestMethod,
     GlobalConfig,
-} from "@@/global"
+} from '@@/global'
 import type {
     PermissionUserInfo,
     PermissionMenu,
     ApidocBanner,
     ApidocPropertyType,
     ApidocProperty
-} from "./global"
+} from './global'
 
 /*
 |--------------------------------------------------------------------------
@@ -202,7 +202,7 @@ type ApidocProjectCommonHeader = {
     /**
      * 公共请求头信息
      */
-    commonHeaders: Pick<ApidocProperty, "key" | "value" | "description">[],
+    commonHeaders: Pick<ApidocProperty, 'key' | 'value' | 'description'>[],
     /**
      * 子元素
      */
@@ -225,7 +225,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 临时变量，主要用于脚本中
      */
-    tempVariables: Omit<ApidocProjectVariable, "_id">[],
+    tempVariables: Omit<ApidocProjectVariable, '_id'>[],
     /**
      * 项目host信息
      */
@@ -249,7 +249,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 布局
      */
-    layout: "vertical" | "horizontal",
+    layout: 'vertical' | 'horizontal',
     /**
      * 是否启用web端代理功能
      */
@@ -270,7 +270,7 @@ type ApidocProjectBaseInfoState = {
     /**
      * 模式，view,edit
      */
-    mode: "view" | "edit",
+    mode: 'view' | 'edit',
     /**
      * 公共请求头
      */
@@ -278,23 +278,23 @@ type ApidocProjectBaseInfoState = {
 };
 //=========================================================================//
 type ApidocTabType =
-    "doc" |
-    "config" |
-    "paramsTemplate" |
-    "onlineLink" |
-    "exportDoc" |
-    "importDoc" |
-    "history" |
-    "variable" |
-    "mock" |
-    "recycler" |
-    "guide" |
-    "mindParams" |
-    "hook" |
-    "package" |
-    "commonHeader" |
-    "apiflow" |
-    "prefix"
+    'doc' |
+    'config' |
+    'paramsTemplate' |
+    'onlineLink' |
+    'exportDoc' |
+    'importDoc' |
+    'history' |
+    'variable' |
+    'mock' |
+    'recycler' |
+    'guide' |
+    'mindParams' |
+    'hook' |
+    'package' |
+    'commonHeader' |
+    'apiflow' |
+    'prefix'
 //tabs导航
 
 type ApidocTab = {
@@ -354,7 +354,7 @@ type ApidocTabsState = {
 type ApidocState = {
     apidoc: ApidocDetail,
     originApidoc: ApidocDetail,
-    defaultHeaders: ApidocProperty<"string">[],
+    defaultHeaders: ApidocProperty<'string'>[],
     loading: boolean,
     saveLoading: boolean,
     saveDocDialogVisible: boolean,
@@ -473,7 +473,7 @@ type ApidocMockState = {
     /**
      * 服务器状态
      */
-    serverState: "disconnection" | "connecting" | "connection" | "error" | "closing",
+    serverState: 'disconnection' | 'connecting' | 'connection' | 'error' | 'closing',
 };
 /*
 |--------------------------------------------------------------------------
@@ -510,8 +510,8 @@ type ApidocWorkerState = {
 | 接口编排
 |--------------------------------------------------------------------------
 */
-type ApiflowNodeType = "node" | "line";
-type ApiflowOutComingDirection = "left" | "top" | "right" | "bottom"
+type ApiflowNodeType = 'node' | 'line';
+type ApiflowOutComingDirection = 'left' | 'top' | 'right' | 'bottom'
 /**
  * 坐标信息
  */
@@ -629,7 +629,7 @@ type ApiflowResizeBarState = {
     /**
      * 缩放方向
      */
-    hoverPosition: "leftTop" | "rightTop" | "leftBottom" | "rightBottom",
+    hoverPosition: 'leftTop' | 'rightTop' | 'leftBottom' | 'rightBottom',
     /**
      * 缩放节点是否被按下
      */
@@ -667,7 +667,7 @@ type ApiflowCreateLineDotState = {
     /**
      * 缩放方向
      */
-    hoverPosition: "left" | "top" | "right" | "bottom",
+    hoverPosition: 'left' | 'top' | 'right' | 'bottom',
     /**
      * 是否被点击
      */
@@ -739,7 +739,7 @@ type ApiflowState = {
      */
     mouseInCreateLineDotInfo: {
         nodeId: string;
-        position: "left" | "top" | "right" | "bottom"
+        position: 'left' | 'top' | 'right' | 'bottom'
     };
     /**
      * 鼠标在节点放大缩小按钮上面信息
@@ -752,7 +752,7 @@ type ApiflowState = {
         /**
          * 缩放方向
          */
-        position: "leftTop" | "rightTop" | "leftBottom" | "rightBottom",
+        position: 'leftTop' | 'rightTop' | 'leftBottom' | 'rightBottom',
         /**
          * 缩放节点是否被按下
          */
@@ -838,15 +838,15 @@ type ApiflowState = {
 //全局state
 type State = {
     permission: PermissionState,
-    "apidoc/banner": ApidocBannerState,
-    "apidoc/baseInfo": ApidocProjectBaseInfoState,
-    "apidoc/tabs": ApidocTabsState,
-    "apidoc/apidoc": ApidocState,
-    "apidoc/response": ApidocResponseState,
-    "apidoc/mock": ApidocMockState,
-    "apidoc/request": ApidocRequest,
-    "apidoc/workerState": ApidocWorkerState,
-    "apidoc/apiflow": ApiflowState,
+    'apidoc/banner': ApidocBannerState,
+    'apidoc/baseInfo': ApidocProjectBaseInfoState,
+    'apidoc/tabs': ApidocTabsState,
+    'apidoc/apidoc': ApidocState,
+    'apidoc/response': ApidocResponseState,
+    'apidoc/mock': ApidocMockState,
+    'apidoc/request': ApidocRequest,
+    'apidoc/workerState': ApidocWorkerState,
+    'apidoc/apiflow': ApiflowState,
 }
 export {
     PermissionState,

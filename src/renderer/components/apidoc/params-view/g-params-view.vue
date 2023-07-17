@@ -5,74 +5,74 @@
     备注：
 */
 <template>
-    <div class="s-array-view">
-        <div class="header">
-            <!-- <div class="search">
+  <div class="s-array-view">
+    <div class="header">
+      <!-- <div class="search">
                 <input v-model="queryString" type="text" placeholder="关键词高亮...">
             </div> -->
-            <slot name="header" />
-        </div>
-        <div class="content">
-            <div class="code-banner" :class="{ 'mr-4': plain }">
-                <template v-for="(item, index) in astData">
-                    <div v-if="!item._hidden" :key="index" class="banner-wrap">
-                        <span class="number-line">{{ item.line }}</span>
-                        <el-icon
-                            v-if="item.leftCurlBrace.value || item.leftBracket.value"
-                            class="collapse"
-                            :class="{close: item._close}"
-                            @click="toggleCollapse(item, index)"
-                        >
-                            <arrow-down />
-                        </el-icon>
-                    </div>
-                </template>
-            </div>
-            <div class="code-wrap">
-                <template v-for="(item, index) in astData" :key="index">
-                    <span v-show="!item._hidden" class="line" :class="{active: item._close}" @click.stop="handleCheckBraceMatch(item)">
-                        <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
-                        <span class="path">
-                            <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
-                        </span>
-                        <span v-if="item.colon && item.path.value" class="colon">{{ item.colon }}</span>
-                        <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
-                        <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
-                        <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :show-after="1500" :content="item.value" placement="bottom-start">
-                            <s-emphasize class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
-                        </el-tooltip>
-                        <span>
-                            <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
-                            <span v-if="item.valueType === 'null'" class="null-value">null</span>
-                            <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
-                            <span v-if="item.valueType === 'file'" class="file-value">{{ item.value }}</span>
-                        </span>
-                        <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
-                        <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
-                        <span class="comma">{{ item.comma }}</span>
-                        <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : `(${$t('可选')})` }}</span>
-                        <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :show-after="1500" :content="item.description" placement="bottom-start">
-                            <span class="description ml-1">
-                                //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
-                            </span>
-                        </el-tooltip>
-                        <span v-show="item._close" class="number-value"></span>
-                    </span>
-                </template>
-            </div>
-        </div>
+      <slot name="header" />
     </div>
+    <div class="content">
+      <div class="code-banner" :class="{ 'mr-4': plain }">
+        <template v-for="(item, index) in astData">
+          <div v-if="!item._hidden" :key="index" class="banner-wrap">
+            <span class="number-line">{{ item.line }}</span>
+            <el-icon
+              v-if="item.leftCurlBrace.value || item.leftBracket.value"
+              class="collapse"
+              :class="{close: item._close}"
+              @click="toggleCollapse(item, index)"
+            >
+              <arrow-down />
+            </el-icon>
+          </div>
+        </template>
+      </div>
+      <div class="code-wrap">
+        <template v-for="(item, index) in astData" :key="index">
+          <span v-show="!item._hidden" class="line" :class="{active: item._close}" @click.stop="handleCheckBraceMatch(item)">
+            <span v-for="(indent) in item.indent" :key="indent" class="indent"></span>
+            <span class="path">
+              <s-emphasize :value="item.path.value" :keyword="queryString"></s-emphasize>
+            </span>
+            <span v-if="item.colon && item.path.value" class="colon">{{ item.colon }}</span>
+            <span v-if="item.leftBracket.value" class="bracket" :class="{active: activeBracketId && item.leftBracket.pairId === activeBracketId}">{{ item.leftBracket.value }}</span>
+            <span v-if="item.leftCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.leftCurlBrace.pairId === activeCurlyBraceId}">{{ item.leftCurlBrace.value }}</span>
+            <el-tooltip v-if="item.valueType === 'string'" :effect="Effect.LIGHT" :show-after="1500" :content="item.value" placement="bottom-start">
+              <s-emphasize class="string-value" :value="item.value" :keyword="queryString"></s-emphasize>
+            </el-tooltip>
+            <span>
+              <span v-if="item.valueType === 'number'" class="number-value">{{ item.value }}</span>
+              <span v-if="item.valueType === 'boolean'" class="boolean-value">{{ item.value }}</span>
+              <span v-if="item.valueType === 'null'" class="null-value">null</span>
+              <span v-if="item.valueType === 'undefined'" class="undefined-value">undefined</span>
+              <span v-if="item.valueType === 'file'" class="file-value">{{ item.value }}</span>
+            </span>
+            <span v-if="item.rightCurlBrace.value" class="curly-brace" :class="{active: activeCurlyBraceId && item.rightCurlBrace.pairId === activeCurlyBraceId}">{{ item.rightCurlBrace.value }}</span>
+            <span class="bracket" :class="{active: activeBracketId && item.rightBracket.pairId === activeBracketId}">{{ item.rightBracket.value }}</span>
+            <span class="comma">{{ item.comma }}</span>
+            <span v-if="item.comma" class="orange ml-1">{{ item.required ? "" : `(${$t('可选')})` }}</span>
+            <el-tooltip v-if="item.description" :effect="Effect.LIGHT" :show-after="1500" :content="item.description" placement="bottom-start">
+              <span class="description ml-1">
+                //<s-emphasize :value="item.description" :keyword="queryString"></s-emphasize>
+              </span>
+            </el-tooltip>
+            <span v-show="item._close" class="number-value"></span>
+          </span>
+        </template>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import {
     PropType, watch, ref, Ref
-} from "vue"
-import { ArrowDown } from "@element-plus/icons-vue"
-import { Effect } from "element-plus";
-import { ApidocProperty, ApidocASTInfo } from "@@/global"
-import { astJson } from "./composables/astJson"
+} from 'vue'
+import { ArrowDown } from '@element-plus/icons-vue'
+import { Effect } from 'element-plus';
+import { ApidocProperty, ApidocASTInfo } from '@@/global'
+import { astJson } from './composables/astJson'
 
 const props = defineProps({
     /**
@@ -91,9 +91,9 @@ const props = defineProps({
     },
 });
 const astData: Ref<ApidocASTInfo[]> = ref([]);
-const queryString = ref(""); //查询字符串
-const activeCurlyBraceId = ref(""); //当前匹配的大括号id
-const activeBracketId = ref(""); //当前匹配的中括号id
+const queryString = ref(''); //查询字符串
+const activeCurlyBraceId = ref(''); //当前匹配的大括号id
+const activeBracketId = ref(''); //当前匹配的中括号id
 watch(() => props.data, (data) => {
     astData.value = astJson(data);
 }, {

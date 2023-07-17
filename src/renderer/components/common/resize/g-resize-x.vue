@@ -5,22 +5,22 @@
     备注：
 */
 <template>
-    <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap">
-        <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleResetWidth"></div>
-        <div v-show="isDragging" class="indicator">
-            <div class="left"></div>
-            <div class="ct">
-                <div>{{ realTimeWidth.toFixed(0) }}px({{ $t("双击还原") }})</div>
-                <!-- <div></div> -->
-            </div>
-            <div class="right"></div>
-        </div>
-        <slot />
+  <div ref="wrapper" :style="{'userSelect': isDragging ? 'none' : 'auto'}" class="drag-wrap">
+    <div ref="bar" class="bar" :class="{active: isDragging}" @mousedown="handleResizeMousedown" @dblclick="handleResetWidth"></div>
+    <div v-show="isDragging" class="indicator">
+      <div class="left"></div>
+      <div class="ct">
+        <div>{{ realTimeWidth.toFixed(0) }}px({{ $t("双击还原") }})</div>
+        <!-- <div></div> -->
+      </div>
+      <div class="right"></div>
     </div>
+    <slot />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {
@@ -79,13 +79,13 @@ export default defineComponent({
         this.initDrag();
     },
     unmounted() {
-        document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
-        document.documentElement.removeEventListener("mouseup", this.handleResizeMouseup)
+        document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
+        document.documentElement.removeEventListener('mouseup', this.handleResizeMouseup)
     },
     methods: {
         //初始化拖拽相关事件
         initDrag() {
-            document.documentElement.addEventListener("mouseup", this.handleResizeMouseup);
+            document.documentElement.addEventListener('mouseup', this.handleResizeMouseup);
             const { wrapper, bar } = this.$refs;
             const width = this.width ? `${this.width}px` : `${(this.$refs.wrapper as HTMLElement).getBoundingClientRect().width}px`;
             if (this.remember) {
@@ -99,7 +99,7 @@ export default defineComponent({
                 this.realTimeWidth = parseFloat(wrapperWidth);
             } else {
                 if (this.barLeft) {
-                    (bar as HTMLElement).style.left = "0px";
+                    (bar as HTMLElement).style.left = '0px';
                 } else {
                     (bar as HTMLElement).style.left = `${width}`;
                 }
@@ -110,14 +110,14 @@ export default defineComponent({
         //处理鼠标弹起事件
         handleResizeMouseup() {
             this.isDragging = false;
-            document.documentElement.removeEventListener("mousemove", this.handleResizeMousemove);
+            document.documentElement.removeEventListener('mousemove', this.handleResizeMousemove);
         },
         //处理鼠标按下事件
         handleResizeMousedown(e: MouseEvent) {
             this.mousedownLeft = e.clientX;
             this.wrapperWidth = (this.$refs.wrapper as HTMLElement).getBoundingClientRect().width;
             this.isDragging = true;
-            document.documentElement.addEventListener("mousemove", this.handleResizeMousemove);
+            document.documentElement.addEventListener('mousemove', this.handleResizeMousemove);
         },
         //处理鼠标移动事件
         handleResizeMousemove(e: MouseEvent) {

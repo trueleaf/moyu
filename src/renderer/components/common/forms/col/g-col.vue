@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-    <el-col :xs="24" :sm="24" :md="md" :lg="lg" :xl="xl">
-        <slot />
-    </el-col>
+  <el-col :xs="24" :sm="24" :md="md" :lg="lg" :xl="xl">
+    <slot />
+  </el-col>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
     props: {

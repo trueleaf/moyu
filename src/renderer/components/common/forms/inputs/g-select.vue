@@ -5,25 +5,25 @@
     备注：
 */
 <template>
-    <el-select
-        :model-value="value"
-        v-bind="$attrs"
-        :placeholder="placeholder"
-        :multiple="multi"
-        filterable
-        :size="config.renderConfig.layout.size"
-        :class="className"
-        clearable
-        :visible-change="getSelectEnum"
-        @change="handleChange"
-    >
-        <el-option v-for="(item, index) in realSelectEnum" :key="index" :label="item[selectProps.name]" :value="item[selectProps.id]"></el-option>
-    </el-select>
+  <el-select
+    :model-value="value"
+    v-bind="$attrs"
+    :placeholder="placeholder"
+    :multiple="multi"
+    filterable
+    :size="config.renderConfig.layout.size"
+    :class="className"
+    clearable
+    :visible-change="getSelectEnum"
+    @change="handleChange"
+  >
+    <el-option v-for="(item, index) in realSelectEnum" :key="index" :label="item[selectProps.name]" :value="item[selectProps.id]"></el-option>
+  </el-select>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import config from "@/../config/config"
+import { defineComponent } from 'vue'
+import config from '@/../config/config'
 
 export default defineComponent({
     props: {
@@ -32,7 +32,7 @@ export default defineComponent({
          */
         value: {
             type: [String, Number],
-            default: ""
+            default: ''
         },
         /**
          * 是否多选
@@ -54,8 +54,8 @@ export default defineComponent({
         selectProps: {
             type: Object,
             default: () => ({
-                id: "id",
-                name: "name"
+                id: 'id',
+                name: 'name'
             })
         },
         /**
@@ -77,17 +77,17 @@ export default defineComponent({
          */
         className: {
             type: String,
-            default: "w-100"
+            default: 'w-100'
         },
         /**
          * 自定义placeholder
          */
         placeholder: {
             type: String,
-            default: "",
+            default: '',
         },
     },
-    emits: ["change", "update:value"],
+    emits: ['change', 'update:value'],
     data() {
         return {
             realSelectEnum: [] as Record<string, string | number | undefined>[],
@@ -117,15 +117,15 @@ export default defineComponent({
         //数据改变
         handleChange(val: unknown) {
             if (this.rawResult && this.multi) { //多选返回原始数据
-                this.$emit("change", val);
-                this.$emit("update:value", val);
+                this.$emit('change', val);
+                this.$emit('update:value', val);
             } else if (!this.multi) { //单选
-                if (val === "") { //如果是空字符，则返回null
-                    this.$emit("change", null);
-                    this.$emit("update:value", null);
+                if (val === '') { //如果是空字符，则返回null
+                    this.$emit('change', null);
+                    this.$emit('update:value', null);
                 } else {
-                    this.$emit("change", val);
-                    this.$emit("update:value", val);
+                    this.$emit('change', val);
+                    this.$emit('update:value', val);
                 }
             }
         },

@@ -1,5 +1,5 @@
-import { FlowLineInfo, FlowNodeInfo } from "@@/apiflow"
-import { defineStore } from "pinia"
+import { FlowLineInfo, FlowNodeInfo } from '@@/apiflow'
+import { defineStore } from 'pinia'
 
 type AddIncomingPayload = {
     fromNodeId: string;
@@ -7,7 +7,7 @@ type AddIncomingPayload = {
     lineInfo: FlowLineInfo;
 }
 
-export const useFlowNodesStore = defineStore("nodes", {
+export const useFlowNodesStore = defineStore('nodes', {
     state: (): { nodeList: FlowNodeInfo[] } => {
         return {
             nodeList: []
@@ -21,7 +21,7 @@ export const useFlowNodesStore = defineStore("nodes", {
         }
     },
     actions: {
-        changeNodeStyleInfoById(id: string, payload: Partial<FlowNodeInfo["styleInfo"]>) {
+        changeNodeStyleInfoById(id: string, payload: Partial<FlowNodeInfo['styleInfo']>) {
             const matchedNode = this.nodeList.find(node => node.id === id);
             if (matchedNode && payload.height != null) {
                 matchedNode.styleInfo.height = payload.height

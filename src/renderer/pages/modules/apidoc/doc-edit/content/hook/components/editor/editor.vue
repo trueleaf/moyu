@@ -5,23 +5,23 @@
     备注：
 */
 <template>
-    <div ref="editor" class="editor"></div>
+  <div ref="editor" class="editor"></div>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, onMounted, onBeforeUnmount, watch } from "vue"
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
-import { useCompletionItem } from "./registerCompletionItem"
-import { useHoverProvider } from "./registerHoverProvider"
-import "monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution"
+import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { useCompletionItem } from './registerCompletionItem'
+import { useHoverProvider } from './registerHoverProvider'
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 
 const props = defineProps({
     modelValue: {
         type: String,
-        default: ""
+        default: ''
     },
 });
-const emits = defineEmits(["update:modelValue", "change"])
+const emits = defineEmits(['update:modelValue', 'change'])
 
 const editor: Ref<HTMLElement | null> = ref(null);
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -38,7 +38,7 @@ onMounted(() => {
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
     monacoInstance = monaco.editor.create(editor.value as HTMLElement, {
         value: props.modelValue,
-        language: "javascript",
+        language: 'javascript',
         automaticLayout: true,
         parameterHints: {
             enabled: true
@@ -46,20 +46,20 @@ onMounted(() => {
         minimap: {
             enabled: false,
         },
-        wrappingStrategy: "advanced",
+        wrappingStrategy: 'advanced',
         scrollBeyondLastLine: false,
         overviewRulerLanes: 0,
         hover: {
             enabled: true,
             above: false,
         },
-        renderLineHighlight: "none",
+        renderLineHighlight: 'none',
     })
     monacoCompletionItem = useCompletionItem();
     monacoHoverProvider = useHoverProvider();
     monacoInstance.onDidChangeModelContent(() => {
-        emits("update:modelValue", monacoInstance?.getValue())
-        emits("change", monacoInstance?.getValue())
+        emits('update:modelValue', monacoInstance?.getValue())
+        emits('change', monacoInstance?.getValue())
     })
 })
 

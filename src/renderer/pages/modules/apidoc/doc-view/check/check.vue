@@ -5,28 +5,28 @@
     备注：
 */
 <template>
-    <s-loading v-if="!isValidShareId" :loading="loading" class="check-wrap">
-        <div class="content">
-            <div class="text-center">
-                <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" class="logo">
-            </div>
-            <h2 class="text-center">{{ projectName }}</h2>
-            <div class="d-flex a-center mb-3">
-                <el-input v-model="password" type="password" :placeholder="$t('请输入密码')" class="w-200px" show-password clearable></el-input>
-                <el-button type="success" :loading="loading2" @click="handleConfirmPassword">{{ $t("确认密码") }}</el-button>
-            </div>
-            <div class="gray-600">
-                <span class="mr-1">{{ $t("过期倒计时") }}：</span>
-                <span v-countdown="expire"></span>
-            </div>
-        </div>
-    </s-loading>
-    <el-empty v-if="isValidShareId" :description="$t('无效的项目id')"></el-empty>
+  <s-loading v-if="!isValidShareId" :loading="loading" class="check-wrap">
+    <div class="content">
+      <div class="text-center">
+        <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" class="logo">
+      </div>
+      <h2 class="text-center">{{ projectName }}</h2>
+      <div class="d-flex a-center mb-3">
+        <el-input v-model="password" type="password" :placeholder="$t('请输入密码')" class="w-200px" show-password clearable></el-input>
+        <el-button type="success" :loading="loading2" @click="handleConfirmPassword">{{ $t("确认密码") }}</el-button>
+      </div>
+      <div class="gray-600">
+        <span class="mr-1">{{ $t("过期倒计时") }}：</span>
+        <span v-countdown="expire"></span>
+      </div>
+    </div>
+  </s-loading>
+  <el-empty v-if="isValidShareId" :description="$t('无效的项目id')"></el-empty>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import type { Response } from "@@/global"
+import { defineComponent } from 'vue'
+import type { Response } from '@@/global'
 
 const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 
@@ -40,9 +40,9 @@ type LinkInfo = {
 export default defineComponent({
     data() {
         return {
-            projectName: "", //项目名称
+            projectName: '', //项目名称
             expire: 0, //过期时间
-            password: "", //密码
+            password: '', //密码
             //===================================其他参数====================================//
             isValidShareId: false, //文档是否存在
             loading: false, //基础数据获取
@@ -50,10 +50,10 @@ export default defineComponent({
         };
     },
     mounted() {
-        console.log("check", typeof isBuildHtml)
+        console.log('check', typeof isBuildHtml)
         if (isBuildHtml) {
             this.$router.push({
-                path: "/view",
+                path: '/view',
             });
         } else {
             this.init()
@@ -73,12 +73,12 @@ export default defineComponent({
             const params = {
                 shareId: this.$route.query.share_id,
             };
-            this.axios.get<Response<LinkInfo>, Response<LinkInfo>>("/api/project/share_info", { params }).then((res) => {
+            this.axios.get<Response<LinkInfo>, Response<LinkInfo>>('/api/project/share_info', { params }).then((res) => {
                 this.projectName = res.data.projectName;
                 this.expire = res.data.expire;
                 if (!res.data.needPassword) {
                     this.$router.push({
-                        path: "/view",
+                        path: '/view',
                         query: {
                             id,
                             share_id,
@@ -100,12 +100,12 @@ export default defineComponent({
                 shareId: share_id,
                 password: this.password,
             };
-            this.axios.get("/api/project/share_check", { params }).then(() => {
-                localStorage.setItem("share/password", this.password || "");
+            this.axios.get('/api/project/share_check', { params }).then(() => {
+                localStorage.setItem('share/password', this.password || '');
                 // eslint-disable-next-line camelcase
-                localStorage.setItem("share/shareId", share_id as string);
+                localStorage.setItem('share/shareId', share_id as string);
                 this.$router.push({
-                    path: "/view",
+                    path: '/view',
                     query: {
                         id,
                         share_id,

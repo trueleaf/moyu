@@ -5,15 +5,15 @@
     备注：
 */
 <template>
-    <div v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" class="s-loading">
-        <slot />
-        <div v-show="loading" class="loading-text">{{ loadingText }}</div>
-    </div>
+  <div v-loading="loading" element-loading-background="rgba(255, 255, 255, 0.9)" class="s-loading">
+    <slot />
+    <div v-show="loading" class="loading-text">{{ loadingText }}</div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { randomTip } from "@/helper/index"
+import { defineComponent } from 'vue'
+import { randomTip } from '@/helper/index'
 
 export default defineComponent({
     props: {
@@ -27,7 +27,7 @@ export default defineComponent({
     },
     data() {
         return {
-            loadingText: "",
+            loadingText: '',
         };
     },
     watch: {

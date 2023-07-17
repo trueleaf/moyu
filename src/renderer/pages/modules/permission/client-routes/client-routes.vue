@@ -5,40 +5,40 @@
     备注：
 */
 <template>
-    <div>
-        <!-- 搜索条件 -->
-        <s-search auto-request @change="handleChange">
-            <s-search-item :label="$t('名称&地址')" prop="name"></s-search-item>
-            <s-search-item :label="$t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
-            <template #operation>
-                <el-button type="success" @click="handleOpenAddRouteDialog">{{ $t("新增路由") }}</el-button>
-                <el-button :disabled="selectedData.length === 0" type="success" @click="handleOpenMultiEditTypeDialog">{{ $t("批量修改类型") }}</el-button>
-            </template>
-        </s-search>
-        <!-- 表格展示 -->
-        <s-table ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
-            <el-table-column prop="name" :label="$t('路由名称')" align="center"></el-table-column>
-            <el-table-column prop="path" :label="$t('路由地址')" align="center"></el-table-column>
-            <el-table-column prop="groupName" :label="$t('分组名称')" align="center"></el-table-column>
-            <el-table-column :label="$t('操作')" align="center">
-                <template #default="scope">
-                    <el-button link type="primary" text @click.stop="handleOpenClientEditDialog(scope.row)">{{ $t("修改") }}</el-button>
-                    <el-button link type="primary" text @click.stop="handleDeleteClientRoute(scope.row)">{{ $t("删除") }}</el-button>
-                </template>
-            </el-table-column>
-        </s-table>
-        <s-add-client-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-client-route>
-        <s-edit-client-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-client-route>
-        <s-multi-edit-client-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-client-route>
-    </div>
+  <div>
+    <!-- 搜索条件 -->
+    <s-search auto-request @change="handleChange">
+      <s-search-item :label="$t('名称&地址')" prop="name"></s-search-item>
+      <s-search-item :label="$t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
+      <template #operation>
+        <el-button type="success" @click="handleOpenAddRouteDialog">{{ $t("新增路由") }}</el-button>
+        <el-button :disabled="selectedData.length === 0" type="success" @click="handleOpenMultiEditTypeDialog">{{ $t("批量修改类型") }}</el-button>
+      </template>
+    </s-search>
+    <!-- 表格展示 -->
+    <s-table ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
+      <el-table-column prop="name" :label="$t('路由名称')" align="center"></el-table-column>
+      <el-table-column prop="path" :label="$t('路由地址')" align="center"></el-table-column>
+      <el-table-column prop="groupName" :label="$t('分组名称')" align="center"></el-table-column>
+      <el-table-column :label="$t('操作')" align="center">
+        <template #default="scope">
+          <el-button link type="primary" text @click.stop="handleOpenClientEditDialog(scope.row)">{{ $t("修改") }}</el-button>
+          <el-button link type="primary" text @click.stop="handleDeleteClientRoute(scope.row)">{{ $t("删除") }}</el-button>
+        </template>
+      </el-table-column>
+    </s-table>
+    <s-add-client-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-client-route>
+    <s-edit-client-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-client-route>
+    <s-multi-edit-client-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-client-route>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { Response, PermissionClientRoute } from "@@/global"
-import addClientRoute from "./add/add.vue"
-import editClientRoute from "./edit/edit.vue"
-import multiEditClientRoute from "./edit/edit2.vue"
+import { defineComponent } from 'vue'
+import { Response, PermissionClientRoute } from '@@/global'
+import addClientRoute from './add/add.vue'
+import editClientRoute from './edit/edit.vue'
+import multiEditClientRoute from './edit/edit2.vue'
 
 type HookThis = {
     tableData: PermissionClientRoute[],
@@ -46,9 +46,9 @@ type HookThis = {
 }
 export default defineComponent({
     components: {
-        "s-add-client-route": addClientRoute,
-        "s-edit-client-route": editClientRoute,
-        "s-multi-edit-client-route": multiEditClientRoute,
+        's-add-client-route': addClientRoute,
+        's-edit-client-route': editClientRoute,
+        's-multi-edit-client-route': multiEditClientRoute,
     },
     data() {
         return {
@@ -82,7 +82,7 @@ export default defineComponent({
             this.originTableData = res.data;
             _this.tableData = res.data;
             _this.total = res.data.length;
-            const uniqueData = this.$helper.uniqueByKey(res.data, "groupName");
+            const uniqueData = this.$helper.uniqueByKey(res.data, 'groupName');
             this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
                 const unicodeOfA = a.name.charCodeAt(0);
                 const unicodeOfB = b.name.charCodeAt(0)
@@ -95,19 +95,19 @@ export default defineComponent({
         },
         //删除前端路由组件
         handleDeleteClientRoute(row: PermissionClientRoute) {
-            this.$confirm(this.$t("此操作将永久删除此条记录, 是否继续?"), this.$t("提示"), {
-                confirmButtonText: this.$t("确定"),
-                cancelButtonText: this.$t("取消"),
-                type: "warning",
+            this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
+                confirmButtonText: this.$t('确定'),
+                cancelButtonText: this.$t('取消'),
+                type: 'warning',
             }).then(() => {
                 const params = { ids: [row._id] };
-                this.axios.delete("/api/security/client_routes", { data: params }).then(() => {
+                this.axios.delete('/api/security/client_routes', { data: params }).then(() => {
                     this.$refs.table.getData();
                 }).catch((err) => {
                     console.error(err);
                 });
             }).catch((err: Error | string) => {
-                if (err === "cancel" || err === "close") {
+                if (err === 'cancel' || err === 'close') {
                     return;
                 }
                 console.error(err);

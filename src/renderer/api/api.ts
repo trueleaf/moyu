@@ -1,9 +1,9 @@
-import { App } from "vue"
-import jsCookie from "js-cookie";
-import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
-import config from "@/../config/config"
+import { App } from 'vue'
+import jsCookie from 'js-cookie';
+import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import config from '@/../config/config'
 // eslint-disable-next-line import/no-cycle
-import { router } from "@/router";
+import { router } from '@/router';
 
 const axiosInstance = Axios.create();
 axiosInstance.defaults.withCredentials = config.renderConfig.httpRequest.withCredentials;//允许携带cookie
@@ -15,12 +15,12 @@ const axiosPlugin = {
     install(app: App): void {
         //===============================axiosInstance请求钩子==========================================//
         axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
-            reqConfig.headers["x-csrf-token"] = jsCookie.get("csrfToken");
-            const userInfoStr = localStorage.getItem("userInfo") || "{}";
+            reqConfig.headers['x-csrf-token'] = jsCookie.get('csrfToken');
+            const userInfoStr = localStorage.getItem('userInfo') || '{}';
             try {
                 const userInfo = JSON.parse(userInfoStr);
                 if (!userInfo.token) {
-                    router.push("/login");
+                    router.push('/login');
                 }
                 reqConfig.headers.Authorization = userInfo.token
             } catch (error) {
@@ -33,15 +33,15 @@ const axiosPlugin = {
             async (res: AxiosResponse) => {
                 const result = res.data;
                 const headers = res.headers || {};
-                const contentType = headers["content-type"];
-                const contentDisposition = headers["content-disposition"];
-                let fileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : "";
+                const contentType = headers['content-type'];
+                const contentDisposition = headers['content-disposition'];
+                let fileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : '';
                 if (fileName) {
                     fileName = decodeURIComponent(fileName[1]);
                 }
-                if (contentType.includes("application/json")) { //常规格式数据
+                if (contentType.includes('application/json')) { //常规格式数据
                     let code = null;
-                    if (res.data.constructor.name === "Blob") {
+                    if (res.data.constructor.name === 'Blob') {
                         let jsonData = await res.data.text();
                         jsonData = JSON.parse(jsonData);
                         // eslint-disable-next-line prefer-destructuring
@@ -61,46 +61,46 @@ const axiosPlugin = {
                         case 101005: //无效的的id和密码,跳转到验证页面
                             break;
                         case 4101: //登录有错
-                            router.replace("/login");
-                            app.config.globalProperties.$message.warning("暂无权限");
-                            return Promise.reject(new Error("暂无权限"));
+                            router.replace('/login');
+                            app.config.globalProperties.$message.warning('暂无权限');
+                            return Promise.reject(new Error('暂无权限'));
                         case 4100: //登录过期
                             if (!isExpire) {
                                 isExpire = true;
-                                app.config.globalProperties.$confirm("登录已过期", "提示", {
-                                    confirmButtonText: "跳转登录",
-                                    cancelButtonText: "取消",
-                                    type: "warning",
+                                app.config.globalProperties.$confirm('登录已过期', '提示', {
+                                    confirmButtonText: '跳转登录',
+                                    cancelButtonText: '取消',
+                                    type: 'warning',
                                 }).then(() => {
                                     isExpire = false;
                                     sessionStorage.clear();
-                                    router.replace("/login");
+                                    router.replace('/login');
                                 }).catch(() => {
                                     isExpire = false;
                                 });
                             }
-                            return Promise.reject(new Error("登录已过期"));
+                            return Promise.reject(new Error('登录已过期'));
                         case 4200: //代理错误
                             return Promise.reject(new Error(res.data.msg));
                         case 4002: //暂无权限
-                            app.config.globalProperties.$message.warning(res.data.msg || "暂无权限");
-                            return Promise.reject(new Error(res.data.msg || "暂无权限"));
+                            app.config.globalProperties.$message.warning(res.data.msg || '暂无权限');
+                            return Promise.reject(new Error(res.data.msg || '暂无权限'));
                         default:
-                            app.config.globalProperties.$confirm(res.data.msg ? res.data.msg : "操作失败", "提示", {
-                                confirmButtonText: "确定",
+                            app.config.globalProperties.$confirm(res.data.msg ? res.data.msg : '操作失败', '提示', {
+                                confirmButtonText: '确定',
                                 showCancelButton: false,
-                                type: "warning",
+                                type: 'warning',
                             });
                             return Promise.reject(new Error(res.data.msg));
                     }
                     return result;
                 }
-                if (contentType.includes("application/force-download")) {
-                    let blobUrl = "";
+                if (contentType.includes('application/force-download')) {
+                    let blobUrl = '';
                     blobUrl = URL.createObjectURL(res.data);
-                    const downloadElement = document.createElement("a");
+                    const downloadElement = document.createElement('a');
                     downloadElement.href = blobUrl;
-                    downloadElement.download = fileName ? decodeURIComponent(fileName) : "未命名"; //下载后文件名
+                    downloadElement.download = fileName ? decodeURIComponent(fileName) : '未命名'; //下载后文件名
                     document.body.appendChild(downloadElement);
                     downloadElement.click(); //点击下载
                     document.body.removeChild(downloadElement); //下载完成移除元素
@@ -115,10 +115,10 @@ const axiosPlugin = {
             },
             (err: AxiosError) => {
                 //=====================================取消错误不进行拦截====================================//
-                if (err.constructor && err.constructor.name === "Cancel") {
+                if (err.constructor && err.constructor.name === 'Cancel') {
                     return;
                 }
-                app.config.globalProperties.$message.error("系统开小差了!");
+                app.config.globalProperties.$message.error('系统开小差了!');
                 Promise.reject(err);
             },
         );

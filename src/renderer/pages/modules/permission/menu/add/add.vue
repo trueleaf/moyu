@@ -5,21 +5,21 @@
     备注：
 */
 <template>
-    <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增菜单')" @close="handleClose">
-        <s-form ref="form">
-            <s-form-item :label="$t('菜单名称')" prop="name" one-line required></s-form-item>
-            <s-form-item :label="$t('路径')" prop="path" one-line required></s-form-item>
-        </s-form>
-        <template #footer>
-            <el-button :loading="loading" type="primary" @click="handleAddMenu">{{ $t("确定") }}</el-button>
-            <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
-        </template>
-    </s-dialog>
+  <s-dialog :model-value="modelValue" top="10vh" :title="$t('新增菜单')" @close="handleClose">
+    <s-form ref="form">
+      <s-form-item :label="$t('菜单名称')" prop="name" one-line required></s-form-item>
+      <s-form-item :label="$t('路径')" prop="path" one-line required></s-form-item>
+    </s-form>
+    <template #footer>
+      <el-button :loading="loading" type="primary" @click="handleAddMenu">{{ $t("确定") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+    </template>
+  </s-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import { Response } from "@@/global"
+import { defineComponent } from 'vue'
+import { Response } from '@@/global'
 
 export default defineComponent({
     props: {
@@ -29,11 +29,11 @@ export default defineComponent({
         },
         pid: {
             type: String,
-            default: "",
+            default: '',
         },
     },
     emits: {
-        "update:modelValue": null,
+        'update:modelValue': null,
         success(payload: string) {
             return payload
         }
@@ -48,7 +48,7 @@ export default defineComponent({
     methods: {
         //关闭弹窗
         handleClose() {
-            this.$emit("update:modelValue", false);
+            this.$emit('update:modelValue', false);
         },
         //新增菜单
         handleAddMenu() {
@@ -60,9 +60,9 @@ export default defineComponent({
                         ...formData,
                         pid: this.pid,
                     };
-                    this.axios.post<Response<{ _id: string }>, Response<{ _id: string }>>("/api/security/client_menu", params).then((res) => {
+                    this.axios.post<Response<{ _id: string }>, Response<{ _id: string }>>('/api/security/client_menu', params).then((res) => {
                         this.handleClose();
-                        this.$emit("success", res.data._id);
+                        this.$emit('success', res.data._id);
                     }).catch((err) => {
                         console.error(err);
                     }).finally(() => {
@@ -70,7 +70,7 @@ export default defineComponent({
                     });
                 } else {
                     this.$nextTick(() => {
-                        const input = document.querySelector(".el-form-item.is-error input");
+                        const input = document.querySelector('.el-form-item.is-error input');
                         if (input) {
                             (input as HTMLInputElement).focus();
                         }

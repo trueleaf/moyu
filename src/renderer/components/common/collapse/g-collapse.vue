@@ -5,34 +5,34 @@
     备注：
 */
 <template>
-    <div class="s-collaps mb-1">
-        <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
-            <span v-if="!disabled" class="gray-700">
-                <el-icon v-if="isActive" :size="16">
-                    <arrow-down />
-                </el-icon>
-                <el-icon v-else :size="16">
-                    <arrow-right />
-                </el-icon>
-            </span>
-            <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
-            <slot v-else name="title" />
-        </div>
-        <div v-show="isActive" class="pr-2 pl-5 gray-700">
-            <slot />
-        </div>
+  <div class="s-collaps mb-1">
+    <div class="header" :class="{ bold: bold }" @click="toggleCollapse">
+      <span v-if="!disabled" class="gray-700">
+        <el-icon v-if="isActive" :size="16">
+          <arrow-down />
+        </el-icon>
+        <el-icon v-else :size="16">
+          <arrow-right />
+        </el-icon>
+      </span>
+      <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
+      <slot v-else name="title" />
     </div>
+    <div v-show="isActive" class="pr-2 pl-5 gray-700">
+      <slot />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from "vue"
-import { ArrowDown, ArrowRight } from "@element-plus/icons-vue"
-import { $t } from "@/i18n/i18n"
+import { ref, watch } from 'vue'
+import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
+import { $t } from '@/i18n/i18n'
 
 const props = defineProps({
     title: {
         type: String,
-        default: $t("请输入标题"),
+        default: $t('请输入标题'),
     },
     bold: {
         type: Boolean,
