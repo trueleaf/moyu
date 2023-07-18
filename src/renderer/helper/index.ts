@@ -10,6 +10,7 @@ import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, Apido
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
+import { AreaRange, ClientPoint } from '@@/apiflow';
 import lodashThrottle from 'lodash/throttle';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
@@ -963,6 +964,18 @@ export async function sleep(delay: number): Promise<void> {
       reject(error);
     }
   })
+}
+//检查鼠标位置是否在矩形节点内部
+export function checkPointIsInArea(point: ClientPoint, areaRange: AreaRange): boolean {
+  let isLeftRightInArea = false;
+  let isTopBottomInArea = false;
+  if (point.clientX >= areaRange.leftTopPosition.clientX && point.clientX <= areaRange.rightBottomPosition.clientX) {
+    isLeftRightInArea = true;
+  }
+  if (point.clientY >= areaRange.leftTopPosition.clientY && point.clientY <= areaRange.rightBottomPosition.clientY) {
+    isTopBottomInArea = true;
+  }
+  return isLeftRightInArea && isTopBottomInArea
 }
 
 export * from './apidoc-format'
