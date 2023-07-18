@@ -3,12 +3,35 @@
 | 常用类型命名
 |--------------------------------------------------------------------------
 | clientX: 相对于浏览器视口距离
-| offsetX> 相对于父元素距离
+| offsetX: 相对于父元素距离
 | createLineDot 节点上用于引出线条的小圆点
 | resizeNodeDot 用于改变节点宽高的小圆点
 | node  代表节点
 | line  代表线条
 */
+/*
+|--------------------------------------------------------------------------
+| 通用类型定义
+|--------------------------------------------------------------------------
+*/
+export type ClientPoint = {
+  clientX: number;
+  clientY: number;
+}
+export type OffsetPoint = {
+  offsetX: number;
+  offsetY: number;
+}
+export type AreaRange = {
+  leftTopPosition: {
+    clientX: number;
+    clientY: number;
+  };
+  rightBottomPosition: {
+    clientX: number;
+    clientY: number;
+  };
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -33,16 +56,7 @@ export type FlowRenderArea = {
 /**
  * 线条可hover区域
  */
-export type LineCanHoverPosition = {
-  leftTopPosition: {
-    clientX: number;
-    clientY: number;
-  };
-  rightBottomPosition: {
-    clientX: number;
-    clientY: number;
-  };
-}
+export type LineCanHoverPosition = AreaRange
 /**
  * 线条位置信息，可以从节点的四个方向(上下左右)引出，也可以没有位置信息，代表独立存在的线条
  */
@@ -104,6 +118,7 @@ export type FlowNodeInfo = {
     zIndex: number;
     dragZIndex: number;
   };
+  canDragArea: AreaRange,
   nodeType: FlowNodeType;
   outcomingIds: string[];
   incomingIds: string[];
@@ -300,7 +315,8 @@ export type FlowNodeState = {
   hoverNodeId: string;
   dragNodeId: string;
   isMouseDown: boolean;
-  isMouseDownHeader: boolean;
+  isMouseDownDragArea: boolean;
+  isMouseHoverDragArea: boolean;
   activeNodeId: string;
   isMove: boolean;
   mouseDownClientX: number;
