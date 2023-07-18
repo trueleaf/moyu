@@ -18,16 +18,16 @@
     <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
     <teleport to="body">
       <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
-                <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
-                <!-- nodesStore: {{ nodesStore }} -->
-                nodeStateStore: {{ nodeStateStore }}
-                <!-- linesStore: {{ linesStore }} -->
-                <!-- lineStateStore: {{ lineStateStore }} -->
-                <!-- createLineDotStore: {{ createLineDotStore }} -->
-                <!-- historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }} -->
-                <!-- selectionStore: {{ selectionStore }} -->
-                <!-- renderAreaStore: {{ renderAreaStore }} -->
-            </pre>
+        <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
+        nodesStore: {{ nodesStore }}
+        nodeStateStore: {{ nodeStateStore }}
+        <!-- linesStore: {{ linesStore }} -->
+        <!-- lineStateStore: {{ lineStateStore }} -->
+        <!-- createLineDotStore: {{ createLineDotStore }} -->
+        <!-- historyStore: {{ historyStore.doingList.map(v => v.nodeList[0].styleInfo.offsetX) }} -->
+        <!-- selectionStore: {{ selectionStore }} -->
+        <!-- renderAreaStore: {{ renderAreaStore }} -->
+      </pre>
     </teleport>
   </div>
   <canvas
@@ -104,7 +104,7 @@ const cursor = computed(() => {
   if (selectionStore.isHover) {
     return 'move'
   }
-  if (nodeStateStore.hoverNodeId) {
+  if (nodeStateStore.isMouseHoverDragArea) {
     return 'move'
   }
   if (lineStateStore.hoverDragLineId) {
@@ -177,14 +177,24 @@ const initNodes = () => {
       nodeType: 'rect',
       styleInfo: {
         offsetX: 240 * (i + 1),
-        offsetY: 30 + Math.ceil(Math.random() * 100 + 50),
+        offsetY: 30 + 50 * i,
         width: 200,
         height: 130,
         zIndex: i + 1,
         dragZIndex: 1,
       },
       outcomingIds: [],
-      incomingIds: []
+      incomingIds: [],
+      canDragArea: {
+        leftTopPosition: {
+          clientX: 240 * (i + 1) + containerStore.clientX,
+          clientY: 30 + 50 * i + containerStore.clientY,
+        },
+        rightBottomPosition: {
+          clientX: 240 * (i + 1) + 200 + containerStore.clientX,
+          clientY: 30 + 50 * i + 30 + containerStore.clientY,
+        }
+      }
     })
   }
   historyStore.doingList.push({
@@ -197,8 +207,8 @@ const initNodes = () => {
   })
 }
 onMounted(() => {
-  initNodes();
   changeContainerInfo();
+  initNodes();
   changeRenderAreaInfo();
   window.addEventListener('resize', handleResize)
   document.documentElement.addEventListener('mousemove', handleMouseMove);

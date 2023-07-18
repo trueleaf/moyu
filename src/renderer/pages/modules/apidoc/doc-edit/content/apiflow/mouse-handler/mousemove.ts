@@ -1,4 +1,4 @@
-import { cloneDeep } from '@/helper';
+import { checkPointIsInArea, cloneDeep } from '@/helper';
 import { useFlowConfigStore } from '@/store/apiflow/config';
 import { useFlowContainerStore } from '@/store/apiflow/container';
 import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-state';
@@ -173,7 +173,8 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
   }
   if (matchedNodes.length === 0 && !createLineDotState.hoverNodeId) {
     nodeStateStore.$patch({
-      hoverNodeId: ''
+      hoverNodeId: '',
+      isMouseHoverDragArea: false,
     })
   } else if (matchedNodes.length !== 0) {
     let maxZIndexNode = matchedNodes[0]
@@ -182,8 +183,14 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
         maxZIndexNode = matchedNodes[i]
       }
     }
+    const isInDragArea = checkPointIsInArea({
+      clientX: e.clientX,
+      clientY: e.clientY,
+    }, maxZIndexNode.canDragArea)
+    console.log(e.clientX, e.clientY, maxZIndexNode.canDragArea.leftTopPosition, maxZIndexNode.canDragArea.rightBottomPosition)
     nodeStateStore.$patch({
-      hoverNodeId: maxZIndexNode.id
+      hoverNodeId: maxZIndexNode.id,
+      isMouseHoverDragArea: isInDragArea,
     })
   }
 }
@@ -228,6 +235,7 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
 export function changeNodeWhenMouseMove(e: MouseEvent): void {
   const createLineStateStore = useFlowCreateLineDotStateStore();
   const resizeNodeDotStateStore = useFlowResizeNodeStateStore();
+  const containerStore = useFlowContainerStore();
   const nodeStateStore = useFlowNodeStateStore();
   const nodesStore = useFlowNodesStore();
   const lineStateStore = useFlowLineStateStore();
@@ -244,6 +252,10 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
       if (matched) {
         matched.styleInfo.offsetX = Math.ceil(nodeStateStore.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom);
         matched.styleInfo.offsetY = Math.ceil(nodeStateStore.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom);
+        matched.canDragArea.leftTopPosition.clientX = matched.styleInfo.offsetX + containerStore.clientX;
+        matched.canDragArea.leftTopPosition.clientY = matched.styleInfo.offsetY + containerStore.clientY;
+        matched.canDragArea.rightBottomPosition.clientX = matched.styleInfo.offsetX + containerStore.clientX + matched.styleInfo.width;
+        matched.canDragArea.rightBottomPosition.clientY = matched.styleInfo.offsetY + containerStore.clientY + 30;
       }
     })
     nodeStateStore.$patch({
