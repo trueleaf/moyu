@@ -16,12 +16,12 @@ import { store } from '@/store/index'
 import preEditor from './editor/pre-editor.vue'
 
 const preRequest = computed<string>({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc?.preRequest.raw;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changePreRequest', val);
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc?.preRequest.raw;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changePreRequest', val);
+  },
 })
 
 </script>

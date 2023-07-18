@@ -21,12 +21,12 @@ import { FlowLineInfo } from '@@/apiflow';
 import { useFlowLineStateStore } from '@/store/apiflow/line-state';
 
 const props = defineProps({
-    lineInfo: {
-        type: Object as PropType<FlowLineInfo>,
-        default() {
-            return {}
-        }
+  lineInfo: {
+    type: Object as PropType<FlowLineInfo>,
+    default() {
+      return {}
     }
+  }
 });
 const lineStateStore = useFlowLineStateStore()
 

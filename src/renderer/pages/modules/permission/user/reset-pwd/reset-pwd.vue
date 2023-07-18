@@ -21,58 +21,58 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        /*
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    /*
          * 用户id
         */
-        userId: {
-            type: String,
-            default: ''
-        },
+    userId: {
+      type: String,
+      default: ''
     },
-    emits: ['success', 'update:modelValue'],
-    data() {
-        return {
-            formInfo: {} as Record<string, unknown>, //用户基本信息
-            loading: false, //-------------------------用户信息加载
-            loading2: false, //------------------------修改用户加载
-        };
+  },
+  emits: ['success', 'update:modelValue'],
+  data() {
+    return {
+      formInfo: {} as Record<string, unknown>, //用户基本信息
+      loading: false, //-------------------------用户信息加载
+      loading2: false, //------------------------修改用户加载
+    };
+  },
+  methods: {
+    //修改用户
+    handleEditUser() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const params = {
+            userId: this.$props.userId,
+            password: formInfo.password,
+          };
+          this.loading = true;
+          this.axios.put('/api/security/reset_password', params).then(() => {
+            this.$emit('success');
+            this.$message.success('重置成功')
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
+          this.$message.warning('请完善必填信息');
+          this.loading = false;
+        }
+      });
     },
-    methods: {
-        //修改用户
-        handleEditUser() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const params = {
-                        userId: this.$props.userId,
-                        password: formInfo.password,
-                    };
-                    this.loading = true;
-                    this.axios.put('/api/security/reset_password', params).then(() => {
-                        this.$emit('success');
-                        this.$message.success('重置成功')
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-                    this.$message.warning('请完善必填信息');
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
     },
+  },
 })
 </script>

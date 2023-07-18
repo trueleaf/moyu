@@ -13,9 +13,9 @@ import { defineComponent } from 'vue'
 import config from '@/../config/config'
 
 export default defineComponent({
-    created() {
-        if (!config.isDev && config.localization.consoleWelcome) {
-            console.log(`
+  created() {
+    if (!config.isDev && config.localization.consoleWelcome) {
+      console.log(`
                      _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
                     / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
                    / / \\ \\        / / \\ \\       / /           \\ \\    \\   \\ /   /    |  |       |  |
@@ -32,12 +32,12 @@ export default defineComponent({
 
                ${this.$t('最近一次更新')}：${process.env.VUE_APP_BUILD_TIME}
             `)
-        }
-        if (!config.localization.consoleWelcome) {
-            console.log(process.env.VUE_APP_BUILD_TIME);
-        }
-        document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
-    },
+    }
+    if (!config.localization.consoleWelcome) {
+      console.log(process.env.VUE_APP_BUILD_TIME);
+    }
+    document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
+  },
 })
 </script>
 

@@ -29,14 +29,14 @@ const activeName = ref('add');
 const editCodeInfo: Ref<ApidocCodeInfo | null> = ref(null)
 //初始化
 onMounted(() => {
-    event.on('apidoc/hook/jumpToEdit', (payload) => {
-        activeName.value = 'edit';
-        editCodeInfo.value = payload as ApidocCodeInfo;
-    })
+  event.on('apidoc/hook/jumpToEdit', (payload) => {
+    activeName.value = 'edit';
+    editCodeInfo.value = payload as ApidocCodeInfo;
+  })
 })
 //删除自定义事件
 onUnmounted(() => {
-    event.off('apidoc/hook/jumpToEdit')
+  event.off('apidoc/hook/jumpToEdit')
 })
 
 </script>

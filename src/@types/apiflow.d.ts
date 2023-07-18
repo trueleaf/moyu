@@ -16,14 +16,14 @@
 |--------------------------------------------------------------------------
 */
 export type FlowRenderArea = {
-    width: number;
-    height: number;
-    offsetX: number;
-    offsetY: number;
-    /**
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+  /**
      * 单个网格大小
      */
-    gridUnit: number;
+  gridUnit: number;
 }
 /*
 |--------------------------------------------------------------------------
@@ -34,14 +34,14 @@ export type FlowRenderArea = {
  * 线条可hover区域
  */
 export type LineCanHoverPosition = {
-    leftTopPosition: {
-        clientX: number;
-        clientY: number;
-    };
-    rightBottomPosition: {
-        clientX: number;
-        clientY: number;
-    };
+  leftTopPosition: {
+    clientX: number;
+    clientY: number;
+  };
+  rightBottomPosition: {
+    clientX: number;
+    clientY: number;
+  };
 }
 /**
  * 线条位置信息，可以从节点的四个方向(上下左右)引出，也可以没有位置信息，代表独立存在的线条
@@ -51,42 +51,42 @@ export type FlowLinePosition = 'left' | 'top' | 'right' | 'bottom' | '';
  * 鼠标移动到线条上时候，由于是通过canvas绘制的折线，所以需要计算出一组有效hover区域
  */
 export type FlowLineCanHoverAreas = {
-    leftTopPosition: {
-        clientX: number;
-        clientY: number;
-    };
-    rightBottomPosition: {
-        clientX: number;
-        clientY: number;
-    };
+  leftTopPosition: {
+    clientX: number;
+    clientY: number;
+  };
+  rightBottomPosition: {
+    clientX: number;
+    clientY: number;
+  };
 };
 export type FlowLineInfo = {
-    id: string;
-    width: number;
-    height: number;
-    offsetX: number;
-    offsetY: number;
-    lineStartOffsetX: number;
-    lineStartOffsetY: number;
-    lineEndOffsetX: number;
-    lineEndOffsetY: number;
-    fromPosition: FlowLinePosition;
-    toPosition: FlowLinePosition;
-    zIndex: number;
-    canHoverPosition: FlowLineCanHoverAreas[];
-    /**
+  id: string;
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+  lineStartOffsetX: number;
+  lineStartOffsetY: number;
+  lineEndOffsetX: number;
+  lineEndOffsetY: number;
+  fromPosition: FlowLinePosition;
+  toPosition: FlowLinePosition;
+  zIndex: number;
+  canHoverPosition: FlowLineCanHoverAreas[];
+  /**
      * 线条箭头信息
      */
-    arrowInfo: {
-        leftTopPoint: {
-            clientX: number;
-            clientY: number;
-        };
-        rightBottomPoint: {
-            clientX: number;
-            clientY: number;
-        };
+  arrowInfo: {
+    leftTopPoint: {
+      clientX: number;
+      clientY: number;
     };
+    rightBottomPoint: {
+      clientX: number;
+      clientY: number;
+    };
+  };
 };
 /*
 |--------------------------------------------------------------------------
@@ -95,18 +95,18 @@ export type FlowLineInfo = {
 */
 export type FlowNodeType = 'rect';
 export type FlowNodeInfo = {
-    id: string;
-    styleInfo: {
-        offsetX: number;
-        offsetY: number;
-        width: number;
-        height: number;
-        zIndex: number;
-        dragZIndex: number;
-    };
-    nodeType: FlowNodeType;
-    outcomingIds: string[];
-    incomingIds: string[];
+  id: string;
+  styleInfo: {
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+    zIndex: number;
+    dragZIndex: number;
+  };
+  nodeType: FlowNodeType;
+  outcomingIds: string[];
+  incomingIds: string[];
 };
 /*
 |--------------------------------------------------------------------------
@@ -114,51 +114,51 @@ export type FlowNodeInfo = {
 |--------------------------------------------------------------------------
 */
 export type FlowConfig = {
-    /**
+  /**
      * 节点最小宽度
      */
-    nodeMinWidth: number;
-    /**
+  nodeMinWidth: number;
+  /**
      * 节点最小高度
      */
-    nodeMinHeight: number;
-    /**
+  nodeMinHeight: number;
+  /**
      * 节点上用于引出线条的小圆点大小
      */
-    createLineDotSize: number;
-    /**
+  createLineDotSize: number;
+  /**
      * 用于改变节点宽高小圆点大小
      */
-    resizeDotSize: number;
-    /**
+  resizeDotSize: number;
+  /**
      * 线条最小宽度，小于这个宽度将不创建线条
      */
-    minLineWidth: number;
-    minLineHeight: number;
-    /**
+  minLineWidth: number;
+  minLineHeight: number;
+  /**
      * 线条默认zIndex
      */
-    lineZIndex: number;
-    /**
+  lineZIndex: number;
+  /**
      * 拖拽节点默认zIndex
      */
-    dragNodeZIndex: number;
-    /**
+  dragNodeZIndex: number;
+  /**
      * 选中区域zIndex
      */
-    selectionZIndex: number;
-    /**
+  selectionZIndex: number;
+  /**
      * 放大倍数
      */
-    zoom: number;
-    /**
+  zoom: number;
+  /**
      * 框选节点区域边距
      */
-    selectedNodeAreaPadding: number;
-    /**
+  selectedNodeAreaPadding: number;
+  /**
      * 选中区域zIndex值
      */
-    selectedNodeAreaZIndex: number;
+  selectedNodeAreaZIndex: number;
 };
 /*
 |--------------------------------------------------------------------------
@@ -166,40 +166,40 @@ export type FlowConfig = {
 |--------------------------------------------------------------------------
 */
 export type FlowSelection = {
-    isMouseDown: boolean;
-    /**
+  isMouseDown: boolean;
+  /**
      * 是否点击选中区域
      */
-    isMouseDownSelectedArea: boolean;
-    isMouseDownResizeDot: boolean;
-    isMouseHoverResizeDot: boolean;
-    isHover: boolean;
-    isMove: boolean;
-    startOffsetX: number;
-    startOffsetY: number;
-    endOffsetX: number;
-    endOffsetY: number;
-    width: number;
-    height: number;
-    offsetX: number;
-    offsetY: number;
-    nodeOffsetXWhenMouseDown: number;
-    nodeOffsetYWhenMouseDown: number;
-    /**
+  isMouseDownSelectedArea: boolean;
+  isMouseDownResizeDot: boolean;
+  isMouseHoverResizeDot: boolean;
+  isHover: boolean;
+  isMove: boolean;
+  startOffsetX: number;
+  startOffsetY: number;
+  endOffsetX: number;
+  endOffsetY: number;
+  width: number;
+  height: number;
+  offsetX: number;
+  offsetY: number;
+  nodeOffsetXWhenMouseDown: number;
+  nodeOffsetYWhenMouseDown: number;
+  /**
      * 选中节点后，框选区域矩形范围
      */
-    selectedNodeArea: {
-        offsetX: number;
-        offsetY: number;
-        width: number;
-        height: number;
-    },
-    selectedNodeIds: string[];
-    selectedNodeMouseDownOffsetInfo: {
-        id: string;
-        nodeOffsetXWhenMouseDown: number;
-        nodeOffsetYWhenMouseDown: number;
-    }[]
+  selectedNodeArea: {
+    offsetX: number;
+    offsetY: number;
+    width: number;
+    height: number;
+  },
+  selectedNodeIds: string[];
+  selectedNodeMouseDownOffsetInfo: {
+    id: string;
+    nodeOffsetXWhenMouseDown: number;
+    nodeOffsetYWhenMouseDown: number;
+  }[]
 };
 /*
 |--------------------------------------------------------------------------
@@ -207,9 +207,9 @@ export type FlowSelection = {
 |--------------------------------------------------------------------------
 */
 export type FlowHistory = {
-    nodeList: FlowNodeInfo[],
-    lineList: FlowLineInfo[],
-    configInfo: FlowConfig
+  nodeList: FlowNodeInfo[],
+  lineList: FlowLineInfo[],
+  configInfo: FlowConfig
 }
 /*
 |--------------------------------------------------------------------------
@@ -217,31 +217,31 @@ export type FlowHistory = {
 |--------------------------------------------------------------------------
 */
 export type FlowContainerInfo = {
-    clientX: number;
-    clientY: number;
-    width: number;
-    height: number;
+  clientX: number;
+  clientY: number;
+  width: number;
+  height: number;
 };
 /**
  * 辅助对齐
  */
 export type FlowAlignmentInfo = {
-    xRange: {
-        nodeId: string;
-        offsetYOfTop: number;
-        offsetYOfBottom: number;
-        offsetXOfLeft: number;
-        offsetXOfMid: number;
-        offsetXOfRight: number;
-    }[],
-    yRange: {
-        nodeId: string;
-        offsetXOfTop: number;
-        offsetXOfBottom: number;
-        offsetYOfLeft: number;
-        offsetYOfMid: number;
-        offsetYOfRight: number;
-    }[],
+  xRange: {
+    nodeId: string;
+    offsetYOfTop: number;
+    offsetYOfBottom: number;
+    offsetXOfLeft: number;
+    offsetXOfMid: number;
+    offsetXOfRight: number;
+  }[],
+  yRange: {
+    nodeId: string;
+    offsetXOfTop: number;
+    offsetXOfBottom: number;
+    offsetYOfLeft: number;
+    offsetYOfMid: number;
+    offsetYOfRight: number;
+  }[],
 }
 /*
 |--------------------------------------------------------------------------
@@ -249,9 +249,9 @@ export type FlowAlignmentInfo = {
 |--------------------------------------------------------------------------
 */
 export type FLowCreateLineDotState = {
-    isMouseDown: boolean;
-    hoverNodeId: string;
-    hoverPosition: FlowLinePosition;
+  isMouseDown: boolean;
+  hoverNodeId: string;
+  hoverPosition: FlowLinePosition;
 };
 /*
 |--------------------------------------------------------------------------
@@ -265,17 +265,17 @@ type FlowResizeNodePosition =
     | 'rightBottom'
     | '';
 export type FLowResizeNodeDotState = {
-    hoverNodeId: string;
-    hoverPosition: FlowResizeNodePosition;
-    isMouseDown: boolean;
-    mouseDownClientX: number;
-    mouseDownClientY: number;
-    nodeWidthWhenMouseDown: number;
-    nodeHeightWhenMouseDown: number;
-    nodeOffsetXWhenMouseDown: number;
-    nodeOffsetYWhenMouseDown: number;
-    nodeFixedX: number;
-    nodeFixedY: number;
+  hoverNodeId: string;
+  hoverPosition: FlowResizeNodePosition;
+  isMouseDown: boolean;
+  mouseDownClientX: number;
+  mouseDownClientY: number;
+  nodeWidthWhenMouseDown: number;
+  nodeHeightWhenMouseDown: number;
+  nodeOffsetXWhenMouseDown: number;
+  nodeOffsetYWhenMouseDown: number;
+  nodeFixedX: number;
+  nodeFixedY: number;
 };
 /*
 |--------------------------------------------------------------------------
@@ -283,13 +283,13 @@ export type FLowResizeNodeDotState = {
 |--------------------------------------------------------------------------
 */
 export type FlowLineState = {
-    hoverDragLineId: string;
-    selectedLineId: string;
-    hoverLineId: string;
-    dragLineId: string;
-    isHoverDragArrow: boolean;
-    isMouseDownDragArrow: boolean;
-    isMove: boolean;
+  hoverDragLineId: string;
+  selectedLineId: string;
+  hoverLineId: string;
+  dragLineId: string;
+  isHoverDragArrow: boolean;
+  isMouseDownDragArrow: boolean;
+  isMove: boolean;
 };
 /*
 |--------------------------------------------------------------------------
@@ -297,16 +297,16 @@ export type FlowLineState = {
 |--------------------------------------------------------------------------
 */
 export type FlowNodeState = {
-    hoverNodeId: string;
-    dragNodeId: string;
-    isMouseDown: boolean;
-    isMouseDownHeader: boolean;
-    activeNodeId: string;
-    isMove: boolean;
-    mouseDownClientX: number;
-    mouseDownClientY: number;
-    nodeOffsetXWhenMouseDown: number;
-    nodeOffsetYWhenMouseDown: number;
+  hoverNodeId: string;
+  dragNodeId: string;
+  isMouseDown: boolean;
+  isMouseDownHeader: boolean;
+  activeNodeId: string;
+  isMove: boolean;
+  mouseDownClientX: number;
+  mouseDownClientY: number;
+  nodeOffsetXWhenMouseDown: number;
+  nodeOffsetYWhenMouseDown: number;
 }
 /*
 |--------------------------------------------------------------------------
@@ -314,28 +314,28 @@ export type FlowNodeState = {
 |--------------------------------------------------------------------------
 */
 type FlowAreaPoint = {
-    pointX: number;
-    pointY: number;
-    offsetX: number;
-    offsetX2: number;
-    offsetY: number;
-    offsetY2: number;
+  pointX: number;
+  pointY: number;
+  offsetX: number;
+  offsetX2: number;
+  offsetY: number;
+  offsetY2: number;
 }
 /**
  * 创建线条节点有效区域
  */
 export type FlowValidCreateLineArea = {
-    leftArea: FlowAreaPoint;
-    topArea: FlowAreaPoint;
-    rightArea: FlowAreaPoint;
-    bottomArea: FlowAreaPoint;
+  leftArea: FlowAreaPoint;
+  topArea: FlowAreaPoint;
+  rightArea: FlowAreaPoint;
+  bottomArea: FlowAreaPoint;
 };
 /**
  * resize节点有效区域
  */
 export type FlowValidResizeArea = {
-    leftTopArea: FlowAreaPoint;
-    rightTopArea: FlowAreaPoint;
-    leftBottomArea: FlowAreaPoint;
-    rightBottomArea: FlowAreaPoint;
+  leftTopArea: FlowAreaPoint;
+  rightTopArea: FlowAreaPoint;
+  leftBottomArea: FlowAreaPoint;
+  rightBottomArea: FlowAreaPoint;
 };

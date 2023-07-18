@@ -53,14 +53,14 @@ const contentType = computed(() => store.state['apidoc/apidoc'].apidoc.item.cont
 const formatJsonStr = (code: string) => beautify(code, { indent_size: 4 });
 const upperHeaderKey = (key: string) => key.replace(/(^\w)|(-\w)/g, ($1) => $1.toUpperCase())
 const formatFormadata = () => {
-    const bufferFormData = (requestInfo.value.body as FormData)?.getBuffer();
-    const stringFormData = bufferFormData.toString();
-    const boundary = (requestInfo.value.body as FormData)?.getBoundary();
-    const result: string[] = [];
-    stringFormData.split(boundary).forEach(v => {
-        result.push(`${v.slice(0, 255)}${v.length > 255 ? '由于性能原因，仅展示255个字符' : ''}\n`); //最多展示255个字符
-    })
-    return result.join(boundary);
+  const bufferFormData = (requestInfo.value.body as FormData)?.getBuffer();
+  const stringFormData = bufferFormData.toString();
+  const boundary = (requestInfo.value.body as FormData)?.getBoundary();
+  const result: string[] = [];
+  stringFormData.split(boundary).forEach(v => {
+    result.push(`${v.slice(0, 255)}${v.length > 255 ? '由于性能原因，仅展示255个字符' : ''}\n`); //最多展示255个字符
+  })
+  return result.join(boundary);
 }
 //布局
 const layout = computed(() => store.state['apidoc/baseInfo'].layout)

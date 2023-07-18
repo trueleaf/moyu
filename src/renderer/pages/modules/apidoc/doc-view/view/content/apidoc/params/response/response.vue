@@ -118,44 +118,44 @@ const contentType = ref(['application/json', 'application/xml', 'text/plain', 't
 
 //ref绑定
 const bindRef = (el: unknown) => {
-    if (el) {
-        inputRefs.push(el);
-    }
+  if (el) {
+    inputRefs.push(el);
+  }
 }
 //确定修改title
 const handleConfirmTitle = (item: ApidocResponseParams, index: number) => {
-    if (currentEditNode.value && currentEditNode.value._title) {
-        store.commit('apidoc/apidoc/changeResponseParamsTitleByIndex', {
-            index,
-            title: currentEditNode.value._title,
-        });
-        currentEditNode.value = null;
-    }
+  if (currentEditNode.value && currentEditNode.value._title) {
+    store.commit('apidoc/apidoc/changeResponseParamsTitleByIndex', {
+      index,
+      title: currentEditNode.value._title,
+    });
+    currentEditNode.value = null;
+  }
 }
 //取消编辑
 const handleCancelEdit = () => {
-    currentEditNode.value = null;
+  currentEditNode.value = null;
 }
 //改变当前编辑的节点
 const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
-    const value = {
-        index,
-        title: item.title,
-        _title: item.title,
-    };
-    currentEditNode.value = value;
-    setTimeout(() => {
-        if (inputRefs[index]) {
-            (inputRefs[index] as HTMLInputElement).focus();
-        }
-    })
+  const value = {
+    index,
+    title: item.title,
+    _title: item.title,
+  };
+  currentEditNode.value = value;
+  setTimeout(() => {
+    if (inputRefs[index]) {
+      (inputRefs[index] as HTMLInputElement).focus();
+    }
+  })
 }
 //改变正在编辑的文本值
 const handleChangeTextValeu = (value: string, index: number) => {
-    store.commit('apidoc/apidoc/changeResponseParamsTextValueByIndex', {
-        index,
-        value,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsTextValueByIndex', {
+    index,
+    value,
+  });
 }
 /*
 |--------------------------------------------------------------------------
@@ -166,25 +166,25 @@ const handleChangeTextValeu = (value: string, index: number) => {
 
 //选择一个statusCode
 const handleSelectStatusCode = (code: number, index: number) => {
-    store.commit('apidoc/apidoc/changeResponseParamsCodeByIndex', {
-        index,
-        code,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsCodeByIndex', {
+    index,
+    code,
+  });
 }
 //选择一个contentType
 const handleSelectContentType = (type: string, index: number) => {
-    store.commit('apidoc/apidoc/changeResponseParamsDataTypeByIndex', {
-        index,
-        type,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsDataTypeByIndex', {
+    index,
+    type,
+  });
 }
 //新增一个response
 const handleAddResponse = () => {
-    store.commit('apidoc/apidoc/addResponseParam');
+  store.commit('apidoc/apidoc/addResponseParam');
 }
 //删除一个response
 const handleDeleteResponse = (index: number) => {
-    store.commit('apidoc/apidoc/deleteResponseByIndex', index);
+  store.commit('apidoc/apidoc/deleteResponseByIndex', index);
 }
 //response参数值
 const responseData = computed(() => store.state['apidoc/apidoc'].apidoc.item.responseParams)

@@ -101,7 +101,7 @@ import { $t } from '@/i18n/i18n'
 const paramsTemplatedialogVisible = ref(false);
 //打开保存参数模板弹窗
 const handleOpenTemplateDialog = () => {
-    paramsTemplatedialogVisible.value = true;
+  paramsTemplatedialogVisible.value = true;
 }
 
 //=====================================模板相关操作====================================//
@@ -111,87 +111,87 @@ const showTemplate = ref(false);
 const templateFilterString = ref('');
 //模板列表
 const bodyTemplateList = computed(() => {
-    const templates = store.state['apidoc/baseInfo'].paramsTemplate;
-    const result = templates.filter(template => template.presetParamsType === 'bodyParams').filter(template => {
-        if (!templateFilterString.value) {
-            return true;
-        }
-        return template.name.includes(templateFilterString.value);
-    })
-    return result;
+  const templates = store.state['apidoc/baseInfo'].paramsTemplate;
+  const result = templates.filter(template => template.presetParamsType === 'bodyParams').filter(template => {
+    if (!templateFilterString.value) {
+      return true;
+    }
+    return template.name.includes(templateFilterString.value);
+  })
+  return result;
 })
 //打开模板维护tab页面
 const projectId = router.currentRoute.value.query.id as string;
 const handleOpenTempateTab = () => {
-    store.commit('apidoc/tabs/addTab', {
-        _id: 'paramsTemplate',
-        projectId,
-        tabType: 'paramsTemplate',
-        label: $t('模板维护'),
-        head: {
-            icon: 'iconvariable',
-            color: ''
-        },
-        saved: true,
-        fixed: true,
-        selected: true,
-    });
+  store.commit('apidoc/tabs/addTab', {
+    _id: 'paramsTemplate',
+    projectId,
+    tabType: 'paramsTemplate',
+    label: $t('模板维护'),
+    head: {
+      icon: 'iconvariable',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  });
 }
 //处理模板点击空白区域关闭
 const bindClick = () => {
-    showTemplate.value = false;
+  showTemplate.value = false;
 }
 onMounted(() => {
-    document.documentElement.addEventListener('click', bindClick)
+  document.documentElement.addEventListener('click', bindClick)
 })
 onBeforeUnmount(() => {
-    document.documentElement.removeEventListener('click', bindClick)
+  document.documentElement.removeEventListener('click', bindClick)
 })
 
 //=========================================================================//
 
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
-    const type = store.state['apidoc/apidoc'].apidoc.item.requestBody.mode
-    const { json, formdata, urlencoded, raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-    const converJsonData = apidocConvertParamsToJsonData(json, true);
-    const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
-    const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
-    const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
-    const hasRawData = raw.data;
-    if (type === 'raw' && hasRawData) {
-        store.commit('apidoc/apidoc/changeContentType', raw.dataType || 'text/plain');
-    } else if (type === 'raw' && !hasRawData) {
-        store.commit('apidoc/apidoc/changeContentType', '');
-    } else if (type === 'none') {
-        store.commit('apidoc/apidoc/changeContentType', '');
-    } else if (type === 'urlencoded' && hasUrlencodedData) {
-        store.commit('apidoc/apidoc/changeContentType', 'application/x-www-form-urlencoded');
-    } else if (type === 'urlencoded' && !hasUrlencodedData) {
-        store.commit('apidoc/apidoc/changeContentType', '');
-    } else if (type === 'json' && hasJsonData) {
-        store.commit('apidoc/apidoc/changeContentType', 'application/json');
-    } else if (type === 'json' && !hasJsonData) {
-        store.commit('apidoc/apidoc/changeContentType', '');
-    } else if (type === 'formdata' && hasFormData) {
-        store.commit('apidoc/apidoc/changeContentType', 'multipart/form-data');
-    } else if (type === 'formdata' && !hasFormData) {
-        store.commit('apidoc/apidoc/changeContentType', '');
-    }
+  const type = store.state['apidoc/apidoc'].apidoc.item.requestBody.mode
+  const { json, formdata, urlencoded, raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+  const converJsonData = apidocConvertParamsToJsonData(json, true);
+  const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
+  const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
+  const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
+  const hasRawData = raw.data;
+  if (type === 'raw' && hasRawData) {
+    store.commit('apidoc/apidoc/changeContentType', raw.dataType || 'text/plain');
+  } else if (type === 'raw' && !hasRawData) {
+    store.commit('apidoc/apidoc/changeContentType', '');
+  } else if (type === 'none') {
+    store.commit('apidoc/apidoc/changeContentType', '');
+  } else if (type === 'urlencoded' && hasUrlencodedData) {
+    store.commit('apidoc/apidoc/changeContentType', 'application/x-www-form-urlencoded');
+  } else if (type === 'urlencoded' && !hasUrlencodedData) {
+    store.commit('apidoc/apidoc/changeContentType', '');
+  } else if (type === 'json' && hasJsonData) {
+    store.commit('apidoc/apidoc/changeContentType', 'application/json');
+  } else if (type === 'json' && !hasJsonData) {
+    store.commit('apidoc/apidoc/changeContentType', '');
+  } else if (type === 'formdata' && hasFormData) {
+    store.commit('apidoc/apidoc/changeContentType', 'multipart/form-data');
+  } else if (type === 'formdata' && !hasFormData) {
+    store.commit('apidoc/apidoc/changeContentType', '');
+  }
 }
 //改变bodytype类型
 const changeBodyType = () => {
-    checkContentType();
+  checkContentType();
 }
 
 //body类型
 const bodyType = computed<ApidocBodyMode>({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.item.requestBody.mode;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeBodyMode', val);
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.item.requestBody.mode;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeBodyMode', val);
+  },
 });
 //body参数联想值
 // const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody"))
@@ -204,17 +204,17 @@ const bodyType = computed<ApidocBodyMode>({
 // const jsonBodyData = computed(() => store.state["apidoc/apidoc"].apidoc.item.requestBody.json)
 //json格式body参数
 const rawJsonData = computed({
-    get() {
-        const { json, rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-        let finalJsonData = rawJson;
-        if (!rawJson) {
-            finalJsonData = apidocConvertParamsToJsonStr(json)
-        }
-        return finalJsonData;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeRawJson', val);
+  get() {
+    const { json, rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+    let finalJsonData = rawJson;
+    if (!rawJson) {
+      finalJsonData = apidocConvertParamsToJsonStr(json)
     }
+    return finalJsonData;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeRawJson', val);
+  }
 })
 /*
 |--------------------------------------------------------------------------
@@ -229,46 +229,46 @@ const urlencodedData = computed(() => store.state['apidoc/apidoc'].apidoc.item.r
 */
 //raw类型
 const rawType = computed<ApidocBodyRawType>({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.dataType;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeBodyRawType', val);
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.dataType;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeBodyRawType', val);
+  },
 })
 //raw类型数据值
 const rawValue = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.data;
-    },
-    set(value: string) {
-        store.commit('apidoc/apidoc/changeBodyRawValue', value);
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.item.requestBody.raw.data;
+  },
+  set(value: string) {
+    store.commit('apidoc/apidoc/changeBodyRawValue', value);
+  },
 })
 //改变raw数据值
 const handleChangeRawData = () => {
-    checkContentType();
+  checkContentType();
 }
 //切换raw参数类型
 const handleChangeRawType = () => {
-    const { raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-    if (!raw.data) {
-        store.commit('apidoc/apidoc/changeContentType', '');
-        return
-    }
-    if (rawType.value === 'text/plain') {
-        store.commit('apidoc/apidoc/changeContentType', 'text/plain');
-    } else if (rawType.value === 'text/html') {
-        store.commit('apidoc/apidoc/changeContentType', 'text/html');
-    } else if (rawType.value === 'application/xml') {
-        store.commit('apidoc/apidoc/changeContentType', 'application/xml');
-    } else if (rawType.value === 'text/javascript') {
-        store.commit('apidoc/apidoc/changeContentType', 'text/javascript');
-    } else if (rawType.value === 'application/json') {
-        store.commit('apidoc/apidoc/changeContentType', 'application/json');
-    } else {
-        console.warn($t('未知请求类型'));
-    }
+  const { raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+  if (!raw.data) {
+    store.commit('apidoc/apidoc/changeContentType', '');
+    return
+  }
+  if (rawType.value === 'text/plain') {
+    store.commit('apidoc/apidoc/changeContentType', 'text/plain');
+  } else if (rawType.value === 'text/html') {
+    store.commit('apidoc/apidoc/changeContentType', 'text/html');
+  } else if (rawType.value === 'application/xml') {
+    store.commit('apidoc/apidoc/changeContentType', 'application/xml');
+  } else if (rawType.value === 'text/javascript') {
+    store.commit('apidoc/apidoc/changeContentType', 'text/javascript');
+  } else if (rawType.value === 'application/json') {
+    store.commit('apidoc/apidoc/changeContentType', 'application/json');
+  } else {
+    console.warn($t('未知请求类型'));
+  }
 }
 
 /*

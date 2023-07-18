@@ -31,104 +31,104 @@ import { defineComponent } from 'vue'
 import { PermissionRoleEnum, Response } from '@@/global'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        /*
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    /*
          * 用户id
         */
-        userId: {
-            type: String,
-            default: ''
-        },
+    userId: {
+      type: String,
+      default: ''
     },
-    emits: ['success', 'update:modelValue'],
-    data() {
-        return {
-            formInfo: {} as Record<string, unknown>, //用户基本信息
-            roleIds: [] as string[], //----------------角色id列表
-            roleEnum: [] as PermissionRoleEnum, //-----角色枚举信息
-            viewPermissionEnum: [{
-                id: true,
-                name: '全部项目'
-            }, {
-                id: false,
-                name: '局部项目'
-            }], //-----------------是否允许查看所有项目
-            loading: false, //-------------------------用户信息加载
-            loading2: false, //------------------------修改用户加载
+  },
+  emits: ['success', 'update:modelValue'],
+  data() {
+    return {
+      formInfo: {} as Record<string, unknown>, //用户基本信息
+      roleIds: [] as string[], //----------------角色id列表
+      roleEnum: [] as PermissionRoleEnum, //-----角色枚举信息
+      viewPermissionEnum: [{
+        id: true,
+        name: '全部项目'
+      }, {
+        id: false,
+        name: '局部项目'
+      }], //-----------------是否允许查看所有项目
+      loading: false, //-------------------------用户信息加载
+      loading2: false, //------------------------修改用户加载
+    };
+  },
+  created() {
+    this.getRoleEnum(); //获取角色枚举信息
+    this.getUserInfo(); //获取用户基本信息
+  },
+  methods: {
+    //获取用户基本信息
+    getUserInfo() {
+      this.loading2 = true;
+      this.axios.get('/api/security/user_info_by_id', { params: { _id: this.userId } }).then((res) => {
+        this.formInfo = {
+          loginName: res.data.loginName,
+          realName: res.data.realName,
+          phone: res.data.phone,
+          isAdmin: res.data.isAdmin,
         };
+        this.roleIds = res.data.roleIds;
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading2 = false;
+      });
     },
-    created() {
-        this.getRoleEnum(); //获取角色枚举信息
-        this.getUserInfo(); //获取用户基本信息
+    //获取角色枚举信息
+    getRoleEnum() {
+      this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+        this.roleEnum = res.data;
+      }).catch((err) => {
+        console.error(err);
+      });
     },
-    methods: {
-        //获取用户基本信息
-        getUserInfo() {
-            this.loading2 = true;
-            this.axios.get('/api/security/user_info_by_id', { params: { _id: this.userId } }).then((res) => {
-                this.formInfo = {
-                    loginName: res.data.loginName,
-                    realName: res.data.realName,
-                    phone: res.data.phone,
-                    isAdmin: res.data.isAdmin,
-                };
-                this.roleIds = res.data.roleIds;
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading2 = false;
-            });
-        },
-        //获取角色枚举信息
-        getRoleEnum() {
-            this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
-                this.roleEnum = res.data;
-            }).catch((err) => {
-                console.error(err);
-            });
-        },
-        //修改用户
-        handleEditUser() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const roleNames = this.roleIds.map((val) => {
-                        const user = this.roleEnum.find((role) => role._id === val);
-                        return user ? user.roleName : '';
-                    });
-                    const params = {
-                        _id: this.userId,
-                        loginName: formInfo.loginName,
-                        realName: formInfo.realName,
-                        roleIds: this.roleIds,
-                        roleNames,
-                        isAdmin: formInfo.isAdmin,
-                    };
-                    this.loading = true;
-                    this.axios.put('/api/security/user_permission', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-                    this.$message.warning('请完善必填信息');
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //修改用户
+    handleEditUser() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const roleNames = this.roleIds.map((val) => {
+            const user = this.roleEnum.find((role) => role._id === val);
+            return user ? user.roleName : '';
+          });
+          const params = {
+            _id: this.userId,
+            loginName: formInfo.loginName,
+            realName: formInfo.realName,
+            roleIds: this.roleIds,
+            roleNames,
+            isAdmin: formInfo.isAdmin,
+          };
+          this.loading = true;
+          this.axios.put('/api/security/user_permission', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
+          this.$message.warning('请完善必填信息');
+          this.loading = false;
+        }
+      });
     },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

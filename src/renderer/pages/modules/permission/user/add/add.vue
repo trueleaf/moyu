@@ -30,69 +30,69 @@ import { defineComponent } from 'vue'
 import { PermissionRoleEnum, Response } from '@@/global'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['success', 'update:modelValue'],
-    data() {
-        return {
-            roleIds: [] as string[], //---------角色id列表
-            roleEnum: [] as PermissionRoleEnum, //--------角色枚举信息
-            loading: false, //------------------新增角色按钮
-        };
+  },
+  emits: ['success', 'update:modelValue'],
+  data() {
+    return {
+      roleIds: [] as string[], //---------角色id列表
+      roleEnum: [] as PermissionRoleEnum, //--------角色枚举信息
+      loading: false, //------------------新增角色按钮
+    };
+  },
+  created() {
+    this.getRoleEnum(); //获取角色枚举信息
+  },
+  methods: {
+    //获取角色枚举信息
+    getRoleEnum() {
+      this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+        this.roleEnum = res.data;
+      }).catch((err) => {
+        console.error(err);
+      });
     },
-    created() {
-        this.getRoleEnum(); //获取角色枚举信息
+    //新增用户
+    handleAddUser() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const roleNames = this.roleIds.map((val) => {
+            const user = this.roleEnum.find((role) => role._id === val);
+            return user ? user.roleName : '';
+          });
+          const params = {
+            loginName: formInfo.loginName,
+            realName: formInfo.realName,
+            phone: formInfo.phone,
+            roleIds: this.roleIds,
+            roleNames,
+          };
+          this.loading = true;
+          this.axios.post('/api/security/useradd', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
+          this.$message.warning(this.$t('请完善必填信息'));
+          this.loading = false;
+        }
+      });
     },
-    methods: {
-        //获取角色枚举信息
-        getRoleEnum() {
-            this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
-                this.roleEnum = res.data;
-            }).catch((err) => {
-                console.error(err);
-            });
-        },
-        //新增用户
-        handleAddUser() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const roleNames = this.roleIds.map((val) => {
-                        const user = this.roleEnum.find((role) => role._id === val);
-                        return user ? user.roleName : '';
-                    });
-                    const params = {
-                        loginName: formInfo.loginName,
-                        realName: formInfo.realName,
-                        phone: formInfo.phone,
-                        roleIds: this.roleIds,
-                        roleNames,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/security/useradd', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-                    this.$message.warning(this.$t('请完善必填信息'));
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
     },
+  },
 })
 </script>
 

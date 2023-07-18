@@ -93,156 +93,156 @@ import type { ApidocProjectParamsTemplate, ApidocTab } from '@@/store'
 import type { Response, ApidocProperty } from '@@/global'
 
 type EditInfo = {
-    _id: string,
-    items: ApidocProperty[]
+  _id: string,
+  items: ApidocProperty[]
 }
 
 export default defineComponent({
-    emits: ['success'],
-    data() {
-        return {
-            //=================================表单与表格参数================================//
-            addData: {
-                name: '', //-----------------------------------模板名称
-                presetParamsType: '', //------------模板类型
-                items: [] as ApidocProperty[], //----------------------------------参数信息
-            },
-            editData: {
-                _id: '', //------------------------------------模板id
-                name: '', //-----------------------------------模板名称
-                presetParamsType: '', //------------模板类型
-                items: [] as ApidocProperty[], //----------------------------------参数信息
-            },
-            //===================================枚举参数====================================//
-            rules: {
-                name: [{ required: true, message: this.$t('请输入模板名称'), trigger: 'blur' }],
-                presetParamsType: [{ required: true, message: this.$t('请选择模板类型'), trigger: 'change' }],
-            },
-            //===================================业务参数====================================//
+  emits: ['success'],
+  data() {
+    return {
+      //=================================表单与表格参数================================//
+      addData: {
+        name: '', //-----------------------------------模板名称
+        presetParamsType: '', //------------模板类型
+        items: [] as ApidocProperty[], //----------------------------------参数信息
+      },
+      editData: {
+        _id: '', //------------------------------------模板id
+        name: '', //-----------------------------------模板名称
+        presetParamsType: '', //------------模板类型
+        items: [] as ApidocProperty[], //----------------------------------参数信息
+      },
+      //===================================枚举参数====================================//
+      rules: {
+        name: [{ required: true, message: this.$t('请输入模板名称'), trigger: 'blur' }],
+        presetParamsType: [{ required: true, message: this.$t('请选择模板类型'), trigger: 'change' }],
+      },
+      //===================================业务参数====================================//
 
-            //===================================其他参数====================================//
-            activeName: 's-add', //当前tab切换状态
-            loading: false, //----------------------编辑加载效果
-            loading2: false, //---------------------添加按钮加载效果
-            loading3: false, //---------------------修改按钮加载效果
-        };
+      //===================================其他参数====================================//
+      activeName: 's-add', //当前tab切换状态
+      loading: false, //----------------------编辑加载效果
+      loading2: false, //---------------------添加按钮加载效果
+      loading3: false, //---------------------修改按钮加载效果
+    };
+  },
+  computed: {
+    currentSelectTab() {
+      const projectId = this.$route.query.id as string;
+      if (this.$store.state['apidoc/tabs'].tabs[projectId]) {
+        return this.$store.state['apidoc/tabs'].tabs[projectId].find(v => v.selected)
+      }
+      return null;
     },
-    computed: {
-        currentSelectTab() {
-            const projectId = this.$route.query.id as string;
-            if (this.$store.state['apidoc/tabs'].tabs[projectId]) {
-                return this.$store.state['apidoc/tabs'].tabs[projectId].find(v => v.selected)
-            }
-            return null;
-        },
+  },
+  watch: {
+    currentSelectTab: {
+      handler(val: ApidocTab | null) {
+        if (val && val.tabType === 'paramsTemplate') {
+          console.log(val)
+          this.$refs.table.getData();
+        }
+      },
+      deep: true,
     },
-    watch: {
-        currentSelectTab: {
-            handler(val: ApidocTab | null) {
-                if (val && val.tabType === 'paramsTemplate') {
-                    console.log(val)
-                    this.$refs.table.getData();
-                }
-            },
-            deep: true,
-        },
+  },
+  mounted() {
+    this.init();
+  },
+  methods: {
+    //初始化
+    init() {
+      this.addData.items.push(this.$helper.apidocGenerateProperty());
     },
-    mounted() {
-        this.init();
-    },
-    methods: {
-        //初始化
-        init() {
-            this.addData.items.push(this.$helper.apidocGenerateProperty());
-        },
-        //新增模板
-        handleAddTemplate() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const params = {
-                        projectId: this.$route.query.id,
-                        ...this.addData,
-                    };
-                    this.loading2 = true;
-                    this.axios.post('/api/project/doc_preset_params', params).then(() => {
-                        this.$refs.table.getData();
-                        this.$store.commit('apidoc/addPresetParams', params);
-                        this.$emit('success')
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading2 = false;
-                    });
-                }
-            });
-        },
-        //修改参数信息
-        handleChangeOpToEdit(row: ApidocProjectParamsTemplate) {
-            this.activeName = 's-edit';
-            if (this.loading) {
-                return;
-            }
-            this.loading = true;
-            const params = {
-                projectId: this.$route.query.id,
-                _id: row._id,
-            };
-            this.axios.get<Response<EditInfo>, Response<EditInfo>>('/api/project/doc_preset_params', { params }).then((res) => {
-                this.editData.name = row.name;
-                this.editData._id = res.data._id;
-                this.editData.presetParamsType = row.presetParamsType;
-                this.editData.items = [];
-                const lastItem = res.data.items[res.data.items.length - 1];
-                res.data.items.forEach((val) => {
-                    this.editData.items.push(val);
-                })
-                if (lastItem.key || lastItem.value) {
-                    this.editData.items.push(this.$helper.apidocGenerateProperty())
-                }
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
-        //删除模板
-        handleDelete(id: string) {
-            this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning',
-            }).then(() => {
-                const params = {
-                    ids: [id],
-                    projectId: this.$route.query.id,
-                };
-                this.axios.delete('/api/project/doc_preset_params', { data: params }).then(() => {
-                    this.$refs.table.getData();
-                    const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
-                    const delIndex = allTemplate.findIndex(v => v._id === id);
-                    this.$store.commit('apidoc/baseInfo/deleteParamsTemplate', delIndex)
-                }).catch((err) => {
-                    console.error(err);
-                }).finally(() => {
-                    this.loading = false;
-                });
-            }).catch((err: Error | string) => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-        //批量删除成功
-        handleDeleteSuccess(ids: string[]) {
+    //新增模板
+    handleAddTemplate() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const params = {
+            projectId: this.$route.query.id,
+            ...this.addData,
+          };
+          this.loading2 = true;
+          this.axios.post('/api/project/doc_preset_params', params).then(() => {
             this.$refs.table.getData();
-            ids.forEach(id => {
-                const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
-                const delIndex = allTemplate.findIndex(v => v._id === id);
-                this.$store.commit('apidoc/baseInfo/deleteParamsTemplate', delIndex)
-            })
-        },
+            this.$store.commit('apidoc/addPresetParams', params);
+            this.$emit('success')
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading2 = false;
+          });
+        }
+      });
     },
+    //修改参数信息
+    handleChangeOpToEdit(row: ApidocProjectParamsTemplate) {
+      this.activeName = 's-edit';
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
+      const params = {
+        projectId: this.$route.query.id,
+        _id: row._id,
+      };
+      this.axios.get<Response<EditInfo>, Response<EditInfo>>('/api/project/doc_preset_params', { params }).then((res) => {
+        this.editData.name = row.name;
+        this.editData._id = res.data._id;
+        this.editData.presetParamsType = row.presetParamsType;
+        this.editData.items = [];
+        const lastItem = res.data.items[res.data.items.length - 1];
+        res.data.items.forEach((val) => {
+          this.editData.items.push(val);
+        })
+        if (lastItem.key || lastItem.value) {
+          this.editData.items.push(this.$helper.apidocGenerateProperty())
+        }
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+    //删除模板
+    handleDelete(id: string) {
+      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        const params = {
+          ids: [id],
+          projectId: this.$route.query.id,
+        };
+        this.axios.delete('/api/project/doc_preset_params', { data: params }).then(() => {
+          this.$refs.table.getData();
+          const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
+          const delIndex = allTemplate.findIndex(v => v._id === id);
+          this.$store.commit('apidoc/baseInfo/deleteParamsTemplate', delIndex)
+        }).catch((err) => {
+          console.error(err);
+        }).finally(() => {
+          this.loading = false;
+        });
+      }).catch((err: Error | string) => {
+        if (err === 'cancel' || err === 'close') {
+          return;
+        }
+        console.error(err);
+      });
+    },
+    //批量删除成功
+    handleDeleteSuccess(ids: string[]) {
+      this.$refs.table.getData();
+      ids.forEach(id => {
+        const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
+        const delIndex = allTemplate.findIndex(v => v._id === id);
+        this.$store.commit('apidoc/baseInfo/deleteParamsTemplate', delIndex)
+      })
+    },
+  },
 })
 </script>
 

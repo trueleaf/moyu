@@ -136,79 +136,79 @@ import mockEnum from './mock-enum';
 const cpMockEnum: MockItem[] = JSON.parse(JSON.stringify(mockEnum));
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 过滤值
          */
-        searchValue: {
-            type: String,
-            default: '',
-        },
-        /**
+    searchValue: {
+      type: String,
+      default: '',
+    },
+    /**
          * 点击非内容区域是否关闭
          */
-        closeOnClickModal: {
-            type: Boolean,
-            default: true
-        },
-        /**
+    closeOnClickModal: {
+      type: Boolean,
+      default: true
+    },
+    /**
          * 自动拷贝选中数据
          */
-        autoCopy: {
-            type: Boolean,
-            default: false
-        }
+    autoCopy: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['select', 'close'],
+  data() {
+    return {
+      cpMockEnum,
+      activeName: this.$t('常用'),
+      mockValue: '',
+      mockTags: [] as string[],
+      currentSelectMockData: null as MockItem | null,
+      //===================================其他参数====================================//
+    };
+  },
+  computed: {
+    mockEnum() {
+      const matchedMockData = mockEnum.filter((mock) => {
+        const mockValue = mock.value;
+        const searchValue = this.searchValue.toString().replace('@', '')
+        return mockValue.includes(searchValue)
+      });
+      if (this.activeName === this.$t('全部')) {
+        return matchedMockData;
+      }
+      return matchedMockData.filter((val) => val.tags.find((tag) => tag === this.activeName))
     },
-    emits: ['select', 'close'],
-    data() {
-        return {
-            cpMockEnum,
-            activeName: this.$t('常用'),
-            mockValue: '',
-            mockTags: [] as string[],
-            currentSelectMockData: null as MockItem | null,
-            //===================================其他参数====================================//
-        };
+  },
+  watch: {
+    searchValue() {
+      this.currentSelectMockData = mockEnum[0];
     },
-    computed: {
-        mockEnum() {
-            const matchedMockData = mockEnum.filter((mock) => {
-                const mockValue = mock.value;
-                const searchValue = this.searchValue.toString().replace('@', '')
-                return mockValue.includes(searchValue)
-            });
-            if (this.activeName === this.$t('全部')) {
-                return matchedMockData;
-            }
-            return matchedMockData.filter((val) => val.tags.find((tag) => tag === this.activeName))
-        },
+  },
+  mounted() {
+    document.documentElement.addEventListener('click', this.handleCloseModel)
+  },
+  beforeUnmount() {
+    document.documentElement.removeEventListener('click', this.handleCloseModel)
+  },
+  methods: {
+    handleMockView(item: MockItem) {
+      this.mockValue = Mock.mock(`@${item.value}`)
+      this.mockTags = item.tags;
     },
-    watch: {
-        searchValue() {
-            this.currentSelectMockData = mockEnum[0];
-        },
+    handleSelectMockData(item: MockItem, e: MouseEvent) {
+      if (!this.$props.autoCopy) {
+        e.stopImmediatePropagation();
+      }
+      this.$emit('select', item);
     },
-    mounted() {
-        document.documentElement.addEventListener('click', this.handleCloseModel)
+    handleCloseModel() {
+      this.$emit('close');
     },
-    beforeUnmount() {
-        document.documentElement.removeEventListener('click', this.handleCloseModel)
-    },
-    methods: {
-        handleMockView(item: MockItem) {
-            this.mockValue = Mock.mock(`@${item.value}`)
-            this.mockTags = item.tags;
-        },
-        handleSelectMockData(item: MockItem, e: MouseEvent) {
-            if (!this.$props.autoCopy) {
-                e.stopImmediatePropagation();
-            }
-            this.$emit('select', item);
-        },
-        handleCloseModel() {
-            this.$emit('close');
-        },
-    },
+  },
 })
 </script>
 

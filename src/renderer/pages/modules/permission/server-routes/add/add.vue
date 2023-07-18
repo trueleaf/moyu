@@ -23,69 +23,69 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            formInfo: {
-                name: '', //------------路由名称
-                path: '', //------------路由地址
-                method: '', //----------请求方法
-                groupName: '', //-------路由分组名称
-            },
-            requestMethodEnum: [] as { id: string, name: string }[], //请求方法枚举
-            //=========================================================================//
-            loading: false,
-        };
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      formInfo: {
+        name: '', //------------路由名称
+        path: '', //------------路由地址
+        method: '', //----------请求方法
+        groupName: '', //-------路由分组名称
+      },
+      requestMethodEnum: [] as { id: string, name: string }[], //请求方法枚举
+      //=========================================================================//
+      loading: false,
+    };
+  },
+  created() {
+    this.getRequestMethodEnum();
+  },
+  methods: {
+    getRequestMethodEnum() {
+      this.requestMethodEnum = this.$helper.getRequestMethodEnum().map((v) => ({
+        id: v,
+        name: v.toLocaleLowerCase(),
+      }));
     },
-    created() {
-        this.getRequestMethodEnum();
+    //保存路由
+    handleSaveServerRoute() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const params = {
+            ...formInfo,
+          };
+          this.loading = true;
+          this.axios.post('/api/security/server_routes', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLInputElement).focus();
+            }
+          });
+          this.loading = false;
+        }
+      });
     },
-    methods: {
-        getRequestMethodEnum() {
-            this.requestMethodEnum = this.$helper.getRequestMethodEnum().map((v) => ({
-                id: v,
-                name: v.toLocaleLowerCase(),
-            }));
-        },
-        //保存路由
-        handleSaveServerRoute() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const params = {
-                        ...formInfo,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/security/server_routes', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLInputElement).focus();
-                        }
-                    });
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
     },
+  },
 })
 </script>
 

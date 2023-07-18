@@ -16,16 +16,16 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  methods: {
+    //跳转到登录页面
+    handleJumpToLogin() {
+      this.$router.push('/login');
     },
-    methods: {
-        //跳转到登录页面
-        handleJumpToLogin() {
-            this.$router.push('/login');
-        },
-    },
+  },
 })
 </script>
 

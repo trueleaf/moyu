@@ -135,202 +135,202 @@ import { Setting, Plus, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, O
 import type { ApidocTab } from '@@/store'
 
 export default defineComponent({
-    components: {
-        's-draggable': draggable,
-        'icon-setting': Setting,
-        'icon-link': Link,
-        'icon-share': Share,
-        'icon-download': Download,
-        'icon-timer': Timer,
-        'icon-coffee-cup': CoffeeCup,
-        'icon-delete-filled': DeleteFilled,
-        'icon-opportunity': Opportunity,
-        'icon-close': Close,
-        'icon-arrow-right': ArrowRight,
-        'icon-arrow-left': ArrowLeft,
-        Plus,
-    },
-    data() {
-        return {
-            tabIndex: 1,
-            showContextmenu: false, //是否显示contextmenu
-            contextmenuLeft: 0, //鼠标右键x值
-            contextmenuTop: 0, //鼠标右键y值
-            currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
-        };
-    },
-    computed: {
-        tabs: {
-            get(): ApidocTab[] {
-                const projectId = this.$route.query.id as string;
-                return this.$store.state['apidoc/tabs'].tabs[projectId]
-            },
-            set(val: ApidocTab) { //拖拽tabs会导致数据写入
-                this.$store.commit('apidoc/tabs/updateAllTabs', {
-                    projectId: this.$route.query.id,
-                    tabs: val,
-                });
-            },
-        },
-        requestMethods() {
-            return this.$store.state['apidoc/baseInfo'].rules.requestMethods
-        },
-        isView() {
-            return this.$store.state['apidoc/baseInfo'].mode === 'view'
-        },
-    },
-    mounted() {
-        document.body.addEventListener('click', this.bindGlobalClick);
-        document.body.addEventListener('contextmenu', this.bindGlobalClick);
-        this.$store.commit('apidoc/tabs/initLocalTabs', {
-            projectId: this.$route.query.id,
+  components: {
+    's-draggable': draggable,
+    'icon-setting': Setting,
+    'icon-link': Link,
+    'icon-share': Share,
+    'icon-download': Download,
+    'icon-timer': Timer,
+    'icon-coffee-cup': CoffeeCup,
+    'icon-delete-filled': DeleteFilled,
+    'icon-opportunity': Opportunity,
+    'icon-close': Close,
+    'icon-arrow-right': ArrowRight,
+    'icon-arrow-left': ArrowLeft,
+    Plus,
+  },
+  data() {
+    return {
+      tabIndex: 1,
+      showContextmenu: false, //是否显示contextmenu
+      contextmenuLeft: 0, //鼠标右键x值
+      contextmenuTop: 0, //鼠标右键y值
+      currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
+    };
+  },
+  computed: {
+    tabs: {
+      get(): ApidocTab[] {
+        const projectId = this.$route.query.id as string;
+        return this.$store.state['apidoc/tabs'].tabs[projectId]
+      },
+      set(val: ApidocTab) { //拖拽tabs会导致数据写入
+        this.$store.commit('apidoc/tabs/updateAllTabs', {
+          projectId: this.$route.query.id,
+          tabs: val,
         });
-        this.initViewTab();
+      },
     },
-    beforeUnmount() {
-        document.body.removeEventListener('click', this.bindGlobalClick);
-        document.body.removeEventListener('contextmenu', this.bindGlobalClick);
-        this.$helper.event.off('apidoc/tabs/addOrDeleteTab');
+    requestMethods() {
+      return this.$store.state['apidoc/baseInfo'].rules.requestMethods
     },
-    methods: {
-        //初始化active的tab
-        initViewTab() {
-            setTimeout(() => {
-                const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
-                const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
+    isView() {
+      return this.$store.state['apidoc/baseInfo'].mode === 'view'
+    },
+  },
+  mounted() {
+    document.body.addEventListener('click', this.bindGlobalClick);
+    document.body.addEventListener('contextmenu', this.bindGlobalClick);
+    this.$store.commit('apidoc/tabs/initLocalTabs', {
+      projectId: this.$route.query.id,
+    });
+    this.initViewTab();
+  },
+  beforeUnmount() {
+    document.body.removeEventListener('click', this.bindGlobalClick);
+    document.body.removeEventListener('contextmenu', this.bindGlobalClick);
+    this.$helper.event.off('apidoc/tabs/addOrDeleteTab');
+  },
+  methods: {
+    //初始化active的tab
+    initViewTab() {
+      setTimeout(() => {
+        const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
+        const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
                 activeNode?.scrollIntoView();
-            })
-            this.$helper.event.on('apidoc/tabs/addOrDeleteTab', () => {
-                setTimeout(() => {
-                    const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
-                    const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
+      })
+      this.$helper.event.on('apidoc/tabs/addOrDeleteTab', () => {
+        setTimeout(() => {
+          const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
+          const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
                     activeNode?.scrollIntoView();
-                })
-            });
-        },
-        //绑定全局点击
-        bindGlobalClick() {
-            this.showContextmenu = false;
-        },
-        handleMoveLeft() {
-            console.log('left')
-        },
-        handleMoveRight() {
-            console.log('right')
-        },
-        //=====================================contextmenu====================================//
-        handleContextmenu(e: MouseEvent, item: ApidocTab) {
-            this.currentOperationNode = item;
-            this.contextmenuLeft = e.clientX;
-            this.contextmenuTop = e.clientY;
-            this.showContextmenu = true;
-        },
-        //关闭当前tab
-        handleCloseCurrentTab(element?: ApidocTab) {
-            const projectId = this.$route.query.id;
-            const currentOperationNodeId = this.currentOperationNode?._id || ''
-            const tabId: string = element ? element._id : currentOperationNodeId;
-            this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
-                projectId,
-                ids: [tabId]
-            });
-        },
-        //关闭其他
-        handleCloseOtherTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const delTabs: string[] = [];
-            tabs.forEach((tab) => {
-                if (tab._id !== currentOperationNodeId) {
-                    delTabs.push(tab._id);
-                }
-            })
-            this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭左侧
-        handleCloseLeftTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const delTabs: string[] = [];
-            for (let i = 0; i < tabs.length; i += 1) {
-                if (tabs[i]._id !== currentOperationNodeId) {
-                    delTabs.push(tabs[i]._id);
-                } else {
-                    break;
-                }
-            }
-            this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭右侧
-        handleCloseRightTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
-            const delTabs: string[] = [];
-            for (let i = currentNodeIndex + 1; i < tabs.length; i += 1) {
-                delTabs.push(tabs[i]._id);
-            }
-            this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭全部
-        handleCloseAllTab() {
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
-                projectId,
-                ids: tabs.map((v) => v._id)
-            });
-        },
-        //不保存关闭全部
-        handleForceCloseAllTab() {
-            const projectId: string = this.$route.query.id as string;
-            this.$store.commit('apidoc/tabs/forceDeleteAllTab', projectId);
-        },
-        //选中当前tab
-        selectCurrentTab(element: ApidocTab) {
-            const projectId = this.$route.query.id;
-            this.$store.commit('apidoc/tabs/selectTabById', {
-                projectId,
-                id: element._id
-            });
-        },
-        //固定当前tab
-        fixCurrentTab(element: ApidocTab) {
-            const projectId = this.$route.query.id;
-            this.$store.commit('apidoc/tabs/fixedTab', {
-                _id: element._id,
-                projectId,
-            })
-        },
-        //打开一个新的tab
-        handleAddNewTab() {
-            this.$store.commit('apidoc/tabs/addTab', {
-                _id: `local_${this.$helper.uuid()}`,
-                projectId: this.$route.query.id,
-                tabType: 'doc',
-                label: `未命名接口${this.tabIndex}`,
-                saved: true,
-                fixed: true,
-                selected: true,
-                head: {
-                    icon: 'GET',
-                },
-            })
-            this.tabIndex += 1;
-        }
+        })
+      });
     },
+    //绑定全局点击
+    bindGlobalClick() {
+      this.showContextmenu = false;
+    },
+    handleMoveLeft() {
+      console.log('left')
+    },
+    handleMoveRight() {
+      console.log('right')
+    },
+    //=====================================contextmenu====================================//
+    handleContextmenu(e: MouseEvent, item: ApidocTab) {
+      this.currentOperationNode = item;
+      this.contextmenuLeft = e.clientX;
+      this.contextmenuTop = e.clientY;
+      this.showContextmenu = true;
+    },
+    //关闭当前tab
+    handleCloseCurrentTab(element?: ApidocTab) {
+      const projectId = this.$route.query.id;
+      const currentOperationNodeId = this.currentOperationNode?._id || ''
+      const tabId: string = element ? element._id : currentOperationNodeId;
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: [tabId]
+      });
+    },
+    //关闭其他
+    handleCloseOtherTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const delTabs: string[] = [];
+      tabs.forEach((tab) => {
+        if (tab._id !== currentOperationNodeId) {
+          delTabs.push(tab._id);
+        }
+      })
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
+    },
+    //关闭左侧
+    handleCloseLeftTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const delTabs: string[] = [];
+      for (let i = 0; i < tabs.length; i += 1) {
+        if (tabs[i]._id !== currentOperationNodeId) {
+          delTabs.push(tabs[i]._id);
+        } else {
+          break;
+        }
+      }
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
+    },
+    //关闭右侧
+    handleCloseRightTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
+      const delTabs: string[] = [];
+      for (let i = currentNodeIndex + 1; i < tabs.length; i += 1) {
+        delTabs.push(tabs[i]._id);
+      }
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
+    },
+    //关闭全部
+    handleCloseAllTab() {
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: tabs.map((v) => v._id)
+      });
+    },
+    //不保存关闭全部
+    handleForceCloseAllTab() {
+      const projectId: string = this.$route.query.id as string;
+      this.$store.commit('apidoc/tabs/forceDeleteAllTab', projectId);
+    },
+    //选中当前tab
+    selectCurrentTab(element: ApidocTab) {
+      const projectId = this.$route.query.id;
+      this.$store.commit('apidoc/tabs/selectTabById', {
+        projectId,
+        id: element._id
+      });
+    },
+    //固定当前tab
+    fixCurrentTab(element: ApidocTab) {
+      const projectId = this.$route.query.id;
+      this.$store.commit('apidoc/tabs/fixedTab', {
+        _id: element._id,
+        projectId,
+      })
+    },
+    //打开一个新的tab
+    handleAddNewTab() {
+      this.$store.commit('apidoc/tabs/addTab', {
+        _id: `local_${this.$helper.uuid()}`,
+        projectId: this.$route.query.id,
+        tabType: 'doc',
+        label: `未命名接口${this.tabIndex}`,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: {
+          icon: 'GET',
+        },
+      })
+      this.tabIndex += 1;
+    }
+  },
 })
 </script>
 

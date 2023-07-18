@@ -39,14 +39,14 @@ import { ref, Ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus';
 import { store } from '@/store';
 import {
-    apidocFormatUrl,
-    apidocFormatQueryParams,
-    apidocFormatPathParams,
-    apidocFormatJsonBodyParams,
-    apidocFormatFormdataParams,
-    apidocFormatUrlencodedParams,
-    apidocFormatHeaderParams,
-    apidocFormatResponseParams,
+  apidocFormatUrl,
+  apidocFormatQueryParams,
+  apidocFormatPathParams,
+  apidocFormatJsonBodyParams,
+  apidocFormatFormdataParams,
+  apidocFormatUrlencodedParams,
+  apidocFormatHeaderParams,
+  apidocFormatResponseParams,
 } from '@/helper';
 // import type { ApidocCodeInfo } from "@@/global"
 import { axios } from '@/api/api';
@@ -55,8 +55,8 @@ import { apidocCache } from '@/cache/apidoc';
 import sEditor from '../editor/editor.vue'
 
 type CodeInfo = {
-    codeName: string,
-    remark: string
+  codeName: string,
+  remark: string
 }
 
 const worker = new Worker('/sandbox/hook/worker.js');
@@ -73,76 +73,76 @@ const code = ref(defaultCode);
 const result = ref('');
 //错误处理
 worker.addEventListener('error', (error) => {
-    result.value = error.message;
-    console.error(error);
+  result.value = error.message;
+  console.error(error);
 });
 //代码更新缓存带啊吗
 const handleChangeCode = () => {
-    apidocCache.setHookCode(projectId, code.value);
+  apidocCache.setHookCode(projectId, code.value);
 }
 //执行代码
 const executeCode = () => {
-    const { apidoc } = store.state['apidoc/apidoc']
-    worker.postMessage({
-        type: 'init',
-        value: {
-            raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
-            url: apidocFormatUrl(apidoc),
-            queryParams: apidocFormatQueryParams(apidoc),
-            pathParams: apidocFormatPathParams(apidoc),
-            jsonParams: apidocFormatJsonBodyParams(apidoc),
-            formdataParams: apidocFormatFormdataParams(apidoc),
-            urlencodedParams: apidocFormatUrlencodedParams(apidoc),
-            headers: apidocFormatHeaderParams(apidoc),
-            method: apidoc.item.method,
-            response: apidocFormatResponseParams(apidoc),
-        },
-    });
-    worker.postMessage({
-        type: 'generate-code',
-        value: code.value
-    });
-    worker.addEventListener('message', (e) => {
-        if (typeof e.data !== 'object') {
-            return;
-        }
-        if (e.data.type === 'success') {
-            result.value = e.data.value;
-        }
-    })
+  const { apidoc } = store.state['apidoc/apidoc']
+  worker.postMessage({
+    type: 'init',
+    value: {
+      raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
+      url: apidocFormatUrl(apidoc),
+      queryParams: apidocFormatQueryParams(apidoc),
+      pathParams: apidocFormatPathParams(apidoc),
+      jsonParams: apidocFormatJsonBodyParams(apidoc),
+      formdataParams: apidocFormatFormdataParams(apidoc),
+      urlencodedParams: apidocFormatUrlencodedParams(apidoc),
+      headers: apidocFormatHeaderParams(apidoc),
+      method: apidoc.item.method,
+      response: apidocFormatResponseParams(apidoc),
+    },
+  });
+  worker.postMessage({
+    type: 'generate-code',
+    value: code.value
+  });
+  worker.addEventListener('message', (e) => {
+    if (typeof e.data !== 'object') {
+      return;
+    }
+    if (e.data.type === 'success') {
+      result.value = e.data.value;
+    }
+  })
 }
 //重置代码
 const handleResetCode = () => {
-    code.value = defaultCode;
-    apidocCache.setHookCode(projectId, defaultCode);
+  code.value = defaultCode;
+  apidocCache.setHookCode(projectId, defaultCode);
 }
 //保存代码
 const dialogVisible = ref(false);
 const loading = ref(false);
 const form: Ref<null | { formInfo: CodeInfo }> = ref(null);
 const handleSaveCode = () => {
-    loading.value = true;
-    const params = {
-        projectId,
-        codeName: form.value?.formInfo.codeName,
-        remark: form.value?.formInfo.remark,
-        code: code.value
-    };
-    axios.post('/api/apidoc/project/code', params).then(() => {
-        ElMessage.success('保存成功');
-        dialogVisible.value = false;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    projectId,
+    codeName: form.value?.formInfo.codeName,
+    remark: form.value?.formInfo.remark,
+    code: code.value
+  };
+  axios.post('/api/apidoc/project/code', params).then(() => {
+    ElMessage.success('保存成功');
+    dialogVisible.value = false;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 
 //初始化
 onMounted(() => {
-    //处理编辑逻辑
-    const cacheCode = apidocCache.getHookCodeById(projectId);
-    code.value = cacheCode || defaultCode;
+  //处理编辑逻辑
+  const cacheCode = apidocCache.getHookCodeById(projectId);
+  code.value = cacheCode || defaultCode;
 })
 
 </script>

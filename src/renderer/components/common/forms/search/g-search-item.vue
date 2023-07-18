@@ -23,65 +23,65 @@
 import { defineComponent, inject } from 'vue'
 
 export default defineComponent({
-    name: 'SearchItem',
-    props: {
-        /**
+  name: 'SearchItem',
+  props: {
+    /**
          * 表单组件类型 input select date daterange text
          */
-        type: {
-            type: String,
-            default: 'input',
-        },
-        /**
+    type: {
+      type: String,
+      default: 'input',
+    },
+    /**
          * 文案
          */
-        label: {
-            type: String,
-            default: ''
-        },
-        /**
+    label: {
+      type: String,
+      default: ''
+    },
+    /**
          * placeholder
          */
-        placeholder: {
-            type: String,
-            default: '',
-        },
-        /**
+    placeholder: {
+      type: String,
+      default: '',
+    },
+    /**
          * 绑定参数的字段名称
          */
-        prop: {
-            type: [String],
-            default: '',
-        },
+    prop: {
+      type: [String],
+      default: '',
     },
-    emits: ['change'],
-    setup() {
-        const formInfo = inject<Record<string, unknown>>('formInfo', {})
-        return {
-            formInfo,
-        }
+  },
+  emits: ['change'],
+  setup() {
+    const formInfo = inject<Record<string, unknown>>('formInfo', {})
+    return {
+      formInfo,
+    }
+  },
+  data() {
+    return {};
+  },
+  computed: {
+    realLabel(): string { //实际label值，自动拼接
+      if (this.label.endsWith('：')) {
+        return this.label;
+      } if (this.label.endsWith(':')) {
+        return this.label.replace(':', '：');
+      }
+      return `${this.label}：`;
     },
-    data() {
-        return {};
+    realPlaceholder(): string { //实际placeholder值
+      return this.placeholder ? this.placeholder : `请输入${this.label}`;
     },
-    computed: {
-        realLabel(): string { //实际label值，自动拼接
-            if (this.label.endsWith('：')) {
-                return this.label;
-            } if (this.label.endsWith(':')) {
-                return this.label.replace(':', '：');
-            }
-            return `${this.label}：`;
-        },
-        realPlaceholder(): string { //实际placeholder值
-            return this.placeholder ? this.placeholder : `请输入${this.label}`;
-        },
+  },
+  methods: {
+    handleChange(value: string) {
+      this.$helper.event.emit('searchItem/change', value);
     },
-    methods: {
-        handleChange(value: string) {
-            this.$helper.event.emit('searchItem/change', value);
-        },
-    },
+  },
 })
 </script>
 

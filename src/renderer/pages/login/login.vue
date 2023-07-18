@@ -71,32 +71,32 @@ import register from './components/register.vue';
 import resetPassword from './components/reset-password.vue';
 
 export default defineComponent({
-    components: {
-        's-login-account': loginAccount,
-        's-login-phone': loginPhone,
-        's-register': register,
-        's-reset-password': resetPassword,
+  components: {
+    's-login-account': loginAccount,
+    's-login-phone': loginPhone,
+    's-register': register,
+    's-reset-password': resetPassword,
+  },
+  data() {
+    return {
+      config,
+      activeName: 'loginAccount', //tabs切换
+    };
+  },
+  methods: {
+    //跳转注册页面
+    handleJumpToRegister() {
+      this.activeName = 'register';
     },
-    data() {
-        return {
-            config,
-            activeName: 'loginAccount', //tabs切换
-        };
+    //跳转到重置密码
+    handleJumpToResetPassword() {
+      this.activeName = 'reset';
     },
-    methods: {
-        //跳转注册页面
-        handleJumpToRegister() {
-            this.activeName = 'register';
-        },
-        //跳转到重置密码
-        handleJumpToResetPassword() {
-            this.activeName = 'reset';
-        },
-        //跳转到登录页面
-        handleJumpToLogin() {
-            this.activeName = 'login';
-        },
+    //跳转到登录页面
+    handleJumpToLogin() {
+      this.activeName = 'login';
     },
+  },
 })
 </script>
 

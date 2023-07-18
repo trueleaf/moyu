@@ -40,14 +40,14 @@ import { ref, Ref, PropType, onMounted } from 'vue'
 import { ElMessage } from 'element-plus';
 import { store } from '@/store';
 import {
-    apidocFormatUrl,
-    apidocFormatQueryParams,
-    apidocFormatPathParams,
-    apidocFormatJsonBodyParams,
-    apidocFormatFormdataParams,
-    apidocFormatUrlencodedParams,
-    apidocFormatHeaderParams,
-    apidocFormatResponseParams,
+  apidocFormatUrl,
+  apidocFormatQueryParams,
+  apidocFormatPathParams,
+  apidocFormatJsonBodyParams,
+  apidocFormatFormdataParams,
+  apidocFormatUrlencodedParams,
+  apidocFormatHeaderParams,
+  apidocFormatResponseParams,
 } from '@/helper';
 import type { ApidocCodeInfo } from '@@/global'
 import { axios } from '@/api/api';
@@ -56,17 +56,17 @@ import { router } from '@/router';
 import sEditor from '../editor/editor.vue'
 
 type CodeInfo = {
-    codeName: string,
-    remark: string,
-    _id: string
+  codeName: string,
+  remark: string,
+  _id: string
 }
 const props = defineProps({
-    codeInfo: {
-        type: Object as PropType<ApidocCodeInfo>,
-        default() {
-            return {};
-        }
+  codeInfo: {
+    type: Object as PropType<ApidocCodeInfo>,
+    default() {
+      return {};
     }
+  }
 })
 
 const worker = new Worker('/sandbox/hook/worker.js');
@@ -84,71 +84,71 @@ const editData: Ref<ApidocCodeInfo | null> = ref(null); //编辑中数据
 const result = ref(''); //结果值
 //错误处理
 worker.addEventListener('error', (error) => {
-    result.value = error.message;
-    console.error(error);
+  result.value = error.message;
+  console.error(error);
 });
 //执行代码
 const executeCode = () => {
-    const { apidoc } = store.state['apidoc/apidoc']
-    worker.postMessage({
-        type: 'init',
-        value: {
-            raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
-            url: apidocFormatUrl(apidoc),
-            queryParams: apidocFormatQueryParams(apidoc),
-            pathParams: apidocFormatPathParams(apidoc),
-            jsonParams: apidocFormatJsonBodyParams(apidoc),
-            formdataParams: apidocFormatFormdataParams(apidoc),
-            urlencodedParams: apidocFormatUrlencodedParams(apidoc),
-            headers: apidocFormatHeaderParams(apidoc),
-            method: apidoc.item.method,
-            response: apidocFormatResponseParams(apidoc),
-        },
-    });
-    worker.postMessage({
-        type: 'generate-code',
-        value: code.value
-    });
-    worker.addEventListener('message', (e) => {
-        if (typeof e.data !== 'object') {
-            return;
-        }
-        if (e.data.type === 'success') {
-            result.value = e.data.value;
-        }
-    })
+  const { apidoc } = store.state['apidoc/apidoc']
+  worker.postMessage({
+    type: 'init',
+    value: {
+      raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
+      url: apidocFormatUrl(apidoc),
+      queryParams: apidocFormatQueryParams(apidoc),
+      pathParams: apidocFormatPathParams(apidoc),
+      jsonParams: apidocFormatJsonBodyParams(apidoc),
+      formdataParams: apidocFormatFormdataParams(apidoc),
+      urlencodedParams: apidocFormatUrlencodedParams(apidoc),
+      headers: apidocFormatHeaderParams(apidoc),
+      method: apidoc.item.method,
+      response: apidocFormatResponseParams(apidoc),
+    },
+  });
+  worker.postMessage({
+    type: 'generate-code',
+    value: code.value
+  });
+  worker.addEventListener('message', (e) => {
+    if (typeof e.data !== 'object') {
+      return;
+    }
+    if (e.data.type === 'success') {
+      result.value = e.data.value;
+    }
+  })
 }
 //重置代码
 const handleResetCode = () => {
-    code.value = defaultCode;
+  code.value = defaultCode;
 }
 //保存代码
 const dialogVisible = ref(false);
 const loading = ref(false);
 const form: Ref<null | { formInfo: CodeInfo }> = ref(null);
 const handleSaveCode = () => {
-    loading.value = true;
-    const params = {
-        _id: form.value?.formInfo._id,
-        projectId,
-        codeName: form.value?.formInfo.codeName,
-        remark: form.value?.formInfo.remark,
-        code: code.value
-    };
-    axios.put('/api/apidoc/project/code', params).then(() => {
-        ElMessage.success('修改成功')
-        dialogVisible.value = false;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    _id: form.value?.formInfo._id,
+    projectId,
+    codeName: form.value?.formInfo.codeName,
+    remark: form.value?.formInfo.remark,
+    code: code.value
+  };
+  axios.put('/api/apidoc/project/code', params).then(() => {
+    ElMessage.success('修改成功')
+    dialogVisible.value = false;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 //初始化
 onMounted(() => {
-    // const codeInfo = apidocCache.getEditCodeInfoById(projectId);
-    editData.value = props.codeInfo
-    code.value = props.codeInfo?.code;
+  // const codeInfo = apidocCache.getEditCodeInfoById(projectId);
+  editData.value = props.codeInfo
+  code.value = props.codeInfo?.code;
 })
 </script>
 

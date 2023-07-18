@@ -98,40 +98,40 @@ import { $t } from '@/i18n/i18n'
 
 //搜索条件
 const formInfo: Ref<{ key: string, type: ApidocMindParam['paramsPosition'][] }> = ref({
-    key: '',
-    type: [],
+  key: '',
+  type: [],
 })
 //表格参数
 const tableInfo = computed(() => {
-    const allParams: ApidocMindParam[] = [];
-    store.state['apidoc/baseInfo'].mindParams.forEach(v => {
-        allParams.push(v);
-    })
-    allParams.sort((a, b) => {
-        if (a.key.toLowerCase() > b.key.toLowerCase()) {
-            return 1;
-        }
-        return -1;
-    });
-    return allParams.filter(v => {
-        const matchedKey = !formInfo.value.key || v.key.includes(formInfo.value.key);
-        return matchedKey;
-    }).filter(v => {
-        if (formInfo.value.type.length === 0) {
-            return true;
-        }
-        return formInfo.value.type.includes(v.paramsPosition)
-    })
+  const allParams: ApidocMindParam[] = [];
+  store.state['apidoc/baseInfo'].mindParams.forEach(v => {
+    allParams.push(v);
+  })
+  allParams.sort((a, b) => {
+    if (a.key.toLowerCase() > b.key.toLowerCase()) {
+      return 1;
+    }
+    return -1;
+  });
+  return allParams.filter(v => {
+    const matchedKey = !formInfo.value.key || v.key.includes(formInfo.value.key);
+    return matchedKey;
+  }).filter(v => {
+    if (formInfo.value.type.length === 0) {
+      return true;
+    }
+    return formInfo.value.type.includes(v.paramsPosition)
+  })
 });
 //清空checkbox
 const handleClearType = () => {
-    formInfo.value.type = [];
+  formInfo.value.type = [];
 }
 //=====================================操作====================================//
 //批量选择
 const selectData: Ref<ApidocMindParam[]> = ref([]);
 const handleSelectionChange = (data: ApidocMindParam[]) => {
-    selectData.value = data;
+  selectData.value = data;
 }
 //修改参数
 // const handleEditParams = (row: ApidocMindParam) => {
@@ -139,53 +139,53 @@ const handleSelectionChange = (data: ApidocMindParam[]) => {
 // }
 //删除某个参数
 const handleDeleteParams = (row: ApidocMindParam) => {
-    ElMessageBox.confirm($t('是否删除当前参数'), $t('提示'), {
-        confirmButtonText: $t('确定'),
-        cancelButtonText: $t('取消'),
-        type: 'warning',
-    }).then(() => {
-        const projectId = router.currentRoute.value.query.id as string;
-        const params = {
-            projectId,
-            ids: [row._id],
-        };
-        axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
-            store.commit('apidoc/baseInfo/deleteMindParamsById', row._id)
-        }).catch((err) => {
-            console.error(err);
-        });
+  ElMessageBox.confirm($t('是否删除当前参数'), $t('提示'), {
+    confirmButtonText: $t('确定'),
+    cancelButtonText: $t('取消'),
+    type: 'warning',
+  }).then(() => {
+    const projectId = router.currentRoute.value.query.id as string;
+    const params = {
+      projectId,
+      ids: [row._id],
+    };
+    axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
+      store.commit('apidoc/baseInfo/deleteMindParamsById', row._id)
     }).catch((err) => {
-        if (err === 'cancel' || err === 'close') {
-            return;
-        }
-        console.error(err);
+      console.error(err);
     });
+  }).catch((err) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
 }
 //批量删除
 const handleDeleteManyParams = () => {
-    ElMessageBox.confirm($t('确定批量删除当前选中节点'), $t('提示'), {
-        confirmButtonText: $t('确定'),
-        cancelButtonText: $t('取消'),
-        type: 'warning',
-    }).then(() => {
-        const projectId = router.currentRoute.value.query.id as string;
-        const params = {
-            projectId,
-            ids: selectData.value.map(v => v._id),
-        };
-        axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
-            selectData.value.forEach(v => {
-                store.commit('apidoc/baseInfo/deleteMindParamsById', v._id)
-            })
-        }).catch((err) => {
-            console.error(err);
-        });
+  ElMessageBox.confirm($t('确定批量删除当前选中节点'), $t('提示'), {
+    confirmButtonText: $t('确定'),
+    cancelButtonText: $t('取消'),
+    type: 'warning',
+  }).then(() => {
+    const projectId = router.currentRoute.value.query.id as string;
+    const params = {
+      projectId,
+      ids: selectData.value.map(v => v._id),
+    };
+    axios.delete('/api/project/doc_params_mind', { data: params }).then(() => {
+      selectData.value.forEach(v => {
+        store.commit('apidoc/baseInfo/deleteMindParamsById', v._id)
+      })
     }).catch((err) => {
-        if (err === 'cancel' || err === 'close') {
-            return;
-        }
-        console.error(err);
+      console.error(err);
     });
+  }).catch((err) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
 }
 </script>
 

@@ -13,12 +13,12 @@ import { computed } from 'vue'
 import { store } from '@/store/index'
 
 const description = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.info.description
-    },
-    set(val: string) {
-        store.commit('apidoc/apidoc/changeDescription', val)
-    }
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.info.description
+  },
+  set(val: string) {
+    store.commit('apidoc/apidoc/changeDescription', val)
+  }
 })
 </script>
 

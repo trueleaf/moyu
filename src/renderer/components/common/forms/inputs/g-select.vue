@@ -26,110 +26,110 @@ import { defineComponent } from 'vue'
 import config from '@/../config/config'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 参数值
          */
-        value: {
-            type: [String, Number],
-            default: ''
-        },
-        /**
+    value: {
+      type: [String, Number],
+      default: ''
+    },
+    /**
          * 是否多选
          */
-        multi: {
-            type: Boolean,
-            default: false,
-        },
-        /**
+    multi: {
+      type: Boolean,
+      default: false,
+    },
+    /**
          * 下拉菜单值
          */
-        selectEnum: {
-            type: Array,
-            default: () => []
-        },
-        /**
+    selectEnum: {
+      type: Array,
+      default: () => []
+    },
+    /**
          * 下拉菜单props   用于id 和 name 映射
          */
-        selectProps: {
-            type: Object,
-            default: () => ({
-                id: 'id',
-                name: 'name'
-            })
-        },
-        /**
+    selectProps: {
+      type: Object,
+      default: () => ({
+        id: 'id',
+        name: 'name'
+      })
+    },
+    /**
          * 用于通过url直接在组件内部获取枚举值
          */
-        url: {
-            type: String,
-            default: null
-        },
-        /**
+    url: {
+      type: String,
+      default: null
+    },
+    /**
          * 是否返回原始数据
          */
-        rawResult: {
-            type: Boolean,
-            default: false
-        },
-        /**
+    rawResult: {
+      type: Boolean,
+      default: false
+    },
+    /**
          * 自定义className
          */
-        className: {
-            type: String,
-            default: 'w-100'
-        },
-        /**
+    className: {
+      type: String,
+      default: 'w-100'
+    },
+    /**
          * 自定义placeholder
          */
-        placeholder: {
-            type: String,
-            default: '',
-        },
+    placeholder: {
+      type: String,
+      default: '',
     },
-    emits: ['change', 'update:value'],
-    data() {
-        return {
-            realSelectEnum: [] as Record<string, string | number | undefined>[],
-            config,
-        };
+  },
+  emits: ['change', 'update:value'],
+  data() {
+    return {
+      realSelectEnum: [] as Record<string, string | number | undefined>[],
+      config,
+    };
+  },
+  watch: {
+    selectEnum: {
+      handler(val: undefined | Record<string, string | number | undefined>[]) {
+        if (val && val.length > 0) {
+          this.realSelectEnum = val;
+        }
+      },
+      deep: true,
+      immediate: true,
     },
-    watch: {
-        selectEnum: {
-            handler(val: undefined | Record<string, string | number | undefined>[]) {
-                if (val && val.length > 0) {
-                    this.realSelectEnum = val;
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
+  },
+  methods: {
+    //获取下拉菜单枚举值
+    getSelectEnum() {
+      this.axios.get(this.url).then((res) => {
+        this.realSelectEnum = res.data;
+      }).catch((err) => {
+        console.error(err);
+      });
     },
-    methods: {
-        //获取下拉菜单枚举值
-        getSelectEnum() {
-            this.axios.get(this.url).then((res) => {
-                this.realSelectEnum = res.data;
-            }).catch((err) => {
-                console.error(err);
-            });
-        },
-        //数据改变
-        handleChange(val: unknown) {
-            if (this.rawResult && this.multi) { //多选返回原始数据
-                this.$emit('change', val);
-                this.$emit('update:value', val);
-            } else if (!this.multi) { //单选
-                if (val === '') { //如果是空字符，则返回null
-                    this.$emit('change', null);
-                    this.$emit('update:value', null);
-                } else {
-                    this.$emit('change', val);
-                    this.$emit('update:value', val);
-                }
-            }
-        },
+    //数据改变
+    handleChange(val: unknown) {
+      if (this.rawResult && this.multi) { //多选返回原始数据
+        this.$emit('change', val);
+        this.$emit('update:value', val);
+      } else if (!this.multi) { //单选
+        if (val === '') { //如果是空字符，则返回null
+          this.$emit('change', null);
+          this.$emit('update:value', null);
+        } else {
+          this.$emit('change', val);
+          this.$emit('update:value', val);
+        }
+      }
     },
+  },
 })
 </script>
 

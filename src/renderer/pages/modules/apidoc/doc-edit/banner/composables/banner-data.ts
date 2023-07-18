@@ -6,26 +6,26 @@ import { useRoute } from 'vue-router'
 import { useStore } from '@/store/index'
 
 type ReturnData = {
-    /**
+  /**
      * 获取banner数据
      */
-    getBannerData: () => Promise<void>,
+  getBannerData: () => Promise<void>,
 };
 
 export function useBannerData(): ReturnData {
-    const store = useStore();
-    const route = useRoute()
-    const projectId = route.query.id;
-    const getBannerData = async () => {
-        if (store.state['apidoc/banner'].loading) {
-            return
-        }
-        store.commit('apidoc/banner/changeBannerLoading', true)
-        await store.dispatch('apidoc/banner/getDocBanner', { projectId });
-        store.commit('apidoc/banner/changeBannerLoading', false)
+  const store = useStore();
+  const route = useRoute()
+  const projectId = route.query.id;
+  const getBannerData = async () => {
+    if (store.state['apidoc/banner'].loading) {
+      return
     }
-    getBannerData();
-    return {
-        getBannerData,
-    };
+    store.commit('apidoc/banner/changeBannerLoading', true)
+    await store.dispatch('apidoc/banner/getDocBanner', { projectId });
+    store.commit('apidoc/banner/changeBannerLoading', false)
+  }
+  getBannerData();
+  return {
+    getBannerData,
+  };
 }

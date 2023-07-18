@@ -35,92 +35,92 @@ const historyStore = useFlowHistoryStore()
 const nodeListStore = useFlowNodesStore()
 //保存数据
 const handleSave = () => {
-    console.log(22)
+  console.log(22)
 }
 //放大
 const handleZoomIn = () => {
-    if (configStore.zoom >= 1.5) {
-        return;
-    }
-    configStore.$patch({
-        zoom: configStore.zoom + 0.1
-    })
-    historyStore.doingList.push({
-        nodeList: JSON.parse(JSON.stringify(toRaw(nodeListStore.nodeList))),
-        lineList: JSON.parse(JSON.stringify(toRaw(linesStore.lineList))),
-        configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
-    })
-    nodesStore.nodeList.forEach(node => {
-        drawLineWhenMoveOrResize(node)
-    })
+  if (configStore.zoom >= 1.5) {
+    return;
+  }
+  configStore.$patch({
+    zoom: configStore.zoom + 0.1
+  })
+  historyStore.doingList.push({
+    nodeList: JSON.parse(JSON.stringify(toRaw(nodeListStore.nodeList))),
+    lineList: JSON.parse(JSON.stringify(toRaw(linesStore.lineList))),
+    configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
+  })
+  nodesStore.nodeList.forEach(node => {
+    drawLineWhenMoveOrResize(node)
+  })
 }
 //缩小
 const handleZoomOut = () => {
-    if (configStore.zoom <= 0.8) {
-        return;
-    }
-    configStore.$patch({
-        zoom: configStore.zoom - 0.1
-    })
-    historyStore.doingList.push({
-        nodeList: JSON.parse(JSON.stringify(toRaw(nodeListStore.nodeList))),
-        lineList: JSON.parse(JSON.stringify(toRaw(linesStore.lineList))),
-        configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
-    })
-    nodesStore.nodeList.forEach(node => {
-        drawLineWhenMoveOrResize(node)
-    })
+  if (configStore.zoom <= 0.8) {
+    return;
+  }
+  configStore.$patch({
+    zoom: configStore.zoom - 0.1
+  })
+  historyStore.doingList.push({
+    nodeList: JSON.parse(JSON.stringify(toRaw(nodeListStore.nodeList))),
+    lineList: JSON.parse(JSON.stringify(toRaw(linesStore.lineList))),
+    configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
+  })
+  nodesStore.nodeList.forEach(node => {
+    drawLineWhenMoveOrResize(node)
+  })
 }
 //撤销
 const handleUndo = () => {
-    if (historyStore.doingList.length <= 1) {
-        return
-    }
-    const popedItem = historyStore.doingList.pop()
-    const last = historyStore.doingList[historyStore.doingList.length - 1];
-    if (popedItem) {
-        historyStore.redoList.push(JSON.parse(JSON.stringify(popedItem)))
-    }
-    if (last) {
-        nodesStore.$patch(state => {
-            state.nodeList = JSON.parse(JSON.stringify(last.nodeList));
-        })
-        linesStore.$patch(state => {
-            state.lineList = JSON.parse(JSON.stringify(last.lineList))
-        })
-        configStore.$patch(state => {
-            Object.assign(state, last.configInfo)
-        })
-        nextTick(() => {
-            nodesStore.nodeList.forEach(node => {
-                drawLineWhenMoveOrResize(node)
-            })
-        })
-    }
+  if (historyStore.doingList.length <= 1) {
+    return
+  }
+  const popedItem = historyStore.doingList.pop()
+  const last = historyStore.doingList[historyStore.doingList.length - 1];
+  if (popedItem) {
+    historyStore.redoList.push(JSON.parse(JSON.stringify(popedItem)))
+  }
+  if (last) {
+    nodesStore.$patch(state => {
+      state.nodeList = JSON.parse(JSON.stringify(last.nodeList));
+    })
+    linesStore.$patch(state => {
+      state.lineList = JSON.parse(JSON.stringify(last.lineList))
+    })
+    configStore.$patch(state => {
+      Object.assign(state, last.configInfo)
+    })
+    nextTick(() => {
+      nodesStore.nodeList.forEach(node => {
+        drawLineWhenMoveOrResize(node)
+      })
+    })
+  }
 }
 //重做
 const handleRedo = () => {
-    if (historyStore.redoList.length === 0) {
-        return
-    }
-    const popedItem = historyStore.redoList.pop();
-    if (popedItem) {
-        historyStore.doingList.push(JSON.parse(JSON.stringify(popedItem)));
-        nodesStore.$patch({
-            nodeList: popedItem.nodeList
-        })
-        linesStore.$patch({
-            lineList: popedItem.lineList
-        })
-        configStore.$patch(state => {
-            Object.assign(state, popedItem.configInfo)
-        })
-        nextTick(() => {
-            nodesStore.nodeList.forEach(node => {
-                drawLineWhenMoveOrResize(node)
-            })
-        })
-    }
+  if (historyStore.redoList.length === 0) {
+    return
+  }
+  const popedItem = historyStore.redoList.pop();
+  if (popedItem) {
+    historyStore.doingList.push(JSON.parse(JSON.stringify(popedItem)));
+    nodesStore.$patch({
+      nodeList: popedItem.nodeList
+    })
+    linesStore.$patch({
+      lineList: popedItem.lineList
+    })
+    configStore.$patch(state => {
+      Object.assign(state, popedItem.configInfo)
+    })
+    nextTick(() => {
+      nodesStore.nodeList.forEach(node => {
+        drawLineWhenMoveOrResize(node)
+      })
+    })
+  }
 }
 </script>
 

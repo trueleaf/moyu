@@ -46,134 +46,134 @@ import clientRoutes from './components/client-routes.vue'
 import serverRoutes from './components/server-routes.vue'
 
 type RoleInfo = {
-    remark: string,
-    roleName: string,
-    clientBanner: string[],
-    clientRoutes: string[],
-    serverRoutes: string[],
+  remark: string,
+  roleName: string,
+  clientBanner: string[],
+  clientRoutes: string[],
+  serverRoutes: string[],
 }
 
 export default defineComponent({
-    components: {
-        's-client-routes': clientRoutes,
-        's-server-routes': serverRoutes,
-        's-client-menus': clientMenus,
-    },
-    props: {
-        /**
+  components: {
+    's-client-routes': clientRoutes,
+    's-server-routes': serverRoutes,
+    's-client-menus': clientMenus,
+  },
+  props: {
+    /**
          * 用户id
          */
-        userId: {
-            type: String,
-            default: ''
-        },
-        /**
+    userId: {
+      type: String,
+      default: ''
+    },
+    /**
          * 弹窗控制
          */
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            formInfo: {
-                roleName: '', //-------------------角色名称
-                remark: '', //---------------------备注信息
-                clientBanner: [] as string[], //---菜单ids
-                clientRoutes: [] as string[], //---已选前端路由
-                serverRoutes: [] as string[], //---已选后端路由
-            },
-            //=========================================================================//
-            clientMenu: [], //前端菜单
-            //=========================================================================//
-            activeName: 'clientRoute',
-            loading: false,
-        };
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      formInfo: {
+        roleName: '', //-------------------角色名称
+        remark: '', //---------------------备注信息
+        clientBanner: [] as string[], //---菜单ids
+        clientRoutes: [] as string[], //---已选前端路由
+        serverRoutes: [] as string[], //---已选后端路由
+      },
+      //=========================================================================//
+      clientMenu: [], //前端菜单
+      //=========================================================================//
+      activeName: 'clientRoute',
+      loading: false,
+    };
+  },
+  created() {
+    this.getRoleInfo();
+  },
+  methods: {
+    //获取角色信息
+    getRoleInfo() {
+      this.loading = true;
+      const params = {
+        _id: this.userId,
+      };
+      this.axios.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
+        // res.data.clientBanner.forEach((val) => {
+        //     (this.$refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
+        // });
+        const clientMenu = this.$refs.clientMenu as { $refs: { tree: TreeNodeOptions['store'] } };
+        const clientRoute = this.$refs.clientRoute as { selectedData: string[] };
+        const serverRoute = this.$refs.serverRoute as { selectedData: string[] };
+        setTimeout(() => { //hack不知道为什么不回显数据
+          res.data.clientBanner.forEach((val) => {
+            clientMenu.$refs.tree.setChecked(val, true, false);
+          });
+        }, 1000);
+        clientRoute.selectedData = res.data.clientRoutes;
+        serverRoute.selectedData = res.data.serverRoutes;
+        this.formInfo.clientBanner = res.data.clientBanner;
+        this.formInfo.clientRoutes = res.data.clientRoutes;
+        this.formInfo.serverRoutes = res.data.serverRoutes;
+        this.formInfo.roleName = res.data.roleName;
+        this.formInfo.remark = res.data.remark;
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading = false;
+      });
     },
-    created() {
-        this.getRoleInfo();
+    //选择客户端路由
+    handleChangeClientRoutes(val: string[]) {
+      this.formInfo.clientRoutes = val;
     },
-    methods: {
-        //获取角色信息
-        getRoleInfo() {
-            this.loading = true;
-            const params = {
-                _id: this.userId,
-            };
-            this.axios.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
-                // res.data.clientBanner.forEach((val) => {
-                //     (this.$refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
-                // });
-                const clientMenu = this.$refs.clientMenu as { $refs: { tree: TreeNodeOptions['store'] } };
-                const clientRoute = this.$refs.clientRoute as { selectedData: string[] };
-                const serverRoute = this.$refs.serverRoute as { selectedData: string[] };
-                setTimeout(() => { //hack不知道为什么不回显数据
-                    res.data.clientBanner.forEach((val) => {
-                        clientMenu.$refs.tree.setChecked(val, true, false);
-                    });
-                }, 1000);
-                clientRoute.selectedData = res.data.clientRoutes;
-                serverRoute.selectedData = res.data.serverRoutes;
-                this.formInfo.clientBanner = res.data.clientBanner;
-                this.formInfo.clientRoutes = res.data.clientRoutes;
-                this.formInfo.serverRoutes = res.data.serverRoutes;
-                this.formInfo.roleName = res.data.roleName;
-                this.formInfo.remark = res.data.remark;
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
-        //选择客户端路由
-        handleChangeClientRoutes(val: string[]) {
-            this.formInfo.clientRoutes = val;
-        },
-        //选择服务端路由
-        handleChangeServerRoutes(val: string[]) {
-            this.formInfo.serverRoutes = val;
-        },
-        //选择菜单
-        handleChangeClientMenus(val: string[]) {
-            this.formInfo.clientBanner = val;
-        },
-        //保存角色
-        handleEditRole() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const formData = this.$refs.form.formInfo;
-                    const params = {
-                        _id: this.userId,
-                        ...this.formInfo,
-                        roleName: formData.roleName,
-                        remark: formData.remark,
-                    };
-                    this.loading = true;
-                    this.axios.put('/api/security/role', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
-                        if (input) {
-                            input.focus();
-                        }
-                    });
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //选择服务端路由
+    handleChangeServerRoutes(val: string[]) {
+      this.formInfo.serverRoutes = val;
     },
+    //选择菜单
+    handleChangeClientMenus(val: string[]) {
+      this.formInfo.clientBanner = val;
+    },
+    //保存角色
+    handleEditRole() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const formData = this.$refs.form.formInfo;
+          const params = {
+            _id: this.userId,
+            ...this.formInfo,
+            roleName: formData.roleName,
+            remark: formData.remark,
+          };
+          this.loading = true;
+          this.axios.put('/api/security/role', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+            if (input) {
+              input.focus();
+            }
+          });
+        }
+      });
+    },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

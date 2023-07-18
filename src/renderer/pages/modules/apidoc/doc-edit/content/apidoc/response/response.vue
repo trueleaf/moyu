@@ -79,15 +79,15 @@ const activeName = ref('s-body');
 
 const cookies = computed(() => store.state['apidoc/response'].cookies)
 const headers = computed(() => {
-    const { header } = store.state['apidoc/response'];
-    const result: { key: string, value: string }[] = [];
-    Object.keys(header).forEach(key => {
-        result.push({
-            key,
-            value: header[key] as string,
-        });
-    })
-    return result
+  const { header } = store.state['apidoc/response'];
+  const result: { key: string, value: string }[] = [];
+  Object.keys(header).forEach(key => {
+    result.push({
+      key,
+      value: header[key] as string,
+    });
+  })
+  return result
 })
 const layout = computed(() => store.state['apidoc/baseInfo'].layout)
 const remoteResponse = computed(() => store.state['apidoc/response'])

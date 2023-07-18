@@ -21,57 +21,57 @@ import { defineComponent, PropType } from 'vue'
 import { PermissionClientRoute } from '@@/global'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        editData: {
-            type: Object as PropType<PermissionClientRoute[]>,
-            default: () => ({})
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            //=========================================================================//
-            loading: false,
-        };
+    editData: {
+      type: Object as PropType<PermissionClientRoute[]>,
+      default: () => ({})
     },
-    methods: {
-        handleSaveClientRoute() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const params = {
-                        ids: this.editData.map((v) => v._id),
-                        groupName: formInfo.groupName,
-                    };
-                    this.loading = true;
-                    this.axios.put('/api/security/client_routes_type', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLInputElement).focus();
-                        }
-                    });
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      //=========================================================================//
+      loading: false,
+    };
+  },
+  methods: {
+    handleSaveClientRoute() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const params = {
+            ids: this.editData.map((v) => v._id),
+            groupName: formInfo.groupName,
+          };
+          this.loading = true;
+          this.axios.put('/api/security/client_routes_type', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLInputElement).focus();
+            }
+          });
+          this.loading = false;
+        }
+      });
     },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

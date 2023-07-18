@@ -44,31 +44,31 @@ import sPackage from './package/package.vue'
 import apiflow from './apiflow/apiflow.vue'
 
 export default defineComponent({
-    components: {
-        's-guide': guide,
-        's-apidoc': apidoc,
-        's-variable': variable,
-        's-mind-params': mindParams,
-        's-params-template': paramsTemplate,
-        's-export': exportDoc,
-        's-import-doc': importDoc,
-        's-online-link': onlineLink,
-        's-recycler': recycler,
-        's-history': history,
-        's-config': config,
-        's-hook': hook,
-        's-common-header': commonHeader,
-        's-package': sPackage,
-        's-apiflow': apiflow,
+  components: {
+    's-guide': guide,
+    's-apidoc': apidoc,
+    's-variable': variable,
+    's-mind-params': mindParams,
+    's-params-template': paramsTemplate,
+    's-export': exportDoc,
+    's-import-doc': importDoc,
+    's-online-link': onlineLink,
+    's-recycler': recycler,
+    's-history': history,
+    's-config': config,
+    's-hook': hook,
+    's-common-header': commonHeader,
+    's-package': sPackage,
+    's-apiflow': apiflow,
+  },
+  computed: {
+    currentSelectTab(): ApidocTab | null { //当前选中的doc
+      const projectId = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+      return currentSelectTab;
     },
-    computed: {
-        currentSelectTab(): ApidocTab | null { //当前选中的doc
-            const projectId = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-            return currentSelectTab;
-        },
-    },
+  },
 })
 </script>
 

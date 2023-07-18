@@ -120,35 +120,35 @@ dayjs.extend(isToday)
 dayjs.locale('zh-cn')
 
 type DeleteInfo = {
-    _id: string, //项目id
-    deletePerson: string, //删除人
-    host: string, //host信息
-    isFolder: boolean, //是否为文件夹
-    method: ApidocHttpRequestMethod, //请求方法
-    name: string, //文件名称
-    path: string, //请求路径
-    pid: string, //父元素id
-    type: ApidocType, //文档类型
-    updatedAt: string, //更新时间
-    _visible?: boolean,
+  _id: string, //项目id
+  deletePerson: string, //删除人
+  host: string, //host信息
+  isFolder: boolean, //是否为文件夹
+  method: ApidocHttpRequestMethod, //请求方法
+  name: string, //文件名称
+  path: string, //请求路径
+  pid: string, //父元素id
+  type: ApidocType, //文档类型
+  updatedAt: string, //更新时间
+  _visible?: boolean,
 };
 type SearchInfo = {
-    projectId: string, //项目id
-    startTime: number | null, //--起始日期
-    endTime: number | null, //----结束日期
-    docName: string, //---------请求名称
-    url: string, //----------请求url
-    operators: string[], //----操作者信息
+  projectId: string, //项目id
+  startTime: number | null, //--起始日期
+  endTime: number | null, //----结束日期
+  docName: string, //---------请求名称
+  url: string, //----------请求url
+  operators: string[], //----操作者信息
 }
 
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const formInfo: Ref<SearchInfo> = ref({
-    projectId, //项目id
-    startTime: null, //--起始日期
-    endTime: null, //----结束日期
-    docName: '', //---------请求名称
-    url: '', //----------请求url
-    operators: [], //----操作者信息
+  projectId, //项目id
+  startTime: null, //--起始日期
+  endTime: null, //----结束日期
+  docName: '', //---------请求名称
+  url: '', //----------请求url
+  operators: [], //----操作者信息
 })
 
 /*
@@ -159,15 +159,15 @@ const formInfo: Ref<SearchInfo> = ref({
 const loading = ref(false); //获取数据加载状态
 const deletedList: Ref<DeleteInfo[]> = ref([]); //已删除数据列表
 const getData = () => {
-    loading.value = true;
-    const params = formInfo.value;
-    axios.post<ResponseTable<DeleteInfo[]>, ResponseTable<DeleteInfo[]>>('/api/docs/docs_deleted_list', params).then((res) => {
-        deletedList.value = res.data.rows;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = formInfo.value;
+  axios.post<ResponseTable<DeleteInfo[]>, ResponseTable<DeleteInfo[]>>('/api/docs/docs_deleted_list', params).then((res) => {
+    deletedList.value = res.data.rows;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 
 /*
@@ -180,89 +180,89 @@ const dateRange: Ref<string> = ref(''); //日期范围
 const customDateRange: Ref<number[]> = ref([]); //自定义日期范围
 //获取操作人员枚举
 const getOperatorEnum = () => {
-    const params = {
-        projectId,
-    };
-    axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-        memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
-    }).catch((err) => {
-        console.error(err);
-    });
+  const params = {
+    projectId,
+  };
+  axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
+    memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 //清空操作人员
 const handleClearOperator = () => {
-    formInfo.value.operators = [];
+  formInfo.value.operators = [];
 }
 //清空日期范围
 const handleClearDate = () => {
-    dateRange.value = ''; //startTime和endTime会在watch中发送改变
+  dateRange.value = ''; //startTime和endTime会在watch中发送改变
 }
 //全部清空
 const clearAll = () => {
-    handleClearOperator();
-    handleClearDate();
-    formInfo.value.url = '';
-    formInfo.value.docName = '';
+  handleClearOperator();
+  handleClearDate();
+  formInfo.value.url = '';
+  formInfo.value.docName = '';
 }
 //自定义日期范围
 watch(() => dateRange.value, (val) => {
-    let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
-    let endTime: number | null = null;
-    switch (val) {
-        case '1d':
-            endTime = Date.now();
-            break;
-        case '2d':
-            endTime = Date.now();
-            startTime = endTime - 86400000;
-            break;
-        case '3d':
-            endTime = Date.now();
-            startTime = endTime - 3 * 86400000;
-            break;
-        case '7d':
-            endTime = Date.now();
-            startTime = endTime - 7 * 86400000;
-            break;
-        case 'yesterday':
-            endTime = startTime;
-            startTime -= 86400000;
-            break;
-        default: //自定义
-            startTime = null;
-            endTime = null;
-            customDateRange.value = [];
-            break;
-    }
-    formInfo.value.startTime = startTime;
-    formInfo.value.endTime = endTime;
+  let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+  let endTime: number | null = null;
+  switch (val) {
+  case '1d':
+    endTime = Date.now();
+    break;
+  case '2d':
+    endTime = Date.now();
+    startTime = endTime - 86400000;
+    break;
+  case '3d':
+    endTime = Date.now();
+    startTime = endTime - 3 * 86400000;
+    break;
+  case '7d':
+    endTime = Date.now();
+    startTime = endTime - 7 * 86400000;
+    break;
+  case 'yesterday':
+    endTime = startTime;
+    startTime -= 86400000;
+    break;
+  default: //自定义
+    startTime = null;
+    endTime = null;
+    customDateRange.value = [];
+    break;
+  }
+  formInfo.value.startTime = startTime;
+  formInfo.value.endTime = endTime;
 })
 watch(() => customDateRange.value, (val) => {
-    if (!val || val.length === 0) {
-        formInfo.value.startTime = null;
-        formInfo.value.endTime = null;
-    } else {
-        formInfo.value.startTime = val[0];
-        formInfo.value.endTime = val[1];
-    }
+  if (!val || val.length === 0) {
+    formInfo.value.startTime = null;
+    formInfo.value.endTime = null;
+  } else {
+    formInfo.value.startTime = val[0];
+    formInfo.value.endTime = val[1];
+  }
 })
 
 const debounceFn: Ref<(() => void) | null> = ref(null);
 watch(() => formInfo.value, () => {
-    if (!debounceFn.value) {
-        debounceFn.value = debounce(() => {
-            getData();
-        });
-    }
-    if (debounceFn.value) {
-        debounceFn.value();
-    }
+  if (!debounceFn.value) {
+    debounceFn.value = debounce(() => {
+      getData();
+    });
+  }
+  if (debounceFn.value) {
+    debounceFn.value();
+  }
 }, {
-    deep: true
+  deep: true
 })
 onMounted(() => {
-    getData();
-    getOperatorEnum();
+  getData();
+  getOperatorEnum();
 })
 /*
 |--------------------------------------------------------------------------
@@ -271,34 +271,34 @@ onMounted(() => {
 */
 //被删除数据
 const deletedInfo = computed(() => {
-    const result: Record<string, {
-        title: string,
-        deleted: Record<string, DeleteInfo[]>
-    }> = {};
-    deletedList.value.forEach((item) => {
-        const { updatedAt } = item;
-        const ymdString = dayjs(updatedAt).format('YYYY-MM-DD');
-        const ymdhmString = dayjs(updatedAt).format('YYYY-MM-DD HH:mm');
-        if (!result[ymdString]) {
-            let title = '';
-            if (dayjs(updatedAt).isToday()) {
-                title = '今天'
-            } else if (dayjs(updatedAt).isYesterday()) {
-                title = '昨天'
-            } else {
-                title = dayjs(updatedAt).format('YYYY年M月DD号');
-            }
-            result[ymdString] = {
-                title,
-                deleted: {},
-            };
-        }
-        if (!result[ymdString].deleted[ymdhmString]) {
-            result[ymdString].deleted[ymdhmString] = [];
-        }
-        result[ymdString].deleted[ymdhmString].push(item);
-    })
-    return result;
+  const result: Record<string, {
+    title: string,
+    deleted: Record<string, DeleteInfo[]>
+  }> = {};
+  deletedList.value.forEach((item) => {
+    const { updatedAt } = item;
+    const ymdString = dayjs(updatedAt).format('YYYY-MM-DD');
+    const ymdhmString = dayjs(updatedAt).format('YYYY-MM-DD HH:mm');
+    if (!result[ymdString]) {
+      let title = '';
+      if (dayjs(updatedAt).isToday()) {
+        title = '今天'
+      } else if (dayjs(updatedAt).isYesterday()) {
+        title = '昨天'
+      } else {
+        title = dayjs(updatedAt).format('YYYY年M月DD号');
+      }
+      result[ymdString] = {
+        title,
+        deleted: {},
+      };
+    }
+    if (!result[ymdString].deleted[ymdhmString]) {
+      result[ymdString].deleted[ymdhmString] = [];
+    }
+    result[ymdString].deleted[ymdhmString].push(item);
+  })
+  return result;
 })
 //请求方法
 const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods)
@@ -311,84 +311,84 @@ const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.
 const loading2 = ref(false); //回复按钮
 //恢复接口
 const restoreDocDirectly = (docInfo: DeleteInfo) => {
-    ElMessageBox.confirm(`确实要恢复 ${docInfo.name} 吗?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-    }).then(() => {
-        loading2.value = true;
-        const params = {
-            _id: docInfo._id,
-            projectId,
-        };
-        axios.put('/api/docs/docs_restore', params).then((res) => {
-            const delIds = res.data;
-            for (let i = 0; i < delIds.length; i += 1) {
-                const id = delIds[i];
-                console.log(id)
-                const delIndex = deletedList.value.findIndex((val) => val._id === id);
-                deletedList.value.splice(delIndex, 1)
-            }
-            store.dispatch('apidoc/banner/getDocBanner', {
-                projectId,
-            })
-        }).catch((err) => {
-            console.error(err);
-        }).finally(() => {
-            loading2.value = false;
-        });
+  ElMessageBox.confirm(`确实要恢复 ${docInfo.name} 吗?`, '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning',
+  }).then(() => {
+    loading2.value = true;
+    const params = {
+      _id: docInfo._id,
+      projectId,
+    };
+    axios.put('/api/docs/docs_restore', params).then((res) => {
+      const delIds = res.data;
+      for (let i = 0; i < delIds.length; i += 1) {
+        const id = delIds[i];
+        console.log(id)
+        const delIndex = deletedList.value.findIndex((val) => val._id === id);
+        deletedList.value.splice(delIndex, 1)
+      }
+      store.dispatch('apidoc/banner/getDocBanner', {
+        projectId,
+      })
     }).catch((err) => {
-        if (err === 'cancel' || err === 'close') {
-            return;
-        }
-        console.error(err);
+      console.error(err);
+    }).finally(() => {
+      loading2.value = false;
     });
+  }).catch((err) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
 }
 //恢复接口
 const handleRestore = (docInfo: DeleteInfo) => {
-    const { banner } = store.state['apidoc/banner'];
-    const { pid, isFolder } = docInfo;
-    let hasParent = false;
-    forEachForest(banner, (node) => {
-        if (node._id === pid) {
-            hasParent = true;
-        }
-    });
-    if (!pid && !isFolder) { //文档，根元素
-        restoreDocDirectly(docInfo)
-    } else if (pid && !isFolder && hasParent) { //文档，非根元素,存在父元素
-        restoreDocDirectly(docInfo)
-    } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
-        restoreDocDirectly(docInfo)
-    } else {
-        restoreDocDirectly(docInfo)
+  const { banner } = store.state['apidoc/banner'];
+  const { pid, isFolder } = docInfo;
+  let hasParent = false;
+  forEachForest(banner, (node) => {
+    if (node._id === pid) {
+      hasParent = true;
     }
+  });
+  if (!pid && !isFolder) { //文档，根元素
+    restoreDocDirectly(docInfo)
+  } else if (pid && !isFolder && hasParent) { //文档，非根元素,存在父元素
+    restoreDocDirectly(docInfo)
+  } else if (pid && !isFolder && !hasParent) { //文档，非根元素,不存在父元素
+    restoreDocDirectly(docInfo)
+  } else {
+    restoreDocDirectly(docInfo)
+  }
 }
 //查看详情
 const handleShowDetail = (docInfo: DeleteInfo) => {
-    Object.keys(deletedInfo.value).forEach((key) => {
-        const el = deletedInfo.value[key];
-        Object.keys(el.deleted).forEach((key2) => {
-            const el2 = el.deleted[key2];
-            el2.forEach((info) => {
-                info._visible = false;
-            })
-        })
+  Object.keys(deletedInfo.value).forEach((key) => {
+    const el = deletedInfo.value[key];
+    Object.keys(el.deleted).forEach((key2) => {
+      const el2 = el.deleted[key2];
+      el2.forEach((info) => {
+        info._visible = false;
+      })
     })
-    docInfo._visible = true;
+  })
+  docInfo._visible = true;
 };
 onMounted(() => {
-    document.documentElement.addEventListener('click', () => {
-        Object.keys(deletedInfo.value).forEach((key) => {
-            const el = deletedInfo.value[key];
-            Object.keys(el.deleted).forEach((key2) => {
-                const el2 = el.deleted[key2];
-                el2.forEach((info) => {
-                    info._visible = false;
-                })
-            })
+  document.documentElement.addEventListener('click', () => {
+    Object.keys(deletedInfo.value).forEach((key) => {
+      const el = deletedInfo.value[key];
+      Object.keys(el.deleted).forEach((key2) => {
+        const el2 = el.deleted[key2];
+        el2.forEach((info) => {
+          info._visible = false;
         })
+      })
     })
+  })
 })
 </script>
 

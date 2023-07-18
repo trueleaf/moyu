@@ -12,12 +12,12 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
-    },
-    methods: {
-    },
+  data() {
+    return {
+    };
+  },
+  methods: {
+  },
 })
 </script>
 

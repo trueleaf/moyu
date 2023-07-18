@@ -16,30 +16,30 @@ import { defineComponent } from 'vue'
 import { randomTip } from '@/helper/index'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 加载中状态
          */
-        loading: {
-            type: Boolean,
-            default: false,
-        },
+    loading: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-        return {
-            loadingText: '',
-        };
+  },
+  data() {
+    return {
+      loadingText: '',
+    };
+  },
+  watch: {
+    loading: {
+      handler(val) {
+        if (val) {
+          this.loadingText = randomTip();
+        }
+      },
+      immediate: true,
     },
-    watch: {
-        loading: {
-            handler(val) {
-                if (val) {
-                    this.loadingText = randomTip();
-                }
-            },
-            immediate: true,
-        },
-    },
+  },
 })
 </script>
 

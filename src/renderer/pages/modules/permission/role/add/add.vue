@@ -44,79 +44,79 @@ import clientRoutes from './components/client-routes.vue'
 import serverRoutes from './components/server-routes.vue'
 
 export default defineComponent({
-    components: {
-        's-client-routes': clientRoutes,
-        's-server-routes': serverRoutes,
-        's-client-menus': clientMenus,
+  components: {
+    's-client-routes': clientRoutes,
+    's-server-routes': serverRoutes,
+    's-client-menus': clientMenus,
+  },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      formInfo: {
+        clientBanner: [] as string[], //菜单ids
+        clientRoutes: [] as string[], //已选前端路由
+        serverRoutes: [] as string[], //已选后端路由
+      },
+      //=========================================================================//
+      clientMenu: [], //前端菜单
+      //=========================================================================//
+      activeName: 'clientRoute',
+      loading: false,
+    };
+  },
+  methods: {
+    //选择客户端路由
+    handleChangeClientRoutes(val: string[]) {
+      this.formInfo.clientRoutes = val;
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            formInfo: {
-                clientBanner: [] as string[], //菜单ids
-                clientRoutes: [] as string[], //已选前端路由
-                serverRoutes: [] as string[], //已选后端路由
-            },
-            //=========================================================================//
-            clientMenu: [], //前端菜单
-            //=========================================================================//
-            activeName: 'clientRoute',
-            loading: false,
-        };
+    //选择服务端路由
+    handleChangeServerRoutes(val: string[]) {
+      this.formInfo.serverRoutes = val;
     },
-    methods: {
-        //选择客户端路由
-        handleChangeClientRoutes(val: string[]) {
-            this.formInfo.clientRoutes = val;
-        },
-        //选择服务端路由
-        handleChangeServerRoutes(val: string[]) {
-            this.formInfo.serverRoutes = val;
-        },
-        //选择菜单
-        handleChangeClientMenus(val: string[]) {
-            this.formInfo.clientBanner = val;
-        },
-        //保存角色
-        handleSaveRole() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const formData = this.$refs.form.formInfo;
-                    const params = {
-                        roleName: formData.roleName,
-                        remark: formData.remark,
-                        ...this.formInfo,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/security/role', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
-                        if (input) {
-                            input.focus();
-                        }
-                    });
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //选择菜单
+    handleChangeClientMenus(val: string[]) {
+      this.formInfo.clientBanner = val;
     },
+    //保存角色
+    handleSaveRole() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const formData = this.$refs.form.formInfo;
+          const params = {
+            roleName: formData.roleName,
+            remark: formData.remark,
+            ...this.formInfo,
+          };
+          this.loading = true;
+          this.axios.post('/api/security/role', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+            if (input) {
+              input.focus();
+            }
+          });
+        }
+      });
+    },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

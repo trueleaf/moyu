@@ -118,13 +118,13 @@ import { $t } from '@/i18n/i18n'
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 
 type DragState = {
-    dragState: {
-        showDropIndicator: boolean,
-        allowDrop: boolean,
-        draggingNode: Node | null,
-        dropNode: Node | null,
-        dropType: 'before' | 'after' | 'inner' | 'none' | null,
-    }
+  dragState: {
+    showDropIndicator: boolean,
+    allowDrop: boolean,
+    draggingNode: Node | null,
+    dropNode: Node | null,
+    dropType: 'before' | 'after' | 'inner' | 'none' | null,
+  }
 }
 type TreeInstance = DragState & TreeStore & ComponentPublicInstance
 
@@ -149,37 +149,37 @@ const targetTreeData: Ref<ApidocBanner[]> = ref([]);
 const targetProjectId = ref('');
 //根据id获取目标项目详情数据
 const handleChangeProject = (pid: string | number | boolean) => {
-    loading.value = true;
-    const params = {
-        projectId: pid,
-    };
-    axios.get('/api/project/doc_tree_node', { params }).then((res) => {
-        targetTreeData.value = res.data;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    projectId: pid,
+  };
+  axios.get('/api/project/doc_tree_node', { params }).then((res) => {
+    targetTreeData.value = res.data;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 //项目列表枚举
 const projectEnum: Ref<ApidocProjectEnum[]> = ref([]);
 const getProjectEnum = () => {
-    axios.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
-        res.data.forEach((val) => {
-            if (val._id !== projectId) { //过滤掉当前项目
-                projectEnum.value.push(val);
-            }
-        })
-        if (projectEnum.value.length > 0) {
-            targetProjectId.value = projectEnum.value[0]._id;
-            handleChangeProject(projectEnum.value[0]._id);
-        }
-    }).catch((err) => {
-        console.error(err);
-    });
+  axios.get<Response<ApidocProjectEnum[]>, Response<ApidocProjectEnum[]>>('/api/project/project_enum').then((res) => {
+    res.data.forEach((val) => {
+      if (val._id !== projectId) { //过滤掉当前项目
+        projectEnum.value.push(val);
+      }
+    })
+    if (projectEnum.value.length > 0) {
+      targetProjectId.value = projectEnum.value[0]._id;
+      handleChangeProject(projectEnum.value[0]._id);
+    }
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 onMounted(() => {
-    getProjectEnum();
+  getProjectEnum();
 })
 
 /*
@@ -195,11 +195,11 @@ const sourceTree: Ref<(TreeInstance) | null> = ref(null);
 
 //源树数据
 const sourceTreeData = computed(() => {
-    const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(store.state['apidoc/banner'].banner));
-    forEachForest(copyData, (data) => {
-        data._isSource = true;
-    });
-    return copyData;
+  const copyData: (ApidocBanner & { _isSource?: boolean })[] = JSON.parse(JSON.stringify(store.state['apidoc/banner'].banner));
+  forEachForest(copyData, (data) => {
+    data._isSource = true;
+  });
+  return copyData;
 });
 /*
 |--------------------------------------------------------------------------
@@ -211,157 +211,157 @@ const sourceTreeData = computed(() => {
 const isInSource = ref(false);
 //判断目标树是否允许drop
 const checkTargetCouldDrop = (draggingNode: Node, dropNode: Node, type: DropType) => {
-    // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
-    // if (!realDragNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
-    //     return type !== "prev";
-    // }
-    // if (realDragNode.data.isFolder && !dropNode.data.isFolder) {
-    //     return false;
-    // }
-    // if (!dropNode.data.isFolder) {
-    //     return type !== "inner";
-    // }
-    console.log(type)
-    return true;
+  // let realDragNode = draggingNode || targetTree.value?.dragState.draggingNode
+  // if (!realDragNode.data.isFolder && dropNode.data.isFolder && type !== "inner") { //不允许文件在文件夹前面
+  //     return type !== "prev";
+  // }
+  // if (realDragNode.data.isFolder && !dropNode.data.isFolder) {
+  //     return false;
+  // }
+  // if (!dropNode.data.isFolder) {
+  //     return type !== "inner";
+  // }
+  console.log(type)
+  return true;
 }
 
 //目标树dragStart
 const handleTargetDragStart = (event: Event, node: Node) => {
-    console.log('target start', node, event)
-    isInSource.value = false;
+  console.log('target start', node, event)
+  isInSource.value = false;
 }
 //在目标树上拖拽
 const handleTargetNodeOver = () => {
-    console.log('target over')
-    isInSource.value = false;
+  console.log('target over')
+  isInSource.value = false;
 }
 //排序目标树
 const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
-    const params = {
-        _id: node.data._id, //当前节点id
-        pid: '', //父元素
-        sort: 0, //当前节点排序效果
-        projectId,
-        dropInfo: {
-            nodeName: node.data.name,
-            nodeId: node.data._id,
-            dropNodeName: dropNode.data.name,
-            dropNodeId: dropNode.data._id,
-            dropType: type,
-        },
-    };
-    const pData = findParentById(targetTreeData.value, node.data._id, { idKey: '_id' });
-    params.pid = pData ? pData._id : '';
-    if (type === 'inner') {
-        params.sort = Date.now();
-    } else {
-        const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
-        const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
-        const previousSiblingSort = previousSibling.sort || 0;
-        const nextSiblingSort = nextSibling.sort || Date.now();
-        params.sort = (nextSiblingSort + previousSiblingSort) / 2;
-        node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-    }
-    axios.put('/api/project/change_doc_pos', params).catch((err) => {
-        console.error(err)
-    });
+  const params = {
+    _id: node.data._id, //当前节点id
+    pid: '', //父元素
+    sort: 0, //当前节点排序效果
+    projectId,
+    dropInfo: {
+      nodeName: node.data.name,
+      nodeId: node.data._id,
+      dropNodeName: dropNode.data.name,
+      dropNodeId: dropNode.data._id,
+      dropType: type,
+    },
+  };
+  const pData = findParentById(targetTreeData.value, node.data._id, { idKey: '_id' });
+  params.pid = pData ? pData._id : '';
+  if (type === 'inner') {
+    params.sort = Date.now();
+  } else {
+    const nextSibling = findNextSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
+    const previousSibling = findPreviousSiblingById(targetTreeData.value, node.data._id, { idKey: '_id' }) || { sort: 0 };
+    const previousSiblingSort = previousSibling.sort || 0;
+    const nextSiblingSort = nextSibling.sort || Date.now();
+    params.sort = (nextSiblingSort + previousSiblingSort) / 2;
+    node.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
+  }
+  axios.put('/api/project/change_doc_pos', params).catch((err) => {
+    console.error(err)
+  });
 }
 //目标树drop
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
-    console.log('drop111')
-    if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
+  console.log('drop111')
+  if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
         targetTree.value?.remove(dragNode.data);
         return;
+  }
+  let targetNodeSort = Date.now();
+  const { _isSource } = dragNode.data;
+  if (_isSource) { //从源树拖拽到目标树
+    let targetMountedId = null;
+    const dropNodeId = dropNode.data._id2 || dropNode.data._id;
+    const dragNodeId = dragNode.data._id2 || dragNode.data._id;
+    if (type === 'inner') { //拖放至内部则选择dropNode
+      targetMountedId = dropNodeId;
+    } else {
+      const dropNodeParentNode = findParentById(targetTreeData.value, dropNodeId, { idKey: '_id' });
+      const nextSibling = findNextSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
+      const previousSibling = findPreviousSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
+      const previousSiblingSort = previousSibling.sort || 0;
+      const nextSiblingSort = nextSibling.sort || Date.now();
+      targetNodeSort = (nextSiblingSort + previousSiblingSort) / 2;
+      dropNode.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
+      if (dropNodeParentNode) { //非根节点
+        targetMountedId = dropNodeParentNode._id;
+      }
     }
-    let targetNodeSort = Date.now();
-    const { _isSource } = dragNode.data;
-    if (_isSource) { //从源树拖拽到目标树
-        let targetMountedId = null;
-        const dropNodeId = dropNode.data._id2 || dropNode.data._id;
-        const dragNodeId = dragNode.data._id2 || dragNode.data._id;
-        if (type === 'inner') { //拖放至内部则选择dropNode
-            targetMountedId = dropNodeId;
-        } else {
-            const dropNodeParentNode = findParentById(targetTreeData.value, dropNodeId, { idKey: '_id' });
-            const nextSibling = findNextSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
-            const previousSibling = findPreviousSiblingById(targetTreeData.value, dragNodeId, { idKey: '_id' }) || { sort: 0 };
-            const previousSiblingSort = previousSibling.sort || 0;
-            const nextSiblingSort = nextSibling.sort || Date.now();
-            targetNodeSort = (nextSiblingSort + previousSiblingSort) / 2;
-            dropNode.data.sort = (nextSiblingSort + previousSiblingSort) / 2;
-            if (dropNodeParentNode) { //非根节点
-                targetMountedId = dropNodeParentNode._id;
-            }
+    const selectedDocIds: string[] = [];
+    forEachForest([dragNode.data], (data) => {
+      selectedDocIds.push(data._id2 || data._id);
+    });
+    const params = {
+      sourceRootId: dragNode.data._id2 || dragNode.data._id, //源节点根id
+      selectedDocIds, //需要挂载的节点ids
+      sourceProjectId: projectId, //源项目id
+      targetProjectId: targetProjectId.value, //目标项目id
+      targetMountedId, //目标挂载节点id
+      targetNodeSort,
+    };
+    axios.post('/api/project/export/fork', params).then((res) => {
+      const docsIdMap = res.data;
+      forEachForest(targetTreeData.value, (data) => {
+        const { _id } = data;
+        const newId = docsIdMap[_id]
+        if (newId) {
+          data._id = newId;
         }
-        const selectedDocIds: string[] = [];
-        forEachForest([dragNode.data], (data) => {
-            selectedDocIds.push(data._id2 || data._id);
-        });
-        const params = {
-            sourceRootId: dragNode.data._id2 || dragNode.data._id, //源节点根id
-            selectedDocIds, //需要挂载的节点ids
-            sourceProjectId: projectId, //源项目id
-            targetProjectId: targetProjectId.value, //目标项目id
-            targetMountedId, //目标挂载节点id
-            targetNodeSort,
-        };
-        axios.post('/api/project/export/fork', params).then((res) => {
-            const docsIdMap = res.data;
-            forEachForest(targetTreeData.value, (data) => {
-                const { _id } = data;
-                const newId = docsIdMap[_id]
-                if (newId) {
-                    data._id = newId;
-                }
-            });
-            ElMessage.success($t('导入成功'));
-        }).catch((err) => {
-            console.error(err);
-        });
-    } else { //目标树内自己拖拽，调用排序而不是新增
-        // console.log("目标树内自己拖拽")
-        sortTargetTree(dragNode, dropNode, type);
-    }
-    dragNode.data._isSource = false;
+      });
+      ElMessage.success($t('导入成功'));
+    }).catch((err) => {
+      console.error(err);
+    });
+  } else { //目标树内自己拖拽，调用排序而不是新增
+    // console.log("目标树内自己拖拽")
+    sortTargetTree(dragNode, dropNode, type);
+  }
+  dragNode.data._isSource = false;
 }
 
 //拖拽开始(源)
 const handleSourceDragstart = (node: Node, event: Event) => {
-    console.log('drag start', targetTree.value, event, node)
-    if (targetTree.value) {
-        // targetTree.value.dragState.draggingNode = { node };
-    }
+  console.log('drag start', targetTree.value, event, node)
+  if (targetTree.value) {
+    // targetTree.value.dragState.draggingNode = { node };
+  }
 }
 //拖拽中(源)
 const handleSourceNodeDragOver = () => {
-    isInSource.value = true;
+  isInSource.value = true;
 }
 //拖拽完毕(源)
 const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unknown, event: DragEvent) => {
-    // 插入一个空节点用于占位
-    const emptyData = {
-        _id: uuid(),
-    };
+  // 插入一个空节点用于占位
+  const emptyData = {
+    _id: uuid(),
+  };
     sourceTree.value?.insertBefore(emptyData, draggingNode);
     targetTree.value?.$emit('node-drag-end', event);
     nextTick(() => {
-        if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
+      if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
             sourceTree.value?.remove(emptyData);
-        } else { //在挂载点完成拖拽
-            const data = JSON.parse(JSON.stringify(draggingNode.data));
-            data._id2 = data._id2 || data._id;
-            data._id = uuid();
-            data._isSource = true; //当前节点还原为source
+      } else { //在挂载点完成拖拽
+        const data = JSON.parse(JSON.stringify(draggingNode.data));
+        data._id2 = data._id2 || data._id;
+        data._id = uuid();
+        data._isSource = true; //当前节点还原为source
             sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
             sourceTree.value?.remove(emptyData);
-        }
+      }
     })
     // console.log(event, sourceTree.value, nextTick)
 }
 
 //清除contentmenu
 const clearContextmenu = () => {
-    // console.log(333)
+  // console.log(333)
 }
 
 </script>

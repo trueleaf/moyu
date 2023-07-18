@@ -119,395 +119,395 @@ import hook from './hook/hook.vue'
 import mock from './mock/mock.vue'
 
 export default defineComponent({
-    components: {
-        's-params': params,
-        's-request-body': requestBody,
-        's-request-headers': requestHeaders,
-        's-response-params': responseParams,
-        's-view': view,
-        's-remarks': remarks,
-        's-pre-request': preRequestParams,
-        's-after-request': afterRequestParams,
-        's-hook': hook,
-        's-mock': mock,
-        'icon-opportunity': Opportunity
+  components: {
+    's-params': params,
+    's-request-body': requestBody,
+    's-request-headers': requestHeaders,
+    's-response-params': responseParams,
+    's-view': view,
+    's-remarks': remarks,
+    's-pre-request': preRequestParams,
+    's-after-request': afterRequestParams,
+    's-hook': hook,
+    's-mock': mock,
+    'icon-opportunity': Opportunity
+  },
+  data() {
+    const mode = this.$route.query.mode as 'edit' | 'view';
+    return {
+      workMode: mode, //是否开启预览模式
+      activeName: 's-params',
+      generateCodeVisible: false, //是否打开生成代码弹窗
+      debounceFn: null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>),
+    };
+  },
+  computed: {
+    //是否存在查询参数
+    hasQueryOrPathsParams() {
+      const { queryParams, paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
+      const hasPathsParams = paths.some((data) => data.key);
+      return hasQueryParams || hasPathsParams;
     },
-    data() {
-        const mode = this.$route.query.mode as 'edit' | 'view';
-        return {
-            workMode: mode, //是否开启预览模式
-            activeName: 's-params',
-            generateCodeVisible: false, //是否打开生成代码弹窗
-            debounceFn: null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>),
-        };
+    //是否存在body参数
+    hasBodyParams() {
+      const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      return !!contentType;
     },
-    computed: {
-        //是否存在查询参数
-        hasQueryOrPathsParams() {
-            const { queryParams, paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
-            const hasPathsParams = paths.some((data) => data.key);
-            return hasQueryParams || hasPathsParams;
-        },
-        //是否存在body参数
-        hasBodyParams() {
-            const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            return !!contentType;
-        },
-        //是否存在预请求脚本
-        hasPreRequest() {
-            const preRequest = this.$store.state['apidoc/apidoc'].apidoc.preRequest.raw;
-            return !!preRequest;
-        },
-        //是否存在后请求脚本
-        hasAfterRequest() {
-            const afterRequest = this.$store.state['apidoc/apidoc'].apidoc.afterRequest.raw;
-            return !!afterRequest;
-        },
-        //返回参数个数
-        responseNum() {
-            const resParams = this.$store.state['apidoc/apidoc'].apidoc.item.responseParams;
-            let resNum = 0;
-            resParams.forEach(response => {
-                const resValue = response.value;
-                const { dataType } = resValue;
-                if (dataType === 'application/json') {
-                    if (resValue.strJson.length > 0) {
-                        resNum += 1;
-                    }
-                } else if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
-                    if (resValue.text.length > 0) {
-                        resNum += 1;
-                    }
-                } else {
-                    console.warn(`${this.$t('未实现的返回类型')}${dataType}`);
-                }
-            });
-            return resNum;
-        },
-        hasCustomMockInfo() {
-            const { mockInfo } = store.state['apidoc/apidoc'].apidoc;
-            // const { path } = this.$store.state["apidoc/apidoc"].apidoc.item.url;
-            const { responseHeaders } = this.$store.state['apidoc/apidoc'].apidoc.mockInfo;
-            const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
-            if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
-                return true;
-            }
-            if (mockInfo.responseType === 'text' && mockInfo.text.trim() !== '') {
-                return true;
-            }
-            if (mockInfo.responseType === 'image') {
-                return true;
-            }
-            if (mockInfo.responseType === 'file') {
-                return true;
-            }
-            if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
-                return true;
-            }
-            if (hasHeaders) { //存在自定义headers
-                return true;
-            }
-            if (mockInfo.path !== '' && mockInfo.path !== '/') { //blur会在自动添加/，这种情况也属于未改变
-                return true;
-            }
-            if (mockInfo.responseDelay !== 0) {
-                return true;
-            }
-            if (mockInfo.httpStatusCode !== 200) {
-                return true;
-            }
-            return false;
-        },
-        //是否存在headers
-        hasHeaders() {
-            const { headers } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            const commonHeaders = store.getters['apidoc/baseInfo/headers'](this.currentSelectTab?._id) as ApidocProperty<'string'>[];
-            const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true }))).filter(p => p.select).some((data) => data.key);
-            return hasHeaders;
-        },
-        //当前选中tab
-        currentSelectTab(): ApidocTab | null { //当前选中的doc
-            const projectId = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-            return currentSelectTab;
-        },
-        //布局
-        layout() {
-            return this.$store.state['apidoc/baseInfo'].layout;
-        },
-        //apidoc
-        apidoc() {
-            return this.$store.state['apidoc/apidoc'].apidoc;
-        },
-        //当前工作区状态
-        isView() {
-            return this.$store.state['apidoc/baseInfo'].mode === 'view'
-        },
+    //是否存在预请求脚本
+    hasPreRequest() {
+      const preRequest = this.$store.state['apidoc/apidoc'].apidoc.preRequest.raw;
+      return !!preRequest;
     },
-    watch: {
-        activeName(val: string) {
-            if (this.currentSelectTab) {
-                apidocCache.setActiveParamsTab(this.currentSelectTab._id, val);
-            }
-        },
-        currentSelectTab() {
-            this.initTabCache();
-        },
-        apidoc: {
-            handler(apidoc: ApidocDetail) {
-                if (this.debounceFn) {
-                    this.debounceFn(apidoc);
-                }
-            },
-            deep: true,
-        },
+    //是否存在后请求脚本
+    hasAfterRequest() {
+      const afterRequest = this.$store.state['apidoc/apidoc'].apidoc.afterRequest.raw;
+      return !!afterRequest;
     },
-    mounted() {
-        this.debounceFn = debounce((apidoc: ApidocDetail) => {
-            const { originApidoc } = this.$store.state['apidoc/apidoc'];
-            const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
-            this.$store.commit('apidoc/mock/changeCurrentMockUrl', {
-                id: this.currentSelectTab?._id,
-                apidoc,
-            })
-            if (!isEqual) {
-                this.$store.commit('apidoc/tabs/changeTabInfoById', {
-                    id: this.currentSelectTab?._id,
-                    field: 'saved',
-                    value: false,
-                })
-                this.$store.commit('apidoc/tabs/changeTabInfoById', {
-                    id: this.currentSelectTab?._id,
-                    field: 'fixed',
-                    value: true,
-                })
-            } else {
-                this.$store.commit('apidoc/tabs/changeTabInfoById', {
-                    id: this.currentSelectTab?._id,
-                    field: 'saved',
-                    value: true,
-                })
-            }
-            //缓存接口信息
-            apidocCache.setApidoc(apidoc);
-        }, 200, {
-            leading: true
+    //返回参数个数
+    responseNum() {
+      const resParams = this.$store.state['apidoc/apidoc'].apidoc.item.responseParams;
+      let resNum = 0;
+      resParams.forEach(response => {
+        const resValue = response.value;
+        const { dataType } = resValue;
+        if (dataType === 'application/json') {
+          if (resValue.strJson.length > 0) {
+            resNum += 1;
+          }
+        } else if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
+          if (resValue.text.length > 0) {
+            resNum += 1;
+          }
+        } else {
+          console.warn(`${this.$t('未实现的返回类型')}${dataType}`);
+        }
+      });
+      return resNum;
+    },
+    hasCustomMockInfo() {
+      const { mockInfo } = store.state['apidoc/apidoc'].apidoc;
+      // const { path } = this.$store.state["apidoc/apidoc"].apidoc.item.url;
+      const { responseHeaders } = this.$store.state['apidoc/apidoc'].apidoc.mockInfo;
+      const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
+      if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
+        return true;
+      }
+      if (mockInfo.responseType === 'text' && mockInfo.text.trim() !== '') {
+        return true;
+      }
+      if (mockInfo.responseType === 'image') {
+        return true;
+      }
+      if (mockInfo.responseType === 'file') {
+        return true;
+      }
+      if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
+        return true;
+      }
+      if (hasHeaders) { //存在自定义headers
+        return true;
+      }
+      if (mockInfo.path !== '' && mockInfo.path !== '/') { //blur会在自动添加/，这种情况也属于未改变
+        return true;
+      }
+      if (mockInfo.responseDelay !== 0) {
+        return true;
+      }
+      if (mockInfo.httpStatusCode !== 200) {
+        return true;
+      }
+      return false;
+    },
+    //是否存在headers
+    hasHeaders() {
+      const { headers } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      const commonHeaders = store.getters['apidoc/baseInfo/headers'](this.currentSelectTab?._id) as ApidocProperty<'string'>[];
+      const hasHeaders = headers.concat(commonHeaders.map(v => ({ ...v, select: true }))).filter(p => p.select).some((data) => data.key);
+      return hasHeaders;
+    },
+    //当前选中tab
+    currentSelectTab(): ApidocTab | null { //当前选中的doc
+      const projectId = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+      return currentSelectTab;
+    },
+    //布局
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
+    },
+    //apidoc
+    apidoc() {
+      return this.$store.state['apidoc/apidoc'].apidoc;
+    },
+    //当前工作区状态
+    isView() {
+      return this.$store.state['apidoc/baseInfo'].mode === 'view'
+    },
+  },
+  watch: {
+    activeName(val: string) {
+      if (this.currentSelectTab) {
+        apidocCache.setActiveParamsTab(this.currentSelectTab._id, val);
+      }
+    },
+    currentSelectTab() {
+      this.initTabCache();
+    },
+    apidoc: {
+      handler(apidoc: ApidocDetail) {
+        if (this.debounceFn) {
+          this.debounceFn(apidoc);
+        }
+      },
+      deep: true,
+    },
+  },
+  mounted() {
+    this.debounceFn = debounce((apidoc: ApidocDetail) => {
+      const { originApidoc } = this.$store.state['apidoc/apidoc'];
+      const isEqual = this.checkApidocIsEqual(apidoc, originApidoc);
+      this.$store.commit('apidoc/mock/changeCurrentMockUrl', {
+        id: this.currentSelectTab?._id,
+        apidoc,
+      })
+      if (!isEqual) {
+        this.$store.commit('apidoc/tabs/changeTabInfoById', {
+          id: this.currentSelectTab?._id,
+          field: 'saved',
+          value: false,
         })
-        this.initTabCache();
-        this.$store.commit('apidoc/mock/changeCurrentMockUrl', {
-            id: this.currentSelectTab?._id,
-            apidoc: this.$store.state['apidoc/apidoc'].apidoc,
+        this.$store.commit('apidoc/tabs/changeTabInfoById', {
+          id: this.currentSelectTab?._id,
+          field: 'fixed',
+          value: true,
         })
-        document.documentElement.addEventListener('click', this.handleCloseHook)
+      } else {
+        this.$store.commit('apidoc/tabs/changeTabInfoById', {
+          id: this.currentSelectTab?._id,
+          field: 'saved',
+          value: true,
+        })
+      }
+      //缓存接口信息
+      apidocCache.setApidoc(apidoc);
+    }, 200, {
+      leading: true
+    })
+    this.initTabCache();
+    this.$store.commit('apidoc/mock/changeCurrentMockUrl', {
+      id: this.currentSelectTab?._id,
+      apidoc: this.$store.state['apidoc/apidoc'].apidoc,
+    })
+    document.documentElement.addEventListener('click', this.handleCloseHook)
+  },
+  unmounted() {
+    document.documentElement.removeEventListener('click', this.handleCloseHook)
+  },
+  methods: {
+    //初始化tab缓存
+    initTabCache() {
+      if (this.currentSelectTab) {
+        this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || 's-params';
+      }
     },
-    unmounted() {
-        document.documentElement.removeEventListener('click', this.handleCloseHook)
+    //切换布局
+    handleChangeLayout(layout: 'vertical' | 'horizontal') {
+      this.$store.commit('apidoc/baseInfo/changeLayout', layout);
     },
-    methods: {
-        //初始化tab缓存
-        initTabCache() {
-            if (this.currentSelectTab) {
-                this.activeName = apidocCache.getActiveParamsTab(this.currentSelectTab._id) || 's-params';
-            }
-        },
-        //切换布局
-        handleChangeLayout(layout: 'vertical' | 'horizontal') {
-            this.$store.commit('apidoc/baseInfo/changeLayout', layout);
-        },
-        //=========================================================================//
-        //判断apidoc是否发生改变
-        checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
-            const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
-            const mockInfoIsEqual = this.checkMockInfo(cpApidoc, cpOriginApidoc);
-            const preRequestIsEqual = this.checkPreRequest(cpApidoc, cpOriginApidoc);
-            const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
-            const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
-            const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
-            const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
-            const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
-            //=====================================Request====================================//
-            if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !mockInfoIsEqual) {
-                return false;
-            }
-            if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
-                return false;
-            }
-            if (cpApidoc.item.requestBody.mode === 'json') {
-                const jsonBodyIsEqual = cpApidoc.item.requestBody.rawJson === cpOriginApidoc.item.requestBody.rawJson
-                if (!jsonBodyIsEqual) {
-                    return false;
-                }
-            } else if (cpApidoc.item.requestBody.mode === 'formdata') {
-                const formDataIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.formdata, cpOriginApidoc.item.requestBody.formdata);
-                if (!formDataIsEqual) {
-                    return false;
-                }
-            } else if (cpApidoc.item.requestBody.mode === 'urlencoded') {
-                const urlencodedIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.urlencoded, cpOriginApidoc.item.requestBody.urlencoded);
-                if (!urlencodedIsEqual) {
-                    return false;
-                }
-            } else if (cpApidoc.item.requestBody.mode === 'raw') {
-                const rawDataIsEqual = cpApidoc.item.requestBody.raw.data === cpOriginApidoc.item.requestBody.raw.data
-                const rawTypeIsEqual = cpApidoc.item.requestBody.raw.dataType === cpOriginApidoc.item.requestBody.raw.dataType
-                if (!rawTypeIsEqual) {
-                    return false;
-                }
-                if (!rawDataIsEqual) {
-                    return false;
-                }
-            }
-            //=====================================Response====================================//
-            if (cpApidoc.item.responseParams.length !== cpOriginApidoc.item.responseParams.length) { //返回参数长度不相等
-                return false;
-            }
-            for (let i = 0; i < cpApidoc.item.responseParams.length; i += 1) {
-                const item = cpApidoc.item.responseParams[i];
-                const originItem = cpOriginApidoc.item.responseParams[i];
-                // const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
-                if (item.value.strJson !== originItem.value.strJson) {
-                    return false;
-                }
-                if (item.statusCode !== originItem.statusCode) { //状态码不相同
-                    return false;
-                }
-                if (item.title !== originItem.title) { //描述不相同
-                    return false;
-                }
-                if (item.value.dataType !== originItem.value.dataType) { //数据类型不相同
-                    return false;
-                }
-                if (item.value.file.url !== originItem.value.file.url || item.value.file.raw !== originItem.value.file.raw) { //文件类型url不相同
-                    return false;
-                }
-                if (item.value.text !== originItem.value.text) { //文件类型url不相同
-                    return false;
-                }
-            }
-            return true;
-        },
-        //检查mockInfo是否改变
-        checkMockInfo(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
-        },
-        //检查请求方法是否发生改变
-        checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
-        },
-        //检查preRequest是否发送改变
-        checkPreRequest(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            return apidoc.preRequest.raw === originApidoc.preRequest.raw;
-        },
-        //检查请求url是否发生改变
-        checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
-            // const apidocHost = apidoc.item.url.host;
-            const apidocPath = apidoc.item.url.path;
-            // const originHost = originApidoc.item.url.host;
-            const originPath = originApidoc.item.url.path;
-            return apidocPath === originPath;
-        },
-        //检查ApidocProperty[]类型数据是否相同
-        checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]) {
-            if (value.length !== originValue.length) return false;
-            for (let i = 0; i < value.length; i += 1) {
-                const item = value[i];
-                const { _id } = item;
-                const matchedOriginItem = originValue.find(v => v._id === _id);
-                if (!matchedOriginItem) {
-                    return false;
-                }
-                if (!this.checkIsSameProperty(item, matchedOriginItem)) {
-                    return false;
-                }
-            }
-            return true;
-        },
-        //检查每个ApidocProperty是否一致
-        checkIsSameProperty(p: ApidocProperty, p2: ApidocProperty) {
-            let isSame = true;
-            const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
-                if (prop.key !== prop2.key) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.value !== prop2.value) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.type !== prop2.type) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.required !== prop2.required) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.description !== prop2.description) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.select !== prop2.select) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.children.length !== prop2.children.length) {
-                    isSame = false;
-                    return;
-                }
-                if (prop.children.length > 0) { //prop2长度肯定也大于0
-                    for (let i = 0; i < prop.children.length; i += 1) {
-                        checkProperty(prop.children[i], prop2.children[i]);
-                    }
-                }
-            }
-            checkProperty(p, p2);
-            return isSame
-        },
-        //=========================================================================//
-        //切换工作模式
-        toggleWorkMode(mode: 'edit' | 'view') {
-            this.workMode = mode;
-        },
-        //打开变量维护页面
-        handleOpenVariable() {
-            this.$store.commit('apidoc/tabs/addTab', {
-                _id: 'variable',
-                projectId: this.$route.query.id,
-                tabType: 'variable',
-                label: this.$t('变量维护'),
-                head: {
-                    icon: 'iconvariable',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-        },
-        //打开联想参数
-        handleOpenMindParams() {
-            this.$store.commit('apidoc/tabs/addTab', {
-                _id: 'mindParams',
-                projectId: this.$route.query.id,
-                tabType: 'mindParams',
-                label: this.$t('联想参数'),
-                head: {
-                    icon: 'iconmindParams',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-        },
-        //关闭生成代码popover
-        handleCloseHook() {
-            this.generateCodeVisible = false;
-        },
+    //=========================================================================//
+    //判断apidoc是否发生改变
+    checkApidocIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+      const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidoc));
+      const cpOriginApidoc: ApidocDetail = JSON.parse(JSON.stringify(originApidoc));
+      const mockInfoIsEqual = this.checkMockInfo(cpApidoc, cpOriginApidoc);
+      const preRequestIsEqual = this.checkPreRequest(cpApidoc, cpOriginApidoc);
+      const methodIsEqual = this.checkMethodIsEqual(cpApidoc, cpOriginApidoc);
+      const urlIsEqual = this.checkUrlIsEqual(cpApidoc, cpOriginApidoc);
+      const headerIsEqual = this.checkPropertyIsEqual(cpApidoc.item.headers, cpOriginApidoc.item.headers);
+      const pathsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.paths, cpOriginApidoc.item.paths);
+      const queryParamsIsEqual = this.checkPropertyIsEqual(cpApidoc.item.queryParams, cpOriginApidoc.item.queryParams);
+      //=====================================Request====================================//
+      if (!methodIsEqual || !urlIsEqual || !headerIsEqual || !pathsIsEqual || !queryParamsIsEqual || !preRequestIsEqual || !mockInfoIsEqual) {
+        return false;
+      }
+      if (cpApidoc.item.requestBody.mode !== cpOriginApidoc.item.requestBody.mode) { //body模式不同
+        return false;
+      }
+      if (cpApidoc.item.requestBody.mode === 'json') {
+        const jsonBodyIsEqual = cpApidoc.item.requestBody.rawJson === cpOriginApidoc.item.requestBody.rawJson
+        if (!jsonBodyIsEqual) {
+          return false;
+        }
+      } else if (cpApidoc.item.requestBody.mode === 'formdata') {
+        const formDataIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.formdata, cpOriginApidoc.item.requestBody.formdata);
+        if (!formDataIsEqual) {
+          return false;
+        }
+      } else if (cpApidoc.item.requestBody.mode === 'urlencoded') {
+        const urlencodedIsEqual = this.checkPropertyIsEqual(cpApidoc.item.requestBody.urlencoded, cpOriginApidoc.item.requestBody.urlencoded);
+        if (!urlencodedIsEqual) {
+          return false;
+        }
+      } else if (cpApidoc.item.requestBody.mode === 'raw') {
+        const rawDataIsEqual = cpApidoc.item.requestBody.raw.data === cpOriginApidoc.item.requestBody.raw.data
+        const rawTypeIsEqual = cpApidoc.item.requestBody.raw.dataType === cpOriginApidoc.item.requestBody.raw.dataType
+        if (!rawTypeIsEqual) {
+          return false;
+        }
+        if (!rawDataIsEqual) {
+          return false;
+        }
+      }
+      //=====================================Response====================================//
+      if (cpApidoc.item.responseParams.length !== cpOriginApidoc.item.responseParams.length) { //返回参数长度不相等
+        return false;
+      }
+      for (let i = 0; i < cpApidoc.item.responseParams.length; i += 1) {
+        const item = cpApidoc.item.responseParams[i];
+        const originItem = cpOriginApidoc.item.responseParams[i];
+        // const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
+        if (item.value.strJson !== originItem.value.strJson) {
+          return false;
+        }
+        if (item.statusCode !== originItem.statusCode) { //状态码不相同
+          return false;
+        }
+        if (item.title !== originItem.title) { //描述不相同
+          return false;
+        }
+        if (item.value.dataType !== originItem.value.dataType) { //数据类型不相同
+          return false;
+        }
+        if (item.value.file.url !== originItem.value.file.url || item.value.file.raw !== originItem.value.file.raw) { //文件类型url不相同
+          return false;
+        }
+        if (item.value.text !== originItem.value.text) { //文件类型url不相同
+          return false;
+        }
+      }
+      return true;
     },
+    //检查mockInfo是否改变
+    checkMockInfo(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+      return lodashIsEqual(apidoc.mockInfo, originApidoc.mockInfo);
+    },
+    //检查请求方法是否发生改变
+    checkMethodIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+      return apidoc.item.method.toLowerCase() === originApidoc.item.method.toLowerCase();
+    },
+    //检查preRequest是否发送改变
+    checkPreRequest(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+      return apidoc.preRequest.raw === originApidoc.preRequest.raw;
+    },
+    //检查请求url是否发生改变
+    checkUrlIsEqual(apidoc: ApidocDetail, originApidoc: ApidocDetail) {
+      // const apidocHost = apidoc.item.url.host;
+      const apidocPath = apidoc.item.url.path;
+      // const originHost = originApidoc.item.url.host;
+      const originPath = originApidoc.item.url.path;
+      return apidocPath === originPath;
+    },
+    //检查ApidocProperty[]类型数据是否相同
+    checkPropertyIsEqual(value: ApidocProperty[], originValue: ApidocProperty[]) {
+      if (value.length !== originValue.length) return false;
+      for (let i = 0; i < value.length; i += 1) {
+        const item = value[i];
+        const { _id } = item;
+        const matchedOriginItem = originValue.find(v => v._id === _id);
+        if (!matchedOriginItem) {
+          return false;
+        }
+        if (!this.checkIsSameProperty(item, matchedOriginItem)) {
+          return false;
+        }
+      }
+      return true;
+    },
+    //检查每个ApidocProperty是否一致
+    checkIsSameProperty(p: ApidocProperty, p2: ApidocProperty) {
+      let isSame = true;
+      const checkProperty = (prop: ApidocProperty, prop2: ApidocProperty) => {
+        if (prop.key !== prop2.key) {
+          isSame = false;
+          return;
+        }
+        if (prop.value !== prop2.value) {
+          isSame = false;
+          return;
+        }
+        if (prop.type !== prop2.type) {
+          isSame = false;
+          return;
+        }
+        if (prop.required !== prop2.required) {
+          isSame = false;
+          return;
+        }
+        if (prop.description !== prop2.description) {
+          isSame = false;
+          return;
+        }
+        if (prop.select !== prop2.select) {
+          isSame = false;
+          return;
+        }
+        if (prop.children.length !== prop2.children.length) {
+          isSame = false;
+          return;
+        }
+        if (prop.children.length > 0) { //prop2长度肯定也大于0
+          for (let i = 0; i < prop.children.length; i += 1) {
+            checkProperty(prop.children[i], prop2.children[i]);
+          }
+        }
+      }
+      checkProperty(p, p2);
+      return isSame
+    },
+    //=========================================================================//
+    //切换工作模式
+    toggleWorkMode(mode: 'edit' | 'view') {
+      this.workMode = mode;
+    },
+    //打开变量维护页面
+    handleOpenVariable() {
+      this.$store.commit('apidoc/tabs/addTab', {
+        _id: 'variable',
+        projectId: this.$route.query.id,
+        tabType: 'variable',
+        label: this.$t('变量维护'),
+        head: {
+          icon: 'iconvariable',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      });
+    },
+    //打开联想参数
+    handleOpenMindParams() {
+      this.$store.commit('apidoc/tabs/addTab', {
+        _id: 'mindParams',
+        projectId: this.$route.query.id,
+        tabType: 'mindParams',
+        label: this.$t('联想参数'),
+        head: {
+          icon: 'iconmindParams',
+          color: ''
+        },
+        saved: true,
+        fixed: true,
+        selected: true,
+      });
+    },
+    //关闭生成代码popover
+    handleCloseHook() {
+      this.generateCodeVisible = false;
+    },
+  },
 })
 </script>
 

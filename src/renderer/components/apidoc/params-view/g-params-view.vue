@@ -67,7 +67,7 @@
 
 <script lang="ts" setup>
 import {
-    PropType, watch, ref, Ref
+  PropType, watch, ref, Ref
 } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { Effect } from 'element-plus';
@@ -75,57 +75,57 @@ import { ApidocProperty, ApidocASTInfo } from '@@/global'
 import { astJson } from './composables/astJson'
 
 const props = defineProps({
-    /**
+  /**
      * 参数数据
      */
-    data: {
-        type: Array as PropType<ApidocProperty[]>,
-        default: () => [],
-    },
-    /**
+  data: {
+    type: Array as PropType<ApidocProperty[]>,
+    default: () => [],
+  },
+  /**
      * 是否为非复杂类型数据
      */
-    plain: {
-        type: Boolean,
-        default: false,
-    },
+  plain: {
+    type: Boolean,
+    default: false,
+  },
 });
 const astData: Ref<ApidocASTInfo[]> = ref([]);
 const queryString = ref(''); //查询字符串
 const activeCurlyBraceId = ref(''); //当前匹配的大括号id
 const activeBracketId = ref(''); //当前匹配的中括号id
 watch(() => props.data, (data) => {
-    astData.value = astJson(data);
+  astData.value = astJson(data);
 }, {
-    deep: true,
-    immediate: true,
+  deep: true,
+  immediate: true,
 });
 //折叠代码块
 const toggleCollapse = (item: ApidocASTInfo, index: number) => {
-    if (!item._close) {
-        item._close = true;
+  if (!item._close) {
+    item._close = true;
+  } else {
+    item._close = false;
+  }
+  const pairId = item.leftBracket.pairId || item.leftCurlBrace.pairId;
+  for (let i = index + 1; i < astData.value.length; i += 1) {
+    const astItem = astData.value[i];
+    if (astItem.rightBracket.pairId === pairId || astItem.rightCurlBrace.pairId === pairId) {
+      break;
+    }
+    if (item._close) {
+      astItem._hidden = true;
     } else {
-        item._close = false;
+      astItem._hidden = false;
     }
-    const pairId = item.leftBracket.pairId || item.leftCurlBrace.pairId;
-    for (let i = index + 1; i < astData.value.length; i += 1) {
-        const astItem = astData.value[i];
-        if (astItem.rightBracket.pairId === pairId || astItem.rightCurlBrace.pairId === pairId) {
-            break;
-        }
-        if (item._close) {
-            astItem._hidden = true;
-        } else {
-            astItem._hidden = false;
-        }
-    }
+  }
 }
 //点击进行括号匹配
 const handleCheckBraceMatch = (item: ApidocASTInfo) => {
-    const pairId = item.leftCurlBrace.pairId || item.rightCurlBrace.pairId;
-    const bracketPairId = item.leftBracket.pairId || item.rightBracket.pairId;
-    activeCurlyBraceId.value = pairId;
-    activeBracketId.value = bracketPairId;
+  const pairId = item.leftCurlBrace.pairId || item.rightCurlBrace.pairId;
+  const bracketPairId = item.leftBracket.pairId || item.rightBracket.pairId;
+  activeCurlyBraceId.value = pairId;
+  activeBracketId.value = bracketPairId;
 }
 
 </script>

@@ -38,70 +38,70 @@ import params from './params/params.vue'
 import response from './response/response.vue'
 
 export default defineComponent({
-    components: {
-        's-operation': operation,
-        's-params': params,
-        's-response': response,
+  components: {
+    's-operation': operation,
+    's-params': params,
+    's-response': response,
+  },
+  data() {
+    return {
+      isVerticalDrag: false
+    };
+  },
+  computed: {
+    currentSelectTab(): ApidocTab | null { //当前选中的doc
+      const projectId = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
+      return currentSelectTab;
     },
-    data() {
-        return {
-            isVerticalDrag: false
-        };
+    loading() {
+      return this.$store.state['apidoc/apidoc'].loading;
     },
-    computed: {
-        currentSelectTab(): ApidocTab | null { //当前选中的doc
-            const projectId = this.$route.query.id as string;
-            const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
-            const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-            return currentSelectTab;
-        },
-        loading() {
-            return this.$store.state['apidoc/apidoc'].loading;
-        },
-        layout() {
-            return this.$store.state['apidoc/baseInfo'].layout;
-        },
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
     },
-    watch: {
-        currentSelectTab: {
-            handler(val: ApidocTab | null, oldVal: ApidocTab | null) {
-                const isApidoc = val?.tabType === 'doc';
-                if (isApidoc && val?._id !== oldVal?._id) {
-                    this.getApidocInfo();
-                }
-            },
-            deep: true,
-            immediate: true,
-        },
+  },
+  watch: {
+    currentSelectTab: {
+      handler(val: ApidocTab | null, oldVal: ApidocTab | null) {
+        const isApidoc = val?.tabType === 'doc';
+        if (isApidoc && val?._id !== oldVal?._id) {
+          this.getApidocInfo();
+        }
+      },
+      deep: true,
+      immediate: true,
     },
-    methods: {
-        //获取api文档数据
-        getApidocInfo() {
-            if (!this.currentSelectTab) {
-                return
-            }
-            const password = localStorage.getItem('share/password') || ''
-            const shareId = this.$route.query.share_id;
-            if (this.currentSelectTab.saved) { //取最新值
-                this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
-                    id: this.currentSelectTab?._id,
-                    password,
-                    shareId,
-                    projectId: this.$route.query.id,
-                })
-            } else { //取缓存值
-                const catchedApidoc = apidocCache.getApidoc(this.currentSelectTab._id);
-                if (!catchedApidoc) {
-                    this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
-                        id: this.currentSelectTab?._id,
-                        projectId: this.$route.query.id,
-                    })
-                } else {
-                    this.$store.commit('apidoc/apidoc/changeApidoc', catchedApidoc);
-                }
-            }
-        },
+  },
+  methods: {
+    //获取api文档数据
+    getApidocInfo() {
+      if (!this.currentSelectTab) {
+        return
+      }
+      const password = localStorage.getItem('share/password') || ''
+      const shareId = this.$route.query.share_id;
+      if (this.currentSelectTab.saved) { //取最新值
+        this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
+          id: this.currentSelectTab?._id,
+          password,
+          shareId,
+          projectId: this.$route.query.id,
+        })
+      } else { //取缓存值
+        const catchedApidoc = apidocCache.getApidoc(this.currentSelectTab._id);
+        if (!catchedApidoc) {
+          this.$store.dispatch('apidoc/apidoc/getSharedApidocDetail', {
+            id: this.currentSelectTab?._id,
+            projectId: this.$route.query.id,
+          })
+        } else {
+          this.$store.commit('apidoc/apidoc/changeApidoc', catchedApidoc);
+        }
+      }
     },
+  },
 })
 </script>
 

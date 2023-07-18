@@ -70,74 +70,74 @@ import editUserDialog from './edit/edit.vue'
 import resetPasswordDialog from './reset-pwd/reset-pwd.vue'
 
 export default defineComponent({
-    components: {
-        's-add-user-dialog': addUserDialog,
-        's-edit-user-dialog': editUserDialog,
-        's-reset-password-dialog': resetPasswordDialog,
+  components: {
+    's-add-user-dialog': addUserDialog,
+    's-edit-user-dialog': editUserDialog,
+    's-reset-password-dialog': resetPasswordDialog,
+  },
+  data() {
+    return {
+      addUserDialog: false, //------------------新增用户弹窗
+      editUserDialog: false, //-----------------编辑用户弹窗
+      resetPwdDialog: false, //-----------------重置密码弹窗
+      editUserId: '', //------------------------编辑时候用户id
+      loading: false, //------------------------下载模板加载效果
+      loading2: false, //-----------------------批量导入用户加载效果
+    };
+  },
+  methods: {
+    //获取用户基本信息
+    getData(params?: Record<string, unknown>) {
+      this.$refs.table.getData(params);
     },
-    data() {
-        return {
-            addUserDialog: false, //------------------新增用户弹窗
-            editUserDialog: false, //-----------------编辑用户弹窗
-            resetPwdDialog: false, //-----------------重置密码弹窗
-            editUserId: '', //------------------------编辑时候用户id
-            loading: false, //------------------------下载模板加载效果
-            loading2: false, //-----------------------批量导入用户加载效果
+    //搜索用户
+    handleChange(params: Record<string, unknown>) {
+      this.getData(params)
+    },
+    //禁用角色
+    handleForbidRole(_id: string, enable: boolean) {
+      const tipLabel = enable ? this.$t('禁用') : this.$t('启用');
+      this.$confirm(this.$t('确实要该用户吗', { msg: tipLabel }), this.$t('提示'), {
+        confirmButtonText: this.$t('确定'),
+        cancelButtonText: this.$t('取消'),
+        type: 'warning',
+      }).then(() => {
+        const params = {
+          _id,
+          enable: !enable,
         };
+        this.axios.put('/api/security/user_state', params).then(() => {
+          this.$refs.table.getData();
+        }).catch((err) => {
+          console.error(err);
+        });
+      }).catch((err: Error | string) => {
+        if (err === 'cancel' || err === 'close') {
+          return;
+        }
+        console.error(err);
+      });
     },
-    methods: {
-        //获取用户基本信息
-        getData(params?: Record<string, unknown>) {
-            this.$refs.table.getData(params);
-        },
-        //搜索用户
-        handleChange(params: Record<string, unknown>) {
-            this.getData(params)
-        },
-        //禁用角色
-        handleForbidRole(_id: string, enable: boolean) {
-            const tipLabel = enable ? this.$t('禁用') : this.$t('启用');
-            this.$confirm(this.$t('确实要该用户吗', { msg: tipLabel }), this.$t('提示'), {
-                confirmButtonText: this.$t('确定'),
-                cancelButtonText: this.$t('取消'),
-                type: 'warning',
-            }).then(() => {
-                const params = {
-                    _id,
-                    enable: !enable,
-                };
-                this.axios.put('/api/security/user_state', params).then(() => {
-                    this.$refs.table.getData();
-                }).catch((err) => {
-                    console.error(err);
-                });
-            }).catch((err: Error | string) => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-        handleOpenEditUser(row: { _id: string }) {
-            this.editUserId = row._id;
-            this.editUserDialog = true;
-        },
-        //重置密码
-        handleResetPassword(row: { _id: string }) {
-            this.editUserId = row._id;
-            this.resetPwdDialog = true;
-        },
-        //导入成功弹窗
-        handleImportSuccess(data: { total: number, success: number }) {
-            this.getData();
-            this.$alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
-                confirmButtonText: '确定',
-                type: 'warning'
-            }).then(() => {
-                //console.log(222)
-            });
-        },
+    handleOpenEditUser(row: { _id: string }) {
+      this.editUserId = row._id;
+      this.editUserDialog = true;
     },
+    //重置密码
+    handleResetPassword(row: { _id: string }) {
+      this.editUserId = row._id;
+      this.resetPwdDialog = true;
+    },
+    //导入成功弹窗
+    handleImportSuccess(data: { total: number, success: number }) {
+      this.getData();
+      this.$alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
+        confirmButtonText: '确定',
+        type: 'warning'
+      }).then(() => {
+        //console.log(222)
+      });
+    },
+  },
 })
 </script>
 

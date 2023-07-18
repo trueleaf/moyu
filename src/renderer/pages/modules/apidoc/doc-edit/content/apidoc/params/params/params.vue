@@ -29,9 +29,9 @@ const queryTreeData = computed(() => store.state['apidoc/apidoc'].apidoc.item.qu
 const mindQueryData = computed(() => store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'queryParams'))
 //是否存在path参数
 const hasPathParams = computed(() => {
-    const { paths } = store.state['apidoc/apidoc'].apidoc.item;
-    const hasPathsParams = paths.some((data) => data.key);
-    return hasPathsParams;
+  const { paths } = store.state['apidoc/apidoc'].apidoc.item;
+  const hasPathsParams = paths.some((data) => data.key);
+  return hasPathsParams;
 })
 
 </script>

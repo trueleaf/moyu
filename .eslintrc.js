@@ -31,11 +31,11 @@ module.exports = {
             "off",
             { packageDir: "./build/" },
         ],
-        indent: "off",
-        "@typescript-eslint/indent": ["error"],
+        indent: ["error", 2],
+        // "@typescript-eslint/indent": ["error", 2],
         semi: "off", //结尾分号无所谓
         "comma-dangle": "off",
-        "quotes": ["error", "single"],
+        quotes: ["error", "single"],
         "max-len": ["error", { code: 400 }], //最大代码长度为400行
         "no-param-reassign": ["error", { props: false }], //函数参数非对象情况不允许直接改变
         "linebreak-style": ["off", "windows"],
@@ -65,6 +65,6 @@ module.exports = {
         "no-continue": "off",
         "array-callback-return": "off",
         "arrow-body-style": "off",
-        "prefer-destructuring": "off"
+        "prefer-destructuring": "off",
     },
 };

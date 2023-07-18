@@ -27,21 +27,21 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  computed: {
+    cookies() {
+      return this.$store.state['apidoc/response'].cookies
     },
-    computed: {
-        cookies() {
-            return this.$store.state['apidoc/response'].cookies
-        },
-        //布局
-        layout() {
-            return this.$store.state['apidoc/baseInfo'].layout;
-        },
+    //布局
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
     },
-    methods: {
-    },
+  },
+  methods: {
+  },
 })
 </script>
 

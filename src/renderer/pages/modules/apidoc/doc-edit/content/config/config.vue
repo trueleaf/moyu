@@ -92,12 +92,12 @@ import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper/index'
 
 const copyApiRules: Ref<ApidocProjectRules> = ref({
-    requireValue: true,
-    requireDescription: true,
-    fileInFolderLimit: 8,
-    enableCollapseAnimation: true,
-    dominLimit: 8,
-    requestMethods: [],
+  requireValue: true,
+  requireDescription: true,
+  fileInFolderLimit: 8,
+  enableCollapseAnimation: true,
+  dominLimit: 8,
+  requestMethods: [],
 });
 const paramTypes: Ref<ApidocRequestParamTypes> = ref(apidocGenerateRequestParamTypes());
 const loading = ref(false); //加载效果
@@ -105,25 +105,25 @@ const projectId = router.currentRoute.value.query.id; //项目id
 
 //保存配置信息
 const saveConfig = () => {
-    loading.value = true;
-    const params = {
-        projectId,
-        ...copyApiRules.value,
-    };
-    axios.put('/api/apidoc/project/project_rules', params).then(() => {
-        store.commit('apidoc/baseInfo/changeProjectRules', JSON.parse(JSON.stringify(copyApiRules.value)))
-    }).catch((err) => {
-        console.error(err)
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    projectId,
+    ...copyApiRules.value,
+  };
+  axios.put('/api/apidoc/project/project_rules', params).then(() => {
+    store.commit('apidoc/baseInfo/changeProjectRules', JSON.parse(JSON.stringify(copyApiRules.value)))
+  }).catch((err) => {
+    console.error(err)
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 
 event.on('apidoc/getBaseInfo', (data) => {
-    copyApiRules.value = (JSON.parse(JSON.stringify(data)) as ApidocProjectBaseInfoState).rules;
+  copyApiRules.value = (JSON.parse(JSON.stringify(data)) as ApidocProjectBaseInfoState).rules;
 })
 onMounted(() => { //当组件还未创建时候，通过mounted生命周期确保获取到数据
-    copyApiRules.value = JSON.parse(JSON.stringify(store.state['apidoc/baseInfo'].rules));
+  copyApiRules.value = JSON.parse(JSON.stringify(store.state['apidoc/baseInfo'].rules));
 })
 
 </script>

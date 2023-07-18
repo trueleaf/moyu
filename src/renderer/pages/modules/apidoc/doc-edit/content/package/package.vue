@@ -61,9 +61,9 @@ import { FormInstance } from 'element-plus/lib/components/form';
 //获取脚本列表
 const tableInfo: Ref<{ name: string, code: string }[]> = ref([]);
 const getScriptList = () => {
-    db.scriptList.toArray().then(res => {
-        tableInfo.value = res;
-    })
+  db.scriptList.toArray().then(res => {
+    tableInfo.value = res;
+  })
 }
 /*
 |--------------------------------------------------------------------------
@@ -72,62 +72,62 @@ const getScriptList = () => {
 */
 const form: Ref<FormInstance | null> = ref(null);
 const formInfo = ref({
-    code: '',
-    name: '',
+  code: '',
+  name: '',
 });
 const rules = ref({
-    name: [{ required: true, message: '请输入包名', trigger: 'blur' }],
-    code: [{ required: true, message: '请上传js文件', trigger: 'change' }],
+  name: [{ required: true, message: '请输入包名', trigger: 'blur' }],
+  code: [{ required: true, message: '请上传js文件', trigger: 'change' }],
 });
 //检查文件格式和文件大小
 const handleBeforeUpload = (file: File) => {
-    const standerFileType = file.type; //标准类型
-    const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
-    const suffixFileType = matchSuffix ? matchSuffix[0] : '';
-    if (!standerFileType && !suffixFileType) {
-        ElMessage.error('未知的文件格式，无法解析');
-        return false;
-    }
-    if (standerFileType !== 'text/javascript') {
-        ElMessage.error('仅支持js文件上传');
-        return false;
-    }
-    if (file.size > 1024 * 1024 * 20) {
-        ElMessage.error('文件大小不超过20M');
-        return false;
-    }
-    return true;
+  const standerFileType = file.type; //标准类型
+  const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
+  const suffixFileType = matchSuffix ? matchSuffix[0] : '';
+  if (!standerFileType && !suffixFileType) {
+    ElMessage.error('未知的文件格式，无法解析');
+    return false;
+  }
+  if (standerFileType !== 'text/javascript') {
+    ElMessage.error('仅支持js文件上传');
+    return false;
+  }
+  if (file.size > 1024 * 1024 * 20) {
+    ElMessage.error('文件大小不超过20M');
+    return false;
+  }
+  return true;
 }
 //发送请求钩子
 const requestHook: UploadRequestHandler = (options: UploadRequestOptions) => {
-    const { file } = options;
-    return new Promise((resolve, reject) => {
-        file.text().then((stringScript) => {
-            formInfo.value.code = stringScript
-            resolve(stringScript)
-        }).catch(err => {
-            reject(err)
-        })
+  const { file } = options;
+  return new Promise((resolve, reject) => {
+    file.text().then((stringScript) => {
+      formInfo.value.code = stringScript
+      resolve(stringScript)
+    }).catch(err => {
+      reject(err)
     })
+  })
 }
 //新增脚本
 const handleAddScript = () => {
-    if (form.value) {
-        form.value.validate(async (valid) => {
-            if (valid) {
-                const scriptList = await db.scriptList.toArray();
-                if (scriptList.find(v => v.name === formInfo.value.name)) {
-                    ElMessage.warning('当前安装包名称已存在')
-                } else {
-                    db.scriptList.add({
-                        name: formInfo.value.name,
-                        code: formInfo.value.code
-                    })
-                    getScriptList();
-                }
-            }
-        })
-    }
+  if (form.value) {
+    form.value.validate(async (valid) => {
+      if (valid) {
+        const scriptList = await db.scriptList.toArray();
+        if (scriptList.find(v => v.name === formInfo.value.name)) {
+          ElMessage.warning('当前安装包名称已存在')
+        } else {
+          db.scriptList.add({
+            name: formInfo.value.name,
+            code: formInfo.value.code
+          })
+          getScriptList();
+        }
+      }
+    })
+  }
 }
 /*
 |--------------------------------------------------------------------------
@@ -139,26 +139,26 @@ const code = ref('');
 const title = ref('');
 //打开安装包弹窗
 const handleOpenCodeDialog = (info: { name: string, code: string }) => {
-    codeVisible.value = true;
-    code.value = info.code;
-    title.value = info.name;
+  codeVisible.value = true;
+  code.value = info.code;
+  title.value = info.name;
 }
 //删除包
 const handleDeletepackage = async (info: { name: string, code: string }) => {
-    ElMessageBox.confirm('此操作将永久删除此条记录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-    }).then(async () => {
-        await db.scriptList.where('name').anyOf(info.name).delete();
-        getScriptList();
-    }).catch((err) => {
-        console.error(err);
-    });
+  ElMessageBox.confirm('此操作将永久删除此条记录, 是否继续?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    await db.scriptList.where('name').anyOf(info.name).delete();
+    getScriptList();
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 //读取脚本信息
 onMounted(() => {
-    getScriptList();
+  getScriptList();
 })
 </script>
 

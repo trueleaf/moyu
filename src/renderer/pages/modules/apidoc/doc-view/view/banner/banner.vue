@@ -63,14 +63,14 @@ import shareRouter from '../../router/index'
 
 //搜索数据
 type SearchData = {
-    /**
+  /**
      * 接口名称或者接口路径
      */
-    iptValue: string,
-    /**
+  iptValue: string,
+  /**
      * 限制最近访问数据id集合
      */
-    recentNumIds: string[] | null,
+  recentNumIds: string[] | null,
 };
 
 /*
@@ -91,33 +91,33 @@ const { loading } = useBannerData();
 const defaultExpandedKeys = computed(() => store.state['apidoc/banner'].defaultExpandedKeys);
 //点击节点，如果按住ctrl则可以多选
 const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
-    if (!data.isFolder) {
-        store.commit('apidoc/tabs/addTab', {
-            _id: data._id,
-            projectId,
-            tabType: 'doc',
-            label: data.name,
-            saved: true,
-            fixed: false,
-            selected: true,
-            head: {
-                icon: data.method,
-            },
-        })
-    }
+  if (!data.isFolder) {
+    store.commit('apidoc/tabs/addTab', {
+      _id: data._id,
+      projectId,
+      tabType: 'doc',
+      label: data.name,
+      saved: true,
+      fixed: false,
+      selected: true,
+      head: {
+        icon: data.method,
+      },
+    })
+  }
 }
 const projectInfo = computed(() => store.state['apidoc/baseInfo']);
 const activeNode = computed(() => store.state['apidoc/tabs'].tabs[projectId]?.find((v) => v.selected));
 const bannerData = computed(() => {
-    const originBannerData = store.state['apidoc/banner'].banner;
-    return originBannerData
+  const originBannerData = store.state['apidoc/banner'].banner;
+  return originBannerData
 })
 //双击节点固定这个节点
 const handleDbclickNode = (data: ApidocBanner) => {
-    store.commit('apidoc/tabs/fixedTab', {
-        _id: data._id,
-        projectId,
-    })
+  store.commit('apidoc/tabs/fixedTab', {
+    _id: data._id,
+    projectId,
+  })
 }
 
 /*
@@ -128,26 +128,26 @@ const handleDbclickNode = (data: ApidocBanner) => {
 const filterString = ref('');
 //调用过滤方法
 const handleFilterNode = (filterInfo: SearchData) => {
-    if (docTree.value) {
-        (docTree.value as TreeNodeOptions['store']).filter(filterInfo)
-    }
-    filterString.value = filterInfo.iptValue;
+  if (docTree.value) {
+    (docTree.value as TreeNodeOptions['store']).filter(filterInfo)
+  }
+  filterString.value = filterInfo.iptValue;
 }
 //过滤节点
 const filterNode = (filterInfo: SearchData, data: Record<string, unknown>): boolean => {
-    if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
-        const treeRef = docTree.value as TreeNodeOptions;
-        Object.keys(treeRef.store.nodesMap).map((key) => {
-            treeRef.store.nodesMap[key].expanded = false
-        })
-        showMoreNodeInfo.value = false;
-        return true;
-    }
-    const matchedUrl = filterInfo.iptValue ? (data as ApidocBanner).url?.match(filterInfo.iptValue) : false;
-    const matchedDocName = filterInfo.iptValue ? (data as ApidocBanner).name.match(filterInfo.iptValue) : false;
-    const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === (data as ApidocBanner)._id) : false;
-    showMoreNodeInfo.value = true;
-    return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
+  if (!filterInfo.iptValue && !filterInfo.recentNumIds) {
+    const treeRef = docTree.value as TreeNodeOptions;
+    Object.keys(treeRef.store.nodesMap).map((key) => {
+      treeRef.store.nodesMap[key].expanded = false
+    })
+    showMoreNodeInfo.value = false;
+    return true;
+  }
+  const matchedUrl = filterInfo.iptValue ? (data as ApidocBanner).url?.match(filterInfo.iptValue) : false;
+  const matchedDocName = filterInfo.iptValue ? (data as ApidocBanner).name.match(filterInfo.iptValue) : false;
+  const matchedOthers = filterInfo.recentNumIds ? filterInfo.recentNumIds.find(v => v === (data as ApidocBanner)._id) : false;
+  showMoreNodeInfo.value = true;
+  return (!!matchedUrl || !!matchedDocName) || !!matchedOthers;
 }
 </script>
 

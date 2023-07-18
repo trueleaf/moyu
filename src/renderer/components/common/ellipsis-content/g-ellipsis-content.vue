@@ -17,72 +17,72 @@ import { defineComponent } from 'vue'
 import { Effect } from 'element-plus';
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 展示值
          */
-        value: {
-            type: [String, Number, Boolean],
-            default: '',
-        },
-        /**
+    value: {
+      type: [String, Number, Boolean],
+      default: '',
+    },
+    /**
          * 最大宽度
          */
-        maxWidth: {
-            type: [String, Number],
-            default: 100,
-        },
-        /**
+    maxWidth: {
+      type: [String, Number],
+      default: 100,
+    },
+    /**
          * 是否允许拷贝
          */
-        copy: {
-            type: [Boolean],
-            default: false,
-        },
+    copy: {
+      type: [Boolean],
+      default: false,
     },
-    data() {
-        return {
-            Effect,
-            isOverflow: false,
-        };
-    },
-    watch: {
-        value: {
-            handler() {
-                this.changeValueWidth();
-                setTimeout(() => {
-                    const textDom = this.$refs.text as HTMLElement;
-                    if (textDom) {
-                        this.isOverflow = textDom.clientWidth < textDom.scrollWidth;
-                    }
-                });
-            },
-            immediate: true,
-        },
-    },
-    mounted() {
+  },
+  data() {
+    return {
+      Effect,
+      isOverflow: false,
+    };
+  },
+  watch: {
+    value: {
+      handler() {
         this.changeValueWidth();
+        setTimeout(() => {
+          const textDom = this.$refs.text as HTMLElement;
+          if (textDom) {
+            this.isOverflow = textDom.clientWidth < textDom.scrollWidth;
+          }
+        });
+      },
+      immediate: true,
     },
-    methods: {
-        changeValueWidth() {
-            const textDom = this.$refs.text as HTMLElement;
-            if (!textDom) {
-                return;
-            }
-            if (typeof this.maxWidth === 'number') {
-                textDom.style.maxWidth = `${this.maxWidth}px`;
-            } else if (typeof this.maxWidth === 'string') {
-                textDom.style.maxWidth = this.maxWidth;
-            }
-        },
-        handleSelect(e: Event) {
-            const selection = window.getSelection();
+  },
+  mounted() {
+    this.changeValueWidth();
+  },
+  methods: {
+    changeValueWidth() {
+      const textDom = this.$refs.text as HTMLElement;
+      if (!textDom) {
+        return;
+      }
+      if (typeof this.maxWidth === 'number') {
+        textDom.style.maxWidth = `${this.maxWidth}px`;
+      } else if (typeof this.maxWidth === 'string') {
+        textDom.style.maxWidth = this.maxWidth;
+      }
+    },
+    handleSelect(e: Event) {
+      const selection = window.getSelection();
             selection?.removeAllRanges();
             const range = document.createRange();
             range.selectNodeContents(e.target as HTMLElement);
             selection?.addRange(range);
-        },
     },
+  },
 })
 </script>
 

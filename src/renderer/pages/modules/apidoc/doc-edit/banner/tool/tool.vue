@@ -171,30 +171,30 @@ import localOriginOperations from './operations'
 import { addFileAndFolderCb } from '../composables/curd-node'
 
 type Operation = {
-    /**
+  /**
      * 操作名称
      */
-    name: string,
-    /**
+  name: string,
+  /**
      * 图标
      */
-    icon: string,
-    /**
+  icon: string,
+  /**
      * 操作标识
      */
-    op: string,
-    /**
+  op: string,
+  /**
      * 快捷键
      */
-    shortcut: string[],
-    /**
+  shortcut: string[],
+  /**
      * 是否固定操作栏
      */
-    pin: boolean,
-    /**
+  pin: boolean,
+  /**
      * 预览模式展示
      */
-    viewOnly?: boolean,
+  viewOnly?: boolean,
 };
 
 const emit = defineEmits(['fresh', 'filter', 'changeProject'])
@@ -202,12 +202,12 @@ const isView = computed(() => store.state['apidoc/baseInfo'].mode === 'view') //
 const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
-    addFileAndFolderCb.call(this, ref(null), data)
+  addFileAndFolderCb.call(this, ref(null), data)
 };
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
-    const originBannerData = store.state['apidoc/banner'].banner;
-    return originBannerData
+  const originBannerData = store.state['apidoc/banner'].banner;
+  return originBannerData
 })
 const operations: Ref<Operation[]> = ref([]);
 const pinOperations: Ref<Operation[]> = ref([]);
@@ -218,222 +218,222 @@ const projectName = computed(() => store.state['apidoc/baseInfo'].projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
-    const localToolbarOperations = localStorage.getItem('apidoc/toolbarOperations');
-    const localPinToolbarOperations = localStorage.getItem('apidoc/PinToolbarOperations');
-    if (localToolbarOperations) {
-        const localData: Operation[] = JSON.parse(localToolbarOperations);
-        localOriginOperations.forEach((data) => {
-            //如果本地缓存数据没有当前图标则新增图标
-            if (localData.every((v: Operation) => (v.name !== data.name && v.op !== data.op))) {
-                localData.push(data);
-            }
-            const matchedData = localData.find((v: Operation) => v.name === data.name);
-            if (matchedData?.icon) {
-                matchedData.icon = data.icon;
-            }
-        })
-        operations.value = localData;
-    } else {
-        operations.value = localOriginOperations;
-    }
-    if (localPinToolbarOperations) {
-        const localData: Operation[] = JSON.parse(localPinToolbarOperations);
-        localOriginOperations.forEach((data) => {
-            const matchedData = localData.find((v: Operation) => v.name === data.name);
-            if (matchedData?.icon) {
-                matchedData.icon = data.icon;
-            }
-        })
-        pinOperations.value = localData;
-    } else {
-        pinOperations.value = operations.value.filter((v) => v.pin);
-    }
+  const localToolbarOperations = localStorage.getItem('apidoc/toolbarOperations');
+  const localPinToolbarOperations = localStorage.getItem('apidoc/PinToolbarOperations');
+  if (localToolbarOperations) {
+    const localData: Operation[] = JSON.parse(localToolbarOperations);
+    localOriginOperations.forEach((data) => {
+      //如果本地缓存数据没有当前图标则新增图标
+      if (localData.every((v: Operation) => (v.name !== data.name && v.op !== data.op))) {
+        localData.push(data);
+      }
+      const matchedData = localData.find((v: Operation) => v.name === data.name);
+      if (matchedData?.icon) {
+        matchedData.icon = data.icon;
+      }
+    })
+    operations.value = localData;
+  } else {
+    operations.value = localOriginOperations;
+  }
+  if (localPinToolbarOperations) {
+    const localData: Operation[] = JSON.parse(localPinToolbarOperations);
+    localOriginOperations.forEach((data) => {
+      const matchedData = localData.find((v: Operation) => v.name === data.name);
+      if (matchedData?.icon) {
+        matchedData.icon = data.icon;
+      }
+    })
+    pinOperations.value = localData;
+  } else {
+    pinOperations.value = operations.value.filter((v) => v.pin);
+  }
 }
 //缓存所有操作
 watch(operations, (v) => {
-    localStorage.setItem('apidoc/toolbarOperations', JSON.stringify(v))
+  localStorage.setItem('apidoc/toolbarOperations', JSON.stringify(v))
 }, {
-    deep: true
+  deep: true
 })
 //缓存工具栏操作
 watch(pinOperations, (v) => {
-    localStorage.setItem('apidoc/PinToolbarOperations', JSON.stringify(v))
+  localStorage.setItem('apidoc/PinToolbarOperations', JSON.stringify(v))
 }, {
-    deep: true
+  deep: true
 })
 //=====================================工具栏操作====================================//
 //切换固定操作
 const togglePin = (element: Operation) => {
-    element.pin = !element.pin;
-    pinOperations.value = operations.value.filter((v) => v.pin);
+  element.pin = !element.pin;
+  pinOperations.value = operations.value.filter((v) => v.pin);
 }
 //隐藏更多操作
 const handleHidePopover = () => {
-    visible.value = false;
-    toggleProjectVisible.value = false;
+  visible.value = false;
+  toggleProjectVisible.value = false;
 }
 onMounted(() => {
-    document.documentElement.addEventListener('click', handleHidePopover);
-    initCacheOperation();
+  document.documentElement.addEventListener('click', handleHidePopover);
+  initCacheOperation();
 });
 onUnmounted(() => {
-    document.documentElement.removeEventListener('click', handleHidePopover);
+  document.documentElement.removeEventListener('click', handleHidePopover);
 })
 //点击操作按钮
 const projectId = router.currentRoute.value.query.id as string;
 const handleEmit = (op: ApidocOperations) => {
-    if (isView.value && op !== 'freshBanner' && op !== 'history') {
-        return
-    }
-    switch (op) {
-        case 'addRootFolder': //新建文件夹
-            addFolderDialogVisible.value = true;
-            break;
-        case 'addRootFile': //新建文件
-            addFileDialogVisible.value = true;
-            break;
-        case 'freshBanner': //刷新页面
-            emit('fresh');
-            break;
-        case 'generateLink': //在线链接
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'onlineLink',
-                projectId,
-                tabType: 'onlineLink',
-                label: $t('在线链接'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'exportDoc': //导出文档
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'exportDoc',
-                projectId,
-                tabType: 'exportDoc',
-                label: $t('导出文档'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'importDoc': //导入文档
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'importDoc',
-                projectId,
-                tabType: 'importDoc',
-                label: $t('导入文档'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'recycler': //回收站
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'recycler',
-                projectId,
-                tabType: 'recycler',
-                label: $t('回收站'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'history': //操作审计
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'history',
-                projectId,
-                tabType: 'history',
-                label: $t('操作审计'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'config': //全局设置
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'config',
-                projectId,
-                tabType: 'config',
-                label: $t('全局设置'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'hook': //生成代码
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'hook',
-                projectId,
-                tabType: 'hook',
-                label: $t('生成代码'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'commonHeader': //公共请求头
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'commonHeader',
-                projectId,
-                tabType: 'commonHeader',
-                label: $t('公共请求头'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        case 'apiflow': //接口编排
-            store.commit('apidoc/tabs/addTab', {
-                _id: 'apiflow',
-                projectId,
-                tabType: 'apiflow',
-                label: $t('接口编排'),
-                head: {
-                    icon: '',
-                    color: ''
-                },
-                saved: true,
-                fixed: true,
-                selected: true,
-            });
-            break;
-        default:
-            break;
-    }
-    visible.value = false;
+  if (isView.value && op !== 'freshBanner' && op !== 'history') {
+    return
+  }
+  switch (op) {
+  case 'addRootFolder': //新建文件夹
+    addFolderDialogVisible.value = true;
+    break;
+  case 'addRootFile': //新建文件
+    addFileDialogVisible.value = true;
+    break;
+  case 'freshBanner': //刷新页面
+    emit('fresh');
+    break;
+  case 'generateLink': //在线链接
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'onlineLink',
+      projectId,
+      tabType: 'onlineLink',
+      label: $t('在线链接'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'exportDoc': //导出文档
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'exportDoc',
+      projectId,
+      tabType: 'exportDoc',
+      label: $t('导出文档'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'importDoc': //导入文档
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'importDoc',
+      projectId,
+      tabType: 'importDoc',
+      label: $t('导入文档'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'recycler': //回收站
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'recycler',
+      projectId,
+      tabType: 'recycler',
+      label: $t('回收站'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'history': //操作审计
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'history',
+      projectId,
+      tabType: 'history',
+      label: $t('操作审计'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'config': //全局设置
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'config',
+      projectId,
+      tabType: 'config',
+      label: $t('全局设置'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'hook': //生成代码
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'hook',
+      projectId,
+      tabType: 'hook',
+      label: $t('生成代码'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'commonHeader': //公共请求头
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'commonHeader',
+      projectId,
+      tabType: 'commonHeader',
+      label: $t('公共请求头'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  case 'apiflow': //接口编排
+    store.commit('apidoc/tabs/addTab', {
+      _id: 'apiflow',
+      projectId,
+      tabType: 'apiflow',
+      label: $t('接口编排'),
+      head: {
+        icon: '',
+        color: ''
+      },
+      saved: true,
+      fixed: true,
+      selected: true,
+    });
+    break;
+  default:
+    break;
+  }
+  visible.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -441,30 +441,30 @@ const handleEmit = (op: ApidocOperations) => {
 |--------------------------------------------------------------------------
 */
 const formInfo = ref({
-    iptValue: '', //u
-    startTime: null as null | number, //--起始日期
-    endTime: null as null | number, //----结束日期
-    maintainers: [] as string[], //----操作者信息
-    recentNum: 0, //-显示最近多少条
+  iptValue: '', //u
+  startTime: null as null | number, //--起始日期
+  endTime: null as null | number, //----结束日期
+  maintainers: [] as string[], //----操作者信息
+  recentNum: 0, //-显示最近多少条
 })
 //是否存在过滤条件
 const hasFilterCondition = computed(() => {
-    const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
-    const hasOperatorCondition = formInfo.value.maintainers.length > 0;
-    const hasRecentNumCondition = formInfo.value.recentNum;
-    return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
+  const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
+  const hasOperatorCondition = formInfo.value.maintainers.length > 0;
+  const hasRecentNumCondition = formInfo.value.recentNum;
+  return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
 })
 
 //用户列表
 const maintainerEnum = computed(() => {
-    const { banner } = store.state['apidoc/banner'];
-    const allBanner: string[] = [];
-    forEachForest(banner, (bannerInfo) => {
-        if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
-            allBanner.push(bannerInfo.maintainer);
-        }
-    })
-    return allBanner;
+  const { banner } = store.state['apidoc/banner'];
+  const allBanner: string[] = [];
+  forEachForest(banner, (bannerInfo) => {
+    if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
+      allBanner.push(bannerInfo.maintainer);
+    }
+  })
+  return allBanner;
 });
 //=====================================日期相关====================================//
 //日期范围
@@ -473,144 +473,144 @@ const dateRange = ref('');
 const customDateRange = ref([]);
 //清空日期
 const handleClearDate = () => {
-    dateRange.value = ''
+  dateRange.value = ''
 }
 //监听日起段变化
 watch(() => dateRange.value, (val) => {
-    let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
-    let endTime = null;
-    switch (val) {
-        case '1d':
-            endTime = Date.now();
-            break;
-        case '2d':
-            endTime = Date.now();
-            startTime = endTime - 86400000;
-            break;
-        case '3d':
-            endTime = Date.now();
-            startTime = endTime - 3 * 86400000;
-            break;
-        case '7d':
-            endTime = Date.now();
-            startTime = endTime - 7 * 86400000;
-            break;
-        case 'yesterday':
-            endTime = startTime;
-            startTime -= 86400000;
-            break;
-        default: //自定义
-            startTime = null;
-            endTime = null;
-            customDateRange.value = [];
-            break;
-    }
-    formInfo.value.startTime = startTime;
-    formInfo.value.endTime = endTime;
+  let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+  let endTime = null;
+  switch (val) {
+  case '1d':
+    endTime = Date.now();
+    break;
+  case '2d':
+    endTime = Date.now();
+    startTime = endTime - 86400000;
+    break;
+  case '3d':
+    endTime = Date.now();
+    startTime = endTime - 3 * 86400000;
+    break;
+  case '7d':
+    endTime = Date.now();
+    startTime = endTime - 7 * 86400000;
+    break;
+  case 'yesterday':
+    endTime = startTime;
+    startTime -= 86400000;
+    break;
+  default: //自定义
+    startTime = null;
+    endTime = null;
+    customDateRange.value = [];
+    break;
+  }
+  formInfo.value.startTime = startTime;
+  formInfo.value.endTime = endTime;
 })
 //监听日期段变化
 watch(() => customDateRange.value, (val) => {
-    if (!val || val.length === 0) {
-        formInfo.value.startTime = null;
-        formInfo.value.endTime = null;
-    } else {
-        formInfo.value.startTime = val[0];
-        formInfo.value.endTime = val[1];
-    }
+  if (!val || val.length === 0) {
+    formInfo.value.startTime = null;
+    formInfo.value.endTime = null;
+  } else {
+    formInfo.value.startTime = val[0];
+    formInfo.value.endTime = val[1];
+  }
 })
 //=====================================维护者信息====================================//
 //清除所有的维护者数据
 const handleClearMaintainer = () => {
-    formInfo.value.maintainers = [];
+  formInfo.value.maintainers = [];
 }
 //=====================================最近数据条数====================================//
 //清除最近新增条数条件
 const handleClearRecentNum = () => {
-    formInfo.value.recentNum = 0;
+  formInfo.value.recentNum = 0;
 }
 //=====================================监听数据变化====================================//
 watch(() => formInfo.value, (formData) => {
-    let plainBannerData: ApidocBanner[] = [];
-    const { startTime, endTime, maintainers, recentNum } = formData;
-    forEachForest(bannerData.value, (v) => {
-        if (!v.isFolder) {
-            plainBannerData.push(v);
-        }
-    })
-    if (maintainers.length === 0 && !startTime && !recentNum) {
-        emit('filter', {
-            iptValue: formData.iptValue,
-            recentNumIds: null,
-        });
-        return
+  let plainBannerData: ApidocBanner[] = [];
+  const { startTime, endTime, maintainers, recentNum } = formData;
+  forEachForest(bannerData.value, (v) => {
+    if (!v.isFolder) {
+      plainBannerData.push(v);
     }
-
-    //录入人员
-    if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
-    }
-    //录入时间
-    if (startTime && endTime) {
-        plainBannerData = plainBannerData.filter(v => {
-            const updateTimestamp = new Date(v.updatedAt).getTime();
-            return updateTimestamp > startTime && updateTimestamp < endTime;
-        })
-    }
-    //录入数据个数
-    if (recentNum) {
-        plainBannerData = plainBannerData.sort((a, b) => {
-            const aTime = new Date(a.updatedAt).getTime();
-            const bTime = new Date(b.updatedAt).getTime();
-            return bTime - aTime;
-        }).slice(0, recentNum)
-    }
+  })
+  if (maintainers.length === 0 && !startTime && !recentNum) {
     emit('filter', {
-        iptValue: formData.iptValue,
-        recentNumIds: plainBannerData.map(v => v._id),
+      iptValue: formData.iptValue,
+      recentNumIds: null,
     });
+    return
+  }
+
+  //录入人员
+  if (maintainers.length > 0) {
+    plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
+  }
+  //录入时间
+  if (startTime && endTime) {
+    plainBannerData = plainBannerData.filter(v => {
+      const updateTimestamp = new Date(v.updatedAt).getTime();
+      return updateTimestamp > startTime && updateTimestamp < endTime;
+    })
+  }
+  //录入数据个数
+  if (recentNum) {
+    plainBannerData = plainBannerData.sort((a, b) => {
+      const aTime = new Date(a.updatedAt).getTime();
+      const bTime = new Date(b.updatedAt).getTime();
+      return bTime - aTime;
+    }).slice(0, recentNum)
+  }
+  emit('filter', {
+    iptValue: formData.iptValue,
+    recentNumIds: plainBannerData.map(v => v._id),
+  });
 }, {
-    deep: true,
-    immediate: true,
+  deep: true,
+  immediate: true,
 });
 //banner数据过滤
 const handleFilterBanner = () => {
-    let plainBannerData: ApidocBanner[] = [];
-    const { startTime, endTime, maintainers, recentNum } = formInfo.value;
-    forEachForest(bannerData.value, (v) => {
-        if (!v.isFolder) {
-            plainBannerData.push(v);
-        }
-    })
-    if (maintainers.length === 0 && !startTime && !recentNum) {
-        emit('filter', {
-            iptValue: formInfo.value.iptValue,
-            recentNumIds: null,
-        });
-        return
+  let plainBannerData: ApidocBanner[] = [];
+  const { startTime, endTime, maintainers, recentNum } = formInfo.value;
+  forEachForest(bannerData.value, (v) => {
+    if (!v.isFolder) {
+      plainBannerData.push(v);
     }
-    //录入人员
-    if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
-    }
-    //录入时间
-    if (startTime && endTime) {
-        plainBannerData = plainBannerData.filter(v => {
-            const updateTimestamp = new Date(v.updatedAt).getTime();
-            return updateTimestamp > startTime && updateTimestamp < endTime;
-        })
-    }
-    //录入数据个数
-    if (formInfo.value.recentNum) {
-        plainBannerData.sort((a, b) => {
-            const aTime = new Date(a.updatedAt).getTime();
-            const bTime = new Date(b.updatedAt).getTime();
-            return aTime - bTime;
-        }).slice(0, formInfo.value.recentNum)
-    }
+  })
+  if (maintainers.length === 0 && !startTime && !recentNum) {
     emit('filter', {
-        iptValue: formInfo.value.iptValue,
-        recentNumIds: plainBannerData.map(v => v._id),
+      iptValue: formInfo.value.iptValue,
+      recentNumIds: null,
     });
+    return
+  }
+  //录入人员
+  if (maintainers.length > 0) {
+    plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
+  }
+  //录入时间
+  if (startTime && endTime) {
+    plainBannerData = plainBannerData.filter(v => {
+      const updateTimestamp = new Date(v.updatedAt).getTime();
+      return updateTimestamp > startTime && updateTimestamp < endTime;
+    })
+  }
+  //录入数据个数
+  if (formInfo.value.recentNum) {
+    plainBannerData.sort((a, b) => {
+      const aTime = new Date(a.updatedAt).getTime();
+      const bTime = new Date(b.updatedAt).getTime();
+      return aTime - bTime;
+    }).slice(0, formInfo.value.recentNum)
+  }
+  emit('filter', {
+    iptValue: formInfo.value.iptValue,
+    recentNumIds: plainBannerData.map(v => v._id),
+  });
 }
 /*
 |--------------------------------------------------------------------------
@@ -621,49 +621,49 @@ const loading = ref(false);
 const projectList: Ref<ApidocProjectInfo[]> = ref([]); //项目列表
 const startProjectList: Ref<ApidocProjectInfo[]> = ref([]); //收藏项目列表
 const getProjectList = () => {
-    loading.value = true;
-    axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
-        projectList.value = res.data.list;
-        startProjectList.value = res.data.list.filter(v => res.data.starProjects.find(v2 => v2 === v._id));
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
+    projectList.value = res.data.list;
+    startProjectList.value = res.data.list.filter(v => res.data.starProjects.find(v2 => v2 === v._id));
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 //改变项目列表
 const handleChangeProject = (item: ApidocProjectInfo) => {
-    if (item._id === router.currentRoute.value.query.id) {
-        return;
-    }
-    axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
-        console.error(err);
-    });
-    router.push({
-        path: '/v1/apidoc/doc-edit',
-        query: {
-            id: item._id,
-            mode: router.currentRoute.value.query.mode,
-        },
-    });
-    store.dispatch('apidoc/baseInfo/getProjectBaseInfo', { projectId: item._id });
-    store.dispatch('apidoc/baseInfo/getCommonHeaders')
-    const localState = apidocCache.getApidocWorkerLocalStateById(item._id);
-    if (localState) {
-        store.commit('apidoc/workerState/changeLocalState', { projectId: item._id, value: localState })
-    }
-    store.commit('apidoc/banner/changeBannerLoading', true)
-    store.dispatch('apidoc/banner/getDocBanner', { projectId: item._id, }).finally(() => {
-        store.commit('apidoc/banner/changeBannerLoading', false)
-    });
-    emit('changeProject', item._id)
+  if (item._id === router.currentRoute.value.query.id) {
+    return;
+  }
+  axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
+    console.error(err);
+  });
+  router.push({
+    path: '/v1/apidoc/doc-edit',
+    query: {
+      id: item._id,
+      mode: router.currentRoute.value.query.mode,
+    },
+  });
+  store.dispatch('apidoc/baseInfo/getProjectBaseInfo', { projectId: item._id });
+  store.dispatch('apidoc/baseInfo/getCommonHeaders')
+  const localState = apidocCache.getApidocWorkerLocalStateById(item._id);
+  if (localState) {
+    store.commit('apidoc/workerState/changeLocalState', { projectId: item._id, value: localState })
+  }
+  store.commit('apidoc/banner/changeBannerLoading', true)
+  store.dispatch('apidoc/banner/getDocBanner', { projectId: item._id, }).finally(() => {
+    store.commit('apidoc/banner/changeBannerLoading', false)
+  });
+  emit('changeProject', item._id)
 }
 //打开或者关闭项目列表切换
 const handleToggleProjectModel = () => {
-    if (!toggleProjectVisible.value) {
-        getProjectList();
-    }
-    toggleProjectVisible.value = !toggleProjectVisible.value;
+  if (!toggleProjectVisible.value) {
+    getProjectList();
+  }
+  toggleProjectVisible.value = !toggleProjectVisible.value;
 }
 </script>
 

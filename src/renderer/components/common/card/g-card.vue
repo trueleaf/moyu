@@ -23,31 +23,31 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        title: { // card头部标题
-            type: String,
-            default: '',
-        },
-        width: { //宽度
-            type: String,
-            default: '100%',
-        },
-        shadow: { //是否显示阴影
-            type: Boolean,
-            default: false,
-        },
-        padding: { //内容区域内边距
-            type: String,
-            default: '5px 10px',
-        },
+  props: {
+    title: { // card头部标题
+      type: String,
+      default: '',
     },
-    data() {
-        return {
-            showContent: true, //是否展示内容信息
-        };
+    width: { //宽度
+      type: String,
+      default: '100%',
     },
-    methods: {
+    shadow: { //是否显示阴影
+      type: Boolean,
+      default: false,
     },
+    padding: { //内容区域内边距
+      type: String,
+      default: '5px 10px',
+    },
+  },
+  data() {
+    return {
+      showContent: true, //是否展示内容信息
+    };
+  },
+  methods: {
+  },
 })
 </script>
 

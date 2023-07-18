@@ -27,70 +27,70 @@ import { PermissionUserInfo, Response } from '@@/global';
 import { User } from '@element-plus/icons-vue'
 
 export default defineComponent({
-    data() {
-        return {
-            //=====================================用户信息====================================//
-            userInfo: {
-                phone: '', //------------------手机号码
-                smsCode: '', //----------------短信验证码
-            },
-            //=====================================表单验证====================================//
-            rules: {
-                phone: [{ required: true, message: `${this.$t('请输入手机号')}`, trigger: 'blur' }],
-                smsCode: [{ required: true, message: `${this.$t('请输入验证码')}`, trigger: 'blur' }],
-            },
-            //=====================================其他参数====================================//
-            iconUser: User,
-            loading: false,
-        };
+  data() {
+    return {
+      //=====================================用户信息====================================//
+      userInfo: {
+        phone: '', //------------------手机号码
+        smsCode: '', //----------------短信验证码
+      },
+      //=====================================表单验证====================================//
+      rules: {
+        phone: [{ required: true, message: `${this.$t('请输入手机号')}`, trigger: 'blur' }],
+        smsCode: [{ required: true, message: `${this.$t('请输入验证码')}`, trigger: 'blur' }],
+      },
+      //=====================================其他参数====================================//
+      iconUser: User,
+      loading: false,
+    };
+  },
+  methods: {
+    //校验手机号码
+    smsCodeHook(): boolean {
+      if (this.userInfo.phone.length !== 11) {
+        this.$message.warning(this.$t('请填写正确手机号'));
+        return false;
+      }
+      return true;
     },
-    methods: {
-        //校验手机号码
-        smsCodeHook(): boolean {
-            if (this.userInfo.phone.length !== 11) {
-                this.$message.warning(this.$t('请填写正确手机号'));
-                return false;
+    //获取短信验证码
+    getSmsCode() {
+      const params = {
+        phone: this.userInfo.phone,
+      };
+      this.axios.get('/api/security/sms', { params }).catch((err) => {
+        console.error(err)
+      });
+    },
+    //手机号登录
+    handleLogin() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_phone', this.userInfo).then((res) => {
+            if (res.code === 2006 || res.code === 2003) {
+              this.$message.warning(res.msg);
+            } else {
+              this.$router.push('/v1/apidoc/doc-list');
+              localStorage.setItem('userInfo', JSON.stringify(res.data));
+              this.$store.dispatch('permission/getPermission')
             }
-            return true;
-        },
-        //获取短信验证码
-        getSmsCode() {
-            const params = {
-                phone: this.userInfo.phone,
-            };
-            this.axios.get('/api/security/sms', { params }).catch((err) => {
-                console.error(err)
-            });
-        },
-        //手机号登录
-        handleLogin() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    this.loading = true;
-                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_phone', this.userInfo).then((res) => {
-                        if (res.code === 2006 || res.code === 2003) {
-                            this.$message.warning(res.msg);
-                        } else {
-                            this.$router.push('/v1/apidoc/doc-list');
-                            localStorage.setItem('userInfo', JSON.stringify(res.data));
-                            this.$store.dispatch('permission/getPermission')
-                        }
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLElement).focus();
-                        }
-                    });
-                }
-            });
-        },
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLElement).focus();
+            }
+          });
+        }
+      });
     },
+  },
 })
 </script>
 

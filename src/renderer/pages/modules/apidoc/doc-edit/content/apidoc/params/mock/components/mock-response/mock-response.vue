@@ -161,12 +161,12 @@ import sCustomEditor from './components/custom-editor.vue'
 |--------------------------------------------------------------------------
 */
 const responseType = computed<ApidocDetail['mockInfo']['responseType']>({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.responseType;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockResponseType', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.responseType;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockResponseType', val)
+  },
 })
 /*
 |--------------------------------------------------------------------------
@@ -175,26 +175,26 @@ const responseType = computed<ApidocDetail['mockInfo']['responseType']>({
 */
 const isShowJsonTip = ref(apidocCache.getIsShowApidocMockParamsJsonTip());
 const jsonValue = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.json;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockJsonValue', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.json;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockJsonValue', val)
+  },
 })
 //不再显示提示
 const handleCloseTip = () => {
-    apidocCache.setIsShowApidocMockParamsJsonTip(false);
-    isShowJsonTip.value = false;
+  apidocCache.setIsShowApidocMockParamsJsonTip(false);
+  isShowJsonTip.value = false;
 }
 //是否显示mock提示
 const showMockTip = ref(false)
 //选中mock数据
 const handleSelectMockStr = () => {
-    showMockTip.value = false;
+  showMockTip.value = false;
 }
 const jsonComponent: Ref<null | {
-    format: () => void,
+  format: () => void,
 }> = ref(null)
 //格式化数据
 const handleFormat = () => {
@@ -209,60 +209,60 @@ const image = ref<HTMLElement | null>(null);
 // const dataUrl = ref("")
 const realImageSize = ref(0);
 const imageType = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.type;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageType', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.type;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageType', val)
+  },
 })
 const imageWidth = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.width;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageWidth', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.width;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageWidth', val)
+  },
 })
 const imageHeight = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.height;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageHeight', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.height;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageHeight', val)
+  },
 })
 const imageSize = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.size;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageSize', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.size;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageSize', val)
+  },
 })
 const imageTextColor = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.color;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageColor', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.color;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageColor', val)
+  },
 })
 const imageBackgroundColor = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.backgroundColor;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageBackgroundColor', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.backgroundColor;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageBackgroundColor', val)
+  },
 })
 const imageFontSize = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.image.fontSize;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockImageFontSize', val)
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.fontSize;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockImageFontSize', val)
+  },
 })
 /*
 |--------------------------------------------------------------------------
@@ -271,32 +271,32 @@ const imageFontSize = computed({
 */
 //选中的文件类型
 const selectedType = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.file.type
-    },
-    set(type) {
-        store.commit('apidoc/apidoc/changeMockFileType', type)
-    }
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.file.type
+  },
+  set(type) {
+    store.commit('apidoc/apidoc/changeMockFileType', type)
+  }
 })
 const filePath = computed(() => store.state['apidoc/apidoc'].apidoc.mockInfo.file.filePath)
 const fileInfo = ref({
-    name: '',
-    size: 0,
-    type: '',
+  name: '',
+  size: 0,
+  type: '',
 });
 const uploadInstance = ref<UploadInstance>()
 //选择文件
 const handleSelectFile = async (file: UploadFile) => {
-    store.commit('apidoc/apidoc/changeCustomFile', (file.raw as File).path)
-    fileInfo.value.name = file.name;
-    fileInfo.value.size = file.size || 0;
+  store.commit('apidoc/apidoc/changeCustomFile', (file.raw as File).path)
+  fileInfo.value.name = file.name;
+  fileInfo.value.size = file.size || 0;
 }
 //检查文件大小
 const handleCheckSize: UploadProps['beforeUpload'] = (rawFile) => {
-    if (rawFile.size > 2 * 1024 * 10) {
-        ElMessage.warning('超过20KB文件仅支持本地mock')
-    }
-    return true
+  if (rawFile.size > 2 * 1024 * 10) {
+    ElMessage.warning('超过20KB文件仅支持本地mock')
+  }
+  return true
 }
 //覆盖文件
 const handleExceed: UploadProps['onExceed'] = (files) => {
@@ -311,12 +311,12 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 |--------------------------------------------------------------------------
 */
 const rawText = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.text;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockTextValue', val);
-    }
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.text;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockTextValue', val);
+  }
 })
 /*
 |--------------------------------------------------------------------------
@@ -324,29 +324,29 @@ const rawText = computed({
 |--------------------------------------------------------------------------
 */
 const customResponseScript = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.customResponseScript;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeCustomResponseScript', val);
-    }
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.customResponseScript;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeCustomResponseScript', val);
+  }
 })
 const watchFlag = ref<WatchStopHandle | null>(null);
 onMounted(() => {
-    document.body.addEventListener('click', () => {
-        showMockTip.value = false;
-    })
-    watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
-        realImageSize.value = imageSize.value * 1024
-    }, {
-        deep: true,
-        immediate: true
-    })
+  document.body.addEventListener('click', () => {
+    showMockTip.value = false;
+  })
+  watchFlag.value = watch([imageWidth, imageHeight, imageTextColor, imageBackgroundColor, imageFontSize, imageSize], () => {
+    realImageSize.value = imageSize.value * 1024
+  }, {
+    deep: true,
+    immediate: true
+  })
 })
 onBeforeUnmount(() => {
-    if (watchFlag.value) {
-        watchFlag.value();
-    }
+  if (watchFlag.value) {
+    watchFlag.value();
+  }
 })
 
 </script>

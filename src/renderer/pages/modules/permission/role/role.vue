@@ -33,50 +33,50 @@ import addRole from './add/add.vue'
 import editRole from './edit/edit.vue'
 
 export default defineComponent({
-    components: {
-        's-add-role': addRole,
-        's-edit-role': editRole,
+  components: {
+    's-add-role': addRole,
+    's-edit-role': editRole,
+  },
+  data() {
+    return {
+      userId: '', //------------用户id
+      addRoleDialog: false, //新增角色弹窗
+      editRoleDialog: false, //新增角色弹窗
+    };
+  },
+  methods: {
+    //获取数据
+    getData() {
+      this.$refs.table.getData();
     },
-    data() {
-        return {
-            userId: '', //------------用户id
-            addRoleDialog: false, //新增角色弹窗
-            editRoleDialog: false, //新增角色弹窗
+    //修改角色
+    handleOpenEditRole(userId: string) {
+      this.userId = userId;
+      this.editRoleDialog = true;
+    },
+    //删除角色
+    handleDeleteRole(_id: string) {
+      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
+        confirmButtonText: this.$t('确定'),
+        cancelButtonText: this.$t('取消'),
+        type: 'warning',
+      }).then(() => {
+        const params = {
+          ids: [_id],
         };
+        this.axios.delete('/api/security/role', { data: params }).then(() => {
+          this.$refs.table.getData();
+        }).catch((err) => {
+          console.error(err);
+        });
+      }).catch((err: Error | string) => {
+        if (err === 'cancel' || err === 'close') {
+          return;
+        }
+        console.error(err);
+      });
     },
-    methods: {
-        //获取数据
-        getData() {
-            this.$refs.table.getData();
-        },
-        //修改角色
-        handleOpenEditRole(userId: string) {
-            this.userId = userId;
-            this.editRoleDialog = true;
-        },
-        //删除角色
-        handleDeleteRole(_id: string) {
-            this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
-                confirmButtonText: this.$t('确定'),
-                cancelButtonText: this.$t('取消'),
-                type: 'warning',
-            }).then(() => {
-                const params = {
-                    ids: [_id],
-                };
-                this.axios.delete('/api/security/role', { data: params }).then(() => {
-                    this.$refs.table.getData();
-                }).catch((err) => {
-                    console.error(err);
-                });
-            }).catch((err: Error | string) => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-    },
+  },
 })
 </script>
 

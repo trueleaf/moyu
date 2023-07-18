@@ -52,39 +52,39 @@ const getTableData = () => {
 }
 //修改源码
 const handleJumpToEdit = (row: ApidocCodeInfo) => {
-    event.emit('apidoc/hook/jumpToEdit', row)
+  event.emit('apidoc/hook/jumpToEdit', row)
 }
 //查看代码
 const handleViewCode = (row: ApidocCodeInfo) => {
-    code.value = row.code
-    dialogVisible.value = true;
+  code.value = row.code
+  dialogVisible.value = true;
 }
 //删除代码
 const handleDeleteCode = (row: ApidocCodeInfo) => {
-    ElMessageBox.confirm($t('此操作将永久删除此条记录, 是否继续?'), $t('提示'), {
-        confirmButtonText: $t('确定'),
-        cancelButtonText: $t('取消'),
-        type: 'warning'
-    }).then(() => {
-        const params = {
-            projectId: projectId.value,
-            ids: [row._id],
-        };
-        axios.delete('/api/apidoc/project/code', { data: params }).then(() => {
+  ElMessageBox.confirm($t('此操作将永久删除此条记录, 是否继续?'), $t('提示'), {
+    confirmButtonText: $t('确定'),
+    cancelButtonText: $t('取消'),
+    type: 'warning'
+  }).then(() => {
+    const params = {
+      projectId: projectId.value,
+      ids: [row._id],
+    };
+    axios.delete('/api/apidoc/project/code', { data: params }).then(() => {
             table.value?.getData();
-        }).catch((err) => {
-            console.error(err);
-        });
     }).catch((err) => {
-        if (err === 'cancel' || err === 'close') {
-            return;
-        }
-        console.error(err);
+      console.error(err);
     });
+  }).catch((err) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
 }
 //关闭预览弹窗
 const handleClose = () => {
-    dialogVisible.value = false;
+  dialogVisible.value = false;
 }
 
 </script>

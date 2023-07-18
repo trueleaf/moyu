@@ -210,13 +210,13 @@ dayjs.extend(isToday)
 dayjs.locale('zh-cn')
 
 type FormInfo = {
-    projectId: string, //项目id
-    startTime: number | null, //起始日期
-    endTime: number | null, //结束日期
-    docName: string, //请求名称
-    url: string, //请求url
-    operators: string[], //操作者信息
-    operationTypes: string[], //操作类型
+  projectId: string, //项目id
+  startTime: number | null, //起始日期
+  endTime: number | null, //结束日期
+  docName: string, //请求名称
+  url: string, //请求url
+  operators: string[], //操作者信息
+  operationTypes: string[], //操作类型
 }
 /*
 |--------------------------------------------------------------------------
@@ -224,91 +224,91 @@ type FormInfo = {
 |--------------------------------------------------------------------------
 */
 const formInfo: Ref<FormInfo> = ref({
-    projectId: '',
-    startTime: null,
-    endTime: null,
-    docName: '',
-    url: '',
-    operators: [],
-    operationTypes: [],
+  projectId: '',
+  startTime: null,
+  endTime: null,
+  docName: '',
+  url: '',
+  operators: [],
+  operationTypes: [],
 })
 const memberEnum: Ref<{ name: string, permission: ApidocProjectPermission }[]> = ref([]); //操作人员
 const dateRange: Ref<string> = ref(''); //日期范围
 const customDateRange: Ref<number[]> = ref([]); //自定义日期范围
 //获取操作人员枚举
 const getOperatorEnum = () => {
-    const params = {
-        projectId: router.currentRoute.value.query.id as string,
-    };
-    axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-        memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
-    }).catch((err) => {
-        console.error(err);
-    });
+  const params = {
+    projectId: router.currentRoute.value.query.id as string,
+  };
+  axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
+    memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 //清空操作人员
 const handleClearOperator = () => {
-    formInfo.value.operators = [];
+  formInfo.value.operators = [];
 }
 //清空日期范围
 const handleClearDate = () => {
-    dateRange.value = ''; //startTime和endTime会在watch中发送改变
+  dateRange.value = ''; //startTime和endTime会在watch中发送改变
 }
 //清空日志类型
 const handleClearType = () => {
-    formInfo.value.operationTypes = [];
+  formInfo.value.operationTypes = [];
 }
 //全部清空
 const clearAll = () => {
-    handleClearOperator();
-    handleClearDate();
-    formInfo.value.url = '';
-    formInfo.value.docName = '';
+  handleClearOperator();
+  handleClearDate();
+  formInfo.value.url = '';
+  formInfo.value.docName = '';
 }
 //自定义日期范围
 watch(() => dateRange.value, (val) => {
-    let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
-    let endTime: number | null = null;
-    switch (val) {
-        case '1d':
-            endTime = Date.now();
-            break;
-        case '2d':
-            endTime = Date.now();
-            startTime = endTime - 86400000;
-            break;
-        case '3d':
-            endTime = Date.now();
-            startTime = endTime - 3 * 86400000;
-            break;
-        case '7d':
-            endTime = Date.now();
-            startTime = endTime - 7 * 86400000;
-            break;
-        case 'yesterday':
-            endTime = startTime;
-            startTime -= 86400000;
-            break;
-        default: //自定义
-            startTime = null;
-            endTime = null;
-            customDateRange.value = [];
-            break;
-    }
-    formInfo.value.startTime = startTime;
-    formInfo.value.endTime = endTime;
+  let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+  let endTime: number | null = null;
+  switch (val) {
+  case '1d':
+    endTime = Date.now();
+    break;
+  case '2d':
+    endTime = Date.now();
+    startTime = endTime - 86400000;
+    break;
+  case '3d':
+    endTime = Date.now();
+    startTime = endTime - 3 * 86400000;
+    break;
+  case '7d':
+    endTime = Date.now();
+    startTime = endTime - 7 * 86400000;
+    break;
+  case 'yesterday':
+    endTime = startTime;
+    startTime -= 86400000;
+    break;
+  default: //自定义
+    startTime = null;
+    endTime = null;
+    customDateRange.value = [];
+    break;
+  }
+  formInfo.value.startTime = startTime;
+  formInfo.value.endTime = endTime;
 })
 watch(() => customDateRange.value, (val) => {
-    if (!val || val.length === 0) {
-        formInfo.value.startTime = null;
-        formInfo.value.endTime = null;
-    } else {
-        formInfo.value.startTime = val[0];
-        formInfo.value.endTime = val[1];
-    }
+  if (!val || val.length === 0) {
+    formInfo.value.startTime = null;
+    formInfo.value.endTime = null;
+  } else {
+    formInfo.value.startTime = val[0];
+    formInfo.value.endTime = val[1];
+  }
 })
 onMounted(() => {
-    getOperatorEnum();
+  getOperatorEnum();
 })
 /*
 |--------------------------------------------------------------------------
@@ -321,54 +321,54 @@ const historyList: Ref<ApidocOperationRecord[]> = ref([]); //历史记录数据
 const historyInfo: Ref<Record<string, { title: string, history: ApidocOperationRecord[] }>> = ref({});
 
 const getData = () => {
-    const params = {
-        ...formInfo.value,
-        projectId: router.currentRoute.value.query.id as string,
-    };
-    axios.post<ResponseTable<ApidocOperationRecord[]>, ResponseTable<ApidocOperationRecord[]>>('/api/docs/docs_history', params).then((res) => {
-        historyInfo.value = {};
-        res.data.rows.forEach((item) => {
-            const { createdAt } = item;
-            const ymdString = dayjs(createdAt).format('YYYY-MM-DD');
-            if (!historyInfo.value[ymdString]) {
-                let title = '';
-                if (dayjs(createdAt).isToday()) {
-                    title = '今天'
-                } else if (dayjs(createdAt).isYesterday()) {
-                    title = '昨天'
-                } else {
-                    title = dayjs(createdAt).format('YYYY年M月DD号');
-                }
-                historyInfo.value[ymdString] = {
-                    title,
-                    history: [item],
-                };
-            } else {
-                historyInfo.value[ymdString].history.push(item)
-            }
-        })
-        historyList.value = res.data.rows;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  const params = {
+    ...formInfo.value,
+    projectId: router.currentRoute.value.query.id as string,
+  };
+  axios.post<ResponseTable<ApidocOperationRecord[]>, ResponseTable<ApidocOperationRecord[]>>('/api/docs/docs_history', params).then((res) => {
+    historyInfo.value = {};
+    res.data.rows.forEach((item) => {
+      const { createdAt } = item;
+      const ymdString = dayjs(createdAt).format('YYYY-MM-DD');
+      if (!historyInfo.value[ymdString]) {
+        let title = '';
+        if (dayjs(createdAt).isToday()) {
+          title = '今天'
+        } else if (dayjs(createdAt).isYesterday()) {
+          title = '昨天'
+        } else {
+          title = dayjs(createdAt).format('YYYY年M月DD号');
+        }
+        historyInfo.value[ymdString] = {
+          title,
+          history: [item],
+        };
+      } else {
+        historyInfo.value[ymdString].history.push(item)
+      }
+    })
+    historyList.value = res.data.rows;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 const debounceFn: Ref<(() => void) | null> = ref(null);
 watch(() => formInfo.value, () => {
-    if (!debounceFn.value) {
-        debounceFn.value = debounce(() => {
-            getData();
-        });
-    }
-    if (debounceFn.value) {
-        debounceFn.value();
-    }
+  if (!debounceFn.value) {
+    debounceFn.value = debounce(() => {
+      getData();
+    });
+  }
+  if (debounceFn.value) {
+    debounceFn.value();
+  }
 }, {
-    deep: true
+  deep: true
 })
 onMounted(() => {
-    getData();
+  getData();
 })
 
 </script>

@@ -41,14 +41,14 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    computed: {
-        apidocInfo() { //接口文档信息
-            return this.$store.state['apidoc/apidoc'].apidoc
-        },
-        validRequestMethods() {
-            return this.$store.state['apidoc/baseInfo'].rules.requestMethods?.filter((val) => val.enabled);
-        },
+  computed: {
+    apidocInfo() { //接口文档信息
+      return this.$store.state['apidoc/apidoc'].apidoc
     },
+    validRequestMethods() {
+      return this.$store.state['apidoc/baseInfo'].rules.requestMethods?.filter((val) => val.enabled);
+    },
+  },
 })
 </script>
 

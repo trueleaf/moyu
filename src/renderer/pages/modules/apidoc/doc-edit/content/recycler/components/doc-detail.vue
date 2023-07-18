@@ -108,10 +108,10 @@ import { store } from '@/store/index'
 
 const emit = defineEmits(['close'])
 const props = defineProps({
-    id: {
-        type: String,
-        default: ''
-    },
+  id: {
+    type: String,
+    default: ''
+  },
 });
 /*
 |--------------------------------------------------------------------------
@@ -123,21 +123,21 @@ const projectId = router.currentRoute.value.query.id as string;
 const loading = ref(false); //数据加载
 //获取文档详情
 const getDocDetail = () => {
-    loading.value = true;
-    const params = {
-        _id: props.id,
-        projectId,
-    };
-    axios.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', { params }).then((res) => {
-        docDetail.value = res.data
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    _id: props.id,
+    projectId,
+  };
+  axios.get<Response<ApidocDetail>, Response<ApidocDetail>>('/api/project/doc_detail', { params }).then((res) => {
+    docDetail.value = res.data
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 onMounted(() => {
-    getDocDetail();
+  getDocDetail();
 })
 /*
 |--------------------------------------------------------------------------
@@ -147,60 +147,60 @@ onMounted(() => {
 const apidocInfo = computed(() => docDetail.value);
 //是否存在查询参数
 const hasQueryParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { queryParams } = docDetail.value.item;
-    return queryParams.filter(p => p.select).some((data) => data.key);
+  if (!docDetail.value) {
+    return false;
+  }
+  const { queryParams } = docDetail.value.item;
+  return queryParams.filter(p => p.select).some((data) => data.key);
 })
 //是否存在path参数
 const hasPathsParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { paths } = docDetail.value.item;
-    return paths.some((data) => data.key);
+  if (!docDetail.value) {
+    return false;
+  }
+  const { paths } = docDetail.value.item;
+  return paths.some((data) => data.key);
 })
 //是否存在body参数
 const hasJsonBodyParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { contentType } = docDetail.value.item;
-    const { mode } = docDetail.value.item.requestBody;
-    return contentType === 'application/json' && mode === 'json';
+  if (!docDetail.value) {
+    return false;
+  }
+  const { contentType } = docDetail.value.item;
+  const { mode } = docDetail.value.item.requestBody;
+  return contentType === 'application/json' && mode === 'json';
 })
 //是否存在formData参数
 const hasFormDataParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { contentType } = docDetail.value.item;
-    return contentType === 'multipart/form-data';
+  if (!docDetail.value) {
+    return false;
+  }
+  const { contentType } = docDetail.value.item;
+  return contentType === 'multipart/form-data';
 })
 //是否存在formData参数
 const hasUrlEncodedParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { contentType } = docDetail.value.item;
-    return contentType === 'application/x-www-form-urlencoded';
+  if (!docDetail.value) {
+    return false;
+  }
+  const { contentType } = docDetail.value.item;
+  return contentType === 'application/x-www-form-urlencoded';
 })
 //raw类型返回参数
 const hasRawParams = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { mode, raw } = docDetail.value.item.requestBody;
-    return mode === 'raw' && raw.data;
+  if (!docDetail.value) {
+    return false;
+  }
+  const { mode, raw } = docDetail.value.item.requestBody;
+  return mode === 'raw' && raw.data;
 })
 //是否存在headers
 const hasHeaders = computed(() => {
-    if (!docDetail.value) {
-        return false;
-    }
-    const { headers } = docDetail.value.item;
-    return headers.filter(p => p.select).some((data) => data.key);
+  if (!docDetail.value) {
+    return false;
+  }
+  const { headers } = docDetail.value.item;
+  return headers.filter(p => p.select).some((data) => data.key);
 })
 const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods)
 
@@ -212,7 +212,7 @@ const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.
 
 //关闭弹窗
 const handleClose = () => {
-    emit('close');
+  emit('close');
 }
 
 </script>

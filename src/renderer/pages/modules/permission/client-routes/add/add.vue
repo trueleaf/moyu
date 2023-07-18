@@ -22,58 +22,58 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            formInfo: {
-                name: '', //------------路由名称
-                path: '', //------------路由地址
-                groupName: '', //-------路由分组名称
-            },
-            //=========================================================================//
-            //=========================================================================//
-            loading: false,
-        };
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      formInfo: {
+        name: '', //------------路由名称
+        path: '', //------------路由地址
+        groupName: '', //-------路由分组名称
+      },
+      //=========================================================================//
+      //=========================================================================//
+      loading: false,
+    };
+  },
+  methods: {
+    handleSaveClientRoute() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const params = {
+            ...formInfo,
+          };
+          this.loading = true;
+          this.axios.post('/api/security/client_routes', params).then(() => {
+            this.$emit('success');
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLInputElement).focus();
+            }
+          });
+          this.loading = false;
+        }
+      });
     },
-    methods: {
-        handleSaveClientRoute() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const params = {
-                        ...formInfo,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/security/client_routes', params).then(() => {
-                        this.$emit('success');
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLInputElement).focus();
-                        }
-                    });
-                    this.loading = false;
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
     },
+  },
 })
 </script>
 

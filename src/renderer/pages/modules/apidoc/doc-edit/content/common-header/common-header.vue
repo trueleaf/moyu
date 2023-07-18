@@ -32,68 +32,68 @@ import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from '../apidoc/params/headers/mind-headers';
 
 type CommonHeaderResponse = {
-    _id: string,
-    commonHeaders: ApidocProperty[]
+  _id: string,
+  commonHeaders: ApidocProperty[]
 }
 
 const headerData = ref<ApidocProperty[]>([]);
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
-    const tabs = store.state['apidoc/tabs'].tabs[projectId];
-    return tabs?.find((tab) => tab.selected) || null;
+  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
 })
 
 //获取公共请求头信息
 const loading = ref(false);
 const getCommonHeaderInfo = () => {
-    loading.value = true;
-    const params = {
-        projectId,
-        id: currentSelectTab.value?._id
+  loading.value = true;
+  const params = {
+    projectId,
+    id: currentSelectTab.value?._id
+  }
+  axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
+    headerData.value = res.data.commonHeaders || [];
+    if (!headerData.value.length) {
+      headerData.value.push(apidocGenerateProperty())
     }
-    axios.get<Response<CommonHeaderResponse>, Response<CommonHeaderResponse>>('/api/project/common_header_by_id', { params }).then((res) => {
-        headerData.value = res.data.commonHeaders || [];
-        if (!headerData.value.length) {
-            headerData.value.push(apidocGenerateProperty())
-        }
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 //修改公共请求头
 const loading2 = ref(false);
 const handleEditCommonHeader = () => {
-    loading2.value = true;
-    const params = {
-        projectId,
-        id: currentSelectTab.value?._id,
-        commonHeaders: headerData.value.map(v => ({
-            key: v.key,
-            value: v.value,
-            description: v.description,
-            select: v.select,
-        })),
-    }
-    axios.put('/api/project/common_header', params).then(() => {
-        ElMessage.success('修改成功');
-        store.dispatch('apidoc/baseInfo/getCommonHeaders')
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading2.value = false;
-    });
+  loading2.value = true;
+  const params = {
+    projectId,
+    id: currentSelectTab.value?._id,
+    commonHeaders: headerData.value.map(v => ({
+      key: v.key,
+      value: v.value,
+      description: v.description,
+      select: v.select,
+    })),
+  }
+  axios.put('/api/project/common_header', params).then(() => {
+    ElMessage.success('修改成功');
+    store.dispatch('apidoc/baseInfo/getCommonHeaders')
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading2.value = false;
+  });
 }
 watch(currentSelectTab, (newVal) => {
-    if (newVal?.tabType === 'commonHeader') {
-        getCommonHeaderInfo();
-    }
+  if (newVal?.tabType === 'commonHeader') {
+    getCommonHeaderInfo();
+  }
 }, {
-    deep: true,
+  deep: true,
 })
 onMounted(() => {
-    getCommonHeaderInfo();
+  getCommonHeaderInfo();
 })
 
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);

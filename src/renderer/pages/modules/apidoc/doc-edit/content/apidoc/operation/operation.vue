@@ -111,10 +111,10 @@ const isView = computed(() => store.state['apidoc/baseInfo'].mode === 'view')
 */
 const projectId = router.currentRoute.value.query.id as string;
 onMounted(() => {
-    const localProxyState = apidocCache.getApidocProxyState(projectId);
-    if (localProxyState !== null) {
-        store.commit('apidoc/baseInfo/changeWebProxy', localProxyState);
-    }
+  const localProxyState = apidocCache.getApidocProxyState(projectId);
+  if (localProxyState !== null) {
+    store.commit('apidoc/baseInfo/changeWebProxy', localProxyState);
+  }
 })
 /*
 |--------------------------------------------------------------------------
@@ -136,61 +136,61 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 |--------------------------------------------------------------------------
 */
 const currentSelectTab = computed(() => {
-    const tabs = store.state['apidoc/tabs'].tabs[projectId];
-    const currentTab = tabs?.find((tab) => tab.selected) || null;
-    return currentTab;
+  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  const currentTab = tabs?.find((tab) => tab.selected) || null;
+  return currentTab;
 });
 const loading = computed(() => store.state['apidoc/response'].loading)
 const loading2 = computed(() => store.state['apidoc/apidoc'].saveLoading)
 const saveDocDialogVisible = computed({
-    get() {
-        return store.state['apidoc/apidoc'].saveDocDialogVisible;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeSaveDocDialogVisible', val)
-        store.commit('apidoc/apidoc/changeSavedDocId', currentSelectTab.value?._id);
-    }
+  get() {
+    return store.state['apidoc/apidoc'].saveDocDialogVisible;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeSaveDocDialogVisible', val)
+    store.commit('apidoc/apidoc/changeSavedDocId', currentSelectTab.value?._id);
+  }
 });
 const operationPart = getOperationPart();
 
 const handleSaveApidoc = () => {
-    if (currentSelectTab.value?._id.includes('local_')) {
-        saveDocDialogVisible.value = true;
-    } else {
-        store.dispatch('apidoc/apidoc/saveApidoc');
-    }
+  if (currentSelectTab.value?._id.includes('local_')) {
+    saveDocDialogVisible.value = true;
+  } else {
+    store.dispatch('apidoc/apidoc/saveApidoc');
+  }
 }
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.item.url.path;
-    },
-    set(path) {
-        store.commit('apidoc/apidoc/changeApidocUrl', path);
-    },
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.item.url.path;
+  },
+  set(path) {
+    store.commit('apidoc/apidoc/changeApidocUrl', path);
+  },
 });
 const paths = computed(() => store.state['apidoc/apidoc'].apidoc.item.paths)
 const fullUrl = computed(() => {
-    const { queryParams } = store.state['apidoc/apidoc'].apidoc.item;
-    let queryString = '';
-    queryParams.forEach((v) => {
-        if (v.key && v.select) {
-            queryString += `${v.key}=${v.value}&`
-        }
-    })
-    queryString = queryString.replace(/&$/, '');
-    if (queryString) {
-        queryString = `?${queryString}`;
+  const { queryParams } = store.state['apidoc/apidoc'].apidoc.item;
+  let queryString = '';
+  queryParams.forEach((v) => {
+    if (v.key && v.select) {
+      queryString += `${v.key}=${v.value}&`
     }
-    const pathMap: Record<string, string> = {};
-    paths.value.forEach((v) => {
-        if (v.key) {
-            pathMap[v.key] = v.value;
-        }
-    })
-    const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
-    return host.value + validPath + queryString
+  })
+  queryString = queryString.replace(/&$/, '');
+  if (queryString) {
+    queryString = `?${queryString}`;
+  }
+  const pathMap: Record<string, string> = {};
+  paths.value.forEach((v) => {
+    if (v.key) {
+      pathMap[v.key] = v.value;
+    }
+  })
+  const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
+  return host.value + validPath + queryString
 })
 </script>
 

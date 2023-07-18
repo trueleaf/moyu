@@ -26,34 +26,34 @@ import clientRoutes from './client-routes/client-routes.vue'
 import serverRoutes from './server-routes/server-routes.vue'
 
 export default defineComponent({
-    components: {
-        's-user': user,
-        's-role': role,
-        's-menu': menu,
-        's-client-routes': clientRoutes,
-        's-server-routes': serverRoutes,
+  components: {
+    's-user': user,
+    's-role': role,
+    's-menu': menu,
+    's-client-routes': clientRoutes,
+    's-server-routes': serverRoutes,
+  },
+  data() {
+    return {
+      activeName: 's-user', //当前选中tab
+    };
+  },
+  created() {
+    this.restoreLastVisitTab();
+  },
+  methods: {
+    //恢复上次访问的tab
+    restoreLastVisitTab() {
+      const localTab = localStorage.getItem('permission/activeTab');
+      if (localTab) {
+        this.activeName = localTab;
+      }
     },
-    data() {
-        return {
-            activeName: 's-user', //当前选中tab
-        };
+    //缓存上一次访问的tab
+    handleChangeTabs() {
+      localStorage.setItem('permission/activeTab', this.activeName)
     },
-    created() {
-        this.restoreLastVisitTab();
-    },
-    methods: {
-        //恢复上次访问的tab
-        restoreLastVisitTab() {
-            const localTab = localStorage.getItem('permission/activeTab');
-            if (localTab) {
-                this.activeName = localTab;
-            }
-        },
-        //缓存上一次访问的tab
-        handleChangeTabs() {
-            localStorage.setItem('permission/activeTab', this.activeName)
-        },
-    },
+  },
 })
 </script>
 

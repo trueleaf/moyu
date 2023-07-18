@@ -23,15 +23,15 @@
 <script lang="ts" setup>
 import { onMounted, ref, Ref } from 'vue';
 import {
-    apidocFormatUrl,
-    apidocFormatQueryParams,
-    apidocFormatPathParams,
-    apidocFormatJsonBodyParams,
-    apidocFormatFormdataParams,
-    apidocFormatUrlencodedParams,
-    apidocFormatHeaderParams,
-    apidocFormatResponseParams,
-    copy,
+  apidocFormatUrl,
+  apidocFormatQueryParams,
+  apidocFormatPathParams,
+  apidocFormatJsonBodyParams,
+  apidocFormatFormdataParams,
+  apidocFormatUrlencodedParams,
+  apidocFormatHeaderParams,
+  apidocFormatResponseParams,
+  copy,
 } from '@/helper';
 import { axios } from '@/api/api';
 // import { Close } from "@element-plus/icons-vue"
@@ -50,66 +50,66 @@ const worker = new Worker('/sandbox/hook/worker.js');
 
 //选择代码模板
 const handleSelectCode = (codeInfo: CodeInfo) => {
-    const apidoc = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
-    worker.postMessage({
-        type: 'init',
-        value: {
-            raw: apidoc,
-            url: apidocFormatUrl(apidoc),
-            queryParams: apidocFormatQueryParams(apidoc),
-            pathParams: apidocFormatPathParams(apidoc),
-            jsonParams: apidocFormatJsonBodyParams(apidoc),
-            formdataParams: apidocFormatFormdataParams(apidoc),
-            urlencodedParams: apidocFormatUrlencodedParams(apidoc),
-            headers: apidocFormatHeaderParams(apidoc),
-            method: apidoc.item.method,
-            response: apidocFormatResponseParams(apidoc),
-        },
-    });
-    worker.postMessage({
-        type: 'generate-code',
-        value: codeInfo.code
-    });
-    worker.addEventListener('message', (e) => {
-        if (typeof e.data !== 'object') {
-            return;
-        }
-        if (e.data.type === 'success') {
-            console.log(e.data.value)
-            copy(e.data.value);
-            ElMessage.success('代码已复制到剪切板！');
-        }
-    })
-    emit('close');
+  const apidoc = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
+  worker.postMessage({
+    type: 'init',
+    value: {
+      raw: apidoc,
+      url: apidocFormatUrl(apidoc),
+      queryParams: apidocFormatQueryParams(apidoc),
+      pathParams: apidocFormatPathParams(apidoc),
+      jsonParams: apidocFormatJsonBodyParams(apidoc),
+      formdataParams: apidocFormatFormdataParams(apidoc),
+      urlencodedParams: apidocFormatUrlencodedParams(apidoc),
+      headers: apidocFormatHeaderParams(apidoc),
+      method: apidoc.item.method,
+      response: apidocFormatResponseParams(apidoc),
+    },
+  });
+  worker.postMessage({
+    type: 'generate-code',
+    value: codeInfo.code
+  });
+  worker.addEventListener('message', (e) => {
+    if (typeof e.data !== 'object') {
+      return;
+    }
+    if (e.data.type === 'success') {
+      console.log(e.data.value)
+      copy(e.data.value);
+      ElMessage.success('代码已复制到剪切板！');
+    }
+  })
+  emit('close');
 }
 //跳转到代码管理界面
 const handleJumpToHook = () => {
-    store.commit('apidoc/tabs/addTab', {
-        _id: 'hook',
-        projectId,
-        tabType: 'hook',
-        label: $t('生成代码'),
-        head: {
-            icon: '',
-            color: ''
-        },
-        saved: true,
-        fixed: true,
-        selected: true,
-    });
+  store.commit('apidoc/tabs/addTab', {
+    _id: 'hook',
+    projectId,
+    tabType: 'hook',
+    label: $t('生成代码'),
+    head: {
+      icon: '',
+      color: ''
+    },
+    saved: true,
+    fixed: true,
+    selected: true,
+  });
 }
 onMounted(() => {
-    loading.value = true;
-    const params = {
-        projectId,
-    };
-    axios.get<Response<CodeInfo[]>, Response<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
-        codeList.value = res.data;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  loading.value = true;
+  const params = {
+    projectId,
+  };
+  axios.get<Response<CodeInfo[]>, Response<CodeInfo[]>>('/api/apidoc/project/code_enum', { params }).then((res) => {
+    codeList.value = res.data;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 })
 
 </script>

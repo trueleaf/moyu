@@ -20,62 +20,62 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        index: {
-            type: Number,
-            default: 0,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue'],
-    data() {
-        return {
-            loading: false
-        };
+    index: {
+      type: Number,
+      default: 0,
     },
-    methods: {
-        //保存
-        handleSave() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const responseParam = this.$store.state['apidoc/apidoc'].apidoc.item.responseParams[this.index];
-                    if (!responseParam) {
-                        return
-                    }
-                    const params = {
-                        name: formInfo.name,
-                        presetParamsType: 'responseParams',
-                        projectId: this.$route.query.id,
-                        items: responseParam.value.json,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/project/doc_preset_params', params).then((res) => {
-                        this.$store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLElement).focus();
-                        }
-                    });
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+  },
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      loading: false
+    };
+  },
+  methods: {
+    //保存
+    handleSave() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const responseParam = this.$store.state['apidoc/apidoc'].apidoc.item.responseParams[this.index];
+          if (!responseParam) {
+            return
+          }
+          const params = {
+            name: formInfo.name,
+            presetParamsType: 'responseParams',
+            projectId: this.$route.query.id,
+            items: responseParam.value.json,
+          };
+          this.loading = true;
+          this.axios.post('/api/project/doc_preset_params', params).then((res) => {
+            this.$store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLElement).focus();
+            }
+          });
+        }
+      });
     },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

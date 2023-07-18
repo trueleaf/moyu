@@ -30,38 +30,38 @@ import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
 import { $t } from '@/i18n/i18n'
 
 const props = defineProps({
-    title: {
-        type: String,
-        default: $t('请输入标题'),
-    },
-    bold: {
-        type: Boolean,
-        default: false,
-    },
-    active: {
-        type: Boolean,
-        default: true,
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
+  title: {
+    type: String,
+    default: $t('请输入标题'),
+  },
+  bold: {
+    type: Boolean,
+    default: false,
+  },
+  active: {
+    type: Boolean,
+    default: true,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 const isActive = ref(false);
 const cancelWatch = watch(() => isActive.value, () => {
-    isActive.value = props.active;
+  isActive.value = props.active;
 }, {
-    immediate: true,
+  immediate: true,
 })
 
 const toggleCollapse = () => {
-    if (props.disabled) {
-        return;
-    }
-    if (cancelWatch) {
-        cancelWatch();
-    }
-    isActive.value = !isActive.value
+  if (props.disabled) {
+    return;
+  }
+  if (cancelWatch) {
+    cancelWatch();
+  }
+  isActive.value = !isActive.value
 }
 </script>
 

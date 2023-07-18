@@ -106,72 +106,72 @@ import { ApidocProperty } from '@@/global';
 import { apidocConvertJsonDataToParams } from '@/helper/index'
 
 type ResponseApplyEnum = {
-    index: number,
-    title: string,
-    contentType: string,
+  index: number,
+  title: string,
+  contentType: string,
 }
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  computed: {
+    //远端返回数据结果
+    remoteResponse() {
+      return this.$store.state['apidoc/response']
     },
-    computed: {
-        //远端返回数据结果
-        remoteResponse() {
-            return this.$store.state['apidoc/response']
-        },
-        //发送请求状态
-        loading() {
-            return this.$store.state['apidoc/response'].loading;
-        },
-        //布局
-        layout() {
-            return this.$store.state['apidoc/baseInfo'].layout;
-        },
-        //json返回参数
-        jsonResponse() {
-            const data = this.$store.state['apidoc/response'].data.text
-            return beautify(data, { indent_size: 4 });
-        },
-        //HTML返回参数
-        htmlResponse() {
-            const data = this.$store.state['apidoc/response'].data.text;
-            return beautify.html(data, { indent_size: 4 });
-        },
-        //纯文本返回参数
-        textResponse() {
-            const data = this.$store.state['apidoc/response'].data.text;
-            return data;
-        },
-        //返回值类型
-        responseApplyEnum() {
-            return this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.map((v, index) => ({
-                index,
-                title: v.title,
-                contentType: v.value.dataType
-            }));
-        },
+    //发送请求状态
+    loading() {
+      return this.$store.state['apidoc/response'].loading;
     },
-    methods: {
-        //美化html文件
-        beautifyHtml(str: string) {
-            return str;
-        },
-        //应用为响应值
-        handleApplyResponse(item: ResponseApplyEnum, index: number) {
-            const convertData = apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
-                const mindData = this.$store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'responseParams');
-                const matchedData = mindData.find(v => v.key === p.key);
-                if (matchedData) {
-                    p.description = matchedData.description;
-                    p.value = matchedData.value;
-                }
-                return '';
-            });
-            this.$store.commit('apidoc/apidoc/changeResponseByIndex', { index, value: convertData })
-        },
+    //布局
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
     },
+    //json返回参数
+    jsonResponse() {
+      const data = this.$store.state['apidoc/response'].data.text
+      return beautify(data, { indent_size: 4 });
+    },
+    //HTML返回参数
+    htmlResponse() {
+      const data = this.$store.state['apidoc/response'].data.text;
+      return beautify.html(data, { indent_size: 4 });
+    },
+    //纯文本返回参数
+    textResponse() {
+      const data = this.$store.state['apidoc/response'].data.text;
+      return data;
+    },
+    //返回值类型
+    responseApplyEnum() {
+      return this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.map((v, index) => ({
+        index,
+        title: v.title,
+        contentType: v.value.dataType
+      }));
+    },
+  },
+  methods: {
+    //美化html文件
+    beautifyHtml(str: string) {
+      return str;
+    },
+    //应用为响应值
+    handleApplyResponse(item: ResponseApplyEnum, index: number) {
+      const convertData = apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
+        const mindData = this.$store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'responseParams');
+        const matchedData = mindData.find(v => v.key === p.key);
+        if (matchedData) {
+          p.description = matchedData.description;
+          p.value = matchedData.value;
+        }
+        return '';
+      });
+      this.$store.commit('apidoc/apidoc/changeResponseByIndex', { index, value: convertData })
+    },
+  },
 })
 </script>
 

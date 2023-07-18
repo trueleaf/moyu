@@ -89,170 +89,170 @@ import config from '@/../config/config'
 
 let ipcRenderer: IpcRenderer;
 if (window.require) {
-    // eslint-disable-next-line prefer-destructuring
-    ipcRenderer = window.require('electron').ipcRenderer;
+  // eslint-disable-next-line prefer-destructuring
+  ipcRenderer = window.require('electron').ipcRenderer;
 }
 
 export default defineComponent({
-    components: {
-        RefreshRight,
-        Back,
-        Right,
-        ArrowDown,
+  components: {
+    RefreshRight,
+    Back,
+    Right,
+    ArrowDown,
+  },
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+    //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
+    const goBack = () => router.back()
+    const goForward = () => router.forward();
+    const freshPage = () => window.location.reload();
+    //个人中心
+    const jumpToHome = () => router.push('/v1/apidoc/doc-list');
+    const jumpToUserSetting = () => router.push('/v1/settings/user');
+    const logout = () => {
+      store.commit('permission/clearAllPermission');
+      sessionStorage.clear();
+      router.push('/login');
+    };
+    //国际化
+    const changeLocale = (language: Language) => {
+      changeLanguage(language);
+    }
+    return {
+      goBack,
+      goForward,
+      freshPage,
+      jumpToHome,
+      jumpToUserSetting,
+      logout,
+      changeLocale,
+    };
+  },
+  data() {
+    return {
+      //=====================================自动更新====================================//
+      progress: 0, //-------------------下载进度
+      downloading: false, //------------是否正在下载安装包
+      isManual: false, //---------------是否手动更新
+      //=====================================其他参数====================================//
+      config, //------------------------配置相关
+      activeMenuPath: '', //------------当前路由路径
+    };
+  },
+  computed: {
+    menus(): PermissionMenu[] { //所有菜单
+      return this.$store.state.permission.menus;
     },
-    setup() {
-        const router = useRouter();
-        const store = useStore();
-        //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
-        const goBack = () => router.back()
-        const goForward = () => router.forward();
-        const freshPage = () => window.location.reload();
-        //个人中心
-        const jumpToHome = () => router.push('/v1/apidoc/doc-list');
-        const jumpToUserSetting = () => router.push('/v1/settings/user');
-        const logout = () => {
-            store.commit('permission/clearAllPermission');
-            sessionStorage.clear();
-            router.push('/login');
-        };
-        //国际化
-        const changeLocale = (language: Language) => {
-            changeLanguage(language);
+    userInfo(): PermissionUserInfo { //用户信息
+      return this.$store.state.permission.userInfo;
+    },
+  },
+  created() {
+    this.activeMenuPath = this.$route.path;
+    this.initUploadEvent();
+    if (this.config.updateConfig.autoUpdate) {
+      this.handleCheckUpdate();
+    }
+  },
+  methods: {
+    handleClickDropdown(command: string) {
+      switch (command) {
+      case 'logout':
+        this.logout();
+        break;
+      case 'user-setting':
+        this.jumpToUserSetting();
+        break;
+      case 'update':
+        this.handleCheckUpdate(true);
+        break;
+      case 'clear-cache':
+        this.clearAllCache();
+        break;
+      default:
+        break;
+      }
+    },
+    //初始化自动更新相关事件
+    initUploadEvent() {
+      if (config.isElectron) {
+        //存在可用更新
+        ipcRenderer.on('vue-update-available', () => {
+          console.log('存在可用更新');
+        });
+        //没有可用更新
+        ipcRenderer.on('vue-update-not-available', () => {
+          console.log(`${this.$t('没有可用更新')}`);
+          this.downloading = false;
+          if (this.isManual) {
+            this.$message.warning(`${this.$t('暂无可用更新')}`);
+          }
+        });
+        //下载中
+        ipcRenderer.on('vue-download-progress', (e, progressObj) => {
+          console.log(`${this.$t('下载中')}`, e, progressObj);
+          this.downloading = true;
+          this.progress = progressObj.percent;
+        });
+        //下载完成
+        ipcRenderer.on('vue-update-downloaded', (e, upload) => {
+          this.progress = 100;
+          console.log(`${this.$t('下载完成')}`, e, upload);
+        });
+        ipcRenderer.on('vue-download-error', (e, error) => {
+          if (this.isManual) {
+            this.$message.warning(`${this.$t('更新异常请稍后再试')}`);
+          }
+          this.downloading = false;
+          console.error(error);
+        });
+      }
+    },
+    //安装更新
+    handleInstall() {
+      if (config.isElectron) {
+        ipcRenderer.send('vue-quit-and-install');
+      }
+    },
+    //检查更新
+    handleCheckUpdate(isManual = false) {
+      this.downloading = true;
+      this.isManual = isManual;
+      if (config.isElectron) {
+        ipcRenderer.send('vue-check-update');
+      }
+    },
+    //清空缓存
+    clearAllCache() {
+      this.$confirm('此操作将清空所有本地缓存, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        //移除serviceworker
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+            registrations.forEach(registration => {
+              console.log(registration.unregister())
+            })
+          })
         }
-        return {
-            goBack,
-            goForward,
-            freshPage,
-            jumpToHome,
-            jumpToUserSetting,
-            logout,
-            changeLocale,
-        };
-    },
-    data() {
-        return {
-            //=====================================自动更新====================================//
-            progress: 0, //-------------------下载进度
-            downloading: false, //------------是否正在下载安装包
-            isManual: false, //---------------是否手动更新
-            //=====================================其他参数====================================//
-            config, //------------------------配置相关
-            activeMenuPath: '', //------------当前路由路径
-        };
-    },
-    computed: {
-        menus(): PermissionMenu[] { //所有菜单
-            return this.$store.state.permission.menus;
-        },
-        userInfo(): PermissionUserInfo { //用户信息
-            return this.$store.state.permission.userInfo;
-        },
-    },
-    created() {
-        this.activeMenuPath = this.$route.path;
-        this.initUploadEvent();
-        if (this.config.updateConfig.autoUpdate) {
-            this.handleCheckUpdate();
+        //移除本地存储
+        localStorage.clear();
+        sessionStorage.clear();
+        //清空indexedDB
+        indexedDB.deleteDatabase(this.config.renderConfig.indexedDB.dbName)
+        //刷新页面
+        this.$router.replace('/login')
+      }).catch((err: Error | 'cancel' | 'close') => {
+        if (err === 'cancel' || err === 'close') {
+          return;
         }
+        console.error(err);
+      });
     },
-    methods: {
-        handleClickDropdown(command: string) {
-            switch (command) {
-                case 'logout':
-                    this.logout();
-                    break;
-                case 'user-setting':
-                    this.jumpToUserSetting();
-                    break;
-                case 'update':
-                    this.handleCheckUpdate(true);
-                    break;
-                case 'clear-cache':
-                    this.clearAllCache();
-                    break;
-                default:
-                    break;
-            }
-        },
-        //初始化自动更新相关事件
-        initUploadEvent() {
-            if (config.isElectron) {
-                //存在可用更新
-                ipcRenderer.on('vue-update-available', () => {
-                    console.log('存在可用更新');
-                });
-                //没有可用更新
-                ipcRenderer.on('vue-update-not-available', () => {
-                    console.log(`${this.$t('没有可用更新')}`);
-                    this.downloading = false;
-                    if (this.isManual) {
-                        this.$message.warning(`${this.$t('暂无可用更新')}`);
-                    }
-                });
-                //下载中
-                ipcRenderer.on('vue-download-progress', (e, progressObj) => {
-                    console.log(`${this.$t('下载中')}`, e, progressObj);
-                    this.downloading = true;
-                    this.progress = progressObj.percent;
-                });
-                //下载完成
-                ipcRenderer.on('vue-update-downloaded', (e, upload) => {
-                    this.progress = 100;
-                    console.log(`${this.$t('下载完成')}`, e, upload);
-                });
-                ipcRenderer.on('vue-download-error', (e, error) => {
-                    if (this.isManual) {
-                        this.$message.warning(`${this.$t('更新异常请稍后再试')}`);
-                    }
-                    this.downloading = false;
-                    console.error(error);
-                });
-            }
-        },
-        //安装更新
-        handleInstall() {
-            if (config.isElectron) {
-                ipcRenderer.send('vue-quit-and-install');
-            }
-        },
-        //检查更新
-        handleCheckUpdate(isManual = false) {
-            this.downloading = true;
-            this.isManual = isManual;
-            if (config.isElectron) {
-                ipcRenderer.send('vue-check-update');
-            }
-        },
-        //清空缓存
-        clearAllCache() {
-            this.$confirm('此操作将清空所有本地缓存, 是否继续?', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-            }).then(() => {
-                //移除serviceworker
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then((registrations) => {
-                        registrations.forEach(registration => {
-                            console.log(registration.unregister())
-                        })
-                    })
-                }
-                //移除本地存储
-                localStorage.clear();
-                sessionStorage.clear();
-                //清空indexedDB
-                indexedDB.deleteDatabase(this.config.renderConfig.indexedDB.dbName)
-                //刷新页面
-                this.$router.replace('/login')
-            }).catch((err: Error | 'cancel' | 'close') => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-    },
+  },
 })
 </script>
 

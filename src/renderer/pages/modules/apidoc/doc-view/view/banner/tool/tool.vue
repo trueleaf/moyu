@@ -82,8 +82,8 @@ import { forEachForest } from '@/helper/index'
 const emit = defineEmits(['fresh', 'filter'])
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
-    const originBannerData = store.state['apidoc/banner'].banner;
-    return originBannerData
+  const originBannerData = store.state['apidoc/banner'].banner;
+  return originBannerData
 })
 const projectName = computed(() => store.state['apidoc/baseInfo'].projectName)
 //=====================================操作相关数据====================================//
@@ -94,29 +94,29 @@ const projectName = computed(() => store.state['apidoc/baseInfo'].projectName)
 |--------------------------------------------------------------------------
 */
 const formInfo = ref({
-    iptValue: '', //u
-    startTime: null as null | number, //--起始日期
-    endTime: null as null | number, //----结束日期
-    maintainers: [] as string[], //----操作者信息
-    recentNum: 0, //-显示最近多少条
+  iptValue: '', //u
+  startTime: null as null | number, //--起始日期
+  endTime: null as null | number, //----结束日期
+  maintainers: [] as string[], //----操作者信息
+  recentNum: 0, //-显示最近多少条
 })
 //是否存在过滤条件
 const hasFilterCondition = computed(() => {
-    const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
-    const hasOperatorCondition = formInfo.value.maintainers.length > 0;
-    const hasRecentNumCondition = formInfo.value.recentNum;
-    return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
+  const hasTimeCondition = formInfo.value.startTime && formInfo.value.endTime;
+  const hasOperatorCondition = formInfo.value.maintainers.length > 0;
+  const hasRecentNumCondition = formInfo.value.recentNum;
+  return !!(hasTimeCondition || hasOperatorCondition || hasRecentNumCondition);
 })
 //用户列表
 const maintainerEnum = computed(() => {
-    const { banner } = store.state['apidoc/banner'];
-    const allBanner: string[] = [];
-    forEachForest(banner, (bannerInfo) => {
-        if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
-            allBanner.push(bannerInfo.maintainer);
-        }
-    })
-    return allBanner;
+  const { banner } = store.state['apidoc/banner'];
+  const allBanner: string[] = [];
+  forEachForest(banner, (bannerInfo) => {
+    if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
+      allBanner.push(bannerInfo.maintainer);
+    }
+  })
+  return allBanner;
 });
 //=====================================日期相关====================================//
 //日期范围
@@ -125,144 +125,144 @@ const dateRange = ref('');
 const customDateRange = ref([]);
 //清空日期
 const handleClearDate = () => {
-    dateRange.value = ''
+  dateRange.value = ''
 }
 //监听日起段变化
 watch(() => dateRange.value, (val) => {
-    let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
-    let endTime = null;
-    switch (val) {
-        case '1d':
-            endTime = Date.now();
-            break;
-        case '2d':
-            endTime = Date.now();
-            startTime = endTime - 86400000;
-            break;
-        case '3d':
-            endTime = Date.now();
-            startTime = endTime - 3 * 86400000;
-            break;
-        case '7d':
-            endTime = Date.now();
-            startTime = endTime - 7 * 86400000;
-            break;
-        case 'yesterday':
-            endTime = startTime;
-            startTime -= 86400000;
-            break;
-        default: //自定义
-            startTime = null;
-            endTime = null;
-            customDateRange.value = [];
-            break;
-    }
-    formInfo.value.startTime = startTime;
-    formInfo.value.endTime = endTime;
+  let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
+  let endTime = null;
+  switch (val) {
+  case '1d':
+    endTime = Date.now();
+    break;
+  case '2d':
+    endTime = Date.now();
+    startTime = endTime - 86400000;
+    break;
+  case '3d':
+    endTime = Date.now();
+    startTime = endTime - 3 * 86400000;
+    break;
+  case '7d':
+    endTime = Date.now();
+    startTime = endTime - 7 * 86400000;
+    break;
+  case 'yesterday':
+    endTime = startTime;
+    startTime -= 86400000;
+    break;
+  default: //自定义
+    startTime = null;
+    endTime = null;
+    customDateRange.value = [];
+    break;
+  }
+  formInfo.value.startTime = startTime;
+  formInfo.value.endTime = endTime;
 })
 //监听日期段变化
 watch(() => customDateRange.value, (val) => {
-    if (!val || val.length === 0) {
-        formInfo.value.startTime = null;
-        formInfo.value.endTime = null;
-    } else {
-        formInfo.value.startTime = val[0];
-        formInfo.value.endTime = val[1];
-    }
+  if (!val || val.length === 0) {
+    formInfo.value.startTime = null;
+    formInfo.value.endTime = null;
+  } else {
+    formInfo.value.startTime = val[0];
+    formInfo.value.endTime = val[1];
+  }
 })
 //=====================================维护者信息====================================//
 //清除所有的维护者数据
 const handleClearMaintainer = () => {
-    formInfo.value.maintainers = [];
+  formInfo.value.maintainers = [];
 }
 //=====================================最近数据条数====================================//
 //清除最近新增条数条件
 const handleClearRecentNum = () => {
-    formInfo.value.recentNum = 0;
+  formInfo.value.recentNum = 0;
 }
 //=====================================监听数据变化====================================//
 watch(() => formInfo.value, (formData) => {
-    let plainBannerData: ApidocBanner[] = [];
-    const { startTime, endTime, maintainers, recentNum } = formData;
-    forEachForest(bannerData.value, (v) => {
-        if (!v.isFolder) {
-            plainBannerData.push(v);
-        }
-    })
-    if (maintainers.length === 0 && !startTime && !recentNum) {
-        emit('filter', {
-            iptValue: formData.iptValue,
-            recentNumIds: null,
-        });
-        return
+  let plainBannerData: ApidocBanner[] = [];
+  const { startTime, endTime, maintainers, recentNum } = formData;
+  forEachForest(bannerData.value, (v) => {
+    if (!v.isFolder) {
+      plainBannerData.push(v);
     }
-
-    //录入人员
-    if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
-    }
-    //录入时间
-    if (startTime && endTime) {
-        plainBannerData = plainBannerData.filter(v => {
-            const updateTimestamp = new Date(v.updatedAt).getTime();
-            return updateTimestamp > startTime && updateTimestamp < endTime;
-        })
-    }
-    //录入数据个数
-    if (recentNum) {
-        plainBannerData = plainBannerData.sort((a, b) => {
-            const aTime = new Date(a.updatedAt).getTime();
-            const bTime = new Date(b.updatedAt).getTime();
-            return bTime - aTime;
-        }).slice(0, recentNum)
-    }
+  })
+  if (maintainers.length === 0 && !startTime && !recentNum) {
     emit('filter', {
-        iptValue: formData.iptValue,
-        recentNumIds: plainBannerData.map(v => v._id),
+      iptValue: formData.iptValue,
+      recentNumIds: null,
     });
+    return
+  }
+
+  //录入人员
+  if (maintainers.length > 0) {
+    plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
+  }
+  //录入时间
+  if (startTime && endTime) {
+    plainBannerData = plainBannerData.filter(v => {
+      const updateTimestamp = new Date(v.updatedAt).getTime();
+      return updateTimestamp > startTime && updateTimestamp < endTime;
+    })
+  }
+  //录入数据个数
+  if (recentNum) {
+    plainBannerData = plainBannerData.sort((a, b) => {
+      const aTime = new Date(a.updatedAt).getTime();
+      const bTime = new Date(b.updatedAt).getTime();
+      return bTime - aTime;
+    }).slice(0, recentNum)
+  }
+  emit('filter', {
+    iptValue: formData.iptValue,
+    recentNumIds: plainBannerData.map(v => v._id),
+  });
 }, {
-    deep: true,
-    immediate: true,
+  deep: true,
+  immediate: true,
 });
 
 const handleFilterBanner = () => {
-    let plainBannerData: ApidocBanner[] = [];
-    const { startTime, endTime, maintainers, recentNum } = formInfo.value;
-    forEachForest(bannerData.value, (v) => {
-        if (!v.isFolder) {
-            plainBannerData.push(v);
-        }
-    })
-    if (maintainers.length === 0 && !startTime && !recentNum) {
-        emit('filter', {
-            iptValue: formInfo.value.iptValue,
-            recentNumIds: null,
-        });
-        return
+  let plainBannerData: ApidocBanner[] = [];
+  const { startTime, endTime, maintainers, recentNum } = formInfo.value;
+  forEachForest(bannerData.value, (v) => {
+    if (!v.isFolder) {
+      plainBannerData.push(v);
     }
-    //录入人员
-    if (maintainers.length > 0) {
-        plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
-    }
-    //录入时间
-    if (startTime && endTime) {
-        plainBannerData = plainBannerData.filter(v => {
-            const updateTimestamp = new Date(v.updatedAt).getTime();
-            return updateTimestamp > startTime && updateTimestamp < endTime;
-        })
-    }
-    //录入数据个数
-    if (formInfo.value.recentNum) {
-        plainBannerData.sort((a, b) => {
-            const aTime = new Date(a.updatedAt).getTime();
-            const bTime = new Date(b.updatedAt).getTime();
-            return aTime - bTime;
-        }).slice(0, formInfo.value.recentNum)
-    }
+  })
+  if (maintainers.length === 0 && !startTime && !recentNum) {
     emit('filter', {
-        iptValue: formInfo.value.iptValue,
-        recentNumIds: plainBannerData.map(v => v._id),
+      iptValue: formInfo.value.iptValue,
+      recentNumIds: null,
     });
+    return
+  }
+  //录入人员
+  if (maintainers.length > 0) {
+    plainBannerData = plainBannerData.filter(v => maintainers.find(v2 => v2 === v.maintainer))
+  }
+  //录入时间
+  if (startTime && endTime) {
+    plainBannerData = plainBannerData.filter(v => {
+      const updateTimestamp = new Date(v.updatedAt).getTime();
+      return updateTimestamp > startTime && updateTimestamp < endTime;
+    })
+  }
+  //录入数据个数
+  if (formInfo.value.recentNum) {
+    plainBannerData.sort((a, b) => {
+      const aTime = new Date(a.updatedAt).getTime();
+      const bTime = new Date(b.updatedAt).getTime();
+      return aTime - bTime;
+    }).slice(0, formInfo.value.recentNum)
+  }
+  emit('filter', {
+    iptValue: formInfo.value.iptValue,
+    recentNumIds: plainBannerData.map(v => v._id),
+  });
 }
 </script>
 

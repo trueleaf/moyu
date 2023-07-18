@@ -117,31 +117,31 @@ import { router } from '@/router'
 
 //=========================================================================//
 type EditData = {
-    expire: number,
-    projectId: string,
-    shareName: string,
-    password: string,
-    projectName: string,
-    selectedDocs: string[],
-    _id: string,
+  expire: number,
+  projectId: string,
+  shareName: string,
+  password: string,
+  projectName: string,
+  selectedDocs: string[],
+  _id: string,
 }
 const props = defineProps({
-    modelValue: {
-        type: Boolean,
-        default: false,
-    },
-    data: {
-        type: Object as PropType<EditData>,
-        default: () => ({})
-    },
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
+  data: {
+    type: Object as PropType<EditData>,
+    default: () => ({})
+  },
 });
 const emit = defineEmits(['update:modelValue', 'success'])
 //=========================================================================//
 //生成链接额外配置信息
 const formInfo = ref({
-    shareName: '', //链接名称
-    password: '',
-    maxAge: 86400000 * 30,
+  shareName: '', //链接名称
+  password: '',
+  maxAge: 86400000 * 30,
 })
 //自定义过期时间
 const customMaxAge = ref(false);
@@ -152,17 +152,17 @@ const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const navTreeData = computed(() => store.state['apidoc/banner'].banner)
 const configShare: Ref<{ enabled: boolean } | null> = ref(null); //配置组件实例
 onMounted(() => {
-    formInfo.value.shareName = props.data.shareName;
-    formInfo.value.password = props.data.password;
-    formInfo.value.maxAge = (props.data.expire - Date.now()) > 0 ? (props.data.expire - Date.now()) : 86400000;
-    nextTick(() => {
-        if (props.data.selectedDocs.length > 0 && configShare.value) {
-            configShare.value.enabled = true;
-            nextTick(() => {
+  formInfo.value.shareName = props.data.shareName;
+  formInfo.value.password = props.data.password;
+  formInfo.value.maxAge = (props.data.expire - Date.now()) > 0 ? (props.data.expire - Date.now()) : 86400000;
+  nextTick(() => {
+    if (props.data.selectedDocs.length > 0 && configShare.value) {
+      configShare.value.enabled = true;
+      nextTick(() => {
                 docTree.value?.setCheckedKeys(props.data.selectedDocs)
-            })
-        }
-    })
+      })
+    }
+  })
 })
 //=====================================生成链接====================================//
 const projectInfo = computed(() => store.state['apidoc/baseInfo']) //项目基本信息
@@ -171,46 +171,46 @@ const loading = ref(false); //生成在线链接加载
 const shareLink = ref(''); //在线链接地址
 //关闭页面
 const handleClose = () => {
-    emit('update:modelValue', false);
+  emit('update:modelValue', false);
 }
 //修改在线链接
 const handleEditLink = () => {
-    const enableCustomExport = configShare.value?.enabled;
-    const customExportIsEmpty = allCheckedNodes.value.length === 0;
-    const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
-    if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空
-        ElMessage.warning('请至少选择一个文档分享');
-        return;
-    }
-    if (!shareName) { //必须填写分享备注
-        ElMessage.warning('请输入链接名称');
-        return;
-    }
-    loading.value = true;
-    const selectedIds = allCheckedNodes.value.map((val) => val._id);
-    const params = {
-        _id: props.data._id,
-        shareName,
-        projectId,
-        maxAge,
-        password,
-        selectedDocs: selectedIds,
-    };
-    axios.put('/api/project/export/online', params).then(() => {
-        handleClose();
-        emit('success');
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading.value = false;
-    });
+  const enableCustomExport = configShare.value?.enabled;
+  const customExportIsEmpty = allCheckedNodes.value.length === 0;
+  const { maxAge, password, shareName } = formInfo.value; //默认一个月过期
+  if (enableCustomExport && customExportIsEmpty) { //允许自定义分享并且数据为空
+    ElMessage.warning('请至少选择一个文档分享');
+    return;
+  }
+  if (!shareName) { //必须填写分享备注
+    ElMessage.warning('请输入链接名称');
+    return;
+  }
+  loading.value = true;
+  const selectedIds = allCheckedNodes.value.map((val) => val._id);
+  const params = {
+    _id: props.data._id,
+    shareName,
+    projectId,
+    maxAge,
+    password,
+    selectedDocs: selectedIds,
+  };
+  axios.put('/api/project/export/online', params).then(() => {
+    handleClose();
+    emit('success');
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 //=====================================其他操作====================================//
 //节点选中状态改变时候
 const handleCheckChange = () => {
-    const checkedNodes = docTree.value?.getCheckedNodes() || [];
-    const halfCheckedNodes = docTree.value?.getHalfCheckedNodes() || [];
-    allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
+  const checkedNodes = docTree.value?.getCheckedNodes() || [];
+  const halfCheckedNodes = docTree.value?.getHalfCheckedNodes() || [];
+  allCheckedNodes.value = checkedNodes.concat(halfCheckedNodes) as ApidocBanner[];
 }
 //格式化展示
 const formatTooltip = (val: number) => `${(Math.floor(val / 86400000))}天后`

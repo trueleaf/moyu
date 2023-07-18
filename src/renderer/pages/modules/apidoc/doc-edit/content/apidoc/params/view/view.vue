@@ -75,56 +75,56 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  computed: {
+    desciption() {
+      return this.$store.state['apidoc/apidoc'].apidoc.info.description
     },
-    computed: {
-        desciption() {
-            return this.$store.state['apidoc/apidoc'].apidoc.info.description
-        },
-        apidocInfo() {
-            return this.$store.state['apidoc/apidoc'].apidoc.item
-        },
-        //是否存在查询参数
-        hasQueryParams() {
-            const { queryParams } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
-            return hasQueryParams;
-        },
-        //是否存在path参数
-        hasPathsParams() {
-            const { paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            const hasPathsParams = paths.some((data) => data.key);
-            return hasPathsParams;
-        },
-        //是否存在body参数
-        hasJsonBodyParams() {
-            const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            const { mode } = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody;
-            return contentType === 'application/json' && mode === 'json';
-        },
-        //是否存在formData参数
-        hasFormDataParams() {
-            const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            return contentType === 'multipart/form-data';
-        },
-        //是否存在x-www-form-urlencoded参数
-        hasUrlEncodedParams() {
-            const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            return contentType === 'application/x-www-form-urlencoded';
-        },
-        //raw类型返回参数
-        hasRawParams() {
-            const { mode, raw } = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody;
-            return mode === 'raw' && raw.data;
-        },
-        //是否存在headers
-        hasHeaders() {
-            const { headers } = this.$store.state['apidoc/apidoc'].apidoc.item;
-            return headers.filter(p => p.select).some((data) => data.key);
-        },
+    apidocInfo() {
+      return this.$store.state['apidoc/apidoc'].apidoc.item
     },
+    //是否存在查询参数
+    hasQueryParams() {
+      const { queryParams } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      const hasQueryParams = queryParams.filter(p => p.select).some((data) => data.key);
+      return hasQueryParams;
+    },
+    //是否存在path参数
+    hasPathsParams() {
+      const { paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      const hasPathsParams = paths.some((data) => data.key);
+      return hasPathsParams;
+    },
+    //是否存在body参数
+    hasJsonBodyParams() {
+      const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      const { mode } = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody;
+      return contentType === 'application/json' && mode === 'json';
+    },
+    //是否存在formData参数
+    hasFormDataParams() {
+      const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      return contentType === 'multipart/form-data';
+    },
+    //是否存在x-www-form-urlencoded参数
+    hasUrlEncodedParams() {
+      const { contentType } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      return contentType === 'application/x-www-form-urlencoded';
+    },
+    //raw类型返回参数
+    hasRawParams() {
+      const { mode, raw } = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody;
+      return mode === 'raw' && raw.data;
+    },
+    //是否存在headers
+    hasHeaders() {
+      const { headers } = this.$store.state['apidoc/apidoc'].apidoc.item;
+      return headers.filter(p => p.select).some((data) => data.key);
+    },
+  },
 })
 </script>
 

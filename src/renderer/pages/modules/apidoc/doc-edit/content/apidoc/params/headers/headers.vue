@@ -47,29 +47,29 @@ import mindHeaders from './mind-headers'
 
 const projectId = router.currentRoute.value.query.id as string;
 const currentSelectTab = computed(() => { //当前选中的doc
-    const tabs = store.state['apidoc/tabs'].tabs[projectId];
-    return tabs?.find((tab) => tab.selected) || null;
+  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
 })
 const hideDefaultHeader = ref(true);
 const headerData = computed(() => store.state['apidoc/apidoc'].apidoc.item.headers)
 const defaultHeaders = computed(() => store.state['apidoc/apidoc'].defaultHeaders)
 const defaultHeaderKeys = computed(() => store.state['apidoc/apidoc'].defaultHeaders.map(v => v.key));
 const commonHeaders = computed(() => {
-    const data = store.getters['apidoc/baseInfo/headers'](currentSelectTab.value?._id) as Pick<ApidocProperty, 'key' | 'value' | 'description'>[];
-    return data.map(v => {
-        const property = apidocGenerateProperty();
-        property.key = v.key;
-        property.value = v.value;
-        property.description = v.description;
-        return property;
-    })
+  const data = store.getters['apidoc/baseInfo/headers'](currentSelectTab.value?._id) as Pick<ApidocProperty, 'key' | 'value' | 'description'>[];
+  return data.map(v => {
+    const property = apidocGenerateProperty();
+    property.key = v.key;
+    property.value = v.value;
+    property.description = v.description;
+    return property;
+  })
 });
 
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 
 onMounted(() => {
-    // const data = store.commit("apidoc/baseInfo/getCommonHeadersById", currentSelectTab.value?._id);
-    // console.log(data, currentSelectTab.value?._id)
+  // const data = store.commit("apidoc/baseInfo/getCommonHeadersById", currentSelectTab.value?._id);
+  // console.log(data, currentSelectTab.value?._id)
 })
 
 </script>

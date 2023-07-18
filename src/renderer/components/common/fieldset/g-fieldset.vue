@@ -23,20 +23,20 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        title: {
-            type: String,
-            default: '',
-        },
-        height: {
-            type: String,
-            default: null,
-        },
-        maxHeight: {
-            type: String,
-            default: null,
-        },
+  props: {
+    title: {
+      type: String,
+      default: '',
     },
+    height: {
+      type: String,
+      default: null,
+    },
+    maxHeight: {
+      type: String,
+      default: null,
+    },
+  },
 })
 </script>
 

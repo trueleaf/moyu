@@ -32,36 +32,36 @@ import config from '@/../config/config'
 
 //所有节点
 const allNodes = computed(() => {
-    const allBanner = store.state['apidoc/banner'].banner;
-    const docs: ApidocBanner[] = [];
-    forEachForest(allBanner, (v) => {
-        const data = {
-            ...v,
-        };
-        data.children = [];
-        docs.push(data);
-    });
-    return docs;
+  const allBanner = store.state['apidoc/banner'].banner;
+  const docs: ApidocBanner[] = [];
+  forEachForest(allBanner, (v) => {
+    const data = {
+      ...v,
+    };
+    data.children = [];
+    docs.push(data);
+  });
+  return docs;
 })
 //所有文档
 const allDocs = computed(() => {
-    const result: ApidocBanner[] = [];
-    allNodes.value.forEach((v) => {
-        if (!v.isFolder) {
-            result.push(v);
-        }
-    })
-    return result;
+  const result: ApidocBanner[] = [];
+  allNodes.value.forEach((v) => {
+    if (!v.isFolder) {
+      result.push(v);
+    }
+  })
+  return result;
 })
 //今日新增文档
 const docsOfToday = computed(() => {
-    const result: ApidocBanner[] = [];
-    allDocs.value.forEach((v) => {
-        if (new Date(v.updatedAt).getTime() > new Date().setHours(0, 0, 0, 0)) {
-            result.push(v);
-        }
-    })
-    return result;
+  const result: ApidocBanner[] = [];
+  allDocs.value.forEach((v) => {
+    if (new Date(v.updatedAt).getTime() > new Date().setHours(0, 0, 0, 0)) {
+      result.push(v);
+    }
+  })
+  return result;
 })
 
 </script>

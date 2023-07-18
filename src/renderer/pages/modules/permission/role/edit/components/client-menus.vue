@@ -30,38 +30,38 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    emits: ['change'],
-    data() {
-        return {
-            clientMenu: [] as string[],
-            loading: false,
-        };
+  emits: ['change'],
+  data() {
+    return {
+      clientMenu: [] as string[],
+      loading: false,
+    };
+  },
+  created() {
+    this.getClientMenu(); //获取前端菜单
+  },
+  methods: {
+    //获取树形菜单结构
+    getClientMenu() {
+      this.loading = true;
+      this.axios.get('/api/security/client_menu_tree').then((res) => {
+        this.$helper.forEachForest(res.data, (val) => {
+          val.id = val._id;
+        })
+        this.clientMenu = res.data;
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading = false;
+      });
     },
-    created() {
-        this.getClientMenu(); //获取前端菜单
+    //选择前端菜单
+    handleSelectClientMenu() {
+      const checkKeys = this.$refs.tree.getCheckedKeys();
+      const halfCheckKeys = this.$refs.tree.getHalfCheckedKeys();
+      this.$emit('change', checkKeys.concat(halfCheckKeys));
     },
-    methods: {
-        //获取树形菜单结构
-        getClientMenu() {
-            this.loading = true;
-            this.axios.get('/api/security/client_menu_tree').then((res) => {
-                this.$helper.forEachForest(res.data, (val) => {
-                    val.id = val._id;
-                })
-                this.clientMenu = res.data;
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
-        //选择前端菜单
-        handleSelectClientMenu() {
-            const checkKeys = this.$refs.tree.getCheckedKeys();
-            const halfCheckKeys = this.$refs.tree.getHalfCheckedKeys();
-            this.$emit('change', checkKeys.concat(halfCheckKeys));
-        },
-    },
+  },
 })
 </script>
 

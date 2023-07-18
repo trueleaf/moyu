@@ -21,59 +21,59 @@ import { ApidocProperty } from '@@/global';
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        items: {
-            type: Array as PropType<ApidocProperty[]>,
-            default: () => []
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue'],
-    data() {
-        return {
-            loading: false
-        };
+    items: {
+      type: Array as PropType<ApidocProperty[]>,
+      default: () => []
     },
-    methods: {
-        //保存
-        handleSave() {
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    const { formInfo } = this.$refs.form;
-                    const bodyParams = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody.json
-                    const params = {
-                        name: formInfo.name,
-                        presetParamsType: 'bodyParams',
-                        projectId: this.$route.query.id,
-                        items: bodyParams,
-                    };
-                    this.loading = true;
-                    this.axios.post('/api/project/doc_preset_params', params).then((res) => {
-                        this.$store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
-                        this.handleClose();
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLElement).focus();
-                        }
-                    });
-                }
-            });
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+  },
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      loading: false
+    };
+  },
+  methods: {
+    //保存
+    handleSave() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          const { formInfo } = this.$refs.form;
+          const bodyParams = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody.json
+          const params = {
+            name: formInfo.name,
+            presetParamsType: 'bodyParams',
+            projectId: this.$route.query.id,
+            items: bodyParams,
+          };
+          this.loading = true;
+          this.axios.post('/api/project/doc_preset_params', params).then((res) => {
+            this.$store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
+            this.handleClose();
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLElement).focus();
+            }
+          });
+        }
+      });
     },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

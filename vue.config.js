@@ -12,11 +12,11 @@ process.env.VUE_APP_BUILD_HTML = buildHtml || '';
 let vueConfig = null;
 
 if (buildHtml) {
-    vueConfig = htmlBuildConfig
+  vueConfig = htmlBuildConfig
 } else if (buildShare) {
-    vueConfig = shareBuildConfig;
+  vueConfig = shareBuildConfig;
 } else {
-    vueConfig = defaultBuildConfig
+  vueConfig = defaultBuildConfig
 }
 
 module.exports = vueConfig;

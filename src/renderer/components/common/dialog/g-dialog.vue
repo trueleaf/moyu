@@ -26,37 +26,37 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 是否显示dialog
          */
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        /**
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    /**
          * 标题
          */
-        title: {
-            type: String,
-            default: '',
-        },
-        /**
+    title: {
+      type: String,
+      default: '',
+    },
+    /**
          * 是否可以通过escape和点击model关闭
          */
-        easyClose: {
-            type: Boolean,
-            default: false,
-        },
+    easyClose: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'close'],
-    methods: {
-        //关闭弹窗
-        closeModel() {
-            this.$emit('update:modelValue', false);
-            this.$emit('close', false);
-        },
+  },
+  emits: ['update:modelValue', 'close'],
+  methods: {
+    //关闭弹窗
+    closeModel() {
+      this.$emit('update:modelValue', false);
+      this.$emit('close', false);
     },
+  },
 })
 </script>
 

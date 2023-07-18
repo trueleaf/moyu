@@ -16,49 +16,49 @@
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 标签
          */
-        label: {
-            type: String,
-            default: '',
-        },
-        /**
+    label: {
+      type: String,
+      default: '',
+    },
+    /**
          * 快捷键
          */
-        hotKey: {
-            type: String,
-            default: '',
-        },
-        /**
+    hotKey: {
+      type: String,
+      default: '',
+    },
+    /**
          * 类型，divider代表分割线
          */
-        type: {
-            type: String as PropType<'divider' | ''>,
-            default: '',
-        },
-        /**
+    type: {
+      type: String as PropType<'divider' | ''>,
+      default: '',
+    },
+    /**
          * 是否禁用
          */
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['click'],
-    data() {
-        return {
-        };
+  },
+  emits: ['click'],
+  data() {
+    return {
+    };
+  },
+  methods: {
+    handleClickItem(e: MouseEvent) {
+      if (this.disabled) {
+        return;
+      }
+      this.$emit('click', e)
     },
-    methods: {
-        handleClickItem(e: MouseEvent) {
-            if (this.disabled) {
-                return;
-            }
-            this.$emit('click', e)
-        },
-    },
+  },
 })
 </script>
 

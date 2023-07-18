@@ -29,39 +29,39 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        label: { //标题信息
-            type: String,
-            default: '',
-        },
-        description: { //额外描述信息
-            type: String,
-            default: '',
-        },
-        hasCheck: { //是否显示选中
-            type: Boolean,
-            default: true,
-        },
-        disabled: { //是否禁用
-            type: Boolean,
-            default: false,
-        },
-        required: { //是否必填
-            type: Boolean,
-            default: false,
-        },
+  props: {
+    label: { //标题信息
+      type: String,
+      default: '',
     },
-    emits: ['change'],
-    data() {
-        return {
-            enabled: false,
-        };
+    description: { //额外描述信息
+      type: String,
+      default: '',
     },
-    methods: {
-        handleEnabled() {
-            this.$emit('change', this.enabled);
-        },
+    hasCheck: { //是否显示选中
+      type: Boolean,
+      default: true,
     },
+    disabled: { //是否禁用
+      type: Boolean,
+      default: false,
+    },
+    required: { //是否必填
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['change'],
+  data() {
+    return {
+      enabled: false,
+    };
+  },
+  methods: {
+    handleEnabled() {
+      this.$emit('change', this.enabled);
+    },
+  },
 })
 </script>
 

@@ -159,11 +159,11 @@
 
 <script lang="ts" setup>
 import {
-    ref,
-    Ref,
-    PropType,
-    computed,
-    watch
+  ref,
+  Ref,
+  PropType,
+  computed,
+  watch
 } from 'vue'
 import { Plus, Close } from '@element-plus/icons-vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
@@ -173,101 +173,101 @@ import { store } from '@/store'
 import { $t } from '@/i18n/i18n'
 
 type TreeNode = {
-    level: number,
-    data: ApidocProperty,
-    parent: TreeNode,
-    nextSibling: TreeNode,
+  level: number,
+  data: ApidocProperty,
+  parent: TreeNode,
+  nextSibling: TreeNode,
 }
 type RootTreeNode = {
-    level: number,
-    data: ApidocProperty[],
-    parent: RootTreeNode
+  level: number,
+  data: ApidocProperty[],
+  parent: RootTreeNode
 }
 const props = defineProps({
-    /**
+  /**
      * 参数数据
      */
-    data: {
-        type: Array as PropType<ApidocProperty[]>,
-        default: () => [],
-    },
-    /**
+  data: {
+    type: Array as PropType<ApidocProperty[]>,
+    default: () => [],
+  },
+  /**
      * 是否展示checkbox
      */
-    showCheckbox: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  showCheckbox: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 是否允许添加子参数，eg：当请求方式为GET时，请求参数只能为扁平数据
      */
-    nest: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  nest: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 字段field是否只读，Path参数字段值不允许修改
      */
-    readonlyKey: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  readonlyKey: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 禁止新增，Path参数字段值不允许新增
      */
-    disableAdd: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  disableAdd: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 禁止新增，Path参数字段值不允许删除
      */
-    disableDelete: { //禁止删除
-        type: Boolean,
-        default: false,
-    },
-    /**
+  disableDelete: { //禁止删除
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 不显示必有checkbox
      */
-    noRequiredCheckbox: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  noRequiredCheckbox: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 是否允许file类型
      */
-    enableFile: {
-        type: Boolean,
-        default: false,
-    },
-    /**
+  enableFile: {
+    type: Boolean,
+    default: false,
+  },
+  /**
      * 展开的节点key值
      */
-    expandKeys: {
-        type: Array as PropType<string[]>,
-        default: () => [],
-    },
-    /**
+  expandKeys: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  /**
      * 只读的key值
      */
-    readonlyKeys: {
-        type: Array as PropType<string[]>,
-        default: () => [],
-    },
-    /**
+  readonlyKeys: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  /**
      * 是否允许拖拽
      */
-    drag: {
-        type: Boolean,
-        default: true,
-    },
-    /**
+  drag: {
+    type: Boolean,
+    default: true,
+  },
+  /**
      * 联想参数
      */
-    mindParams: {
-        type: Array as PropType<ApidocProperty[]>,
-        default: () => []
-    },
+  mindParams: {
+    type: Array as PropType<ApidocProperty[]>,
+    default: () => []
+  },
 });
 const emit = defineEmits(['change'])
 /*
@@ -280,20 +280,20 @@ const defaultExpandedKeys: Ref<string[]> = ref([]);
 const defaultCheckedKeys: Ref<string[]> = ref([]);
 const tree: Ref<TreeNodeOptions['store'] | null> = ref(null)
 watch(() => props.data, (data) => {
-    const expandKeys: string[] = [];
-    const selectKeys: string[] = [];
-    forEachForest(data, (val) => {
-        expandKeys.push(val._id);
-        if (val.select) {
-            selectKeys.push(val._id);
-        }
-    });
-    defaultCheckedKeys.value = selectKeys;
-    defaultExpandedKeys.value = expandKeys;
-    emit('change');
+  const expandKeys: string[] = [];
+  const selectKeys: string[] = [];
+  forEachForest(data, (val) => {
+    expandKeys.push(val._id);
+    if (val.select) {
+      selectKeys.push(val._id);
+    }
+  });
+  defaultCheckedKeys.value = selectKeys;
+  defaultExpandedKeys.value = expandKeys;
+  emit('change');
 }, {
-    deep: true,
-    immediate: true,
+  deep: true,
+  immediate: true,
 });
 /*
 |--------------------------------------------------------------------------
@@ -303,20 +303,20 @@ watch(() => props.data, (data) => {
 */
 const enableDrag = ref(true);
 const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev') => {
-    if (!props.nest) {
-        return type !== 'inner';
-    }
-    if (props.nest && dropNode.parent.level === 0) { //只允许有一个根元素
-        return false;
-    }
-    return true;
+  if (!props.nest) {
+    return type !== 'inner';
+  }
+  if (props.nest && dropNode.parent.level === 0) { //只允许有一个根元素
+    return false;
+  }
+  return true;
 }
 const handleNodeDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev') => {
-    if (type === 'inner') {
-        dropNode.data.type = 'object';
-        dropNode.data.value = '';
-    }
-    // tree.value.setChecked(draggingNode.data._id, true, false);
+  if (type === 'inner') {
+    dropNode.data.type = 'object';
+    dropNode.data.value = '';
+  }
+  // tree.value.setChecked(draggingNode.data._id, true, false);
 }
 /*
 |--------------------------------------------------------------------------
@@ -326,55 +326,55 @@ const handleNodeDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner
 */
 //新增按钮title提示信息
 const addNestTip = computed(() => {
-    if (!props.nest) {
-        return $t('参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据');
-    }
-    return $t('添加一条嵌套数据');
+  if (!props.nest) {
+    return $t('参数不允许嵌套，例如：当请求方式为get时，请求参数只能为扁平数据');
+  }
+  return $t('添加一条嵌套数据');
 })
 //新增嵌套数据
 const addNestTreeData = (data: ApidocProperty) => {
-    const params = apidocGenerateProperty();
-    if (data.type !== 'object' && data.type !== 'array') {
-        store.commit('apidoc/apidoc/changePropertyValue', {
-            data,
-            field: 'type',
-            value: 'object',
-        });
-    }
-    store.commit('apidoc/apidoc/addProperty', {
-        data: data.children,
-        params,
+  const params = apidocGenerateProperty();
+  if (data.type !== 'object' && data.type !== 'array') {
+    store.commit('apidoc/apidoc/changePropertyValue', {
+      data,
+      field: 'type',
+      value: 'object',
     });
-    setTimeout(() => { //hack，添加一个数据默认选中当前数据
+  }
+  store.commit('apidoc/apidoc/addProperty', {
+    data: data.children,
+    params,
+  });
+  setTimeout(() => { //hack，添加一个数据默认选中当前数据
         tree.value?.setChecked(params._id, true, true);
         defaultExpandedKeys.value = [params._id];
-    })
+  })
 }
 //删除一条数据
 const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
-    const parentNode = node.parent;
-    const parentData = node.parent.data;
-    if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
-        const deleteIndex = (parentData as RootTreeNode['data']).findIndex((val) => val._id === data._id);
-        if ((parentData as RootTreeNode['data']).length - 1 === deleteIndex) { //不允许删除最后一个元素
-            return;
-        }
-        store.commit('apidoc/apidoc/deleteProperty', {
-            data: parentData,
-            index: deleteIndex,
-        });
-    } else {
-        const deleteIndex = (parentData as TreeNode['data']).children.findIndex((val) => val._id === data._id);
-        store.commit('apidoc/apidoc/deleteProperty', {
-            data: (parentData as TreeNode['data']).children,
-            index: deleteIndex,
-        });
+  const parentNode = node.parent;
+  const parentData = node.parent.data;
+  if (parentNode.level === 0) { //根节点直接删除，非根节点在children里删除
+    const deleteIndex = (parentData as RootTreeNode['data']).findIndex((val) => val._id === data._id);
+    if ((parentData as RootTreeNode['data']).length - 1 === deleteIndex) { //不允许删除最后一个元素
+      return;
     }
+    store.commit('apidoc/apidoc/deleteProperty', {
+      data: parentData,
+      index: deleteIndex,
+    });
+  } else {
+    const deleteIndex = (parentData as TreeNode['data']).children.findIndex((val) => val._id === data._id);
+    store.commit('apidoc/apidoc/deleteProperty', {
+      data: (parentData as TreeNode['data']).children,
+      index: deleteIndex,
+    });
+  }
 };
 //是否禁用删除按钮
 const checkDeleteDisable = ({ node }: { node: TreeNode }) => {
-    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
-    return (!node.nextSibling && node.level === 1) || isReadOnly;
+  const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
+  return (!node.nextSibling && node.level === 1) || isReadOnly;
 }
 /*
 |--------------------------------------------------------------------------
@@ -383,83 +383,83 @@ const checkDeleteDisable = ({ node }: { node: TreeNode }) => {
 */
 //改变key的值
 const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'key',
-        value: val,
-    });
-    if (node.level === 1 && props.nest) { //只允许有一个根元素
-        return;
-    }
-    if (data.key && data.key.trim() !== '') {
-        const parentNode = node.parent;
-        const parentData = node.parent.data as TreeNode['data'];
-        const rootParentData = node.parent.data as RootTreeNode['data'];
-        if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
-            if ((rootParentData)[(rootParentData).length - 1].key && (rootParentData)[(rootParentData).length - 1].key.trim() !== '') {
-                store.commit('apidoc/apidoc/addProperty', {
-                    data: rootParentData,
-                    params: apidocGenerateProperty(),
-                });
-            }
-        } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== '') {
-            store.commit('apidoc/apidoc/addProperty', {
-                data: parentData.children,
-                params: apidocGenerateProperty(),
-            });
-        }
-        tree.value?.setChecked(data._id, true, true);
-    }
-}
-//检查key输入框是否被禁用
-const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
-    // const isComplex = node.data.type === "object" || node.data.type === "array"
-    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
-    const parentIsArray = node.parent.data.type === 'array';
-    const isRootObject = props.nest && node.level === 1;
-    return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
-}
-//转换key输入框placeholder值
-const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
-    // const isComplex = node.data.type === "array" || node.data.type === "object";
-    if (node.level === 1 && props.nest) {
-        return $t('根元素');
-    }
-    if (node.parent.data.type === 'array') {
-        return $t('父元素为数组不必填写参数名称');
-    }
-    return $t('输入参数名称自动换行');
-}
-//校验key值是否满足规范
-const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'key',
+    value: val,
+  });
+  if (node.level === 1 && props.nest) { //只允许有一个根元素
+    return;
+  }
+  if (data.key && data.key.trim() !== '') {
     const parentNode = node.parent;
     const parentData = node.parent.data as TreeNode['data'];
     const rootParentData = node.parent.data as RootTreeNode['data'];
-    const nodeIndex = (parentNode.level === 0) ? rootParentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
-    if (parentNode.level === 0 && rootParentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
-        return;
+    if (parentNode.level === 0) { //根节点直接往数据里面push，非根节点往children里push
+      if ((rootParentData)[(rootParentData).length - 1].key && (rootParentData)[(rootParentData).length - 1].key.trim() !== '') {
+        store.commit('apidoc/apidoc/addProperty', {
+          data: rootParentData,
+          params: apidocGenerateProperty(),
+        });
+      }
+    } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== '') {
+      store.commit('apidoc/apidoc/addProperty', {
+        data: parentData.children,
+        params: apidocGenerateProperty(),
+      });
     }
-    if (nodeIndex !== rootParentData.length - 1) { //只要不是最后一个值都需要做数据校验
-        console.log('校验')
-    }
+        tree.value?.setChecked(data._id, true, true);
+  }
+}
+//检查key输入框是否被禁用
+const checkKeyInputDisable = ({ node }: { node: TreeNode }) => {
+  // const isComplex = node.data.type === "object" || node.data.type === "array"
+  const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
+  const parentIsArray = node.parent.data.type === 'array';
+  const isRootObject = props.nest && node.level === 1;
+  return parentIsArray || isRootObject || props.disableAdd || isReadOnly;
+}
+//转换key输入框placeholder值
+const convertKeyPlaceholder = ({ node }: { node: TreeNode }) => {
+  // const isComplex = node.data.type === "array" || node.data.type === "object";
+  if (node.level === 1 && props.nest) {
+    return $t('根元素');
+  }
+  if (node.parent.data.type === 'array') {
+    return $t('父元素为数组不必填写参数名称');
+  }
+  return $t('输入参数名称自动换行');
+}
+//校验key值是否满足规范
+const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, data: ApidocProperty }) => {
+  const parentNode = node.parent;
+  const parentData = node.parent.data as TreeNode['data'];
+  const rootParentData = node.parent.data as RootTreeNode['data'];
+  const nodeIndex = (parentNode.level === 0) ? rootParentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
+  if (parentNode.level === 0 && rootParentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
+    return;
+  }
+  if (nodeIndex !== rootParentData.length - 1) { //只要不是最后一个值都需要做数据校验
+    console.log('校验')
+  }
 }
 //获取远端返回的key值
 const handleRemoteSelectKey = (item: ApidocProperty, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'type',
-        value: item.type,
-    });
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'value',
-        value: item.value,
-    });
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'description',
-        value: item.description,
-    });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'type',
+    value: item.type,
+  });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value: item.value,
+  });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'description',
+    value: item.description,
+  });
 }
 /*
 |--------------------------------------------------------------------------
@@ -468,61 +468,61 @@ const handleRemoteSelectKey = (item: ApidocProperty, data: ApidocProperty) => {
 */
 // 禁用参数类型提示
 const typeTip = computed(() => {
-    if (!props.nest) {
-        return $t('参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string')
-    }
-    return '';
+  if (!props.nest) {
+    return $t('参数类型不允许改变，eg：当请求方式为get时，请求参数类型只能为string')
+  }
+  return '';
 })
 //改变参数类型
 const handleChangeParamsType = (value: string, data: ApidocProperty) => {
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'type',
+    value,
+  });
+  if (data.type === 'boolean') {
     store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'type',
-        value,
+      data,
+      field: 'value',
+      value: 'true',
     });
-    if (data.type === 'boolean') {
-        store.commit('apidoc/apidoc/changePropertyValue', {
-            data,
-            field: 'value',
-            value: 'true',
-        });
-    } else if (data.type === 'file') {
-        store.commit('apidoc/apidoc/changePropertyValue', {
-            data,
-            field: 'value',
-            value: '',
-        });
-    } else if (data.type === 'number') {
-        const couldConvertToNumber = !Number.isNaN(Number(data.value));
-        if (!couldConvertToNumber) {
-            store.commit('apidoc/apidoc/changePropertyValue', {
-                data,
-                field: 'value',
-                value: '0',
-            });
-        }
-    } else if (data.type === 'object' || data.type === 'array') {
-        if (data.type === 'array' && data.children && data.children.length > 0) { //清空子元素所有参数名称
-            data.children.forEach(_data => {
-                store.commit('apidoc/apidoc/changePropertyValue', {
-                    data: _data,
-                    field: 'key',
-                    value: '',
-                });
-            })
-        }
-        // store.commit("apidoc/apidoc/changePropertyValue", {
-        //     data,
-        //     field: "key",
-        //     value: "",
-        // });
-        store.commit('apidoc/apidoc/changePropertyValue', {
-            data,
-            field: 'value',
-            value: '',
-        });
-        defaultExpandedKeys.value.push(data._id);
+  } else if (data.type === 'file') {
+    store.commit('apidoc/apidoc/changePropertyValue', {
+      data,
+      field: 'value',
+      value: '',
+    });
+  } else if (data.type === 'number') {
+    const couldConvertToNumber = !Number.isNaN(Number(data.value));
+    if (!couldConvertToNumber) {
+      store.commit('apidoc/apidoc/changePropertyValue', {
+        data,
+        field: 'value',
+        value: '0',
+      });
     }
+  } else if (data.type === 'object' || data.type === 'array') {
+    if (data.type === 'array' && data.children && data.children.length > 0) { //清空子元素所有参数名称
+      data.children.forEach(_data => {
+        store.commit('apidoc/apidoc/changePropertyValue', {
+          data: _data,
+          field: 'key',
+          value: '',
+        });
+      })
+    }
+    // store.commit("apidoc/apidoc/changePropertyValue", {
+    //     data,
+    //     field: "key",
+    //     value: "",
+    // });
+    store.commit('apidoc/apidoc/changePropertyValue', {
+      data,
+      field: 'value',
+      value: '',
+    });
+    defaultExpandedKeys.value.push(data._id);
+  }
 }
 /*
 |--------------------------------------------------------------------------
@@ -533,87 +533,87 @@ const handleChangeParamsType = (value: string, data: ApidocProperty) => {
 const currentOpData: Ref<ApidocProperty | null> = ref(null);
 //value值placeholder处理
 const getValuePlaceholder = (data: ApidocProperty) => {
-    if (data.type === 'object') {
-        return $t('对象类型不必填写')
-    }
-    if (data.type === 'array') {
-        return $t('填写数字代表mock数据条数')
-    }
-    return $t('参数值、@代表mock，{{ 变量 }}')
+  if (data.type === 'object') {
+    return $t('对象类型不必填写')
+  }
+  if (data.type === 'array') {
+    return $t('填写数字代表mock数据条数')
+  }
+  return $t('参数值、@代表mock，{{ 变量 }}')
 }
 //改变value值
 const handleChangeValue = (value: string, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'value',
-        value,
-    });
-    if (data.value.startsWith('@')) {
-        currentOpData.value = data;
-    } else {
-        currentOpData.value = null;
-    }
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value,
+  });
+  if (data.value.startsWith('@')) {
+    currentOpData.value = data;
+  } else {
+    currentOpData.value = null;
+  }
 }
 //改变布尔值
 const handleChangeBooleanValue = (value: string, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'value',
-        value,
-    });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value,
+  });
 }
 //处理value值focus事件
 const handleFocusValue = (data: ApidocProperty) => {
-    enableDrag.value = false;
-    if (data.value.startsWith('@')) {
-        currentOpData.value = data;
-    }
+  enableDrag.value = false;
+  if (data.value.startsWith('@')) {
+    currentOpData.value = data;
+  }
 }
 //处理value值blur事件
 const handleBlurValue = () => {
-    enableDrag.value = true;
+  enableDrag.value = true;
 }
 //处理value值mock移入
 const handleCloseMockModel = () => {
-    currentOpData.value = null;
+  currentOpData.value = null;
 }
 //选择某个mock类型数据
 const handleSelectMockValue = (item: MockItem, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'value',
-        value: `@${item.value}`,
-    });
-    currentOpData.value = null;
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value: `@${item.value}`,
+  });
+  currentOpData.value = null;
 }
 //清空选中的文件
 const fileInput: Ref<HTMLInputElement | null> = ref(null);
 const handleClearSelectType = (data: ApidocProperty) => {
-    if (fileInput.value) {
-        (fileInput.value as HTMLInputElement).value = '';
-    }
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'value',
-        value: '',
-    });
+  if (fileInput.value) {
+    (fileInput.value as HTMLInputElement).value = '';
+  }
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'value',
+    value: '',
+  });
 }
 //选择文件
 const handleSelectFile = (e: Event, data: ApidocProperty) => {
-    const { files } = (e.target as HTMLInputElement);
-    if (files) {
-        const file = files[0]
-        store.commit('apidoc/apidoc/changePropertyValue', {
-            data,
-            field: 'value',
-            value: file.path,
-        });
-    }
+  const { files } = (e.target as HTMLInputElement);
+  if (files) {
+    const file = files[0]
+    store.commit('apidoc/apidoc/changePropertyValue', {
+      data,
+      field: 'value',
+      value: file.path,
+    });
+  }
 }
 //判断是否禁用value输入
 const checkDisableValue = (data: ApidocProperty) => {
-    const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
-    return data.type === 'object' || isReadOnly
+  const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
+  return data.type === 'object' || isReadOnly
 }
 /*
 |--------------------------------------------------------------------------
@@ -622,16 +622,16 @@ const checkDisableValue = (data: ApidocProperty) => {
 |
 */
 const handleChangeIsRequired = (value: string, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'required',
-        value,
-    });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'required',
+    value,
+  });
 }
 //是否必填
 const checkRequiredDisable = (data: ApidocProperty) => {
-    const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
-    return isReadOnly
+  const isReadOnly = !!props.readonlyKeys.find(key => key === data.key);
+  return isReadOnly
 }
 /*
 |--------------------------------------------------------------------------
@@ -640,27 +640,27 @@ const checkRequiredDisable = (data: ApidocProperty) => {
 |
 */
 const handleDescriptionBlur = () => {
-    enableDrag.value = true;
+  enableDrag.value = true;
 }
 const handleChangeDescription = (value: string, data: ApidocProperty) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'description',
-        value,
-    });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'description',
+    value,
+  });
 }
 
 const handleCheckChange = (data: ApidocProperty, select: boolean) => {
-    store.commit('apidoc/apidoc/changePropertyValue', {
-        data,
-        field: 'select',
-        value: select,
-    });
+  store.commit('apidoc/apidoc/changePropertyValue', {
+    data,
+    field: 'select',
+    value: select,
+  });
 }
 //备注是否禁止
 const checkDescriptionDisable = ({ node }: { node: TreeNode }) => {
-    const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
-    return node.parent.data.type === 'array' || isReadOnly;
+  const isReadOnly = !!props.readonlyKeys.find(key => key === node.data.key);
+  return node.parent.data.type === 'array' || isReadOnly;
 }
 </script>
 

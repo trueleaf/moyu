@@ -18,46 +18,46 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        label: {
-            type: String,
-            default: '',
-        },
-        labelWidth: {
-            type: String,
-            default: '80px',
-        },
-        value: {
-            type: String,
-            default: '',
-        },
-        halfLine: {
-            type: Boolean,
-            default: false,
-        },
-        oneLine: {
-            type: Boolean,
-            default: false,
-        },
-        width: {
-            type: String,
-            default: '',
-        },
+  props: {
+    label: {
+      type: String,
+      default: '',
     },
-    computed: {
-        realWidth() {
-            if (this.halfLine) {
-                return '50%';
-            }
-            if (this.oneLine) {
-                return '100%';
-            }
-            if (this.width) {
-                return this.width
-            }
-            return '';
-        },
+    labelWidth: {
+      type: String,
+      default: '80px',
     },
+    value: {
+      type: String,
+      default: '',
+    },
+    halfLine: {
+      type: Boolean,
+      default: false,
+    },
+    oneLine: {
+      type: Boolean,
+      default: false,
+    },
+    width: {
+      type: String,
+      default: '',
+    },
+  },
+  computed: {
+    realWidth() {
+      if (this.halfLine) {
+        return '50%';
+      }
+      if (this.oneLine) {
+        return '100%';
+      }
+      if (this.width) {
+        return this.width
+      }
+      return '';
+    },
+  },
 })
 </script>
 

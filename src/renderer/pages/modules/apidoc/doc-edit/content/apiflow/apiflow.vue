@@ -83,63 +83,63 @@ const selectionStore = useFlowSelectionStore()
 const historyStore = useFlowHistoryStore()
 // const resizeNodeDotState = useFlowResizeNodeStateStore()
 const cursor = computed(() => {
-    if (createLineDotStore.hoverNodeId) {
-        return 'crosshair'
-    }
-    if (lineStateStore.hoverLineId) {
-        return 'pointer'
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftTop') {
-        return 'se-resize'
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightTop') {
-        return 'ne-resize'
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftBottom') {
-        return 'sw-resize'
-    }
-    if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightBottom') {
-        return 'se-resize'
-    }
-    if (selectionStore.isHover) {
-        return 'move'
-    }
-    if (nodeStateStore.hoverNodeId) {
-        return 'move'
-    }
-    if (lineStateStore.hoverDragLineId) {
-        return 'move'
-    }
-    return ''
+  if (createLineDotStore.hoverNodeId) {
+    return 'crosshair'
+  }
+  if (lineStateStore.hoverLineId) {
+    return 'pointer'
+  }
+  if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftTop') {
+    return 'se-resize'
+  }
+  if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightTop') {
+    return 'ne-resize'
+  }
+  if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'leftBottom') {
+    return 'sw-resize'
+  }
+  if (nodeStateStore.activeNodeId && resizeNodeStateStore.hoverPosition === 'rightBottom') {
+    return 'se-resize'
+  }
+  if (selectionStore.isHover) {
+    return 'move'
+  }
+  if (nodeStateStore.hoverNodeId) {
+    return 'move'
+  }
+  if (lineStateStore.hoverDragLineId) {
+    return 'move'
+  }
+  return ''
 })
 //初始化容器信息
 const changeContainerInfo = () => {
-    if (apiflow.value !== null) {
-        const apiflowRect = apiflow.value.getBoundingClientRect();
-        containerStore.width = apiflowRect.width;
-        containerStore.height = apiflowRect.height;
-        containerStore.clientX = Math.ceil(apiflowRect.x);
-        containerStore.clientY = Math.ceil(apiflowRect.y);
-    }
+  if (apiflow.value !== null) {
+    const apiflowRect = apiflow.value.getBoundingClientRect();
+    containerStore.width = apiflowRect.width;
+    containerStore.height = apiflowRect.height;
+    containerStore.clientX = Math.ceil(apiflowRect.x);
+    containerStore.clientY = Math.ceil(apiflowRect.y);
+  }
 }
 //初始化renderArea
 const changeRenderAreaInfo = () => {
-    if (!Date && apiflow.value !== null && renderArea.value !== null) {
-        const apiflowRect = apiflow.value.getBoundingClientRect();
-        renderAreaStore.$patch({
-            width: Math.ceil(apiflowRect.width),
-            height: Math.ceil(apiflowRect.height),
-            offsetX: apiflowRect.x,
-            offsetY: apiflowRect.y,
-        })
-        nextTick(() => {
-            repaintRenderArea();
-        })
-    }
+  if (!Date && apiflow.value !== null && renderArea.value !== null) {
+    const apiflowRect = apiflow.value.getBoundingClientRect();
+    renderAreaStore.$patch({
+      width: Math.ceil(apiflowRect.width),
+      height: Math.ceil(apiflowRect.height),
+      offsetX: apiflowRect.x,
+      offsetY: apiflowRect.y,
+    })
+    nextTick(() => {
+      repaintRenderArea();
+    })
+  }
 }
 const handleResize = debounce(() => {
-    changeContainerInfo()
-    changeRenderAreaInfo()
+  changeContainerInfo()
+  changeRenderAreaInfo()
 }, 300)
 /*
 |--------------------------------------------------------------------------
@@ -148,67 +148,67 @@ const handleResize = debounce(() => {
 |
 */
 const handleMouseMove = (e: MouseEvent) => {
-    changeSelectionStateWhenMouseMove(e);
-    changeCreateLineDotStateWhenMouseMove(e);
-    changeResizeDotStateWhenMouseMove(e);
-    changeNodeStateWhenMouseMove(e);
-    changeNodeWhenMouseMove(e);
-    resizeNodeWhenMouseMove(e);
-    drawLineWhenMouseMove(e);
-    changeLineStateWhenMouseMove(e);
-    createSelectionWhenMouseMove(e);
-    moveSelectedAreaWhenMouseMove(e);
+  changeSelectionStateWhenMouseMove(e);
+  changeCreateLineDotStateWhenMouseMove(e);
+  changeResizeDotStateWhenMouseMove(e);
+  changeNodeStateWhenMouseMove(e);
+  changeNodeWhenMouseMove(e);
+  resizeNodeWhenMouseMove(e);
+  drawLineWhenMouseMove(e);
+  changeLineStateWhenMouseMove(e);
+  createSelectionWhenMouseMove(e);
+  moveSelectedAreaWhenMouseMove(e);
 }
 const handleMouseDown = (e: MouseEvent) => {
-    changeNodeStateWhenMouseDown(e);
-    changeLineStateWhenMouseDown();
-    changeResizeDotStateWhenMouseDown(e);
-    changeCreateLineDotWhenMouseDown();
-    changeSelectionWhenMouseDown(e);
+  changeNodeStateWhenMouseDown(e);
+  changeLineStateWhenMouseDown();
+  changeResizeDotStateWhenMouseDown(e);
+  changeCreateLineDotWhenMouseDown();
+  changeSelectionWhenMouseDown(e);
 }
 const handleMouseUp = () => {
-    changeStateWhenMouseUp()
+  changeStateWhenMouseUp()
 }
 const initNodes = () => {
-    const nodeList: FlowNodeInfo[] = []
-    for (let i = 0; i < 2; i += 1) {
-        nodeList.push({
-            id: `start${i}`,
-            nodeType: 'rect',
-            styleInfo: {
-                offsetX: 240 * (i + 1),
-                offsetY: 30 + Math.ceil(Math.random() * 100 + 50),
-                width: 200,
-                height: 130,
-                zIndex: i + 1,
-                dragZIndex: 1,
-            },
-            outcomingIds: [],
-            incomingIds: []
-        })
-    }
-    historyStore.doingList.push({
-        nodeList: JSON.parse(JSON.stringify(nodeList)),
-        lineList: [],
-        configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
+  const nodeList: FlowNodeInfo[] = []
+  for (let i = 0; i < 2; i += 1) {
+    nodeList.push({
+      id: `start${i}`,
+      nodeType: 'rect',
+      styleInfo: {
+        offsetX: 240 * (i + 1),
+        offsetY: 30 + Math.ceil(Math.random() * 100 + 50),
+        width: 200,
+        height: 130,
+        zIndex: i + 1,
+        dragZIndex: 1,
+      },
+      outcomingIds: [],
+      incomingIds: []
     })
-    nodesStore.$patch((state) => {
-        state.nodeList = nodeList
-    })
+  }
+  historyStore.doingList.push({
+    nodeList: JSON.parse(JSON.stringify(nodeList)),
+    lineList: [],
+    configInfo: JSON.parse(JSON.stringify(toRaw(configStore.$state)))
+  })
+  nodesStore.$patch((state) => {
+    state.nodeList = nodeList
+  })
 }
 onMounted(() => {
-    initNodes();
-    changeContainerInfo();
-    changeRenderAreaInfo();
-    window.addEventListener('resize', handleResize)
-    document.documentElement.addEventListener('mousemove', handleMouseMove);
-    document.documentElement.addEventListener('mousedown', handleMouseDown);
-    document.documentElement.addEventListener('mouseup', handleMouseUp);
+  initNodes();
+  changeContainerInfo();
+  changeRenderAreaInfo();
+  window.addEventListener('resize', handleResize)
+  document.documentElement.addEventListener('mousemove', handleMouseMove);
+  document.documentElement.addEventListener('mousedown', handleMouseDown);
+  document.documentElement.addEventListener('mouseup', handleMouseUp);
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener('mousemove', handleMouseMove);
-    document.documentElement.removeEventListener('mousedown', handleMouseDown);
-    document.documentElement.removeEventListener('mouseup', handleMouseUp);
+  document.documentElement.removeEventListener('mousemove', handleMouseMove);
+  document.documentElement.removeEventListener('mousedown', handleMouseDown);
+  document.documentElement.removeEventListener('mouseup', handleMouseUp);
 })
 </script>
 

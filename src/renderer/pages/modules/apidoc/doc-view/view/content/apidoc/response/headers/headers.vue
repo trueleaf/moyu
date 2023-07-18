@@ -21,29 +21,29 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  computed: {
+    headers() {
+      const { header } = this.$store.state['apidoc/response'];
+      const result: { key: string, value: string }[] = [];
+      Object.keys(header).forEach(key => {
+        result.push({
+          key,
+          value: header[key] as string,
+        });
+      })
+      return result
     },
-    computed: {
-        headers() {
-            const { header } = this.$store.state['apidoc/response'];
-            const result: { key: string, value: string }[] = [];
-            Object.keys(header).forEach(key => {
-                result.push({
-                    key,
-                    value: header[key] as string,
-                });
-            })
-            return result
-        },
-        //布局
-        layout() {
-            return this.$store.state['apidoc/baseInfo'].layout;
-        },
+    //布局
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
     },
-    methods: {
-    },
+  },
+  methods: {
+  },
 })
 </script>
 

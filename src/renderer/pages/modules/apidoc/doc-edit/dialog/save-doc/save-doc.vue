@@ -54,23 +54,23 @@ import { store } from '@/store';
 import { event } from '@/helper';
 
 type FormInfo = {
-    name: string, //接口名称
-    pid: string, //需要挂载的目录
+  name: string, //接口名称
+  pid: string, //需要挂载的目录
 }
 
 defineProps({
-    modelValue: {
-        type: Boolean,
-        default: false,
-    },
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
 })
 const emit = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
-    name: '',
-    pid: ''
+  name: '',
+  pid: ''
 })
 const rules = ref({
-    name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
+  name: [{ required: true, message: '接口名称必填', trigger: 'blur' }],
 });
 /*
 |--------------------------------------------------------------------------
@@ -93,62 +93,62 @@ const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: 
     currentMountedNode.value = data;
 }
 onMounted(() => {
-    loading2.value = true;
-    const params = {
-        projectId,
-    };
-    axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
-        navTreeData.value = res.data;
-    }).catch((err) => {
-        console.error(err);
-    }).finally(() => {
-        loading2.value = false;
-    });
+  loading2.value = true;
+  const params = {
+    projectId,
+  };
+  axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
+    navTreeData.value = res.data;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading2.value = false;
+  });
 })
 const handleClose = () => {
-    emit('update:modelValue', false)
-    event.emit('tabs/cancelSaveTab')
+  emit('update:modelValue', false)
+  event.emit('tabs/cancelSaveTab')
 }
 const handleSaveDoc = () => {
-    const docInfo = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
-    docInfo.info.name = formInfo.value.name;
-    docInfo.info.creator = store.state.permission.userInfo.realName
-    docInfo.pid = currentMountedNode.value?._id;
-    docInfo.projectId = projectId;
-    docInfo.sort = Date.now();
-    const params = {
-        docInfo
-    }
-    loading.value = true;
-    axios.post('/api/project/save_doc', params).then((res) => {
-        store.dispatch('apidoc/banner/getDocBanner', { projectId })
-        store.commit('apidoc/apidoc/changeApidocId', res.data);
-        store.commit('apidoc/apidoc/changeApidocName', formInfo.value.name);
-        store.commit('apidoc/tabs/changeTabInfoById', {
-            id: store.state['apidoc/apidoc'].savedDocId,
-            field: 'label',
-            value: formInfo.value.name,
-        })
-        store.commit('apidoc/tabs/changeTabInfoById', {
-            id: store.state['apidoc/apidoc'].savedDocId,
-            field: '_id',
-            value: res.data,
-        })
-        nextTick(() => {
-            store.commit('apidoc/tabs/changeTabInfoById', {
-                id: res.data,
-                field: 'saved',
-                value: true,
-            })
-            event.emit('tabs/saveTabSuccess')
-        })
-        emit('update:modelValue', false)
-    }).catch((err) => {
-        console.error(err);
-        event.emit('tabs/saveTabError')
-    }).finally(() => {
-        loading.value = false;
-    });
+  const docInfo = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
+  docInfo.info.name = formInfo.value.name;
+  docInfo.info.creator = store.state.permission.userInfo.realName
+  docInfo.pid = currentMountedNode.value?._id;
+  docInfo.projectId = projectId;
+  docInfo.sort = Date.now();
+  const params = {
+    docInfo
+  }
+  loading.value = true;
+  axios.post('/api/project/save_doc', params).then((res) => {
+    store.dispatch('apidoc/banner/getDocBanner', { projectId })
+    store.commit('apidoc/apidoc/changeApidocId', res.data);
+    store.commit('apidoc/apidoc/changeApidocName', formInfo.value.name);
+    store.commit('apidoc/tabs/changeTabInfoById', {
+      id: store.state['apidoc/apidoc'].savedDocId,
+      field: 'label',
+      value: formInfo.value.name,
+    })
+    store.commit('apidoc/tabs/changeTabInfoById', {
+      id: store.state['apidoc/apidoc'].savedDocId,
+      field: '_id',
+      value: res.data,
+    })
+    nextTick(() => {
+      store.commit('apidoc/tabs/changeTabInfoById', {
+        id: res.data,
+        field: 'saved',
+        value: true,
+      })
+      event.emit('tabs/saveTabSuccess')
+    })
+    emit('update:modelValue', false)
+  }).catch((err) => {
+    console.error(err);
+    event.emit('tabs/saveTabError')
+  }).finally(() => {
+    loading.value = false;
+  });
 }
 </script>
 

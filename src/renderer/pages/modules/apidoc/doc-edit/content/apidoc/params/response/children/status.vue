@@ -30,8 +30,8 @@ import status from './status'
 const emit = defineEmits(['close', 'select']);
 
 const handleSelect = (code: number) => {
-    emit('select', code);
-    emit('close');
+  emit('select', code);
+  emit('close');
 }
 
 </script>

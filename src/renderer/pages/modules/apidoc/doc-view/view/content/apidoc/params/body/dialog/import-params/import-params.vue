@@ -28,61 +28,61 @@ import json5 from 'json5'
 import { apidocConvertJsonDataToParams } from '@/helper/index'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            editorInstance: null as null | Editor,
-            jsonParams: '',
-        };
-    },
-    methods: {
-        handleCodeReady(editor: Editor) {
-            this.editorInstance = editor;
-            this.editorInstance.on('paste', () => {
-                try {
-                    setTimeout(() => {
-                        if (this.editorInstance) {
-                            this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
-                        }
-                    })
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-        },
-        //格式化json
-        formatJSON() {
-            try {
-                if (this.editorInstance) {
-                    this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
-                }
-            } catch (e) {
-                console.error(e);
-                this.$message.error('无法解析该字符串');
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      editorInstance: null as null | Editor,
+      jsonParams: '',
+    };
+  },
+  methods: {
+    handleCodeReady(editor: Editor) {
+      this.editorInstance = editor;
+      this.editorInstance.on('paste', () => {
+        try {
+          setTimeout(() => {
+            if (this.editorInstance) {
+              this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
             }
-        },
-        //确定导入
-        handleSubmit() {
-            try {
-                const convertResult = apidocConvertJsonDataToParams(json5.parse(this.jsonParams));
-                this.$emit('success', convertResult);
-                this.handleClose();
-            } catch (e) {
-                console.error(e);
-                this.$message.error('无法解析该字符串');
-            }
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+          })
+        } catch (e) {
+          console.error(e);
+        }
+      });
     },
+    //格式化json
+    formatJSON() {
+      try {
+        if (this.editorInstance) {
+          this.editorInstance.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
+        }
+      } catch (e) {
+        console.error(e);
+        this.$message.error('无法解析该字符串');
+      }
+    },
+    //确定导入
+    handleSubmit() {
+      try {
+        const convertResult = apidocConvertJsonDataToParams(json5.parse(this.jsonParams));
+        this.$emit('success', convertResult);
+        this.handleClose();
+      } catch (e) {
+        console.error(e);
+        this.$message.error('无法解析该字符串');
+      }
+    },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

@@ -3,17 +3,17 @@ import { sendRequest as browserRequest, stopRequest as stopBrowserRequest } from
 import { sendRequest as electronRequest, stopRequest as stopElectronRequest } from './electron';
 
 export function sendRequest(): void {
-    if (config.isElectron) {
-        electronRequest();
-    } else {
-        browserRequest();
-    }
+  if (config.isElectron) {
+    electronRequest();
+  } else {
+    browserRequest();
+  }
 }
 
 export function stopRequest(): void {
-    if (config.isElectron) {
-        stopElectronRequest();
-    } else {
-        stopBrowserRequest();
-    }
+  if (config.isElectron) {
+    stopElectronRequest();
+  } else {
+    stopBrowserRequest();
+  }
 }

@@ -22,64 +22,64 @@ import { defineComponent, PropType } from 'vue'
 import type { PermissionClientMenu } from '@@/global'
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        pid: {
-            type: String,
-            default: '',
-        },
-        data: {
-            type: Object as PropType<PermissionClientMenu | null>,
-            default: () => null,
-        },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            //=========================================================================//
-            //=========================================================================//
-            loading: false,
-        };
+    pid: {
+      type: String,
+      default: '',
     },
-    methods: {
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
-        //编辑菜单
-        handleEditMenu() {
-            const formData = this.$refs.form.formInfo;
-            this.$refs.form.validate((valid) => {
-                if (valid) {
-                    this.loading = true;
-                    const params = {
-                        name: formData.name,
-                        path: formData.path,
-                        _id: formData._id,
-                    };
-                    this.axios.put('/api/security/client_menu', params).then(() => {
-                        this.handleClose();
-                        this.$emit('success');
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLInputElement).focus();
-                        }
-                    });
-                    this.loading = false;
-                }
-            });
-        },
+    data: {
+      type: Object as PropType<PermissionClientMenu | null>,
+      default: () => null,
     },
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      //=========================================================================//
+      //=========================================================================//
+      loading: false,
+    };
+  },
+  methods: {
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+    //编辑菜单
+    handleEditMenu() {
+      const formData = this.$refs.form.formInfo;
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          const params = {
+            name: formData.name,
+            path: formData.path,
+            _id: formData._id,
+          };
+          this.axios.put('/api/security/client_menu', params).then(() => {
+            this.handleClose();
+            this.$emit('success');
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLInputElement).focus();
+            }
+          });
+          this.loading = false;
+        }
+      });
+    },
+  },
 })
 </script>
 

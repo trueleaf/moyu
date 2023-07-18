@@ -18,10 +18,10 @@ import { useHoverProvider } from './registerHoverProvider'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 
 const props = defineProps({
-    modelValue: {
-        type: String,
-        default: ''
-    },
+  modelValue: {
+    type: String,
+    default: ''
+  },
 });
 const emits = defineEmits(['update:modelValue'])
 
@@ -31,38 +31,38 @@ let monacoCompletionItem: monaco.IDisposable | null = null;
 let monacoHoverProvider: monaco.IDisposable | null = null;
 
 watch(() => props.modelValue, (newValue) => {
-    const value = monacoInstance?.getValue();
-    if (newValue !== value) {
+  const value = monacoInstance?.getValue();
+  if (newValue !== value) {
         monacoInstance?.setValue(props.modelValue)
-    }
+  }
 })
 onMounted(() => {
-    event.emit('apidoc/editor/removeAfterEditor');
-    monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
-    monacoInstance = monaco.editor.create(preEditor.value as HTMLElement, {
-        value: props.modelValue,
-        language: 'javascript',
-        automaticLayout: true,
-        parameterHints: {
-            enabled: true
-        },
-        minimap: {
-            enabled: false,
-        },
-        wrappingStrategy: 'advanced',
-        scrollBeyondLastLine: false,
-        overviewRulerLanes: 0,
-        hover: {
-            enabled: true,
-            above: false,
-        },
-        renderLineHighlight: 'none',
-    })
-    monacoCompletionItem = useCompletionItem();
-    monacoHoverProvider = useHoverProvider();
-    monacoInstance.onDidChangeModelContent(() => {
-        emits('update:modelValue', monacoInstance?.getValue())
-    })
+  event.emit('apidoc/editor/removeAfterEditor');
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true })
+  monacoInstance = monaco.editor.create(preEditor.value as HTMLElement, {
+    value: props.modelValue,
+    language: 'javascript',
+    automaticLayout: true,
+    parameterHints: {
+      enabled: true
+    },
+    minimap: {
+      enabled: false,
+    },
+    wrappingStrategy: 'advanced',
+    scrollBeyondLastLine: false,
+    overviewRulerLanes: 0,
+    hover: {
+      enabled: true,
+      above: false,
+    },
+    renderLineHighlight: 'none',
+  })
+  monacoCompletionItem = useCompletionItem();
+  monacoHoverProvider = useHoverProvider();
+  monacoInstance.onDidChangeModelContent(() => {
+    emits('update:modelValue', monacoInstance?.getValue())
+  })
 })
 event.on('apidoc/editor/removeAfterEditor', () => {
     monacoCompletionItem?.dispose()

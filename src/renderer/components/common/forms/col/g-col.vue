@@ -14,51 +14,51 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 是否一行显示
          */
-        oneLine: {
-            type: Boolean,
-            default: false,
-        },
-        /**
+    oneLine: {
+      type: Boolean,
+      default: false,
+    },
+    /**
          * 是否只显示半行
          */
-        halfLine: {
-            type: Boolean,
-            default: false,
-        },
+    halfLine: {
+      type: Boolean,
+      default: false,
     },
-    computed: {
-        md() { //处理oneline和halfLine
-            if (this.oneLine) {
-                return 24;
-            }
-            if (this.halfLine) {
-                return 12;
-            }
-            return 12;
-        },
-        lg() { //处理oneline和halfLine
-            if (this.oneLine) {
-                return 24;
-            }
-            if (this.halfLine) {
-                return 12;
-            }
-            return 6;
-        },
-        xl() { //处理oneline和halfLine
-            if (this.oneLine) {
-                return 24;
-            }
-            if (this.halfLine) {
-                return 12;
-            }
-            return 6;
-        },
+  },
+  computed: {
+    md() { //处理oneline和halfLine
+      if (this.oneLine) {
+        return 24;
+      }
+      if (this.halfLine) {
+        return 12;
+      }
+      return 12;
     },
+    lg() { //处理oneline和halfLine
+      if (this.oneLine) {
+        return 24;
+      }
+      if (this.halfLine) {
+        return 12;
+      }
+      return 6;
+    },
+    xl() { //处理oneline和halfLine
+      if (this.oneLine) {
+        return 24;
+      }
+      if (this.halfLine) {
+        return 12;
+      }
+      return 6;
+    },
+  },
 })
 </script>
 

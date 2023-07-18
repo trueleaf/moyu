@@ -72,95 +72,95 @@ import config from '@/../config/config'
 import { User, Lock } from '@element-plus/icons-vue'
 
 export default defineComponent({
-    emits: ['jumpToRegister', 'jumpToResetPassword'],
-    setup() {
-        return {
-            User,
-            Lock
+  emits: ['jumpToRegister', 'jumpToResetPassword'],
+  setup() {
+    return {
+      User,
+      Lock
+    }
+  },
+  data() {
+    return {
+      //=====================================用户信息====================================//
+      userInfo: {
+        loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
+        password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
+        captcha: '', //----------------验证码
+      },
+      //=====================================表单验证规则====================================//
+      rules: {
+        loginName: [{ required: true, message: `${this.$t('请输入用户名')}`, trigger: 'blur' }],
+        password: [{ required: true, message: `${this.$t('请输入密码')}`, trigger: 'blur' }],
+        captcha: [{ required: true, message: `${this.$t('请输入验证码')}`, trigger: 'blur' }],
+      },
+      //=====================================其他参数====================================//
+      config, //-----------------------配置信息
+      random: Math.random(), //--------验证码随机参数
+      isShowCapture: false, //---------是否展示验证码
+      loading: false, //---------------登录按钮loading
+    };
+  },
+  computed: {
+    captchaUrl(): string {
+      const requestUrl = config.renderConfig.httpRequest.url;
+      return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
+    },
+  },
+  methods: {
+    //用户名密码登录
+    handleLogin() {
+      this.$refs.form.validate((valid: boolean) => {
+        if (valid) {
+          this.loading = true;
+          this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', this.userInfo).then((res) => {
+            if (res.code === 2006 || res.code === 2003) {
+              this.$message.warning(res.msg);
+              this.isShowCapture = true;
+            } else {
+              this.$router.push('/v1/apidoc/doc-list');
+              localStorage.setItem('userInfo', JSON.stringify(res.data));
+              this.$store.dispatch('permission/getPermission')
+            }
+          }).catch((err) => {
+            console.error(err);
+          }).finally(() => {
+            this.loading = false;
+          });
+        } else {
+          this.$nextTick(() => {
+            const input = document.querySelector('.el-form-item.is-error input');
+            if (input) {
+              (input as HTMLElement).focus();
+            }
+          });
         }
+      });
     },
-    data() {
-        return {
-            //=====================================用户信息====================================//
-            userInfo: {
-                loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
-                password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
-                captcha: '', //----------------验证码
-            },
-            //=====================================表单验证规则====================================//
-            rules: {
-                loginName: [{ required: true, message: `${this.$t('请输入用户名')}`, trigger: 'blur' }],
-                password: [{ required: true, message: `${this.$t('请输入密码')}`, trigger: 'blur' }],
-                captcha: [{ required: true, message: `${this.$t('请输入验证码')}`, trigger: 'blur' }],
-            },
-            //=====================================其他参数====================================//
-            config, //-----------------------配置信息
-            random: Math.random(), //--------验证码随机参数
-            isShowCapture: false, //---------是否展示验证码
-            loading: false, //---------------登录按钮loading
-        };
+    //刷新验证码
+    freshCapchaUrl() {
+      this.random = Math.random();
     },
-    computed: {
-        captchaUrl(): string {
-            const requestUrl = config.renderConfig.httpRequest.url;
-            return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
-        },
+    //用户注册
+    handleJumpToRegister() {
+      this.$emit('jumpToRegister');
     },
-    methods: {
-        //用户名密码登录
-        handleLogin() {
-            this.$refs.form.validate((valid: boolean) => {
-                if (valid) {
-                    this.loading = true;
-                    this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', this.userInfo).then((res) => {
-                        if (res.code === 2006 || res.code === 2003) {
-                            this.$message.warning(res.msg);
-                            this.isShowCapture = true;
-                        } else {
-                            this.$router.push('/v1/apidoc/doc-list');
-                            localStorage.setItem('userInfo', JSON.stringify(res.data));
-                            this.$store.dispatch('permission/getPermission')
-                        }
-                    }).catch((err) => {
-                        console.error(err);
-                    }).finally(() => {
-                        this.loading = false;
-                    });
-                } else {
-                    this.$nextTick(() => {
-                        const input = document.querySelector('.el-form-item.is-error input');
-                        if (input) {
-                            (input as HTMLElement).focus();
-                        }
-                    });
-                }
-            });
-        },
-        //刷新验证码
-        freshCapchaUrl() {
-            this.random = Math.random();
-        },
-        //用户注册
-        handleJumpToRegister() {
-            this.$emit('jumpToRegister');
-        },
-        //重置密码
-        handleJumpToResetPassword() {
-            this.$emit('jumpToResetPassword');
-        },
-        //体验账号登录
-        handleGuesttLogin() {
-            this.loading = true;
-            this.axios.post('/api/security/login_guest', this.userInfo).then((res) => {
-                this.$router.push('/v1/apidoc/doc-list');
-                localStorage.setItem('userInfo', JSON.stringify(res.data));
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
+    //重置密码
+    handleJumpToResetPassword() {
+      this.$emit('jumpToResetPassword');
     },
+    //体验账号登录
+    handleGuesttLogin() {
+      this.loading = true;
+      this.axios.post('/api/security/login_guest', this.userInfo).then((res) => {
+        this.$router.push('/v1/apidoc/doc-list');
+        localStorage.setItem('userInfo', JSON.stringify(res.data));
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading = false;
+      });
+    },
+  },
 })
 </script>
 

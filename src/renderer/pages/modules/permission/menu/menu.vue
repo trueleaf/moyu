@@ -73,161 +73,161 @@ import addMenuDialog from './add/add.vue'
 import editMenuDialog from './edit/edit.vue'
 
 type TreeNode = Node & {
-    data: PermissionClientMenu,
+  data: PermissionClientMenu,
 }
 
 export default defineComponent({
-    components: {
-        's-add-menu-dialog': addMenuDialog,
-        's-edit-menu-dialog': editMenuDialog,
+  components: {
+    's-add-menu-dialog': addMenuDialog,
+    's-edit-menu-dialog': editMenuDialog,
+  },
+  data() {
+    return {
+      //=====================================树形组件====================================//
+      treeData: [] as PermissionClientMenu[], //-----------------菜单数据
+      defaultExpandKeys: [] as string[], //---------------默认展开组件
+      currentEditNode: null as PermissionClientMenu | null, //---当前编辑的节点
+      //=====================================鼠标右键====================================//
+      ctxLeft: 0, //--------------------------------------鼠标右键left值
+      ctxTop: 0, //---------------------------------------鼠标右键top值
+      currentCtxNode: null as PermissionClientMenu | null, //----当前鼠标右键节点信息
+      //=====================================其他参数====================================//
+      parentId: '', //------------------------------------父元素id
+      addMenuDialogVisible: false, //---------------------新增菜单弹窗
+      editMenuDialogVisible: false, //--------------------编辑菜单弹窗
+      loading: false, //----------------------------------菜单加载
+    };
+  },
+  mounted() {
+    this.getData();
+    document.body.addEventListener('click', this.removeContextmenu);
+  },
+  beforeUnmount() {
+    document.body.removeEventListener('click', this.removeContextmenu);
+  },
+  methods: {
+    //=====================================数据获取====================================//
+    //获取树形菜单结构
+    getData() {
+      this.loading = true;
+      this.axios.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
+        this.$helper.forEachForest(res.data, (val) => {
+          val.id = val._id;
+        })
+        this.treeData = res.data;
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        this.loading = false;
+      });
     },
-    data() {
-        return {
-            //=====================================树形组件====================================//
-            treeData: [] as PermissionClientMenu[], //-----------------菜单数据
-            defaultExpandKeys: [] as string[], //---------------默认展开组件
-            currentEditNode: null as PermissionClientMenu | null, //---当前编辑的节点
-            //=====================================鼠标右键====================================//
-            ctxLeft: 0, //--------------------------------------鼠标右键left值
-            ctxTop: 0, //---------------------------------------鼠标右键top值
-            currentCtxNode: null as PermissionClientMenu | null, //----当前鼠标右键节点信息
-            //=====================================其他参数====================================//
-            parentId: '', //------------------------------------父元素id
-            addMenuDialogVisible: false, //---------------------新增菜单弹窗
-            editMenuDialogVisible: false, //--------------------编辑菜单弹窗
-            loading: false, //----------------------------------菜单加载
+    //=====================================节点增删改查====================================//
+    //打开修改弹窗
+    handleOpenEditDialog(data: PermissionClientMenu | null) {
+      if (data === null) {
+        this.$message.warning(this.$t('参数值不能为null'));
+        return
+      }
+      this.editMenuDialogVisible = true;
+      this.currentEditNode = data;
+    },
+    //打开新增弹窗
+    handleOpenAddDialog(data?: PermissionClientMenu | null) {
+      this.parentId = data ? data._id : '';
+      this.addMenuDialogVisible = true;
+    },
+    //删除节点
+    handleDeleteCurrentNode(data: PermissionClientMenu | null) {
+      if (data === null) {
+        this.$message.warning(this.$t('参数值不能为null'));
+        return
+      }
+      const cpData = JSON.parse(JSON.stringify(data));
+      const ids = [cpData._id];
+      this.$helper.forEachForest(cpData.children || [], (val) => {
+        ids.push(val._id);
+      })
+      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
+        confirmButtonText: this.$t('确定'),
+        cancelButtonText: this.$t('取消'),
+        type: 'warning',
+      }).then(() => {
+        const params = {
+          ids,
         };
+        this.axios.delete('/api/security/client_menu', { data: params }).then(() => {
+          this.getData();
+          // this.currentEditNode = null;
+        }).catch((err) => {
+          console.error(err);
+        });
+      }).catch((err: Error | string) => {
+        if (err === 'cancel' || err === 'close') {
+          return;
+        }
+        console.error(err);
+      });
     },
-    mounted() {
-        this.getData();
-        document.body.addEventListener('click', this.removeContextmenu);
+    //=====================================节点操作====================================//
+    //拖拽成功
+    handleNodeDropSuccess(node: TreeNode, dropNode: TreeNode, type: 'inner' | 'before' | 'after') {
+      const params = {
+        _id: node.data._id, //当前节点id
+        pid: '', //父元素
+        sort: 0, //当前节点排序效果
+      };
+      const nodeIsSameLevel = node.level === dropNode.level;
+      let pNode = null;
+      if ((!nodeIsSameLevel) || (nodeIsSameLevel && type === 'inner')) { //将节点放入子节点中
+        pNode = this.$helper.findParentById(this.treeData, node.data._id);
+        params.pid = pNode ? pNode._id : '';
+        while (pNode != null) {
+          pNode = this.$helper.findParentById(this.treeData, pNode._id);
+        }
+      } else if (nodeIsSameLevel && type !== 'inner') {
+        params.pid = node.data.pid || '';
+        pNode = this.$helper.findParentById(this.treeData, node.data._id);
+        while (pNode != null) {
+          pNode = this.$helper.findParentById(this.treeData, pNode._id);
+        }
+      }
+      if (type === 'after') { //说明这个节点是第一个节点
+        params.sort = dropNode.data.sort - 1;
+      } else if (type === 'before') {
+        params.sort = dropNode.data.sort + 1;
+      } else if (type === 'inner') {
+        params.sort = Date.now();
+      }
+      this.axios.put('/api/security/client_menu_position', params).catch((err) => {
+        console.error(err);
+      });
     },
-    beforeUnmount() {
-        document.body.removeEventListener('click', this.removeContextmenu);
+    //点击节点
+    handleNodeClick(data: string) {
+      console.log(data)
+      // this.currentEditNode = data;
+      // this.defaultExpandKeys.push(data._id);
     },
-    methods: {
-        //=====================================数据获取====================================//
-        //获取树形菜单结构
-        getData() {
-            this.loading = true;
-            this.axios.get<Response<PermissionClientMenu[]>, Response<PermissionClientMenu[]>>('/api/security/client_menu_tree').then((res) => {
-                this.$helper.forEachForest(res.data, (val) => {
-                    val.id = val._id;
-                })
-                this.treeData = res.data;
-            }).catch((err) => {
-                console.error(err);
-            }).finally(() => {
-                this.loading = false;
-            });
-        },
-        //=====================================节点增删改查====================================//
-        //打开修改弹窗
-        handleOpenEditDialog(data: PermissionClientMenu | null) {
-            if (data === null) {
-                this.$message.warning(this.$t('参数值不能为null'));
-                return
-            }
-            this.editMenuDialogVisible = true;
-            this.currentEditNode = data;
-        },
-        //打开新增弹窗
-        handleOpenAddDialog(data?: PermissionClientMenu | null) {
-            this.parentId = data ? data._id : '';
-            this.addMenuDialogVisible = true;
-        },
-        //删除节点
-        handleDeleteCurrentNode(data: PermissionClientMenu | null) {
-            if (data === null) {
-                this.$message.warning(this.$t('参数值不能为null'));
-                return
-            }
-            const cpData = JSON.parse(JSON.stringify(data));
-            const ids = [cpData._id];
-            this.$helper.forEachForest(cpData.children || [], (val) => {
-                ids.push(val._id);
-            })
-            this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
-                confirmButtonText: this.$t('确定'),
-                cancelButtonText: this.$t('取消'),
-                type: 'warning',
-            }).then(() => {
-                const params = {
-                    ids,
-                };
-                this.axios.delete('/api/security/client_menu', { data: params }).then(() => {
-                    this.getData();
-                    // this.currentEditNode = null;
-                }).catch((err) => {
-                    console.error(err);
-                });
-            }).catch((err: Error | string) => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-        //=====================================节点操作====================================//
-        //拖拽成功
-        handleNodeDropSuccess(node: TreeNode, dropNode: TreeNode, type: 'inner' | 'before' | 'after') {
-            const params = {
-                _id: node.data._id, //当前节点id
-                pid: '', //父元素
-                sort: 0, //当前节点排序效果
-            };
-            const nodeIsSameLevel = node.level === dropNode.level;
-            let pNode = null;
-            if ((!nodeIsSameLevel) || (nodeIsSameLevel && type === 'inner')) { //将节点放入子节点中
-                pNode = this.$helper.findParentById(this.treeData, node.data._id);
-                params.pid = pNode ? pNode._id : '';
-                while (pNode != null) {
-                    pNode = this.$helper.findParentById(this.treeData, pNode._id);
-                }
-            } else if (nodeIsSameLevel && type !== 'inner') {
-                params.pid = node.data.pid || '';
-                pNode = this.$helper.findParentById(this.treeData, node.data._id);
-                while (pNode != null) {
-                    pNode = this.$helper.findParentById(this.treeData, pNode._id);
-                }
-            }
-            if (type === 'after') { //说明这个节点是第一个节点
-                params.sort = dropNode.data.sort - 1;
-            } else if (type === 'before') {
-                params.sort = dropNode.data.sort + 1;
-            } else if (type === 'inner') {
-                params.sort = Date.now();
-            }
-            this.axios.put('/api/security/client_menu_position', params).catch((err) => {
-                console.error(err);
-            });
-        },
-        //点击节点
-        handleNodeClick(data: string) {
-            console.log(data)
-            // this.currentEditNode = data;
-            // this.defaultExpandKeys.push(data._id);
-        },
-        //处理contextmenu事件
-        handleContextmenu(e: MouseEvent, treeData: PermissionClientMenu) {
-            this.ctxLeft = e.clientX;
-            this.ctxTop = e.clientY;
-            this.currentCtxNode = treeData;
-        },
-        //清除鼠标右键dom节点信息
-        clearContextNode() {
-            this.currentCtxNode = null;
-        },
-        //=========================================================================//
-        handleAddSuccess(id: string) {
-            this.defaultExpandKeys.push(id); //展开刚刚新增的元素
-            this.getData();
-        },
-        //移除contextmenu
-        removeContextmenu() {
-            this.currentCtxNode = null;
-        },
+    //处理contextmenu事件
+    handleContextmenu(e: MouseEvent, treeData: PermissionClientMenu) {
+      this.ctxLeft = e.clientX;
+      this.ctxTop = e.clientY;
+      this.currentCtxNode = treeData;
     },
+    //清除鼠标右键dom节点信息
+    clearContextNode() {
+      this.currentCtxNode = null;
+    },
+    //=========================================================================//
+    handleAddSuccess(id: string) {
+      this.defaultExpandKeys.push(id); //展开刚刚新增的元素
+      this.getData();
+    },
+    //移除contextmenu
+    removeContextmenu() {
+      this.currentCtxNode = null;
+    },
+  },
 })
 </script>
 

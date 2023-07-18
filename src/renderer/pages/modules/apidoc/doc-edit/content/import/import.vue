@@ -154,30 +154,30 @@ import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
 
 type FormInfo = {
-    moyuData: {
-        hosts?: {
-            _id: string,
-            url: string,
-            name: string,
-        }[],
-        docs: (ApidocDetail & { children?: ApidocDetail[] })[]
-    },
-    type: string,
-    cover: boolean
+  moyuData: {
+    hosts?: {
+      _id: string,
+      url: string,
+      name: string,
+    }[],
+    docs: (ApidocDetail & { children?: ApidocDetail[] })[]
+  },
+  type: string,
+  cover: boolean
 }
 
 type MoyuInfo = {
-    type: string,
-    rules: ApidocProjectRules[],
-    docs: ApidocDetail[],
-    hosts: {
-        _id: string,
-        url: string,
-        name: string,
-    }[],
-    info: {
-        projectName: string,
-    }
+  type: string,
+  rules: ApidocProjectRules[],
+  docs: ApidocDetail[],
+  hosts: {
+    _id: string,
+    url: string,
+    name: string,
+  }[],
+  info: {
+    projectName: string,
+  }
 };
 
 /*
@@ -187,11 +187,11 @@ type MoyuInfo = {
 |
 */
 defineProps({
-    //是否直接导出为项目
-    importAsProject: {
-        type: Boolean,
-        default: false,
-    }
+  //是否直接导出为项目
+  importAsProject: {
+    type: Boolean,
+    default: false,
+  }
 })
 const projectId = router.currentRoute.value.query.id as string;
 //目标树
@@ -205,15 +205,15 @@ const projectInfo = computed(() => store.state['apidoc/baseInfo']);
 //openapi文件夹格式
 const openapiFolderNamedType: Ref<'tag' | 'url' | 'none'> = ref('tag');
 const formInfo: Ref<FormInfo> = ref({
-    moyuData: {
-        docs: [],
-    },
-    type: '',
-    cover: false,
+  moyuData: {
+    docs: [],
+  },
+  type: '',
+  cover: false,
 });
 const importTypeInfo = ref({
-    name: '',
-    version: '',
+  name: '',
+  version: '',
 });
 const jsonText: Ref<OpenAPIV3.Document | string | { type: string }> = ref('');
 const fileType = ref('');
@@ -227,120 +227,120 @@ const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
 */
 //检查文件格式和文件大小
 const handleBeforeUpload = (file: File) => {
-    const standerFileType = file.type; //标准类型
-    const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
-    const suffixFileType = matchSuffix ? matchSuffix[0] : '';
-    fileType.value = standerFileType || suffixFileType;
-    if (!standerFileType && !suffixFileType) {
-        ElMessage.error($t('未知的文件格式，无法解析'));
-        return false;
-    }
-    if (fileType.value !== 'application/json' && fileType.value !== 'yaml' && fileType.value !== 'application/x-yaml') {
-        ElMessage.error($t('仅支持JSON格式或者YAML格式文件'));
-        return false;
-    }
-    if (file.size > config.renderConfig.import.size) {
-        ElMessage.error(`${$t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`);
-        return false;
-    }
-    return true;
+  const standerFileType = file.type; //标准类型
+  const matchSuffix = file.name.match(/(?<=\.)[^.]+$/); //根据后缀获取类型
+  const suffixFileType = matchSuffix ? matchSuffix[0] : '';
+  fileType.value = standerFileType || suffixFileType;
+  if (!standerFileType && !suffixFileType) {
+    ElMessage.error($t('未知的文件格式，无法解析'));
+    return false;
+  }
+  if (fileType.value !== 'application/json' && fileType.value !== 'yaml' && fileType.value !== 'application/x-yaml') {
+    ElMessage.error($t('仅支持JSON格式或者YAML格式文件'));
+    return false;
+  }
+  if (file.size > config.renderConfig.import.size) {
+    ElMessage.error(`${$t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`);
+    return false;
+  }
+  return true;
 }
 //获取导入文件信息
 const getImportFileInfo = () => {
-    const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-    if ((jsonText.value as MoyuInfo).type === 'moyu') {
-        importTypeInfo.value.name = 'moyu';
-        formInfo.value.type = 'moyu';
-        formInfo.value.moyuData.docs = (jsonText.value as MoyuInfo).docs;
-        formInfo.value.moyuData.hosts = (jsonText.value as MoyuInfo).hosts;
-    } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
-        importTypeInfo.value.name = 'openapi';
-        importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
-        formInfo.value.type = 'openapi';
-        formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+  const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+  if ((jsonText.value as MoyuInfo).type === 'moyu') {
+    importTypeInfo.value.name = 'moyu';
+    formInfo.value.type = 'moyu';
+    formInfo.value.moyuData.docs = (jsonText.value as MoyuInfo).docs;
+    formInfo.value.moyuData.hosts = (jsonText.value as MoyuInfo).hosts;
+  } else if ((jsonText.value as OpenAPIV3.Document).openapi) {
+    importTypeInfo.value.name = 'openapi';
+    importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
+    formInfo.value.type = 'openapi';
+    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } else if ((jsonText.value as any).swagger) {
-        importTypeInfo.value.name = 'swagger';
-        importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
-        formInfo.value.type = 'swagger';
-        formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+  } else if ((jsonText.value as any).swagger) {
+    importTypeInfo.value.name = 'swagger';
+    importTypeInfo.value.version = (jsonText.value as OpenAPIV3.Document).openapi;
+    formInfo.value.type = 'swagger';
+    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } else if ((jsonText.value as any)?.info?._postman_id) {
-        const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
-        const docsInfo = postmanTranslatorInstance.getDocsInfo();
-        importTypeInfo.value.name = 'postman';
-        formInfo.value.type = 'postman';
-        formInfo.value.moyuData.docs = (docsInfo as MoyuInfo).docs;
-        formInfo.value.moyuData.hosts = (docsInfo as MoyuInfo).hosts;
-        // console.log("docs", docs)
-    }
-    // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
-    // yapiTranslatorInstance = new YAPITranslator($route.query.id);
-    // const isArray = Array.isArray(jsonText);
-    // const firstEl = isArray ? jsonText[0] : null;
-    // const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
-    // if (jsonText.type === "moyu") {
-    //     importTypeInfo.name = "moyu";
-    //     formInfo.type = "moyu";
-    //     formInfo.moyuData = jsonText;
-    // } else if (jsonText.info?._postman_id) {
-    //     importTypeInfo.name = "postman";
-    //     importTypeInfo.version = "postman";
-    //     formInfo.type = "postman";
-    //     formInfo.moyuData = postmanTranslatorInstance.convertPostmanData(jsonText);
-    // } else if (jsonText.openapi) {
-    //     importTypeInfo.name = "openapi";
-    //     importTypeInfo.version = jsonText.openapi;
-    //     formInfo.type = "openapi";
-    //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
-    // } else if (jsonText.swagger) {
-    //     importTypeInfo.name = "swagger";
-    //     importTypeInfo.version = jsonText.swagger;
-    //     formInfo.type = "swagger";
-    //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
-    // } else if (isYapi) {
-    //     importTypeInfo.name = "yapi";
-    //     formInfo.type = "yapi";
-    //     formInfo.moyuData = yapiTranslatorInstance.convertYapiData(jsonText);
-    // } else {
-    //     importTypeInfo.name = "未知类型";
-    // }
-    // projectName = formInfo.moyuData?.info?.projectName;
+  } else if ((jsonText.value as any)?.info?._postman_id) {
+    const postmanTranslatorInstance = new PostmanTranslator(projectId, jsonText.value);
+    const docsInfo = postmanTranslatorInstance.getDocsInfo();
+    importTypeInfo.value.name = 'postman';
+    formInfo.value.type = 'postman';
+    formInfo.value.moyuData.docs = (docsInfo as MoyuInfo).docs;
+    formInfo.value.moyuData.hosts = (docsInfo as MoyuInfo).hosts;
+    // console.log("docs", docs)
+  }
+  // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
+  // yapiTranslatorInstance = new YAPITranslator($route.query.id);
+  // const isArray = Array.isArray(jsonText);
+  // const firstEl = isArray ? jsonText[0] : null;
+  // const isYapi = firstEl && firstEl.add_time && firstEl.up_time;
+  // if (jsonText.type === "moyu") {
+  //     importTypeInfo.name = "moyu";
+  //     formInfo.type = "moyu";
+  //     formInfo.moyuData = jsonText;
+  // } else if (jsonText.info?._postman_id) {
+  //     importTypeInfo.name = "postman";
+  //     importTypeInfo.version = "postman";
+  //     formInfo.type = "postman";
+  //     formInfo.moyuData = postmanTranslatorInstance.convertPostmanData(jsonText);
+  // } else if (jsonText.openapi) {
+  //     importTypeInfo.name = "openapi";
+  //     importTypeInfo.version = jsonText.openapi;
+  //     formInfo.type = "openapi";
+  //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
+  // } else if (jsonText.swagger) {
+  //     importTypeInfo.name = "swagger";
+  //     importTypeInfo.version = jsonText.swagger;
+  //     formInfo.type = "swagger";
+  //     formInfo.moyuData = openApiTranslatorInstance.convertToMoyuDocs(jsonText, { folderNamedType: openapiFolderNamedType });
+  // } else if (isYapi) {
+  //     importTypeInfo.name = "yapi";
+  //     formInfo.type = "yapi";
+  //     formInfo.moyuData = yapiTranslatorInstance.convertYapiData(jsonText);
+  // } else {
+  //     importTypeInfo.name = "未知类型";
+  // }
+  // projectName = formInfo.moyuData?.info?.projectName;
 }
 //上传成功读取文件内容
 const requestHook = (e: { file: File }) => {
-    e.file.text().then((fileStr) => {
-        if (fileType.value === 'yaml' || fileType.value === 'application/x-yaml') {
-            jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
-        } else {
-            jsonText.value = JSON.parse(fileStr)
-        }
-        getImportFileInfo();
-    }).catch((err) => {
-        console.error(err);
-    });
+  e.file.text().then((fileStr) => {
+    if (fileType.value === 'yaml' || fileType.value === 'application/x-yaml') {
+      jsonText.value = jsyaml.load(fileStr) as OpenAPIV3.Document;
+    } else {
+      jsonText.value = JSON.parse(fileStr)
+    }
+    getImportFileInfo();
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 //导入数据预览
 const previewNavTreeData = computed(() => {
-    const docs = formInfo.value.moyuData.docs || [];
-    const result = [];
-    for (let i = 0; i < docs.length; i += 1) {
-        const docInfo = docs[i];
-        if (!docInfo.pid) { //根元素
-            docInfo.children = [];
-            result.push(docInfo);
-        }
-        const id = docInfo._id.toString();
-        for (let j = 0; j < docs.length; j += 1) {
-            if (id === docs[j].pid) { //项目中新增的数据使用标准id
-                if (docInfo.children == null) {
-                    docInfo.children = [];
-                }
-                docInfo.children.push(docs[j]);
-            }
-        }
+  const docs = formInfo.value.moyuData.docs || [];
+  const result = [];
+  for (let i = 0; i < docs.length; i += 1) {
+    const docInfo = docs[i];
+    if (!docInfo.pid) { //根元素
+      docInfo.children = [];
+      result.push(docInfo);
     }
-    return result;
+    const id = docInfo._id.toString();
+    for (let j = 0; j < docs.length; j += 1) {
+      if (id === docs[j].pid) { //项目中新增的数据使用标准id
+        if (docInfo.children == null) {
+          docInfo.children = [];
+        }
+        docInfo.children.push(docs[j]);
+      }
+    }
+  }
+  return result;
 })
 /*
 |--------------------------------------------------------------------------
@@ -350,19 +350,19 @@ const previewNavTreeData = computed(() => {
 */
 //改变导入方式，如果为覆盖类型提醒用户
 const handleChangeIsCover = (val: boolean) => {
-    if (val) {
-        ElMessageBox.confirm($t('覆盖后的数据将无法还原'), $t('提示'), {
-            confirmButtonText: $t('确定'),
-            cancelButtonText: $t('取消'),
-            type: 'warning',
-        }).catch((err) => {
-            if (err === 'cancel' || err === 'close') {
-                formInfo.value.cover = false;
-                return;
-            }
-            console.error(err)
-        });
-    }
+  if (val) {
+    ElMessageBox.confirm($t('覆盖后的数据将无法还原'), $t('提示'), {
+      confirmButtonText: $t('确定'),
+      cancelButtonText: $t('取消'),
+      type: 'warning',
+    }).catch((err) => {
+      if (err === 'cancel' || err === 'close') {
+        formInfo.value.cover = false;
+        return;
+      }
+      console.error(err)
+    });
+  }
 }
 //节点选中状态改变时候
 const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
@@ -374,25 +374,25 @@ const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: 
 }
 //改变命名方式
 const handleChangeNamedType = () => {
-    const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
-    formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
+  const openApiTranslatorInstance = new OpenApiTranslator(projectId, jsonText.value as OpenAPIV3.Document);
+  formInfo.value.moyuData.docs = openApiTranslatorInstance.getDocsInfo(openapiFolderNamedType.value);
 }
 //是否导入到特定文件夹
 const handleToggleTargetFolder = (val: boolean) => {
-    currentMountedNode.value = null;
-    if (val) {
-        loading2.value = true;
-        const params = {
-            projectId,
-        };
-        axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
-            navTreeData.value = res.data;
-        }).catch((err) => {
-            console.error(err);
-        }).finally(() => {
-            loading2.value = false;
-        });
-    }
+  currentMountedNode.value = null;
+  if (val) {
+    loading2.value = true;
+    const params = {
+      projectId,
+    };
+    axios.get('/api/project/doc_tree_folder_node', { params }).then((res) => {
+      navTreeData.value = res.data;
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading2.value = false;
+    });
+  }
 }
 /*
 |--------------------------------------------------------------------------
@@ -401,37 +401,37 @@ const handleToggleTargetFolder = (val: boolean) => {
 |
 */
 const handleSubmit = () => {
-    try {
-        loading.value = true;
-        if (!formInfo.value.moyuData.docs) {
-            ElMessage.warning($t('请选择需要导入的文件'));
-            return;
-        }
-        const mountedId = currentMountedNode.value?._id;
-        const docs = formInfo.value.moyuData.docs.map((val) => ({
-            ...val,
-            pid: val.pid || mountedId,
-        }))
-        const params = {
-            projectId,
-            cover: formInfo.value.cover,
-            moyuData: {
-                ...formInfo.value.moyuData,
-                docs,
-            },
-        };
-        console.log(params)
-        axios.post('/api/project/import/moyu', params).then(() => {
-            store.dispatch('apidoc/banner/getDocBanner', { projectId })
-        }).catch((err) => {
-            console.error(err);
-        }).finally(() => {
-            loading.value = false;
-        });
-    } catch (error) {
-        ElMessage.warning((error as Error).message);
-        loading.value = false;
+  try {
+    loading.value = true;
+    if (!formInfo.value.moyuData.docs) {
+      ElMessage.warning($t('请选择需要导入的文件'));
+      return;
     }
+    const mountedId = currentMountedNode.value?._id;
+    const docs = formInfo.value.moyuData.docs.map((val) => ({
+      ...val,
+      pid: val.pid || mountedId,
+    }))
+    const params = {
+      projectId,
+      cover: formInfo.value.cover,
+      moyuData: {
+        ...formInfo.value.moyuData,
+        docs,
+      },
+    };
+    console.log(params)
+    axios.post('/api/project/import/moyu', params).then(() => {
+      store.dispatch('apidoc/banner/getDocBanner', { projectId })
+    }).catch((err) => {
+      console.error(err);
+    }).finally(() => {
+      loading.value = false;
+    });
+  } catch (error) {
+    ElMessage.warning((error as Error).message);
+    loading.value = false;
+  }
 }
 </script>
 

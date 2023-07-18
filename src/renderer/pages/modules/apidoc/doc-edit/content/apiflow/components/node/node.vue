@@ -139,17 +139,17 @@ import { FlowNodeInfo } from '@@/apiflow';
 import { computed } from 'vue';
 
 const props = defineProps({
-    nodeId: {
-        type: String,
-        default: ''
-    }
+  nodeId: {
+    type: String,
+    default: ''
+  }
 });
 
 const nodesStore = useFlowNodesStore();
 const nodeStateStore = useFlowNodeStateStore();
 const configStore = useFlowConfigStore();
 const nodeInfo = computed(() => {
-    return nodesStore.nodeList.find(node => node.id === props.nodeId)as FlowNodeInfo
+  return nodesStore.nodeList.find(node => node.id === props.nodeId)as FlowNodeInfo
 })
 
 </script>

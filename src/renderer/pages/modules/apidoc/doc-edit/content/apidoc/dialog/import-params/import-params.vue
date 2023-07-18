@@ -30,66 +30,66 @@ import { Editor } from 'brace';
 import { ApidocProperty } from '@@/global';
 
 export default defineComponent({
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        pickFirstItem: { //json转换时候，对于数组操作是否只转换第一个元素
-            type: Boolean,
-            default: false
-        }
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    emits: ['update:modelValue', 'success'],
-    data() {
-        return {
-            editorInstance: null as null | Editor,
-            jsonParams: '',
-        };
-    },
-    methods: {
-        handleCodeReady(editor: Editor) {
-            this.editorInstance = editor;
-            this.editorInstance.on('paste', () => {
-                try {
-                    setTimeout(() => {
+    pickFirstItem: { //json转换时候，对于数组操作是否只转换第一个元素
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['update:modelValue', 'success'],
+  data() {
+    return {
+      editorInstance: null as null | Editor,
+      jsonParams: '',
+    };
+  },
+  methods: {
+    handleCodeReady(editor: Editor) {
+      this.editorInstance = editor;
+      this.editorInstance.on('paste', () => {
+        try {
+          setTimeout(() => {
                         this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
-                    })
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-        },
-        //格式化json
-        formatJSON() {
-            try {
-                this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
-            } catch (e) {
-                console.error(e);
-                this.$message.error(this.$t('无法解析该字符串'));
-            }
-        },
-        //确定导入
-        handleSubmit(pickFirstItem: boolean) {
-            try {
-                let convertResult: ApidocProperty[] | null = null;
-                if (pickFirstItem === false) { //false代表完整导入
-                    convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, false);
-                } else {
-                    convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, true);
-                }
-                this.$emit('success', convertResult);
-                this.handleClose();
-            } catch (e) {
-                console.error(e);
-                this.$message.error(this.$t('无法解析该字符串'));
-            }
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+          })
+        } catch (e) {
+          console.error(e);
+        }
+      });
     },
+    //格式化json
+    formatJSON() {
+      try {
+                this.editorInstance?.setValue(JSON.stringify(json5.parse(this.jsonParams), null, '\t'));
+      } catch (e) {
+        console.error(e);
+        this.$message.error(this.$t('无法解析该字符串'));
+      }
+    },
+    //确定导入
+    handleSubmit(pickFirstItem: boolean) {
+      try {
+        let convertResult: ApidocProperty[] | null = null;
+        if (pickFirstItem === false) { //false代表完整导入
+          convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, false);
+        } else {
+          convertResult = this.$helper.apidocConvertJsonDataToParams(json5.parse(this.jsonParams), undefined, true);
+        }
+        this.$emit('success', convertResult);
+        this.handleClose();
+      } catch (e) {
+        console.error(e);
+        this.$message.error(this.$t('无法解析该字符串'));
+      }
+    },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
+    },
+  },
 })
 </script>
 

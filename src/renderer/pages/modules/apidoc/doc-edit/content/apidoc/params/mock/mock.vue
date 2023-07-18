@@ -106,32 +106,32 @@ const mockServerInfo = computed(() => store.state['apidoc/mock']);
 */
 const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state['apidoc/mock'].mockServerPort}`);
 const currentSelectTab = computed(() => {
-    const projectId = router.currentRoute.value.query.id as string;
-    const tabs = store.state['apidoc/tabs'].tabs[projectId];
-    return tabs?.find((tab) => tab.selected) || null;
+  const projectId = router.currentRoute.value.query.id as string;
+  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  return tabs?.find((tab) => tab.selected) || null;
 })
 const remoteMockUrl = computed(() => {
-    const remoteUrl = globalConfig.renderConfig.httpRequest.url
-    return `${remoteUrl}/mock/remote/${currentSelectTab.value?._id}`
+  const remoteUrl = globalConfig.renderConfig.httpRequest.url
+  return `${remoteUrl}/mock/remote/${currentSelectTab.value?._id}`
 })
 const customPath = computed({
-    get() {
-        return store.state['apidoc/apidoc'].apidoc.mockInfo.path;
-    },
-    set(val) {
-        store.commit('apidoc/apidoc/changeMockPath', val)
-    }
+  get() {
+    return store.state['apidoc/apidoc'].apidoc.mockInfo.path;
+  },
+  set(val) {
+    store.commit('apidoc/apidoc/changeMockPath', val)
+  }
 }); //自定义请求路径
 const fullMockUrl = computed(() => `${mockServer.value}${customPath.value}`); //完整请求url
 const apidocInfo = computed(() => store.state['apidoc/apidoc'].apidoc); //当前api文档信息
 const handleCompleteMockPath = () => {
-    if (!customPath.value.startsWith('/')) {
-        customPath.value = `/${customPath.value}`
-    }
+  if (!customPath.value.startsWith('/')) {
+    customPath.value = `/${customPath.value}`
+  }
 }
 //重置mock地址
 const handleResetMockUrl = () => {
-    customPath.value = '/';
+  customPath.value = '/';
 }
 // watch(orginPath, (newVal) => {
 //     if (customPath.value === "") {
@@ -139,12 +139,12 @@ const handleResetMockUrl = () => {
 //     }
 // })
 watch(customPath, (newVal) => {
-    const { urlMap } = store.state['apidoc/mock'];
-    const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
-    store.commit('apidoc/mock/changeCustomMockUrlById', {
-        id: matchedMockInfo?.id,
-        url: newVal,
-    })
+  const { urlMap } = store.state['apidoc/mock'];
+  const matchedMockInfo = urlMap.find(v => v.id === apidocInfo.value._id);
+  store.commit('apidoc/mock/changeCustomMockUrlById', {
+    id: matchedMockInfo?.id,
+    url: newVal,
+  })
 })
 /*
 |--------------------------------------------------------------------------
@@ -156,15 +156,15 @@ const _mockPort = ref(mockPort.value);
 const isEditingPort = ref(false);
 //改变端口编辑状态
 const handleChangePortEditState = () => {
-    isEditingPort.value = true;
+  isEditingPort.value = true;
 }
 //改变端口
 const handleChangePort = () => {
-    store.commit('apidoc/mock/changeMockServerPort', _mockPort.value);
-    if (mockServerInfo.value.serverState === 'connection') {
-        event.emit('apidoc/mock/restartMockServer')
-    }
-    isEditingPort.value = false;
+  store.commit('apidoc/mock/changeMockServerPort', _mockPort.value);
+  if (mockServerInfo.value.serverState === 'connection') {
+    event.emit('apidoc/mock/restartMockServer')
+  }
+  isEditingPort.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -176,13 +176,13 @@ const _httpStatusCode = ref(200);
 const isEditingHttpStatusCode = ref(false);
 //改变状态
 const handleChangeHttpStatusCodeState = () => {
-    _httpStatusCode.value = httpStatusCode.value
-    isEditingHttpStatusCode.value = true
+  _httpStatusCode.value = httpStatusCode.value
+  isEditingHttpStatusCode.value = true
 }
 //改变http状态码
 const handleChangeHttpStatusCode = () => {
-    store.commit('apidoc/apidoc/changeMockHttpStatusCode', _httpStatusCode.value);
-    isEditingHttpStatusCode.value = false;
+  store.commit('apidoc/apidoc/changeMockHttpStatusCode', _httpStatusCode.value);
+  isEditingHttpStatusCode.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -194,13 +194,13 @@ const _responseDelay = ref();
 const isEditingResponseDelay = ref(false);
 //改变状态
 const handleChangeResponseDelayState = () => {
-    _responseDelay.value = responseDelay.value
-    isEditingResponseDelay.value = true
+  _responseDelay.value = responseDelay.value
+  isEditingResponseDelay.value = true
 }
 //改变返回时长
 const handleChangeResponseDelay = () => {
-    store.commit('apidoc/apidoc/changeMockResponseDelay', _responseDelay.value);
-    isEditingResponseDelay.value = false;
+  store.commit('apidoc/apidoc/changeMockResponseDelay', _responseDelay.value);
+  isEditingResponseDelay.value = false;
 }
 /*
 |--------------------------------------------------------------------------
@@ -210,29 +210,29 @@ const handleChangeResponseDelay = () => {
 const activeName = ref('response');
 //是否存在返回参数
 const hasCustomResponse = computed(() => {
-    const { mockInfo } = store.state['apidoc/apidoc'].apidoc;
-    if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
-        return true;
-    }
-    if (mockInfo.responseType === 'text' && mockInfo.text.trim() !== '') {
-        return true;
-    }
-    if (mockInfo.responseType === 'image') {
-        return true;
-    }
-    if (mockInfo.responseType === 'file') {
-        return true;
-    }
-    if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
-        return true;
-    }
-    return false;
+  const { mockInfo } = store.state['apidoc/apidoc'].apidoc;
+  if (mockInfo.responseType === 'json' && mockInfo.json.trim() !== '') {
+    return true;
+  }
+  if (mockInfo.responseType === 'text' && mockInfo.text.trim() !== '') {
+    return true;
+  }
+  if (mockInfo.responseType === 'image') {
+    return true;
+  }
+  if (mockInfo.responseType === 'file') {
+    return true;
+  }
+  if (mockInfo.responseType === 'customJson' && mockInfo.customResponseScript.trim() !== '') {
+    return true;
+  }
+  return false;
 })
 //是否存在headers
 const hasCustomHeaders = computed(() => {
-    const { responseHeaders } = store.state['apidoc/apidoc'].apidoc.mockInfo;
-    const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
-    return !!hasHeaders;
+  const { responseHeaders } = store.state['apidoc/apidoc'].apidoc.mockInfo;
+  const hasHeaders = responseHeaders.filter(p => p.select).some((data) => data.key);
+  return !!hasHeaders;
 })
 
 </script>

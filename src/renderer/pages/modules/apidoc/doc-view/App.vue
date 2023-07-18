@@ -17,17 +17,17 @@ import zhCn from 'element-plus/lib/locale/lang/zh-cn'
 import config from '@/../config/config'
 
 export default defineComponent({
-    components: {
-        [ElConfigProvider.name]: ElConfigProvider,
-    },
-    data() {
-        return {
-            locale: zhCn,
-        };
-    },
-    created() {
-        if (!config.isDev && config.localization.consoleWelcome) {
-            console.log(`
+  components: {
+    [ElConfigProvider.name]: ElConfigProvider,
+  },
+  data() {
+    return {
+      locale: zhCn,
+    };
+  },
+  created() {
+    if (!config.isDev && config.localization.consoleWelcome) {
+      console.log(`
                      _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
                     / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
                    / / \\ \\        / / \\ \\       / /           \\ \\    \\   \\ /   /    |  |       |  |
@@ -44,12 +44,12 @@ export default defineComponent({
 
                ${this.$t('最近一次更新')}：${process.env.VUE_APP_BUILD_TIME}
             `)
-        }
-        if (!config.localization.consoleWelcome) {
-            console.log(process.env.VUE_APP_BUILD_TIME);
-        }
-        document.title = config.localization.title;
-    },
+    }
+    if (!config.localization.consoleWelcome) {
+      console.log(process.env.VUE_APP_BUILD_TIME);
+    }
+    document.title = config.localization.title;
+  },
 })
 </script>
 

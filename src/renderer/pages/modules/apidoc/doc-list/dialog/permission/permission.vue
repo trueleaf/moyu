@@ -19,40 +19,40 @@ import { defineComponent } from 'vue'
 import user from './user/user.vue'
 
 export default defineComponent({
-    components: {
-        's-user': user,
+  components: {
+    's-user': user,
+  },
+  props: {
+    modelValue: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-        modelValue: {
-            type: Boolean,
-            default: false,
-        },
-        /**
+    /**
          * 项目id
          */
-        projectId: {
-            type: String,
-            default: '',
-        },
+    projectId: {
+      type: String,
+      default: '',
     },
-    emits: ['update:modelValue', 'leave'],
-    data() {
-        return {
-            //=====================================其他参数====================================//
-            loading: false, //------------------------------成员数据加载状态
-        };
+  },
+  emits: ['update:modelValue', 'leave'],
+  data() {
+    return {
+      //=====================================其他参数====================================//
+      loading: false, //------------------------------成员数据加载状态
+    };
+  },
+  methods: {
+    //离开项目
+    handleLeave() {
+      this.$emit('leave');
+      this.handleClose();
     },
-    methods: {
-        //离开项目
-        handleLeave() {
-            this.$emit('leave');
-            this.handleClose();
-        },
-        //关闭弹窗
-        handleClose() {
-            this.$emit('update:modelValue', false);
-        },
+    //关闭弹窗
+    handleClose() {
+      this.$emit('update:modelValue', false);
     },
+  },
 })
 </script>
 

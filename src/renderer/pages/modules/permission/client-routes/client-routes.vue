@@ -41,93 +41,93 @@ import editClientRoute from './edit/edit.vue'
 import multiEditClientRoute from './edit/edit2.vue'
 
 type HookThis = {
-    tableData: PermissionClientRoute[],
-    total: number,
+  tableData: PermissionClientRoute[],
+  total: number,
 }
 export default defineComponent({
-    components: {
-        's-add-client-route': addClientRoute,
-        's-edit-client-route': editClientRoute,
-        's-multi-edit-client-route': multiEditClientRoute,
+  components: {
+    's-add-client-route': addClientRoute,
+    's-edit-client-route': editClientRoute,
+    's-multi-edit-client-route': multiEditClientRoute,
+  },
+  data() {
+    return {
+      selectedData: [] as PermissionClientRoute[], //-----------------当前被选中的表单数据
+      editData: {} as PermissionClientRoute, //-----------------------需要编辑的数据
+      originTableData: [] as PermissionClientRoute[], //--------------原始表单数据
+      groupEnum: [] as { id: string, name: string }[], //---分组信息
+      dialogVisible: false, //------------------------------新增路由信息弹窗
+      dialogVisible2: false, //-----------------------------修改路由信息弹窗
+      dialogVisible3: false, //-----------------------------批量修改路由信息弹窗
+    };
+  },
+  methods: {
+    //=====================================数据获取====================================//
+    //获取表格数据
+    getData() {
+      this.$refs.table.getData();
     },
-    data() {
-        return {
-            selectedData: [] as PermissionClientRoute[], //-----------------当前被选中的表单数据
-            editData: {} as PermissionClientRoute, //-----------------------需要编辑的数据
-            originTableData: [] as PermissionClientRoute[], //--------------原始表单数据
-            groupEnum: [] as { id: string, name: string }[], //---分组信息
-            dialogVisible: false, //------------------------------新增路由信息弹窗
-            dialogVisible2: false, //-----------------------------修改路由信息弹窗
-            dialogVisible3: false, //-----------------------------批量修改路由信息弹窗
-        };
+    //搜索数据
+    handleChange(params: { name: string, groupName: string }) {
+      const { name, groupName } = params;
+      this.$refs.table.tableData = this.originTableData.filter((val) => {
+        const matchedName = name ? val.name.match(name) : true;
+        const matchedPath = name ? val.path.match(name) : true;
+        const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
+        return (matchedName || matchedPath) && matchedGroupName;
+      })
     },
-    methods: {
-        //=====================================数据获取====================================//
-        //获取表格数据
-        getData() {
-            this.$refs.table.getData();
-        },
-        //搜索数据
-        handleChange(params: { name: string, groupName: string }) {
-            const { name, groupName } = params;
-            this.$refs.table.tableData = this.originTableData.filter((val) => {
-                const matchedName = name ? val.name.match(name) : true;
-                const matchedPath = name ? val.path.match(name) : true;
-                const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
-                return (matchedName || matchedPath) && matchedGroupName;
-            })
-        },
-        //获取前端路由信息
-        hookRequest(res: Response<PermissionClientRoute[]>, _this: HookThis) {
-            this.originTableData = res.data;
-            _this.tableData = res.data;
-            _this.total = res.data.length;
-            const uniqueData = this.$helper.uniqueByKey(res.data, 'groupName');
-            this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
-                const unicodeOfA = a.name.charCodeAt(0);
-                const unicodeOfB = b.name.charCodeAt(0)
-                return unicodeOfA - unicodeOfB;
-            })
-        },
-        //=========================================================================//
-        handleSelect(routeList: PermissionClientRoute[]) {
-            this.selectedData = routeList;
-        },
-        //删除前端路由组件
-        handleDeleteClientRoute(row: PermissionClientRoute) {
-            this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
-                confirmButtonText: this.$t('确定'),
-                cancelButtonText: this.$t('取消'),
-                type: 'warning',
-            }).then(() => {
-                const params = { ids: [row._id] };
-                this.axios.delete('/api/security/client_routes', { data: params }).then(() => {
-                    this.$refs.table.getData();
-                }).catch((err) => {
-                    console.error(err);
-                });
-            }).catch((err: Error | string) => {
-                if (err === 'cancel' || err === 'close') {
-                    return;
-                }
-                console.error(err);
-            });
-        },
-        //=====================================其他操作====================================//
-        //打开新增前端路由
-        handleOpenAddRouteDialog() {
-            this.dialogVisible = true;
-        },
-        //打开修改前端路由
-        handleOpenClientEditDialog(row: PermissionClientRoute) {
-            this.editData = row;
-            this.dialogVisible2 = true;
-        },
-        //打开批量修改前端路由类型
-        handleOpenMultiEditTypeDialog() {
-            this.dialogVisible3 = true;
-        },
+    //获取前端路由信息
+    hookRequest(res: Response<PermissionClientRoute[]>, _this: HookThis) {
+      this.originTableData = res.data;
+      _this.tableData = res.data;
+      _this.total = res.data.length;
+      const uniqueData = this.$helper.uniqueByKey(res.data, 'groupName');
+      this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
+        const unicodeOfA = a.name.charCodeAt(0);
+        const unicodeOfB = b.name.charCodeAt(0)
+        return unicodeOfA - unicodeOfB;
+      })
     },
+    //=========================================================================//
+    handleSelect(routeList: PermissionClientRoute[]) {
+      this.selectedData = routeList;
+    },
+    //删除前端路由组件
+    handleDeleteClientRoute(row: PermissionClientRoute) {
+      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
+        confirmButtonText: this.$t('确定'),
+        cancelButtonText: this.$t('取消'),
+        type: 'warning',
+      }).then(() => {
+        const params = { ids: [row._id] };
+        this.axios.delete('/api/security/client_routes', { data: params }).then(() => {
+          this.$refs.table.getData();
+        }).catch((err) => {
+          console.error(err);
+        });
+      }).catch((err: Error | string) => {
+        if (err === 'cancel' || err === 'close') {
+          return;
+        }
+        console.error(err);
+      });
+    },
+    //=====================================其他操作====================================//
+    //打开新增前端路由
+    handleOpenAddRouteDialog() {
+      this.dialogVisible = true;
+    },
+    //打开修改前端路由
+    handleOpenClientEditDialog(row: PermissionClientRoute) {
+      this.editData = row;
+      this.dialogVisible2 = true;
+    },
+    //打开批量修改前端路由类型
+    handleOpenMultiEditTypeDialog() {
+      this.dialogVisible3 = true;
+    },
+  },
 })
 </script>
 

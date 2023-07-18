@@ -15,18 +15,18 @@ import { apiflow } from './apidoc/apiflow';
 export const key: InjectionKey<Store<State>> = Symbol('')
 
 export const store = createStore<State>({
-    strict: process.env.NODE_ENV !== 'production',
-    modules: {
-        permission,
-        'apidoc/banner': banner,
-        'apidoc/baseInfo': baseInfo,
-        'apidoc/tabs': tabs,
-        'apidoc/apidoc': apidoc,
-        'apidoc/response': response,
-        'apidoc/mock': mock,
-        'apidoc/request': request,
-        'apidoc/workerState': workerState,
-        'apidoc/apiflow': apiflow,
-    }
+  strict: process.env.NODE_ENV !== 'production',
+  modules: {
+    permission,
+    'apidoc/banner': banner,
+    'apidoc/baseInfo': baseInfo,
+    'apidoc/tabs': tabs,
+    'apidoc/apidoc': apidoc,
+    'apidoc/response': response,
+    'apidoc/mock': mock,
+    'apidoc/request': request,
+    'apidoc/workerState': workerState,
+    'apidoc/apiflow': apiflow,
+  }
 });
 export const useStore = (): Store<State> => baseUseStore(key);

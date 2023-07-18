@@ -29,8 +29,8 @@ import mimeTypes from './mime'
 
 const emit = defineEmits(['close', 'select']);
 const handleSelect = (mimeType: string) => {
-    emit('select', mimeType);
-    emit('close');
+  emit('select', mimeType);
+  emit('close');
 }
 </script>
 
