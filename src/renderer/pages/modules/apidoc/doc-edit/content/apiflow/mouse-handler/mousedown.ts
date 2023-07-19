@@ -66,6 +66,11 @@ export function changeNodeStateWhenMouseDown(e: MouseEvent): void {
     nodesStore.changeNodeStyleInfoById(maxZIndexNode.id, {
       dragZIndex: configStore.dragNodeZIndex,
     });
+    if (nodeStateStore.isMouseHoverDragArea) {
+      nodeStateStore.$patch({
+        isMouseDownDragArea: true
+      });
+    }
   }
 }
 /**

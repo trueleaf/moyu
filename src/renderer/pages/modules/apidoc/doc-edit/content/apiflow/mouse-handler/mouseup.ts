@@ -91,6 +91,7 @@ export function changeStateWhenMouseUp(): void {
   })
   nodeStateStore.$patch({
     isMouseDown: false,
+    isMouseDownDragArea: false,
     dragNodeId: '',
     isMove: false,
   })

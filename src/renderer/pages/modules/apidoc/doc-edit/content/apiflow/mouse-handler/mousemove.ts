@@ -248,7 +248,7 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
   const nodesStore = useFlowNodesStore();
   const lineStateStore = useFlowLineStateStore();
   const configStore = useFlowConfigStore();
-  if (!nodeStateStore.isMouseHoverDragArea || !nodeStateStore.isMouseDown || resizeNodeDotStateStore.isMouseDown || lineStateStore.isHoverDragArrow || createLineStateStore.isMouseDown) {
+  if (!nodeStateStore.isMouseDownDragArea || !nodeStateStore.isMouseDown || resizeNodeDotStateStore.isMouseDown || lineStateStore.isHoverDragArrow || createLineStateStore.isMouseDown) {
     return
   }
   const matchedNode = nodesStore.nodeList.find(node => node.id === nodeStateStore.dragNodeId)
