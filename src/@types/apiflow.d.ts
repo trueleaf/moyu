@@ -22,7 +22,7 @@ export type OffsetPoint = {
   offsetX: number;
   offsetY: number;
 }
-export type AreaRange = {
+export type ClientAreaRange = {
   leftTopPosition: {
     clientX: number;
     clientY: number;
@@ -32,7 +32,16 @@ export type AreaRange = {
     clientY: number;
   };
 }
-
+export type offsetAreaRange = {
+  leftTopPosition: {
+    offsetX: number;
+    offsetY: number;
+  };
+  rightBottomPosition: {
+    offsetX: number;
+    offsetY: number;
+  };
+}
 /*
 |--------------------------------------------------------------------------
 | 画布信息
@@ -56,7 +65,7 @@ export type FlowRenderArea = {
 /**
  * 线条可hover区域
  */
-export type LineCanHoverPosition = AreaRange
+export type LineCanHoverPosition = ClientAreaRange
 /**
  * 线条位置信息，可以从节点的四个方向(上下左右)引出，也可以没有位置信息，代表独立存在的线条
  */
@@ -118,7 +127,7 @@ export type FlowNodeInfo = {
     zIndex: number;
     dragZIndex: number;
   };
-  canDragArea: AreaRange,
+  canDragArea: offsetAreaRange,
   nodeType: FlowNodeType;
   outcomingIds: string[];
   incomingIds: string[];

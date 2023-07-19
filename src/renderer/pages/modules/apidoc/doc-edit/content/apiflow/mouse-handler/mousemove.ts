@@ -159,6 +159,7 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
   if (selectionStore.isHover) {
     return
   }
+  const { clientX: containerClientX, clientY: containerClientY } = containerStore;
   const mouseOffsetX = (e.clientX - containerStore.clientX);
   const mouseOffsetY = (e.clientY - containerStore.clientY);
   const matchedNodes: FlowNodeInfo[] = [];
@@ -186,8 +187,16 @@ export function changeNodeStateWhenMouseMove(e: MouseEvent): void {
     const isInDragArea = checkPointIsInArea({
       clientX: e.clientX,
       clientY: e.clientY,
-    }, maxZIndexNode.canDragArea)
-    console.log(e.clientX, e.clientY, maxZIndexNode.canDragArea.leftTopPosition, maxZIndexNode.canDragArea.rightBottomPosition)
+    }, {
+      leftTopPosition: {
+        clientX: containerClientX + maxZIndexNode.canDragArea.leftTopPosition.offsetX + maxZIndexNode.styleInfo.offsetX,
+        clientY: containerClientY + maxZIndexNode.canDragArea.leftTopPosition.offsetY + maxZIndexNode.styleInfo.offsetY,
+      },
+      rightBottomPosition: {
+        clientX: containerClientX + maxZIndexNode.canDragArea.leftTopPosition.offsetX + maxZIndexNode.styleInfo.offsetX + maxZIndexNode.styleInfo.width,
+        clientY: containerClientY + maxZIndexNode.canDragArea.leftTopPosition.offsetY + maxZIndexNode.styleInfo.offsetY + 30,
+      }
+    })
     nodeStateStore.$patch({
       hoverNodeId: maxZIndexNode.id,
       isMouseHoverDragArea: isInDragArea,
@@ -235,12 +244,11 @@ export function changeLineStateWhenMouseMove(e: MouseEvent): void {
 export function changeNodeWhenMouseMove(e: MouseEvent): void {
   const createLineStateStore = useFlowCreateLineDotStateStore();
   const resizeNodeDotStateStore = useFlowResizeNodeStateStore();
-  const containerStore = useFlowContainerStore();
   const nodeStateStore = useFlowNodeStateStore();
   const nodesStore = useFlowNodesStore();
   const lineStateStore = useFlowLineStateStore();
   const configStore = useFlowConfigStore();
-  if (!nodeStateStore.isMouseDown || resizeNodeDotStateStore.isMouseDown || lineStateStore.isHoverDragArrow || createLineStateStore.isMouseDown) {
+  if (!nodeStateStore.isMouseHoverDragArea || !nodeStateStore.isMouseDown || resizeNodeDotStateStore.isMouseDown || lineStateStore.isHoverDragArrow || createLineStateStore.isMouseDown) {
     return
   }
   const matchedNode = nodesStore.nodeList.find(node => node.id === nodeStateStore.dragNodeId)
@@ -252,10 +260,6 @@ export function changeNodeWhenMouseMove(e: MouseEvent): void {
       if (matched) {
         matched.styleInfo.offsetX = Math.ceil(nodeStateStore.nodeOffsetXWhenMouseDown + relativeX / configStore.zoom);
         matched.styleInfo.offsetY = Math.ceil(nodeStateStore.nodeOffsetYWhenMouseDown + relativeY / configStore.zoom);
-        matched.canDragArea.leftTopPosition.clientX = matched.styleInfo.offsetX + containerStore.clientX;
-        matched.canDragArea.leftTopPosition.clientY = matched.styleInfo.offsetY + containerStore.clientY;
-        matched.canDragArea.rightBottomPosition.clientX = matched.styleInfo.offsetX + containerStore.clientX + matched.styleInfo.width;
-        matched.canDragArea.rightBottomPosition.clientY = matched.styleInfo.offsetY + containerStore.clientY + 30;
       }
     })
     nodeStateStore.$patch({
