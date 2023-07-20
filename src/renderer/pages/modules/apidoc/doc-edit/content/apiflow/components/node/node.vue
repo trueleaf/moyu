@@ -7,7 +7,7 @@
       width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
       height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
       zIndex: nodeInfo.styleInfo.zIndex,
-      border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #dfdfdf' : '1px solid transparent'),
+      border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid transparent'),
     }"
   >
     <template v-if="nodeStateStore.activeNodeId === props.nodeId">
@@ -105,28 +105,28 @@
     </template>
     <div class="node-inner">
       <div class="header">
-        <el-tooltip
-          effect="light"
-          :show-after="1500"
-          content="用户登录"
-          placement="top-start"
-        >
-          用户登录用户登录用户登录用户登录用户登录
-        </el-tooltip>
+        <div class="title">基础组件测试</div>
+        <div class="operations">
+          <div class="op-wrap">
+            <el-icon class="op-icon" size="14">
+              <Plus />
+            </el-icon>
+          </div>
+          <div class="op-wrap">
+            <el-icon class="op-icon" size="14">
+              <More />
+            </el-icon>
+          </div>
+        </div>
       </div>
-      <div class="api-info">
-        <div class="orange">POST</div>
+      <div class="req-url">
+        <span class="method">POST&nbsp;&nbsp;</span>
+        <span class="url">/api/test/foo/user_info/pages/demo</span>
       </div>
-      <div class="api-info2">/api/gatway/user_info</div>
-      <div class="api-info3">
-        <div class="f-xs cursor-pointer op">前置</div>
-        <el-divider direction="vertical" />
-        <div class="f-xs cursor-pointer op">后置</div>
-        <el-divider direction="vertical" />
-        <div class="f-xs cursor-pointer op">日志</div>
-        <el-divider direction="vertical" />
-        <div class="f-xs cursor-pointer op">详情</div>
-      </div>
+      <!-- <div class="empty">
+        <i class="plus-icon" style="font-size: 22px;"></i>
+        <div>添加接口</div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -137,6 +137,7 @@ import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowConfigStore } from '@/store/apiflow/config';
 import { FlowNodeInfo } from '@@/apiflow';
 import { computed } from 'vue';
+import { Plus, More } from '@element-plus/icons-vue'
 
 const props = defineProps({
   nodeId: {
@@ -157,9 +158,8 @@ const nodeInfo = computed(() => {
 <style lang="scss" scoped>
 .node {
     position: absolute;
-    user-select: none;
     background-color: $white;
-    user-select: none;
+    border-radius: $border-radius-sm;
     .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
@@ -193,45 +193,71 @@ const nodeInfo = computed(() => {
         background-color: #f2f2f2;
     }
     .node-inner {
-        position: relative;
-        width: 100%;
-        height: 100%;
-    }
-    .header {
-        height: size(30);
-        line-height: size(30);
-        font-size: fz(15);
-        background-color: #f2f2f2;
-        padding: 0 size(5);
-        overflow-x: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .api-info {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: $border-radius-sm;
+      display: flex;
+      flex-direction: column;
+      .header {
+        flex: 0 0 40px;
         display: flex;
         align-items: center;
-        height: size(20);
-        line-height: size(20);
-        padding: size(0) size(8);
-        justify-content: space-between;
-    }
-    .api-info2 {
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        padding: size(0) size(8);
-    }
-    .api-info3 {
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        position: absolute;
-        padding: size(8);
-        bottom: 0;
-        .op {
-            white-space: nowrap;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        .title {
+          width: 80%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          font-weight: bolder;
+          font-size: 13px;
+          text-indent: 1em;
         }
+        .operations {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          .op-wrap {
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 5px;
+            cursor: pointer;
+            &:hover {
+              background-color: rgba(0, 0, 0, 0.12);
+            }
+          }
+        }
+      }
+      .req-url {
+        height: 30px;
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        padding: 0 10px;
+        width: 100%;
+        .method {
+          color: #f90;
+        }
+        .url {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .content {
+        flex: 1;
+      }
+
+      .empty {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
 }
 </style>
