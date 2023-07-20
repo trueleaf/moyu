@@ -45,32 +45,32 @@ const handleClose = () => {
 }
 //保存为用例
 const handleSave = () => {
-    formInstance.value?.validate((valid) => {
-      if (valid) {
-        const bodyParams = store.state['apidoc/apidoc'].apidoc.item.requestBody.json
-        const params = {
-          name: formInfo.value.name,
-          presetParamsType: 'bodyParams',
-          projectId: router.currentRoute.value.query.id,
-          items: bodyParams,
-        };
-        loading.value = true;
-        axios.post('/api/project/doc_preset_params', params).then((res) => {
-          store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
-          handleClose();
-        }).catch((err) => {
-          console.error(err);
-        }).finally(() => {
-          loading.value = false;
-        });
-        nextTick(() => {
-          const input = document.querySelector('.el-form-item.is-error input');
-          if (input) {
-            (input as HTMLElement).focus();
-          }
-        });
-      }
-    });
+  formInstance.value?.validate((valid) => {
+    if (valid) {
+      const bodyParams = store.state['apidoc/apidoc'].apidoc.item.requestBody.json
+      const params = {
+        name: formInfo.value.name,
+        presetParamsType: 'bodyParams',
+        projectId: router.currentRoute.value.query.id,
+        items: bodyParams,
+      };
+      loading.value = true;
+      axios.post('/api/project/doc_preset_params', params).then((res) => {
+        store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
+        handleClose();
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+      nextTick(() => {
+        const input = document.querySelector('.el-form-item.is-error input');
+        if (input) {
+          (input as HTMLElement).focus();
+        }
+      });
+    }
+  });
 }
 </script>
 

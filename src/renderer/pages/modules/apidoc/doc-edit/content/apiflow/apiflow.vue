@@ -187,12 +187,12 @@ const initNodes = () => {
       incomingIds: [],
       canDragArea: {
         leftTopPosition: {
-          clientX: 240 * (i + 1) + containerStore.clientX,
-          clientY: 30 + 50 * i + containerStore.clientY,
+          offsetX: 0,
+          offsetY: 0,
         },
         rightBottomPosition: {
-          clientX: 240 * (i + 1) + 200 + containerStore.clientX,
-          clientY: 30 + 50 * i + 30 + containerStore.clientY,
+          offsetX: 200,
+          offsetY: 30,
         }
       }
     })

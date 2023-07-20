@@ -88,7 +88,7 @@ const handleDeleteItem = (pid: string, _id: string) => {
       _id,
     };
     axios.delete('/api/project/export/online', { data: params }).then(() => {
-            table.value?.getData();
+      table.value?.getData();
     }).catch((err) => {
       console.error(err);
     });
@@ -106,11 +106,11 @@ const handleOpenEditDialog = (row: LinkInfo) => {
 }
 //添加成功刷新页面
 const handleAddSuccess = () => {
-    table.value?.getData();
+  table.value?.getData();
 }
 //编辑成功刷新页面
 const handleEditSuccess = () => {
-    table.value?.getData();
+  table.value?.getData();
 }
 
 </script>

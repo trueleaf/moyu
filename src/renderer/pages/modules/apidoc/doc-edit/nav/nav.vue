@@ -198,13 +198,13 @@ export default defineComponent({
       setTimeout(() => {
         const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
         const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
-                activeNode?.scrollIntoView();
+        activeNode?.scrollIntoView();
       })
       this.$helper.event.on('apidoc/tabs/addOrDeleteTab', () => {
         setTimeout(() => {
           const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
           const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
-                    activeNode?.scrollIntoView();
+          activeNode?.scrollIntoView();
         })
       });
     },

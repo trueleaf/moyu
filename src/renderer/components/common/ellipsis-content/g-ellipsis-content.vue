@@ -77,10 +77,10 @@ export default defineComponent({
     },
     handleSelect(e: Event) {
       const selection = window.getSelection();
-            selection?.removeAllRanges();
-            const range = document.createRange();
-            range.selectNodeContents(e.target as HTMLElement);
-            selection?.addRange(range);
+      selection?.removeAllRanges();
+      const range = document.createRange();
+      range.selectNodeContents(e.target as HTMLElement);
+      selection?.addRange(range);
     },
   },
 })

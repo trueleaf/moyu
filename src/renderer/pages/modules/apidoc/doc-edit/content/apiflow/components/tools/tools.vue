@@ -35,7 +35,7 @@ const historyStore = useFlowHistoryStore()
 const nodeListStore = useFlowNodesStore()
 //保存数据
 const handleSave = () => {
-  console.log(22)
+  console.log(22, nodesStore.nodeList)
 }
 //放大
 const handleZoomIn = () => {
@@ -130,6 +130,7 @@ const handleRedo = () => {
     background-color: #fff;
     box-shadow: 1px 1px 5px $gray-500;
     top: size(1);
+    left: size(100);
     user-select: none;
     padding: 0 size(20);
     height: size(30);

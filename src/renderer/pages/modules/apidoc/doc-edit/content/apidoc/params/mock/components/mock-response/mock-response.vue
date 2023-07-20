@@ -198,7 +198,7 @@ const jsonComponent: Ref<null | {
 }> = ref(null)
 //格式化数据
 const handleFormat = () => {
-    jsonComponent.value?.format();
+  jsonComponent.value?.format();
 }
 /*
 |--------------------------------------------------------------------------
@@ -300,10 +300,10 @@ const handleCheckSize: UploadProps['beforeUpload'] = (rawFile) => {
 }
 //覆盖文件
 const handleExceed: UploadProps['onExceed'] = (files) => {
-    uploadInstance.value?.clearFiles()
-    const file = files[0] as UploadRawFile
-    file.uid = genFileId()
-    uploadInstance.value?.handleStart(file)
+  uploadInstance.value?.clearFiles()
+  const file = files[0] as UploadRawFile
+  file.uid = genFileId()
+  uploadInstance.value?.handleStart(file)
 }
 /*
 |--------------------------------------------------------------------------

@@ -383,8 +383,8 @@ const addNestTreeData = (data: ApidocProperty) => {
     params,
   });
   setTimeout(() => { //hack，添加一个数据默认选中当前数据
-        tree.value?.setChecked(params._id, true, true);
-        defaultExpandedKeys.value = [params._id];
+    tree.value?.setChecked(params._id, true, true);
+    defaultExpandedKeys.value = [params._id];
   })
 }
 //删除一条数据
@@ -445,7 +445,7 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
         params: apidocGenerateProperty(),
       });
     }
-        tree.value?.setChecked(data._id, true, true);
+    tree.value?.setChecked(data._id, true, true);
   }
 }
 //检查key输入框是否被禁用

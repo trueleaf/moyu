@@ -22,6 +22,7 @@ module.exports = {
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
         "vue/html-indent": ["error", 2],
+        "vue/script-indent": ["error", 2],
         "vue/max-attributes-per-line": "off",
         "vue/html-self-closing": "off",
         "vue/singleline-html-element-content-newline": "off",

@@ -159,7 +159,7 @@ onMounted(() => {
     if (props.data.selectedDocs.length > 0 && configShare.value) {
       configShare.value.enabled = true;
       nextTick(() => {
-                docTree.value?.setCheckedKeys(props.data.selectedDocs)
+        docTree.value?.setCheckedKeys(props.data.selectedDocs)
       })
     }
   })

@@ -366,11 +366,11 @@ const handleChangeIsCover = (val: boolean) => {
 }
 //节点选中状态改变时候
 const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
-    docTree2.value?.setCheckedKeys([]);
-    if (checkedKeys.length > 0) {
-        docTree2.value?.setCheckedKeys([data._id]);
-    }
-    currentMountedNode.value = data;
+  docTree2.value?.setCheckedKeys([]);
+  if (checkedKeys.length > 0) {
+    docTree2.value?.setCheckedKeys([data._id]);
+  }
+  currentMountedNode.value = data;
 }
 //改变命名方式
 const handleChangeNamedType = () => {

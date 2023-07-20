@@ -270,8 +270,8 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
 const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
   console.log('drop111')
   if (isInSource.value) { //拖拽到目标节点又拖拽回源节点代表取消
-        targetTree.value?.remove(dragNode.data);
-        return;
+    targetTree.value?.remove(dragNode.data);
+    return;
   }
   let targetNodeSort = Date.now();
   const { _isSource } = dragNode.data;
@@ -342,21 +342,21 @@ const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unkno
   const emptyData = {
     _id: uuid(),
   };
-    sourceTree.value?.insertBefore(emptyData, draggingNode);
-    targetTree.value?.$emit('node-drag-end', event);
-    nextTick(() => {
-      if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
-            sourceTree.value?.remove(emptyData);
-      } else { //在挂载点完成拖拽
-        const data = JSON.parse(JSON.stringify(draggingNode.data));
-        data._id2 = data._id2 || data._id;
-        data._id = uuid();
-        data._isSource = true; //当前节点还原为source
-            sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
-            sourceTree.value?.remove(emptyData);
-      }
-    })
-    // console.log(event, sourceTree.value, nextTick)
+  sourceTree.value?.insertBefore(emptyData, draggingNode);
+  targetTree.value?.$emit('node-drag-end', event);
+  nextTick(() => {
+    if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
+      sourceTree.value?.remove(emptyData);
+    } else { //在挂载点完成拖拽
+      const data = JSON.parse(JSON.stringify(draggingNode.data));
+      data._id2 = data._id2 || data._id;
+      data._id = uuid();
+      data._isSource = true; //当前节点还原为source
+      sourceTree.value?.insertAfter(data, sourceTree.value?.getNode(emptyData));
+      sourceTree.value?.remove(emptyData);
+    }
+  })
+  // console.log(event, sourceTree.value, nextTick)
 }
 
 //清除contentmenu

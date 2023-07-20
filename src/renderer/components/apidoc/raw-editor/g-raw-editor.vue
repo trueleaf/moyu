@@ -68,7 +68,7 @@ export default defineComponent({
       handler(newValue: string) {
         const value = this.editorInstance?.getValue();
         if (newValue !== value) {
-                    this.editorInstance?.setValue(newValue);
+          this.editorInstance?.setValue(newValue);
         }
       }
     }
@@ -82,7 +82,7 @@ export default defineComponent({
     })
   },
   beforeUnmount() {
-        this.editorInstance?.destroy()
+    this.editorInstance?.destroy()
   },
   methods: {
     initEditor() {
@@ -110,8 +110,8 @@ export default defineComponent({
       this.$emit('ready', this.editorInstance);
     },
     setValue(value: string) {
-            this.editorInstance?.setValue(value);
-            this.editorInstance?.clearSelection();
+      this.editorInstance?.setValue(value);
+      this.editorInstance?.clearSelection();
     },
   },
 })

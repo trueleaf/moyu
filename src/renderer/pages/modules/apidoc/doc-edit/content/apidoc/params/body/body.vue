@@ -96,7 +96,7 @@ const checkContentType = () => {
 //改变bodytype类型
 const changeBodyType = () => {
   checkContentType();
-    jsonComponent.value?.focus()
+  jsonComponent.value?.focus()
 }
 //不再显示body提示信息
 const jsonBodyVisible = ref(false);
@@ -140,15 +140,15 @@ const rawJsonData = computed<string>({
 })
 //格式化json
 const handleFormat = () => {
-    jsonComponent.value?.format()
+  jsonComponent.value?.format()
 }
 const handleFocus = () => {
-    jsonComponent.value?.focus()
+  jsonComponent.value?.focus()
 }
 const jsonEditorConfig = ref({
 })
 const handleJsonEditorReady = () => {
-    jsonComponent.value?.focus()
+  jsonComponent.value?.focus()
 }
 /*
 |--------------------------------------------------------------------------

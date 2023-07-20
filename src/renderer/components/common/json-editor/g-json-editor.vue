@@ -37,13 +37,13 @@ let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
-        monacoInstance?.setValue(props.modelValue)
+    monacoInstance?.setValue(props.modelValue)
   }
 })
 watch(() => props.readOnly, (readOnly) => {
-    monacoInstance?.updateOptions({
-      readOnly,
-    });
+  monacoInstance?.updateOptions({
+    readOnly,
+  });
 })
 onMounted(() => {
   monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
@@ -101,19 +101,19 @@ onMounted(() => {
   emits('ready')
 })
 onActivated(() => {
-    monacoInstance?.focus()
+  monacoInstance?.focus()
 })
 onBeforeUnmount(() => {
-    monacoInstance?.dispose();
+  monacoInstance?.dispose();
   // model?.dispose();
   // monacoHoverProvider?.dispose()
 })
 const format = () => {
   const formatStr = beautify(props.modelValue, { indent_size: 4 });
-    monacoInstance?.setValue(formatStr)
+  monacoInstance?.setValue(formatStr)
 }
 const focus = () => {
-    monacoInstance?.focus()
+  monacoInstance?.focus()
 }
 defineExpose({
   format,

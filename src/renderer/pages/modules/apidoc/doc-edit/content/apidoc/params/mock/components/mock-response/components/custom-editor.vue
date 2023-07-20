@@ -33,7 +33,7 @@ let monacoHoverProvider: monaco.IDisposable | null = null;
 watch(() => props.modelValue, (newValue) => {
   const value = monacoInstance?.getValue();
   if (newValue !== value) {
-        monacoInstance?.setValue(props.modelValue)
+    monacoInstance?.setValue(props.modelValue)
   }
 })
 onMounted(() => {
@@ -65,13 +65,13 @@ onMounted(() => {
   })
 })
 event.on('apidoc/editor/removeAfterEditor', () => {
-    monacoCompletionItem?.dispose()
-    monacoHoverProvider?.dispose()
+  monacoCompletionItem?.dispose()
+  monacoHoverProvider?.dispose()
 });
 onBeforeUnmount(() => {
-    monacoInstance?.dispose();
-    monacoCompletionItem?.dispose()
-    monacoHoverProvider?.dispose()
+  monacoInstance?.dispose();
+  monacoCompletionItem?.dispose()
+  monacoHoverProvider?.dispose()
 })
 </script>
 

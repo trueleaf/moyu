@@ -48,7 +48,7 @@ const table: Ref<{ getData: () => void } | null> = ref(null); //table实例
 const dialogVisible = ref(false); //是否展示代码弹窗
 const code = ref('');
 const getTableData = () => {
-    table.value?.getData();
+  table.value?.getData();
 }
 //修改源码
 const handleJumpToEdit = (row: ApidocCodeInfo) => {
@@ -71,7 +71,7 @@ const handleDeleteCode = (row: ApidocCodeInfo) => {
       ids: [row._id],
     };
     axios.delete('/api/apidoc/project/code', { data: params }).then(() => {
-            table.value?.getData();
+      table.value?.getData();
     }).catch((err) => {
       console.error(err);
     });

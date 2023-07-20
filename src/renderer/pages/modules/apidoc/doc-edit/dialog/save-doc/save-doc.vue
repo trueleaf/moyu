@@ -86,11 +86,11 @@ const docTree: Ref<TreeNodeOptions['store'] | null> = ref(null);
 const currentMountedNode: Ref<ApidocDetail | null> = ref(null);
 //节点选中状态改变时候
 const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
-    docTree.value?.setCheckedKeys([]);
-    if (checkedKeys.length > 0) {
-        docTree.value?.setCheckedKeys([data._id]);
-    }
-    currentMountedNode.value = data;
+  docTree.value?.setCheckedKeys([]);
+  if (checkedKeys.length > 0) {
+    docTree.value?.setCheckedKeys([data._id]);
+  }
+  currentMountedNode.value = data;
 }
 onMounted(() => {
   loading2.value = true;
