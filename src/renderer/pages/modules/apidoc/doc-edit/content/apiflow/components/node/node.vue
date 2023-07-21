@@ -7,7 +7,7 @@
       width: nodeInfo.styleInfo.width * configStore.zoom+ 'px',
       height: nodeInfo.styleInfo.height * configStore.zoom + 'px',
       zIndex: nodeInfo.styleInfo.zIndex,
-      border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid rgba(0, 0, 0, 0.15)' : '1px solid transparent'),
+      // border: (nodeStateStore.activeNodeId !== props.nodeId ? '1px solid #ccc' : '1px solid transparent'),
     }"
   >
     <template v-if="nodeStateStore.activeNodeId === props.nodeId">
@@ -108,8 +108,8 @@
         <div class="title">基础组件测试</div>
         <div class="operations">
           <div class="op-wrap">
-            <el-icon class="op-icon" size="14">
-              <Plus />
+            <el-icon class="op-icon" size="14" title="修改">
+              <Edit />
             </el-icon>
           </div>
           <div class="op-wrap">
@@ -137,7 +137,7 @@ import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowConfigStore } from '@/store/apiflow/config';
 import { FlowNodeInfo } from '@@/apiflow';
 import { computed } from 'vue';
-import { Plus, More } from '@element-plus/icons-vue'
+import { Edit, More } from '@element-plus/icons-vue'
 
 const props = defineProps({
   nodeId: {
@@ -159,7 +159,8 @@ const nodeInfo = computed(() => {
 .node {
     position: absolute;
     background-color: $white;
-    border-radius: $border-radius-sm;
+    border: 1px solid $gray-400;
+    border-radius: $border-radius-xs;
     .resize-dot {
         border: 1px solid $theme-color;
         position: absolute;
@@ -177,8 +178,8 @@ const nodeInfo = computed(() => {
         position: absolute;
         left: 0;
         top: 0;
-        z-index: 1;
-        border: 1px solid #409EFF;
+        // z-index: 1;
+        border: 1px solid $theme-color;
         width: 100%;
         height: 100%;
     }
@@ -212,6 +213,7 @@ const nodeInfo = computed(() => {
           font-weight: bolder;
           font-size: 13px;
           text-indent: 1em;
+          user-select: none;
         }
         .operations {
           flex: 1;
@@ -235,13 +237,14 @@ const nodeInfo = computed(() => {
         height: 30px;
         display: flex;
         align-items: center;
-        font-size: 12px;
-        padding: 0 10px;
+        font-size: size(13);
+        padding: 0 size(10);
         width: 100%;
         .method {
           color: #f90;
         }
         .url {
+          font-size: size(14);
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
