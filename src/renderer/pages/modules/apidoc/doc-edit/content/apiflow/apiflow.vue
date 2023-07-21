@@ -9,6 +9,7 @@
     class="apiflow"
     :style="{
       cursor: cursor,
+      userSelect: nodeStateStore.isMove ? 'none' : 'auto'
     }"
   >
     <s-node v-for="(item, index) in nodesStore.nodeList" :key="index" :node-id="item.id"></s-node>
