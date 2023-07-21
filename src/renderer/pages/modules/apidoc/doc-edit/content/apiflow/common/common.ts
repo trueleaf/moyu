@@ -640,13 +640,13 @@ export function getDrawInfoByLineId(lineId: string): DrawInfo | null {
   }
   startPoint.x = Math.floor(startPoint.x * configStore.zoom);
   startPoint.y = Math.floor(startPoint.y * configStore.zoom);
-  const clonedNode = cloneDeep(matchedNode)
-  clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
-  clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
-  clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
-  clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+  const clonedToNode = cloneDeep(matchedNode)
+  clonedToNode.styleInfo.width = Math.floor(clonedToNode.styleInfo.width * configStore.zoom);
+  clonedToNode.styleInfo.height = Math.floor(clonedToNode.styleInfo.height * configStore.zoom);
+  clonedToNode.styleInfo.offsetX = Math.floor(clonedToNode.styleInfo.offsetX * configStore.zoom);
+  clonedToNode.styleInfo.offsetY = Math.floor(clonedToNode.styleInfo.offsetY * configStore.zoom);
   const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-    fromNode: clonedNode,
+    fromNode: clonedToNode,
     fromPosition: matchedLine.fromPosition,
   });
   return drawInfo;
@@ -689,13 +689,13 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
     }
     startPoint.x = Math.floor(startPoint.x * configStore.zoom);
     startPoint.y = Math.floor(startPoint.y * configStore.zoom);
-    const clonedNode = cloneDeep(node)
-    clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
-    clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
-    clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
-    clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+    const clonedToNode = cloneDeep(node)
+    clonedToNode.styleInfo.width = Math.floor(clonedToNode.styleInfo.width * configStore.zoom);
+    clonedToNode.styleInfo.height = Math.floor(clonedToNode.styleInfo.height * configStore.zoom);
+    clonedToNode.styleInfo.offsetX = Math.floor(clonedToNode.styleInfo.offsetX * configStore.zoom);
+    clonedToNode.styleInfo.offsetY = Math.floor(clonedToNode.styleInfo.offsetY * configStore.zoom);
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-      fromNode: clonedNode,
+      fromNode: clonedToNode,
       fromPosition: line.fromPosition,
     });
     linesStore.changeLineInfoById(line.id, {
@@ -774,13 +774,13 @@ export const drawLineWhenMoveOrResize = (node: FlowNodeInfo): void => {
     startPoint.y = Math.floor(startPoint.y * configStore.zoom);
     endPoint.x = Math.floor(endPoint.x * configStore.zoom);
     endPoint.y = Math.floor(endPoint.y * configStore.zoom);
-    const clonedNode = cloneDeep(fromNode)
-    clonedNode.styleInfo.width = Math.floor(clonedNode.styleInfo.width * configStore.zoom);
-    clonedNode.styleInfo.height = Math.floor(clonedNode.styleInfo.height * configStore.zoom);
-    clonedNode.styleInfo.offsetX = Math.floor(clonedNode.styleInfo.offsetX * configStore.zoom);
-    clonedNode.styleInfo.offsetY = Math.floor(clonedNode.styleInfo.offsetY * configStore.zoom);
+    const clonedToNode = cloneDeep(fromNode)
+    clonedToNode.styleInfo.width = Math.floor(clonedToNode.styleInfo.width * configStore.zoom);
+    clonedToNode.styleInfo.height = Math.floor(clonedToNode.styleInfo.height * configStore.zoom);
+    clonedToNode.styleInfo.offsetX = Math.floor(clonedToNode.styleInfo.offsetX * configStore.zoom);
+    clonedToNode.styleInfo.offsetY = Math.floor(clonedToNode.styleInfo.offsetY * configStore.zoom);
     const drawInfo = getDrawInfoByPoint(startPoint, endPoint, {
-      fromNode: clonedNode,
+      fromNode: clonedToNode,
       fromPosition: line.fromPosition,
     });
     linesStore.changeLineInfoById(line.id, {
