@@ -5,60 +5,60 @@
     备注：
 */
 <template>
-    <div v-if="type === 'divider'" class="s-contextmenu-divider"></div>
-    <div v-else class="s-contextmenu-item" :class="{disabled: disabled}" @click="handleClickItem">
-        <span>{{ label }}</span>
-        <span class="hot-key">{{ hotKey }}</span>
-    </div>
+  <div v-if="type === 'divider'" class="s-contextmenu-divider"></div>
+  <div v-else class="s-contextmenu-item" :class="{disabled: disabled}" @click="handleClickItem">
+    <span>{{ label }}</span>
+    <span class="hot-key">{{ hotKey }}</span>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 标签
          */
-        label: {
-            type: String,
-            default: "",
-        },
-        /**
+    label: {
+      type: String,
+      default: '',
+    },
+    /**
          * 快捷键
          */
-        hotKey: {
-            type: String,
-            default: "",
-        },
-        /**
+    hotKey: {
+      type: String,
+      default: '',
+    },
+    /**
          * 类型，divider代表分割线
          */
-        type: {
-            type: String as PropType<"divider" | "">,
-            default: "",
-        },
-        /**
+    type: {
+      type: String as PropType<'divider' | ''>,
+      default: '',
+    },
+    /**
          * 是否禁用
          */
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
-    emits: ["click"],
-    data() {
-        return {
-        };
+  },
+  emits: ['click'],
+  data() {
+    return {
+    };
+  },
+  methods: {
+    handleClickItem(e: MouseEvent) {
+      if (this.disabled) {
+        return;
+      }
+      this.$emit('click', e)
     },
-    methods: {
-        handleClickItem(e: MouseEvent) {
-            if (this.disabled) {
-                return;
-            }
-            this.$emit("click", e)
-        },
-    },
+  },
 })
 </script>
 

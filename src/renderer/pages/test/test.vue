@@ -5,31 +5,23 @@
     备注：
 */
 <template>
-    <div class="wrap">
-        <s-json-editor v-model="data"></s-json-editor>
-        <pre class="w-200px">{{ data }}</pre>
-    </div>
+  <div class="container-test">
+    <apiflow />
+  </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script lang="ts" setup>
+import apiflow from '../modules/apidoc/doc-edit/content/apiflow/apiflow.vue';
 
-export default defineComponent({
-    data() {
-        return {
-            data: ""
-        };
-    },
-    methods: {
-    },
-})
 </script>
 
 <style lang="scss">
-.wrap {
-    display: flex;
-    width: 80vw;
-    height: calc(100vh - 100px);
-    border: 1px solid $gray-400;
+.container-test {
+   width: 80vw;
+   height: 80vh;
+   background-color: #fefefe;
+   position: absolute;
+   top: 10vh;
+   left: 10vw;
 }
 </style>

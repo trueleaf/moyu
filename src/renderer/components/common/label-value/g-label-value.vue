@@ -5,59 +5,59 @@
     备注：
 */
 <template>
-    <div class="label-value" :style="{width: realWidth}">
-        <span class="label" :style="{width: labelWidth}">
-            <span>{{ label }}</span>
-        </span>
-        <span v-if="!$slots.default" :title="value" class="value">{{ value }}</span>
-        <slot v-else class="value" />
-    </div>
+  <div class="label-value" :style="{width: realWidth}">
+    <span class="label" :style="{width: labelWidth}">
+      <span>{{ label }}</span>
+    </span>
+    <span v-if="!$slots.default" :title="value" class="value">{{ value }}</span>
+    <slot v-else class="value" />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        label: {
-            type: String,
-            default: "",
-        },
-        labelWidth: {
-            type: String,
-            default: "80px",
-        },
-        value: {
-            type: String,
-            default: "",
-        },
-        halfLine: {
-            type: Boolean,
-            default: false,
-        },
-        oneLine: {
-            type: Boolean,
-            default: false,
-        },
-        width: {
-            type: String,
-            default: "",
-        },
+  props: {
+    label: {
+      type: String,
+      default: '',
     },
-    computed: {
-        realWidth() {
-            if (this.halfLine) {
-                return "50%";
-            }
-            if (this.oneLine) {
-                return "100%";
-            }
-            if (this.width) {
-                return this.width
-            }
-            return "";
-        },
+    labelWidth: {
+      type: String,
+      default: '80px',
     },
+    value: {
+      type: String,
+      default: '',
+    },
+    halfLine: {
+      type: Boolean,
+      default: false,
+    },
+    oneLine: {
+      type: Boolean,
+      default: false,
+    },
+    width: {
+      type: String,
+      default: '',
+    },
+  },
+  computed: {
+    realWidth() {
+      if (this.halfLine) {
+        return '50%';
+      }
+      if (this.oneLine) {
+        return '100%';
+      }
+      if (this.width) {
+        return this.width
+      }
+      return '';
+    },
+  },
 })
 </script>
 

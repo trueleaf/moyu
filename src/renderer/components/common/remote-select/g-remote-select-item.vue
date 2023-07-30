@@ -5,21 +5,21 @@
     备注：
 */
 <template>
-    <div class="remote-select-item">
-        <slot />
-    </div>
+  <div class="remote-select-item">
+    <slot />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
-    },
-    methods: {
-    },
+  data() {
+    return {
+    };
+  },
+  methods: {
+  },
 })
 </script>
 

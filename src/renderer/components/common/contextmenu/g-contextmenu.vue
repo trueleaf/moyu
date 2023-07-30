@@ -5,67 +5,67 @@
     备注：
 */
 <template>
-    <div ref="contextmenu" class="s-contextmenu" :style="{width: width, left: left + 'px', top: realTop + 'px'}">
-        <slot></slot>
-    </div>
-    <!-- <div class="contextmenu-shadow"></div> -->
+  <div ref="contextmenu" class="s-contextmenu" :style="{width: width, left: left + 'px', top: realTop + 'px'}">
+    <slot></slot>
+  </div>
+  <!-- <div class="contextmenu-shadow"></div> -->
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * 默认宽度
          */
-        width: {
-            type: String,
-            default: "200px",
-        },
-        /**
+    width: {
+      type: String,
+      default: '200px',
+    },
+    /**
          * 左侧距离
          */
-        left: {
-            type: Number,
-            default: 0
-        },
-        /**
+    left: {
+      type: Number,
+      default: 0
+    },
+    /**
          * 顶部距离
          */
-        top: {
-            type: Number,
-            default: 0
-        },
+    top: {
+      type: Number,
+      default: 0
     },
-    data() {
-        return {
-            realTop: 0,
-        };
+  },
+  data() {
+    return {
+      realTop: 0,
+    };
+  },
+  watch: {
+    top: {
+      handler(topVal: number) {
+        setTimeout(() => { //保证dom加载完毕
+          const contextmenuDom = this.$refs.contextmenu as HTMLElement;
+          const { innerHeight } = window;
+          const { height } = contextmenuDom.getBoundingClientRect();
+          const contextPosition = height + topVal > innerHeight ? 'top' : 'bottom';
+          if (contextPosition === 'top' && height > topVal) { //显示在上面但是contextmenu高度小于上面可用空间高度
+            contextmenuDom.style.height = `${topVal}px`;
+            contextmenuDom.style.overflowY = 'auto';
+          } else if (contextPosition === 'top') {
+            this.realTop = topVal - height;
+          } else {
+            this.realTop = topVal;
+          }
+        }, 0)
+      },
+      immediate: true,
     },
-    watch: {
-        top: {
-            handler(topVal: number) {
-                setTimeout(() => { //保证dom加载完毕
-                    const contextmenuDom = this.$refs.contextmenu as HTMLElement;
-                    const { innerHeight } = window;
-                    const { height } = contextmenuDom.getBoundingClientRect();
-                    const contextPosition = height + topVal > innerHeight ? "top" : "bottom";
-                    if (contextPosition === "top" && height > topVal) { //显示在上面但是contextmenu高度小于上面可用空间高度
-                        contextmenuDom.style.height = `${topVal}px`;
-                        contextmenuDom.style.overflowY = "auto";
-                    } else if (contextPosition === "top") {
-                        this.realTop = topVal - height;
-                    } else {
-                        this.realTop = topVal;
-                    }
-                }, 0)
-            },
-            immediate: true,
-        },
-    },
-    methods: {
-    },
+  },
+  methods: {
+  },
 })
 </script>
 

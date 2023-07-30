@@ -56,6 +56,7 @@
     "monaco-editor-webpack-plugin": "^6.0.0",
     "nanoid": "^3.1.23",
     "nprogress": "^0.2.0",
+    "pinia": "^2.0.33",
     "proxy-agent": "^5.0.0",
     "set-cookie-parser": "^2.4.8",
     "vue": "^3.2.37",

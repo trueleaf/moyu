@@ -5,144 +5,144 @@
     备注：
 */
 <template>
-    <div class="response-params">
-        <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id] === false" @change="handleChangeCollapseState($event, item)">
-            <!-- 操作区域 -->
-            <template #head>
-                <div class="info-wrap">
-                    <div class="label">
-                        <div class="d-flex a-center">
-                            <span class="flex0">{{ $t("名称") }}：</span>
-                            <span v-if="!currentEditNode" class="edit-title">{{ item.title }}</span>
-                            <input
-                                v-if="currentEditNode && currentEditNode.index === index"
-                                :ref="bindRef"
-                                v-model="currentEditNode._title"
-                                class="edit-input"
-                                :class="{error: currentEditNode._title.length === 0}"
-                                type="text"
-                                :placeholder="$t('不能为空')"
-                                @click.stop="() => {}"
-                                @keydown.enter="handleConfirmTitle(item, index)"
-                            >
-                            <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
-                            <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
-                            <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
-                                <Edit />
-                            </el-icon>
-                        </div>
-                    </div>
-                    <!-- 状态码 -->
-                    <el-divider direction="vertical"></el-divider>
-                    <div class="status-code">
-                        <div class="d-flex a-center j-center">
-                            <span class="flex0">{{ $t("状态码") }}：</span>
-                            <el-popover v-model:visible="statusVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
-                                <template #reference>
-                                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
-                                        <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
-                                        <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
-                                        <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
-                                        <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
-                                        <span v-else class="red">{{ item.statusCode }}</span>
-                                        <el-icon :size="16" class="ml-1">
-                                            <arrow-down />
-                                        </el-icon>
-                                    </span>
-                                </template>
-                                <s-status @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)"></s-status>
-                            </el-popover>
-                        </div>
-                    </div>
-                    <!-- content-type -->
-                    <el-divider direction="vertical"></el-divider>
-                    <div class="content-type">
-                        <div class="d-flex a-center j-center">
-                            <!-- <span class="flex0">{{ $t("返回格式") }}：</span> -->
-                            <el-popover v-model:visible="mimeVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
-                                <template #reference>
-                                    <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
-                                        <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
-                                            <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
-                                        </el-tooltip>
-                                        <el-icon :size="16" class="ml-1">
-                                            <arrow-down />
-                                        </el-icon>
-                                    </span>
-                                </template>
-                                <s-mime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></s-mime>
-                            </el-popover>
-                        </div>
-                    </div>
-                    <el-divider direction="vertical"></el-divider>
-                    <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
-                        <span class="cursor-pointer ml-1" :class="{active: item.isMock}" @click="handleSelectMock(index)">Mock</span>
+  <div class="response-params">
+    <s-collapse-card v-for="(item, index) in responseData" :key="index" :fold="collapseState[item._id] === false" @change="handleChangeCollapseState($event, item)">
+      <!-- 操作区域 -->
+      <template #head>
+        <div class="info-wrap">
+          <div class="label">
+            <div class="d-flex a-center">
+              <span class="flex0">{{ $t("名称") }}：</span>
+              <span v-if="!currentEditNode" class="edit-title">{{ item.title }}</span>
+              <input
+                v-if="currentEditNode && currentEditNode.index === index"
+                :ref="bindRef"
+                v-model="currentEditNode._title"
+                class="edit-input"
+                :class="{error: currentEditNode._title.length === 0}"
+                type="text"
+                :placeholder="$t('不能为空')"
+                @click.stop="() => {}"
+                @keydown.enter="handleConfirmTitle(item, index)"
+              >
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
+              <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
+                <Edit />
+              </el-icon>
+            </div>
+          </div>
+          <!-- 状态码 -->
+          <el-divider direction="vertical"></el-divider>
+          <div class="status-code">
+            <div class="d-flex a-center j-center">
+              <span class="flex0">{{ $t("状态码") }}：</span>
+              <el-popover v-model:visible="statusVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
+                <template #reference>
+                  <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
+                    <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
+                    <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
+                    <span v-else class="red">{{ item.statusCode }}</span>
+                    <el-icon :size="16" class="ml-1">
+                      <arrow-down />
+                    </el-icon>
+                  </span>
+                </template>
+                <s-status @close="handleCloseStatusModel(item)" @select="handleSelectStatusCode($event, index)"></s-status>
+              </el-popover>
+            </div>
+          </div>
+          <!-- content-type -->
+          <el-divider direction="vertical"></el-divider>
+          <div class="content-type">
+            <div class="d-flex a-center j-center">
+              <!-- <span class="flex0">{{ $t("返回格式") }}：</span> -->
+              <el-popover v-model:visible="mimeVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
+                <template #reference>
+                  <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
+                    <el-tooltip :show-after="500" :content="item.value.dataType" placement="top" :effect="Effect.LIGHT">
+                      <span class="type-text text-ellipsis">{{ item.value.dataType }}</span>
                     </el-tooltip>
-                </div>
-            </template>
-            <template #tail>
-                <div class="d-flex a-center">
-                    <div v-if="item.value.dataType === 'application/json' && 0" class="p-relative no-select flex0">
-                        <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
-                        <div v-if="showTemplateIndex === index" class="template-wrap">
-                            <div class="header">
-                                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
-                                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
-                            </div>
-                            <template v-if="jsonTemplateList.length > 0">
-                                <div
-                                    v-for="(item2, index2) in jsonTemplateList"
-                                    :key="index2"
-                                    class="select-item"
-                                    @click="handleSelectTemplate(item2)"
-                                >
-                                    <span class="head">
-                                        <s-emphasize :value="item2.name" :keyword="templateFilterString"></s-emphasize>
-                                    </span>
-                                    <span class="tail">{{ item2.creatorName }}</span>
-                                </div>
-                            </template>
-                            <div v-else class="select-item disabled d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
-                        </div>
-                    </div>
-                    <!-- <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider> -->
-                    <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
-                    <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
-                    <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
-                </div>
-            </template>
-            <!-- 内容展示 -->
-            <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400" :class="{ vertical: layout === 'vertical' }">
-                <s-json-editor ref="jsonComponents" :model-value="item.value.strJson" @update:modelValue="handleChangeResponseJson($event, index)"></s-json-editor>
-                <el-button type="primary" text class="format-btn" @click="handleFormat(index)">格式化</el-button>
+                    <el-icon :size="16" class="ml-1">
+                      <arrow-down />
+                    </el-icon>
+                  </span>
+                </template>
+                <s-mime @close="handleCloseMimeModel(item)" @select="handleSelectContentType($event, index)"></s-mime>
+              </el-popover>
             </div>
-            <!-- 文本类型 -->
-            <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
-                <s-raw-editor
-                    :model-value="item.value.text"
-                    :type="item.value.dataType"
-                    class="editor"
-                    @update:modelValue="handleChangeTextValeu($event, index)"
+          </div>
+          <el-divider direction="vertical"></el-divider>
+          <el-tooltip :show-after="500" content="是否应用当前返回参数为mock值" placement="top" :effect="Effect.LIGHT">
+            <span class="cursor-pointer ml-1" :class="{active: item.isMock}" @click="handleSelectMock(index)">Mock</span>
+          </el-tooltip>
+        </div>
+      </template>
+      <template #tail>
+        <div class="d-flex a-center">
+          <div v-if="item.value.dataType === 'application/json' && 0" class="p-relative no-select flex0">
+            <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
+            <div v-if="showTemplateIndex === index" class="template-wrap">
+              <div class="header">
+                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
+                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
+              </div>
+              <template v-if="jsonTemplateList.length > 0">
+                <div
+                  v-for="(item2, index2) in jsonTemplateList"
+                  :key="index2"
+                  class="select-item"
+                  @click="handleSelectTemplate(item2)"
                 >
-                </s-raw-editor>
+                  <span class="head">
+                    <s-emphasize :value="item2.name" :keyword="templateFilterString"></s-emphasize>
+                  </span>
+                  <span class="tail">{{ item2.creatorName }}</span>
+                </div>
+              </template>
+              <div v-else class="select-item disabled d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
             </div>
-        </s-collapse-card>
-        <params-template v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></params-template>
-    </div>
+          </div>
+          <!-- <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider> -->
+          <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
+          <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
+          <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
+        </div>
+      </template>
+      <!-- 内容展示 -->
+      <div v-if="checkDisplayType(item.value.dataType) === 'json'" class="editor-wrap border-gray-400" :class="{ vertical: layout === 'vertical' }">
+        <s-json-editor ref="jsonComponents" :model-value="item.value.strJson" @update:modelValue="handleChangeResponseJson($event, index)"></s-json-editor>
+        <el-button type="primary" text class="format-btn" @click="handleFormat(index)">格式化</el-button>
+      </div>
+      <!-- 文本类型 -->
+      <div v-else-if="checkDisplayType(item.value.dataType) === 'text'" class="editor-wrap" :class="{ vertical: layout === 'vertical' }">
+        <s-raw-editor
+          :model-value="item.value.text"
+          :type="item.value.dataType"
+          class="editor"
+          @update:modelValue="handleChangeTextValeu($event, index)"
+        >
+        </s-raw-editor>
+      </div>
+    </s-collapse-card>
+    <params-template v-model="paramsTemplatedialogVisible" :index="curentOperationIndex"></params-template>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, Ref, onMounted, onUnmounted } from "vue"
-import { Effect } from "element-plus";
-import { Search, ArrowDown, Edit } from "@element-plus/icons-vue"
-import type { ApidocResponseParams, ApidocResponseContentType } from "@@/global"
-import { ApidocProjectParamsTemplate } from "@@/store";
-import { store } from "@/store/index"
-import { apidocCache } from "@/cache/apidoc"
-import sStatus from "./children/status.vue"
-import sMime from "./children/mime.vue"
-import paramsTemplate from "./dialog/params-template/params-template.vue"
-import useParamsTemplate from "./compsables/params-template" //参数模板
+import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
+import { Effect } from 'element-plus';
+import { Search, ArrowDown, Edit } from '@element-plus/icons-vue'
+import type { ApidocResponseParams, ApidocResponseContentType } from '@@/global'
+import { ApidocProjectParamsTemplate } from '@@/store';
+import { store } from '@/store/index'
+import { apidocCache } from '@/cache/apidoc'
+import sStatus from './children/status.vue'
+import sMime from './children/mime.vue'
+import paramsTemplate from './dialog/params-template/params-template.vue'
+import useParamsTemplate from './compsables/params-template' //参数模板
 
 /*
 |--------------------------------------------------------------------------
@@ -156,44 +156,44 @@ const inputRefs: unknown[] = [];
 
 //ref绑定
 const bindRef = (el: unknown) => {
-    if (el) {
-        inputRefs.push(el);
-    }
+  if (el) {
+    inputRefs.push(el);
+  }
 }
 //确定修改title
 const handleConfirmTitle = (item: ApidocResponseParams, index: number) => {
-    if (currentEditNode.value && currentEditNode.value._title) {
-        store.commit("apidoc/apidoc/changeResponseParamsTitleByIndex", {
-            index,
-            title: currentEditNode.value._title,
-        });
-        currentEditNode.value = null;
-    }
+  if (currentEditNode.value && currentEditNode.value._title) {
+    store.commit('apidoc/apidoc/changeResponseParamsTitleByIndex', {
+      index,
+      title: currentEditNode.value._title,
+    });
+    currentEditNode.value = null;
+  }
 }
 //取消编辑
 const handleCancelEdit = () => {
-    currentEditNode.value = null;
+  currentEditNode.value = null;
 }
 //改变当前编辑的节点
 const handleChangeEditNode = (item: ApidocResponseParams, index: number) => {
-    const value = {
-        index,
-        title: item.title,
-        _title: item.title,
-    };
-    currentEditNode.value = value;
-    setTimeout(() => {
-        if (inputRefs[index]) {
-            (inputRefs[index] as HTMLInputElement).focus();
-        }
-    })
+  const value = {
+    index,
+    title: item.title,
+    _title: item.title,
+  };
+  currentEditNode.value = value;
+  setTimeout(() => {
+    if (inputRefs[index]) {
+      (inputRefs[index] as HTMLInputElement).focus();
+    }
+  })
 }
 //改变正在编辑的文本值
 const handleChangeTextValeu = (value: string, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseParamsTextValueByIndex", {
-        index,
-        value,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsTextValueByIndex', {
+    index,
+    value,
+  });
 }
 /*
 |--------------------------------------------------------------------------
@@ -202,7 +202,7 @@ const handleChangeTextValeu = (value: string, index: number) => {
 */
 //选择mock
 const handleSelectMock = (index: number) => {
-    store.commit("apidoc/apidoc/changeResponseMockByIndex", index);
+  store.commit('apidoc/apidoc/changeResponseMockByIndex', index);
 }
 /*
 |--------------------------------------------------------------------------
@@ -212,16 +212,16 @@ const handleSelectMock = (index: number) => {
 */
 //新增一个response
 const handleAddResponse = () => {
-    store.commit("apidoc/apidoc/addResponseParam");
+  store.commit('apidoc/apidoc/addResponseParam');
 }
 //删除一个response
 const handleDeleteResponse = (index: number) => {
-    store.commit("apidoc/apidoc/deleteResponseByIndex", index);
+  store.commit('apidoc/apidoc/deleteResponseByIndex', index);
 }
 //response参数值
-const responseData = computed(() => store.state["apidoc/apidoc"].apidoc.item.responseParams);
+const responseData = computed(() => store.state['apidoc/apidoc'].apidoc.item.responseParams);
 //布局
-const layout = computed(() => store.state["apidoc/baseInfo"].layout);
+const layout = computed(() => store.state['apidoc/baseInfo'].layout);
 
 /*
 |--------------------------------------------------------------------------
@@ -232,59 +232,59 @@ const layout = computed(() => store.state["apidoc/baseInfo"].layout);
 const statusVisibleMap: Ref<Record<string, boolean>> = ref({});
 const mimeVisibleMap: Ref<Record<string, boolean>> = ref({});
 const closeStatusPopover = () => {
-    Object.keys(mimeVisibleMap.value).forEach(key => {
-        mimeVisibleMap.value[key] = false;
-    })
+  Object.keys(mimeVisibleMap.value).forEach(key => {
+    mimeVisibleMap.value[key] = false;
+  })
 }
 const closeMimePopover = () => {
-    Object.keys(statusVisibleMap.value).forEach(key => {
-        statusVisibleMap.value[key] = false;
-    })
+  Object.keys(statusVisibleMap.value).forEach(key => {
+    statusVisibleMap.value[key] = false;
+  })
 }
 //打开和关闭status弹窗
 const toggleStatusModel = (item: ApidocResponseParams) => {
-    statusVisibleMap.value[item._id] = !statusVisibleMap.value[item._id];
+  statusVisibleMap.value[item._id] = !statusVisibleMap.value[item._id];
 }
 //关闭status弹窗
 const handleCloseStatusModel = (item: ApidocResponseParams) => {
-    statusVisibleMap.value[item._id] = false;
+  statusVisibleMap.value[item._id] = false;
 }
 //选择一个statusCode
 const handleSelectStatusCode = (code: number, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseParamsCodeByIndex", {
-        index,
-        code,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsCodeByIndex', {
+    index,
+    code,
+  });
 }
 //打开和关闭contentType弹窗
 const toggleMimeModel = (item: ApidocResponseParams) => {
-    mimeVisibleMap.value[item._id] = !mimeVisibleMap.value[item._id];
+  mimeVisibleMap.value[item._id] = !mimeVisibleMap.value[item._id];
 }
 //关闭contentType弹窗
 const handleCloseMimeModel = (item: ApidocResponseParams) => {
-    mimeVisibleMap.value[item._id] = false;
+  mimeVisibleMap.value[item._id] = false;
 }
 //选择一个contentType
 const handleSelectContentType = (type: string, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseParamsDataTypeByIndex", {
-        index,
-        type,
-    });
+  store.commit('apidoc/apidoc/changeResponseParamsDataTypeByIndex', {
+    index,
+    type,
+  });
 }
 //更改返回json数据
 const handleChangeResponseJson = (value: string, index: number) => {
-    store.commit("apidoc/apidoc/changeResponseStrJsonByIndex", {
-        index,
-        value
-    })
+  store.commit('apidoc/apidoc/changeResponseStrJsonByIndex', {
+    index,
+    value
+  })
 }
 onMounted(() => {
-    document.documentElement.addEventListener("click", closeStatusPopover)
-    document.documentElement.addEventListener("click", closeMimePopover)
+  document.documentElement.addEventListener('click', closeStatusPopover)
+  document.documentElement.addEventListener('click', closeMimePopover)
 })
 onUnmounted(() => {
-    document.documentElement.removeEventListener("click", closeStatusPopover)
-    document.documentElement.removeEventListener("click", closeMimePopover)
+  document.documentElement.removeEventListener('click', closeStatusPopover)
+  document.documentElement.removeEventListener('click', closeMimePopover)
 })
 
 /*
@@ -292,37 +292,37 @@ onUnmounted(() => {
 | 不同类型数据展示
 |--------------------------------------------------------------------------
 */
-const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" | "audio" | "video" | "image" | "pdf" | "download" | "unknown" => {
-    // 文本展示
-    if (mimeType === "text/csv" || mimeType === "text/plain" || mimeType === "text/html" || mimeType === "application/xml" || mimeType === "text/css" || mimeType === "text/javascript") {
-        return "text";
-    }
-    // 图片展示
-    if (mimeType === "image/gif" || mimeType === "image/jpeg" || mimeType === "image/png" || mimeType === "image/svg+xml") {
-        return "image";
-    }
-    // 音频文件
-    if (mimeType === "audio/webm" || mimeType === "audio/ogg") {
-        return "audio";
-    }
-    // 视频文件
-    if (mimeType === "video/webm" || mimeType === "video/ogg" || mimeType === "application/ogg") {
-        return "video";
-    }
-    // 下载类型
-    if (mimeType === "application/octet-stream" || mimeType === "application/msword" || mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || mimeType === "application/vnd.ms-excel" || mimeType === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-        return "download";
-    }
-    //=====================================特殊格式====================================//
-    // PDF文件
-    if (mimeType === "application/pdf") {
-        return "pdf";
-    }
-    //json格式
-    if (mimeType === "application/json") {
-        return "json";
-    }
-    return "unknown"
+const checkDisplayType = (mimeType: ApidocResponseContentType): 'text' | 'json' | 'audio' | 'video' | 'image' | 'pdf' | 'download' | 'unknown' => {
+  // 文本展示
+  if (mimeType === 'text/csv' || mimeType === 'text/plain' || mimeType === 'text/html' || mimeType === 'application/xml' || mimeType === 'text/css' || mimeType === 'text/javascript') {
+    return 'text';
+  }
+  // 图片展示
+  if (mimeType === 'image/gif' || mimeType === 'image/jpeg' || mimeType === 'image/png' || mimeType === 'image/svg+xml') {
+    return 'image';
+  }
+  // 音频文件
+  if (mimeType === 'audio/webm' || mimeType === 'audio/ogg') {
+    return 'audio';
+  }
+  // 视频文件
+  if (mimeType === 'video/webm' || mimeType === 'video/ogg' || mimeType === 'application/ogg') {
+    return 'video';
+  }
+  // 下载类型
+  if (mimeType === 'application/octet-stream' || mimeType === 'application/msword' || mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimeType === 'application/vnd.ms-excel' || mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+    return 'download';
+  }
+  //=====================================特殊格式====================================//
+  // PDF文件
+  if (mimeType === 'application/pdf') {
+    return 'pdf';
+  }
+  //json格式
+  if (mimeType === 'application/json') {
+    return 'json';
+  }
+  return 'unknown'
 }
 /*
 |--------------------------------------------------------------------------
@@ -332,7 +332,7 @@ const checkDisplayType = (mimeType: ApidocResponseContentType): "text" | "json" 
 const { showTemplateIndex, templateFilterString, jsonTemplateList, paramsTemplatedialogVisible, curentOperationIndex, handleOpenTempateTab, handleOpenTemplateDialog } = useParamsTemplate();
 //选择模板
 const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
-    console.log(123, templateInfo.items)
+  console.log(123, templateInfo.items)
 }
 /*
 |--------------------------------------------------------------------------
@@ -340,19 +340,19 @@ const handleSelectTemplate = (templateInfo: ApidocProjectParamsTemplate) => {
 |--------------------------------------------------------------------------
 */
 const jsonComponents: Ref<null | {
-    format: () => void,
+  format: () => void,
 }[]> = ref(null)
 const handleFormat = (index: number) => {
-    if (jsonComponents.value) {
-        jsonComponents.value[index].format();
-    }
+  if (jsonComponents.value) {
+    jsonComponents.value[index].format();
+  }
 }
 const collapseState: Ref<Record<string, boolean>> = ref({});
 const handleChangeCollapseState = (isShow: boolean, item: ApidocResponseParams) => {
-    apidocCache.setResponseCollapseState(item._id, isShow);
+  apidocCache.setResponseCollapseState(item._id, isShow);
 }
 onMounted(() => {
-    collapseState.value = apidocCache.getAllResponseCollapseState();
+  collapseState.value = apidocCache.getAllResponseCollapseState();
 })
 </script>
 

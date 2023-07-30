@@ -5,45 +5,45 @@
     备注：
 */
 <template>
-    <div class="header-view" :class="{ vertical: layout === 'vertical' }">
-        <el-table :data="headers" stripe border>
-            <el-table-column align="center" prop="key" :label="$t('名称')"></el-table-column>
-            <el-table-column align="center" prop="value" :label="$t('值')">
-                <template #default="scope">
-                    <div class="value-wrap">{{ scope.row.value }}</div>
-                </template>
-            </el-table-column>
-        </el-table>
-    </div>
+  <div class="header-view" :class="{ vertical: layout === 'vertical' }">
+    <el-table :data="headers" stripe border>
+      <el-table-column align="center" prop="key" :label="$t('名称')"></el-table-column>
+      <el-table-column align="center" prop="value" :label="$t('值')">
+        <template #default="scope">
+          <div class="value-wrap">{{ scope.row.value }}</div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  computed: {
+    headers() {
+      const { header } = this.$store.state['apidoc/response'];
+      const result: { key: string, value: string }[] = [];
+      Object.keys(header).forEach(key => {
+        result.push({
+          key,
+          value: header[key] as string,
+        });
+      })
+      return result
     },
-    computed: {
-        headers() {
-            const { header } = this.$store.state["apidoc/response"];
-            const result: { key: string, value: string }[] = [];
-            Object.keys(header).forEach(key => {
-                result.push({
-                    key,
-                    value: header[key] as string,
-                });
-            })
-            return result
-        },
-        //布局
-        layout() {
-            return this.$store.state["apidoc/baseInfo"].layout;
-        },
+    //布局
+    layout() {
+      return this.$store.state['apidoc/baseInfo'].layout;
     },
-    methods: {
-    },
+  },
+  methods: {
+  },
 })
 </script>
 

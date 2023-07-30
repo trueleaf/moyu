@@ -5,27 +5,27 @@
     备注：
 */
 <template>
-    <div class="h-100 d-flex a-center j-center flex-column">
-        <h2>404</h2>
-        <img :src="require('@/assets/imgs/logo.png')" alt="logo">
-        <el-button link type="primary" text @click="handleJumpToLogin">返回登录页面</el-button>
-    </div>
+  <div class="h-100 d-flex a-center j-center flex-column">
+    <h2>404</h2>
+    <img :src="require('@/assets/imgs/logo.png')" alt="logo">
+    <el-button link type="primary" text @click="handleJumpToLogin">返回登录页面</el-button>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent } from 'vue'
 
 export default defineComponent({
-    data() {
-        return {
-        };
+  data() {
+    return {
+    };
+  },
+  methods: {
+    //跳转到登录页面
+    handleJumpToLogin() {
+      this.$router.push('/login');
     },
-    methods: {
-        //跳转到登录页面
-        handleJumpToLogin() {
-            this.$router.push("/login");
-        },
-    },
+  },
 })
 </script>
 

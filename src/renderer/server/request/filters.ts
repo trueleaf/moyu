@@ -8,13 +8,13 @@
  * 将字符串转换为json字符串
  */
 export function toJsonStr<T = unknown>(str: unknown): T {
-    try {
-        return JSON.stringify(str) as T;
-    } catch (error) {
-        return str as T;
-    }
+  try {
+    return JSON.stringify(str) as T;
+  } catch (error) {
+    return str as T;
+  }
 }
 
 export const filters = {
-    toJsonStr
+  toJsonStr
 }

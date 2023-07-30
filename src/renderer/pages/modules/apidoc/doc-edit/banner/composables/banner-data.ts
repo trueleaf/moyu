@@ -2,37 +2,30 @@
  * 获取banner数据
  */
 
-import { ref, Ref } from "vue"
-import { useRoute } from "vue-router"
-import { useStore } from "@/store/index"
+import { useRoute } from 'vue-router'
+import { useStore } from '@/store/index'
 
 type ReturnData = {
-    /**
-     * loading加载效果
-     */
-    loading: Ref<boolean>,
-    /**
+  /**
      * 获取banner数据
      */
-    getBannerData: () => Promise<void>,
+  getBannerData: () => Promise<void>,
 };
 
 export function useBannerData(): ReturnData {
-    const store = useStore();
-    const route = useRoute()
-    const projectId = route.query.id;
-    const loading = ref(false);
-    const getBannerData = async () => {
-        if (loading.value) {
-            return
-        }
-        loading.value = true;
-        await store.dispatch("apidoc/banner/getDocBanner", { projectId });
-        loading.value = false;
+  const store = useStore();
+  const route = useRoute()
+  const projectId = route.query.id;
+  const getBannerData = async () => {
+    if (store.state['apidoc/banner'].loading) {
+      return
     }
-    getBannerData();
-    return {
-        loading,
-        getBannerData,
-    };
+    store.commit('apidoc/banner/changeBannerLoading', true)
+    await store.dispatch('apidoc/banner/getDocBanner', { projectId });
+    store.commit('apidoc/banner/changeBannerLoading', false)
+  }
+  getBannerData();
+  return {
+    getBannerData,
+  };
 }

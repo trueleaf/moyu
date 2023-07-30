@@ -5,330 +5,332 @@
     备注：
 */
 <template>
-    <div class="nav">
-        <div class="tab-wrap">
-            <div v-if="0" class="btn left" @click="handleMoveLeft">
-                <el-icon :size="16">
-                    <icon-arrow-left />
+  <div class="nav">
+    <div class="tab-wrap">
+      <div v-if="0" class="btn left" @click="handleMoveLeft">
+        <el-icon :size="16">
+          <icon-arrow-left />
+        </el-icon>
+      </div>
+      <!-- https://github.com/element-plus/element-plus/issues/2293 -->
+      <div ref="tabList" class="tab-list">
+        <s-draggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex drag-wrap">
+          <template #item="{ element }">
+            <div
+              :title="element.label"
+              class="item"
+              :class="{active: element.selected}"
+              @click="selectCurrentTab(element)"
+              @dblclick="fixCurrentTab(element)"
+              @contextmenu.stop.prevent="handleContextmenu($event, element)"
+            >
+              <!-- 接口文档 -->
+              <template v-if="element.tabType === 'doc'">
+                <template v-for="(req) in requestMethods">
+                  <span
+                    v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()"
+                    :key="req.value"
+                    class="mr-2"
+                    :style="{color: req.iconColor, transform: `skewX(${ element.fixed ? 0 : '-30deg'})`}"
+                  >{{ req.name }}</span>
+                </template>
+              </template>
+              <!-- 其他 -->
+              <template v-else>
+                <!-- 配置 -->
+                <el-icon v-if="element.tabType === 'config'" class="mr-2" :size="16">
+                  <icon-setting />
                 </el-icon>
-            </div>
-            <!-- https://github.com/element-plus/element-plus/issues/2293 -->
-            <div ref="tabList" class="tab-list">
-                <s-draggable ref="tabListWrap" v-model="tabs" animation="150" item-key="name" group="operation" class="d-flex drag-wrap">
-                    <template #item="{ element }">
-                        <div
-                            :title="element.label"
-                            class="item"
-                            :class="{active: element.selected}"
-                            @click="selectCurrentTab(element)"
-                            @dblclick="fixCurrentTab(element)"
-                            @contextmenu.stop.prevent="handleContextmenu($event, element)"
-                        >
-                            <!-- 接口文档 -->
-                            <template v-if="element.tabType === 'doc'">
-                                <template v-for="(req) in requestMethods">
-                                    <span
-                                        v-if="element.head.icon.toLowerCase() === req.value.toLowerCase()"
-                                        :key="req.value"
-                                        class="mr-2"
-                                        :style="{color: req.iconColor, transform: `skewX(${ element.fixed ? 0 : '-30deg'})`}"
-                                    >{{ req.name }}</span>
-                                </template>
-                            </template>
-                            <!-- 其他 -->
-                            <template v-else>
-                                <!-- 配置 -->
-                                <el-icon v-if="element.tabType === 'config'" class="mr-2" :size="16">
-                                    <icon-setting />
-                                </el-icon>
-                                <!-- 参数模板 -->
-                                <el-icon v-if="element.tabType === 'paramsTemplate'" class="mr-2" :size="16">
-                                    <icon-setting />
-                                </el-icon>
-                                <!-- 链接 -->
-                                <el-icon v-if="element.tabType === 'onlineLink'" class="orange mr-2" :size="16">
-                                    <icon-link />
-                                </el-icon>
-                                <!-- 导出文档 -->
-                                <el-icon v-if="element.tabType === 'exportDoc'" class="green mr-2" :size="16">
-                                    <icon-share />
-                                </el-icon>
-                                <!-- 导入文档 -->
-                                <el-icon v-if="element.tabType === 'importDoc'" class="red mr-2" :size="16">
-                                    <icon-download />
-                                </el-icon>
-                                <!-- 操作审计 -->
-                                <el-icon v-if="element.tabType === 'history'" class="blue mr-2" :size="16">
-                                    <icon-timer />
-                                </el-icon>
-                                <!-- 全局变量配置 -->
-                                <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
-                                <!-- 同步功能 -->
-                                <span v-if="element.tabType === 'sync'" class="iconfont icontongbu f-base mr-2"></span>
-                                <!-- 生成代码 -->
-                                <span v-if="element.tabType === 'hook'" class="iconfont iconshengchengdaima f-base mr-2"></span>
-                                <!-- 公共请求头 -->
-                                <span v-if="element.tabType === 'commonHeader'" class="iconfont icondaimakuai f-base mr-2"></span>
-                                <!-- mock管理 -->
-                                <el-icon v-if="element.tabType === 'mock'" class="teal mr-2" :size="16">
-                                    <icon-coffee-cup />
-                                </el-icon>
-                                <!-- 回收站管理 -->
-                                <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
-                                    <icon-delete-filled />
-                                </el-icon>
-                                <!-- 联想参数 -->
-                                <el-icon v-if="element.tabType === 'mindParams'" class="blue mr-2" :size="16">
-                                    <icon-opportunity />
-                                </el-icon>
-                                <!-- 安装包 -->
-                                <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
-                            </template>
-                            <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
-                            <span class="operaion">
-                                <span v-show="!element.saved" class="has-change">
-                                    <span class="dot"></span>
-                                </span>
-                                <el-icon v-show="element.saved" class="close" :size="15" @click.stop="handleCloseCurrentTab(element)">
-                                    <icon-close />
-                                </el-icon>
-                            </span>
-                        </div>
-                    </template>
-                </s-draggable>
-            </div>
-            <div class="add-tab">
-                <el-icon :size="16" title="新增一个空白接口" color="#333" @click="handleAddNewTab">
-                    <Plus />
+                <!-- 参数模板 -->
+                <el-icon v-if="element.tabType === 'paramsTemplate'" class="mr-2" :size="16">
+                  <icon-setting />
                 </el-icon>
-            </div>
-            <div v-if="0" class="btn right" @click="handleMoveRight">
-                <el-icon :size="16">
-                    <icon-arrow-right />
+                <!-- 链接 -->
+                <el-icon v-if="element.tabType === 'onlineLink'" class="orange mr-2" :size="16">
+                  <icon-link />
                 </el-icon>
+                <!-- 导出文档 -->
+                <el-icon v-if="element.tabType === 'exportDoc'" class="green mr-2" :size="16">
+                  <icon-share />
+                </el-icon>
+                <!-- 导入文档 -->
+                <el-icon v-if="element.tabType === 'importDoc'" class="red mr-2" :size="16">
+                  <icon-download />
+                </el-icon>
+                <!-- 操作审计 -->
+                <el-icon v-if="element.tabType === 'history'" class="blue mr-2" :size="16">
+                  <icon-timer />
+                </el-icon>
+                <!-- 全局变量配置 -->
+                <span v-if="element.tabType === 'variable'" class="iconfont iconvariable blue f-base mr-2"></span>
+                <!-- 同步功能 -->
+                <span v-if="element.tabType === 'sync'" class="iconfont icontongbu f-base mr-2"></span>
+                <!-- 生成代码 -->
+                <span v-if="element.tabType === 'hook'" class="iconfont iconshengchengdaima f-base mr-2"></span>
+                <!-- 公共请求头 -->
+                <span v-if="element.tabType === 'commonHeader'" class="iconfont icondaimakuai f-base mr-2"></span>
+                <!-- mock管理 -->
+                <el-icon v-if="element.tabType === 'mock'" class="teal mr-2" :size="16">
+                  <icon-coffee-cup />
+                </el-icon>
+                <!-- 回收站管理 -->
+                <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
+                  <icon-delete-filled />
+                </el-icon>
+                <!-- 联想参数 -->
+                <el-icon v-if="element.tabType === 'mindParams'" class="blue mr-2" :size="16">
+                  <icon-opportunity />
+                </el-icon>
+                <!-- 安装包 -->
+                <span v-if="element.tabType === 'package'" class="iconfont iconanzhuangbao f-base mr-2"></span>
+                <!-- 接口编排 -->
+                <span v-if="element.tabType === 'apiflow'" class="iconfont iconbianpaixin f-base mr-2"></span>
+              </template>
+              <span class="item-text" :class="{ unfixed: !element.fixed }">{{ element.label }}</span>
+              <span class="operaion">
+                <span v-show="!element.saved" class="has-change">
+                  <span class="dot"></span>
+                </span>
+                <el-icon v-show="element.saved" class="close" :size="15" @click.stop="handleCloseCurrentTab(element)">
+                  <icon-close />
+                </el-icon>
+              </span>
             </div>
-        </div>
-        <div class="d-flex a-center pl-1 border-left-gray-400">{{ config.ip }}</div>
+          </template>
+        </s-draggable>
+      </div>
+      <div class="add-tab">
+        <el-icon :size="16" title="新增一个空白接口" color="#333" @click="handleAddNewTab">
+          <Plus />
+        </el-icon>
+      </div>
+      <div v-if="0" class="btn right" @click="handleMoveRight">
+        <el-icon :size="16">
+          <icon-arrow-right />
+        </el-icon>
+      </div>
     </div>
-    <teleport to="body">
-        <!-- 单个节点操作 -->
-        <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-            <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab()"></s-contextmenu-item>
-            <s-contextmenu-item :label="$t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
-            <s-contextmenu-item :label="$t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
-            <s-contextmenu-item :label="$t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
-            <s-contextmenu-item :label="$t('全部关闭')" @click="handleCloseAllTab"></s-contextmenu-item>
-            <s-contextmenu-item v-if="!isView" :label="$t('强制全部关闭')" @click="handleForceCloseAllTab"></s-contextmenu-item>
-            <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item> -->
-            <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="$t('复制url')"></s-contextmenu-item>
+    <div class="d-flex a-center pl-1 border-left-gray-400">{{ config.ip }}</div>
+  </div>
+  <teleport to="body">
+    <!-- 单个节点操作 -->
+    <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
+      <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + F4" @click="handleCloseCurrentTab()"></s-contextmenu-item>
+      <s-contextmenu-item :label="$t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="$t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="$t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="$t('全部关闭')" @click="handleCloseAllTab"></s-contextmenu-item>
+      <s-contextmenu-item v-if="!isView" :label="$t('强制全部关闭')" @click="handleForceCloseAllTab"></s-contextmenu-item>
+      <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item> -->
+      <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="$t('复制url')"></s-contextmenu-item>
             <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="$t('刷新')"></s-contextmenu-item> -->
-        </s-contextmenu>
-    </teleport>
+    </s-contextmenu>
+  </teleport>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
-import draggable from "vuedraggable"
-import { Setting, Plus, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from "@element-plus/icons-vue"
-import type { ApidocTab } from "@@/store"
+import { defineComponent } from 'vue'
+import draggable from 'vuedraggable'
+import { Setting, Plus, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
+import type { ApidocTab } from '@@/store'
 
 export default defineComponent({
-    components: {
-        "s-draggable": draggable,
-        "icon-setting": Setting,
-        "icon-link": Link,
-        "icon-share": Share,
-        "icon-download": Download,
-        "icon-timer": Timer,
-        "icon-coffee-cup": CoffeeCup,
-        "icon-delete-filled": DeleteFilled,
-        "icon-opportunity": Opportunity,
-        "icon-close": Close,
-        "icon-arrow-right": ArrowRight,
-        "icon-arrow-left": ArrowLeft,
-        Plus,
-    },
-    data() {
-        return {
-            tabIndex: 1,
-            showContextmenu: false, //是否显示contextmenu
-            contextmenuLeft: 0, //鼠标右键x值
-            contextmenuTop: 0, //鼠标右键y值
-            currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
-        };
-    },
-    computed: {
-        tabs: {
-            get(): ApidocTab[] {
-                const projectId = this.$route.query.id as string;
-                return this.$store.state["apidoc/tabs"].tabs[projectId]
-            },
-            set(val: ApidocTab) { //拖拽tabs会导致数据写入
-                this.$store.commit("apidoc/tabs/updateAllTabs", {
-                    projectId: this.$route.query.id,
-                    tabs: val,
-                });
-            },
-        },
-        requestMethods() {
-            return this.$store.state["apidoc/baseInfo"].rules.requestMethods
-        },
-        isView() {
-            return this.$store.state["apidoc/baseInfo"].mode === "view"
-        },
-    },
-    mounted() {
-        document.body.addEventListener("click", this.bindGlobalClick);
-        document.body.addEventListener("contextmenu", this.bindGlobalClick);
-        this.$store.commit("apidoc/tabs/initLocalTabs", {
-            projectId: this.$route.query.id,
+  components: {
+    's-draggable': draggable,
+    'icon-setting': Setting,
+    'icon-link': Link,
+    'icon-share': Share,
+    'icon-download': Download,
+    'icon-timer': Timer,
+    'icon-coffee-cup': CoffeeCup,
+    'icon-delete-filled': DeleteFilled,
+    'icon-opportunity': Opportunity,
+    'icon-close': Close,
+    'icon-arrow-right': ArrowRight,
+    'icon-arrow-left': ArrowLeft,
+    Plus,
+  },
+  data() {
+    return {
+      tabIndex: 1,
+      showContextmenu: false, //是否显示contextmenu
+      contextmenuLeft: 0, //鼠标右键x值
+      contextmenuTop: 0, //鼠标右键y值
+      currentOperationNode: null as ApidocTab | null, //当前被操作的节点信息
+    };
+  },
+  computed: {
+    tabs: {
+      get(): ApidocTab[] {
+        const projectId = this.$route.query.id as string;
+        return this.$store.state['apidoc/tabs'].tabs[projectId]
+      },
+      set(val: ApidocTab) { //拖拽tabs会导致数据写入
+        this.$store.commit('apidoc/tabs/updateAllTabs', {
+          projectId: this.$route.query.id,
+          tabs: val,
         });
-        this.initViewTab();
+      },
     },
-    beforeUnmount() {
-        document.body.removeEventListener("click", this.bindGlobalClick);
-        document.body.removeEventListener("contextmenu", this.bindGlobalClick);
-        this.$helper.event.off("apidoc/tabs/addOrDeleteTab");
+    requestMethods() {
+      return this.$store.state['apidoc/baseInfo'].rules.requestMethods
     },
-    methods: {
-        //初始化active的tab
-        initViewTab() {
-            setTimeout(() => {
-                const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
-                const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
-                activeNode?.scrollIntoView();
-            })
-            this.$helper.event.on("apidoc/tabs/addOrDeleteTab", () => {
-                setTimeout(() => {
-                    const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
-                    const activeNode = tabWrap.querySelector(".item.active") as HTMLElement | null;
-                    activeNode?.scrollIntoView();
-                })
-            });
-        },
-        //绑定全局点击
-        bindGlobalClick() {
-            this.showContextmenu = false;
-        },
-        handleMoveLeft() {
-            console.log("left")
-        },
-        handleMoveRight() {
-            console.log("right")
-        },
-        //=====================================contextmenu====================================//
-        handleContextmenu(e: MouseEvent, item: ApidocTab) {
-            this.currentOperationNode = item;
-            this.contextmenuLeft = e.clientX;
-            this.contextmenuTop = e.clientY;
-            this.showContextmenu = true;
-        },
-        //关闭当前tab
-        handleCloseCurrentTab(element?: ApidocTab) {
-            const projectId = this.$route.query.id;
-            const currentOperationNodeId = this.currentOperationNode?._id || ""
-            const tabId: string = element ? element._id : currentOperationNodeId;
-            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
-                projectId,
-                ids: [tabId]
-            });
-        },
-        //关闭其他
-        handleCloseOtherTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
-            const delTabs: string[] = [];
-            tabs.forEach((tab) => {
-                if (tab._id !== currentOperationNodeId) {
-                    delTabs.push(tab._id);
-                }
-            })
-            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭左侧
-        handleCloseLeftTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
-            const delTabs: string[] = [];
-            for (let i = 0; i < tabs.length; i += 1) {
-                if (tabs[i]._id !== currentOperationNodeId) {
-                    delTabs.push(tabs[i]._id);
-                } else {
-                    break;
-                }
-            }
-            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭右侧
-        handleCloseRightTab() {
-            const currentOperationNodeId = this.currentOperationNode?._id;
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
-            const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
-            const delTabs: string[] = [];
-            for (let i = currentNodeIndex + 1; i < tabs.length; i += 1) {
-                delTabs.push(tabs[i]._id);
-            }
-            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
-                projectId,
-                ids: delTabs
-            });
-        },
-        //关闭全部
-        handleCloseAllTab() {
-            const projectId: string = this.$route.query.id as string;
-            const tabs = this.$store.state["apidoc/tabs"].tabs[projectId];
-            this.$store.dispatch("apidoc/tabs/deleteTabByIds", {
-                projectId,
-                ids: tabs.map((v) => v._id)
-            });
-        },
-        //不保存关闭全部
-        handleForceCloseAllTab() {
-            const projectId: string = this.$route.query.id as string;
-            this.$store.commit("apidoc/tabs/forceDeleteAllTab", projectId);
-        },
-        //选中当前tab
-        selectCurrentTab(element: ApidocTab) {
-            const projectId = this.$route.query.id;
-            this.$store.commit("apidoc/tabs/selectTabById", {
-                projectId,
-                id: element._id
-            });
-        },
-        //固定当前tab
-        fixCurrentTab(element: ApidocTab) {
-            const projectId = this.$route.query.id;
-            this.$store.commit("apidoc/tabs/fixedTab", {
-                _id: element._id,
-                projectId,
-            })
-        },
-        //打开一个新的tab
-        handleAddNewTab() {
-            this.$store.commit("apidoc/tabs/addTab", {
-                _id: `local_${this.$helper.uuid()}`,
-                projectId: this.$route.query.id,
-                tabType: "doc",
-                label: `未命名接口${this.tabIndex}`,
-                saved: true,
-                fixed: true,
-                selected: true,
-                head: {
-                    icon: "GET",
-                },
-            })
-            this.tabIndex += 1;
+    isView() {
+      return this.$store.state['apidoc/baseInfo'].mode === 'view'
+    },
+  },
+  mounted() {
+    document.body.addEventListener('click', this.bindGlobalClick);
+    document.body.addEventListener('contextmenu', this.bindGlobalClick);
+    this.$store.commit('apidoc/tabs/initLocalTabs', {
+      projectId: this.$route.query.id,
+    });
+    this.initViewTab();
+  },
+  beforeUnmount() {
+    document.body.removeEventListener('click', this.bindGlobalClick);
+    document.body.removeEventListener('contextmenu', this.bindGlobalClick);
+    this.$helper.event.off('apidoc/tabs/addOrDeleteTab');
+  },
+  methods: {
+    //初始化active的tab
+    initViewTab() {
+      setTimeout(() => {
+        const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
+        const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
+        activeNode?.scrollIntoView();
+      })
+      this.$helper.event.on('apidoc/tabs/addOrDeleteTab', () => {
+        setTimeout(() => {
+          const tabWrap = (this.$refs.tabListWrap as { $el: HTMLLIElement}).$el;
+          const activeNode = tabWrap.querySelector('.item.active') as HTMLElement | null;
+          activeNode?.scrollIntoView();
+        })
+      });
+    },
+    //绑定全局点击
+    bindGlobalClick() {
+      this.showContextmenu = false;
+    },
+    handleMoveLeft() {
+      console.log('left')
+    },
+    handleMoveRight() {
+      console.log('right')
+    },
+    //=====================================contextmenu====================================//
+    handleContextmenu(e: MouseEvent, item: ApidocTab) {
+      this.currentOperationNode = item;
+      this.contextmenuLeft = e.clientX;
+      this.contextmenuTop = e.clientY;
+      this.showContextmenu = true;
+    },
+    //关闭当前tab
+    handleCloseCurrentTab(element?: ApidocTab) {
+      const projectId = this.$route.query.id;
+      const currentOperationNodeId = this.currentOperationNode?._id || ''
+      const tabId: string = element ? element._id : currentOperationNodeId;
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: [tabId]
+      });
+    },
+    //关闭其他
+    handleCloseOtherTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const delTabs: string[] = [];
+      tabs.forEach((tab) => {
+        if (tab._id !== currentOperationNodeId) {
+          delTabs.push(tab._id);
         }
+      })
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
     },
+    //关闭左侧
+    handleCloseLeftTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const delTabs: string[] = [];
+      for (let i = 0; i < tabs.length; i += 1) {
+        if (tabs[i]._id !== currentOperationNodeId) {
+          delTabs.push(tabs[i]._id);
+        } else {
+          break;
+        }
+      }
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
+    },
+    //关闭右侧
+    handleCloseRightTab() {
+      const currentOperationNodeId = this.currentOperationNode?._id;
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      const currentNodeIndex = tabs.findIndex((tab) => tab._id === currentOperationNodeId);
+      const delTabs: string[] = [];
+      for (let i = currentNodeIndex + 1; i < tabs.length; i += 1) {
+        delTabs.push(tabs[i]._id);
+      }
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: delTabs
+      });
+    },
+    //关闭全部
+    handleCloseAllTab() {
+      const projectId: string = this.$route.query.id as string;
+      const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];
+      this.$store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: tabs.map((v) => v._id)
+      });
+    },
+    //不保存关闭全部
+    handleForceCloseAllTab() {
+      const projectId: string = this.$route.query.id as string;
+      this.$store.commit('apidoc/tabs/forceDeleteAllTab', projectId);
+    },
+    //选中当前tab
+    selectCurrentTab(element: ApidocTab) {
+      const projectId = this.$route.query.id;
+      this.$store.commit('apidoc/tabs/selectTabById', {
+        projectId,
+        id: element._id
+      });
+    },
+    //固定当前tab
+    fixCurrentTab(element: ApidocTab) {
+      const projectId = this.$route.query.id;
+      this.$store.commit('apidoc/tabs/fixedTab', {
+        _id: element._id,
+        projectId,
+      })
+    },
+    //打开一个新的tab
+    handleAddNewTab() {
+      this.$store.commit('apidoc/tabs/addTab', {
+        _id: `local_${this.$helper.uuid()}`,
+        projectId: this.$route.query.id,
+        tabType: 'doc',
+        label: `未命名接口${this.tabIndex}`,
+        saved: true,
+        fixed: true,
+        selected: true,
+        head: {
+          icon: 'GET',
+        },
+      })
+      this.tabIndex += 1;
+    }
+  },
 })
 </script>
 

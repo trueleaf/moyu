@@ -5,93 +5,93 @@
     备注：
 */
 <template>
-    <div class="remote-select">
-        <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
-        <div v-if="query" class="select-panel">
-            <div v-if="dataLoading" class="loading">{{ $t("加载中") }}...</div>
-            <div v-if="!dataLoading && !$slots.default" class="empty">{{ $t("暂无数据") }}</div>
-            <slot v-if="!dataLoading && $slots.default" />
-        </div>
+  <div class="remote-select">
+    <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
+    <div v-if="query" class="select-panel">
+      <div v-if="dataLoading" class="loading">{{ $t("加载中") }}...</div>
+      <div v-if="!dataLoading && !$slots.default" class="empty">{{ $t("暂无数据") }}</div>
+      <slot v-if="!dataLoading && $slots.default" />
     </div>
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
-import { $t } from "@/i18n/i18n"
+import { defineComponent, PropType } from 'vue'
+import { $t } from '@/i18n/i18n'
 
 type DebounceFn = (query: string) => void;
 
 export default defineComponent({
-    props: {
-        /**
+  props: {
+    /**
          * placeholder
          */
-        placeholder: {
-            type: String,
-            default: `${$t("请输入")}...`,
-        },
-        /**
+    placeholder: {
+      type: String,
+      default: `${$t('请输入')}...`,
+    },
+    /**
          * 远程搜索方法
          */
-        remoteMethods: {
-            type: Function as PropType<(query: string) => void>,
-            default: null,
-        },
-        /**
+    remoteMethods: {
+      type: Function as PropType<(query: string) => void>,
+      default: null,
+    },
+    /**
          * 数据加载状态
          */
-        loading: {
-            type: Boolean,
-            default: false,
-        },
-        /**
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    /**
          * 用于处理v-model
          */
-        modelValue: {
-            type: String,
-            default: "",
-        },
+    modelValue: {
+      type: String,
+      default: '',
     },
-    emits: ["update:modelValue"],
-    data() {
-        return {
-            query: "", //-------------------------------输入值
-            selectData: [], //--------------------------搜索项目
-            debounceFn: null as null | DebounceFn, //---节流函数
-            dataLoading: false, //----------------------加载效果
-        };
+  },
+  emits: ['update:modelValue'],
+  data() {
+    return {
+      query: '', //-------------------------------输入值
+      selectData: [], //--------------------------搜索项目
+      debounceFn: null as null | DebounceFn, //---节流函数
+      dataLoading: false, //----------------------加载效果
+    };
+  },
+  watch: {
+    query(val) {
+      if (val != null || val === '') {
+        this.dataLoading = true;
+        if (!this.debounceFn) {
+          this.debounceFn = this.$helper.debounce<DebounceFn>((query) => {
+            this.getData(query);
+          });
+        }
+        this.debounceFn(val);
+      }
     },
-    watch: {
-        query(val) {
-            if (val != null || val === "") {
-                this.dataLoading = true;
-                if (!this.debounceFn) {
-                    this.debounceFn = this.$helper.debounce<DebounceFn>((query) => {
-                        this.getData(query);
-                    });
-                }
-                this.debounceFn(val);
-            }
-        },
-        loading(val) {
-            this.dataLoading = val;
-        },
-        modelValue(val) {
-            this.query = val;
-        },
+    loading(val) {
+      this.dataLoading = val;
     },
-    methods: {
-        //获取远程数据
-        getData(query: string) {
-            if (this.remoteMethods) {
-                this.remoteMethods(query);
-            }
-        },
-        //处理搜索
-        handleInput() {
-            this.$emit("update:modelValue", this.query);
-        },
+    modelValue(val) {
+      this.query = val;
     },
+  },
+  methods: {
+    //获取远程数据
+    getData(query: string) {
+      if (this.remoteMethods) {
+        this.remoteMethods(query);
+      }
+    },
+    //处理搜索
+    handleInput() {
+      this.$emit('update:modelValue', this.query);
+    },
+  },
 })
 </script>
 
