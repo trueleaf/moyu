@@ -18,7 +18,7 @@
     <s-selection v-if="selectionStore.isMouseDown"></s-selection>
     <s-selected-node-area v-if="selectionStore.selectedNodeIds.length > 0"></s-selected-node-area>
     <teleport to="body">
-      <pre v-if="1" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
+      <pre v-if="0" style="position: absolute; right: 420px; top: 40px;max-height: 500px;overflow-y: auto;">
         <!-- resizeNodeDotState: {{ resizeNodeDotState }} -->
         nodesStore: {{ nodesStore }}
         nodeStateStore: {{ nodeStateStore }}
