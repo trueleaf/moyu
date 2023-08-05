@@ -190,7 +190,7 @@ function electronRequest() {
       store.commit('apidoc/response/changeLoading', false)
       store.commit('apidoc/response/changeIsResponse', true)
       store.commit('apidoc/response/changeResponseContentType', 'error');
-      store.commit('apidoc/response/changeResponseTextValue', error.toString());
+      store.commit('apidoc/response/changeResponseTextValue', error.message);
       console.error(error);
     });
     //重定向
