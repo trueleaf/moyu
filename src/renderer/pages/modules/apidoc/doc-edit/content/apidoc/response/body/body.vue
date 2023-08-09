@@ -23,14 +23,14 @@
         <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div class="text-center">{{ remoteResponse.data.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
       </div>
       <div v-else-if="remoteResponse.data.type.includes('application/force-download')" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div class="text-center">{{ remoteResponse.data.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
       </div>
       <!-- excel -->
@@ -38,7 +38,7 @@
         <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
           <use xlink:href="#iconexcel"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div class="text-center">{{ remoteResponse.data.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
       </div>
       <!-- word -->
@@ -46,7 +46,7 @@
         <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
           <use xlink:href="#iconWORD"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div class="text-center">{{ remoteResponse.data.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
@@ -75,7 +75,7 @@
         <svg class="svg-icon" aria-hidden="true" :title="$t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div class="text-center">{{ remoteResponse.data.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ $t("下载文件") }}</el-button>
       </div>
       <!-- json -->
