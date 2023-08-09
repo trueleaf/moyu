@@ -226,7 +226,7 @@ export default defineComponent({
       const fileInfo = this.remoteResponse.data.file
       const downloadElement = document.createElement('a');
       downloadElement.href = fileInfo.url;
-      downloadElement.download = fileInfo.name || this.$t('未命名'); //下载后文件名
+      downloadElement.download = decodeURIComponent(fileInfo.name) || this.$t('未命名'); //下载后文件名
       document.body.appendChild(downloadElement);
       downloadElement.click(); //点击下载
       document.body.removeChild(downloadElement); //下载完成移除元素
