@@ -88,7 +88,7 @@ async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
     const headers = store.state['apidoc/response'].header;
     const contentDisposition = headers['content-disposition'] as string;
     let fileName = '';
-    const matchedContentDisposition = contentDisposition.match(/filename=(.*)/)
+    const matchedContentDisposition = contentDisposition?.match(/filename=(.*)/)
     if (matchedContentDisposition) {
       fileName = matchedContentDisposition[1];
     }
