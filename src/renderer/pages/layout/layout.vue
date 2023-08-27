@@ -20,6 +20,11 @@
       </div>
       <div class="header-right mr-5 ml-auto">
         <div class="operation">
+          <div :title="$t('返回首页')" class="op_item" @click="jumpToHome">
+            <el-icon :size="20">
+              <i class="iconfont iconhome f-bg"></i>
+            </el-icon>
+          </div>
           <div :title="$t('刷新')" class="op_item" @click="freshPage">
             <el-icon :size="20">
               <RefreshRight />
