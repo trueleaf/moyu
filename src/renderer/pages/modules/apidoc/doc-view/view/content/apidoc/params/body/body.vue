@@ -64,7 +64,6 @@
         </el-select>
       </div>
     </div>
-    <!-- <import-params v-model="importParamsdialogVisible" @success="handleConvertSuccess"></import-params> -->
   </div>
 </template>
 
@@ -73,10 +72,8 @@ import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import type { ApidocBodyMode, ApidocBodyRawType } from '@@/global'
 import { router } from '@/router/index'
-import { apidocConvertParamsToJsonData, apidocConvertParamsToJsonStr } from '@/helper/index'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { $t } from '@/i18n/i18n'
-// import importParams from "./dialog/import-params/import-params.vue"
 
 /*
 |--------------------------------------------------------------------------
@@ -153,9 +150,8 @@ onBeforeUnmount(() => {
 //根据参数内容校验对应的contentType值
 const checkContentType = () => {
   const type = store.state['apidoc/apidoc'].apidoc.item.requestBody.mode
-  const { json, formdata, urlencoded, raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-  const converJsonData = apidocConvertParamsToJsonData(json, true);
-  const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
+  const { rawJson, formdata, urlencoded, raw } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+  const hasJsonData = rawJson.length > 0
   const hasFormData = formdata.filter(p => p.select).some((data) => data.key);
   const hasUrlencodedData = urlencoded.filter(p => p.select).some((data) => data.key);
   const hasRawData = raw.data;
@@ -205,12 +201,8 @@ const bodyType = computed<ApidocBodyMode>({
 //json格式body参数
 const rawJsonData = computed({
   get() {
-    const { json, rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-    let finalJsonData = rawJson;
-    if (!rawJson) {
-      finalJsonData = apidocConvertParamsToJsonStr(json)
-    }
-    return finalJsonData;
+    const { rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+    return rawJson;
   },
   set(val) {
     store.commit('apidoc/apidoc/changeRawJson', val);

@@ -203,14 +203,12 @@ const apidoc = {
       state.apidoc.item.responseParams[index].value.text = value;
     },
     //根据index值改变response
-    changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
+    changeResponseByIndex(state: ApidocState, payload: { index: number, value: string }): void {
       const { index, value } = payload
-      state.apidoc.item.responseParams[index].value.json = value;
+      state.apidoc.item.responseParams[index].value.strJson = value;
     },
     //新增一个response
     addResponseParam(state: ApidocState): void {
-      const objectParams = apidocGenerateProperty('object');
-      objectParams.children[0] = apidocGenerateProperty();
       state.apidoc.item.responseParams.push({
         _id: uuid(),
         title: $t('返回参数名称'),
@@ -218,7 +216,6 @@ const apidoc = {
         value: {
           strJson: '',
           dataType: 'application/json',
-          json: [objectParams],
           text: '',
           file: {
             url: '',
@@ -248,12 +245,6 @@ const apidoc = {
       if (!payload.commonHeaders?.length) {
         payload.commonHeaders = [];
       }
-      // bodyParams如果没有数据则默认添加一条空数据
-      // if (payload.item.requestBody.json.length === 0) {
-      //     const bodyRootParams = apidocGenerateProperty("object");
-      //     bodyRootParams.children[0] = apidocGenerateProperty();
-      //     payload.item.requestBody.json.push(bodyRootParams);
-      // }
       //formData如果没有数据则默认添加一条空数据
       if (payload.item.requestBody.formdata.length === 0) {
         payload.item.requestBody.formdata.push(apidocGenerateProperty());
@@ -267,14 +258,6 @@ const apidoc = {
         payload.item.headers.push(apidocGenerateProperty());
       }
       state.defaultHeaders = getDefaultHeaders(payload.item.contentType);
-      //返回参数为json的如果没有数据则默认添加一条空数据
-      payload.item.responseParams.forEach((params) => {
-        if (params.value.dataType === 'application/json' && params.value.json.length === 0) {
-          const objectParams = apidocGenerateProperty('object');
-          objectParams.children[0] = apidocGenerateProperty();
-          params.value.json.push(objectParams);
-        }
-      })
       if (payload.item.headers.length === 0) {
         payload.item.headers.push(apidocGenerateProperty());
       }

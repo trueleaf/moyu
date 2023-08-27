@@ -50,7 +50,7 @@ export default defineComponent({
             name: formInfo.name,
             presetParamsType: 'responseParams',
             projectId: this.$route.query.id,
-            items: responseParam.value.json,
+            items: responseParam.value.strJson,
           };
           this.loading = true;
           this.axios.post('/api/project/doc_preset_params', params).then((res) => {

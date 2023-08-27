@@ -58,7 +58,7 @@
       <!-- 请求错误 -->
       <div v-else-if="remoteResponse.data.type.includes('error')">{{ remoteResponse.data.text }}</div>
     </template>
-    <div v-show="remoteResponse.data.type.includes('text/html')" class="text-wrap">
+    <div v-show="remoteResponse?.data?.type.includes('text/html')" class="text-wrap">
       <s-raw-editor
         :model-value="htmlResponse"
         readonly
@@ -66,7 +66,7 @@
       >
       </s-raw-editor>
     </div>
-    <div v-show="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
+    <div v-show="remoteResponse?.data?.type.includes('text/plain')" class="text-wrap">
       <s-raw-editor
         :model-value="textResponse"
         readonly
@@ -74,7 +74,7 @@
       >
       </s-raw-editor>
     </div>
-    <div v-show="remoteResponse.data.type.includes('application/json')" class="text-wrap">
+    <div v-show="remoteResponse?.data?.type.includes('application/json')" class="text-wrap">
       <s-raw-editor
         :model-value="jsonResponse"
         readonly
@@ -82,34 +82,12 @@
       >
       </s-raw-editor>
     </div>
-    <el-dropdown v-if="remoteResponse.data.type.includes('application/json')" class="apply-response" trigger="click">
-      <span>
-        <span>{{ $t("应用为响应值") }}</span>
-      </span>
-      <template #dropdown>
-        <el-dropdown-menu>
-          <el-dropdown-item v-for="(item, index) in responseApplyEnum" :key="index" @click="handleApplyResponse(item, index)">
-            <span class="mr-1">{{ $t("应用为") }}</span>
-            <span>{{ item.title }}</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-    <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
   </s-loading>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 import beautify from 'js-beautify'
-import { ApidocProperty } from '@@/global';
-import { apidocConvertJsonDataToParams } from '@/helper/index'
-
-type ResponseApplyEnum = {
-  index: number,
-  title: string,
-  contentType: string,
-}
 
 export default defineComponent({
   data() {
@@ -157,19 +135,6 @@ export default defineComponent({
     //美化html文件
     beautifyHtml(str: string) {
       return str;
-    },
-    //应用为响应值
-    handleApplyResponse(item: ResponseApplyEnum, index: number) {
-      const convertData = apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
-        const mindData = this.$store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'responseParams');
-        const matchedData = mindData.find(v => v.key === p.key);
-        if (matchedData) {
-          p.description = matchedData.description;
-          p.value = matchedData.value;
-        }
-        return '';
-      });
-      this.$store.commit('apidoc/apidoc/changeResponseByIndex', { index, value: convertData })
     },
   },
 })

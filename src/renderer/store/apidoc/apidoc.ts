@@ -6,7 +6,7 @@ import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttp
 import { axios as axiosInstance } from '@/api/api'
 import { router } from '@/router/index'
 import { store } from '@/store/index'
-import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, apidocConvertParamsToJsonStr, event } from '@/helper/index'
+import { apidocGenerateProperty, apidocGenerateApidoc, apidocGenerateMockInfo, cloneDeep, forEachForest, uuid, event } from '@/helper/index'
 import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
 import { apidocCache } from '@/cache/apidoc'
 // import config from "@/../config/config"
@@ -188,7 +188,6 @@ const apidoc = {
     //改变rawBody数据
     changeRawJson(state: ApidocState, rawJson: string): void {
       state.apidoc.item.requestBody.rawJson = rawJson;
-      state.apidoc.item.requestBody.json = [];
     },
     /*
         |--------------------------------------------------------------------------
@@ -242,9 +241,9 @@ const apidoc = {
       state.apidoc.item.responseParams[index].value.text = value;
     },
     //根据index值改变response
-    changeResponseByIndex(state: ApidocState, payload: { index: number, value: ApidocProperty[] }): void {
+    changeResponseByIndex(state: ApidocState, payload: { index: number, value: string }): void {
       const { index, value } = payload
-      state.apidoc.item.responseParams[index].value.json = value;
+      state.apidoc.item.responseParams[index].value.strJson = value;
     },
     //根据index值改变response的json数据
     changeResponseStrJsonByIndex(state: ApidocState, payload: { index: number, value: string }): void {
@@ -260,8 +259,6 @@ const apidoc = {
     },
     //新增一个response
     addResponseParam(state: ApidocState): void {
-      const objectParams = apidocGenerateProperty('object');
-      objectParams.children[0] = apidocGenerateProperty();
       state.apidoc.item.responseParams.push({
         _id: uuid(),
         title: '返回参数名称',
@@ -269,7 +266,6 @@ const apidoc = {
         value: {
           strJson: '',
           dataType: 'application/json',
-          json: [objectParams],
           text: '',
           file: {
             url: '',
@@ -295,12 +291,6 @@ const apidoc = {
       if (payload.item.queryParams.length === 0) {
         payload.item.queryParams.push(apidocGenerateProperty());
       }
-      // bodyParams如果没有数据则默认添加一条空数据
-      // if (payload.item.requestBody.json.length === 0) {
-      //     const bodyRootParams = apidocGenerateProperty("object");
-      //     bodyRootParams.children[0] = apidocGenerateProperty();
-      //     payload.item.requestBody.json.push(bodyRootParams);
-      // }
       //formData如果没有数据则默认添加一条空数据
       if (payload.item.requestBody.formdata.length === 0) {
         payload.item.requestBody.formdata.push(apidocGenerateProperty());
@@ -314,14 +304,6 @@ const apidoc = {
         payload.item.headers.push(apidocGenerateProperty());
       }
       state.defaultHeaders = getDefaultHeaders(payload.item.contentType);
-      //返回参数为json的如果没有数据则默认添加一条空数据
-      payload.item.responseParams.forEach((params) => {
-        if (params.value.dataType === 'application/json' && params.value.json.length === 0) {
-          const objectParams = apidocGenerateProperty('object');
-          objectParams.children[0] = apidocGenerateProperty();
-          params.value.json.push(objectParams);
-        }
-      })
       //若全部返回数据isMock都为false，则取第一条数据为mock数据
       if (payload.item.responseParams.every(v => !v.isMock)) {
         payload.item.responseParams[0].isMock = true;
@@ -338,12 +320,6 @@ const apidoc = {
       if (payload.mockInfo.responseHeaders?.length === 0) {
         payload.mockInfo.responseHeaders.push(apidocGenerateProperty());
       }
-      //替换返回json数据，把以前数组类型数据替换为字符串类型
-      payload.item.responseParams.forEach(response => {
-        if (response.value.dataType === 'application/json' && !response.value.strJson) {
-          response.value.strJson = apidocConvertParamsToJsonStr(response.value.json);
-        }
-      })
       //如果host为空则默认为mockserver
       // if (!payload.item.url.host && !payload.item.url.path.startsWith("http")) {
       //     payload.item.url.host = `http://${config.renderConfig.mock.ip}:${store.state["apidoc/mock"].mockServerPort}`
@@ -374,10 +350,6 @@ const apidoc = {
     changePropertyValue<K extends keyof ApidocProperty>(state: ApidocState, payload: EditApidocPropertyPayload<K>): void {
       const { data, field, value } = payload;
       data[field] = value;
-    },
-    //改变json类型requestBody
-    changeRequestJsonBody(state: ApidocState, payload: ApidocProperty[]): void {
-      state.apidoc.item.requestBody.json = payload;
     },
     //保存接口弹窗是否展示
     changeSaveDocDialogVisible(state: ApidocState, visible: boolean): void {
@@ -589,11 +561,9 @@ const apidoc = {
       const projectId = router.currentRoute.value.query.id as string || shareRouter.currentRoute.value.query.id as string;
       const paths = filterValidParams(apidocDetail.item.paths, 'paths');
       const queryParams = filterValidParams(apidocDetail.item.queryParams, 'queryParams').filter(v => v.description && v.value);
-      const requestBody = filterValidParams(apidocDetail.item.requestBody.json, 'requestBody').filter(v => v.description && v.value);
-      const responseParams = filterValidParams(apidocDetail.item.responseParams[0].value.json, 'responseParams').filter(v => v.description && v.value);
       const params = {
         projectId,
-        mindParams: paths.concat(queryParams).concat(requestBody).concat(responseParams)
+        mindParams: paths.concat(queryParams)
       };
       axiosInstance.post('/api/project/doc_params_mind', params).then((res) => {
         if (res.data != null) {

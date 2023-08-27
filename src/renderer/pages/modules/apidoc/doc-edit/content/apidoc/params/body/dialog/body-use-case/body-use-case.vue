@@ -47,7 +47,7 @@ const handleClose = () => {
 const handleSave = () => {
   formInstance.value?.validate((valid) => {
     if (valid) {
-      const bodyParams = store.state['apidoc/apidoc'].apidoc.item.requestBody.json
+      const bodyParams = store.state['apidoc/apidoc'].apidoc.item.requestBody.rawJson
       const params = {
         name: formInfo.value.name,
         presetParamsType: 'bodyParams',

@@ -451,16 +451,6 @@ export default defineComponent({
         }
         if (prop.select !== prop2.select) {
           isSame = false;
-          return;
-        }
-        if (prop.children.length !== prop2.children.length) {
-          isSame = false;
-          return;
-        }
-        if (prop.children.length > 0) { //prop2长度肯定也大于0
-          for (let i = 0; i < prop.children.length; i += 1) {
-            checkProperty(prop.children[i], prop2.children[i]);
-          }
         }
       }
       checkProperty(p, p2);

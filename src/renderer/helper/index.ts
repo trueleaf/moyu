@@ -321,9 +321,6 @@ export function apidocGenerateProperty<T extends ApidocPropertyType = 'string'>(
     value: '',
     required: true,
     select: true,
-    children: [],
-    editor: '',
-    editorId: '',
   };
   return result as ApidocProperty<T>;
 }
@@ -362,20 +359,11 @@ export function apidocGenerateMockInfo(): ApidocDetail['mockInfo'] {
 |
 */
 type Properties = ApidocProperty<ApidocPropertyType>[]
-type PropertyValueHook = (value: ApidocProperty) => string | number | boolean;
 // eslint-disable-next-line no-use-before-define
 type JSON = string | number | boolean | null | JsonObj | JsonArr
-type JsonConvertHook = (property: ApidocProperty<ApidocPropertyType>, itemData: JSON) => void;
 type JsonArr = JSON[]
 type JsonObj = {
   [x: string]: JSON
-}
-type JsonValueType = 'string' | 'number' | 'boolean' | 'array' | 'object'
-type ConvertToObjectOptions = {
-  result: Record<string, JSON> | JSON[],
-  valueHook?: PropertyValueHook,
-  jumpChecked?: boolean,
-  parent: ApidocProperty<ApidocPropertyType>
 }
 /**
  * @description        apidoc转换value值
@@ -398,140 +386,11 @@ export function apidocConvertValue(value: string): string {
   }
   return value;
 }
-function convertToJson(properties: Properties, options: ConvertToObjectOptions): void {
-  const { result, parent, jumpChecked, valueHook } = options;
-  for (let i = 0; i < properties.length; i += 1) {
-    const property = properties[i];
-    const { type, value, key, children } = property;
-    const isParentArray = (parent && parent.type === 'array');
-    const isComplex = (type === 'object' || type === 'array' || type === 'file');
-    const keyValIsEmpty = key === '' && value === ''
-    if (!isComplex && jumpChecked && !property.select) { //不是复杂类型直接过滤掉select属性为false的值
-      continue;
-    } else if (isComplex && jumpChecked && !property.select) { //复杂类型，子元素全部为空
-      let halfChecked = false;
-      forEachForest(property.children, (p) => {
-        if (p.select) {
-          halfChecked = true;
-        }
-      })
-      if (!halfChecked) {
-        continue;
-      }
-    }
-    if (!isParentArray && !isComplex && (key === '')) { //父元素不为数组并且也不是复杂数据类型
-      continue
-    }
-    if (!isParentArray && isComplex && (key === '')) { //对象下面对象必须具备key
-      continue
-    }
-    if (isParentArray && keyValIsEmpty && type === 'number') { //数组下面为数字
-      continue
-    }
-    if (isParentArray && keyValIsEmpty && type === 'boolean') { //数组下面为布尔值
-      continue
-    }
-    const convertValue = valueHook ? valueHook(property) : apidocConvertValue(value);
-    if (isParentArray) { //父元素为数组
-      if (type === 'boolean') {
-        (result as JSON[]).push(convertValue === 'true');
-      } else if (type === 'string') {
-        (result as JSON[]).push(convertValue);
-      } else if (type === 'number') {
-        const isNumber = !Number.isNaN(Number(convertValue));
-        if (isNumber) {
-          (result as JSON[]).push(Number(convertValue));
-        } else {
-          console.warn('参数无法被转换为数字类型，默认为0');
-          (result as JSON[]).push(0);
-        }
-      } else if (type === 'file') {
-        console.warn('不允许为file类型');
-        (result as JSON[]).push(convertValue);
-      } else if (type === 'object') {
-        const pushData = {};
-        (result as JSON[]).push(pushData);
-        convertToJson(children, {
-          result: pushData,
-          valueHook,
-          jumpChecked,
-          parent: property
-        })
-      } else if (type === 'array') {
-        const pushData: JSON[] = [];
-        (result as JSON[]).push(pushData);
-        convertToJson(children, {
-          result: pushData,
-          valueHook,
-          jumpChecked,
-          parent: property
-        })
-      }
-    } else { //父元素为对象
-      if (type === 'boolean') {
-        (result as Record<string, JSON>)[key] = convertValue === 'true';
-      } else if (type === 'string') {
-        (result as Record<string, JSON>)[key] = convertValue;
-      } else if (type === 'number') {
-        const isNumber = !Number.isNaN(Number(convertValue));
-        if (isNumber) {
-          (result as Record<string, JSON>)[key] = Number(convertValue);
-        } else {
-          console.warn('参数无法被转换为数字类型，默认为0');
-          (result as Record<string, JSON>)[key] = 0;
-        }
-      } else if (type === 'file') {
-        console.warn('不允许为file类型');
-        (result as Record<string, JSON>)[key] = convertValue;
-      } else if (type === 'object') {
-        (result as Record<string, JSON>)[key] = {};
-        convertToJson(children, {
-          result: (result as Record<string, JSON>)[key] as Record<string, JSON>,
-          valueHook,
-          jumpChecked,
-          parent: property
-        })
-      } else if (type === 'array') {
-        (result as Record<string, JSON>)[key] = [];
-        convertToJson(children, {
-          result: (result as Record<string, JSON>)[key] as JSON[],
-          valueHook,
-          jumpChecked,
-          parent: property
-        })
-      }
-    }
-  }
-}
-/**
- * @description        获取property字段类型
- * @author             shuxiaokai
- * @create             2021-8-29 13:38
- * @param {any}        value - 任意类型变量
- * @return {string}    返回参数类型
- */
-function getJsonValueType(value: unknown): JsonValueType {
-  let result: JsonValueType = 'string';
-  if (typeof value === 'string') {
-    result = 'string'
-  } else if (typeof value === 'number') { //NaN
-    result = 'number'
-  } else if (typeof value === 'boolean') {
-    result = 'boolean'
-  } else if (Array.isArray(value)) {
-    result = 'array'
-  } else if (typeof value === 'object' && value !== null) {
-    result = 'object'
-  } else { // undefined ...
-    result = 'string'
-  }
-  return result;
-}
 
 /**
  * 将录入参数转换为json参数
  */
-export function apidocConvertParamsToJsonData(properties: Properties, jumpChecked?: boolean, valueHook?: PropertyValueHook): JSON {
+export function apidocConvertParamsToJsonData(properties: Properties): JSON {
   if (properties.length === 0) {
     console.warn('无任何参数值')
     return null;
@@ -557,205 +416,7 @@ export function apidocConvertParamsToJsonData(properties: Properties, jumpChecke
     console.warn('根元素不允许为file');
     return null;
   }
-  if (rootType === 'object') {
-    const resultJson = {};
-    convertToJson(properties[0].children, {
-      result: resultJson,
-      valueHook,
-      jumpChecked,
-      parent: properties[0]
-    });
-    return resultJson
-  }
-  if (rootType === 'array') {
-    const resultJson: JSON[] = [];
-    convertToJson(properties[0].children, {
-      result: resultJson,
-      valueHook,
-      jumpChecked,
-      parent: properties[0]
-    });
-    return resultJson
-  }
   return {};
-}
-
-/**
- * 将录入参数转换为字符串
- */
-export function apidocConvertParamsToJsonStr(properties: Properties): string {
-  const indent = 4;
-  if (properties[0]?.children && properties[0]?.children[0]?.key === '' && properties[0]?.children[0]?.value === '') {
-    return '';
-  }
-  // const rootType = properties[0]?.type
-  const foo = (moyuData: Properties, deep: number, isRoot?: boolean, parentIsArray?: boolean): string => {
-    let jsonStr = '';
-    if (moyuData?.length === 0) {
-      return '';
-    }
-    for (let i = 0; i < moyuData.length; i += 1) {
-      const item = moyuData[i];
-      const { key, value, type, description } = item;
-      let realValue: string | number | boolean | null = apidocConvertValue(value);
-      if ((type === 'string' || type === 'number' || type === 'boolean') && key === '' && value === '') {
-        continue
-      }
-      if (type === 'number') {
-        realValue = Number(realValue);
-      } else if (type === 'boolean') {
-        realValue = !!realValue;
-      } else if (type === 'string') {
-        realValue = `"${realValue}"`
-      }
-      if (!isRoot && (type === 'string' || type === 'boolean' || type === 'number' || type === 'file')) {
-        jsonStr += `${' '.repeat(deep * indent)}"${key}": ${realValue},${description ? ` //${description}` : ''}\n`;
-      } else if (isRoot && (type === 'string' || type === 'boolean' || type === 'number' || type === 'file')) {
-        jsonStr += `${' '.repeat(deep * indent)}${realValue}, ${description ? ` //${description}` : ''}\n`;
-      }
-      if (isRoot && !parentIsArray && type === 'object') {
-        jsonStr += `{\n${foo(item.children, deep)}\n}`
-      } else if (isRoot && parentIsArray && type === 'object') {
-        jsonStr += `${' '.repeat(deep * indent)}{\n${foo(item.children, deep + 1)}${' '.repeat(deep * indent)}},\n`
-      } else if (!isRoot && parentIsArray && type === 'object') {
-        jsonStr += `${' '.repeat(deep * indent)}{\n${foo(item.children, deep)}\n${' '.repeat(deep * indent)}},`
-      } else if (!isRoot && !parentIsArray && type === 'object') {
-        jsonStr += `${' '.repeat(deep * indent)}"${key}": {\n${' '.repeat(deep * indent)}${foo(item.children, deep)}${' '.repeat(deep * indent)}},\n`
-      }
-      if (type === 'array') {
-        // let arrStr = "";
-        // for (let j = 0; j < item.children.length; j += 1) {
-        //     const item2 = item.children[j]
-        //     arrStr += `${foo(item2, deep)}`
-        // }
-        jsonStr += `${' '.repeat(deep * indent)}"${key}": [\n${foo(item.children, deep + 1, true, true)}${' '.repeat(deep * indent)}],\n`
-      }
-    }
-    return jsonStr;
-  }
-  return foo(properties || [], 1, true);
-}
-
-/**
- * 将json类型数据转换为moyu类型参数
- */
-export function apidocConvertJsonDataToParams(jsonData: JSON, hook?: PropertyValueHook, arrPickFirst?: boolean): Properties {
-  const globalResult = [];
-  const rootType = getJsonValueType(jsonData);
-  if (rootType === 'object' || rootType === 'array') {
-    const rootProperty = apidocGenerateProperty(rootType);
-    globalResult.push(rootProperty);
-    // eslint-disable-next-line no-shadow
-    const foo = (obj: JSON, { result, deep, hook }: { result: Properties, deep: number, hook?: JsonConvertHook }) => {
-      if (getJsonValueType(obj) === 'object') {
-        Object.keys(obj as JsonObj).forEach((key) => {
-          const itemValue = (obj as JsonObj)[key];
-          const itemType = getJsonValueType(itemValue);
-          if (itemType === 'string' || itemType === 'number' || itemType === 'boolean') {
-            const property = apidocGenerateProperty(itemType);
-            property.key = key;
-            property.value = itemValue == null ? 'null' : itemValue.toString();
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-          } else if (itemType === 'object') {
-            const property = apidocGenerateProperty(itemType);
-            property.key = key;
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-            foo(itemValue, {
-              result: property.children,
-              deep: deep + 1,
-              hook,
-            });
-          } else if (itemType === 'array') {
-            // eslint-disable-next-line no-shadow
-            const itemValue = (obj as JsonObj)[key] as JsonArr
-            const property = apidocGenerateProperty(itemType);
-            property.key = key;
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-            if (getJsonValueType(itemValue[0]) === 'object') {
-              const property2 = apidocGenerateProperty('object');
-              property.children.push(property2)
-              foo(itemValue[0], {
-                result: property.children[0].children,
-                deep: deep + 1,
-                hook,
-              });
-            } else {
-              // console.log("string", itemValue, property)
-              itemValue.forEach(v => {
-                foo(v, {
-                  result: property.children,
-                  deep: deep + 1,
-                  hook,
-                });
-              })
-            }
-          }
-        });
-      } else if (getJsonValueType(obj) === 'array') {
-        const loopNum = arrPickFirst ? 1 : (obj as JsonArr).length
-        for (let i = 0; i < loopNum; i += 1) {
-          const itemValue = (obj as JsonArr)[i];
-          const itemType = getJsonValueType(itemValue);
-          if (itemType === 'string' || itemType === 'number' || itemType === 'boolean') {
-            const property = apidocGenerateProperty(itemType);
-            property.value = itemValue == null ? 'null' : itemValue.toString();
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-          } else if (itemType === 'object') {
-            const property = apidocGenerateProperty(itemType);
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-            foo(itemValue, {
-              result: property.children,
-              deep: deep + 1,
-              hook,
-            });
-          } else if (itemType === 'array') {
-            // eslint-disable-next-line no-shadow
-            const itemValue = (obj as JsonArr)[i]
-            const property = apidocGenerateProperty(itemType);
-            if (hook) {
-              hook(property, itemValue);
-            }
-            result.push(property);
-            foo(itemValue, {
-              result: property.children,
-              deep: deep + 1,
-              hook,
-            });
-          }
-        }
-      } else {
-        const valueType = getJsonValueType(obj);
-        const property = apidocGenerateProperty(valueType);
-        property.value = obj as string;
-        result.push(property)
-      }
-    }
-    foo(jsonData, {
-      result: rootProperty.children,
-      deep: 1,
-      hook,
-    });
-  } else {
-    const rootProperty = apidocGenerateProperty(rootType);
-    rootProperty.value = jsonData?.toString() || '';
-    globalResult.push(rootProperty);
-  }
-  return globalResult;
 }
 
 /**
@@ -802,7 +463,6 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
       queryParams: [],
       requestBody: {
         mode: 'json',
-        json: [],
         rawJson: '',
         formdata: [],
         urlencoded: [],
@@ -824,7 +484,6 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
             raw: ''
           },
           strJson: '',
-          json: [],
           dataType: 'application/json',
           text: ''
         },

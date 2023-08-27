@@ -48,9 +48,6 @@ const headers: ApidocProperty[] = [{
   required: true,
   description: '服务器用于验证用户代理身份的凭证',
   select: true,
-  editor: '',
-  editorId: '',
-  children: [],
 }]
 standarHeaders.forEach(header => {
   const property = apidocGenerateProperty();

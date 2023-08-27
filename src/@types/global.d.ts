@@ -319,18 +319,6 @@ type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = {
      * 是否选中(选中数据会随请求一起发送)
      */
   select: boolean;
-  /**
-     * 最后修改人
-     */
-  editor: string;
-  /**
-     * 最后修改人id
-     */
-  editorId: string;
-  /**
-     * 子节点信息
-     */
-  children: ApidocProperty[];
 };
 //联想参数
 type ApidocMindParam = ApidocProperty & {
@@ -458,10 +446,6 @@ type ApidocBodyParams = {
      */
   mode: ApidocBodyMode;
   /**
-     * json类型参数
-     */
-  json: ApidocProperty[];
-  /**
      * 原始json值
      */
   rawJson: string;
@@ -513,10 +497,6 @@ type ApidocResponseParams = {
          * 字符串json数据
          */
     strJson: string,
-    /**
-         * json返回类型数据
-         */
-    json: ApidocProperty[];
     /**
          * 文本类型返回数据
          */

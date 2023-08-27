@@ -6,7 +6,6 @@
 import { store } from '@/store';
 import { ApidocResponseContentType, ApidocDetail } from '@@/global';
 import { ApidocProjectVariable } from '@@/store';
-import { apidocConvertParamsToJsonData } from './index'
 
 type UrlInfo = {
   host: string,
@@ -93,9 +92,7 @@ export const apidocFormatPathParams = (apidoc: ApidocDetail): Record<string, str
  * body json参数转换
  */
 export const apidocFormatJsonBodyParams = (apidoc: ApidocDetail): JSON => {
-  const { json } = apidoc.item.requestBody;
-  const result: JSON = apidocConvertParamsToJsonData(json);
-  return result || {};
+  return apidoc.item.requestBody.rawJson
 }
 /**
  * body form-data参数转换
@@ -181,7 +178,7 @@ export const apidocFormatResponseParams = (apidoc: ApidocDetail): ResponseData[]
     };
     switch (res.value.dataType) {
     case 'application/json':
-      data.json = apidocConvertParamsToJsonData(res.value.json);
+      data.json = res.value.strJson
       break;
     default:
       console.warn(`仅解析json类型返回参数,当前返回参数类型为${res.value.dataType}`)

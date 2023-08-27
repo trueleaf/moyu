@@ -12,27 +12,6 @@
         <s-config label="单个目录最大允许文档数量" :has-check="false" description="限制单个目录下文档个数，提高可阅读性">
           <el-input-number v-model="copyApiRules.fileInFolderLimit" :controls="false" size="default" :step="1" class="w-60" :min="1" :max="255"></el-input-number>
         </s-config>
-        <s-config label="每个项目限制配置域名个数" :has-check="false" description="提高可阅读性">
-          <el-input-number v-model="copyApiRules.dominLimit" size="default" :controls="false" :step="1" class="w-60" :min="1" :max="255"></el-input-number>
-        </s-config>
-        <s-config label="参数备注是否必填" :has-check="false" description="开启后将会对录入参数备注进行非空校验">
-          <el-radio-group v-model="copyApiRules.requireDescription">
-            <el-radio :label="true">必填</el-radio>
-            <el-radio :label="false">非必填</el-radio>
-          </el-radio-group>
-        </s-config>
-        <s-config label="参数值是否必填" :has-check="false" description="开启后将会对录入参数值进行非空校验">
-          <el-radio-group v-model="copyApiRules.requireValue">
-            <el-radio :label="true">必填</el-radio>
-            <el-radio :label="false">非必填</el-radio>
-          </el-radio-group>
-        </s-config>
-        <!-- <s-config label="是否开启折叠动画" :has-check="false" description="开启后将会对性能产生一定的影响">
-                    <el-radio-group v-model="copyApiRules.enableCollapseAnimation">
-                        <el-radio :label="true">开启</el-radio>
-                        <el-radio :label="false">关闭</el-radio>
-                    </el-radio-group>
-                </s-config> -->
       </s-fieldset>
       <!-- 请求方式 -->
       <s-fieldset title="请求方式配置">
@@ -92,11 +71,7 @@ import { router } from '@/router/index'
 import { event, apidocGenerateRequestParamTypes } from '@/helper/index'
 
 const copyApiRules: Ref<ApidocProjectRules> = ref({
-  requireValue: true,
-  requireDescription: true,
   fileInFolderLimit: 8,
-  enableCollapseAnimation: true,
-  dominLimit: 8,
   requestMethods: [],
 });
 const paramTypes: Ref<ApidocRequestParamTypes> = ref(apidocGenerateRequestParamTypes());

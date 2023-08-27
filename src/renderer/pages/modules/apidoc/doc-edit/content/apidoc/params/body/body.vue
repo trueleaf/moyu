@@ -53,7 +53,6 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { ApidocBodyMode, ApidocBodyRawType } from '@@/global'
-import { apidocConvertParamsToJsonStr } from '@/helper/index'
 import { store } from '@/store/index'
 import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'
@@ -127,12 +126,8 @@ const bodyType = computed<ApidocBodyMode>({
 //json格式body参数
 const rawJsonData = computed<string>({
   get() {
-    const { json, rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
-    let finalJsonData = rawJson;
-    if (!rawJson) {
-      finalJsonData = apidocConvertParamsToJsonStr(json)
-    }
-    return finalJsonData;
+    const { rawJson } = store.state['apidoc/apidoc'].apidoc.item.requestBody;
+    return rawJson;
   },
   set(val) {
     store.commit('apidoc/apidoc/changeRawJson', val);

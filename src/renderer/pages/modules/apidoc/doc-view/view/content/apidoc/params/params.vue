@@ -68,7 +68,6 @@
 import { defineComponent } from 'vue'
 import type { ApidocTab } from '@@/store'
 import type { ApidocDetail, ApidocProperty } from '@@/global'
-import { apidocConvertParamsToJsonData } from '@/helper/index'
 import { apidocCache } from '@/cache/apidoc'
 import params from './params/params.vue';
 import requestBody from './body/body.vue';
@@ -110,13 +109,7 @@ export default defineComponent({
       this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.forEach(response => {
         const resValue = response.value;
         const { dataType } = resValue;
-        if (dataType === 'application/json') {
-          const converJsonData = apidocConvertParamsToJsonData(resValue.json);
-          const hasJsonData = converJsonData && Object.keys(converJsonData).length > 0
-          if (hasJsonData) {
-            resNum += 1;
-          }
-        } else if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
+        if (dataType === 'text/javascript' || dataType === 'text/plain' || dataType === 'text/html' || dataType === 'application/xml') {
           if (resValue.text.length > 0) {
             resNum += 1;
           }
@@ -296,16 +289,6 @@ export default defineComponent({
         }
         if (prop.select !== prop2.select) {
           isSame = false;
-          return;
-        }
-        if (prop.children.length !== prop2.children.length) {
-          isSame = false;
-          return;
-        }
-        if (prop.children.length > 0) { //prop2长度肯定也大于0
-          for (let i = 0; i < prop.children.length; i += 1) {
-            checkProperty(prop.children[i], prop2.children[i]);
-          }
         }
       }
       checkProperty(p, p2);

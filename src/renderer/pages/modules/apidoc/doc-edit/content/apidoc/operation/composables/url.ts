@@ -6,7 +6,7 @@ import { computed } from 'vue'
 import type { ApidocProperty, ApidocPropertyType } from '@@/global'
 // import type { ApidocProjectHost } from "@@/store"
 import { store } from '@/store/index'
-import { apidocGenerateProperty, apidocConvertJsonDataToParams } from '@/helper/index'
+import { apidocGenerateProperty } from '@/helper/index'
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"
 // import { apidocCache } from "@/cache/apidoc"
@@ -37,13 +37,18 @@ export const handleChangeUrl = (): void => {
 const convertQueryToParams = (requestPath: string): void => {
   const stringParams = requestPath.split('?')[1] || '';
   const urlSearchParams = new URLSearchParams(stringParams);
-  const queryParams = Object.fromEntries(urlSearchParams.entries());
-  const params = apidocConvertJsonDataToParams(queryParams);
-  const unshiftData = params[0].children;
+  const objectParams = Object.fromEntries(urlSearchParams.entries());
+  const newParams: ApidocProperty<ApidocPropertyType>[] = [];
+  Object.keys(objectParams).forEach(field => {
+    const property = apidocGenerateProperty();
+    property.key = field;
+    property.value = objectParams[field];
+    newParams.push(property)
+  })
   const uniqueData: ApidocProperty<ApidocPropertyType>[] = [];
-  const arrParams = store.state['apidoc/apidoc'].apidoc.item.queryParams;
-  unshiftData.forEach(item => { //过滤重复的query值
-    if (arrParams.every(v => v.key !== item.key)) {
+  const originParams = store.state['apidoc/apidoc'].apidoc.item.queryParams;
+  newParams.forEach(item => { //过滤重复的query值
+    if (originParams.every(v => v.key !== item.key)) {
       uniqueData.push(item);
     }
   })

@@ -131,25 +131,9 @@ type ApidocRequestMethodRule = {
 //项目规则
 type ApidocProjectRules = {
   /**
-     * 参数值是否必填
-     */
-  requireValue: boolean,
-  /**
-     * 备注是否必填
-     */
-  requireDescription: boolean,
-  /**
      * 单个文件夹允许最大文件个数
      */
   fileInFolderLimit: number,
-  /**
-     * 是否开启折叠动画
-     */
-  enableCollapseAnimation: boolean,
-  /**
-     * 域名个数限制
-     */
-  dominLimit: number,
   /**
      * 请求方法
      */

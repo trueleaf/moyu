@@ -208,19 +208,6 @@ export default defineComponent({
     beautifyHtml(str: string) {
       return str;
     },
-    //应用为响应值
-    handleApplyResponse(item: ResponseApplyEnum, index: number) {
-      const convertData = this.$helper.apidocConvertJsonDataToParams(JSON.parse(this.jsonResponse), (p: ApidocProperty) => {
-        const mindData = this.$store.state['apidoc/baseInfo'].mindParams.filter(v => v.paramsPosition === 'responseParams');
-        const matchedData = mindData.find(v => v.key === p.key);
-        if (matchedData) {
-          p.description = matchedData.description;
-          // p.value = matchedData.value;
-        }
-        return '';
-      }, true);
-      this.$store.commit('apidoc/apidoc/changeResponseByIndex', { index, value: convertData })
-    },
     //下载文件
     handleDownload() {
       const fileInfo = this.remoteResponse.data.file

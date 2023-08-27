@@ -17,11 +17,9 @@ import {
   findNextSiblingById,
   apidocGenerateProperty,
   apidocConvertParamsToJsonData,
-  apidocConvertJsonDataToParams,
   formatBytes,
   formatMs,
   lodashIsEqual,
-  apidocConvertParamsToJsonStr,
   apidocGenerateApidoc,
 } from '@/helper/index'
 
@@ -103,10 +101,6 @@ type Helper = {
      */
   apidocConvertParamsToJsonData: typeof apidocConvertParamsToJsonData,
   /**
-     * 将json参数转换为moyu参数
-     */
-  apidocConvertJsonDataToParams: typeof apidocConvertJsonDataToParams,
-  /**
      * 格式化字节数
      */
   formatBytes: typeof formatBytes,
@@ -114,10 +108,6 @@ type Helper = {
      * 格式化毫秒
      */
   formatMs: typeof formatMs,
-  /**
-     * 格式化moyu文档到json数据
-     */
-  apidocConvertParamsToJsonStr: typeof apidocConvertParamsToJsonStr,
   /**
      * 生成一条默认api文档
      */

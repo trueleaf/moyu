@@ -7,7 +7,6 @@ import { ApidocDetail } from '@@/global';
 import { store } from '@/store/index'
 import { $t } from '@/i18n/i18n'
 import db from '@/cache/database';
-// import { apidocConvertJsonDataToParams } from "@/helper/index"
 import { apidocCache } from '@/cache/apidoc';
 import { router } from '@/router';
 import config from './config'

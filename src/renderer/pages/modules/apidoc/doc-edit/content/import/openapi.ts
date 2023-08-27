@@ -11,7 +11,7 @@
 import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@@/global'
-import { uuid, apidocGenerateProperty, apidocGenerateApidoc, apidocConvertParamsToJsonStr } from '@/helper/index'
+import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
 import { $t } from '@/i18n/i18n'
 
 //=====================================项目信息====================================//
@@ -217,7 +217,7 @@ class OpenApiTranslator {
           moyuDoc.item.paths = parameters.paths;
           moyuDoc.item.headers = parameters.headers;
           moyuDoc.item.queryParams = parameters.query;
-          moyuDoc.item.requestBody.rawJson = apidocConvertParamsToJsonStr(parameters.body.length > 0 ? parameters.body : requestBody.json);
+          // moyuDoc.item.requestBody.rawJson = requestBody;
           moyuDoc.item.requestBody.formdata = requestBody.formdata as ApidocProperty<'string'>[];
           moyuDoc.item.requestBody.urlencoded = requestBody.urlencoded as ApidocProperty<'string'>[];
           moyuDoc.item.requestBody.raw.data = requestBody.raw.data;
@@ -343,10 +343,10 @@ class OpenApiTranslator {
         result.json = [this.convertSchemaObjectToParams(bodyData.schema)];
       }
       if (contentType.toLocaleLowerCase().startsWith('application/x-www-form-urlencoded')) {
-        result.urlencoded = this.convertSchemaObjectToParams(bodyData.schema).children
+        // result.urlencoded = this.convertSchemaObjectToParams(bodyData.schema).children
       }
       if (contentType.toLocaleLowerCase().startsWith('multipart/form-data')) {
-        result.formdata = this.convertSchemaObjectToParams(bodyData.schema).children
+        // result.formdata = this.convertSchemaObjectToParams(bodyData.schema).children
       }
       if (contentType.toLocaleLowerCase().startsWith('*/*')) { //这种情况按照json格式解析
         console.warn('*/*按照json格式解析');
@@ -445,7 +445,6 @@ class OpenApiTranslator {
       const schemaInfo = (schema as OpenAPIV3.ArraySchemaObject);
       apidocProperty.type = 'array';
       apidocProperty.description = schemaInfo.description || '';
-      apidocProperty.children = [this.convertSchemaObjectToParams(schemaInfo.items, undefined, deep + 1)];
     } else if ((schema as OpenAPIV3.SchemaObject).type === 'boolean') { //布尔类型
       const schemaInfo = (schema as OpenAPIV3.SchemaObject);
       apidocProperty.type = 'boolean';
@@ -465,13 +464,6 @@ class OpenApiTranslator {
       const schemaInfo = (schema as OpenAPIV3.SchemaObject);
       apidocProperty.type = 'object';
       apidocProperty.description = schemaInfo.description || '';
-      if (schemaInfo.properties) {
-        Object.keys(schemaInfo.properties).forEach((property) => {
-          if (schemaInfo.properties) {
-            apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property], property, deep + 1));
-          }
-        })
-      }
     } else if ((schema as OpenAPIV3.SchemaObject).type === 'string') { //字符串类型
       const schemaInfo = (schema as OpenAPIV3.SchemaObject);
       if (schemaInfo.format === 'byte' || schemaInfo.format === 'binary') { //二进制
@@ -485,13 +477,6 @@ class OpenApiTranslator {
       const schemaInfo = (schema as OpenAPIV3.SchemaObject);
       apidocProperty.type = 'object';
       apidocProperty.description = schemaInfo.description || '';
-      if (schemaInfo.properties) {
-        Object.keys(schemaInfo.properties).forEach((property) => {
-          if (schemaInfo.properties) {
-            apidocProperty.children.push(this.convertSchemaObjectToParams(schemaInfo.properties[property], property, deep + 1));
-          }
-        })
-      }
     }
     return apidocProperty;
   }

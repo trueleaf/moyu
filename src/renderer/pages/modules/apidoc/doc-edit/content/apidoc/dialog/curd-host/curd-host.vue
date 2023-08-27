@@ -129,11 +129,6 @@ export default defineComponent({
       loading: false,
     };
   },
-  computed: {
-    dominLimit() {
-      return this.$store.state['apidoc/baseInfo'].rules.dominLimit;
-    },
-  },
   methods: {
     //返回钩子
     handleHookResponse(res: ResponseTable<HostInfo[]>, _this: HookThis) {

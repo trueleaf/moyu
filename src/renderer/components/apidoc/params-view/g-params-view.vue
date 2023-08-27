@@ -7,9 +7,6 @@
 <template>
   <div class="s-array-view">
     <div class="header">
-      <!-- <div class="search">
-                <input v-model="queryString" type="text" placeholder="关键词高亮...">
-            </div> -->
       <slot name="header" />
     </div>
     <div class="content">

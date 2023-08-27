@@ -3,7 +3,7 @@
  */
 
 import { ApidocProperty, ApidocASTInfo } from '@@/global'
-import { apidocConvertValue, uuid as getUuid } from '@/helper/index'
+import { apidocConvertValue } from '@/helper/index'
 
 //生成语法树基本数据结构
 function generateAstInfo(): ApidocASTInfo {
@@ -53,10 +53,6 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
       const itemType = item.type;
       const hasItemValue = (itemType === 'string' && item.value != null) || item.value; //字符串可以为空""
       const itemPath = item.key;
-      const isObject = itemType === 'object';
-      const isArray = itemType === 'array';
-      const objectHasValue = (isObject && item.children.length > 0);
-      const arrayHasValue = (isArray && item.children.length > 0 && item.children.some((val) => val.key !== '' || val.value !== '' || val.type === 'object' || val.type === 'array'));
       const isSimpleType = ((itemType === 'string') || (itemType === 'boolean') || (itemType === 'number') || (itemType === 'file'));
       const astInfo = generateAstInfo();
       astInfo.id = item._id;
@@ -81,77 +77,6 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
         astInfo.valueType = itemType;
         astInfo.comma = ',';
         result.push(astInfo);
-        // wordNum += 1;
-      } else if (isObject && !objectHasValue) { //对象类型并且子元素无值 x: {}
-        if (level !== 0) {
-          astInfo.path.value = itemPath;
-          astInfo.colon = ':';
-          astInfo.comma = ',';
-        }
-        const uuid = getUuid();
-        astInfo.leftCurlBrace.pairId = uuid;
-        astInfo.leftCurlBrace.value = '{';
-        astInfo.rightCurlBrace.value = '}';
-        astInfo.rightCurlBrace.pairId = uuid;
-        astInfo.indent = indent * level;
-        result.push(astInfo);
-        // wordNum += 1;
-      } else if (isObject && objectHasValue) { //对象类型并且子元素有值 x: {
-        if (level !== 0) {
-          astInfo.path.value = itemPath;
-          astInfo.colon = itemPath ? ':' : ''; //无key值代表父元素为数组类型
-        }
-        const uuid = getUuid();
-        const rightCurlyBraceInfo = generateAstInfo();
-        astInfo.leftCurlBrace.pairId = uuid;
-        astInfo.leftCurlBrace.value = '{';
-        astInfo.indent = indent * level;
-        result.push(astInfo);
-        foo(item.children, level + 1, deepth + 1, item);
-        rightCurlyBraceInfo.indent = indent * level;
-        rightCurlyBraceInfo.rightCurlBrace.value = '}';
-        rightCurlyBraceInfo.comma = ',';
-        rightCurlyBraceInfo.rightCurlBrace.pairId = uuid;
-        result.push(rightCurlyBraceInfo);
-        // wordNum += 1;
-      } else if (isArray && !arrayHasValue) { //数组类型并且子元素无值  x: [],
-        if (level !== 0) {
-          astInfo.path.value = itemPath;
-          astInfo.colon = ':';
-        }
-        const uuid = getUuid();
-        // astInfo.path.value = itemPath;
-        astInfo.leftBracket.pairId = uuid;
-        // astInfo.colon = ":";
-        astInfo.leftBracket.value = '[';
-        astInfo.rightBracket.value = ']';
-        astInfo.rightBracket.pairId = uuid;
-        astInfo.indent = indent * level;
-        result.push(astInfo);
-        // wordNum += 1;
-      } else if (isArray && arrayHasValue) { //数组类型并且子元素有值 x: [
-        if (level !== 0) {
-          astInfo.path.value = itemPath;
-          astInfo.colon = ':';
-        }
-        if (parentIsArray) {
-          astInfo.colon = ''; //父元素为array，则不显示：
-        }
-        const uuid = getUuid();
-        const currentLevel = indent * level;
-        const rightBracketInfo = generateAstInfo();
-        // astInfo.path.value = itemPath;
-        astInfo.leftBracket.value = '[';
-        astInfo.leftBracket.pairId = uuid;
-        astInfo.indent = currentLevel;
-        // astInfo.colon = ":";
-        result.push(astInfo);
-        foo(item.children, level + 1, deepth + 1, item);
-        rightBracketInfo.indent = currentLevel;
-        rightBracketInfo.rightBracket.value = ']';
-        rightBracketInfo.rightBracket.pairId = uuid;
-        rightBracketInfo.comma = ',';
-        result.push(rightBracketInfo);
         // wordNum += 1;
       }
       if (parentIsArray) {
