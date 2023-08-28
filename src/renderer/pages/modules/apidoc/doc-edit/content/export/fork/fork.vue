@@ -242,13 +242,6 @@ const sortTargetTree = (node: Node, dropNode: Node, type: DropType) => {
     pid: '', //父元素
     sort: 0, //当前节点排序效果
     projectId,
-    dropInfo: {
-      nodeName: node.data.name,
-      nodeId: node.data._id,
-      dropNodeName: dropNode.data.name,
-      dropNodeId: dropNode.data._id,
-      dropType: type,
-    },
   };
   const pData = findParentById(targetTreeData.value, node.data._id, { idKey: '_id' });
   params.pid = pData ? pData._id : '';

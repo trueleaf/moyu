@@ -253,13 +253,6 @@ export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: '
     pid: '', //父元素
     sort: 0, //当前节点排序效果
     projectId: router.currentRoute.value.query.id,
-    dropInfo: {
-      nodeName: dragData.name,
-      nodeId: dragData._id,
-      dropNodeName: dropData.name,
-      dropNodeId: dropData._id,
-      dropType: type,
-    },
   };
   const pData = findParentById(banner, dragData._id, { idKey: '_id' });
   params.pid = pData ? pData._id : '';
