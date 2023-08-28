@@ -192,7 +192,7 @@ export function pasteNodes(currentOperationalNode: Ref<ApidocBanner | null>, pas
       mountedId: currentOperationalNode.value?._id,
       docs: uniqueFlatNodes.map((v) => ({
         _id: v._id,
-        pid: v.pid,
+        // pid: v.pid,
       })),
     };
     axios.post<Response<MapId[]>, Response<MapId[]>>('/api/project/paste_docs', params).then((res) => {
@@ -257,13 +257,6 @@ export function dragNode(dragData: ApidocBanner, dropData: ApidocBanner, type: '
     pid: '', //父元素
     sort: 0, //当前节点排序效果
     projectId: router.currentRoute.value.query.id,
-    dropInfo: {
-      nodeName: dragData.name,
-      nodeId: dragData._id,
-      dropNodeName: dropData.name,
-      dropNodeId: dropData._id,
-      dropType: type,
-    },
   };
   const pData = findParentById(banner, dragData._id, { idKey: '_id' });
   params.pid = pData ? pData._id : '';
