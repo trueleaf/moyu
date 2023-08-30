@@ -15,8 +15,8 @@ type ReturnData = {
 export function useBannerData(): ReturnData {
   const store = useStore();
   const route = useRoute()
-  const projectId = route.query.id;
   const getBannerData = async () => {
+    const projectId = route.query.id;
     if (store.state['apidoc/banner'].loading) {
       return
     }
@@ -24,7 +24,7 @@ export function useBannerData(): ReturnData {
     await store.dispatch('apidoc/banner/getDocBanner', { projectId });
     store.commit('apidoc/banner/changeBannerLoading', false)
   }
-  getBannerData();
+  // getBannerData();
   return {
     getBannerData,
   };

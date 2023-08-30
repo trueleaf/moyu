@@ -486,6 +486,7 @@ const handleGlobalClick = () => {
   selectNodes.value = [];
 }
 onMounted(() => {
+  getBannerData();
   document.documentElement.addEventListener('click', handleGlobalClick);
 })
 onUnmounted(() => {

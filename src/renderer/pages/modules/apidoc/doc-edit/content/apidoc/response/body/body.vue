@@ -107,13 +107,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import beautify from 'js-beautify'
-import { ApidocProperty } from '@@/global';
-
-type ResponseApplyEnum = {
-  index: number,
-  title: string,
-  contentType: string,
-}
 
 export default defineComponent({
   data() {
