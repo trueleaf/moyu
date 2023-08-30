@@ -711,9 +711,6 @@ const handleToggleProjectModel = () => {
         .el-input__wrapper {
             border-radius: 20px;
         }
-        .el-input__inner {
-            border-radius: 20px;
-        }
     }
     // 快捷方式样式
     .tool-icon {

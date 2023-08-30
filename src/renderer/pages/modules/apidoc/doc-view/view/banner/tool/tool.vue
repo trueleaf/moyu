@@ -297,9 +297,6 @@ const handleFilterBanner = () => {
     // 搜索框样式
     .doc-search {
         border-radius: 20px;
-        .el-input__inner {
-            border-radius: 20px;
-        }
     }
     // 快捷方式样式
     .tool-icon {
