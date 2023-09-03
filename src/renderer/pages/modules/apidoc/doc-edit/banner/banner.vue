@@ -467,13 +467,13 @@ const handleNodeKeydown = (e: KeyboardEvent) => {
   }
   if (e.code === 'F2' && !currentOperationalNode.value?.readonly) {
     handleRenameNode()
-  } else if (e.ctrlKey && (e.key === 'D' || e.key === 'd')) {
+  } else if (!editNode.value && e.ctrlKey && (e.key === 'D' || e.key === 'd')) {
     handleDeleteNodes();
-  } else if (e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
+  } else if (!editNode.value && e.ctrlKey && (e.key === 'C' || e.key === 'c')) {
     handleCopyNode();
-  } else if (e.ctrlKey && (e.key === 'V' || e.key === 'v')) {
+  } else if (!editNode.value && e.ctrlKey && (e.key === 'V' || e.key === 'v')) {
     handlePasteNode();
-  } else if (e.ctrlKey && (e.key === 'X' || e.key === 'x')) {
+  } else if (!editNode.value && e.ctrlKey && (e.key === 'X' || e.key === 'x')) {
     handleCutNode();
   }
 }
