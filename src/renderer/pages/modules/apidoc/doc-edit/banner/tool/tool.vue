@@ -44,7 +44,7 @@
     <div class="p-relative">
       <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
       <el-badge :is-dot="hasFilterCondition" class="badge">
-        <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
+        <el-popover placement="right-end" :hide-after="0" transition="none" width="50vw" trigger="click">
           <template #reference>
             <div class="advance" :title="$t('高级筛选')">
               <i class="iconfont icongaojishaixuan"></i>
@@ -799,6 +799,9 @@ const handleToggleProjectModel = () => {
     flex: 0 0 auto;
     .el-checkbox, .el-radio {
         margin-right: size(15);
+    }
+    .el-checkbox-group {
+      display: flex;
     }
     .op-item {
         min-height: size(40);
