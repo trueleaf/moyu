@@ -348,14 +348,6 @@ type ApidocBaseInfo = {
      */
   type: ApidocType;
   /**
-     * 文档标签
-     */
-  tag: {
-    _id: string;
-    name: string;
-    color: string;
-  };
-  /**
      * 创建者
      */
   creator: string;
@@ -364,17 +356,9 @@ type ApidocBaseInfo = {
      */
   maintainer: string;
   /**
-     * 删除人员
-     */
-  deletePerson: string;
-  /**
      * 花费时间
      */
   spendTime: number;
-  /**
-     * 是否只读
-     */
-  readonly: boolean;
 };
 //api文档ContentType
 type ApidocContentType =
@@ -468,7 +452,8 @@ type ApidocBodyParams = {
      * file类型参数
      */
   file: {
-    src: string;
+    url: string;
+    raw: string;
   };
 };
 //api文档返回参数
@@ -476,7 +461,7 @@ type ApidocResponseParams = {
   /**
      * id
      */
-  _id: string;
+  _id?: string;
   /**
      * 返回参数表述
      */

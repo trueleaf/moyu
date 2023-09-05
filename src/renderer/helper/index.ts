@@ -436,16 +436,9 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
       description: '',
       version: '',
       type: 'api',
-      tag: {
-        _id: '',
-        name: '',
-        color: '',
-      },
       creator: '',
       maintainer: '',
-      deletePerson: '',
       spendTime: 0,
-      readonly: false,
     },
     preRequest: {
       raw: ''
@@ -471,11 +464,11 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
           dataType: 'text/plain'
         },
         file: {
-          src: '',
+          url: '',
+          raw: ''
         },
       },
       responseParams: [{
-        _id: uuid(),
         title: '成功返回',
         statusCode: 200,
         value: {

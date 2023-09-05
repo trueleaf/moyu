@@ -22,11 +22,6 @@
         <s-label-value label="接口名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
         </s-label-value>
-        <s-label-value label="标签信息：" class="w-50">
-          <div v-if="apidocInfo?.info.tag && apidocInfo?.info.tag.name">
-            <span :style="{color: apidocInfo?.info.tag.color}">{{ apidocInfo?.info.tag.name }}</span>
-          </div>
-        </s-label-value>
         <div v-if="apidocInfo" class="base-info">
           <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>

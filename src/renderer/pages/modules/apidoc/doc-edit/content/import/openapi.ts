@@ -197,11 +197,6 @@ class OpenApiTranslator {
           const tags = pathItemObject?.tags;
           if (tags && tags.length > 0) {
             allTags.add(tags[0]);
-            moyuDoc.info.tag = {
-              _id: '',
-              color: '',
-              name: tags[0],
-            };
           }
           moyuDoc.pid = pid;
           moyuDoc.sort = Date.now(); //排序
@@ -255,12 +250,6 @@ class OpenApiTranslator {
         folderDoc.info.type = 'folder';
         folderDoc.info.name = tag;
 
-        docsResult.forEach((docInfo) => {
-          const docTag = docInfo.info.tag?.name;
-          if (docTag === tag) {
-            docInfo.pid = pid;
-          }
-        })
         docsResult.push(folderDoc);
       })
     } else if (folderNamedType === 'none') {
