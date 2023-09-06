@@ -70,6 +70,10 @@ const bindShortcut = (e: KeyboardEvent) => {
         ids: [selectedTab._id]
       });
     }
+  } else if (e.ctrlKey && (e.key === 'R' || e.key === 'r')) {
+    window.location.reload()
+  } else if (e.ctrlKey && (e.key === 'F5')) {
+    window.location.reload()
   }
 }
 //=====================================基本数据获取====================================//
