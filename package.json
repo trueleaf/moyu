@@ -81,7 +81,7 @@
     "@vue/eslint-config-airbnb": "^5.0.2",
     "@vue/eslint-config-typescript": "^7.0.0",
     "base64-inline-loader": "^2.0.1",
-    "electron": "16.0.6",
+    "electron": "^26.1.0",
     "electron-devtools-installer": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.2",
