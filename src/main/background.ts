@@ -41,8 +41,11 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
-  ipcMain.on('openDevTools', () => {
+  ipcMain.on('open-dev-tools', () => {
     win.webContents.openDevTools();
+  });
+  ipcMain.on('force-reload', () => {
+    win.webContents.reloadIgnoringCache()
   });
 }
 

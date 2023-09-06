@@ -114,7 +114,7 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
     //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
-    const handleOpenDevTools = () => ipcRenderer.send('openDevTools');
+    const handleOpenDevTools = () => ipcRenderer.send('open-dev-tools');
     const goBack = () => router.back()
     const goForward = () => router.forward();
     const freshPage = () => window.location.reload();
