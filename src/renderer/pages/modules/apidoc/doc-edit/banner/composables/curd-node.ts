@@ -22,9 +22,10 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 /**
  * 删除某个(多个)节点
  */
-export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void {
+export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: boolean): void {
   const { banner } = store.state['apidoc/banner'];
-  const projectId = router.currentRoute.value.query.id;
+  const currentProjectId = router.currentRoute.value.query.id;
+  const nodeProjectId = selectNodes[0]?.projectId;
   const deleteIds: string[] = [];
   selectNodes.forEach((node) => {
     deleteIds.push(node._id); //删除自己
@@ -40,31 +41,33 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
   const deleteOperation = () => {
     const params = {
       data: {
-        projectId,
+        projectId: nodeProjectId,
         ids: deleteIds,
       },
     };
     axios.delete('/api/project/doc', params).then(() => {
-      selectNodes.forEach((node) => {
-        const deletePid = node.pid;
-        if (!deletePid) { //不存在pid代表在根元素删除
-          const delIndex = banner.findIndex((val) => val._id === node._id);
-          store.commit('apidoc/banner/splice', {
-            start: delIndex,
-            deleteCount: 1,
-          })
-        } else {
-          const parentNode = findNodeById(banner, node.pid, {
-            idKey: '_id',
-          });
-          const delIndex = parentNode?.children.findIndex((val) => val._id === node._id);
-          store.commit('apidoc/banner/splice', {
-            start: delIndex,
-            deleteCount: 1,
-            opData: parentNode?.children,
-          })
-        }
-      })
+      if (currentProjectId === nodeProjectId) { //非跨项目删除
+        selectNodes.forEach((node) => {
+          const deletePid = node.pid;
+          if (!deletePid) { //不存在pid代表在根元素删除
+            const delIndex = banner.findIndex((val) => val._id === node._id);
+            store.commit('apidoc/banner/splice', {
+              start: delIndex,
+              deleteCount: 1,
+            })
+          } else {
+            const parentNode = findNodeById(banner, node.pid, {
+              idKey: '_id',
+            });
+            const delIndex = parentNode?.children.findIndex((val) => val._id === node._id);
+            store.commit('apidoc/banner/splice', {
+              start: delIndex,
+              deleteCount: 1,
+              opData: parentNode?.children,
+            })
+          }
+        })
+      }
       //删除所有nav节点
       const delNodeIds: string[] = [];
       forEachForest(selectNodes, (node) => {
@@ -73,7 +76,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
         }
       })
       store.dispatch('apidoc/tabs/deleteTabByIds', {
-        projectId,
+        projectId: nodeProjectId,
         ids: delNodeIds
       });
     }).catch((err) => {
@@ -104,6 +107,7 @@ export function deleteNode(selectNodes: ApidocBanner[], silent?: boolean): void 
 export function addFileAndFolderCb(currentOperationalNode: Ref<ApidocBanner | null>, data: ApidocBanner): void {
   const { banner } = store.state['apidoc/banner'];
   if (currentOperationalNode.value) { //插入到某个节点下面
+    // eslint-disable-next-line no-debugger
     if (data.type === 'folder') {
       const lastFolderIndex = currentOperationalNode.value.children.findIndex((node) => !node.isFolder)
       if (lastFolderIndex === -1) {
