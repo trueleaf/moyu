@@ -54,13 +54,21 @@ const bindShortcut = (e: KeyboardEvent) => {
   const tabs = store.state['apidoc/tabs'].tabs[projectId];
   const hasTabs = tabs && tabs.length > 0;
   const currentTabIsDoc = currentSelectTab.value?.tabType === 'doc';
-  if (hasTabs && currentTabIsDoc && e.ctrlKey && e.key === 's' && saveDocLoading.value === false) {
+  if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'S' || e.key === 's') && saveDocLoading.value === false) {
     e.preventDefault();
     e.stopPropagation();
     if (currentSelectTab.value._id.includes('local_')) {
       saveDocDialogVisible.value = true
     } else if (!store.state['apidoc/apidoc'].saveLoading) {
       store.dispatch('apidoc/apidoc/saveApidoc');
+    }
+  } else if (hasTabs && currentTabIsDoc && e.ctrlKey && (e.key === 'W' || e.key === 'w')) {
+    const selectedTab = tabs.find(tab => tab.selected)
+    if (selectedTab) {
+      store.dispatch('apidoc/tabs/deleteTabByIds', {
+        projectId,
+        ids: [selectedTab._id]
+      });
     }
   }
 }

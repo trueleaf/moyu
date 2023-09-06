@@ -1,4 +1,4 @@
-import { app, shell, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import update from './update';
 import config from '../config/config'
@@ -60,16 +60,10 @@ app.on('activate', () => {
 })
 
 app.on('ready', async () => {
+  Menu.setApplicationMenu(null)
   createWindow()
   update();
 })
-
-app.on('web-contents-created', (event, webContents) => {
-  webContents.addListener('new-window', (e, url) => {
-    e.preventDefault();
-    shell.openExternal(url);
-  })
-});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
