@@ -50,6 +50,11 @@
               </el-dropdown-menu>
             </template>
           </el-dropdown>
+          <div title="debug" class="op_item" @click="handleOpenDevTools">
+            <el-icon :size="20">
+              <i class="iconfont icondebug"></i>
+            </el-icon>
+          </div>
         </div>
         <div v-if="downloading" class="process">
           <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
@@ -82,7 +87,7 @@
 
 <script lang="ts">
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { IpcRenderer } from 'electron'
+import type { IpcRenderer } from 'electron'
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router'
 import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
@@ -109,10 +114,10 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
     //辅助操作按钮(electron不具备浏览器前进、后退、刷新)
+    const handleOpenDevTools = () => ipcRenderer.send('openDevTools');
     const goBack = () => router.back()
     const goForward = () => router.forward();
     const freshPage = () => window.location.reload();
-    //个人中心
     const jumpToHome = () => router.push('/v1/apidoc/doc-list');
     const jumpToUserSetting = () => router.push('/v1/settings/user');
     const logout = () => {
@@ -125,6 +130,7 @@ export default defineComponent({
       changeLanguage(language);
     }
     return {
+      handleOpenDevTools,
       goBack,
       goForward,
       freshPage,
