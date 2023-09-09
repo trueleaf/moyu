@@ -219,7 +219,7 @@ export default defineComponent({
       return new Promise((resolve, reject) => {
         this.$nextTick(() => {
           let p = {};
-          if (Object.prototype.toString.call(searchParams).slice(8, -1) !== 'MouseEvent') { //修复鼠标事件导致第一个参数数据错误
+          if (Object.prototype.toString.call(searchParams).slice(8, -1) === 'Object') { //修复鼠标事件导致第一个参数数据错误
             p = JSON.parse(JSON.stringify(searchParams || {})); //防止数据变化产生递归
           }
           const params = this.paging ? Object.assign(this.formInfo, p, this.params) : Object.assign(p, this.params);
