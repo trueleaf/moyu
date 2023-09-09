@@ -51,8 +51,8 @@
           <span>{{ $t("返回格式") }}：</span>
           <span>{{ item.value.dataType }}</span>
         </div>
-        <pre v-if="item.value.dataType === 'application/json'">{{ item.value.strJson }}</pre>
-        <!-- <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.json"></s-params-view> -->
+        <pre v-if="item.value.dataType === 'application/json' && item.value.strJson.length > 0">{{ item.value.strJson }}</pre>
+        <div v-if="item.value.dataType === 'application/json' && !item.value.strJson.length">{{ $t('暂无数据') }}</div>
         <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'">
           <pre>{{ item.value.text }}</pre>
         </div>
@@ -65,7 +65,7 @@
       <div v-else>{{ $t("暂无数据") }}</div>
     </s-fieldset>
     <s-fieldset :title="$t('备注')">
-      <div v-if="desciption">{{ desciption }}</div>
+      <div v-if="desciption" class="remark">{{ desciption }}</div>
       <div v-else>{{ $t("暂无数据") }}</div>
     </s-fieldset>
   </div>
@@ -133,6 +133,9 @@ export default defineComponent({
     .title {
         margin-bottom: size(10);
         font-size: fz(15);
+    }
+    .remark {
+      white-space: pre;
     }
 }
 </style>
