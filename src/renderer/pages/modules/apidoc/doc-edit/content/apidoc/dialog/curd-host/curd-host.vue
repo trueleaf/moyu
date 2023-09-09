@@ -22,8 +22,8 @@
           </el-form-item>
           <el-form-item :label="`${$t('是否共享')}：`" prop="name">
             <el-radio-group v-model="formInfo.isLocal">
-              <el-radio :label="true">{{ $t("仅本地") }}</el-radio>
-              <el-radio :label="false">{{ $t("可共享") }}</el-radio>
+              <el-radio :label="true">{{ $t("仅自身可见") }}</el-radio>
+              <el-radio :label="false">{{ $t("项目内成员可见") }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <div class="d-flex j-end">
@@ -50,21 +50,21 @@
           </el-table-column>
           <el-table-column :label="$t('接口前缀')" align="center" width="300px">
             <template #default="scope">
-              <s-valid-input
+              <el-input
                 v-if="editItem?._id === scope.row._id"
                 v-model="scope.row.url"
-                :error="errorInfo.error"
-                :error-tip="errorInfo.message"
                 placeholder="接口前缀必填"
+                type="textarea"
+                :autosize="{ minRows: 3 }"
               >
-              </s-valid-input>
+              </el-input>
               <div v-else class="url-wrap">{{ scope.row.url }}</div>
             </template>
           </el-table-column>
           <el-table-column :label="$t('是否共享')" align="center">
             <template #default="scope">
-              <span v-if="scope.row.isLocal" class="orange">{{ $t("仅本地") }}</span>
-              <span v-else class="green">{{ $t("可共享") }}</span>
+              <span v-if="scope.row.isLocal" class="orange">{{ $t("仅自身可见") }}</span>
+              <span v-else class="green">{{ $t("项目内成员可见") }}</span>
             </template>
           </el-table-column>
           <el-table-column :label="$t('操作')" align="center">

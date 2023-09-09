@@ -485,7 +485,7 @@ type ApidocWorkerState = {
      */
   localState: Record<string, unknown>;
   /**
-     * 可共享状态，允许多机共享
+     * 项目内成员可见状态，允许多机共享
      */
   remoteState: Record<string, unknown>
 };
