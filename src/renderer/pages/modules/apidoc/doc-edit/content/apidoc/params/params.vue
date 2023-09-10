@@ -31,12 +31,6 @@
         <span class="mr-1 f-sm iconfont iconvariable"></span>
         <span>{{ $t("变量") }}</span>
       </div>
-      <div v-if="!isView" class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenMindParams">
-        <el-icon :size="16" class="mr-1">
-          <icon-opportunity></icon-opportunity>
-        </el-icon>
-        <span>{{ $t("联想值") }}</span>
-      </div>
       <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
         <el-popover v-model:visible="generateCodeVisible" width="300px" placement="bottom" trigger="manual">
           <template #reference>

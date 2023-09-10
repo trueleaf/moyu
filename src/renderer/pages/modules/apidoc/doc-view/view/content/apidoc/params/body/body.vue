@@ -189,8 +189,6 @@ const bodyType = computed<ApidocBodyMode>({
     store.commit('apidoc/apidoc/changeBodyMode', val);
   },
 });
-//body参数联想值
-// const mindBodyData = computed(() => store.state["apidoc/baseInfo"].mindParams.filter(v => v.paramsPosition === "requestBody"))
 /*
 |--------------------------------------------------------------------------
 | json类型操作
