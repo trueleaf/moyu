@@ -32,7 +32,7 @@
         <div class="title">{{ $t("Body参数") }}({{ apidocInfo.requestBody.raw.dataType }})</div>
         <pre>{{ apidocInfo.requestBody.raw.data }}</pre>
       </template>
-      <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">{{ $t("暂无数据") }}</div>
+      <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams" class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
     </s-fieldset>
     <s-fieldset :title="$t('返回参数')">
       <div v-for="(item, index) in apidocInfo.responseParams" :key="index" class="title">
@@ -51,9 +51,10 @@
           <span>{{ item.value.dataType }}</span>
         </div>
         <pre v-if="item.value.dataType === 'application/json' && item.value.strJson.length > 0">{{ item.value.strJson }}</pre>
-        <div v-if="item.value.dataType === 'application/json' && !item.value.strJson.length">{{ $t('暂无数据') }}</div>
+        <div v-if="item.value.dataType === 'application/json' && !item.value.strJson.length" class="ml-2 gray-500">{{ $t('暂无数据') }}</div>
         <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'">
-          <pre>{{ item.value.text }}</pre>
+          <pre v-if=" item.value.text">{{ item.value.text }}</pre>
+          <div v-else class="ml-2 gray-500">{{ $t('暂无数据') }}</div>
         </div>
       </div>
     </s-fieldset>
@@ -61,11 +62,11 @@
       <template v-if="hasHeaders">
         <s-params-view :data="apidocInfo.headers" plain class="mb-3"></s-params-view>
       </template>
-      <div v-else>{{ $t("暂无数据") }}</div>
+      <div v-else class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
     </s-fieldset>
     <s-fieldset :title="$t('备注')">
       <div v-if="desciption" class="remark">{{ desciption }}</div>
-      <div v-else>{{ $t("暂无数据") }}</div>
+      <div v-else class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
     </s-fieldset>
   </div>
 </template>
