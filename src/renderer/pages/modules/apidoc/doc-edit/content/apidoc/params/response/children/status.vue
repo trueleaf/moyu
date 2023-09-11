@@ -9,7 +9,10 @@
     <template v-for="(item, index) in status" :key="index">
       <div class="text-bold mt-1">{{ item.title }}</div>
       <div class="px-3 d-flex flex-wrap">
-        <el-tooltip v-for="(mime, index2) in item.values" :key="index2" :show-after="800" :content="mime.msg" placement="top" :effect="Effect.LIGHT">
+        <el-tooltip v-for="(mime, index2) in item.values" :key="index2" :show-after="800" placement="top" :effect="Effect.LIGHT">
+          <template #content>
+            <div class="w-500px px-3 py-3">{{ mime.msg }}</div>
+          </template>
           <div class="item" @click="handleSelect(mime.code)">{{ mime.code }}</div>
         </el-tooltip>
       </div>
