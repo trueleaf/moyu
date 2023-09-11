@@ -44,9 +44,9 @@
 <script lang="ts" setup>
 // import json5 from "json5"
 import { computed } from 'vue'
-import { store } from '@/store/index'
 import beautify from 'js-beautify'
 import type FormData from 'form-data'
+import { store } from '@/store/index'
 
 const requestInfo = computed(() => store.state['apidoc/request']); //请求基本信息
 const contentType = computed(() => store.state['apidoc/apidoc'].apidoc.item.contentType); //contentType

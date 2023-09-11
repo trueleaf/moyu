@@ -1,12 +1,12 @@
 import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from '@@/global'
 import type IFromData from 'form-data'
+import json5 from 'json5'
+import html2canvas from 'html2canvas';
 import { apidocGenerateApidoc, apidocGenerateProperty, formatBytes } from '@/helper/index'
 import Mock from '@/server/mock/mock'
-import json5 from 'json5'
 import { store } from '@/store'
 import { router } from '@/router'
 import { axios } from '@/api/api'
-import html2canvas from 'html2canvas';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
