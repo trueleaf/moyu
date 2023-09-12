@@ -17,7 +17,6 @@
 
 <script lang="ts" setup>
 import { computed, onMounted, onBeforeUnmount } from 'vue'
-import type { IpcRenderer } from 'electron'
 import { router } from '@/router/index'
 import { useStore } from '@/store/index'
 import { apidocCache } from '@/cache/apidoc'
@@ -26,11 +25,6 @@ import sBanner from './banner/banner.vue';
 import sNav from './nav/nav.vue';
 import sContent from './content/content.vue';
 
-let ipcRenderer: IpcRenderer;
-if (window.require) {
-  // eslint-disable-next-line prefer-destructuring
-  ipcRenderer = window.require('electron').ipcRenderer;
-}
 const store = useStore();
 const projectId = router.currentRoute.value.query.id as string;
 //当前选中的tab
@@ -76,10 +70,6 @@ const bindShortcut = (e: KeyboardEvent) => {
         ids: [selectedTab._id]
       });
     }
-  } else if (e.ctrlKey && (e.key === 'R' || e.key === 'r')) {
-    window.location.reload()
-  } else if (e.ctrlKey && (e.key === 'F5')) {
-    ipcRenderer.send('force-reload')
   }
 }
 //=====================================基本数据获取====================================//
