@@ -257,12 +257,16 @@ class ApidocConverter {
         realHeaders[itemKey] = this.convertPlaceholder(item.value);
       }
     })
+    const userSetContentType = realHeaders['content-type'] || realHeaders['Content-Type'] || realHeaders['Content-type'] || realHeaders['content-Type']
     if (mode === 'formdata') {
       realHeaders['content-type'] = this.multipartHeaders;
     } else {
       realHeaders['content-type'] = contentType
     }
-    if (!contentType) {
+    if (userSetContentType) {
+      realHeaders['content-type'] = userSetContentType;
+    }
+    if (!contentType && !userSetContentType) {
       delete realHeaders['content-type']
     }
     return realHeaders;
