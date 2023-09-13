@@ -9,7 +9,7 @@
     <el-input
       v-model="description"
       :size="config.renderConfig.layout.size"
-      rows="4"
+      rows="15"
       type="textarea"
       show-word-limit
       name="name"
