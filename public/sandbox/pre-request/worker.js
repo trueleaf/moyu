@@ -157,7 +157,6 @@ self.addEventListener("message", async (e) => {
                 const result = await importScript(requestUrls[i]);
                 remoteScriptStr = remoteScriptStr + result + ";"
             }
-            console.log(99, remoteScriptStr, replacedCode)
             const evalPromise = eval(`
                 ${remoteScriptStr}
                 ${replacedCode}

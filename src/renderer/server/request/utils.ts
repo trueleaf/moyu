@@ -206,6 +206,9 @@ class ApidocConverter {
     if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
       fullUrl = `http://${fullUrl}`
     }
+    if (fullUrl.includes('localhost')) {
+      fullUrl = fullUrl.replace('localhost', '127.0.0.1')
+    }
     return {
       host: url.host,
       path: url.path,

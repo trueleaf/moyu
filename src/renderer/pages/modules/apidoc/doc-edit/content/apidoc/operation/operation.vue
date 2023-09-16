@@ -77,8 +77,8 @@
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
     </div>
     <pre class="pre-url">
-            <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
-        </pre>
+      <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
+    </pre>
   </div>
   <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
   <s-save-doc-dialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></s-save-doc-dialog>
