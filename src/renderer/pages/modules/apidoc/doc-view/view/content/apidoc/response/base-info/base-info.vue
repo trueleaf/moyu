@@ -23,9 +23,6 @@
         <s-label-value :label="`${$t('创建人员：')}：`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
           <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
         </s-label-value>
-        <s-label-value :label="`${$t('累计用时：')}：`" :title="formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
-          <span class="text-ellipsis">{{ formatMs(apidocInfo.info.spendTime) }}</span>
-        </s-label-value>
         <s-label-value :label="`${$t('更新日期：')}：`" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
           <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
         </s-label-value>
@@ -40,7 +37,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
-import { formatMs, formatDate } from '@/helper'
+import { formatDate } from '@/helper'
 
 const apidocInfo = computed(() => store.state['apidoc/apidoc'].apidoc)
 

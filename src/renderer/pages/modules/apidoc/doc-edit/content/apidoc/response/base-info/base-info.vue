@@ -23,9 +23,6 @@
         <s-label-value :label="`${$t('创建人员：')}`" :title="apidocInfo.info.creator || apidocInfo.info.maintainer" label-width="auto" class="w-30">
           <span class="text-ellipsis">{{ apidocInfo.info.creator || apidocInfo.info.maintainer }}</span>
         </s-label-value>
-        <s-label-value :label="`${$t('累计用时：')}`" :title="$helper.formatMs(apidocInfo.info.spendTime)" label-width="auto" class="w-30">
-          <span class="text-ellipsis">{{ $helper.formatMs(apidocInfo.info.spendTime) }}</span>
-        </s-label-value>
         <s-label-value :label="`${$t('更新日期：')}`" :title="$helper.formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
           <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.updatedAt) }}</span>
         </s-label-value>
