@@ -135,7 +135,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .params-view {
     .title {
         margin-bottom: size(10);

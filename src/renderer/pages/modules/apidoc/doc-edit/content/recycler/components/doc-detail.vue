@@ -211,7 +211,7 @@ const handleClose = () => {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .doc-detail {
     width: size(800);
     overflow: hidden;
