@@ -6,26 +6,31 @@
 */
 <template>
   <div v-loading="loading" class="apidoc" :class="{ vertical: layout === 'vertical' }">
-    <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
-      <s-operation></s-operation>
-      <s-params></s-params>
-    </div>
-    <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
-    <s-resize-y
-      v-if="layout === 'vertical'"
-      :min="150"
-      :max="550"
-      :height="350"
-      name="response-y"
-      tabindex="1"
-      @dragStart="isVerticalDrag = true"
-      @dragEnd="isVerticalDrag = false"
-    >
-      <s-response></s-response>
-    </s-resize-y>
-    <s-resize-x v-if="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
-      <s-response></s-response>
-    </s-resize-x>
+    <template v-if="mode === 'edit'">
+      <div class="request-layout" :class="{ vertical: layout === 'vertical' }">
+        <s-operation></s-operation>
+        <s-params></s-params>
+      </div>
+      <el-divider v-show="layout === 'vertical' && !isVerticalDrag" content-position="left">Response</el-divider>
+      <s-resize-y
+        v-if="layout === 'vertical'"
+        :min="150"
+        :max="550"
+        :height="350"
+        name="response-y"
+        tabindex="1"
+        @dragStart="isVerticalDrag = true"
+        @dragEnd="isVerticalDrag = false"
+      >
+        <s-response></s-response>
+      </s-resize-y>
+      <s-resize-x v-if="layout === 'horizontal'" :min="500" :max="750" :width="500" name="response" bar-left class="response-layout" tabindex="1">
+        <s-response></s-response>
+      </s-resize-x>
+    </template>
+    <template v-else>
+      <s-view></s-view>
+    </template>
   </div>
 </template>
 
@@ -36,12 +41,14 @@ import { apidocCache } from '@/cache/apidoc'
 import operation from './operation/operation.vue'
 import params from './params/params.vue'
 import response from './response/response.vue'
+import view from './view/view.vue'
 
 export default defineComponent({
   components: {
     's-operation': operation,
     's-params': params,
     's-response': response,
+    's-view': view,
   },
   data() {
     return {
@@ -49,6 +56,10 @@ export default defineComponent({
     };
   },
   computed: {
+    //当前工作区状态
+    mode() {
+      return this.$store.state['apidoc/baseInfo'].mode
+    },
     currentSelectTab(): ApidocTab | null { //当前选中的doc
       const projectId = this.$route.query.id as string;
       const tabs = this.$store.state['apidoc/tabs'].tabs[projectId];

@@ -18,7 +18,7 @@
           <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border @change="handleChangeHost">{{ item.name }}</el-checkbox>
         </template>
       </el-popover>
-      <el-button v-if="!isView" type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+      <el-button type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
     </div>
     <div v-else class="d-flex a-center">
       <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
@@ -35,7 +35,7 @@
           </div>
         </el-option>
       </el-select>
-      <el-button v-if="!isView" type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+      <el-button type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
@@ -73,7 +73,7 @@
         {{ $t("发送请求") }}
       </el-button>
       <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
-      <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
+      <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
     </div>
     <pre class="pre-url">
@@ -101,8 +101,7 @@ import getOperationPart from './composables/operation'
 
 const config: Ref<Config> = ref(globalConfig);
 const store = useStore();
-//当前工作区状态
-const isView = computed(() => store.state['apidoc/baseInfo'].mode === 'view')
+
 /*
 |--------------------------------------------------------------------------
 | web代理相关

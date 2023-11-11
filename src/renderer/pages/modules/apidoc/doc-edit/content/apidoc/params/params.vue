@@ -7,10 +7,9 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
     <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-      <div class="cursor-pointer" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">{{ $t("编辑") }}</div>
+      <div class="cursor-pointer" :class="{active: mode === 'edit'}" @click="toggleMode('edit')">{{ $t("编辑") }}</div>
       <el-divider direction="vertical"></el-divider>
-      <div class="cursor-pointer mr-5" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">{{ $t("预览") }}</div>
-      <!-- <el-divider direction="vertical"></el-divider> -->
+      <div class="cursor-pointer mr-5" :class="{active: mode === 'view'}" @click="toggleMode('view')">{{ $t("预览") }}</div>
       <el-dropdown trigger="click">
         <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
           <span class="mr-1 f-sm iconfont iconbuju"></span>
@@ -27,7 +26,7 @@
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <div v-if="!isView" class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
+      <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
         <span class="mr-1 f-sm iconfont iconvariable"></span>
         <span>{{ $t("变量") }}</span>
       </div>
@@ -43,52 +42,47 @@
         </el-popover>
       </div>
     </div>
-    <template v-if="workMode === 'edit'">
-      <el-tabs v-model="activeName">
-        <el-tab-pane name="s-params">
-          <template #label>
-            <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="s-request-body">
-          <template #label>
-            <el-badge :is-dot="hasBodyParams">Body</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="s-response-params">
-          <template #label>
-            <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="s-request-headers">
-          <template #label>
-            <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
-        <el-tab-pane name="s-pre-request">
-          <template #label>
-            <el-badge :is-dot="hasPreRequest">{{ $t("前置脚本") }}</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="s-after-request">
-          <template #label>
-            <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
-          </template>
-        </el-tab-pane>
-        <el-tab-pane name="s-mock">
-          <template #label>
-            <el-badge :is-dot="hasCustomMockInfo">Mock</el-badge>
-          </template>
-        </el-tab-pane>
-      </el-tabs>
-      <keep-alive>
-        <component :is="activeName" class="workbench"></component>
-      </keep-alive>
-    </template>
-    <template v-if="workMode === 'view'">
-      <s-view></s-view>
-    </template>
+    <el-tabs v-model="activeName">
+      <el-tab-pane name="s-params">
+        <template #label>
+          <el-badge :is-dot="hasQueryOrPathsParams">Params</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="s-request-body">
+        <template #label>
+          <el-badge :is-dot="hasBodyParams">Body</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="s-response-params">
+        <template #label>
+          <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="s-request-headers">
+        <template #label>
+          <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
+      <el-tab-pane name="s-pre-request">
+        <template #label>
+          <el-badge :is-dot="hasPreRequest">{{ $t("前置脚本") }}</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="s-after-request">
+        <template #label>
+          <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane name="s-mock">
+        <template #label>
+          <el-badge :is-dot="hasCustomMockInfo">Mock</el-badge>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
+    <keep-alive>
+      <component :is="activeName" class="workbench"></component>
+    </keep-alive>
   </div>
 </template>
 
@@ -108,7 +102,6 @@ import responseParams from './response/response.vue';
 import preRequestParams from './pre-request/pre-request.vue';
 import afterRequestParams from './after-request/after-request.vue';
 import remarks from './remarks/remarks.vue';
-import view from './view/view.vue'
 import hook from './hook/hook.vue'
 import mock from './mock/mock.vue'
 
@@ -118,7 +111,6 @@ export default defineComponent({
     's-request-body': requestBody,
     's-request-headers': requestHeaders,
     's-response-params': responseParams,
-    's-view': view,
     's-remarks': remarks,
     's-pre-request': preRequestParams,
     's-after-request': afterRequestParams,
@@ -127,15 +119,16 @@ export default defineComponent({
     'icon-opportunity': Opportunity
   },
   data() {
-    const mode = this.$route.query.mode as 'edit' | 'view';
     return {
-      workMode: mode, //是否开启预览模式
       activeName: 's-params',
       generateCodeVisible: false, //是否打开生成代码弹窗
       debounceFn: null as (null | DebouncedFunc<(apidoc: ApidocDetail) => void>),
     };
   },
   computed: {
+    mode() {
+      return this.$store.state['apidoc/baseInfo'].mode;
+    },
     //是否存在查询参数
     hasQueryOrPathsParams() {
       const { queryParams, paths } = this.$store.state['apidoc/apidoc'].apidoc.item;
@@ -234,10 +227,6 @@ export default defineComponent({
     //apidoc
     apidoc() {
       return this.$store.state['apidoc/apidoc'].apidoc;
-    },
-    //当前工作区状态
-    isView() {
-      return this.$store.state['apidoc/baseInfo'].mode === 'view'
     },
   },
   watch: {
@@ -362,7 +351,6 @@ export default defineComponent({
       for (let i = 0; i < cpApidoc.item.responseParams.length; i += 1) {
         const item = cpApidoc.item.responseParams[i];
         const originItem = cpOriginApidoc.item.responseParams[i];
-        // const jsonResponseIsEqual = this.checkPropertyIsEqual(item.value.json, originItem.value.json);
         if (item.value.strJson !== originItem.value.strJson) {
           return false;
         }
@@ -453,8 +441,8 @@ export default defineComponent({
     },
     //=========================================================================//
     //切换工作模式
-    toggleWorkMode(mode: 'edit' | 'view') {
-      this.workMode = mode;
+    toggleMode(mode: 'edit' | 'view') {
+      this.$store.commit('apidoc/baseInfo/changeMode', mode);
     },
     //打开变量维护页面
     handleOpenVariable() {
