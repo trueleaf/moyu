@@ -1,31 +1,7 @@
-/*
-|--------------------------------------------------------------------------
-| 默认项目全局配置信息
-|--------------------------------------------------------------------------
-*/
-import type { Config } from '@@/config'
-
-let ip = '127.0.0.1';
-if (typeof window !== 'undefined' && window.require) {
-  const ipFn = window.require('ip');
-  ip = ipFn.address();
-}
-
+import { Config } from '@/types/types';
+import { isElectron } from '../utils/utils';
 const isDev = process.env.NODE_ENV === 'development';
-function isElectron(): boolean {
-  if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
-    return true;
-  }
-  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
-    return true;
-  }
-  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
-    return true;
-  }
-  return false;
-}
-const config: Config = {
-  ip,
+export const config: Config = {
   isElectron: isElectron(),
   isDev,
   //更新相关配置
@@ -55,7 +31,6 @@ const config: Config = {
     mock: {
       enabled: true,
       port: 55555,
-      ip,
     },
     //全局组件配置
     components: {
@@ -95,5 +70,11 @@ const config: Config = {
     enableGuest: true, //是否允许来宾用户体验
     enableDocLink: true, //是否显示文档和帮助链接
   },
+  requestTest: {
+    responseLogDir: '/responseLog',
+    autoSaveResponseLog: false,
+    maxLocalResponseLogSize: 1024 * 1024 * 1024 * 10,
+    maxLocalWebStorageResponseLogSize: 1024 * 1024 * 100,
+    canLogResponseBodySize: 1024 * 1024,
+  }
 }
-export default config;
