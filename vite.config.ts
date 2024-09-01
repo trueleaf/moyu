@@ -7,12 +7,16 @@ import dayjs from 'dayjs'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [viteElectronPlugin(), vue()],
+  server: {
+    host: 'localhost',
+    port: 3000
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, 'src')
     }
   },
   define: {
-    __APP_BUILD_TIME__: dayjs().format('YYYY-MM-DD HH:mm:ss')
+    __APP_BUILD_TIME__: JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss'))
   }
 })

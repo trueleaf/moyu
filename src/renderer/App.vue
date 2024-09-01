@@ -19,16 +19,17 @@ onMounted(() => {
 
         `)
   }
-  console.log(process.env.VUE_APP_BUILD_TIME);
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
   // ${this.$t('基于Vue和Electron的接口文档工具')}
 
   // ${this.$t('GitHub地址')}：https://github.com/trueleaf/moyu
 
   // ${this.$t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
-
-  // ${this.$t('最近一次更新')}：${process.env.VUE_APP_BUILD_TIME}
+  if (!config.isDev) {
+    // ${this.$t('最近一次更新')}：${__APP_BUILD_TIME__}
+  }
 })
+
 
 
 </script>

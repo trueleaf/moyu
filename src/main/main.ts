@@ -10,7 +10,7 @@ function createWindow () {
       nodeIntegration: true
     }
   })
-  mainWindow.loadURL('http://127.0.0.1:5173')
+  mainWindow.loadURL('http://localhost:3000')
   mainWindow.webContents.openDevTools()
 }
 
