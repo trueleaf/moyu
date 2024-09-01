@@ -1,22 +1,7 @@
 import { Config } from '@/types/types';
 const isDev = process.env.NODE_ENV === 'development';
-// console.log(isElectron(), 22)
-
-const isElectron = () => {
-  if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
-    return true;
-  }
-  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
-    return true;
-  }
-  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
-    return true;
-  }
-  return false;
-}
 
 export const config: Config = {
-  isElectron: isElectron(),
   isDev,
   //更新相关配置
   updateConfig: {

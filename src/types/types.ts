@@ -113,10 +113,6 @@ export type ResponseInfo = {
 
 export type Config = {
   /**
-   * 是否为electron环境
-   */
-  isElectron: boolean,
-  /**
    * 是否为开发环境
    */
   isDev: boolean,

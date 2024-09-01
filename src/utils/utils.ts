@@ -4,6 +4,18 @@ import JSON5 from 'json5'
 
 
 
+export const isElectron = () => {
+  if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
+    return true;
+  }
+  if (typeof process !== 'undefined' && typeof process.versions === 'object' && !!process.versions.electron) {
+    return true;
+  }
+  if (typeof navigator === 'object' && typeof navigator.userAgent === 'string' && navigator.userAgent.indexOf('Electron') >= 0) {
+    return true;
+  }
+  return false;
+}
 export const updateObject = <T extends Partial<Record<string, unknown>>>(draft: T, payload: T) => {
   (Object.keys(payload) as Array<keyof T>).forEach(field => {
    const value = payload[field]
