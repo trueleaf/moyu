@@ -1,8 +1,8 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-06-15 22:16
-    模块名称：搜索组件
-    备注：
+创建者：shuxiaokai
+创建时间：2021-06-15 22:16
+模块名称：搜索组件
+备注：
 */
 <template>
   <s-card class="s-search">
@@ -17,9 +17,12 @@
     </el-form>
     <template #operation>
       <div class="d-flex a-center">
-        <el-button :size="config.renderConfig.layout.size" type="primary" :disabled="loading" @click="handleSearch">搜索</el-button>
-        <el-button :size="config.renderConfig.layout.size" type="warning" :disabled="loading" @click="handleReset">重置</el-button>
-        <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading" @click="toggleExpand">
+        <el-button :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
+          @click="handleSearch">搜索</el-button>
+        <el-button :size="config.renderConfig.layout.size" type="warning" :disabled="loading"
+          @click="handleReset">重置</el-button>
+        <el-button v-show="couldShowLoadMore" :size="config.renderConfig.layout.size" type="primary" :disabled="loading"
+          @click="toggleExpand">
           <span v-if="isFold">更多筛选</span>
           <span v-else>折叠筛选</span>
         </el-button>
@@ -122,6 +125,8 @@ export default defineComponent({
         })
       }
       const formDom: HTMLElement = this.$el;
+      console.log(3, this.$el)
+
       const labelDom = formDom.querySelector('.el-form-item__label') || document.body;
       const styleList = window.getComputedStyle(labelDom);
       const { font } = styleList;
@@ -193,8 +198,8 @@ export default defineComponent({
 
 <style lang="scss">
 .s-search {
-    .el-form-item {
-        margin-bottom: size(10);
-    }
+  .el-form-item {
+    margin-bottom: size(10);
+  }
 }
 </style>

@@ -1,5 +1,8 @@
 {
-  "name": "moyu",
+  "name": "apiflow",
+  "description": "Apiflow is a visual API design tool that allows users to create, manage, and visualize APIs in a graphical way.",
+  "author": "Apiflow Team",
+  "license": "MIT",
   "private": true,
   "version": "0.9.0",
   "type": "commonjs",

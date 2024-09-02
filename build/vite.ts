@@ -54,7 +54,7 @@ export const viteElectronPlugin = () => {
       server.httpServer?.once('listening', () => {
         buildElectron()
         startElectronProcess(server);
-        fs.watch(path.resolve(process.cwd(), './src/main/main.ts'), { recursive: true }, (event, filename) => {
+        fs.watch(path.resolve(process.cwd(), './src/main'), { recursive: true }, (event, filename) => {
           if (filename?.startsWith('main') || filename?.startsWith('preload') || filename?.startsWith('sendRequest')) {
             sholdExistProcess = false;
             if (processWithElectron.electronProcess?.pid && !isKilling) {
