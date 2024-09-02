@@ -1,10 +1,9 @@
 <template>
-  <div>sadsad</div>
-  <!-- <router-view></router-view> -->
+  <router-view></router-view>
 </template>
 
 <script setup lang="ts">
-import { config } from '@/config/config';
+import { config } from '@/../config/config';
 import { onMounted } from 'vue';
 onMounted(() => {
   if (!config.isDev && config.localization.consoleWelcome) {

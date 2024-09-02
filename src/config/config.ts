@@ -1,4 +1,4 @@
-import { Config } from '@/types/types';
+import { Config } from '@/../types/types';
 const isDev = process.env.NODE_ENV === 'development';
 
 export const config: Config = {
@@ -40,7 +40,7 @@ export const config: Config = {
     },
     //本地数据库配置
     indexedDB: {
-      dbName: 'moyu', //indexedDB名称
+      dbName: 'apiflow', //indexedDB名称
       version: 1, //indexedDB版本信息
     },
     //导入文档相关配置
@@ -59,7 +59,7 @@ export const config: Config = {
   //本地部署相关配置
   localization: {
     version: '0.8.0', //当前项目版本
-    title: 'moyu', //项目名称
+    title: 'apiflow', //项目名称
     consoleWelcome: true, //是否打印欢迎信息
     download: {
       enabled: false, //是否允许提示用户下载electron
