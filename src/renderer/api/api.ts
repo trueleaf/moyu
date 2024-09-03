@@ -1,8 +1,7 @@
 import { App } from 'vue'
 import jsCookie from 'js-cookie';
-import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import Axios, { AxiosResponse, AxiosError } from 'axios';
 import { config } from '@/../config/config'
-// eslint-disable-next-line import/no-cycle
 import { router } from '@/router';
 
 const axiosInstance = Axios.create();
@@ -14,7 +13,7 @@ let isExpire = false; //是否登录过期
 const axiosPlugin = {
   install(app: App): void {
     //===============================axiosInstance请求钩子==========================================//
-    axiosInstance.interceptors.request.use((reqConfig: AxiosRequestConfig) => {
+    axiosInstance.interceptors.request.use((reqConfig) => {
       reqConfig.headers['x-csrf-token'] = jsCookie.get('csrfToken');
       const userInfoStr = localStorage.getItem('userInfo') || '{}';
       try {
@@ -44,10 +43,8 @@ const axiosPlugin = {
           if (res.data.constructor.name === 'Blob') {
             let jsonData = await res.data.text();
             jsonData = JSON.parse(jsonData);
-            // eslint-disable-next-line prefer-destructuring
             code = jsonData.code;
           } else {
-            // eslint-disable-next-line prefer-destructuring
             code = res.data.code; //自定义请求状态码
           }
           /*eslint-disable indent*/

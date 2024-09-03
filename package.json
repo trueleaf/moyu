@@ -8,6 +8,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vite --host",
+    "web": "vite --host -- -- web",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
   },
@@ -50,6 +51,8 @@
     "eslint": "^9.8.0",
     "sass": "1.26.5",
     "typescript": "^5.2.2",
+    "unplugin-auto-import": "^0.18.2",
+    "unplugin-vue-components": "^0.27.4",
     "vite": "^5.3.4",
     "vue-tsc": "^2.0.24"
   }
