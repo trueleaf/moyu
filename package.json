@@ -23,6 +23,8 @@
     "form-data": "^4.0.0",
     "html2canvas": "^1.4.1",
     "i18next": "^23.12.2",
+    "i18next-http-backend": "^2.6.1",
+    "i18next-vue": "^5.0.0",
     "js-beautify": "^1.15.1",
     "js-cookie": "^3.0.5",
     "js-yaml": "^4.1.0",
@@ -37,7 +39,7 @@
     "nprogress": "^0.2.0",
     "pinia": "^2.2.0",
     "set-cookie-parser": "^2.7.0",
-    "vue": "^3.4.31",
+    "vue": "^3.5.4",
     "vue-router": "^4.4.2",
     "vuedraggable": "^2.24.3",
     "vuex": "^4.1.0"
