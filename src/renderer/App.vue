@@ -1,12 +1,16 @@
 <template>
-  <div>asdasd</div>
+  <div>{{ $i18next.language }}{{ $t('基于Vue和Electron的接口文档工具') }}</div>
   <!-- <router-view></router-view> -->
 </template>
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
-import { onMounted } from 'vue';
+import { nextTick, onMounted } from 'vue';
+import { t } from 'i18next';
 onMounted(() => {
+  nextTick(() => {
+    console.log(t('name'))
+  })
   if (!config.isDev && config.localization.consoleWelcome) {
     console.log(`
               _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
