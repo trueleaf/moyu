@@ -5,13 +5,10 @@
 
 <script setup lang="ts">
 import { config } from '@/../config/config';
-import { nextTick, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { t } from 'i18next';
 onMounted(() => {
-  nextTick(() => {
-    console.log(t('name'))
-  })
-  if (!config.isDev && config.localization.consoleWelcome) {
+  if (config.isDev && config.localization.consoleWelcome) {
     console.log(`
               _ _            _ _           _ _ _ _ _ _ _     _ _      _ _    _ _        _ _
             / _ \\          / _ \\         / _ _ _ _ _ _ \\    \\   \\   /   /   |  |       |  |
@@ -21,17 +18,16 @@ onMounted(() => {
         / /       \\ \\  / /       \\ \\    \\ \\_ _ _ _ _ _/ /       /   /       \\ _|_ _ _ _| _/
         /_/         \\_\\/_/         \\_\\    \\_ _ _ _ _ _ _/       /_ _/         \\ _ _ _ _ _ /
 
-        `)
+        ${t('基于Vue和Electron的接口文档工具')}
+      
+        ${t('GitHub地址')}：https://github.com/trueleaf/moyu
+      
+        ${t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
+        
+        ${t('最近一次更新')}：${__APP_BUILD_TIME__}
+    `)
   }
   document.title = `${config.isDev ? `${config.localization.title}(本地)` : config.localization.title} `;
-  // ${this.$t('基于Vue和Electron的接口文档工具')}
-
-  // ${this.$t('GitHub地址')}：https://github.com/trueleaf/moyu
-
-  // ${this.$t('Gitee地址')}：https://gitee.com/shuzhikai/apiflow
-  if (!config.isDev) {
-    // ${this.$t('最近一次更新')}：${__APP_BUILD_TIME__}
-  }
 })
 
 
