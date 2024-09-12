@@ -52,9 +52,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, UploadRequestHandler, UploadRequestOptions } from 'element-plus';
 import { onMounted, Ref, ref } from 'vue';
-import { UploadRequestHandler, UploadRequestOptions } from 'element-plus/lib/components/upload/src/upload';
+// import { UploadRequestHandler, UploadRequestOptions } from 'element-plus/lib/components/upload/src/upload';
 import db from '@/cache/database';
 import type { FormInstance } from 'element-plus/lib/components/form';
 
