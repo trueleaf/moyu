@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Response, PermissionClientRoute } from '@types/global'
+import { Response, PermissionClientRoute } from '@src/types/global'
 import addClientRoute from './add/add.vue'
 import editClientRoute from './edit/edit.vue'
 import multiEditClientRoute from './edit/edit2.vue'

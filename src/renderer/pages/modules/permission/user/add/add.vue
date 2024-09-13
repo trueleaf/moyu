@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { PermissionRoleEnum, Response } from '@types/global'
+import { PermissionRoleEnum, Response } from '@src/types/global'
 
 export default defineComponent({
   props: {

@@ -89,8 +89,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { ApidocProjectParamsTemplate, ApidocTab } from '@types/store'
-import type { Response, ApidocProperty } from '@types/global'
+import type { ApidocProjectParamsTemplate, ApidocTab } from '@src/types/store'
+import type { Response, ApidocProperty } from '@src/types/global'
 
 type EditInfo = {
   _id: string,

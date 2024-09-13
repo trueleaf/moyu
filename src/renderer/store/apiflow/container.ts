@@ -1,4 +1,4 @@
-import { FlowContainerInfo } from '@types/apiflow'
+import { FlowContainerInfo } from '@src/types/apiflow'
 import { defineStore } from 'pinia'
 
 export const useFlowContainerStore = defineStore('container', {

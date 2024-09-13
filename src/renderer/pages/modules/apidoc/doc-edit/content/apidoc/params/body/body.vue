@@ -52,7 +52,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted, Ref } from 'vue'
-import type { ApidocBodyMode, ApidocBodyRawType } from '@types/global'
+import type { ApidocBodyMode, ApidocBodyRawType } from '@src/types/global'
 import { store } from '@/store/index'
 import { $t } from '@/i18n/i18n'
 import { apidocCache } from '@/cache/apidoc'

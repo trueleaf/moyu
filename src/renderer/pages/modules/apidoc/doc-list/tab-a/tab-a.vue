@@ -156,7 +156,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Edit, User, Loading, Star, StarFilled, Delete, Plus, Download, Search, CaretBottom, CaretRight } from '@element-plus/icons-vue'
-import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@types/global';
+import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global';
 import addProject from '../dialog/add-project/add-project.vue'
 import editProject from '../dialog/edit-project/edit-project.vue'
 import editPermissionProject from '../dialog/permission/permission.vue'

@@ -135,8 +135,8 @@
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { Effect } from 'element-plus';
 import { Search, ArrowDown, Edit } from '@element-plus/icons-vue'
-import type { ApidocResponseParams, ApidocResponseContentType } from '@types/global'
-import { ApidocProjectParamsTemplate } from '@types/store';
+import type { ApidocResponseParams, ApidocResponseContentType } from '@src/types/global'
+import { ApidocProjectParamsTemplate } from '@src/types/store';
 import { store } from '@/store/index'
 import { apidocCache } from '@/cache/apidoc'
 import sStatus from './children/status.vue'

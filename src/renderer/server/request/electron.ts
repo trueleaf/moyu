@@ -3,7 +3,7 @@ import Request from 'got/dist/source/core'
 import FileType from 'file-type/browser';
 import type FormData from 'form-data'
 import type { Timings, IncomingMessageWithTimings } from '@szmarczak/http-timer';
-import { ApidocDetail } from '@types/global';
+import { ApidocDetail } from '@src/types/global';
 import { store } from '@/store/index'
 import { $t } from '@/i18n/i18n'
 import db from '@/cache/database';

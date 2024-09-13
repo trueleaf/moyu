@@ -1,6 +1,6 @@
 import { ActionContext } from 'vuex'
-import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate, ApidocProjectRules } from '@types/store'
-import type { Response, ApidocMindParam, ApidocProperty } from '@types/global'
+import type { State as RootState, ApidocProjectBaseInfoState, ApidocProjectParamsTemplate, ApidocProjectRules } from '@src/types/store'
+import type { Response, ApidocMindParam, ApidocProperty } from '@src/types/global'
 import { axios } from '@/api/api'
 import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
 import { event } from '@/helper/index'

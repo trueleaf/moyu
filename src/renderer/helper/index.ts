@@ -6,17 +6,17 @@
  * @create             2021-06-15 22:55
  */
 import { nanoid } from 'nanoid/non-secure'
-import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes, ApidocCodeInfo } from '@types/global'
+import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, ApidocDetail, ApidocRequestParamTypes, ApidocCodeInfo } from '@src/types/global'
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
-import { ClientAreaRange, ClientPoint } from '@types/apiflow';
+import { ClientAreaRange, ClientPoint } from '@src/types/apiflow';
 import lodashThrottle from 'lodash/throttle';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
 import Mock from '@/server/mock/mock'
 import { store } from '@/store/index'
-import type { ApidocProjectBaseInfoState } from '@types/store';
+import type { ApidocProjectBaseInfoState } from '@src/types/store';
 import tips from './tips'
 
 type Data = Record<string, unknown>

@@ -90,7 +90,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import type { ApidocMindParam } from '@types/global'
+import type { ApidocMindParam } from '@src/types/global'
 import { store } from '@/store/index'
 import { router } from '@/router/index'
 import { axios } from '@/api/api'

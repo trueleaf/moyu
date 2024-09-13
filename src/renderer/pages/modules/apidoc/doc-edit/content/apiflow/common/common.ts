@@ -5,7 +5,7 @@ import { useFlowLinesStore } from '@/store/apiflow/lines';
 import { useFlowNodesStore } from '@/store/apiflow/nodes';
 import { useFlowRenderAreaStore } from '@/store/apiflow/render-area';
 import { useFlowSelectionStore } from '@/store/apiflow/selection';
-import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from '@types/apiflow';
+import { FlowLineInfo, FlowLinePosition, FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea, LineCanHoverPosition } from '@src/types/apiflow';
 import { getQuardantInfo } from './quadrant/quardant';
 import { getQuardantInfo2 } from './quadrant2/quadrant2';
 import { getQuardantInfo3 } from './quadrant3/quadrant3';

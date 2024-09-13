@@ -5,7 +5,7 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-import type { ApidocProjectHost } from '@types/store'
+import type { ApidocProjectHost } from '@src/types/store'
 import { useStore } from '@/pages/modules/apidoc/doc-view/store/index'
 import { config } from '@/../config/config'
 import { apidocCache } from '@/cache/apidoc'

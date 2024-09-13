@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import type { PermissionServerRoute } from '@types/global'
+import type { PermissionServerRoute } from '@src/types/global'
 
 export default defineComponent({
   props: {

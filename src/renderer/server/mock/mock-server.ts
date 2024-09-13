@@ -5,7 +5,7 @@ import { config } from '@/../config/config'
 import { store } from '@/store/index'
 import { apidocConvertValue, event, sleep } from '@/helper/index'
 import { axios } from '@/api/api'
-import { ApidocDetail } from '@types/global'
+import { ApidocDetail } from '@src/types/global'
 import apidocConverter from '../request/utils'
 // import Mock from "./mock"
 

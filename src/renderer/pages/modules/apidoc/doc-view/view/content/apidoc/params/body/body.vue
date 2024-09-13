@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { Search } from '@element-plus/icons-vue'
-import type { ApidocBodyMode, ApidocBodyRawType } from '@types/global'
+import type { ApidocBodyMode, ApidocBodyRawType } from '@src/types/global'
 import { router } from '@/router/index'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { $t } from '@/i18n/i18n'

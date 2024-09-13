@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import type { PermissionClientMenu } from '@types/global'
+import type { PermissionClientMenu } from '@src/types/global'
 
 export default defineComponent({
   props: {

@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import { PropType } from 'vue'
-import { FlowLineInfo } from '@types/apiflow';
+import { FlowLineInfo } from '@src/types/apiflow';
 import { useFlowLineStateStore } from '@/store/apiflow/line-state';
 
 const props = defineProps({

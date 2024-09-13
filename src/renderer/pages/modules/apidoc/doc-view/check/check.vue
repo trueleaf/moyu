@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { Response } from '@types/global'
+import type { Response } from '@src/types/global'
 
 // const isBuildHtml = process.env.VUE_APP_BUILD_HTML;
 

@@ -3,7 +3,7 @@
  */
 import type { ActionContext } from 'vuex'
 import { ElMessageBox } from 'element-plus'
-import type { State as RootState, ApidocTabsState, ApidocTab } from '@types/store'
+import type { State as RootState, ApidocTabsState, ApidocTab } from '@src/types/store'
 import { store } from '@/store/index'
 import { axios } from '@/api/api'
 import { findNodeById, event } from '@/helper/index'

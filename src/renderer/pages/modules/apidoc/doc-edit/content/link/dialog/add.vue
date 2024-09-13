@@ -108,7 +108,7 @@
 <script lang="ts" setup>
 import { ref, computed, Ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { ApidocBanner } from '@types/global';
+import { ApidocBanner } from '@src/types/global';
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { axios } from '@/api/api'
 import { store } from '@/store/index'

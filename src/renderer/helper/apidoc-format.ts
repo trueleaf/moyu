@@ -4,8 +4,8 @@
 |--------------------------------------------------------------------------
 */
 import { store } from '@/store';
-import { ApidocResponseContentType, ApidocDetail } from '@types/global';
-import { ApidocProjectVariable } from '@types/store';
+import { ApidocResponseContentType, ApidocDetail } from '@src/types/global';
+import { ApidocProjectVariable } from '@src/types/store';
 
 type UrlInfo = {
   host: string,

@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import type { Response, PermissionClientMenu } from '@types/global'
+import type { Response, PermissionClientMenu } from '@src/types/global'
 import { defineComponent } from 'vue'
 import type Node from 'element-plus/lib/components/tree/src/model/node'
 import addMenuDialog from './add/add.vue'

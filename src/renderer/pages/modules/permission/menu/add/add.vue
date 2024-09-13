@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Response } from '@types/global'
+import { Response } from '@src/types/global'
 
 export default defineComponent({
   props: {

@@ -1,4 +1,4 @@
-import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from '@types/global'
+import type { ApidocContentType, ApidocDetail, ApidocHttpRequestMethod, ApidocProperty } from '@src/types/global'
 import type IFromData from 'form-data'
 import json5 from 'json5'
 import html2canvas from 'html2canvas';

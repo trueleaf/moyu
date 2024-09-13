@@ -8,7 +8,7 @@ import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowNodesStore } from '@/store/apiflow/nodes';
 import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
 import { useFlowSelectionStore } from '@/store/apiflow/selection';
-import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from '@types/apiflow';
+import { FlowNodeInfo, FlowValidCreateLineArea, FlowValidResizeArea } from '@src/types/apiflow';
 import { drawLineWhenMoveOrResize, getCreateLineArea, getDrawInfoByPoint, getHoverPosition, getQuardantByPoint, getResizeBarArea, mouseIsInLine, repaintLine } from '../common/common';
 
 /**

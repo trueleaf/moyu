@@ -5,7 +5,7 @@
 |
 */
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
-import type { ApidocRequestMethodRule } from '@types/store'
+import type { ApidocRequestMethodRule } from '@src/types/store'
 import { useStore } from '@/pages/modules/apidoc/doc-view/store/index'
 import { $t } from '@/i18n/i18n'
 

@@ -40,7 +40,7 @@
 <script lang="ts">
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { defineComponent } from 'vue'
-import { Response } from '@types/global'
+import { Response } from '@src/types/global'
 import clientMenus from './components/client-menus.vue'
 import clientRoutes from './components/client-routes.vue'
 import serverRoutes from './components/server-routes.vue'

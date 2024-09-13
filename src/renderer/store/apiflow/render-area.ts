@@ -1,4 +1,4 @@
-import { FlowRenderArea } from '@types/apiflow';
+import { FlowRenderArea } from '@src/types/apiflow';
 import { defineStore } from 'pinia';
 
 export const useFlowRenderAreaStore = defineStore('renderArea', {

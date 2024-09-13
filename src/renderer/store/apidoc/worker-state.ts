@@ -1,4 +1,4 @@
-import type { ApidocWorkerState } from '@types/store'
+import type { ApidocWorkerState } from '@src/types/store'
 
 const workerState = {
   namespaced: true,

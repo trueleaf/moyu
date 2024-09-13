@@ -1,5 +1,5 @@
 import { App, ref, Ref } from 'vue';
-import { Language } from '@types/global';
+import { Language } from '@src/types/global';
 import zhCn from './zh-cn'
 import zhTw from './zh-tw'
 import en from './en'

@@ -25,7 +25,7 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { ApidocBanner } from '@types/global'
+import { ApidocBanner } from '@src/types/global'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { forEachForest } from '@/helper'
 import { config } from '@/../config/config'

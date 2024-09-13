@@ -7,7 +7,7 @@ import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowNodesStore } from '@/store/apiflow/nodes';
 import { useFlowResizeNodeStateStore } from '@/store/apiflow/resize-node-state';
 import { useFlowSelectionStore } from '@/store/apiflow/selection';
-import { FlowLineInfo, FlowNodeInfo, FlowSelection } from '@types/apiflow';
+import { FlowLineInfo, FlowNodeInfo, FlowSelection } from '@src/types/apiflow';
 import { uniqueId } from 'lodash';
 import { getDrawInfoByLineId, repaintLine } from '../common/common';
 

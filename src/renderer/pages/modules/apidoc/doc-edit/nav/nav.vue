@@ -132,7 +132,7 @@
 import { defineComponent } from 'vue'
 import draggable from 'vuedraggable'
 import { Setting, Plus, Link, Share, Download, Timer, CoffeeCup, DeleteFilled, Opportunity, Close, ArrowRight, ArrowLeft } from '@element-plus/icons-vue'
-import type { ApidocTab } from '@types/store'
+import type { ApidocTab } from '@src/types/store'
 
 export default defineComponent({
   components: {

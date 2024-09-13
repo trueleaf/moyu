@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, ref, watch } from 'vue'
-import { PermissionClientRoute } from '@types/global'
+import { PermissionClientRoute } from '@src/types/global'
 
 export default defineComponent({
   props: {

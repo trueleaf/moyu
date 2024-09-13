@@ -51,7 +51,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from '@types/global'
+import type { ApidocProjectInfo, Response, ApidocProjectMemberInfo, ApidocProjectPermission } from '@src/types/global'
 
 type PermissionUserInfo = ApidocProjectMemberInfo & { _permission: ApidocProjectPermission };
 

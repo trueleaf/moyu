@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { ApidocTab } from '@types/store'
+import type { ApidocTab } from '@src/types/store'
 import { apidocCache } from '@/cache/apidoc'
 import operation from './operation/operation.vue'
 import params from './params/params.vue'

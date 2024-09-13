@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2020-09-21 22:16
-    模块名称：账号密码登录
-    备注：xxxx
-*/
 <template>
   <el-form ref="form" class="login-account" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="loginName">
@@ -67,7 +61,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { PermissionUserInfo, Response } from '@types/global'
+import { PermissionUserInfo, Response } from '@src/types/global'
 import { config } from '@/../config/config'
 import { User, Lock } from '@element-plus/icons-vue'
 

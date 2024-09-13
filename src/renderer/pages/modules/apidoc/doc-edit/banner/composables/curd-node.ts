@@ -4,7 +4,7 @@
 
 import { Ref } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import type { ApidocBanner, Response } from '@types/global'
+import type { ApidocBanner, Response } from '@src/types/global'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from '@/helper/index'
 import { store } from '@/store/index'
 import { router } from '@/router/index'

@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { ApidocProperty } from '@types/global';
+import { ApidocProperty } from '@src/types/global';
 import { defineComponent, PropType } from 'vue'
 
 export default defineComponent({

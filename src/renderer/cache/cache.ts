@@ -2,7 +2,7 @@
  * apidoc文档缓存
  */
 
-import { GlobalConfig } from '@types/global';
+import { GlobalConfig } from '@src/types/global';
 
 class GlobalCache {
   constructor() {

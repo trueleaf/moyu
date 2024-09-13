@@ -1,9 +1,3 @@
-/*
-创建者：shuxiaokai
-创建时间：2021-06-10 21:39
-模块名称：登录模块
-备注：
-*/
 <template>
   <div class="login-container d-flex a-center j-center">
     <div class="login-box d-flex">

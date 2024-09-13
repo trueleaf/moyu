@@ -12,7 +12,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue';
 import { store } from '@/store';
-import { ApidocProperty } from '@types/global';
+import { ApidocProperty } from '@src/types/global';
 import mindHeaders from '../../../headers/mind-headers';
 
 const headers = computed(() => store.state['apidoc/apidoc'].apidoc.mockInfo.responseHeaders);
