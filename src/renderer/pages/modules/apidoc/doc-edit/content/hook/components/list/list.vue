@@ -38,7 +38,7 @@
 import { ref, Ref } from 'vue'
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
-import type { ApidocCodeInfo } from '@@/global'
+import type { ApidocCodeInfo } from '@types/global'
 import { event } from '@/helper';
 import { $t } from '@/i18n/i18n'
 import { axios } from '@/api/api';

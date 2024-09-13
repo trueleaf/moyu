@@ -3,8 +3,8 @@
  */
 
 import { computed } from 'vue'
-import type { ApidocProperty, ApidocPropertyType } from '@@/global'
-// import type { ApidocProjectHost } from "@@/store"
+import type { ApidocProperty, ApidocPropertyType } from '@types/global'
+// import type { ApidocProjectHost } from "@types/store"
 import { store } from '@/store/index'
 import { apidocGenerateProperty } from '@/helper/index'
 // import globalConfig from "@/../config/config"

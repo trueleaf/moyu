@@ -46,7 +46,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, nextTick } from 'vue'
-import { ApidocDetail } from '@@/global';
+import { ApidocDetail } from '@types/global';
 import type { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type';
 import { router } from '@/router';
 import { axios } from '@/api/api'

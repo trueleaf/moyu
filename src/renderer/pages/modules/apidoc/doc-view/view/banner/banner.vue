@@ -55,7 +55,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import type { ApidocBanner } from '@@/global'
+import type { ApidocBanner } from '@types/global'
 import { useStore } from '../../store/index'
 import { useBannerData } from './composables/banner-data'
 import sTool from './tool/tool.vue'

@@ -1,4 +1,4 @@
-import { FlowLineInfo } from '@@/apiflow';
+import { FlowLineInfo } from '@types/apiflow';
 import { defineStore } from 'pinia';
 
 export const useFlowLinesStore = defineStore('lines', {

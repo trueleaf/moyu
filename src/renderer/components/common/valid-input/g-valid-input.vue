@@ -57,7 +57,7 @@
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import type Schema from 'async-validator';
-import type { ApidocProperty } from '@@/global'
+import type { ApidocProperty } from '@types/global'
 
 export default defineComponent({
   props: {

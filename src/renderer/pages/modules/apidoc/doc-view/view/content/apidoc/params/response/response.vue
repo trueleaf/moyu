@@ -98,7 +98,7 @@
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue'
 import { ArrowDown, Edit } from '@element-plus/icons-vue'
-import type { ApidocResponseParams } from '@@/global'
+import type { ApidocResponseParams } from '@types/global'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 
 /*

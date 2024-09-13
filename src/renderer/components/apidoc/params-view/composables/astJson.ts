@@ -2,7 +2,7 @@
  * 将数组参数转换为json语法树
  */
 
-import { ApidocProperty, ApidocASTInfo } from '@@/global'
+import { ApidocProperty, ApidocASTInfo } from '@types/global'
 import { apidocConvertValue } from '@/helper/index'
 
 //生成语法树基本数据结构

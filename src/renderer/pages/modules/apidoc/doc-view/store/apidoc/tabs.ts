@@ -3,7 +3,7 @@
  */
 import type { ActionContext } from 'vuex'
 import { ElMessageBox } from 'element-plus'
-import type { State as RootState, ApidocTabsState, ApidocTab } from '@@/store'
+import type { State as RootState, ApidocTabsState, ApidocTab } from '@types/store'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { findNodeById, event } from '@/helper/index'
 import { $t } from '@/i18n/i18n'

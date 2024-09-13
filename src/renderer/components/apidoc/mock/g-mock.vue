@@ -129,7 +129,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { MockItem } from '@@/global'
+import type { MockItem } from '@types/global'
 import Mock from '@/server/mock/mock'
 import mockEnum from './mock-enum';
 

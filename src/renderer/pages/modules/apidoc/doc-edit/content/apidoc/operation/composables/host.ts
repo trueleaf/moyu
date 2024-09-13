@@ -6,7 +6,7 @@
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
 // import { handleFormatUrl } from "./url"
-import type { ApidocProjectHost } from '@@/store'
+import type { ApidocProjectHost } from '@types/store'
 import { useStore } from '@/store/index'
 import { config } from '@/../config/config'
 import { apidocCache } from '@/cache/apidoc'

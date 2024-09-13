@@ -67,7 +67,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { PermissionUserInfo, Response } from '@@/global'
+import { PermissionUserInfo, Response } from '@types/global'
 import { config } from '@/../config/config'
 import { User, Lock } from '@element-plus/icons-vue'
 

@@ -135,7 +135,7 @@
 import { useFlowNodesStore } from '@/store/apiflow/nodes';
 import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowConfigStore } from '@/store/apiflow/config';
-import { FlowNodeInfo } from '@@/apiflow';
+import { FlowNodeInfo } from '@types/apiflow';
 import { computed } from 'vue';
 import { Edit, More } from '@element-plus/icons-vue'
 

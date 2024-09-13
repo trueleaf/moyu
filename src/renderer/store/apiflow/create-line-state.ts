@@ -1,4 +1,4 @@
-import { FLowCreateLineDotState } from '@@/apiflow';
+import { FLowCreateLineDotState } from '@types/apiflow';
 import { defineStore } from 'pinia';
 
 export const useFlowCreateLineDotStateStore = defineStore('createLineDotState', {

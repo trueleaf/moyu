@@ -48,7 +48,7 @@ import {
   apidocFormatHeaderParams,
   apidocFormatResponseParams,
 } from '@/helper';
-// import type { ApidocCodeInfo } from "@@/global"
+// import type { ApidocCodeInfo } from "@types/global"
 import { axios } from '@/api/api';
 import { router } from '@/router';
 import { apidocCache } from '@/cache/apidoc';

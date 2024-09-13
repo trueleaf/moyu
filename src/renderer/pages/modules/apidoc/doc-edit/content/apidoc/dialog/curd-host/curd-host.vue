@@ -86,8 +86,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { ResponseTable } from '@@/global'
-import { ApidocProjectHost } from '@@/store'
+import { ResponseTable } from '@types/global'
+import { ApidocProjectHost } from '@types/store'
 import { apidocCache } from '@/cache/apidoc'
 
 type HostInfo = ApidocProjectHost & {

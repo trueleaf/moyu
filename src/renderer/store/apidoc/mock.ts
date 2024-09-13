@@ -1,5 +1,5 @@
-import { ApidocDetail } from '@@/global';
-import { ApidocMockState, ApidocMockMapInfo } from '@@/store'
+import { ApidocDetail } from '@types/global';
+import { ApidocMockState, ApidocMockMapInfo } from '@types/store'
 import { uniqueByKey } from '@/helper/index'
 import { config } from '@/../config/config'
 import { store } from '../index';

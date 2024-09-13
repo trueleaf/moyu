@@ -1,6 +1,6 @@
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore as baseUseStore } from 'vuex'
-import { State } from '@@/store'
+import { State } from '@types/store'
 import { permission } from './permission/permission';
 import { banner } from './apidoc/banner';
 import { baseInfo } from './apidoc/base-info';

@@ -1,4 +1,4 @@
-import { FLowResizeNodeDotState } from '@@/apiflow';
+import { FLowResizeNodeDotState } from '@types/apiflow';
 import { defineStore } from 'pinia';
 
 export const useFlowResizeNodeStateStore = defineStore('resizeNodeState', {

@@ -1,4 +1,4 @@
-import { FlowLineInfo, FlowNodeInfo } from '@@/apiflow'
+import { FlowLineInfo, FlowNodeInfo } from '@types/apiflow'
 import { defineStore } from 'pinia'
 
 type AddIncomingPayload = {

@@ -44,7 +44,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { Response, PermissionServerRoute } from '@@/global'
+import type { Response, PermissionServerRoute } from '@types/global'
 import addServerRoute from './add/add.vue'
 import editServerRoute from './edit/edit.vue'
 import multiEditServerRoute from './edit/edit2.vue'

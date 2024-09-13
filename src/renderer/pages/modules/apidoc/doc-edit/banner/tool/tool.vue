@@ -158,7 +158,7 @@
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import sDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
-import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from '@@/global'
+import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from '@types/global'
 import { store } from '@/store/index'
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'

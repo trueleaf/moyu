@@ -41,7 +41,7 @@ import { ref, computed, Ref, onMounted } from 'vue'
 import { store } from '@/store/index'
 import { router } from '@/router'
 import { View } from '@element-plus/icons-vue'
-import { ApidocProperty } from '@@/global';
+import { ApidocProperty } from '@types/global';
 import { apidocGenerateProperty } from '@/helper';
 import mindHeaders from './mind-headers'
 

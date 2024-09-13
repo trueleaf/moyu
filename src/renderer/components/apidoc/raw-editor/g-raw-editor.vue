@@ -18,7 +18,7 @@ import 'brace/mode/xml';
 import 'brace/mode/text';
 import 'brace/mode/css';
 import 'brace/theme/github';
-import type { ApidocBodyRawType } from '@@/global'
+import type { ApidocBodyRawType } from '@types/global'
 
 const TYPE_MAP = {
   'text/plain': 'text',

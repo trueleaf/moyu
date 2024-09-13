@@ -1,4 +1,4 @@
-import { FlowHistory } from '@@/apiflow'
+import { FlowHistory } from '@types/apiflow'
 import { defineStore } from 'pinia'
 
 type FlowHistoryStore = {

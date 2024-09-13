@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { PermissionUserInfo, Response } from '@@/global';
+import { PermissionUserInfo, Response } from '@types/global';
 import { User } from '@element-plus/icons-vue'
 
 export default defineComponent({

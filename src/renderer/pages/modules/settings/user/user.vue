@@ -54,7 +54,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { Back } from '@element-plus/icons-vue'
-import type { Response } from '@@/global'
+import type { Response } from '@types/global'
 
 type UserInfo = {
   realName: string,

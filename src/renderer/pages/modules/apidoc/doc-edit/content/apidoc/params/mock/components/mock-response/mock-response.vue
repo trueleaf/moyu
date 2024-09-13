@@ -152,7 +152,7 @@ import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'ele
 import { genFileId } from 'element-plus';
 import { store } from '@/store';
 import { formatBytes } from '@/helper/index'
-import { ApidocDetail } from '@@/global';
+import { ApidocDetail } from '@types/global';
 import { apidocCache } from '@/cache/apidoc';
 import sCustomEditor from './components/custom-editor.vue'
 

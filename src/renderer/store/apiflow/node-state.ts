@@ -1,4 +1,4 @@
-import { FlowNodeState } from '@@/apiflow';
+import { FlowNodeState } from '@types/apiflow';
 import { defineStore } from 'pinia';
 
 export const useFlowNodeStateStore = defineStore('nodeState', {

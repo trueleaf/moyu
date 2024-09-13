@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { ApidocTab } from '@@/store'
+import type { ApidocTab } from '@types/store'
 import apidoc from './apidoc/apidoc.vue';
 import guide from './guide/guide.vue';
 

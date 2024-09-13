@@ -54,7 +54,7 @@ import { useFlowCreateLineDotStateStore } from '@/store/apiflow/create-line-stat
 import { useFlowLineStateStore } from '@/store/apiflow/line-state';
 import { useFlowNodeStateStore } from '@/store/apiflow/node-state';
 import { useFlowLinesStore } from '@/store/apiflow/lines';
-import { FlowNodeInfo } from '@@/apiflow';
+import { FlowNodeInfo } from '@types/apiflow';
 import { useFlowConfigStore } from '@/store/apiflow/config';
 import { useFlowRenderAreaStore } from '@/store/apiflow/render-area';
 import { useFlowSelectionStore } from '@/store/apiflow/selection';

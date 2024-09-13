@@ -63,8 +63,8 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
-import { ApidocRequestParamTypes } from '@@/global'
-import { ApidocProjectRules, ApidocProjectBaseInfoState } from '@@/store';
+import { ApidocRequestParamTypes } from '@types/global'
+import { ApidocProjectRules, ApidocProjectBaseInfoState } from '@types/store';
 import { axios } from '@/api/api'
 import { store } from '@/store/index'
 import { router } from '@/router/index'

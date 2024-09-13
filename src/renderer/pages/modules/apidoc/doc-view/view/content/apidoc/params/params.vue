@@ -66,8 +66,8 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { ApidocTab } from '@@/store'
-import type { ApidocDetail, ApidocProperty } from '@@/global'
+import type { ApidocTab } from '@types/store'
+import type { ApidocDetail, ApidocProperty } from '@types/global'
 import { apidocCache } from '@/cache/apidoc'
 import params from './params/params.vue';
 import requestBody from './body/body.vue';

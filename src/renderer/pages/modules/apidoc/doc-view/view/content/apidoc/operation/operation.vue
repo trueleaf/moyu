@@ -73,7 +73,7 @@
 <script lang="ts" setup>
 import { ref, Ref, computed, onMounted } from 'vue'
 import { Refresh } from '@element-plus/icons-vue'
-import type { Config } from '@@/config'
+import type { Config } from '@types/config'
 import { config } from '@/../config/config'
 import { useStore } from '@/pages/modules/apidoc/doc-view/store/index'
 import { apidocCache } from '@/cache/apidoc'

@@ -100,7 +100,7 @@
 import { ElMessage } from 'element-plus';
 import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { ApidocBanner } from '@@/global';
+import { ApidocBanner } from '@types/global';
 import { store } from '@/store/index'
 import { axios } from '@/api/api'
 import { router } from '@/router/index'

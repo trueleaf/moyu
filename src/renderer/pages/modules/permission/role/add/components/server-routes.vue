@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { PermissionServerRoute, Response } from '@@/global'
+import type { PermissionServerRoute, Response } from '@types/global'
 
 type RouteInfo = {
   selected: boolean,

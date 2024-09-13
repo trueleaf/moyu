@@ -1,4 +1,4 @@
-import type { ApiflowState, ApiflowNodeInfo, ApiflowContainerInfo, ApiflowLineInfo } from '@@/store'
+import type { ApiflowState, ApiflowNodeInfo, ApiflowContainerInfo, ApiflowLineInfo } from '@types/store'
 
 type ChangedLineInfo = {
   /**

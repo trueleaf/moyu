@@ -91,8 +91,8 @@ import type { IpcRenderer } from 'electron'
 import { defineComponent } from 'vue';
 import { useRouter } from 'vue-router'
 import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
-import { PermissionMenu, PermissionUserInfo } from '@@/global'
-import type { Language } from '@@/global'
+import { PermissionMenu, PermissionUserInfo } from '@types/global'
+import type { Language } from '@types/global'
 import { changeLanguage } from '@/i18n/i18n'
 import { useStore } from '@/store/index';
 import { config } from '@/../config/config'

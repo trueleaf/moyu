@@ -1,5 +1,5 @@
 import { ref, Ref } from 'vue'
-import type { ApidocProperty, ApidocPropertyType } from '@@/global'
+import type { ApidocProperty, ApidocPropertyType } from '@types/global'
 import { forEachForest } from '@/helper';
 import { store } from '@/store/index'
 

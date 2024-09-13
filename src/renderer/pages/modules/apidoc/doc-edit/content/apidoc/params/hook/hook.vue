@@ -36,7 +36,7 @@ import {
 import { axios } from '@/api/api';
 // import { Close } from "@element-plus/icons-vue"
 import { router } from '@/router';
-import type { ApidocCodeInfo, Response } from '@@/global'
+import type { ApidocCodeInfo, Response } from '@types/global'
 import { store } from '@/store';
 import { ElMessage } from 'element-plus';
 import { $t } from '@/i18n/i18n';

@@ -29,7 +29,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Response } from '@@/global'
+import { Response } from '@types/global'
 
 export default defineComponent({
   emits: ['jumpToLogin'],

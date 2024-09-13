@@ -95,7 +95,7 @@
 <script lang="ts" setup>
 import { ref, Ref, onMounted, computed } from 'vue'
 import { Close } from '@element-plus/icons-vue'
-import { ApidocDetail, Response } from '@@/global';
+import { ApidocDetail, Response } from '@types/global';
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
 import { store } from '@/store/index'

@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Response, ApidocBanner } from '@@/global'
+import { Response, ApidocBanner } from '@types/global'
 
 export default defineComponent({
   props: {

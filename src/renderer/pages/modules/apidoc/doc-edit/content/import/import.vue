@@ -142,8 +142,8 @@ import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
-import type { ApidocDetail } from '@@/global'
-import type { ApidocProjectRules } from '@@/store'
+import type { ApidocDetail } from '@types/global'
+import type { ApidocProjectRules } from '@types/store'
 import { config } from '@/../config/config'
 import { store } from '@/store/index';
 import { router } from '@/router/index'

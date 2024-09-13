@@ -58,7 +58,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@@/global'
+import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@types/global'
 
 export default defineComponent({
   props: {

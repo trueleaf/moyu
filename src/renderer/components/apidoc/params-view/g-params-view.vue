@@ -68,7 +68,7 @@ import {
 } from 'vue'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { Effect } from 'element-plus';
-import { ApidocProperty, ApidocASTInfo } from '@@/global'
+import { ApidocProperty, ApidocASTInfo } from '@types/global'
 import { astJson } from './composables/astJson'
 
 const props = defineProps({

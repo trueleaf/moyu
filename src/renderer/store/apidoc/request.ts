@@ -1,4 +1,4 @@
-import { ApidocRequest } from '@@/store';
+import { ApidocRequest } from '@types/store';
 
 const request = {
   namespaced: true,

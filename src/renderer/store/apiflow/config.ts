@@ -1,4 +1,4 @@
-import { FlowConfig } from '@@/apiflow'
+import { FlowConfig } from '@types/apiflow'
 import { defineStore } from 'pinia'
 
 export const useFlowConfigStore = defineStore('flowConfig', {

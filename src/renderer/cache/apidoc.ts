@@ -2,8 +2,8 @@
  * apidoc文档缓存
  */
 
-import { ApidocDetail } from '@@/global';
-import type { ApidocProjectHost, ApidocResponseState } from '@@/store'
+import { ApidocDetail } from '@types/global';
+import type { ApidocProjectHost, ApidocResponseState } from '@types/store'
 
 type ServerInfo = ApidocProjectHost & {
   isLocal?: boolean,

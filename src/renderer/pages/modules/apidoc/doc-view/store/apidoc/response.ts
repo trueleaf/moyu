@@ -1,4 +1,4 @@
-import type { ApidocResponseState, ApidocCookieInfo } from '@@/store'
+import type { ApidocResponseState, ApidocCookieInfo } from '@types/store'
 import setCookieParser from 'set-cookie-parser'
 import { formatDate } from '@/helper/index'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
