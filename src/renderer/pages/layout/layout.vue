@@ -93,7 +93,7 @@ import { useRouter } from 'vue-router'
 import { RefreshRight, Back, Right, ArrowDown } from '@element-plus/icons-vue'
 import { PermissionMenu, PermissionUserInfo } from '@src/types/global'
 import type { Language } from '@src/types/global'
-import { changeLanguage } from '@/i18n/i18n'
+// import { changeLanguage } from '@/i18n/i18n'
 import { useStore } from '@/store/index';
 import { config } from '@/../config/config'
 
@@ -127,7 +127,7 @@ export default defineComponent({
     };
     //国际化
     const changeLocale = (language: Language) => {
-      changeLanguage(language);
+      // changeLanguage(language);
     }
     return {
       handleOpenDevTools,

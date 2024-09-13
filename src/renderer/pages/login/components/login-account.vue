@@ -43,12 +43,6 @@
         </svg>
         <div class="mt-1">{{ $t("完整文档") }}</div>
       </a>
-      <!-- <a href="https://www.yuque.com/happymoyu/as0gig/vapwmq" target="_blank" class="d-flex flex-column j-center a-center">
-                <svg class="svg-icon" aria-hidden="true" :title="$t('跳转部署文档')">
-                    <use xlink:href="#iconbushu"></use>
-                </svg>
-                <div class="mt-1">{{ $t("部署文档") }}</div>
-            </a> -->
       <a :href="config.localization.download.url" target="__blank" class="d-flex flex-column j-center a-center cursor-pointer hover-theme-color">
         <svg class="svg-icon" aria-hidden="true" :title="$t('客户端下载')">
           <use xlink:href="#iconkehuduan"></use>
@@ -59,106 +53,94 @@
   </el-form>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { config } from '@src/config/config';
 import { PermissionUserInfo, Response } from '@src/types/global'
-import { config } from '@/../config/config'
 import { User, Lock } from '@element-plus/icons-vue'
+import { computed, nextTick, ref } from 'vue';
+import { t } from 'i18next';
+import { ElMessage, FormInstance } from 'element-plus';
+import { axios } from '@/api/api';
+import { router } from '@/router';
 
-export default defineComponent({
-  emits: ['jumpToRegister', 'jumpToResetPassword'],
-  setup() {
-    return {
-      User,
-      Lock
-    }
-  },
-  data() {
-    return {
-      //=====================================用户信息====================================//
-      userInfo: {
-        loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
-        password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
-        captcha: '', //----------------验证码
-      },
-      //=====================================表单验证规则====================================//
-      rules: {
-        loginName: [{ required: true, message: `${this.$t('请输入用户名')}`, trigger: 'blur' }],
-        password: [{ required: true, message: `${this.$t('请输入密码')}`, trigger: 'blur' }],
-        captcha: [{ required: true, message: `${this.$t('请输入验证码')}`, trigger: 'blur' }],
-      },
-      //=====================================其他参数====================================//
-      config, //-----------------------配置信息
-      random: Math.random(), //--------验证码随机参数
-      isShowCapture: false, //---------是否展示验证码
-      loading: false, //---------------登录按钮loading
-    };
-  },
-  computed: {
-    captchaUrl(): string {
-      const requestUrl = config.renderConfig.httpRequest.url;
-      return `${requestUrl}/api/security/captcha?width=120&height=40&random=${this.random}`;
-    },
-  },
-  methods: {
-    //用户名密码登录
-    handleLogin() {
-      this.$refs.form.validate((valid: boolean) => {
-        if (valid) {
-          this.loading = true;
-          this.axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', this.userInfo).then((res) => {
-            if (res.code === 2006 || res.code === 2003) {
-              this.$message.warning(res.msg);
-              this.isShowCapture = true;
-            } else {
-              this.$router.push('/v1/apidoc/doc-list');
-              localStorage.setItem('userInfo', JSON.stringify(res.data));
-              this.$store.dispatch('permission/getPermission')
-            }
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
+const emit = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
+const userInfo = ref({
+  loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
+  password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
+  captcha: '', //----------------验证码
+})
+
+const form = ref<FormInstance>();
+const rules = ref({
+  loginName: [{ required: true, message: `${t('请输入用户名')}`, trigger: 'blur' }],
+  password: [{ required: true, message: `${t('请输入密码')}`, trigger: 'blur' }],
+  captcha: [{ required: true, message: `${t('请输入验证码')}`, trigger: 'blur' }],
+})
+
+const random = ref(Math.random()) //--------验证码随机参数
+const isShowCapture = ref(false) //---------是否展示验证码
+const loading = ref(false) //---------------登录按钮loading
+const captchaUrl = computed(() => {
+  const requestUrl = config.renderConfig.httpRequest.url;
+  return `${requestUrl}/api/security/captcha?width=120&height=40&random=${random.value}`;
+})
+//登录
+const handleLogin = async () => {
+  form.value?.validate((valid: boolean) => {
+    if (valid) {
+      loading.value = true;
+      axios.post<Response<PermissionUserInfo>, Response<PermissionUserInfo>>('/api/security/login_password', userInfo.value).then((res) => {
+        if (res.code === 2006 || res.code === 2003) {
+          ElMessage.warning(res.msg);
+          isShowCapture.value = true;
         } else {
-          this.$nextTick(() => {
-            const input = document.querySelector('.el-form-item.is-error input');
-            if (input) {
-              (input as HTMLElement).focus();
-            }
-          });
+          router.push('/v1/apidoc/doc-list');
+          localStorage.setItem('userInfo', JSON.stringify(res.data));
+          // $store.dispatch('permission/getPermission')
         }
-      });
-    },
-    //刷新验证码
-    freshCapchaUrl() {
-      this.random = Math.random();
-    },
-    //用户注册
-    handleJumpToRegister() {
-      this.$emit('jumpToRegister');
-    },
-    //重置密码
-    handleJumpToResetPassword() {
-      this.$emit('jumpToResetPassword');
-    },
-    //体验账号登录
-    handleGuesttLogin() {
-      this.loading = true;
-      this.axios.post('/api/security/login_guest', this.userInfo).then((res) => {
-        this.$router.push('/v1/apidoc/doc-list');
-        localStorage.setItem('userInfo', JSON.stringify(res.data));
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.loading = false;
+        loading.value = false;
       });
-    },
-  },
-})
+    } else {
+      nextTick(() => {
+        const input = document.querySelector('.el-form-item.is-error input');
+        if (input) {
+          (input as HTMLElement).focus();
+        }
+      });
+    }
+  })
+}
+//刷新验证码
+const freshCapchaUrl = () => {
+  random.value = Math.random();
+}
+//用户注册
+const handleJumpToRegister = () => {
+  emit('jumpToRegister');
+}
+//重置密码
+const handleJumpToResetPassword = () => {
+  emit('jumpToResetPassword');
+}
+//体验账号登录
+const handleGuesttLogin = () => {
+  loading.value = true;
+  axios.post('/api/security/login_guest', userInfo).then((res) => {
+    router.push('/v1/apidoc/doc-list');
+    localStorage.setItem('userInfo', JSON.stringify(res.data));
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
+
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .login-account {
     .svg-icon {
         width: size(35);
