@@ -26,8 +26,8 @@ const permission = {
   },
   mutations: {
     /**
-         * 改变用户基本信息
-         */
+     * 改变用户基本信息
+     */
     changeUserInfo(state: PermissionState, payload: PermissionUserInfo): void {
       state.userInfo = {
         id: payload.id,
