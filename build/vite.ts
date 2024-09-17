@@ -1,5 +1,5 @@
 import { ViteDevServer } from 'vite';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, exec } from 'child_process';
 import esbuild from 'esbuild';
 import electron from 'electron';
 import fs from 'fs'
@@ -55,15 +55,13 @@ export const viteElectronPlugin = () => {
         buildElectron()
         startElectronProcess(server);
         fs.watch(path.resolve(process.cwd(), './src/main'), { recursive: true }, (event, filename) => {
-          if (filename?.startsWith('main') || filename?.startsWith('preload') || filename?.startsWith('sendRequest')) {
-            sholdExistProcess = false;
-            if (processWithElectron.electronProcess?.pid && !isKilling) {
-              buildElectron()
-              console.log('重启主进程中...')
-              isKilling = true;
-              process.kill(processWithElectron.electronProcess.pid);
-              startElectronProcess(server);
-            }
+          sholdExistProcess = false;
+          if (processWithElectron.electronProcess?.pid && !isKilling) {
+            buildElectron()
+            console.log('重启主进程中...')
+            isKilling = true;
+            process.kill(processWithElectron.electronProcess.pid);
+            startElectronProcess(server);
           }
         });
       });
