@@ -3,12 +3,12 @@ import {
   CustomRequestInfo, 
   FlowNode, 
   SendRequestOptions 
-} from '@/types/types';
+} from '@/../types/types';
 import got, { PlainResponse } from 'got';
 import { Method } from 'got/dist/source';
 import json5 from 'json5';
 import type FormData from "form-data"
-import { fileTypeFromBuffer } from 'file-type';
+import { fromBuffer } from 'file-type';
 import { 
   convertQueryParamsToQueryString, 
   convertPathParamsToPathString, 
@@ -109,7 +109,7 @@ export const sendRequest = (requestNode: FlowNode, options: SendRequestOptions) 
       });
       requestStream.on("end", async () => {
         const bufData = Buffer.concat(streamData, streamSize);
-        const fileTypeResult  = await fileTypeFromBuffer(bufData.buffer);
+        const fileTypeResult  = await fromBuffer(bufData.buffer);
         responseInfo.bodySize = bufData.length;
         let mimeType = 'unknown';
         if (fileTypeResult) {
