@@ -42,16 +42,16 @@
             <LoginAccount @jumpToRegister="handleJumpToRegister" @jumpToResetPassword="handleJumpToResetPassword"></LoginAccount>
           </el-tab-pane>
           <!-- 手机号登录 -->
-          <el-tab-pane v-if="0" :label="$t('手机登录')" name="loginPassword">
-            <!-- <s-login-phone></s-login-phone> -->
+          <el-tab-pane :label="$t('手机登录')" name="loginPassword">
+            <LoginPhone></LoginPhone>
           </el-tab-pane>
           <!-- 注册 -->
           <el-tab-pane v-if="config.localization.enableRegister" :label="$t('账号注册')" name="register">
-            <!-- <s-register></s-register> -->
+            <Register></Register>
           </el-tab-pane>
           <!-- 忘记密码 -->
           <el-tab-pane :label="$t('忘记密码')" name="reset">
-            <!-- <s-reset-password @jumpToLogin="handleJumpToLogin"></s-reset-password> -->
+            <ResetPassword @jumpToLogin="handleJumpToLogin"></ResetPassword>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -63,9 +63,9 @@
 import { ref } from 'vue';
 import { config as globalConfig } from '@/../config/config'
 import LoginAccount from './components/login-account.vue';
-// import loginPhone from './components/login-phone.vue';
-// import register from './components/register.vue';
-// import resetPassword from './components/reset-password.vue';
+import LoginPhone from './components/login-phone.vue';
+import Register from './components/register.vue';
+import ResetPassword from './components/reset-password.vue';
 
 const config = ref(globalConfig);
 const activeName = ref('loginAccount');

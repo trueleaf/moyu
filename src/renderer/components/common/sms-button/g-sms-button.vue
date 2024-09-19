@@ -1,16 +1,10 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2020-05-19 21:42
-    模块名称：短信验证码按钮，具备倒计时功能
-    备注：
-*/
 <template>
   <el-button :disabled="disableBtn" @click="handleClickButton">{{ tip }}</el-button>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 export default defineComponent({
   props: {
@@ -19,21 +13,21 @@ export default defineComponent({
          */
     startLabel: {
       type: String,
-      default: $t('获取验证码'),
+      default: t('获取验证码'),
     },
     /**
          * 发送中文案，最终文案 数字+秒+后+发送
          */
     waitLabel: {
       type: String,
-      default: $t('重新发送')
+      default: t('重新发送')
     },
     /**
          * 发送完成后
          */
     endLabel: {
       type: String,
-      default: $t('重新获取')
+      default: t('重新获取')
     },
     /**
          * 点击按钮前钩子
@@ -95,7 +89,3 @@ export default defineComponent({
   }
 })
 </script>
-
-<style lang="scss">
-
-</style>
