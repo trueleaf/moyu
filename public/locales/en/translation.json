@@ -22,5 +22,22 @@
   "检查更新": "Check for updates",
   "版本": "Version",
   "清除所有缓存": "Clear all cache",
-  "退出登录": "Log out"
+  "退出登录": "Log out",
+  "请输入手机号": "Please enter your phone number",
+  "请输入验证码": "Please enter your verification code",
+  "请填写正确手机号": "Please enter a valid phone number",
+  "请输入密码": "Please enter your password",
+  "登录": "Login",
+  "注册": "Register",
+  "忘记密码": "Forget password",
+  "手机号": "Phone number",
+  "密码": "Password",
+  "确认密码": "Confirm password",
+  "验证码": "Verification code",
+  "账号登录": "Account login",
+  "获取验证码": "Get verification code",
+  "重新发送": "Resend",
+  "重新获取": "Resend",
+  "手机登录": "Phone login",
+  "账号注册": "Account registration"
 }
