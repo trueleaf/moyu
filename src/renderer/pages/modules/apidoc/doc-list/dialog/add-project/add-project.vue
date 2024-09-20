@@ -1,24 +1,18 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-13 22:20
-    模块名称：新增项目
-    备注：
-*/
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
+  <Dialog :model-value="modelValue" top="10vh" :title="t('新增项目')" @close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
       <el-form-item :label="`${t('项目名称')}：`" prop="projectName">
         <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleAddProject"></el-input>
       </el-form-item>
       <el-form-item :label="`${t('选择成员')}：`">
-        <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或真实姓名查找用户')">
-          <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
+        <RemoteSelector v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading" :placeholder="t('输入用户名或真实姓名查找用户')">
+          <RemoteSelectorItem v-for="(item, index) in remoteMembers" :key="index">
             <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
               <span>{{ item.loginName }}</span>
               <span>{{ item.realName }}</span>
             </div>
-          </s-remote-select-item>
-        </s-remote-select>
+          </RemoteSelectorItem>
+        </RemoteSelector>
       </el-form-item>
     </el-form>
     <!-- 成员信息 -->
@@ -53,115 +47,114 @@
       <el-button :loading="loading" type="primary" @click="handleAddProject">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </Dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { axios } from '@/api/api';
+import { config } from '@src/config/config';
 import type { PermissionUserBaseInfo, ApidocProjectMemberInfo } from '@src/types/global'
+import { ElMessage, FormInstance } from 'element-plus';
+import { t } from 'i18next'
+import { nextTick, ref } from 'vue';
+import RemoteSelector from '@/components/common/remote-select/g-remote-select.vue';
+import RemoteSelectorItem from '@/components/common/remote-select/g-remote-select-item.vue';
+import Dialog from '@/components/common/dialog/g-dialog.vue';
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
+defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'success'],
-  data() {
-    return {
-      //=====================================新建项目====================================//
-      formInfo: {
-        projectName: '', //-------------------------项目名称
-        remark: '', //------------------------------项目备注
-      },
-      rules: { //-------------------------------------新增项目校验规则
-        projectName: [{ required: true, trigger: 'blur', message: this.t('请填写项目名称') }],
-      },
-      remoteMembers: [] as PermissionUserBaseInfo[], //------远程用户列表
-      selectUserData: [] as ApidocProjectMemberInfo[], //-----已选中的用户
-      remoteQueryName: '', //-------------------------用户名称
-      //=====================================其他参数====================================//
-      loading: false, //------------------------------成员数据加载状态
-      loading2: false, //-----------------------------新增项目
-    };
-  },
-  methods: {
-    //根据名称查询用户列表
-    getRemoteUserByName(query: string) {
-      this.loading = true;
+})
+const form = ref<FormInstance>()
+const emit = defineEmits(['update:modelValue', 'success'])
+const formInfo = ref({
+  projectName: '', //-------------------------项目名称
+  remark: '', //------------------------------项目备注
+})
+const rules = ref({
+  projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
+})
+const remoteMembers = ref<PermissionUserBaseInfo[]>([]) //------远程用户列表
+const selectUserData = ref<ApidocProjectMemberInfo[]>([]) //-----已选中的用户
+const remoteQueryName = ref('') //-------------------------用户名称
+const loading = ref(false) //------------------------------成员数据加载状态
+const loading2 = ref(false) //-----------------------------新增项目
+/*
+|--------------------------------------------------------------------------
+| 
+|--------------------------------------------------------------------------
+*/
+//根据名称查询用户列表
+const getRemoteUserByName = (query: string) => {
+  loading.value = true;
+  const params = {
+    name: query,
+  };
+  axios.get('/api/security/userListByName', { params }).then((res) => {
+    remoteMembers.value = res.data;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
+const handleAddProject = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      loading2.value = true;
       const params = {
-        name: query,
+        ...formInfo.value,
+        members: selectUserData.value.map((val) => ({
+          userId: val.userId,
+          permission: val.permission,
+          loginName: val.loginName,
+          realName: val.realName,
+        })),
       };
-      this.axios.get('/api/security/userListByName', { params }).then((res) => {
-        this.remoteMembers = res.data;
+      axios.post('/api/project/add_project', params).then((res) => {
+        handleClose();
+        emit('success', res.data);
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.loading = false;
+        loading2.value = false;
       });
-    },
-    //新增项目
-    handleAddProject() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          this.loading2 = true;
-          const params = {
-            ...this.formInfo,
-            members: this.selectUserData.map((val) => ({
-              userId: val.userId,
-              permission: val.permission,
-              loginName: val.loginName,
-              realName: val.realName,
-            })),
-          };
-          this.axios.post('/api/project/add_project', params).then((res) => {
-            this.handleClose();
-            this.$emit('success', res.data);
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading2 = false;
-          });
-        } else {
-          this.$nextTick(() => {
-            const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
-            if (input) {
-              input.focus();
-            }
-          });
-          this.$message.warning('请完善必填信息');
-          this.loading = false;
+    } else {
+      nextTick(() => {
+        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+        if (input) {
+          input.focus();
         }
       });
-    },
-    //选取用户
-    handleSelectUser(item: PermissionUserBaseInfo) {
-      this.remoteMembers = [];
-      this.remoteQueryName = '';
-      const hasUser = this.selectUserData.find((val) => val.userId === item.userId);
-      if (hasUser) {
-        this.$message.warning(this.t('请勿重复添加'));
-        return;
-      }
-      const userInfo: ApidocProjectMemberInfo = {
-        ...item,
-        permission: 'readAndWrite',
-      }
-      this.selectUserData.push(userInfo);
-    },
-    //删除成员
-    handleDeleteMember(index: number) {
-      this.selectUserData.splice(index, 1);
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
-  },
-})
+      ElMessage.warning('请完善必填信息');
+      loading.value = false;
+    }
+  });
+}
+//选取用户
+const handleSelectUser = (item: PermissionUserBaseInfo) => {
+  remoteMembers.value = [];
+  remoteQueryName.value = '';
+  const hasUser = selectUserData.value.find((val) => val.userId === item.userId);
+  if (hasUser) {
+    ElMessage.warning(t('请勿重复添加'));
+    return;
+  }
+  const userInfo: ApidocProjectMemberInfo = {
+    ...item,
+    permission: 'readAndWrite',
+  }
+  selectUserData.value.push(userInfo);
+}
+//删除成员
+const handleDeleteMember = (index: number) => {
+  selectUserData.value.splice(index, 1);
+}
+//关闭弹窗
+const handleClose = () => {
+  emit('update:modelValue', false);
+}
+
 </script>
-
-<style lang="scss">
-
-</style>

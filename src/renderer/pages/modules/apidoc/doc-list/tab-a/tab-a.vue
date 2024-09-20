@@ -8,14 +8,14 @@
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ t("导入项目") }}</el-button>
     </div>
     <!-- 项目列表 -->
-    <s-loading :loading="loading">
+    <Loading :loading="loading">
       <!-- 收藏的项目 -->
       <h2 v-show="starProjects.length > 0">{{ t("收藏的项目") }}</h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
         <div v-for="(item, index) in starProjects" :key="index" class="project-list">
           <div class="project-header">
             <div :title="item.projectName" class="title theme-color text-ellipsis">
-              <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
+              <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
               <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
@@ -85,7 +85,7 @@
         <div v-for="(item, index) in projectList" :key="index" class="project-list">
           <div class="project-header">
             <div :title="item.projectName" class="title theme-color text-ellipsis">
-              <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
+              <Emphasize :value="item.projectName" :keyword="projectName"></Emphasize>
             </div>
             <div class="operator">
               <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
@@ -141,13 +141,13 @@
           </div>
         </div>
       </div>
-    </s-loading>
+    </Loading>
   </div>
-  <s-add-project-dialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></s-add-project-dialog>
-  <s-edit-project-dialog v-if="dialogVisible2" v-model="dialogVisible2" :project-id="currentEditProjectId"
-    :project-name="currentEditProjectName" @success="handleEditSuccess"></s-edit-project-dialog>
-  <s-edit-permission-dialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId"
-    @leave="getProjectList"></s-edit-permission-dialog>
+  <AddProjectDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></AddProjectDialog>
+  <EditProjectDialog v-if="dialogVisible2" v-model="dialogVisible2" :project-id="currentEditProjectId"
+    :project-name="currentEditProjectName" @success="handleEditSuccess"></EditProjectDialog>
+  <EditPermissionDialog v-if="dialogVisible4" v-model="dialogVisible4" :project-id="currentEditProjectId"
+    @leave="getProjectList"></EditPermissionDialog>
 </template>
 
 <script lang="ts" setup>
@@ -164,6 +164,11 @@ import {
   CaretBottom as CaretBottomIcon,
   CaretRight as CaretRightIcon
 } from '@element-plus/icons-vue'
+import Loading from '@/components/common/loading/g-loading.vue'
+import Emphasize from '@/components/common/emphasize/g-emphasize.vue'
+import AddProjectDialog from '../dialog/add-project/add-project.vue'
+import EditProjectDialog from '../dialog/edit-project/edit-project.vue'
+import EditPermissionDialog from '../dialog/permission/permission.vue'
 import { t } from 'i18next'
 import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global';
 import { computed, onMounted, ref } from 'vue';
