@@ -9,27 +9,27 @@
     <div class="w-70 m-auto">
       <s-fieldset>
         <template #title>
-          <span>{{ $t("在线链接") }}</span>
+          <span>{{ t("在线链接") }}</span>
           <span class="orange f-sm ml-2 text-normal cursor-pointer d-inline-flex a-center" @click="dialogVisible = true">
             <el-icon :size="16">
               <circle-plus />
             </el-icon>
-            <span>{{ $t("生成链接") }}</span>
+            <span>{{ t("生成链接") }}</span>
           </span>
         </template>
         <s-table ref="table" url="/api/project/export/online_list" :params="{ projectId }" plain>
-          <el-table-column prop="shareName" :label="$t('链接名称')" align="center"></el-table-column>
-          <el-table-column prop="projectName" :label="$t('项目名称')" align="center"></el-table-column>
-          <el-table-column :label="$t('过期截至')" align="center">
+          <el-table-column prop="shareName" :label="t('链接名称')" align="center"></el-table-column>
+          <el-table-column prop="projectName" :label="t('项目名称')" align="center"></el-table-column>
+          <el-table-column :label="t('过期截至')" align="center">
             <template #default="scope">
               <span v-countdown="scope.row.expire"></span>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('操作')" align="center">
+          <el-table-column :label="t('操作')" align="center">
             <template #default="scope">
-              <el-button v-copy="generateUrlAndPassword(scope.row)" type="primary" text>{{ $t("复制") }}</el-button>
-              <el-button link type="primary" text @click="handleOpenEditDialog(scope.row)">{{ $t("修改") }}</el-button>
-              <el-button link type="primary" text @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ $t("删除") }}</el-button>
+              <el-button v-copy="generateUrlAndPassword(scope.row)" type="primary" text>{{ t("复制") }}</el-button>
+              <el-button link type="primary" text @click="handleOpenEditDialog(scope.row)">{{ t("修改") }}</el-button>
+              <el-button link type="primary" text @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ t("删除") }}</el-button>
             </template>
           </el-table-column>
         </s-table>
@@ -72,15 +72,15 @@ const dialogVisible2 = ref(false); //编辑弹窗
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
   const url = `${store.state.permission.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
   return `
-    ${$t('链接')}：${url}   
-    ${$t('密码')}：${linkInfo.password || `${$t('不需要密码')}`}
+    ${t('链接')}：${url}   
+    ${t('密码')}：${linkInfo.password || `${t('不需要密码')}`}
     `
 }
 //删除某个链接
 const handleDeleteItem = (pid: string, _id: string) => {
-  ElMessageBox.confirm($t('此操作将永久删除此条记录, 是否继续?'), $t('提示'), {
-    confirmButtonText: $t('确定'),
-    cancelButtonText: $t('取消'),
+  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {
     const params = {

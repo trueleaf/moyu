@@ -36,7 +36,7 @@ export default function useImportParams(): Response {
       _id: 'paramsTemplate',
       projectId,
       tabType: 'paramsTemplate',
-      label: $t('模板维护'),
+      label: t('模板维护'),
       head: {
         icon: 'iconvariable',
         color: ''

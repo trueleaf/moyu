@@ -37,7 +37,7 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
       });
     }
   })
-  const deleteTip = selectNodes.length > 1 ? `${$t('确定批量删除')} ${deleteIds.length} ${$t('个节点?')}` : `${$t('确定删除')} ${selectNodes[0].name} ${$t('节点')}`
+  const deleteTip = selectNodes.length > 1 ? `${t('确定批量删除')} ${deleteIds.length} ${t('个节点?')}` : `${t('确定删除')} ${selectNodes[0].name} ${t('节点')}`
   const deleteOperation = () => {
     const params = {
       data: {
@@ -87,9 +87,9 @@ export function deleteNode(selectNodes: ApidocBannerWithProjectId[], silent?: bo
     deleteOperation();
     return;
   }
-  ElMessageBox.confirm(deleteTip, $t('提示'), {
-    confirmButtonText: $t('确定'),
-    cancelButtonText: $t('取消'),
+  ElMessageBox.confirm(deleteTip, t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
     deleteOperation();

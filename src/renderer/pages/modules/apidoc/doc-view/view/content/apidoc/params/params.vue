@@ -7,22 +7,22 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
     <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-      <div class="cursor-pointer" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">{{ $t("预览") }}</div>
+      <div class="cursor-pointer" :class="{active: workMode === 'view'}" @click="toggleWorkMode('view')">{{ t("预览") }}</div>
       <el-divider direction="vertical"></el-divider>
-      <div class="cursor-pointer mr-5" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">{{ $t("编辑") }}</div>
+      <div class="cursor-pointer mr-5" :class="{active: workMode === 'edit'}" @click="toggleWorkMode('edit')">{{ t("编辑") }}</div>
       <!-- <el-divider direction="vertical"></el-divider> -->
       <el-dropdown trigger="click">
         <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
           <span class="mr-1 f-sm iconfont iconbuju"></span>
-          <span>{{ $t("布局") }}</span>
+          <span>{{ t("布局") }}</span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleChangeLayout('horizontal')">
-              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ $t("左右布局") }}</span>
+              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ t("左右布局") }}</span>
             </el-dropdown-item>
             <el-dropdown-item @click="handleChangeLayout('vertical')">
-              <span :class="{ 'theme-color': layout === 'vertical' }">{{ $t('上下布局') }}</span>
+              <span :class="{ 'theme-color': layout === 'vertical' }">{{ t('上下布局') }}</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -40,19 +40,19 @@
             <el-badge :is-dot="hasBodyParams">Body</el-badge>
           </template>
         </el-tab-pane>
-        <el-tab-pane :label="$t('返回参数')" name="s-response-params">
+        <el-tab-pane :label="t('返回参数')" name="s-response-params">
           <template #label>
-            <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
+            <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
             <!-- <el-badge v-if="responseNum" :value="responseNum">返回参数</el-badge>
                         <el-badge v-else>返回参数</el-badge> -->
           </template>
         </el-tab-pane>
-        <el-tab-pane :label="$t('请求头')" name="s-request-headers">
+        <el-tab-pane :label="t('请求头')" name="s-request-headers">
           <template #label>
-            <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
+            <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
           </template>
         </el-tab-pane>
-        <el-tab-pane :label="$t('备注信息')" name="s-f"></el-tab-pane>
+        <el-tab-pane :label="t('备注信息')" name="s-f"></el-tab-pane>
       </el-tabs>
       <keep-alive>
         <component :is="activeName" class="workbench"></component>
@@ -114,7 +114,7 @@ export default defineComponent({
             resNum += 1;
           }
         } else {
-          console.warn(`${this.$t('未实现的返回类型')}: ${dataType}`);
+          console.warn(`${this.t('未实现的返回类型')}: ${dataType}`);
         }
       });
       return resNum;
@@ -305,7 +305,7 @@ export default defineComponent({
         _id: 'variable',
         projectId: this.$route.query.id,
         tabType: 'variable',
-        label: this.$t('变量维护'),
+        label: this.t('变量维护'),
         head: {
           icon: 'iconvariable',
           color: ''
@@ -321,7 +321,7 @@ export default defineComponent({
         _id: 'mindParams',
         projectId: this.$route.query.id,
         tabType: 'mindParams',
-        label: this.$t('联想参数'),
+        label: this.t('联想参数'),
         head: {
           icon: 'iconmindParams',
           color: ''

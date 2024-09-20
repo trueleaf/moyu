@@ -88,7 +88,7 @@ const handleJumpToHook = () => {
     _id: 'hook',
     projectId,
     tabType: 'hook',
-    label: $t('生成代码'),
+    label: t('生成代码'),
     head: {
       icon: '',
       color: ''

@@ -10,15 +10,15 @@
   <s-loading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
     <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3 w-100" :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
-        <el-tab-pane :label="$t('返回值')" name="s-body" class="w-100">
+        <el-tab-pane :label="t('返回值')" name="s-body" class="w-100">
           <s-body class="h-100"></s-body>
         </el-tab-pane>
-        <el-tab-pane :label="$t('请求信息')" name="s-request">
+        <el-tab-pane :label="t('请求信息')" name="s-request">
           <s-request class="h-100"></s-request>
         </el-tab-pane>
         <el-tab-pane name="s-headers">
           <template #label>
-            <span>{{ $t("返回头") }}&nbsp;</span>
+            <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
           <s-headers></s-headers>
@@ -36,26 +36,26 @@
     <el-empty v-show="!remoteResponse.data.type">
       <template #description>
         <div v-if="!loading">
-          <div v-if="config.isElectron">{{ $t("点击发送按钮发送请求") }}</div>
+          <div v-if="config.isElectron">{{ t("点击发送按钮发送请求") }}</div>
           <div v-else>
             <div>
               <el-icon :size="18" class="orange mr-2">
                 <Warning />
               </el-icon>
-              <span>{{ $t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
+              <span>{{ t("因浏览器限制，完整HTTP功能请下载Electron") }}</span>
             </div>
-            <div class="mb-2">{{ $t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>
+            <div class="mb-2">{{ t("跨域、、请求头(user-agent,accept-encoding)等受限") }}</div>
             <div v-if="config.localization.download.enabled">
-              <a :href="config.localization.download.url">{{ $t("下载Electron") }}</a>
+              <a :href="config.localization.download.url">{{ t("下载Electron") }}</a>
             </div>
           </div>
         </div>
         <div v-if="loading">
-          <span>{{ $t("总大小") }}：{{ formatBytes(process.total) }}</span>
+          <span>{{ t("总大小") }}：{{ formatBytes(process.total) }}</span>
           <el-divider direction="vertical"></el-divider>
-          <span>{{ $t("已传输") }}：{{ formatBytes(process.transferred) }}</span>
+          <span>{{ t("已传输") }}：{{ formatBytes(process.transferred) }}</span>
           <el-divider direction="vertical"></el-divider>
-          <span>{{ $t("进度") }}：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
+          <span>{{ t("进度") }}：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
         </div>
       </template>
     </el-empty>

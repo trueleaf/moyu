@@ -12,16 +12,16 @@
       </div>
       <h2 class="text-center">{{ projectName }}</h2>
       <div class="d-flex a-center mb-3">
-        <el-input v-model="password" type="password" :placeholder="$t('请输入密码')" class="w-200px" show-password clearable></el-input>
-        <el-button type="success" :loading="loading2" @click="handleConfirmPassword">{{ $t("确认密码") }}</el-button>
+        <el-input v-model="password" type="password" :placeholder="t('请输入密码')" class="w-200px" show-password clearable></el-input>
+        <el-button type="success" :loading="loading2" @click="handleConfirmPassword">{{ t("确认密码") }}</el-button>
       </div>
       <div class="gray-600">
-        <span class="mr-1">{{ $t("过期倒计时") }}：</span>
+        <span class="mr-1">{{ t("过期倒计时") }}：</span>
         <span v-countdown="expire"></span>
       </div>
     </div>
   </s-loading>
-  <el-empty v-if="isValidShareId" :description="$t('无效的项目id')"></el-empty>
+  <el-empty v-if="isValidShareId" :description="t('无效的项目id')"></el-empty>
 </template>
 
 <script lang="ts">

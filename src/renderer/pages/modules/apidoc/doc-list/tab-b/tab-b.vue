@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-  <div>{{ $t("团队管理") }}</div>
+  <div>{{ t("团队管理") }}</div>
 </template>
 
 <script lang="ts">

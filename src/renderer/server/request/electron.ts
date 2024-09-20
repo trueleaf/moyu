@@ -122,7 +122,7 @@ function electronRequest() {
       store.commit('apidoc/response/changeLoading', false)
       store.commit('apidoc/response/changeIsResponse', true)
       store.commit('apidoc/response/changeResponseContentType', 'error');
-      store.commit('apidoc/response/changeResponseTextValue', $t('请求url不能为空'));
+      store.commit('apidoc/response/changeResponseTextValue', t('请求url不能为空'));
       return;
     }
     requestStream = requestInstance(requestUrl, {

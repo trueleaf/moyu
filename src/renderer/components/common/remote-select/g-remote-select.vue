@@ -8,8 +8,8 @@
   <div class="remote-select">
     <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
     <div v-if="query" class="select-panel">
-      <div v-if="dataLoading" class="loading">{{ $t("加载中") }}...</div>
-      <div v-if="!dataLoading && !$slots.default" class="empty">{{ $t("暂无数据") }}</div>
+      <div v-if="dataLoading" class="loading">{{ t("加载中") }}...</div>
+      <div v-if="!dataLoading && !$slots.default" class="empty">{{ t("暂无数据") }}</div>
       <slot v-if="!dataLoading && $slots.default" />
     </div>
   </div>
@@ -28,7 +28,7 @@ export default defineComponent({
          */
     placeholder: {
       type: String,
-      default: `${$t('请输入')}...`,
+      default: `${t('请输入')}...`,
     },
     /**
          * 远程搜索方法

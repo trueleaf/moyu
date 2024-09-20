@@ -7,11 +7,11 @@
 <template>
   <div class="s-permission">
     <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
-      <el-tab-pane :label="$t('用户')" name="s-user"></el-tab-pane>
-      <el-tab-pane :label="$t('角色维护')" name="s-role"></el-tab-pane>
-      <el-tab-pane :label="$t('菜单维护')" name="s-menu"></el-tab-pane>
-      <el-tab-pane :label="$t('前端路由')" name="s-client-routes"></el-tab-pane>
-      <el-tab-pane :label="$t('后端路由(接口)')" name="s-server-routes"></el-tab-pane>
+      <el-tab-pane :label="t('用户')" name="s-user"></el-tab-pane>
+      <el-tab-pane :label="t('角色维护')" name="s-role"></el-tab-pane>
+      <el-tab-pane :label="t('菜单维护')" name="s-menu"></el-tab-pane>
+      <el-tab-pane :label="t('前端路由')" name="s-client-routes"></el-tab-pane>
+      <el-tab-pane :label="t('后端路由(接口)')" name="s-server-routes"></el-tab-pane>
     </el-tabs>
     <component :is="activeName"></component>
   </div>

@@ -6,8 +6,8 @@
 */
 <template>
   <div class="d-flex a-center mb-3">
-    <span class="flex0">{{ $t("添加用户") }}：</span>
-    <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2" :placeholder="$t('输入用户名或真实姓名查找用户')" class="w-300px">
+    <span class="flex0">{{ t("添加用户") }}：</span>
+    <s-remote-select v-model="remoteQueryName" :remote-methods="getRemoteUserByName" :loading="loading2" :placeholder="t('输入用户名或真实姓名查找用户')" class="w-300px">
       <s-remote-select-item v-for="(item, index) in remoteMembers" :key="index">
         <div class="d-flex a-center j-between w-100 h-100" @click="handleSelectUser(item)">
           <span>{{ item.loginName }}</span>
@@ -19,30 +19,30 @@
   <!-- 表格展示 -->
   <s-loading :loading="loading">
     <el-table :data="selectedUserData" stripe border max-height="300px">
-      <el-table-column prop="loginName" :label="$t('用户名')" align="center"></el-table-column>
-      <el-table-column prop="realName" :label="$t('真实姓名')" align="center"></el-table-column>
+      <el-table-column prop="loginName" :label="t('用户名')" align="center"></el-table-column>
+      <el-table-column prop="realName" :label="t('真实姓名')" align="center"></el-table-column>
       <el-table-column label="角色(权限)" align="center">
         <template #default="scope">
           <el-select v-model="scope.row.permission" :size="config.renderConfig.layout.size" @change="handleChangePermission(scope.row)">
-            <el-option :label="$t('只读')" value="readOnly">
-              <span>{{ $t("只读") }}</span>
-              <span class="gray-500">({{ $t("仅查看项目") }})</span>
+            <el-option :label="t('只读')" value="readOnly">
+              <span>{{ t("只读") }}</span>
+              <span class="gray-500">({{ t("仅查看项目") }})</span>
             </el-option>
-            <el-option :label="$t('读写')" value="readAndWrite">
-              <span>{{ $t("读写") }}</span>
-              <span class="gray-500">({{ $t("新增和编辑文档") }})</span>
+            <el-option :label="t('读写')" value="readAndWrite">
+              <span>{{ t("读写") }}</span>
+              <span class="gray-500">({{ t("新增和编辑文档") }})</span>
             </el-option>
-            <el-option :label="$t('管理员')" value="admin">
-              <span>{{ $t("管理员") }}</span>
-              <span class="gray-500">({{ $t("添加新成员") }})</span>
+            <el-option :label="t('管理员')" value="admin">
+              <span>{{ t("管理员") }}</span>
+              <span class="gray-500">({{ t("添加新成员") }})</span>
             </el-option>
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('操作')" align="center" width="200px">
+      <el-table-column :label="t('操作')" align="center" width="200px">
         <template #default="scope">
-          <el-button v-if="selfLoginName === scope.row.loginName" type="primary" text @click="handleLeaveGroup(scope.row, scope.$index)">{{ $t("退出") }}</el-button>
-          <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ $t("删除") }}</el-button>
+          <el-button v-if="selfLoginName === scope.row.loginName" type="primary" text @click="handleLeaveGroup(scope.row, scope.$index)">{{ t("退出") }}</el-button>
+          <el-button v-else type="primary" text @click="handleDeleteMember(scope.row, scope.$index)">{{ t("删除") }}</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -118,7 +118,7 @@ export default defineComponent({
       this.remoteQueryName = '';
       const hasUser = this.selectedUserData.find((val) => val.userId === item.userId);
       if (hasUser) {
-        this.$message.warning(this.$t('用户已经存在，请勿重复添加'));
+        this.$message.warning(this.t('用户已经存在，请勿重复添加'));
         return;
       }
       const params = {
@@ -137,9 +137,9 @@ export default defineComponent({
     },
     //删除成员
     handleDeleteMember(row: PermissionUserInfo, index: number) {
-      this.$confirm(this.$t('确认删除当前成员吗?'), this.$t('提示'), {
-        confirmButtonText: this.$t('确定'),
-        cancelButtonText: this.$t('取消'),
+      this.$confirm(this.t('确认删除当前成员吗?'), this.t('提示'), {
+        confirmButtonText: this.t('确定'),
+        cancelButtonText: this.t('取消'),
         type: 'warning',
       }).then(() => {
         const params = {
@@ -168,12 +168,12 @@ export default defineComponent({
         return false;
       });
       if (!hasAdmin) {
-        this.$message.error(this.$t('团队至少保留一个管理员'));
+        this.$message.error(this.t('团队至少保留一个管理员'));
         return;
       }
-      this.$confirm(this.$t('确认离开当前团队吗?'), this.$t('提示'), {
-        confirmButtonText: this.$t('确定'),
-        cancelButtonText: this.$t('取消'),
+      this.$confirm(this.t('确认离开当前团队吗?'), this.t('提示'), {
+        confirmButtonText: this.t('确定'),
+        cancelButtonText: this.t('取消'),
         type: 'warning',
       }).then(() => {
         const params = {
@@ -203,14 +203,14 @@ export default defineComponent({
         return false;
       });
       if (!hasAdmin) {
-        this.$message.error(this.$t('团队至少保留一个管理员'));
+        this.$message.error(this.t('团队至少保留一个管理员'));
         row.permission = oldPermission;
         return;
       }
       if (oldPermission === 'admin') {
-        this.$confirm(this.$t('确认改变当前管理员权限吗?'), this.$t('提示'), {
-          confirmButtonText: this.$t('确定'),
-          cancelButtonText: this.$t('取消'),
+        this.$confirm(this.t('确认改变当前管理员权限吗?'), this.t('提示'), {
+          confirmButtonText: this.t('确定'),
+          cancelButtonText: this.t('取消'),
           type: 'warning',
         }).then(() => {
           const params = {

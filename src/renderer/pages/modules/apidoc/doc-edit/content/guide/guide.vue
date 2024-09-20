@@ -8,14 +8,14 @@
   <div class="guide">
     <div class="wrap">
       <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo" class="logo">
-      <h2>{{ $t("当前版本") }}{{ config.localization.version }}</h2>
+      <h2>{{ t("当前版本") }}{{ config.localization.version }}</h2>
       <div class="d-flex a-center f-base j-center">
         <div class="d-flex a-center mr-5">
-          <div>{{ $t("今日新增") }}：</div>
+          <div>{{ t("今日新增") }}：</div>
           <div class="green">{{ docsOfToday.length }}</div>
         </div>
         <div class="d-flex a-center mr-5">
-          <div>{{ $t("接口总数") }}：</div>
+          <div>{{ t("接口总数") }}：</div>
           <div>{{ allDocs.length }}</div>
         </div>
       </div>

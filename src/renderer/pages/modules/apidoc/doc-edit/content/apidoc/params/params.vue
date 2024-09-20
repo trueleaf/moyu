@@ -7,28 +7,28 @@
 <template>
   <div class="api-params" :class="{ vertical: layout === 'vertical' }">
     <div class="view-type" :class="{ vertical: layout === 'vertical' }">
-      <div class="cursor-pointer" :class="{active: mode === 'edit'}" @click="toggleMode('edit')">{{ $t("编辑") }}</div>
+      <div class="cursor-pointer" :class="{active: mode === 'edit'}" @click="toggleMode('edit')">{{ t("编辑") }}</div>
       <el-divider direction="vertical"></el-divider>
-      <div class="cursor-pointer mr-5" :class="{active: mode === 'view'}" @click="toggleMode('view')">{{ $t("预览") }}</div>
+      <div class="cursor-pointer mr-5" :class="{active: mode === 'view'}" @click="toggleMode('view')">{{ t("预览") }}</div>
       <el-dropdown trigger="click">
         <div class="gray-700 cursor-pointer mr-3 hover-theme-color">
           <span class="mr-1 f-sm iconfont iconbuju"></span>
-          <span>{{ $t("布局") }}</span>
+          <span>{{ t("布局") }}</span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="handleChangeLayout('horizontal')">
-              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ $t("左右布局") }}</span>
+              <span :class="{ 'theme-color': layout === 'horizontal' }">{{ t("左右布局") }}</span>
             </el-dropdown-item>
             <el-dropdown-item @click="handleChangeLayout('vertical')">
-              <span :class="{ 'theme-color': layout === 'vertical' }">{{ $t("上下布局") }}</span>
+              <span :class="{ 'theme-color': layout === 'vertical' }">{{ t("上下布局") }}</span>
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
       <div class="gray-700 cursor-pointer mr-3 hover-theme-color" @click="handleOpenVariable">
         <span class="mr-1 f-sm iconfont iconvariable"></span>
-        <span>{{ $t("变量") }}</span>
+        <span>{{ t("变量") }}</span>
       </div>
       <div class="d-flex a-center gray-700 cursor-pointer mr-3 hover-theme-color">
         <el-popover v-model:visible="generateCodeVisible" width="300px" placement="bottom" trigger="manual">
@@ -55,23 +55,23 @@
       </el-tab-pane>
       <el-tab-pane name="s-response-params">
         <template #label>
-          <el-badge :is-dot="!!responseNum">{{ $t("返回参数") }}</el-badge>
+          <el-badge :is-dot="!!responseNum">{{ t("返回参数") }}</el-badge>
         </template>
       </el-tab-pane>
       <el-tab-pane name="s-request-headers">
         <template #label>
-          <el-badge :is-dot="hasHeaders">{{ $t("请求头") }}</el-badge>
+          <el-badge :is-dot="hasHeaders">{{ t("请求头") }}</el-badge>
         </template>
       </el-tab-pane>
-      <el-tab-pane :label="$t('备注信息')" name="s-remarks"></el-tab-pane>
+      <el-tab-pane :label="t('备注信息')" name="s-remarks"></el-tab-pane>
       <el-tab-pane name="s-pre-request">
         <template #label>
-          <el-badge :is-dot="hasPreRequest">{{ $t("前置脚本") }}</el-badge>
+          <el-badge :is-dot="hasPreRequest">{{ t("前置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
       <el-tab-pane name="s-after-request">
         <template #label>
-          <el-badge :is-dot="hasAfterRequest">{{ $t("后置脚本") }}</el-badge>
+          <el-badge :is-dot="hasAfterRequest">{{ t("后置脚本") }}</el-badge>
         </template>
       </el-tab-pane>
       <el-tab-pane name="s-mock">
@@ -167,7 +167,7 @@ export default defineComponent({
             resNum += 1;
           }
         } else {
-          console.warn(`${this.$t('未实现的返回类型')}${dataType}`);
+          console.warn(`${this.t('未实现的返回类型')}${dataType}`);
         }
       });
       return resNum;
@@ -450,7 +450,7 @@ export default defineComponent({
         _id: 'variable',
         projectId: this.$route.query.id,
         tabType: 'variable',
-        label: this.$t('变量维护'),
+        label: this.t('变量维护'),
         head: {
           icon: 'iconvariable',
           color: ''
@@ -466,7 +466,7 @@ export default defineComponent({
         _id: 'mindParams',
         projectId: this.$route.query.id,
         tabType: 'mindParams',
-        label: this.$t('联想参数'),
+        label: this.t('联想参数'),
         head: {
           icon: 'iconmindParams',
           color: ''

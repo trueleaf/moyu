@@ -19,9 +19,9 @@ type EditApidocPropertyPayload<K extends keyof ApidocProperty> = {
 
 //接口删除提示用户
 function confirmInvalidDoc(projectId: string, delId: string) {
-  ElMessageBox.confirm($t('当前接口不存在，可能已经被删除!'), $t('提示'), {
-    confirmButtonText: $t('关闭接口'),
-    cancelButtonText: $t('取消'),
+  ElMessageBox.confirm(t('当前接口不存在，可能已经被删除!'), t('提示'), {
+    confirmButtonText: t('关闭接口'),
+    cancelButtonText: t('取消'),
     type: 'warning',
   }).then(() => {
     store.dispatch('apidoc/tabs/deleteTabByIds', {
@@ -40,38 +40,38 @@ function getDefaultHeaders(contentType: ApidocContentType) {
   const defaultHeaders: ApidocProperty<'string'>[] = [];
   const params = apidocGenerateProperty();
   params.key = 'Content-Length';
-  params.value = $t('<发送请求时候自动计算>');
-  params.description = $t('<消息的长度>');
+  params.value = t('<发送请求时候自动计算>');
+  params.description = t('<消息的长度>');
   defaultHeaders.push(params);
   //=========================================================================//
   const params2 = apidocGenerateProperty();
   params2.key = 'User-Agent';
-  params2.value = $t('<发送请求时候自动处理>');
-  params2.description = $t('<用户代理软件信息>');
+  params2.value = t('<发送请求时候自动处理>');
+  params2.description = t('<用户代理软件信息>');
   defaultHeaders.push(params2);
   //=========================================================================//
   const params3 = apidocGenerateProperty();
   params3.key = 'Host';
-  params3.value = $t('<发送请求时候自动处理>');
-  params3.description = $t('<主机信息>');
+  params3.value = t('<发送请求时候自动处理>');
+  params3.description = t('<主机信息>');
   defaultHeaders.push(params3);
   //=========================================================================//
   const params4 = apidocGenerateProperty();
   params4.key = 'Accept-Encoding';
   params4.value = 'gzip, deflate, br';
-  params4.description = $t('<客户端理解的编码方式>');
+  params4.description = t('<客户端理解的编码方式>');
   defaultHeaders.push(params4);
   //=========================================================================//
   const params5 = apidocGenerateProperty();
   params5.key = 'Connection';
   params5.value = 'keep-alive';
-  params5.description = $t('<当前的事务完成后，是否会关闭网络连接>');
+  params5.description = t('<当前的事务完成后，是否会关闭网络连接>');
   defaultHeaders.push(params5);
   if (contentType) {
     const params6 = apidocGenerateProperty();
     params6.key = 'Content-type';
     params6.value = contentType;
-    params6.description = $t('<根据body类型自动处理>');
+    params6.description = t('<根据body类型自动处理>');
     defaultHeaders.push(params6);
   }
   return defaultHeaders;
@@ -171,7 +171,7 @@ const apidoc = {
         const params = apidocGenerateProperty();
         params.key = 'Content-type';
         params.value = contentType;
-        params.description = $t('<根据body类型自动处理>');
+        params.description = t('<根据body类型自动处理>');
         state.defaultHeaders.push(params);
       } else if (!contentType && matchedIndex !== -1) {
         state.defaultHeaders.splice(matchedIndex, 1)
@@ -211,7 +211,7 @@ const apidoc = {
     addResponseParam(state: ApidocState): void {
       state.apidoc.item.responseParams.push({
         _id: uuid(),
-        title: $t('返回参数名称'),
+        title: t('返回参数名称'),
         statusCode: 200,
         value: {
           strJson: '',
@@ -296,7 +296,7 @@ const apidoc = {
     getSharedApidocDetail(context: ActionContext<ApidocState, RootState>, payload: { id: string, password: string, shareId: string, projectId: string }): Promise<void> {
       if (cancel.length > 0) {
         cancel.forEach((c) => {
-          c($t('取消请求'));
+          c(t('取消请求'));
         })
       }
       return new Promise((resolve, reject) => {

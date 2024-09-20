@@ -42,61 +42,61 @@
       </el-popover>
     </div>
     <div class="p-relative">
-      <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
+      <el-input v-model="formInfo.iptValue" size="large" class="doc-search" :placeholder="t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
       <el-badge :is-dot="hasFilterCondition" class="badge">
         <el-popover placement="right-end" :hide-after="0" transition="none" width="50vw" trigger="click">
           <template #reference>
-            <div class="advance" :title="$t('高级筛选')">
+            <div class="advance" :title="t('高级筛选')">
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
           <s-fieldset title="过滤条件" class="search-panel">
             <!-- 操作人员 -->
             <div class="op-item a-center">
-              <div class="flex0">{{ $t("操作人员") }}：</div>
+              <div class="flex0">{{ t("操作人员") }}：</div>
               <el-checkbox-group v-model="formInfo.maintainers">
                 <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
-                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ $t("清空") }}</el-button>
+                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空") }}</el-button>
               </el-checkbox-group>
             </div>
             <!-- 日期范围 -->
             <div class="op-item">
               <div class="flex0">
-                <span>{{ $t("录入日期") }}&nbsp;</span>
+                <span>{{ t("录入日期") }}&nbsp;</span>
                 <span>：</span>
               </div>
               <el-radio-group v-model="dateRange">
-                <el-radio label="1d">{{ $t("今天") }}</el-radio>
-                <el-radio label="2d">{{ $t("近两天") }}</el-radio>
-                <el-radio label="3d">{{ $t("近三天") }}</el-radio>
-                <el-radio label="7d">{{ $t("近七天") }}</el-radio>
-                <el-radio label="自定义">{{ $t("自定义") }}</el-radio>
+                <el-radio label="1d">{{ t("今天") }}</el-radio>
+                <el-radio label="2d">{{ t("近两天") }}</el-radio>
+                <el-radio label="3d">{{ t("近三天") }}</el-radio>
+                <el-radio label="7d">{{ t("近七天") }}</el-radio>
+                <el-radio label="自定义">{{ t("自定义") }}</el-radio>
                 <el-date-picker
                   v-if="dateRange === '自定义'"
                   v-model="customDateRange"
                   type="datetimerange"
-                  :range-separator="$t('至')"
+                  :range-separator="t('至')"
                   value-format="x"
-                  :start-placeholder="$t('开始日期')"
+                  :start-placeholder="t('开始日期')"
                   class="mr-1"
-                  :end-placeholder="$t('结束日期')"
+                  :end-placeholder="t('结束日期')"
                 >
                 </el-date-picker>
-                <el-button link type="primary" text @click="handleClearDate">{{ $t("清空") }}</el-button>
+                <el-button link type="primary" text @click="handleClearDate">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
             <!-- 最近多少条数据 -->
             <div class="op-item">
               <div class="flex0">
-                <span>{{ $t("最近多少条") }}&nbsp;</span>
+                <span>{{ t("最近多少条") }}&nbsp;</span>
                 <span>：</span>
               </div>
               <el-radio-group v-model="formInfo.recentNum">
-                <el-radio :label="2">{{ $t("2条") }}</el-radio>
-                <el-radio :label="5">{{ $t("5条") }}</el-radio>
-                <el-radio :label="10">{{ $t("10条") }}</el-radio>
-                <el-radio :label="15">{{ $t("15条") }}</el-radio>
-                <el-button link type="primary" text @click="handleClearRecentNum">{{ $t("清空") }}</el-button>
+                <el-radio :label="2">{{ t("2条") }}</el-radio>
+                <el-radio :label="5">{{ t("5条") }}</el-radio>
+                <el-radio :label="10">{{ t("10条") }}</el-radio>
+                <el-radio :label="15">{{ t("15条") }}</el-radio>
+                <el-button link type="primary" text @click="handleClearRecentNum">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
           </s-fieldset>
@@ -119,12 +119,12 @@
       <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
         <template #reference>
           <div class="more" @click.stop="visible = !visible">
-            <el-icon :size="16" :title="$t('更多操作')" class="more-op">
+            <el-icon :size="16" :title="t('更多操作')" class="more-op">
               <MoreFilled />
             </el-icon>
           </div>
         </template>
-        <div class="border-bottom-gray-300 py-2 px-2">{{ $t("快捷操作") }}</div>
+        <div class="border-bottom-gray-300 py-2 px-2">{{ t("快捷操作") }}</div>
         <div class="toolbar-close" @click="visible = false">
           <el-icon :size="18" class="more-op">
             <Close />
@@ -300,7 +300,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'onlineLink',
       projectId,
       tabType: 'onlineLink',
-      label: $t('在线链接'),
+      label: t('在线链接'),
       head: {
         icon: '',
         color: ''
@@ -315,7 +315,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'exportDoc',
       projectId,
       tabType: 'exportDoc',
-      label: $t('导出文档'),
+      label: t('导出文档'),
       head: {
         icon: '',
         color: ''
@@ -330,7 +330,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'importDoc',
       projectId,
       tabType: 'importDoc',
-      label: $t('导入文档'),
+      label: t('导入文档'),
       head: {
         icon: '',
         color: ''
@@ -345,7 +345,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'recycler',
       projectId,
       tabType: 'recycler',
-      label: $t('回收站'),
+      label: t('回收站'),
       head: {
         icon: '',
         color: ''
@@ -360,7 +360,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'history',
       projectId,
       tabType: 'history',
-      label: $t('操作审计'),
+      label: t('操作审计'),
       head: {
         icon: '',
         color: ''
@@ -375,7 +375,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'config',
       projectId,
       tabType: 'config',
-      label: $t('全局设置'),
+      label: t('全局设置'),
       head: {
         icon: '',
         color: ''
@@ -390,7 +390,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'hook',
       projectId,
       tabType: 'hook',
-      label: $t('生成代码'),
+      label: t('生成代码'),
       head: {
         icon: '',
         color: ''
@@ -405,7 +405,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'commonHeader',
       projectId,
       tabType: 'commonHeader',
-      label: $t('公共请求头'),
+      label: t('公共请求头'),
       head: {
         icon: '',
         color: ''
@@ -420,7 +420,7 @@ const handleEmit = (op: ApidocOperations) => {
       _id: 'apiflow',
       projectId,
       tabType: 'apiflow',
-      label: $t('接口编排'),
+      label: t('接口编排'),
       head: {
         icon: '',
         color: ''

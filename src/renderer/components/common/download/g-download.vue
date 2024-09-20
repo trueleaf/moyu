@@ -56,7 +56,7 @@ export default defineComponent({
         blobUrl = URL.createObjectURL(res.data as Blob);
         const downloadElement = document.createElement('a');
         downloadElement.href = blobUrl;
-        downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : this.$t('未命名'); //下载后文件名
+        downloadElement.download = res.fileName ? decodeURIComponent(res.fileName) : this.t('未命名'); //下载后文件名
         document.body.appendChild(downloadElement);
         downloadElement.click(); //点击下载
         document.body.removeChild(downloadElement); //下载完成移除元素

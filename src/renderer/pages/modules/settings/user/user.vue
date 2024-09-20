@@ -103,11 +103,11 @@ export default defineComponent({
       const matchNumber = /\d/;
       const inValidKey = /[^\w\d!@#]/;
       if (value.trim() === '') {
-        callback(new Error(this.$t('请输入密码')));
+        callback(new Error(this.t('请输入密码')));
       } else if (value.match(inValidKey)) {
-        callback(new Error(this.$t('只允许 数字  字符串 ! @ # 不允许其他字符串')));
+        callback(new Error(this.t('只允许 数字  字符串 ! @ # 不允许其他字符串')));
       } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-        callback(new Error(this.$t('数字+字符串，并且大于8位')));
+        callback(new Error(this.t('数字+字符串，并且大于8位')));
       } else {
         if (this.formInfo.newPassword2 !== '') {
           this.$refs.form.validateField('newPassword2');
@@ -120,13 +120,13 @@ export default defineComponent({
       const matchNumber = /\d/;
       const inValidKey = /[^\w\d!@#]/;
       if (value === '') {
-        callback(new Error(this.$t('请再次输入密码')));
+        callback(new Error(this.t('请再次输入密码')));
       } else if (value.match(inValidKey)) {
-        callback(new Error(this.$t('只允许 数字  字符串 ! @ # 不允许其他字符串')));
+        callback(new Error(this.t('只允许 数字  字符串 ! @ # 不允许其他字符串')));
       } else if (!value.match(matchString) || !value.match(matchNumber) || value.length < 8) {
-        callback(new Error(this.$t('数字+字符串，并且大于8位')));
+        callback(new Error(this.t('数字+字符串，并且大于8位')));
       } else if (value !== this.formInfo.newPassword) {
-        callback(new Error(this.$t('两次输入密码不一致!')));
+        callback(new Error(this.t('两次输入密码不一致!')));
       } else {
         callback();
       }

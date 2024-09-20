@@ -196,7 +196,7 @@ const handleChangeRawType = () => {
   } else if (rawType.value === 'application/json') {
     store.commit('apidoc/apidoc/changeContentType', 'application/json');
   } else {
-    console.warn($t('未知请求类型'));
+    console.warn(t('未知请求类型'));
   }
 }
 

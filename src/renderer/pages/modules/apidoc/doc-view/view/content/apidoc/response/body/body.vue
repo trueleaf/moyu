@@ -22,13 +22,13 @@
       <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')">
         <i class="iconicon_weizhiwenjian"></i>
         <s-download :url="remoteResponse.data.file.url" static>
-          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+          <span class="cursor-pointer theme-color">{{ t("下载") }}</span>
         </s-download>
       </div>
       <div v-else-if="remoteResponse.data.type.includes('application/force-download')">
         <i class="iconicon_weizhiwenjian"></i>
         <s-download :url="remoteResponse.data.file.url" static>
-          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+          <span class="cursor-pointer theme-color">{{ t("下载") }}</span>
         </s-download>
       </div>
       <!-- excel -->
@@ -37,7 +37,7 @@
           <use xlink:href="#iconexcel"></use>
         </svg>
         <s-download :url="remoteResponse.data.file.url" static>
-          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+          <span class="cursor-pointer theme-color">{{ t("下载") }}</span>
         </s-download>
       </div>
       <!-- word -->
@@ -46,7 +46,7 @@
           <use xlink:href="#iconWORD"></use>
         </svg>
         <s-download :url="remoteResponse.data.file.url" static>
-          <span class="cursor-pointer theme-color">{{ $t("下载") }}</span>
+          <span class="cursor-pointer theme-color">{{ t("下载") }}</span>
         </s-download>
       </div>
       <!-- pdf -->

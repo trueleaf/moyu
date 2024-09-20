@@ -12,7 +12,7 @@
         <div class="info-wrap">
           <div class="label">
             <div class="d-flex a-center">
-              <span class="flex0">{{ $t("名称") }}：</span>
+              <span class="flex0">{{ t("名称") }}：</span>
               <span v-if="(!currentEditNode || currentEditNode.index !== index)" class="edit-title">{{ item.title }}</span>
               <input
                 v-if="currentEditNode && currentEditNode.index === index"
@@ -21,13 +21,13 @@
                 class="edit-input"
                 :class="{error: currentEditNode._title.length === 0}"
                 type="text"
-                :placeholder="$t('不能为空')"
+                :placeholder="t('不能为空')"
                 @click.stop="() => {}"
                 @keydown.enter="handleConfirmTitle(item, index)"
               >
-              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
-              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
-              <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t("确定") }}</span>
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>
+              <el-icon v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
                 <Edit />
               </el-icon>
             </div>
@@ -36,7 +36,7 @@
           <el-divider direction="vertical"></el-divider>
           <div class="status-code">
             <div class="d-flex a-center j-center">
-              <span class="flex0">{{ $t("状态码") }}：</span>
+              <span class="flex0">{{ t("状态码") }}：</span>
               <el-popover v-model:visible="statusVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                 <template #reference>
                   <span class="d-flex a-center cursor-pointer" @click.stop="toggleStatusModel(item)">
@@ -58,7 +58,7 @@
           <el-divider direction="vertical"></el-divider>
           <div class="content-type">
             <div class="d-flex a-center j-center">
-              <!-- <span class="flex0">{{ $t("返回格式") }}：</span> -->
+              <!-- <span class="flex0">{{ t("返回格式") }}：</span> -->
               <el-popover v-model:visible="mimeVisibleMap[item._id]" width="500px" placement="bottom" trigger="manual">
                 <template #reference>
                   <span class="d-flex a-center cursor-pointer" @click.stop="toggleMimeModel(item)">
@@ -83,11 +83,11 @@
       <template #tail>
         <div class="d-flex a-center">
           <div v-if="item.value.dataType === 'application/json' && 0" class="p-relative no-select flex0">
-            <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ $t("应用模板") }}</span>
+            <span class="cursor-pointer" @click.stop="showTemplateIndex = index">{{ t("应用模板") }}</span>
             <div v-if="showTemplateIndex === index" class="template-wrap">
               <div class="header">
-                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
-                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
+                <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="t('过滤模板')" :prefix-icon="Search" class="w-100" maxlength="100" clearable></el-input>
+                <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ t("维护") }}</div>
               </div>
               <template v-if="jsonTemplateList.length > 0">
                 <div
@@ -102,13 +102,13 @@
                   <span class="tail">{{ item2.creatorName }}</span>
                 </div>
               </template>
-              <div v-else class="select-item disabled d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
+              <div v-else class="select-item disabled d-flex j-center gray-500">{{ t("暂无数据") }}</div>
             </div>
           </div>
           <!-- <el-divider v-if="item.value.dataType === 'application/json'" direction="vertical"></el-divider> -->
-          <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ $t("保存为模板") }} </div>
-          <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ $t("新增") }}</div>
-          <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
+          <div v-if="item.value.dataType === 'application/json' && 0" class="cursor-pointer flex0 mr-3" @click="handleOpenTemplateDialog(index)">{{ t("保存为模板") }} </div>
+          <div v-if="index === 0" class="green cursor-pointer flex0" @click="handleAddResponse">{{ t("新增") }}</div>
+          <div v-if="responseData.length > 1" class="red cursor-pointer ml-2" @click="handleDeleteResponse(index)">{{ t("删除") }}</div>
         </div>
       </template>
       <!-- 内容展示 -->

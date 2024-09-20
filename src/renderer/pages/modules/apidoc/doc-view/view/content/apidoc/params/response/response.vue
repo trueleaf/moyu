@@ -11,7 +11,7 @@
         <div class="info-wrap">
           <div class="label">
             <div class="d-flex a-center">
-              <span class="flex0">{{ $t("名称") }}：</span>
+              <span class="flex0">{{ t("名称") }}：</span>
               <span v-if="!currentEditNode" class="edit-title">{{ item.title }}</span>
               <input
                 v-if="currentEditNode && currentEditNode.index === index"
@@ -20,13 +20,13 @@
                 class="edit-input"
                 :class="{error: currentEditNode._title.length === 0}"
                 type="text"
-                :placeholder="$t('不能为空')"
+                :placeholder="t('不能为空')"
                 @click.stop="() => {}"
                 @keydown.enter="handleConfirmTitle(item, index)"
               >
-              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ $t("确定") }}</span>
-              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ $t("取消") }}</span>
-              <el-icon v-if="!currentEditNode" :title="$t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleConfirmTitle(item, index)">{{ t("确定") }}</span>
+              <span v-if="currentEditNode && currentEditNode.title === item.title" class="ml-1 cursor-pointer theme-color" @click.stop="handleCancelEdit">{{ t("取消") }}</span>
+              <el-icon v-if="!currentEditNode" :title="t('修改名称')" class="edit-icon" :size="16" @click.stop="handleChangeEditNode(item, index)">
                 <Edit />
               </el-icon>
             </div>
@@ -34,7 +34,7 @@
           <el-divider direction="vertical"></el-divider>
           <div class="status-code">
             <div class="d-flex a-center j-center">
-              <span class="flex0">{{ $t("状态码") }}：</span>
+              <span class="flex0">{{ t("状态码") }}：</span>
               <el-dropdown trigger="click">
                 <span class="d-flex a-center cursor-pointer">
                   <span>{{ item.statusCode }}</span>
@@ -53,7 +53,7 @@
           <el-divider direction="vertical"></el-divider>
           <div class="content-type">
             <div class="d-flex a-center j-center">
-              <span class="flex0">{{ $t("返回格式") }}：</span>
+              <span class="flex0">{{ t("返回格式") }}：</span>
               <el-dropdown trigger="click">
                 <span class="cursor-pointer">
                   <span>{{ item.value.dataType }}</span>
@@ -73,8 +73,8 @@
       </template>
       <template #tail>
         <div class="d-flex">
-          <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">{{ $t("新增") }}</div>
-          <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ $t("删除") }}</div>
+          <div v-if="index === 0" class="green cursor-pointer mr-2" @click="handleAddResponse">{{ t("新增") }}</div>
+          <div v-if="responseData.length > 1" class="red cursor-pointer" @click="handleDeleteResponse(index)">{{ t("删除") }}</div>
         </div>
       </template>
       <s-params-tree v-if="item.value.dataType === 'application/json'" nest :data="item.value.json"></s-params-tree>

@@ -9,61 +9,61 @@
     <h2 v-if="projectName" class="gray-700 f-lg text-center text-ellipsis" :title="projectName">{{ projectName }}</h2>
     <h2 v-else class="gray-700 f-lg text-center text-ellipsis" :title="projectName">/</h2>
     <div class="p-relative">
-      <el-input v-model="formInfo.iptValue" class="doc-search" :placeholder="$t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
+      <el-input v-model="formInfo.iptValue" class="doc-search" :placeholder="t('文档名称、文档url')" clearable @change="handleFilterBanner"></el-input>
       <el-badge :is-dot="hasFilterCondition" class="badge">
         <el-popover placement="right-end" transition="none" width="50vw" trigger="click">
           <template #reference>
-            <div class="advance" :title="$t('高级筛选')">
+            <div class="advance" :title="t('高级筛选')">
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
           <s-fieldset title="过滤条件" class="search-panel">
             <!-- 操作人员 -->
             <div class="op-item a-center">
-              <div class="flex0">{{ $t("操作人员") }}：</div>
+              <div class="flex0">{{ t("操作人员") }}：</div>
               <el-checkbox-group v-model="formInfo.maintainers">
                 <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
-                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ $t("清空") }}</el-button>
+                <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空") }}</el-button>
               </el-checkbox-group>
             </div>
             <!-- 日期范围 -->
             <div class="op-item">
               <div class="flex0">
-                <span>{{ $t("录入日期") }}&nbsp;</span>
+                <span>{{ t("录入日期") }}&nbsp;</span>
                 <span>：</span>
               </div>
               <el-radio-group v-model="dateRange">
-                <el-radio label="1d">{{ $t("今天") }}</el-radio>
-                <el-radio label="2d">{{ $t("近两天") }}</el-radio>
-                <el-radio label="3d">{{ $t("近三天") }}</el-radio>
-                <el-radio label="7d">{{ $t("近七天") }}</el-radio>
-                <el-radio :label="$t('自定义')">{{ $t("自定义") }}</el-radio>
+                <el-radio label="1d">{{ t("今天") }}</el-radio>
+                <el-radio label="2d">{{ t("近两天") }}</el-radio>
+                <el-radio label="3d">{{ t("近三天") }}</el-radio>
+                <el-radio label="7d">{{ t("近七天") }}</el-radio>
+                <el-radio :label="t('自定义')">{{ t("自定义") }}</el-radio>
                 <el-date-picker
-                  v-if="dateRange === $t('自定义')"
+                  v-if="dateRange === t('自定义')"
                   v-model="customDateRange"
                   type="datetimerange"
-                  :range-separator="$t('至')"
+                  :range-separator="t('至')"
                   value-format="x"
-                  :start-placeholder="$t('开始日期')"
+                  :start-placeholder="t('开始日期')"
                   class="mr-1"
-                  :end-placeholder="$t('结束日期')"
+                  :end-placeholder="t('结束日期')"
                 >
                 </el-date-picker>
-                <el-button link type="primary" text @click="handleClearDate">{{ $t("清空") }}</el-button>
+                <el-button link type="primary" text @click="handleClearDate">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
             <!-- 最近多少条数据 -->
             <div class="op-item">
               <div class="flex0">
-                <span>{{ $t("最近多少条") }}&nbsp;</span>
+                <span>{{ t("最近多少条") }}&nbsp;</span>
                 <span>：</span>
               </div>
               <el-radio-group v-model="formInfo.recentNum">
-                <el-radio :label="2">{{ $t("2条") }}</el-radio>
-                <el-radio :label="5">{{ $t("5条") }}</el-radio>
-                <el-radio :label="10">{{ $t("10条") }}</el-radio>
-                <el-radio :label="15">{{ $t("15条") }}</el-radio>
-                <el-button link type="primary" text @click="handleClearRecentNum">{{ $t("清空") }}</el-button>
+                <el-radio :label="2">{{ t("2条") }}</el-radio>
+                <el-radio :label="5">{{ t("5条") }}</el-radio>
+                <el-radio :label="10">{{ t("10条") }}</el-radio>
+                <el-radio :label="15">{{ t("15条") }}</el-radio>
+                <el-button link type="primary" text @click="handleClearRecentNum">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
           </s-fieldset>

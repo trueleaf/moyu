@@ -2,16 +2,16 @@
 <template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleLogin">
     <el-form-item prop="phone">
-      <el-input v-model="userInfo.phone" :prefix-icon="IconUser" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
+      <el-input v-model="userInfo.phone" :prefix-icon="IconUser" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
     </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
-        <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
+        <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('验证码')"></el-input>
         <SmsButton :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item>
-      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ $t("登录") }}</el-button>
+      <el-button :loading="loading" type="primary" native-type="submit" class="w-100">{{ t("登录") }}</el-button>
     </el-form-item>
   </el-form>
 </template>

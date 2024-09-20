@@ -6,43 +6,43 @@
 */
 <template>
   <div class="params-view px-3">
-    <s-fieldset :title="$t('请求参数')" class="mb-5">
+    <s-fieldset :title="t('请求参数')" class="mb-5">
       <template v-if="hasQueryParams">
-        <div class="title">{{ $t("Query参数") }}</div>
+        <div class="title">{{ t("Query参数") }}</div>
         <s-params-view :data="apidocInfo.queryParams" plain class="mb-3"></s-params-view>
       </template>
       <template v-if="hasPathsParams">
-        <div class="title">{{ $t("Path参数") }}</div>
+        <div class="title">{{ t("Path参数") }}</div>
         <s-params-view :data="apidocInfo.paths" plain class="mb-3"></s-params-view>
       </template>
       <template v-if="hasJsonBodyParams">
-        <div class="title">{{ $t("Body参数") }}(application/json)</div>
+        <div class="title">{{ t("Body参数") }}(application/json)</div>
         <s-json-editor :value="apidocInfo.requestBody.rawJson" read-only></s-json-editor>
       </template>
       <template v-if="hasFormDataParams">
-        <div class="title">{{ $t("Body参数") }}(multipart/formdata)</div>
+        <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
         <s-params-view :data="apidocInfo.requestBody.formdata" plain></s-params-view>
       </template>
       <template v-if="hasUrlEncodedParams">
-        <div class="title">{{ $t("Body参数") }}(x-www-form-urlencoded)</div>
+        <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
         <s-params-view :data="apidocInfo.requestBody.urlencoded" plain></s-params-view>
       </template>
       <template v-if="hasRawParams">
-        <div class="title">{{ $t("Body参数") }}({{ apidocInfo.requestBody.raw.dataType }})</div>
+        <div class="title">{{ t("Body参数") }}({{ apidocInfo.requestBody.raw.dataType }})</div>
         <pre class="pre">{{ apidocInfo.requestBody.raw.data }}</pre>
       </template>
-      <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">{{ $t("暂无数据") }}</div>
+      <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">{{ t("暂无数据") }}</div>
     </s-fieldset>
-    <s-fieldset :title="$t('返回参数')">
+    <s-fieldset :title="t('返回参数')">
       <div v-for="(item, index) in apidocInfo.responseParams" :key="index" class="title">
         <div class="mb-2">
-          <span>{{ $t("名称") }}：</span>
+          <span>{{ t("名称") }}：</span>
           <span>{{ item.title }}</span>
           <el-divider direction="vertical"></el-divider>
-          <span>{{ $t("状态码") }}：</span>
+          <span>{{ t("状态码") }}：</span>
           <span>{{ item.statusCode }}</span>
           <el-divider direction="vertical"></el-divider>
-          <span>{{ $t("返回格式") }}：</span>
+          <span>{{ t("返回格式") }}：</span>
           <span>{{ item.value.dataType }}</span>
         </div>
         <s-params-view v-if="item.value.dataType === 'application/json'" :data="item.value.strJson"></s-params-view>
@@ -51,7 +51,7 @@
         </div>
       </div>
     </s-fieldset>
-    <s-fieldset :title="$t('请求头')"></s-fieldset>
+    <s-fieldset :title="t('请求头')"></s-fieldset>
   </div>
 </template>
 

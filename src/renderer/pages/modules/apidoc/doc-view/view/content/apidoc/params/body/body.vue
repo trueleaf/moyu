@@ -17,11 +17,11 @@
       </el-radio-group>
       <div v-show="bodyType === 'json'" class="operation">
         <div class="p-relative no-select">
-          <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ $t("应用模板") }}</span>
+          <span class="cursor-pointer" @click.stop="showTemplate = !showTemplate">{{ t("应用模板") }}</span>
           <div v-if="showTemplate" class="template-wrap">
             <div class="header">
-              <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="$t('过滤模板')" class="w-100" :prefix-icon="Search" maxlength="100" clearable></el-input>
-              <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ $t("维护") }}</div>
+              <el-input v-model="templateFilterString" :size="config.renderConfig.layout.size" :placeholder="t('过滤模板')" class="w-100" :prefix-icon="Search" maxlength="100" clearable></el-input>
+              <div class="flex0 theme-color cursor-pointer" @click="handleOpenTempateTab">{{ t("维护") }}</div>
             </div>
             <template v-if="bodyTemplateList.length > 0">
               <div
@@ -35,11 +35,11 @@
                 <span class="tail">{{ item.creatorName }}</span>
               </div>
             </template>
-            <div v-else class="select-item d-flex j-center gray-500">{{ $t("暂无数据") }}</div>
+            <div v-else class="select-item d-flex j-center gray-500">{{ t("暂无数据") }}</div>
           </div>
         </div>
         <el-divider direction="vertical"></el-divider>
-        <div class="cursor-pointer" @click="handleOpenTemplateDialog">{{ $t("保存为模板") }}</div>
+        <div class="cursor-pointer" @click="handleOpenTemplateDialog">{{ t("保存为模板") }}</div>
         <!-- <el-divider direction="vertical"></el-divider>
                 <div class="cursor-pointer">预览参数 </div> -->
       </div>
@@ -121,7 +121,7 @@ const handleOpenTempateTab = () => {
     _id: 'paramsTemplate',
     projectId,
     tabType: 'paramsTemplate',
-    label: $t('模板维护'),
+    label: t('模板维护'),
     head: {
       icon: 'iconvariable',
       color: ''
@@ -254,7 +254,7 @@ const handleChangeRawType = () => {
   } else if (rawType.value === 'application/json') {
     store.commit('apidoc/apidoc/changeContentType', 'application/json');
   } else {
-    console.warn($t('未知请求类型'));
+    console.warn(t('未知请求类型'));
   }
 }
 

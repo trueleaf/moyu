@@ -14,7 +14,7 @@
         :data="bannerData"
         :default-expanded-keys="defaultExpandedKeys"
         node-key="_id"
-        :empty-text="$t('点击工具栏按钮新建接口或者鼠标右键新增')"
+        :empty-text="t('点击工具栏按钮新建接口或者鼠标右键新增')"
         :draggable="enableDrag"
         :allow-drop="handleCheckNodeCouldDrop"
         :filter-node-method="filterNode"
@@ -49,7 +49,7 @@
               <input
                 v-else
                 :value="scope.data.name"
-                :placeholder="$t('不能为空')"
+                :placeholder="t('不能为空')"
                 type="text"
                 class="rename-ipt"
                 :class="{error: scope.data.name.trim() === ''}"
@@ -61,7 +61,7 @@
                 class="more"
                 @click.stop="handleShowContextmenu($event, scope.data)"
               >
-                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
               </div>
@@ -77,7 +77,7 @@
               <input
                 v-else
                 :value="scope.data.name"
-                :placeholder="$t('不能为空')"
+                :placeholder="t('不能为空')"
                 type="text"
                 class="rename-ipt"
                 :class="{error: scope.data.name.trim() === ''}"
@@ -90,7 +90,7 @@
                 class="more"
                 @click.stop="handleShowContextmenu($event, scope.data)"
               >
-                <el-icon class="more-op" :title="$t('更多操作')" :size="16">
+                <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
               </div>
@@ -103,24 +103,24 @@
     <teleport to="body">
       <!-- 单个节点操作 -->
       <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('新建接口')" @click="handleOpenAddFileDialog"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('新建文件夹')" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('设置公共请求头')" @click="handleJumpToCommonHeader"></s-contextmenu-item>
-        <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('以模板新建')"></s-contextmenu-item> -->
+        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建接口')" @click="handleOpenAddFileDialog"></s-contextmenu-item>
+        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建文件夹')" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
+        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('设置公共请求头')" @click="handleJumpToCommonHeader"></s-contextmenu-item>
+        <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('以模板新建')"></s-contextmenu-item> -->
         <s-contextmenu-item v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="$t('剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="$t('复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="$t('生成副本')" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="$t('粘贴')" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
+        <s-contextmenu-item v-show="currentOperationalNode" :label="t('剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
+        <s-contextmenu-item v-show="currentOperationalNode" :label="t('复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
+        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="t('生成副本')" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
+        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('粘贴')" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
         <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="$t('重命名')" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="$t('删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
+        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="t('重命名')" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
+        <s-contextmenu-item v-show="currentOperationalNode" :label="t('删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
       </s-contextmenu>
       <!-- 多个节点操作 -->
       <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length > 1" :left="contextmenuLeft" :top="contextmenuTop">
-        <s-contextmenu-item :label="$t('批量剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
-        <s-contextmenu-item :label="$t('批量复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-        <s-contextmenu-item :label="$t('批量删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
+        <s-contextmenu-item :label="t('批量剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
+        <s-contextmenu-item :label="t('批量复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
+        <s-contextmenu-item :label="t('批量删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
       </s-contextmenu>
     </teleport>
   </s-resize-x>
@@ -302,7 +302,7 @@ const handleOpenAddFileDialog = () => {
   if (!currentOperationalNode.value) { //在根节点操作,不作限制
     addFileDialogVisible.value = true;
   } else if (childFileNodeNum >= projectInfo.value.rules.fileInFolderLimit) {
-    ElMessage.warning(`${$t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${$t('个')} ${$t('全局设置中可配置')}`);
+    ElMessage.warning(`${t('单个文件夹里面文档个数不超过')} ${childFileNodeNum}${t('个')} ${t('全局设置中可配置')}`);
   } else {
     addFileDialogVisible.value = true;
   }

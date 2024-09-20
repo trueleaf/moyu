@@ -5,12 +5,12 @@
     备注：
 */
 <template>
-  <s-fieldset :title="$t('将当前项目指定文档导出到其他项目')" class="fork">
+  <s-fieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
     <!-- 选择区域 -->
     <div class="fork-wrap">
       <div v-flex1="30" class="left">
         <span class="orange">
-          <span>{{ $t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
+          <span>{{ t("从左侧拖拽文档到右侧，右侧也可以进行简单的拖拽") }}</span>
         </span>
         <el-divider></el-divider>
         <el-tree
@@ -50,7 +50,7 @@
       <div ref="target" v-flex1="30" class="right">
         <div>
           <div class="orange">
-            <span>{{ $t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
+            <span>{{ t("鼠标右键可以新增文件夹或者删除文件夹") }}</span>
           </div>
           <el-radio-group v-if="projectEnum.length < 4" v-model="targetProjectId" class="mt-2" @change="handleChangeProject">
             <el-radio v-for="(item, index) in projectEnum" :key="index" :label="item._id">{{ item.projectName }}</el-radio>
@@ -67,7 +67,7 @@
               draggable
               :allow-drop="checkTargetCouldDrop"
               :expand-on-click-node="true"
-              :empty-text="$t('暂无文档，请在项目中添加至少一个文档')"
+              :empty-text="t('暂无文档，请在项目中添加至少一个文档')"
               @node-drag-over="handleTargetNodeOver"
               @node-drag-start="handleTargetDragStart"
               @node-drop="handleTargetDrop"
@@ -307,7 +307,7 @@ const handleTargetDrop = (dragNode: Node, dropNode: Node, type: DropType) => {
           data._id = newId;
         }
       });
-      ElMessage.success($t('导入成功'));
+      ElMessage.success(t('导入成功'));
     }).catch((err) => {
       console.error(err);
     });

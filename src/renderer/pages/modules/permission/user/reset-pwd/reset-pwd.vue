@@ -10,8 +10,8 @@
     </s-form>
     <template #footer>
       <div>
-        <el-button :loading="loading" type="primary" @click="handleEditUser">{{ $t("确定") }}</el-button>
-        <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+        <el-button :loading="loading" type="primary" @click="handleEditUser">{{ t("确定") }}</el-button>
+        <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
   </s-dialog>

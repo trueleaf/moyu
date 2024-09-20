@@ -38,7 +38,7 @@ export default (): MethodReturn => {
     //禁用请求方法后提示信息
   const disabledTip = (item: ApidocRequestMethodRule) => {
     if (!item.enabled) {
-      return $t('当前请求方法被禁止，可以在全局配置中进行相关配置');
+      return t('当前请求方法被禁止，可以在全局配置中进行相关配置');
     }
     return '';
   }

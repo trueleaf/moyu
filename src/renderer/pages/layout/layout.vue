@@ -9,28 +9,28 @@
         <el-menu :default-active="activeMenuPath" mode="horizontal" background-color="#343a40" text-color="#fff"
           active-text-color="#ffd04b" :router="true">
           <el-menu-item v-for="(item) in menus" :key="item.path" :index="item.path">
-            {{ $t(item.name) }}
+            {{ t(item.name) }}
           </el-menu-item>
         </el-menu>
       </div>
       <div class="header-right mr-5 ml-auto">
         <div class="operation">
-          <div :title="$t('返回首页')" class="op_item" @click="jumpToHome">
+          <div :title="t('返回首页')" class="op_item" @click="jumpToHome">
             <el-icon :size="20">
               <i class="iconfont iconhome"></i>
             </el-icon>
           </div>
-          <div :title="$t('刷新')" class="op_item" @click="freshPage">
+          <div :title="t('刷新')" class="op_item" @click="freshPage">
             <el-icon :size="20">
               <RefreshRight />
             </el-icon>
           </div>
-          <div :title="$t('后退')" class="op_item" @click="goBack">
+          <div :title="t('后退')" class="op_item" @click="goBack">
             <el-icon :size="20">
               <Back />
             </el-icon>
           </div>
-          <div :title="$t('前进')" class="op_item" @click="goForward">
+          <div :title="t('前进')" class="op_item" @click="goForward">
             <el-icon :size="20">
               <Right />
             </el-icon>
@@ -52,8 +52,8 @@
           </div>
         </div>
         <div v-if="downloading" class="process">
-          <span v-if="progress !== 100" :title="$t('更新进度')">{{ progress.toFixed(1) }}%</span>
-          <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ $t('安装') }}</span>
+          <span v-if="progress !== 100" :title="t('更新进度')">{{ progress.toFixed(1) }}%</span>
+          <span v-else class="cursor-pointer yellow" @click="handleInstall">{{ t('安装') }}</span>
         </div>
         <el-dropdown @command="handleClickDropdown">
           <span class="d-flex a-center cursor-pointer">
@@ -64,12 +64,12 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="user-setting">{{ $t('个人中心') }}</el-dropdown-item>
-              <el-dropdown-item v-if="isElectron()" :disabled="downloading" command="update">{{ $t('检查更新')
+              <el-dropdown-item command="user-setting">{{ t('个人中心') }}</el-dropdown-item>
+              <el-dropdown-item v-if="isElectron()" :disabled="downloading" command="update">{{ t('检查更新')
                 }}</el-dropdown-item>
-              <el-dropdown-item command="version">{{ $t('版本') }}</el-dropdown-item>
-              <el-dropdown-item command="clear-cache">{{ $t('清除所有缓存') }}</el-dropdown-item>
-              <el-dropdown-item command="logout">{{ $t('退出登录') }}</el-dropdown-item>
+              <el-dropdown-item command="version">{{ t('版本') }}</el-dropdown-item>
+              <el-dropdown-item command="clear-cache">{{ t('清除所有缓存') }}</el-dropdown-item>
+              <el-dropdown-item command="logout">{{ t('退出登录') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -137,23 +137,23 @@ const initUploadEvent = () => {
     //   console.log(`${t('没有可用更新')}`);
     //   downloading = false;
     //   if (isManual) {
-    //     $message.warning(`${$t('暂无可用更新')}`);
+    //     $message.warning(`${t('暂无可用更新')}`);
     //   }
     // });
     //下载中
     // ipcRenderer.on('vue-download-progress', (e, progressObj) => {
-    //   console.log(`${$t('下载中')}`, e, progressObj);
+    //   console.log(`${t('下载中')}`, e, progressObj);
     //   downloading = true;
     //   progress = progressObj.percent;
     // });
     //下载完成
     // ipcRenderer.on('vue-update-downloaded', (e, upload) => {
     //   progress = 100;
-    //   console.log(`${$t('下载完成')}`, e, upload);
+    //   console.log(`${t('下载完成')}`, e, upload);
     // });
     // ipcRenderer.on('vue-download-error', (e, error) => {
     //   if (isManual) {
-    //     $message.warning(`${$t('更新异常请稍后再试')}`);
+    //     $message.warning(`${t('更新异常请稍后再试')}`);
     //   }
     //   downloading = false;
     //   console.error(error);

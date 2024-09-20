@@ -11,8 +11,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button :loading="loading" type="primary" @click="handleSave">{{ $t("保存") }}</el-button>
-      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+      <el-button :loading="loading" type="primary" @click="handleSave">{{ t("保存") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
   </s-dialog>
 </template>

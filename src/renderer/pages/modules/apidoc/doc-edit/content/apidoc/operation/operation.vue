@@ -10,7 +10,7 @@
     <div v-if="hostEnum.length < 5" class="d-flex a-center">
       <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
         <template #reference>
-          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label="" @change="handleChangeHost">{{ $t("Mock服务器") }}</el-checkbox>
+          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label="" @change="handleChangeHost">{{ t("Mock服务器") }}</el-checkbox>
         </template>
       </el-popover>
       <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
@@ -18,7 +18,7 @@
           <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border @change="handleChangeHost">{{ item.name }}</el-checkbox>
         </template>
       </el-popover>
-      <el-button type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+      <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
     <div v-else class="d-flex a-center">
       <el-select v-model="host" placeholder="环境切换" clearable filterable @change="handleChangeHost">
@@ -35,13 +35,13 @@
           </div>
         </el-option>
       </el-select>
-      <el-button type="primary" text @click="hostDialogVisible = true;">{{ $t("接口前缀") }}</el-button>
+      <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
       <el-input
         v-model="requestPath"
-        :placeholder="$t('输入请求url')"
+        :placeholder="t('输入请求url')"
         @input="handleChangeUrl"
         @blur="handleFormatUrl"
         @keyup.enter.stop="handleFormatUrl"
@@ -66,18 +66,18 @@
         v-if="!loading"
         :loading="loading"
         :disabled="!config.isElectron"
-        :title="config.isElectron ? '' : `${$t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
+        :title="config.isElectron ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
         type="success"
         @click="handleSendRequest"
       >
-        {{ $t("发送请求") }}
+        {{ t("发送请求") }}
       </el-button>
-      <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
-      <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
-      <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
+      <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
+      <el-button :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
+      <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <pre class="pre-url pre">
-      <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
+      <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
     </pre>
   </div>
   <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>

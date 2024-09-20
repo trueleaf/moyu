@@ -1,21 +1,15 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-13 21:24
-    模块名称：项目列表
-    备注：
-*/
 <template>
   <div class="tab-a">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="$t('项目名称或者接口URL')" :prefix-icon="iconSearch" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
-      <el-button type="success" :icon="iconPlus" @click="dialogVisible = true">{{ $t("新建项目") }}</el-button>
-      <el-button v-if="0" type="success" :icon="iconDownload" @click="dialogVisible3 = true">{{ $t("导入项目") }}</el-button>
+      <el-input v-model="projectName" :placeholder="t('项目名称或者接口URL')" :prefix-icon="iconSearch" class="w-200px mr-3" clearable @input="handleSearchProject"></el-input>
+      <el-button type="success" :icon="iconPlus" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
+      <el-button v-if="0" type="success" :icon="iconDownload" @click="dialogVisible3 = true">{{ t("导入项目") }}</el-button>
     </div>
     <!-- 项目列表 -->
     <s-loading :loading="loading">
       <!-- 收藏的项目 -->
-      <h2 v-show="starProjects.length > 0">{{ $t("收藏的项目") }}</h2>
+      <h2 v-show="starProjects.length > 0">{{ t("收藏的项目") }}</h2>
       <div v-show="starProjects.length > 0" class="project-wrap">
         <div v-for="(item, index) in starProjects" :key="index" class="project-list">
           <div class="project-header">
@@ -23,17 +17,17 @@
               <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
             </div>
             <div class="operator">
-              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <edit-icon></edit-icon>
                 </el-icon>
               </div>
-              <div :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <user-icon></user-icon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -41,7 +35,7 @@
                   <loading-icon></loading-icon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <star-filled-icon></star-filled-icon>
                 </el-icon>
@@ -49,7 +43,7 @@
                   <loading-icon></loading-icon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" @click="deleteProject(item._id)">
+              <div :title="t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <delete-icon></delete-icon>
                 </el-icon>
@@ -57,21 +51,21 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-500 mt-2">
-            <span>{{ $t("最新更新") }}:</span>
+            <span>{{ t("最新更新") }}:</span>
             <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-500">
-            <span>{{ $t("创建者") }}:</span>
+            <span>{{ t("创建者") }}:</span>
             <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div>
-              <span class="f-sm">{{ $t("接口数") }}:</span>
+              <span class="f-sm">{{ t("接口数") }}:</span>
               <span class="teal">{{ item.docNum }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
+              <el-button type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -83,7 +77,7 @@
         <el-icon v-if="isFold" class="mr-1" :size="16">
           <caret-right-icon />
         </el-icon>
-        <span>{{ $t("全部项目") }}({{ projectList.length }})</span>
+        <span>{{ t("全部项目") }}({{ projectList.length }})</span>
       </h2>
       <!-- 项目列表 -->
       <div v-show="!isFold" class="project-wrap">
@@ -93,17 +87,17 @@
               <s-emphasize :value="item.projectName" :keyword="projectName"></s-emphasize>
             </div>
             <div class="operator">
-              <div :title="$t('编辑')" @click="handleOpenEditDialog(item)">
+              <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
                   <edit-icon></edit-icon>
                 </el-icon>
               </div>
-              <div :title="$t('成员管理')" @click="handleOpenPermissionDialog(item)">
+              <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
                   <user-icon></user-icon>
                 </el-icon>
               </div>
-              <div v-if="!item.isStared" :title="$t('收藏')" @click="handleStar(item)">
+              <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
                 <el-icon v-if="!starLoading" :size="16">
                   <star-icon></star-icon>
                 </el-icon>
@@ -111,7 +105,7 @@
                   <loading-icon></loading-icon>
                 </el-icon>
               </div>
-              <div v-if="item.isStared" :title="$t('取消收藏')" @click="handleUnStar(item)">
+              <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
                   <star-filled-icon></star-filled-icon>
                 </el-icon>
@@ -119,7 +113,7 @@
                   <loading-icon></loading-icon>
                 </el-icon>
               </div>
-              <div :title="$t('删除')" @click="deleteProject(item._id)">
+              <div :title="t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
                   <delete-icon></delete-icon>
                 </el-icon>
@@ -127,21 +121,21 @@
             </div>
           </div>
           <div class="d-flex j-end a-center gray-600 mt-2">
-            <span>{{ $t("创建者") }}:</span>
+            <span>{{ t("创建者") }}:</span>
             <span>{{ item.owner.name }}</span>&nbsp;&nbsp;
           </div>
           <div class="d-flex j-end a-center gray-600">
-            <span>{{ $t("最新更新") }}:</span>
+            <span>{{ t("最新更新") }}:</span>
             <span>{{ $helper.formatDate(item.updatedAt) }}</span>&nbsp;&nbsp;
           </div>
           <div class="project-bottom d-flex">
             <div>
-              <span class="f-sm">{{ $t("接口数") }}:</span>
+              <span class="f-sm">{{ t("接口数") }}:</span>
               <span class="teal">{{ item.docNum }}</span>
             </div>
             <div class="ml-auto">
-              <el-button type="primary" @click="handleJumpToProject(item)">{{ $t("编辑") }}</el-button>
-              <el-button type="primary" @click="handleJumpToView(item)">{{ $t("预览") }}</el-button>
+              <el-button type="primary" @click="handleJumpToProject(item)">{{ t("编辑") }}</el-button>
+              <el-button type="primary" @click="handleJumpToView(item)">{{ t("预览") }}</el-button>
             </div>
           </div>
         </div>
@@ -305,9 +299,9 @@ export default defineComponent({
          * 删除项目
          */
     deleteProject(_id: string) {
-      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
-        confirmButtonText: this.$t('确定'),
-        cancelButtonText: this.$t('取消'),
+      this.$confirm(this.t('此操作将永久删除此条记录, 是否继续?'), this.t('提示'), {
+        confirmButtonText: this.t('确定'),
+        cancelButtonText: this.t('取消'),
         type: 'warning',
       }).then(() => {
         const params = {

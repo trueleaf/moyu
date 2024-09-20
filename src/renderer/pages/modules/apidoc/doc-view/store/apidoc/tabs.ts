@@ -161,9 +161,9 @@ const storeTabs = {
         const unsavedTab = unsavedTabs[i];
         try {
           // eslint-disable-next-line no-await-in-loop
-          await ElMessageBox.confirm($t('是否要保存对接口的修改', { msg: unsavedTab.label }), $t('提示'), {
-            confirmButtonText: $t('保存'),
-            cancelButtonText: $t('不保存'),
+          await ElMessageBox.confirm(t('是否要保存对接口的修改', { msg: unsavedTab.label }), t('提示'), {
+            confirmButtonText: t('保存'),
+            cancelButtonText: t('不保存'),
             type: 'warning',
             distinguishCancelAndClose: true,
           })

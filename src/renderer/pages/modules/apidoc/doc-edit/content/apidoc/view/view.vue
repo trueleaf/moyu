@@ -16,62 +16,62 @@
     </div>
     <div class="view-block">请求参数</div>
     <template v-if="hasQueryParams">
-      <div class="title">{{ $t("Query参数") }}</div>
+      <div class="title">{{ t("Query参数") }}</div>
       <s-params-view :data="apidoc.item.queryParams" plain class="mb-3"></s-params-view>
     </template>
     <template v-if="hasPathsParams">
-      <div class="title">{{ $t("Path参数") }}</div>
+      <div class="title">{{ t("Path参数") }}</div>
       <s-params-view :data="apidoc.item.paths" plain class="mb-3"></s-params-view>
     </template>
     <template v-if="hasJsonBodyParams">
-      <div class="title">{{ $t("Body参数") }}(application/json)</div>
+      <div class="title">{{ t("Body参数") }}(application/json)</div>
       <pre v-if="apidoc.item.requestBody.rawJson">{{ apidoc.item.requestBody.rawJson }}</pre>
       <s-params-view v-else :data="apidoc.item.requestBody.rawJson"></s-params-view>
     </template>
     <template v-if="hasFormDataParams">
-      <div class="title">{{ $t("Body参数") }}(multipart/formdata)</div>
+      <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
       <s-params-view :data="apidoc.item.requestBody.formdata" plain></s-params-view>
     </template>
     <template v-if="hasUrlEncodedParams">
-      <div class="title">{{ $t("Body参数") }}(x-www-form-urlencoded)</div>
+      <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
       <s-params-view :data="apidoc.item.requestBody.urlencoded" plain></s-params-view>
     </template>
     <template v-if="hasRawParams">
-      <div class="title">{{ $t("Body参数") }}({{ apidoc.item.requestBody.raw.dataType }})</div>
+      <div class="title">{{ t("Body参数") }}({{ apidoc.item.requestBody.raw.dataType }})</div>
       <pre>{{ apidoc.item.requestBody.raw.data }}</pre>
     </template>
-    <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams" class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
+    <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams" class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     <div class="view-block mt-5">返回参数</div>
     <div v-for="(item, index) in apidoc.item.responseParams" :key="index" class="title">
       <div class="mb-2">
-        <span>{{ $t("名称") }}：</span>
+        <span>{{ t("名称") }}：</span>
         <span>{{ item.title }}</span>
         <el-divider direction="vertical"></el-divider>
-        <span>{{ $t("状态码") }}：</span>
+        <span>{{ t("状态码") }}：</span>
         <span v-if="item.statusCode >= 100 && item.statusCode < 200" class="green">{{ item.statusCode }}</span>
         <span v-else-if="item.statusCode >= 200 && item.statusCode < 300" class="green">{{ item.statusCode }}</span>
         <span v-else-if="item.statusCode >= 300 && item.statusCode < 400" class="orange">{{ item.statusCode }}</span>
         <span v-else-if="item.statusCode >= 400 && item.statusCode < 500" class="red">{{ item.statusCode }}</span>
         <span v-else class="red">{{ item.statusCode }}</span>
         <el-divider direction="vertical"></el-divider>
-        <span>{{ $t("返回格式") }}：</span>
+        <span>{{ t("返回格式") }}：</span>
         <span>{{ item.value.dataType }}</span>
       </div>
       <pre v-if="item.value.dataType === 'application/json' && item.value.strJson.length > 0">{{ item.value.strJson }}</pre>
-      <div v-if="item.value.dataType === 'application/json' && !item.value.strJson.length" class="ml-2 gray-500">{{ $t('暂无数据') }}</div>
+      <div v-if="item.value.dataType === 'application/json' && !item.value.strJson.length" class="ml-2 gray-500">{{ t('暂无数据') }}</div>
       <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'">
         <pre v-if=" item.value.text">{{ item.value.text }}</pre>
-        <div v-else class="ml-2 gray-500">{{ $t('暂无数据') }}</div>
+        <div v-else class="ml-2 gray-500">{{ t('暂无数据') }}</div>
       </div>
     </div>
     <div class="view-block mt-5">请求头</div>
     <template v-if="hasHeaders">
       <s-params-view :data="apidoc.item.headers" plain class="mb-3"></s-params-view>
     </template>
-    <div v-else class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
-    <s-fieldset :title="$t('备注')">
+    <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
+    <s-fieldset :title="t('备注')">
       <div v-if="apidoc.info.description" class="remark">{{ apidoc.info.description }}</div>
-      <div v-else class="ml-2 gray-500">{{ $t("暂无数据") }}</div>
+      <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
     </s-fieldset>
   </div>
 </template>

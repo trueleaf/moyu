@@ -32,7 +32,7 @@ import { $t } from '@/i18n/i18n'
 const props = defineProps({
   title: {
     type: String,
-    default: $t('请输入标题'),
+    default: t('请输入标题'),
   },
   bold: {
     type: Boolean,

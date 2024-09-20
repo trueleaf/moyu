@@ -5,13 +5,13 @@
     备注：
 */
 <template>
-  <s-dialog :model-value="modelValue" width="30%" :title="$t('保存参数为模板')" @close="handleClose">
+  <s-dialog :model-value="modelValue" width="30%" :title="t('保存参数为模板')" @close="handleClose">
     <s-form ref="form">
       <s-form-item label="模板名称" prop="name" one-line required></s-form-item>
     </s-form>
     <template #footer>
-      <el-button :loading="loading" type="primary" @click="handleSave">{{ $t("保存") }}</el-button>
-      <el-button type="warning" @click="handleClose">{{ $t("取消") }}</el-button>
+      <el-button :loading="loading" type="primary" @click="handleSave">{{ t("保存") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
   </s-dialog>
 </template>

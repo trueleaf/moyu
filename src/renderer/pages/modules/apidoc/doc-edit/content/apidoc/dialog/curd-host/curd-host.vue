@@ -5,25 +5,25 @@
     备注：
 */
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" width="85%" :title="$t('域名、接口前缀')" @close="handleClose">
+  <s-dialog :model-value="modelValue" top="10vh" width="85%" :title="t('域名、接口前缀')" @close="handleClose">
     <div class="host-wrap">
       <!-- 左侧新增数据 -->
       <s-resize-x :min="450" :max="700" :width="450" name="curd-host" tabindex="1" class="add-host">
-        <s-fieldset :title="$t('什么是接口前缀')">
+        <s-fieldset :title="t('什么是接口前缀')">
           <img :src="require('@/assets/imgs/apidoc/prefix.png')" alt="接口前缀" class="px-2 border-gray-400">
           <img :src="require('@/assets/imgs/apidoc/prefix.gif')" alt="接口前缀" class="px-2 border-gray-400">
         </s-fieldset>
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="140px" class="mt-2">
-          <el-form-item :label="`${$t('前缀名称')}：`" prop="name">
+          <el-form-item :label="`${t('前缀名称')}：`" prop="name">
             <el-input v-model="formInfo.name" placeholder="例如：张三本地" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
           </el-form-item>
-          <el-form-item :label="`${$t('前缀值')}：`" prop="name">
+          <el-form-item :label="`${t('前缀值')}：`" prop="name">
             <el-input v-model="formInfo.url" placeholder="例如：http://192.168.0.31:8080" :size="config.renderConfig.layout.size" class="w-100" maxlength="255" clearable show-word-limit></el-input>
           </el-form-item>
-          <el-form-item :label="`${$t('是否共享')}：`" prop="name">
+          <el-form-item :label="`${t('是否共享')}：`" prop="name">
             <el-radio-group v-model="formInfo.isLocal">
-              <el-radio :label="true">{{ $t("仅自身可见") }}</el-radio>
-              <el-radio :label="false">{{ $t("项目内成员可见") }}</el-radio>
+              <el-radio :label="true">{{ t("仅自身可见") }}</el-radio>
+              <el-radio :label="false">{{ t("项目内成员可见") }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <div class="d-flex j-end">
@@ -42,13 +42,13 @@
           :res-hook="handleHookResponse"
           @deleteMany="getTableData"
         >
-          <el-table-column :label="$t('前缀名称')" align="center">
+          <el-table-column :label="t('前缀名称')" align="center">
             <template #default="scope">
               <el-input v-if="editItem?._id === scope.row._id" v-model="scope.row.name" type="textarea" :autosize="{ minRows: 3 }" :size="config.renderConfig.layout.size" class="w-100" maxlength="15" clearable show-word-limit></el-input>
               <span v-else>{{ scope.row.name }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('接口前缀')" align="center" width="300px">
+          <el-table-column :label="t('接口前缀')" align="center" width="300px">
             <template #default="scope">
               <el-input
                 v-if="editItem?._id === scope.row._id"
@@ -61,25 +61,25 @@
               <div v-else class="url-wrap">{{ scope.row.url }}</div>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('是否共享')" align="center">
+          <el-table-column :label="t('是否共享')" align="center">
             <template #default="scope">
-              <span v-if="scope.row.isLocal" class="orange">{{ $t("仅自身可见") }}</span>
-              <span v-else class="green">{{ $t("项目内成员可见") }}</span>
+              <span v-if="scope.row.isLocal" class="orange">{{ t("仅自身可见") }}</span>
+              <span v-else class="green">{{ t("项目内成员可见") }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('操作')" align="center">
+          <el-table-column :label="t('操作')" align="center">
             <template #default="scope">
-              <el-button v-if="!editItem" type="primary" text @click="handleChangeEditNode(scope.row)">{{ $t("编辑") }}</el-button>
-              <el-button v-if="editItem?._id === scope.row._id" type="primary" text @click="handleSubmitEdit(scope.row)">{{ $t("确认") }}</el-button>
-              <el-button v-if="editItem?._id === scope.row._id" type="primary" text @click="handleCancelEdit(scope.row)">{{ $t("取消") }}</el-button>
-              <el-button link type="primary" text @click="handleDeleteHost(scope.row)">{{ $t("删除") }}</el-button>
+              <el-button v-if="!editItem" type="primary" text @click="handleChangeEditNode(scope.row)">{{ t("编辑") }}</el-button>
+              <el-button v-if="editItem?._id === scope.row._id" type="primary" text @click="handleSubmitEdit(scope.row)">{{ t("确认") }}</el-button>
+              <el-button v-if="editItem?._id === scope.row._id" type="primary" text @click="handleCancelEdit(scope.row)">{{ t("取消") }}</el-button>
+              <el-button link type="primary" text @click="handleDeleteHost(scope.row)">{{ t("删除") }}</el-button>
             </template>
           </el-table-column>
         </s-table>
       </div>
     </div>
     <template #footer>
-      <el-button type="warning" @click="handleClose">{{ $t("关闭") }}</el-button>
+      <el-button type="warning" @click="handleClose">{{ t("关闭") }}</el-button>
     </template>
   </s-dialog>
 </template>
@@ -117,7 +117,7 @@ export default defineComponent({
         isLocal: true, //--------------是否为本地
       },
       rules: {
-        name: [{ required: true, message: this.$t('请输入前缀名称'), trigger: 'blur' }],
+        name: [{ required: true, message: this.t('请输入前缀名称'), trigger: 'blur' }],
       },
       //=====================================其他参数====================================//
       errorInfo: {
@@ -216,7 +216,7 @@ export default defineComponent({
           isLocal: row.isLocal
         };
         this.axios.put('api/project/doc_service', params).then(() => {
-          this.$message.success(this.$t('修改成功'));
+          this.$message.success(this.t('修改成功'));
           this.$store.commit('apidoc/baseInfo/updateHostById', params);
           if (isEditCurrenSelectedHost) { //同时修改本地server
             this.$store.commit('apidoc/apidoc/changeApidocHost', row.url)
@@ -237,9 +237,9 @@ export default defineComponent({
       const params = {
         ids: [row._id]
       };
-      this.$confirm(this.$t('此操作将永久删除此条记录, 是否继续?'), this.$t('提示'), {
-        confirmButtonText: this.$t('确定'),
-        cancelButtonText: this.$t('取消'),
+      this.$confirm(this.t('此操作将永久删除此条记录, 是否继续?'), this.t('提示'), {
+        confirmButtonText: this.t('确定'),
+        cancelButtonText: this.t('取消'),
         type: 'warning',
       }).then(() => {
         if (row.isLocal) {

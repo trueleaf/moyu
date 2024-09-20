@@ -115,15 +115,15 @@
   <teleport to="body">
     <!-- 单个节点操作 -->
     <s-contextmenu v-if="showContextmenu" :left="contextmenuLeft" :top="contextmenuTop">
-      <s-contextmenu-item :label="$t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></s-contextmenu-item>
-      <s-contextmenu-item :label="$t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
-      <s-contextmenu-item :label="$t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
-      <s-contextmenu-item :label="$t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
-      <s-contextmenu-item :label="$t('全部关闭')" @click="handleCloseAllTab"></s-contextmenu-item>
-      <s-contextmenu-item v-if="!isView" :label="$t('强制全部关闭')" @click="handleForceCloseAllTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="t('关闭')" hot-key="Ctrl + W" @click="handleCloseCurrentTab()"></s-contextmenu-item>
+      <s-contextmenu-item :label="t('关闭左侧')" @click="handleCloseLeftTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="t('关闭右侧')" @click="handleCloseRightTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="t('关闭其他')" @click="handleCloseOtherTab"></s-contextmenu-item>
+      <s-contextmenu-item :label="t('全部关闭')" @click="handleCloseAllTab"></s-contextmenu-item>
+      <s-contextmenu-item v-if="!isView" :label="t('强制全部关闭')" @click="handleForceCloseAllTab"></s-contextmenu-item>
       <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" type="divider"></s-contextmenu-item> -->
-      <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="$t('复制url')"></s-contextmenu-item>
-            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="$t('刷新')"></s-contextmenu-item> -->
+      <!-- <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="t('复制url')"></s-contextmenu-item>
+            <s-contextmenu-item v-if="currentOperationNode && currentOperationNode.tabType === 'doc'" :label="t('刷新')"></s-contextmenu-item> -->
     </s-contextmenu>
   </teleport>
 </template>

@@ -1,19 +1,19 @@
 <template>
   <el-form ref="form" :model="userInfo" :rules="rules" @submit.stop.prevent="handleResetPassword">
     <el-form-item prop="phone">
-      <el-input v-model="userInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${$t('请输入手机号')}...`"></el-input>
+      <el-input v-model="userInfo.phone" :size="config.renderConfig.layout.size" name="phone" type="text" :placeholder="`${t('请输入手机号')}...`"></el-input>
     </el-form-item>
     <el-form-item prop="smsCode">
       <div class="d-flex w-100">
-        <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="$t('验证码')"></el-input>
+        <el-input v-model="userInfo.smsCode" :size="config.renderConfig.layout.size" name="smsCode" type="text" :placeholder="t('验证码')"></el-input>
         <SmsButton :hook="smsCodeHook" @click="getSmsCode"></SmsButton>
       </div>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="userInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="$t('请输入重置后密码')"></el-input>
+      <el-input v-model="userInfo.password" :size="config.renderConfig.layout.size" show-password name="password" type="text" :placeholder="t('请输入重置后密码')"></el-input>
     </el-form-item>
     <el-form-item prop="password2">
-      <el-input v-model="userInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${$t('请再次输入密码')}...`"></el-input>
+      <el-input v-model="userInfo.password2" :size="config.renderConfig.layout.size" show-password name="password2" type="text" :placeholder="`${t('请再次输入密码')}...`"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button :loading="loading" type="primary" native-type="submit" class="w-100">重置密码</el-button>

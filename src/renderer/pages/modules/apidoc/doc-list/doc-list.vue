@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-13 21:24
-    模块名称：文档列表
-    备注：
-*/
 <template>
   <div class="doc-list">
     <el-tabs v-model="activeName">
@@ -13,7 +7,7 @@
             <el-icon :size="16" class="mr-1">
               <Tickets />
             </el-icon>
-            <span>{{ $t("项目列表") }}</span>
+            <span>{{ t("项目列表") }}</span>
           </span>
         </template>
       </el-tab-pane>
@@ -43,13 +37,14 @@ const activeName = ref('tab-a'); //当前激活选项卡
 
 <style lang="scss">
 .doc-list {
-    width: 70%;
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    @media only screen and (max-width: 720px) {
-        width: 100%;
-        padding: 0 20px;
-    }
+  width: 70%;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+
+  @media only screen and (max-width: 720px) {
+    width: 100%;
+    padding: 0 20px;
+  }
 }
 </style>

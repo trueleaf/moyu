@@ -8,7 +8,7 @@
   <div class="doc-import">
     <!-- 文件选择 -->
     <!-- <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
-    <s-fieldset :title="$t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
+    <s-fieldset :title="t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
       <el-upload
         class="w-100"
         drag
@@ -20,11 +20,11 @@
         <el-icon :size="20">
           <Upload />
         </el-icon>
-        <div class="el-upload__text">{{ $t("将文件拖到此处，或") }}<em>{{ $t("点击上传") }}</em></div>
+        <div class="el-upload__text">{{ t("将文件拖到此处，或") }}<em>{{ t("点击上传") }}</em></div>
         <template #tip>
           <div class="mt-2">
             <div v-if="importTypeInfo.name" class="orange">
-              <span>{{ $t("文档类型") }}：</span>
+              <span>{{ t("文档类型") }}：</span>
               <span>{{ importTypeInfo.name }}</span>
               <span v-if="importTypeInfo.version">({{ importTypeInfo.version }})</span>
             </div>
@@ -33,10 +33,10 @@
       </el-upload>
     </s-fieldset>
     <!-- 导入数据预览 -->
-    <s-fieldset :title="$t('导入数据预览')">
+    <s-fieldset :title="t('导入数据预览')">
       <div>
-        <s-label-value :label="`${$t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) => !v.isFolder).length }}</s-label-value>
-        <s-label-value :label="`${$t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) => v.isFolder).length }}</s-label-value>
+        <s-label-value :label="`${t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) => !v.isFolder).length }}</s-label-value>
+        <s-label-value :label="`${t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) => v.isFolder).length }}</s-label-value>
       </div>
       <el-tree
         ref="docTree"
@@ -70,13 +70,13 @@
       </el-tree>
     </s-fieldset>
     <!-- 额外配置信息 -->
-    <s-fieldset v-if="!importAsProject" :title="$t('额外配置')">
+    <s-fieldset v-if="!importAsProject" :title="t('额外配置')">
       <div>
         <s-config
           v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'"
           :has-check="false"
-          :label="$t('文件夹命名方式')"
-          :description="$t('none代表不存在文件夹，所有节点扁平放置')"
+          :label="t('文件夹命名方式')"
+          :description="t('none代表不存在文件夹，所有节点扁平放置')"
         >
           <el-radio-group v-model="openapiFolderNamedType" @change="handleChangeNamedType">
             <el-radio label="tag">Tag</el-radio>
@@ -84,13 +84,13 @@
             <el-radio label="none">none</el-radio>
           </el-radio-group>
         </s-config>
-        <s-config :has-check="false" label="导入方式" :description="$t('请谨慎选择导入方式')">
+        <s-config :has-check="false" label="导入方式" :description="t('请谨慎选择导入方式')">
           <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
-            <el-radio :label="false">{{ $t("追加方式") }}</el-radio>
-            <el-radio :label="true">{{ $t("覆盖方式") }}</el-radio>
+            <el-radio :label="false">{{ t("追加方式") }}</el-radio>
+            <el-radio :label="true">{{ t("覆盖方式") }}</el-radio>
           </el-radio-group>
         </s-config>
-        <s-config :label="$t('目标目录')" :description="$t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
+        <s-config :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
           <template #default="prop">
             <s-loading :loading="loading2">
               <div v-show="prop.enabled" class="doc-nav">
@@ -120,7 +120,7 @@
         </s-config>
       </div>
       <div class="d-flex j-center mt-2">
-        <el-button :loading="loading" type="primary" @click="handleSubmit">{{ $t("确定导入") }}</el-button>
+        <el-button :loading="loading" type="primary" @click="handleSubmit">{{ t("确定导入") }}</el-button>
       </div>
     </s-fieldset>
     <!-- <template v-if="importAsProject">
@@ -232,15 +232,15 @@ const handleBeforeUpload = (file: File) => {
   const suffixFileType = matchSuffix ? matchSuffix[0] : '';
   fileType.value = standerFileType || suffixFileType;
   if (!standerFileType && !suffixFileType) {
-    ElMessage.error($t('未知的文件格式，无法解析'));
+    ElMessage.error(t('未知的文件格式，无法解析'));
     return false;
   }
   if (fileType.value !== 'application/json' && fileType.value !== 'yaml' && fileType.value !== 'application/x-yaml') {
-    ElMessage.error($t('仅支持JSON格式或者YAML格式文件'));
+    ElMessage.error(t('仅支持JSON格式或者YAML格式文件'));
     return false;
   }
   if (file.size > config.renderConfig.import.size) {
-    ElMessage.error(`${$t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`);
+    ElMessage.error(`${t('文件大小不超过')}${config.renderConfig.import.size / 1024 / 1024}M`);
     return false;
   }
   return true;
@@ -351,9 +351,9 @@ const previewNavTreeData = computed(() => {
 //改变导入方式，如果为覆盖类型提醒用户
 const handleChangeIsCover = (val: boolean) => {
   if (val) {
-    ElMessageBox.confirm($t('覆盖后的数据将无法还原'), $t('提示'), {
-      confirmButtonText: $t('确定'),
-      cancelButtonText: $t('取消'),
+    ElMessageBox.confirm(t('覆盖后的数据将无法还原'), t('提示'), {
+      confirmButtonText: t('确定'),
+      cancelButtonText: t('取消'),
       type: 'warning',
     }).catch((err) => {
       if (err === 'cancel' || err === 'close') {
@@ -404,7 +404,7 @@ const handleSubmit = () => {
   try {
     loading.value = true;
     if (!formInfo.value.moyuData.docs) {
-      ElMessage.warning($t('请选择需要导入的文件'));
+      ElMessage.warning(t('请选择需要导入的文件'));
       return;
     }
     const mountedId = currentMountedNode.value?._id;

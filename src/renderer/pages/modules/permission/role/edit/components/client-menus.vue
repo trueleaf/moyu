@@ -12,7 +12,7 @@
       show-checkbox
       node-key="_id"
       :draggable="false"
-      :empty-text="$t('暂无数据')"
+      :empty-text="t('暂无数据')"
       :expand-on-click-node="false"
       :highlight-current="true"
       @check-change="handleSelectClientMenu"

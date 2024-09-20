@@ -15,31 +15,32 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/test',
-    component: () => import(/* webpackChunkName: "Test" */ '@/pages/test/test.vue'),
+    component: () => import('@/pages/test/test.vue'),
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import(/* webpackChunkName: "Login" */ '@/pages/login/login.vue')
+    component: () => import('@/pages/login/login.vue')
   },
   {
     path: '/v1',
     name: 'Layout',
-    component: () => import(/* webpackChunkName: "Layout" */ '@/pages/layout/layout.vue'),
+    component: () => import('@/pages/layout/layout.vue'),
     children: [ 
       {
       path: '/v1/permission/permission',
       name: 'Permission',
-      component: () => import(/* webpackChunkName: "Permission" */ '@/pages/modules/permission/permission.vue'),
+      component: () => import('@/pages/modules/permission/permission.vue'),
+    }, 
+    {
+      path: '/v1/apidoc/doc-list',
+      name: 'DocList',
+      component: () => import('@/pages/modules/apidoc/doc-list/doc-list.vue'),
     }, 
     // {
-    //   path: '/v1/apidoc/doc-list',
-    //   name: 'DocList',
-    //   component: () => import(/* webpackChunkName: "DocList" */ '@/pages/modules/apidoc/doc-list/doc-list.vue'),
-    // }, {
     //   path: '/v1/apidoc/doc-view',
     //   name: 'DocView',
-    //   component: () => import(/* webpackChunkName: "DocView" */ '@/pages/modules/apidoc/doc-view/view/view.vue'),
+    //   component: () => import('@/pages/modules/apidoc/doc-view/view/view.vue'),
     // }, {
     //   path: '/v1/apidoc/doc-edit',
     //   name: 'DocEdit',
@@ -47,7 +48,7 @@ const routes: Array<RouteRecordRaw> = [
     // }, {
     //   path: '/v1/settings/user',
     //   name: 'UserSettings',
-    //   component: () => import(/* webpackChunkName: "UserSettings" */ '@/pages/modules/settings/user/user.vue'),
+    //   component: () => import('@/pages/modules/settings/user/user.vue'),
     // }
   ],
   },

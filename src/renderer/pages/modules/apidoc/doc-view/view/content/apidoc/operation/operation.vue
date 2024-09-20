@@ -11,7 +11,7 @@
       <el-radio-group v-model="host" @change="handleChangeHost">
         <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
           <template #reference>
-            <el-radio :label="mockServer" border>{{ $t("Mock服务器") }}</el-radio>
+            <el-radio :label="mockServer" border>{{ t("Mock服务器") }}</el-radio>
           </template>
         </el-popover>
         <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
@@ -21,7 +21,7 @@
         </el-popover>
       </el-radio-group>
       <div v-if="!config.isElectron" class="proxy-wrap">
-        <span>{{ $t("代理") }}&nbsp;&nbsp;</span>
+        <span>{{ t("代理") }}&nbsp;&nbsp;</span>
         <el-switch v-model="isProxy"></el-switch>
       </div>
     </div>
@@ -29,7 +29,7 @@
     <div class="op-wrap">
       <el-input
         v-model="requestPath"
-        :placeholder="$t('输入请求url')"
+        :placeholder="t('输入请求url')"
         :size="config.renderConfig.layout.size"
         @input="handleChangeUrl"
         @blur="handleFormatUrl"
@@ -54,18 +54,18 @@
       <el-button
         v-if="!loading"
         :loading="loading"
-        :title="config.isElectron ? '' : $t('由于浏览器限制，非electron环境无法模拟发送请求')"
+        :title="config.isElectron ? '' : t('由于浏览器限制，非electron环境无法模拟发送请求')"
         type="success"
         @click="handleSendRequest"
       >
-        {{ $t("发送请求") }}
+        {{ t("发送请求") }}
       </el-button>
-      <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ $t("取消请求") }}</el-button>
-      <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ $t("保存接口") }}</el-button>
-      <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ $t("刷新") }}</el-button>
+      <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
+      <el-button v-if="!isView" :loading="loading2" type="primary" @click="handleSaveApidoc">{{ t("保存接口") }}</el-button>
+      <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <pre class="pre-url pre">
-      <span class="label">{{ $t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
+      <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl }}</span>
     </pre>
   </div>
 </template>

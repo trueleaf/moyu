@@ -12,7 +12,7 @@
         <el-checkbox
           v-model="item.selected"
           :indeterminate="checkServerRoutesIsIndeterminate(item)"
-          :label="$t('全选')"
+          :label="t('全选')"
           @change="handleSelectAllServerRoutes(item)"
         >
         </el-checkbox>

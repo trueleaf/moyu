@@ -7,8 +7,8 @@
 <template>
   <div class="header-view" :class="{ vertical: layout === 'vertical' }">
     <el-table :data="headers" stripe border>
-      <el-table-column align="center" prop="key" :label="$t('名称')"></el-table-column>
-      <el-table-column align="center" prop="value" :label="$t('值')">
+      <el-table-column align="center" prop="key" :label="t('名称')"></el-table-column>
+      <el-table-column align="center" prop="value" :label="t('值')">
         <template #default="scope">
           <div class="value-wrap">{{ scope.row.value }}</div>
         </template>

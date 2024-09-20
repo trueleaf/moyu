@@ -61,9 +61,9 @@ const handleViewCode = (row: ApidocCodeInfo) => {
 }
 //删除代码
 const handleDeleteCode = (row: ApidocCodeInfo) => {
-  ElMessageBox.confirm($t('此操作将永久删除此条记录, 是否继续?'), $t('提示'), {
-    confirmButtonText: $t('确定'),
-    cancelButtonText: $t('取消'),
+  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
     type: 'warning'
   }).then(() => {
     const params = {
