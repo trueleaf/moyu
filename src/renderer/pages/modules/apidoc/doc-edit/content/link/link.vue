@@ -48,7 +48,7 @@ import { axios } from '@/api/api'
 import { CirclePlus } from '@element-plus/icons-vue'
 import { router } from '@/router'
 import { store } from '@/store/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import sAddDialog from './dialog/add.vue'
 import sEditDialog from './dialog/edit.vue'
 

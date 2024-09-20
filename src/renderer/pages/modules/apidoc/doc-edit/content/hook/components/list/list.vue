@@ -40,7 +40,7 @@ import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types/global'
 import { event } from '@/helper';
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { axios } from '@/api/api';
 
 const projectId = ref(router.currentRoute.value.query.id as string); //项目id

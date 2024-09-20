@@ -114,7 +114,7 @@ import { store } from '@/store/index'
 import { axios } from '@/api/api'
 import { router } from '@/router/index'
 import { findNextSiblingById, findParentById, findPreviousSiblingById, forEachForest, uuid } from '@/helper'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 // import type { TreeComponentProps }  from "element-plus/lib/components/tree/src/tree.type"
 
 type DragState = {

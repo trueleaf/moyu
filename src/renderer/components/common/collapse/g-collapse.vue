@@ -27,7 +27,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 const props = defineProps({
   title: {

@@ -1,4 +1,4 @@
-import { $t } from '@/i18n/i18n';
+import { t } from 'i18next';
 
 export default [{
   name: t('新增文件夹'),

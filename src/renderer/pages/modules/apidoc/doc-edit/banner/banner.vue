@@ -137,7 +137,7 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import type { ApidocBanner } from '@src/types/global'
 import { useStore } from '@/store/index'
 import { router } from '@/router/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { ElMessage } from 'element-plus'
 import sAddFileDialog from '../dialog/add-file/add-file.vue'
 import sAddFolderDialog from '../dialog/add-folder/add-folder.vue'

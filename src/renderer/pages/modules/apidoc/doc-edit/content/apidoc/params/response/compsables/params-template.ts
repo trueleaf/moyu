@@ -2,7 +2,7 @@ import { ref, Ref, computed, ComputedRef, onMounted, onBeforeUnmount } from 'vue
 import { ApidocProjectParamsTemplate } from '@src/types/store'
 import { router } from '@/router/index'
 import { store } from '@/store/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 type Response = {
   showTemplateIndex: Ref<number>;

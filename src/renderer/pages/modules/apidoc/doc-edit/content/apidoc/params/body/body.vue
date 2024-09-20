@@ -54,7 +54,7 @@
 import { computed, ref, onMounted, Ref } from 'vue'
 import type { ApidocBodyMode, ApidocBodyRawType } from '@src/types/global'
 import { store } from '@/store/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { apidocCache } from '@/cache/apidoc'
 // import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 

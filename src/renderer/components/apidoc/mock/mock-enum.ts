@@ -3,7 +3,7 @@
  * @author             shuxiaokai
  * @create             2021-04-29 21:50
  */
-import { $t } from '@/i18n/i18n';
+import { t } from 'i18next';
 
 export default [
   //=====================================中文文本====================================//

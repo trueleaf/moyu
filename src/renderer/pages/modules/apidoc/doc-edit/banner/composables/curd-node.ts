@@ -9,7 +9,7 @@ import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, fin
 import { store } from '@/store/index'
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 type MapId = {
   oldId: string, //历史id

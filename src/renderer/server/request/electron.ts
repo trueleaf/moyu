@@ -5,7 +5,7 @@ import type FormData from 'form-data'
 import type { Timings, IncomingMessageWithTimings } from '@szmarczak/http-timer';
 import { ApidocDetail } from '@src/types/global';
 import { store } from '@/store/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import db from '@/cache/database';
 import { apidocCache } from '@/cache/apidoc';
 import { router } from '@/router';

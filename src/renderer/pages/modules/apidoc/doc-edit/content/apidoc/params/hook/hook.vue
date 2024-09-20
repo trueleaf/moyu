@@ -39,7 +39,7 @@ import { router } from '@/router';
 import type { ApidocCodeInfo, Response } from '@src/types/global'
 import { store } from '@/store';
 import { ElMessage } from 'element-plus';
-import { $t } from '@/i18n/i18n';
+import { t } from 'i18next';
 
 type CodeInfo = Omit<ApidocCodeInfo, 'updatedAt'>;
 const emit = defineEmits(['close']);

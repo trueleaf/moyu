@@ -104,7 +104,7 @@ import { ApidocBanner } from '@src/types/global';
 import { store } from '@/store/index'
 import { axios } from '@/api/api'
 import { router } from '@/router/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import sFork from './fork/fork.vue'
 
 //可导出数据类型

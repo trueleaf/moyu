@@ -12,7 +12,7 @@ import jsontoxml from 'jsontoxml'
 import type { OpenAPIV3 } from 'openapi-types';
 import type { ApidocProperty, ApidocDetail, ApidocPropertyType, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocResponseContentType } from '@src/types/global'
 import { uuid, apidocGenerateProperty, apidocGenerateApidoc } from '@/helper/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 //=====================================项目信息====================================//
 type ProjectInfo = {

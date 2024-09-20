@@ -210,7 +210,7 @@ import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.
 import type { ApidocProperty, MockItem } from '@src/types/global'
 import { apidocGenerateProperty, forEachForest } from '@/helper/index'
 import { store } from '@/store'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { TreeNodeData } from 'element-plus/es/components/tree-v2/src/types'
 
 const treeProps = {

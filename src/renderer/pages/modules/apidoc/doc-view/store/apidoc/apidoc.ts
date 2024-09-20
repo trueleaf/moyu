@@ -5,7 +5,7 @@ import type { State as RootState, ApidocState, } from '@src/types/store'
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType } from '@src/types/global'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { apidocGenerateProperty, apidocGenerateApidoc, cloneDeep, uuid } from '@/helper/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { axios as axiosInstance } from '../../api/api'
 import router from '../../router/index'
 

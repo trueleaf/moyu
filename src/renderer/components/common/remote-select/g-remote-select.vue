@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 type DebounceFn = (query: string) => void;
 

@@ -10,7 +10,7 @@ import { findNodeById, event } from '@/helper/index'
 import { router } from '@/router/index'
 import { apidocCache } from '@/cache/apidoc'
 import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 type EditTabPayload<K extends keyof ApidocTab> = {
   id: string,

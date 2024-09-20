@@ -94,7 +94,7 @@ import type { ApidocMindParam } from '@src/types/global'
 import { store } from '@/store/index'
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 
 //搜索条件
 const formInfo: Ref<{ key: string, type: ApidocMindParam['paramsPosition'][] }> = ref({

@@ -162,7 +162,7 @@ import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, A
 import { store } from '@/store/index'
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
-import { $t } from '@/i18n/i18n'
+import { t } from 'i18next'
 import { axios } from '@/api/api'
 import { apidocCache } from '@/cache/apidoc'
 import sAddFileDialog from '../../dialog/add-file/add-file.vue'
