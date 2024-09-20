@@ -39,5 +39,21 @@
   "重新发送": "Resend",
   "重新获取": "Resend",
   "手机登录": "Phone login",
-  "账号注册": "Account registration"
+  "账号注册": "Account registration",
+  "项目列表": "Project list",
+  "团队管理": "Team management",
+  "项目名称或者接口URL": "Project name or request path",
+  "新建项目": "New project",
+  "导入项目": "Import project",
+  "收藏的项目": "Favorite projects",
+  "编辑": "Edit",
+  "成员管理": "Member management",
+  "收藏": "Favorite",
+  "取消收藏": "Cancel favorite",
+  "删除": "Delete",
+  "最新更新": "Latest update",
+  "创建者": "Creator",
+  "接口数": "Request count",
+  "预览": "Preview",
+  "全部项目": "All projects"
 }

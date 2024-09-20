@@ -30,6 +30,7 @@
 import { ref } from 'vue'
 import { Tickets } from '@element-plus/icons-vue'
 import tabA from './tab-a/tab-a.vue'
+import { t } from 'i18next'
 
 const activeName = ref('tab-a'); //当前激活选项卡
 
