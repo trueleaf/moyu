@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-13 21:28
-    模块名称：
-    备注：
-*/
 <template>
   <div class="remote-select">
     <input v-model="query" class="remote-select-inner" type="text" :placeholder="placeholder" @input="handleInput">
@@ -15,122 +9,107 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from 'vue'
+<script lang="ts" setup>
+import { PropType, ref, watch } from 'vue'
 import { t } from 'i18next'
+import { debounce } from '@/helper';
 
 type DebounceFn = (query: string) => void;
 
-export default defineComponent({
-  props: {
-    /**
-         * placeholder
-         */
-    placeholder: {
-      type: String,
-      default: `${t('请输入')}...`,
-    },
-    /**
-         * 远程搜索方法
-         */
-    remoteMethods: {
-      type: Function as PropType<(query: string) => void>,
-      default: null,
-    },
-    /**
-         * 数据加载状态
-         */
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 用于处理v-model
-         */
-    modelValue: {
-      type: String,
-      default: '',
-    },
+const props = defineProps({
+  placeholder: {
+    type: String,
+    default: `${t('请输入')}...`,
   },
-  emits: ['update:modelValue'],
-  data() {
-    return {
-      query: '', //-------------------------------输入值
-      selectData: [], //--------------------------搜索项目
-      debounceFn: null as null | DebounceFn, //---节流函数
-      dataLoading: false, //----------------------加载效果
-    };
+  remoteMethods: {
+    type: Function as PropType<(query: string) => void>,
+    default: null,
   },
-  watch: {
-    query(val) {
-      if (val != null || val === '') {
-        this.dataLoading = true;
-        if (!this.debounceFn) {
-          this.debounceFn = this.$helper.debounce<DebounceFn>((query) => {
-            this.getData(query);
-          });
-        }
-        this.debounceFn(val);
-      }
-    },
-    loading(val) {
-      this.dataLoading = val;
-    },
-    modelValue(val) {
-      this.query = val;
-    },
+  loading: {
+    type: Boolean,
+    default: false,
   },
-  methods: {
-    //获取远程数据
-    getData(query: string) {
-      if (this.remoteMethods) {
-        this.remoteMethods(query);
-      }
-    },
-    //处理搜索
-    handleInput() {
-      this.$emit('update:modelValue', this.query);
-    },
+  modelValue: {
+    type: String,
+    default: '',
   },
+})
+const emit = defineEmits([
+  "update:modelValue",
+])
+const query = ref('')
+const debounceFn = ref<DebounceFn | null>(null)
+const dataLoading = ref(false)
+
+const getData = (query: string) => {
+  if (props.remoteMethods) {
+    props.remoteMethods(query);
+  }
+}
+const handleInput = () => {
+  emit("update:modelValue", query.value);
+}
+
+watch(query, (val) => {
+  if (val != null || val === '') {
+    dataLoading.value = true;
+    if (!debounceFn.value) {
+      debounceFn.value = debounce<DebounceFn>((query) => {
+        getData(query);
+      });
+    }
+    debounceFn.value(val);
+  }
+})
+watch(() => props.loading, (val) => {
+  dataLoading.value = val;
+})
+watch(() => props.modelValue, (val) => {
+  query.value = val;
 })
 </script>
 
 <style lang="scss">
 .remote-select {
+  width: 100%;
+  position: relative;
+
+  .remote-select-inner {
     width: 100%;
-    position: relative;
-    .remote-select-inner {
-        width: 100%;
-        outline: 0;
-        padding: 0 size(15);
-        height: size(28);
-        border: 1px solid $gray-300;
-        border-radius: $border-radius-sm;
-        color: $gray-700;
-        font-size: fz(12);
-        &::-webkit-input-placeholder {
-            color: $gray-500;
-        }
+    outline: 0;
+    padding: 0 size(15);
+    height: size(28);
+    border: 1px solid $gray-300;
+    border-radius: $border-radius-sm;
+    color: $gray-700;
+    font-size: fz(12);
+
+    &::-webkit-input-placeholder {
+      color: $gray-500;
     }
-    .select-panel {
-        position: absolute;
-        left: 0;
-        top: size(36);
-        z-index: $zIndex-panel;
-        overflow-y: scroll;
-        // padding: size(10) size(20);
-        width: 100%;
-        max-height: size(200);
-        background: $white;
-        border: 1px solid $gray-300;
-        border-radius: $border-radius-base;
-        line-height: normal;
-        box-shadow: $box-shadow-sm;
-        .empty,.loading {
-            font-size: fz(12);
-            color: $gray-500;
-            padding: size(10) size(20);
-        }
+  }
+
+  .select-panel {
+    position: absolute;
+    left: 0;
+    top: size(36);
+    z-index: $zIndex-panel;
+    overflow-y: scroll;
+    // padding: size(10) size(20);
+    width: 100%;
+    max-height: size(200);
+    background: $white;
+    border: 1px solid $gray-300;
+    border-radius: $border-radius-base;
+    line-height: normal;
+    box-shadow: $box-shadow-sm;
+
+    .empty,
+    .loading {
+      font-size: fz(12);
+      color: $gray-500;
+      padding: size(10) size(20);
     }
+  }
 }
 </style>

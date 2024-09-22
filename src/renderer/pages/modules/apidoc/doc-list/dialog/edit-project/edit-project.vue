@@ -1,106 +1,87 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-13 22:20
-    模块名称：修改项目
-    备注：
-*/
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" @close="handleClose">
+  <Dialog :model-value="modelValue" top="10vh" :title="t('修改项目')" @close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
       <el-form-item :label="`${t('项目名称')}`" prop="projectName">
-        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size" :placeholder="t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
+        <el-input v-model="formInfo.projectName" v-focus-select :size="config.renderConfig.layout.size"
+          :placeholder="t('请输入项目名称')" @keydown.enter="handleEditProject"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleEditProject">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </Dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { axios } from '@/api/api';
+import { config } from '@src/config/config';
+import { ElMessage, FormInstance } from 'element-plus';
+import { t } from 'i18next'
+import { nextTick, ref, watch } from 'vue';
+import Dialog from '@/components/common/dialog/g-dialog.vue';
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 项目id
-         */
-    projectId: {
-      type: String,
-      default: '',
-    },
-    /**
-         * 项目名称
-         */
-    projectName: {
-      type: String,
-      default: '',
-    },
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'success'],
-  data() {
-    return {
-      //=====================================新建项目====================================//
-      formInfo: {
-        projectName: '', //-------------------------项目名称
-      },
-      rules: { //-------------------------------------修改项目校验规则
-        projectName: [{ required: true, trigger: 'blur', message: this.t('请填写项目名称') }],
-      },
-      //=====================================其他参数====================================//
-      loading: false, //------------------------------成员数据加载状态
-    };
+  projectId: {
+    type: String,
+    default: '',
   },
-  watch: {
-    projectName: {
-      handler(val) {
-        this.formInfo.projectName = val;
-      },
-      immediate: true,
-    },
-  },
-  methods: {
-    //修改项目
-    handleEditProject() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          const params = {
-            projectName: this.formInfo.projectName,
-            _id: this.projectId,
-          };
-          this.axios.put('/api/project/edit_project', params).then((res) => {
-            this.handleClose();
-            this.$emit('success', {
-              id: res.data,
-              name: this.formInfo.projectName,
-            });
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$nextTick(() => {
-            const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
-            if (input) {
-              input.focus();
-            }
-          });
-          this.$message.warning(this.t('请完善必填信息'));
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
+  projectName: {
+    type: String,
+    default: '',
   },
 })
+const emit = defineEmits(['update:modelValue', 'success'])
+const formInfo = ref({
+  projectName: '',
+})
+const rules = ref({
+  projectName: [{ required: true, trigger: 'blur', message: t('请填写项目名称') }],
+})
+const loading = ref(false);
+const form = ref<FormInstance>();
+
+watch(() => props.projectName, (val) => {
+  formInfo.value.projectName = val
+}, { immediate: true })
+
+const handleClose = () => {
+  emit('update:modelValue', false)
+}
+//修改项目
+const handleEditProject = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      loading.value = true;
+      const params = {
+        projectName: formInfo.value.projectName,
+        _id: props.projectId,
+      };
+      axios.put('/api/project/edit_project', params).then((res) => {
+        handleClose();
+        emit('success', {
+          id: res.data,
+          name: formInfo.value.projectName,
+        });
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      nextTick(() => {
+        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+        if (input) {
+          input.focus();
+        }
+      });
+      ElMessage.warning(t('请完善必填信息'));
+      loading.value = false;
+    }
+  })
+}
 </script>

@@ -20,12 +20,12 @@
             <div class="operator">
               <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
-                  <edit-icon></edit-icon>
+                  <EditIcon></EditIcon>
                 </el-icon>
               </div>
               <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
-                  <user-icon></user-icon>
+                  <UserIcon></UserIcon>
                 </el-icon>
               </div>
               <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
@@ -33,20 +33,20 @@
                   <star-icon></star-icon>
                 </el-icon>
                 <el-icon v-if="starLoading" :size="16" class="is-loading">
-                  <loading-icon></loading-icon>
+                  <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
               <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
-                  <star-filled-icon></star-filled-icon>
+                  <StarFilledIcon></StarFilledIcon>
                 </el-icon>
                 <el-icon v-if="unStarLoading" :size="16" class="is-loading">
-                  <loading-icon></loading-icon>
+                  <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
               <div :title="t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
-                  <delete-icon></delete-icon>
+                  <DeleteIcon></DeleteIcon>
                 </el-icon>
               </div>
             </div>
@@ -73,10 +73,10 @@
       </div>
       <h2 class="cursor-pointer" @click="toggleCollapse">
         <el-icon v-if="!isFold" class="mr-1" :size="16">
-          <caret-bottom-icon />
+          <CaretBottomIcon />
         </el-icon>
         <el-icon v-if="isFold" class="mr-1" :size="16">
-          <caret-right-icon />
+          <CaretRightIcon />
         </el-icon>
         <span>{{ t("全部项目") }}({{ projectList.length }})</span>
       </h2>
@@ -90,12 +90,12 @@
             <div class="operator">
               <div :title="t('编辑')" @click="handleOpenEditDialog(item)">
                 <el-icon :size="16">
-                  <edit-icon></edit-icon>
+                  <EditIcon></EditIcon>
                 </el-icon>
               </div>
               <div :title="t('成员管理')" @click="handleOpenPermissionDialog(item)">
                 <el-icon :size="16">
-                  <user-icon></user-icon>
+                  <UserIcon></UserIcon>
                 </el-icon>
               </div>
               <div v-if="!item.isStared" :title="t('收藏')" @click="handleStar(item)">
@@ -103,20 +103,20 @@
                   <star-icon></star-icon>
                 </el-icon>
                 <el-icon v-if="starLoading" :size="16" class="is-loading">
-                  <loading-icon></loading-icon>
+                  <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
               <div v-if="item.isStared" :title="t('取消收藏')" @click="handleUnStar(item)">
                 <el-icon v-if="!unStarLoading" :size="19" class="yellow">
-                  <star-filled-icon></star-filled-icon>
+                  <StarFilledIcon></StarFilledIcon>
                 </el-icon>
                 <el-icon v-if="unStarLoading" :size="16" class="is-loading">
-                  <loading-icon></loading-icon>
+                  <LoadingIcon></LoadingIcon>
                 </el-icon>
               </div>
               <div :title="t('删除')" @click="deleteProject(item._id)">
                 <el-icon :size="16">
-                  <delete-icon></delete-icon>
+                  <DeleteIcon></DeleteIcon>
                 </el-icon>
               </div>
             </div>
@@ -295,6 +295,7 @@ const deleteProject = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
     confirmButtonText: t('确定'),
     cancelButtonText: t('取消'),
+    type: 'warning'
   }).then(() => {
     axios.delete('/api/project/delete', { data: { _id } }).then(() => {
       getProjectList();
