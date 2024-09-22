@@ -36,7 +36,7 @@
             </el-icon>
           </div>
           <el-dropdown>
-            <i class="iconfont iconyuyan language"></i>
+            <span class="iconfont iconyuyan language"></span>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="changeLocale('zh-cn')">中文简体</el-dropdown-item>
