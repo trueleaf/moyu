@@ -1,12 +1,12 @@
 
-import {BrowserWindow, contextBridge } from 'electron'
+import {contextBridge, ipcRenderer } from 'electron'
 import got from 'got'
 import { sendRequest } from './sendRequest'
 import { readResponseLog } from './fileAccess'
 
 
 const openDevTools = () => {
-  BrowserWindow.getAllWindows().forEach(win => win.webContents.openDevTools());
+  ipcRenderer.invoke('open-dev-tools')
 }
 
 contextBridge.exposeInMainWorld('electronAPI', {

@@ -1,10 +1,11 @@
+import { config } from '../config/config'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-
 function createWindow () {
   const mainWindow = new BrowserWindow({
+    title: `${isDevelopment ? `${config.localization.title}(本地)` : config.localization.title} `,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true
@@ -17,6 +18,11 @@ function createWindow () {
 app.whenReady().then(() => {
   ipcMain.on('counter-value', (_event, value) => {
     console.log(value)
+  })
+  ipcMain.handle('open-dev-tools', () => {
+    BrowserWindow.getAllWindows()?.forEach(win => {
+      win.webContents.openDevTools()
+    }) 
   })
   createWindow()
 
@@ -39,3 +45,4 @@ if (isDevelopment) {
     })
   }
 }
+
