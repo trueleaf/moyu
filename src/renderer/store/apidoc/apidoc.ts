@@ -1,5 +1,6 @@
 import { ActionContext } from 'vuex'
 import axios, { Canceler } from 'axios'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { State as RootState, ApidocState, } from '@src/types/store'
 import type { ApidocDetail, Response, ApidocProperty, ApidocBodyMode, ApidocHttpRequestMethod, ApidocBodyRawType, ApidocContentType, ApidocMindParam } from '@src/types/global'

@@ -107,6 +107,7 @@ import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import isYesterday from 'dayjs/plugin/isYesterday'
 import 'dayjs/locale/zh-cn'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { ApidocHttpRequestMethod, ApidocType, ResponseTable, ApidocProjectPermission } from '@src/types/global'
 import { router } from '@/router/index'

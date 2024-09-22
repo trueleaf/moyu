@@ -173,6 +173,7 @@ import { t } from 'i18next'
 import type { Response, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global';
 import { computed, onMounted, ref } from 'vue';
 import { axios } from '@/api/api';
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import { debounce, formatDate } from '@/helper';

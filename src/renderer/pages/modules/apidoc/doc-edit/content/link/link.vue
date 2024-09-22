@@ -42,6 +42,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref } from 'vue'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { axios } from '@/api/api'
 // import config from "@/../config/config"

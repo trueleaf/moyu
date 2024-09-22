@@ -89,6 +89,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { ApidocMindParam } from '@src/types/global'
 import { store } from '@/store/index'

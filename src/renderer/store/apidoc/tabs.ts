@@ -2,6 +2,7 @@
  * tabs导航
  */
 import type { ActionContext } from 'vuex'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { State as RootState, ApidocTabsState, ApidocTab } from '@src/types/store'
 import { store } from '@/store/index'

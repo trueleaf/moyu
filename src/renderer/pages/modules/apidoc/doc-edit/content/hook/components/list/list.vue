@@ -36,6 +36,7 @@
 
 <script lang="ts" setup>
 import { ref, Ref } from 'vue'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types/global'

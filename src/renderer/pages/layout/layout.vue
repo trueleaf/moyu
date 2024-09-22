@@ -90,6 +90,7 @@ import type { Language } from '@src/types/global'
 import { computed, onMounted, ref } from 'vue';
 import { config } from '@/../config/config'
 import { isElectron } from '@src/utils/utils';
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus';
 
 const router = useRouter();

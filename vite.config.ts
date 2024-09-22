@@ -9,10 +9,11 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig(() => {
-  return{
+  return {
     plugins: [
       viteElectronPlugin(),
-      vue(), AutoImport({
+      vue(),
+      AutoImport({
         resolvers: [ElementPlusResolver()],
       }),
       Components({

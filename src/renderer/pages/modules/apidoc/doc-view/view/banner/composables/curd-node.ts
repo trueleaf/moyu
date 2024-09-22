@@ -3,6 +3,7 @@
  */
 
 import { Ref } from 'vue'
+import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import type { ApidocBanner, Response } from '@src/types/global'
 import { findNodeById, forEachForest, findParentById, flatTree, uniqueByKey, findPreviousSiblingById, findNextSiblingById } from '@/helper/index'
