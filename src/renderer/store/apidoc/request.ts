@@ -1,22 +1,23 @@
-import { ApidocRequest } from '@src/types/store';
+import { ApidocRequest } from "@src/types/apidoc/request";
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
-const request = {
-  namespaced: true,
-  state: {
-    url: '',
-    headers: {},
-    method: '',
-    body: '',
-  },
-  mutations: {
-    //改变最终发送请求信息
-    changeFinalRequestInfo(state: ApidocRequest, payload: ApidocRequest): void {
-      state.url = payload.url;
-      state.headers = payload.headers;
-      state.method = payload.method;
-      state.body = payload.body;
-    },
-  },
-}
-
-export { request }
+export const useApidocRequest = defineStore('apidocRequest', () => {
+  const url = ref('')
+  const headers = ref<ApidocRequest['headers']>({})
+  const method = ref('')
+  const body = ref<string | FormData>('')
+  const changeFinalRequestInfo = (payload: ApidocRequest): void => {
+    url.value = payload.url;
+    headers.value = payload.headers;
+    method.value = payload.method;
+    body.value = payload.body;
+  }
+  return {
+    url,
+    headers,
+    method,
+    body,
+    changeFinalRequestInfo
+  }
+})

@@ -1,16 +1,15 @@
-import { ActionContext } from 'vuex'
-import type { State as RootState, ApidocBannerState, ApidocMockState } from '@src/types/store'
-import { ApidocBanner, Response } from '@src/types/global'
-import { axios } from '@/api/api'
-import { forEachForest, findNodeById } from '@/helper/index'
-import shareRouter from '@/pages/modules/apidoc/doc-view/router/index'
-import { store } from '../index'
+import { axios } from "@/api/api";
+import { findNodeById, forEachForest } from "@/helper";
+import { ApidocMockState } from "@src/types/apidoc/mock";
+import { ApidocBanner, Response } from "@src/types/global";
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
 type SplicePayload = {
   opData?: ApidocBanner[],
   start: number,
   deleteCount?: number,
-  item: ApidocBanner,
+  item?: ApidocBanner,
 }
 type MapId = {
   oldId: string, //历史id
@@ -24,119 +23,132 @@ type EditBannerPayload<K extends keyof ApidocBanner> = {
   value: ApidocBanner[K],
 };
 
-const banner = {
-  namespaced: true,
-  state: {
-    loading: false,
-    banner: [],
-    defaultExpandedKeys: [],
-  },
-  mutations: {
-    //根据id改变节点属性
-    changeBannerInfoById<K extends keyof ApidocBanner>(state: ApidocBannerState, payload: EditBannerPayload<K>): void {
-      const { id, field, value } = payload;
-      const editData = findNodeById(state.banner, id, {
-        idKey: '_id',
-      }) as ApidocBanner;
-      editData[field] = value
-    },
-    //改变文档banner
-    changeAllDocBanner(state: ApidocBannerState, payload: ApidocBanner[]): void {
-      state.banner = payload;
-    },
-    //改变文档的id和pid，一般用在粘贴多个文档的时候
-    changeBannerIdAndPid(state: ApidocBannerState, mapIds: MapId[]): void {
-      forEachForest(state.banner, (node) => {
-        const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
-        if (matchedIdInfo) {
-          node._id = matchedIdInfo.newId;
-          node.pid = matchedIdInfo.newPid;
-        }
-      });
-    },
-    //改变文档数据
-    splice(state: ApidocBannerState, payload: SplicePayload): void {
-      const { start, deleteCount = 0, item, opData } = payload;
-      const currentOperationData = opData || state.banner;
-      if (item) {
-        currentOperationData.splice(start, deleteCount, item)
-      } else {
-        currentOperationData.splice(start, deleteCount)
+export const useApidocBanner = defineStore('apidocBanner', () => {
+  const loading = ref(false);
+  const banner = ref<ApidocBanner[]>([]);
+  const defaultExpandedKeys = ref<string[]>([]);
+  //根据id改变节点属性
+  const changeBannerInfoById = <K extends keyof ApidocBanner>(payload: EditBannerPayload<K>): void => {
+    const { id, field, value } = payload;
+    const editData = findNodeById(banner.value, id, {
+      idKey: '_id',
+    }) as ApidocBanner;
+    editData[field] = value
+  }
+  //改变文档banner
+  const changeAllDocBanner = (payload: ApidocBanner[]): void => {
+    banner.value = payload;
+  }
+  //改变文档的id和pid，一般用在粘贴多个文档的时候
+  const changeBannerIdAndPid = (mapIds: MapId[]): void => {
+    forEachForest(banner.value, (node) => {
+      const matchedIdInfo = mapIds.find((v) => v.oldId === node._id)
+      if (matchedIdInfo) {
+        node._id = matchedIdInfo.newId;
+        node.pid = matchedIdInfo.newPid;
       }
-    },
-    //新增一个展开项
-    addExpandItem(state: ApidocBannerState, payload: string): void {
-      state.defaultExpandedKeys.push(payload);
-    },
-    //改变整个展开项目
-    changeExpandItems(state: ApidocBannerState, payload: string[]): void {
-      state.defaultExpandedKeys = payload;
-    },
-    //改变加载状态
-    changeBannerLoading(state: ApidocBannerState, loading: boolean): void {
-      state.loading = loading
+    });
+  }
+  //改变文档数据
+  const splice = (payload: SplicePayload): void => {
+    const { start, deleteCount = 0, item, opData } = payload;
+    const currentOperationData = opData || banner.value;
+    if (item) {
+      currentOperationData.splice(start, deleteCount, item)
+    } else {
+      currentOperationData.splice(start, deleteCount)
     }
-  },
-  actions: {
-    /**
-         * 获取文档左侧导航数据
-         */
-    async getDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { projectId: string }): Promise<ApidocBanner> {
-      return new Promise((resolve, reject) => {
-        const params = {
-          projectId: payload.projectId,
-        };
-        axios.get('/api/project/doc_tree_node', { params }).then((res) => {
-          const result = res.data;
-          context.commit('changeAllDocBanner', result);
-          const urlMap: ApidocMockState['urlMap'] = [];
-          forEachForest(res.data, (data) => {
-            if (!data.isFolder) {
-              urlMap.push({
-                url: data.url,
-                customMockUrl: data.customMockUrl,
-                projectId: payload.projectId,
-                method: data.method,
-                id: data._id,
-              });
-            }
-          })
-          store.commit('apidoc/mock/changeMockUrlMap', urlMap);
-          resolve(result);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
-    },
-    /**
-         * 获取分享文档左侧导航数据
-         */
-    async getSharedDocBanner(context: ActionContext<ApidocBannerState, RootState>, payload: { shareId: string, password: string }): Promise<ApidocBanner> {
-      return new Promise((resolve, reject) => {
-        const params = {
-          shareId: payload.shareId,
-          password: payload.password,
-        };
-        axios.get<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/export/share_banner', { params }).then((res) => {
-          if (res.code === 101005) {
-            shareRouter.replace({
-              path: '/check',
-              query: {
-                share_id: shareRouter.currentRoute.value.query.share_id,
-                id: shareRouter.currentRoute.value.query.id,
-              },
+  }
+  //新增一个展开项
+  const addExpandItem = (payload: string): void => {
+    defaultExpandedKeys.value.push(payload);
+  }
+  //改变整个展开项目
+  const changeExpandItems = (payload: string[]): void => {
+    defaultExpandedKeys.value = payload;
+  }
+  //改变加载状态
+  const changeBannerLoading = (state: boolean): void => {
+    loading.value = state
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | 接口调用
+  |--------------------------------------------------------------------------
+  |
+  */
+   /**
+   * 获取文档左侧导航数据
+   */
+  const getDocBanner = async(payload: { projectId: string }): Promise<ApidocBanner> => {
+    return new Promise((resolve, reject) => {
+      const params = {
+        projectId: payload.projectId,
+      };
+      axios.get('/api/project/doc_tree_node', { params }).then((res) => {
+        const result = res.data;
+        changeAllDocBanner(result)
+        const urlMap: ApidocMockState['urlMap'] = [];
+        forEachForest(res.data, (data) => {
+          if (!data.isFolder) {
+            urlMap.push({
+              url: data.url,
+              customMockUrl: data.customMockUrl,
+              projectId: payload.projectId,
+              method: data.method,
+              id: data._id,
             });
-            return;
           }
-          const result = res.data;
-          context.commit('changeAllDocBanner', result);
-          resolve(result);
-        }).catch((err) => {
-          reject(err);
-        });
+        })
+        //todo
+        // store.commit('apidoc/mock/changeMockUrlMap', urlMap);
+        resolve(result);
+      }).catch((err) => {
+        reject(err);
       });
-    },
-  },
-}
-
-export { banner }
+    });
+  }
+  /**
+   * 获取分享文档左侧导航数据
+   */
+  const getSharedDocBanner = (payload: { shareId: string, password: string }): Promise<ApidocBanner[]> => {
+    return new Promise((resolve, reject) => {
+      const params = {
+        shareId: payload.shareId,
+        password: payload.password,
+      };
+      axios.get<Response<ApidocBanner[]>, Response<ApidocBanner[]>>('/api/project/export/share_banner', { params }).then((res) => {
+        if (res.code === 101005) {
+          //todo
+          // shareRouter.replace({
+          //   path: '/check',
+          //   query: {
+          //     share_id: shareRouter.currentRoute.value.query.share_id,
+          //     id: shareRouter.currentRoute.value.query.id,
+          //   },
+          // });
+          return;
+        }
+        const result = res.data;
+        changeAllDocBanner(result)
+        resolve(result);
+      }).catch((err) => {
+        reject(err);
+      });
+    });
+  }
+  return {
+    loading,
+    banner,
+    defaultExpandedKeys,
+    changeBannerInfoById,
+    changeAllDocBanner,
+    changeBannerIdAndPid,
+    splice,
+    addExpandItem,
+    changeExpandItems,
+    changeBannerLoading,
+    getDocBanner,
+    getSharedDocBanner,
+  }
+})

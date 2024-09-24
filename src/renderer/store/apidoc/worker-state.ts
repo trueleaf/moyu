@@ -1,20 +1,23 @@
-import type { ApidocWorkerState } from '@src/types/store'
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
-const workerState = {
-  namespaced: true,
-  state: {
-    sessionState: {},
-    localState: {},
-    remoteState: {},
-  },
-  mutations: {
-    changeSessionState(state: ApidocWorkerState, payload: { projectId: string, value: Record<string, unknown> }): void {
-      state.sessionState[payload.projectId] = payload.value;
-    },
-    changeLocalState(state: ApidocWorkerState, payload: { projectId: string, value: Record<string, unknown> }): void {
-      state.localState[payload.projectId] = payload.value;
-    },
-  },
-}
+export const useApidocWorkerState = defineStore('apidocWorkerState', () => {
+  const sessionState = ref<Record<string, Record<string, unknown>>>({})
+  const localState = ref<Record<string, Record<string, unknown>>>({})
+  const remoteState = ref<Record<string, Record<string, unknown>>>({})
 
-export { workerState }
+  const changeSessionState = (payload: { projectId: string, value: Record<string, unknown> }): void => {
+    sessionState.value[payload.projectId] = payload.value;
+  }
+
+  const changeLocalState = (payload: { projectId: string, value: Record<string, unknown> }): void => {
+    localState.value[payload.projectId] = payload.value;
+  }
+  return {
+    sessionState,
+    localState,
+    remoteState,
+    changeSessionState,
+    changeLocalState
+  }
+})
