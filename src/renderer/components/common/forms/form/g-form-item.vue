@@ -1,120 +1,72 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-15 22:49
-    模块名称：表单数据项
-    备注：
-*/
 <template>
   <!-- 普通输入框 -->
-  <s-col v-if="type === 'input'" v-bind="$attrs">
+  <SCol v-if="type === 'input'" v-bind="$attrs">
     <el-form-item :label="realLabel" :prop="prop">
-      <s-input v-model:value="formInfo[prop]" :placeholder="realPlaceholder"></s-input>
+      <SInput v-model:value="formInfo[prop]" :placeholder="realPlaceholder"></SInput>
     </el-form-item>
-  </s-col>
+  </SCol>
   <!-- 下拉搜索框 -->
-  <s-col v-if="type === 'select'" v-bind="$attrs">
+  <SCol v-if="type === 'select'" v-bind="$attrs">
     <el-form-item :label="realLabel" :prop="prop">
-      <s-select v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder"></s-select>
+      <SSelect v-model:value="formInfo[prop]" v-bind="$attrs" :placeholder="realPlaceholder"></SSelect>
     </el-form-item>
-  </s-col>
+  </SCol>
 </template>
 
-<script lang="ts">
-import { defineComponent, inject } from 'vue'
+<script lang="ts" setup>
+import { computed, inject } from 'vue'
+import SCol from '../col/g-col.vue'
+import SInput from '../inputs/g-input.vue'
+import SSelect from '../inputs/g-select.vue'
 
-export default defineComponent({
-  name: 'FormItem',
-  props: {
-    /**
-         * 表单组件类型 input select date daterange text
-         */
-    type: {
-      type: String,
-      default: 'input',
-    },
-    /**
-         * 文案
-         */
-    label: {
-      type: String,
-      default: ''
-    },
-    /**
-         * placeholder
-         */
-    placeholder: {
-      type: String,
-      default: '',
-    },
-    /**
-         * 绑定参数的字段名称
-         */
-    prop: {
-      type: [String],
-      default: '',
-    },
-    //=====================================快捷规则====================================//
-    /**
-         * 必填校验
-         */
-    required: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 最大长度
-         */
-    maxLength: {
-      type: Number,
-      default: null,
-    },
-    /**
-         * 最小长度
-         */
-    minLength: {
-      type: Number,
-      default: null,
-    },
-    /**
-         * 长度恰好等于
-         */
-    length: {
-      type: Number,
-      default: null,
-    },
-    /**
-         * 手机号校验
-         */
-    phone: {
-      type: Boolean,
-      default: false,
-    },
+const props = defineProps({
+  type: {
+    type: String,
+    default: 'input',
   },
-  setup() {
-    const formInfo = inject<Record<string, unknown>>('formInfo', {})
-    return {
-      formInfo,
-    }
+  label: {
+    type: String,
+    default: ''
   },
-  data() {
-    return {};
+  placeholder: {
+    type: String,
+    default: '',
   },
-  computed: {
-    realLabel(): string { //实际label值，自动拼接
-      if (this.label.endsWith('：')) {
-        return this.label;
-      } if (this.label.endsWith(':')) {
-        return this.label.replace(':', '：');
-      }
-      return `${this.label}：`;
-    },
-    realPlaceholder(): string { //实际placeholder值
-      return this.placeholder ? this.placeholder : `请输入${this.label}`;
-    },
+  prop: {
+    type: [String],
+    default: '',
   },
+  required: {
+    type: Boolean,
+    default: false,
+  },
+  maxLength: {
+    type: Number,
+    default: null,
+  },
+  minLength: {
+    type: Number,
+    default: null,
+  },
+  length: {
+    type: Number,
+    default: null,
+  },
+  phone: {
+    type: Boolean,
+    default: false,
+  }
 })
+const formInfo = inject<Record<string, string>>('formInfo', {})
+const realLabel = computed(() => {
+  if (props.label.endsWith('：')) {
+    return props.label;
+  } if (props.label.endsWith(':')) {
+    return props.label.replace(':', '：');
+  }
+  return `${props.label}：`;
+});
+const realPlaceholder = computed(() => {
+  return props.placeholder ? props.placeholder : `请输入${props.label}`;
+});
 </script>
-
-<style lang="scss">
-
-</style>

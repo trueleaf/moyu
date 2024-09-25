@@ -24,8 +24,8 @@ app.whenReady().then(() => {
       win.webContents.openDevTools()
     }) 
   })
-  ipcMain.handle('clipboard-read-buffer', (_, payload: { name: string }) => {
-    return clipboard.readBuffer(payload.name)
+  ipcMain.handle('clipboard-read-buffer', (_, name: string) => {
+    return clipboard.readBuffer(name)
   })
   ipcMain.handle('clipboard-write-buffer', (_, payload: { name: string, buffer: Buffer }) => {
     return clipboard.writeBuffer(payload.name, payload.buffer)
