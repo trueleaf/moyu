@@ -1,5 +1,5 @@
 import { config } from '../config/config'
-import { app, BrowserWindow, clipboard, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -23,12 +23,6 @@ app.whenReady().then(() => {
     BrowserWindow.getAllWindows()?.forEach(win => {
       win.webContents.openDevTools()
     }) 
-  })
-  ipcMain.handle('clipboard-read-buffer', (_, name: string) => {
-    return clipboard.readBuffer(name)
-  })
-  ipcMain.handle('clipboard-write-buffer', (_, payload: { name: string, buffer: Buffer }) => {
-    return clipboard.writeBuffer(payload.name, payload.buffer)
   })
   createWindow()
 
