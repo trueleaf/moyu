@@ -9,11 +9,11 @@
     <div class="body-type d-flex a-center mb-1">
       <!-- body类型选择 -->
       <el-radio-group v-model="bodyType" @change="changeBodyType">
-        <el-radio label="json">json</el-radio>
-        <el-radio label="formdata">form-data</el-radio>
-        <el-radio label="urlencoded">x-www-form-urlencoded</el-radio>
-        <el-radio label="raw">raw</el-radio>
-        <el-radio label="none">none</el-radio>
+        <el-radio value="json">json</el-radio>
+        <el-radio value="formdata">form-data</el-radio>
+        <el-radio value="urlencoded">x-www-form-urlencoded</el-radio>
+        <el-radio value="raw">raw</el-radio>
+        <el-radio value="none">none</el-radio>
       </el-radio-group>
     </div>
     <div v-if="bodyType !== 'raw'" class="params-wrap" @click="handleFocus">

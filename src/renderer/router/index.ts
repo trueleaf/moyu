@@ -41,11 +41,13 @@ const routes: Array<RouteRecordRaw> = [
     //   path: '/v1/apidoc/doc-view',
     //   name: 'DocView',
     //   component: () => import('@/pages/modules/apidoc/doc-view/view/view.vue'),
-    // }, {
-    //   path: '/v1/apidoc/doc-edit',
-    //   name: 'DocEdit',
-    //   component: docEdit,
-    // }, {
+    // }, 
+    {
+      path: '/v1/apidoc/doc-edit',
+      name: 'DocEdit',
+      component: docEdit,
+    },
+    // {
     //   path: '/v1/settings/user',
     //   name: 'UserSettings',
     //   component: () => import('@/pages/modules/settings/user/user.vue'),
