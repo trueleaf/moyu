@@ -1,79 +1,77 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-02 21:25
-    模块名称：新增一个文件夹
-    备注：
-*/
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" width="40%" :title="t('新增文件夹')" @close="handleClose">
-    <s-form ref="form" @submit.prevent="handleAddFolder">
-      <s-form-item :label="t('文件夹名称')" prop="name" focus one-line></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" top="10vh" width="40%" :title="t('新增文件夹')" @close="handleClose">
+    <SForm ref="form" @submit.prevent="handleAddFolder">
+      <SFormItem :label="t('文件夹名称')" prop="name" focus one-line></SFormItem>
+    </SForm>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleAddFolder">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ElMessage, FormInstance } from 'element-plus';
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { Response, ApidocBanner } from '@src/types/global'
+import { t } from 'i18next'
+import { ref } from 'vue';
+import { router } from '@/router';
+import { axios } from '@/api/api';
+import { useRoute } from 'vue-router';
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 父元素id，没有则代表在根元素上新增节点
-         */
-    pid: {
-      type: String,
-      default: '',
-    },
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'success'],
-  data() {
-    return {
-      loading: false,
-    };
-  },
-  methods: {
-    handleAddFolder() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          this.loading = true;
-          const { formInfo } = this.$refs.form;
-          const params = {
-            name: formInfo.name,
-            type: 'folder',
-            projectId: this.$route.query.id,
-            pid: this.pid,
-          };
-          this.axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
-            this.$emit('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err)
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$message.warning(this.t('请完善必填信息'));
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
+  //父元素id，没有则代表在根元素上新增节点
+  pid: {
+    type: String,
+    default: '',
   },
 })
+const form = ref<FormInstance>();
+const emit = defineEmits(["update:modelValue", "success"]);
+const loading = ref(false);
+const route = useRoute()
+/*
+|--------------------------------------------------------------------------
+| 方法定义
+|--------------------------------------------------------------------------
+*/
+const handleAddFolder = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      loading.value = true;
+      const { formInfo } = form.value as any;
+      const params = {
+        name: formInfo.name,
+        type: 'folder',
+        projectId: route.query.id as string,
+        pid: props.pid,
+      };
+      axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
+        emit('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+        handleClose();
+      }).catch((err) => {
+        console.error(err)
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      ElMessage.warning(t('请完善必填信息'));
+      loading.value = false;
+    }
+  });
+}
+//关闭弹窗
+const handleClose = () => {
+  emit('update:modelValue', false);
+}
+
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>
