@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-27 21:24
-    模块名称：banner菜单顶部搜索和操作区域
-    备注：
-*/
 <template>
   <div class="tool">
     <div class="d-flex a-center j-center">
@@ -23,7 +17,7 @@
             </el-icon>
           </div>
         </template>
-        <s-loading :loading="loading" class="tool-toggle-project">
+        <SLoading :loading="loading" class="tool-toggle-project">
           <h3 v-if="startProjectList.length > 0">收藏的项目</h3>
           <div class="project-wrap">
             <div v-for="(item, index) in startProjectList" :key="index" class="item" @click="handleChangeProject(item)">
@@ -38,7 +32,7 @@
               <span class="item-content gray-600">{{ item.owner.name }}</span>
             </div>
           </div>
-        </s-loading>
+        </SLoading>
       </el-popover>
     </div>
     <div class="p-relative">
@@ -50,12 +44,12 @@
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
-          <s-fieldset title="过滤条件" class="search-panel">
+          <SFieldset title="过滤条件" class="search-panel">
             <!-- 操作人员 -->
             <div class="op-item a-center">
               <div class="flex0">{{ t("操作人员") }}：</div>
               <el-checkbox-group v-model="formInfo.maintainers">
-                <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :label="item"></el-checkbox>
+                <el-checkbox v-for="(item, index) in maintainerEnum" :key="index" :value="item"></el-checkbox>
                 <el-button link type="primary" text class="ml-2" @click="handleClearMaintainer">{{ t("清空") }}</el-button>
               </el-checkbox-group>
             </div>
@@ -66,11 +60,11 @@
                 <span>：</span>
               </div>
               <el-radio-group v-model="dateRange">
-                <el-radio label="1d">{{ t("今天") }}</el-radio>
-                <el-radio label="2d">{{ t("近两天") }}</el-radio>
-                <el-radio label="3d">{{ t("近三天") }}</el-radio>
-                <el-radio label="7d">{{ t("近七天") }}</el-radio>
-                <el-radio label="自定义">{{ t("自定义") }}</el-radio>
+                <el-radio value="1d">{{ t("今天") }}</el-radio>
+                <el-radio value="2d">{{ t("近两天") }}</el-radio>
+                <el-radio value="3d">{{ t("近三天") }}</el-radio>
+                <el-radio value="7d">{{ t("近七天") }}</el-radio>
+                <el-radio value="自定义">{{ t("自定义") }}</el-radio>
                 <el-date-picker
                   v-if="dateRange === '自定义'"
                   v-model="customDateRange"
@@ -92,29 +86,29 @@
                 <span>：</span>
               </div>
               <el-radio-group v-model="formInfo.recentNum">
-                <el-radio :label="2">{{ t("2条") }}</el-radio>
-                <el-radio :label="5">{{ t("5条") }}</el-radio>
-                <el-radio :label="10">{{ t("10条") }}</el-radio>
-                <el-radio :label="15">{{ t("15条") }}</el-radio>
+                <el-radio :value="2">{{ t("2条") }}</el-radio>
+                <el-radio :value="5">{{ t("5条") }}</el-radio>
+                <el-radio :value="10">{{ t("10条") }}</el-radio>
+                <el-radio :value="15">{{ t("15条") }}</el-radio>
                 <el-button link type="primary" text @click="handleClearRecentNum">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
-          </s-fieldset>
+          </SFieldset>
         </el-popover>
       </el-badge>
     </div>
     <!-- 工具栏 -->
     <div class="tool-icon mt-1">
       <!-- 固定的工具栏操作 -->
-      <s-draggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
+      <SDraggable v-model="pinOperations" animation="150" item-key="name" class="operation" group="operation">
         <template #item="{ element }">
-          <div :title="element.name" class="cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
+          <div :title="t(element.name)" class="cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }">
             <svg class="svg-icon" aria-hidden="true" @click="handleEmit(element.op)">
               <use :xlink:href="element.icon"></use>
             </svg>
           </div>
         </template>
-      </s-draggable>
+      </SDraggable>
       <!-- 全部工具栏操作 -->
       <el-popover v-model:visible="visible" popper-class="tool-panel" transition="none" placement="right" :width="320" trigger="manual">
         <template #reference>
@@ -130,13 +124,13 @@
             <Close />
           </el-icon>
         </div>
-        <s-draggable v-model="operations" animation="150" item-key="name" group="operation2">
+        <SDraggable v-model="operations" animation="150" item-key="name" group="operation2">
           <template #item="{ element }">
             <div class="dropdown-item cursor-pointer" :class="{ 'cursor-not-allowed': isView && !element.viewOnly }" @click="handleEmit(element.op)">
               <svg class="svg-icon mr-2" aria-hidden="true">
                 <use :xlink:href="element.icon"></use>
               </svg>
-              <div class="label">{{ element.name }}</div>
+              <div class="label">{{ t(element.name) }}</div>
               <div class="shortcut">
                 <span v-for="(item, index) in element.shortcut" :key="item">
                   <span>{{ item }}</span>
@@ -146,59 +140,57 @@
               <div class="pin iconfont iconpin" :class="{ active: element.pin }" @click.stop="togglePin(element)"></div>
             </div>
           </template>
-        </s-draggable>
+        </SDraggable>
       </el-popover>
     </div>
   </div>
-  <s-add-file-dialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-  <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
+  <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" @success="handleAddFileAndFolderCb"></SAddFileDialog>
+  <SAddFolderDialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" @success="handleAddFileAndFolderCb"></SAddFolderDialog>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import sDraggable from 'vuedraggable'
+import SDraggable from 'vuedraggable'
 import { MoreFilled, Close, Switch } from '@element-plus/icons-vue'
 import type { Response, ApidocBanner, ApidocOperations, ApidocProjectListInfo, ApidocProjectInfo } from '@src/types/global'
-import { store } from '@/store/index'
 import { forEachForest } from '@/helper/index'
 import { router } from '@/router/index'
 import { t } from 'i18next'
 import { axios } from '@/api/api'
 import { apidocCache } from '@/cache/apidoc'
-import sAddFileDialog from '../../dialog/add-file/add-file.vue'
-import sAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
+import SAddFileDialog from '../../dialog/add-file/add-file.vue'
+import SAddFolderDialog from '../../dialog/add-folder/add-folder.vue'
 import localOriginOperations from './operations'
 import { addFileAndFolderCb } from '../composables/curd-node'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBanner } from '@/store/apidoc/banner'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocWorkerState } from '@/store/apidoc/worker-state'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+
 
 type Operation = {
-  /**
-     * 操作名称
-     */
+  //操作名称
   name: string,
-  /**
-     * 图标
-     */
+  //图标
   icon: string,
-  /**
-     * 操作标识
-     */
+  //操作标识
   op: string,
-  /**
-     * 快捷键
-     */
+  //快捷键
   shortcut: string[],
-  /**
-     * 是否固定操作栏
-     */
+  //是否固定操作栏
   pin: boolean,
-  /**
-     * 预览模式展示
-     */
+  //预览模式展示
   viewOnly?: boolean,
 };
 
-const emit = defineEmits(['fresh', 'filter', 'changeProject'])
-const isView = computed(() => store.state['apidoc/baseInfo'].mode === 'view') //当前工作区状态
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocBannerStore = useApidocBanner();
+const apidocWorkerStateStore = useApidocWorkerState();
+const apidocTabsStore = useApidocTas();
+const emit = defineEmits(['fresh', 'filter', 'changeProject']);
+const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
@@ -206,7 +198,7 @@ const handleAddFileAndFolderCb = (data: ApidocBanner) => {
 };
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
-  const originBannerData = store.state['apidoc/banner'].banner;
+  const originBannerData = apidocBannerStore.banner;
   return originBannerData
 })
 const operations: Ref<Operation[]> = ref([]);
@@ -214,7 +206,7 @@ const pinOperations: Ref<Operation[]> = ref([]);
 const visible = ref(false);
 const addFileDialogVisible = ref(false);
 const addFolderDialogVisible = ref(false);
-const projectName = computed(() => store.state['apidoc/baseInfo'].projectName)
+const projectName = computed(() => apidocBaseInfoStore.projectName)
 //=====================================操作相关数据====================================//
 //初始化缓存数据
 const initCacheOperation = () => {
@@ -296,7 +288,7 @@ const handleEmit = (op: ApidocOperations) => {
     emit('fresh');
     break;
   case 'generateLink': //在线链接
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'onlineLink',
       projectId,
       tabType: 'onlineLink',
@@ -308,10 +300,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'exportDoc': //导出文档
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'exportDoc',
       projectId,
       tabType: 'exportDoc',
@@ -323,10 +315,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'importDoc': //导入文档
-    store.commit('apidoc/tabs/addTab', {
+  apidocTabsStore.addTab({
       _id: 'importDoc',
       projectId,
       tabType: 'importDoc',
@@ -338,10 +330,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'recycler': //回收站
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'recycler',
       projectId,
       tabType: 'recycler',
@@ -353,10 +345,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'history': //操作审计
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'history',
       projectId,
       tabType: 'history',
@@ -368,10 +360,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'config': //全局设置
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'config',
       projectId,
       tabType: 'config',
@@ -383,10 +375,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'hook': //生成代码
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'hook',
       projectId,
       tabType: 'hook',
@@ -398,10 +390,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'commonHeader': //公共请求头
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'commonHeader',
       projectId,
       tabType: 'commonHeader',
@@ -413,10 +405,10 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   case 'apiflow': //接口编排
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'apiflow',
       projectId,
       tabType: 'apiflow',
@@ -428,7 +420,7 @@ const handleEmit = (op: ApidocOperations) => {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
     break;
   default:
     break;
@@ -457,7 +449,7 @@ const hasFilterCondition = computed(() => {
 
 //用户列表
 const maintainerEnum = computed(() => {
-  const { banner } = store.state['apidoc/banner'];
+  const { banner } = apidocBannerStore;
   const allBanner: string[] = [];
   forEachForest(banner, (bannerInfo) => {
     if (bannerInfo.maintainer && !allBanner.includes(bannerInfo.maintainer)) {
@@ -646,15 +638,15 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
       mode: router.currentRoute.value.query.mode,
     },
   });
-  store.dispatch('apidoc/baseInfo/getProjectBaseInfo', { projectId: item._id });
-  store.dispatch('apidoc/baseInfo/getCommonHeaders')
+  apidocBaseInfoStore.getProjectBaseInfo({ projectId: item._id });
+  apidocBaseInfoStore.getCommonHeaders()
   const localState = apidocCache.getApidocWorkerLocalStateById(item._id);
   if (localState) {
-    store.commit('apidoc/workerState/changeLocalState', { projectId: item._id, value: localState })
+    apidocWorkerStateStore.changeLocalState({ projectId: item._id, value: localState })
   }
-  store.commit('apidoc/banner/changeBannerLoading', true)
-  store.dispatch('apidoc/banner/getDocBanner', { projectId: item._id, }).finally(() => {
-    store.commit('apidoc/banner/changeBannerLoading', false)
+  apidocBannerStore.changeBannerLoading(true)
+  apidocBannerStore.getDocBanner({ projectId: item._id, }).finally(() => {
+    apidocBannerStore.changeBannerLoading(false)
   });
   emit('changeProject', item._id)
 }

@@ -1,66 +1,36 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-07-21 21:00
-    模块名称：
-    备注：
-*/
 <template>
-  <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
-    <s-tool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></s-tool>
-    <s-loading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
-      <el-tree
-        ref="docTree"
-        :class="{ 'show-more': showMoreNodeInfo }"
-        :data="bannerData"
-        :default-expanded-keys="defaultExpandedKeys"
-        node-key="_id"
-        :empty-text="t('点击工具栏按钮新建接口或者鼠标右键新增')"
-        :draggable="enableDrag"
-        :allow-drop="handleCheckNodeCouldDrop"
-        :filter-node-method="filterNode"
-        @node-drop="handleNodeDropSuccess"
-        @node-contextmenu="handleShowContextmenu"
-      >
+  <SResizeX :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
+    <STool @fresh="getBannerData" @filter="handleFilterNode" @changeProject="handleChangeProject"></STool>
+    <SLoading :loading="loading" class="tree-wrap" @contextmenu.prevent="handleWrapContextmenu">
+      <el-tree ref="docTree" :class="{ 'show-more': showMoreNodeInfo }" :data="bannerData"
+        :default-expanded-keys="defaultExpandedKeys" node-key="_id" :empty-text="t('点击工具栏按钮新建接口或者鼠标右键新增')"
+        :draggable="enableDrag" :allow-drop="handleCheckNodeCouldDrop" :filter-node-method="filterNode"
+        @node-drop="handleNodeDropSuccess" @node-contextmenu="handleShowContextmenu">
         <template #default="scope">
-          <div
-            class="custom-tree-node"
-            :class="{
-              'select-node': selectNodes.find(v => v._id === scope.data._id),
-              'active-node': activeNode && activeNode._id === scope.data._id,
-              'cut-node': cutNodes.find(v => v._id === scope.data._id),
-              'readonly': scope.data.readonly
-            }"
-            tabindex="0"
-            @keydown.stop="handleNodeKeydown($event)"
-            @keyup.stop="handleNodeKeyUp"
-            @mouseenter.stop="handleNodeHover"
-            @click="handleClickNode($event, scope.data)"
-            @dblclick="handleDbclickNode(scope.data)"
-          >
+          <div class="custom-tree-node" :class="{
+            'select-node': selectNodes.find(v => v._id === scope.data._id),
+            'active-node': activeNode && activeNode._id === scope.data._id,
+            'cut-node': cutNodes.find(v => v._id === scope.data._id),
+            'readonly': scope.data.readonly
+          }" tabindex="0" @keydown.stop="handleNodeKeydown($event)" @keyup.stop="handleNodeKeyUp"
+            @mouseenter.stop="handleNodeHover" @click="handleClickNode($event, scope.data)"
+            @dblclick="handleDbclickNode(scope.data)">
             <!-- file渲染 -->
             <template v-if="!scope.data.isFolder">
               <template v-for="(req) in projectInfo.rules.requestMethods">
-                <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
+                  class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
-                <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></s-emphasize>
-                <s-emphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url" :value="scope.data.url" :keyword="filterString"></s-emphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                </SEmphasize>
+                <SEmphasize v-show="showMoreNodeInfo" class="node-bottom" :title="scope.data.url"
+                  :value="scope.data.url" :keyword="filterString"></SEmphasize>
               </div>
-              <input
-                v-else
-                :value="scope.data.name"
-                :placeholder="t('不能为空')"
-                type="text"
-                class="rename-ipt"
-                :class="{error: scope.data.name.trim() === ''}"
-                @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)"
-                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
-              >
-              <div
-                class="more"
-                @click.stop="handleShowContextmenu($event, scope.data)"
-              >
+              <input v-else :value="scope.data.name" :placeholder="t('不能为空')" type="text" class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
+              <div class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
@@ -71,25 +41,14 @@
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <!-- <img :src="require('@/assets/imgs/apidoc/folder.png')" class="folder-icon" /> -->
               <div v-if="editNode?._id !== scope.data._id" class="node-label-wrap">
-                <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString"></s-emphasize>
+                <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name" :keyword="filterString">
+                </SEmphasize>
                 <div v-show="showMoreNodeInfo" class="node-bottom">{{ scope.data.url }}</div>
               </div>
-              <input
-                v-else
-                :value="scope.data.name"
-                :placeholder="t('不能为空')"
-                type="text"
-                class="rename-ipt"
-                :class="{error: scope.data.name.trim() === ''}"
-                @blur="handleChangeNodeName($event, scope.data)"
-                @input="handleWatchNodeInput($event)"
-                @keydown.stop.enter="handleChangeNodeName($event, scope.data)"
-              >
-              <div
-                v-if="!isView"
-                class="more"
-                @click.stop="handleShowContextmenu($event, scope.data)"
-              >
+              <input v-else :value="scope.data.name" :placeholder="t('不能为空')" type="text" class="rename-ipt"
+                :class="{ error: scope.data.name.trim() === '' }" @blur="handleChangeNodeName($event, scope.data)"
+                @input="handleWatchNodeInput($event)" @keydown.stop.enter="handleChangeNodeName($event, scope.data)">
+              <div v-if="!isView" class="more" @click.stop="handleShowContextmenu($event, scope.data)">
                 <el-icon class="more-op" :title="t('更多操作')" :size="16">
                   <more-filled />
                 </el-icon>
@@ -98,58 +57,73 @@
           </div>
         </template>
       </el-tree>
-    </s-loading>
+    </SLoading>
     <!-- 鼠标右键 -->
     <teleport to="body">
       <!-- 单个节点操作 -->
-      <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft" :top="contextmenuTop">
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建接口')" @click="handleOpenAddFileDialog"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建文件夹')" @click="handleOpenAddFolderDialog"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('设置公共请求头')" @click="handleJumpToCommonHeader"></s-contextmenu-item>
-        <!-- <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('以模板新建')"></s-contextmenu-item> -->
-        <s-contextmenu-item v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="t('剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="t('复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="t('生成副本')" hot-key="Ctrl + V" @click="handleForkNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('粘贴')" hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" type="divider"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="t('重命名')" hot-key="F2" @click="handleRenameNode"></s-contextmenu-item>
-        <s-contextmenu-item v-show="currentOperationalNode" :label="t('删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
-      </s-contextmenu>
+      <SContextmenu v-if="!isView && showContextmenu && selectNodes.length <= 1" :left="contextmenuLeft"
+        :top="contextmenuTop">
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建接口')"
+          @click="handleOpenAddFileDialog"></SContextmenuItem>
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('新建文件夹')"
+          @click="handleOpenAddFolderDialog"></SContextmenuItem>
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('设置公共请求头')"
+          @click="handleJumpToCommonHeader"></SContextmenuItem>
+        <!-- <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('以模板新建')"></SContextmenuItem> -->
+        <SContextmenuItem v-show="currentOperationalNode && currentOperationalNode.isFolder" type="divider">
+        </SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode" :label="t('剪切')" hot-key="Ctrl + X" @click="handleCutNode">
+        </SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode" :label="t('复制')" hot-key="Ctrl + C" @click="handleCopyNode">
+        </SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode && !currentOperationalNode.isFolder" :label="t('生成副本')"
+          hot-key="Ctrl + V" @click="handleForkNode"></SContextmenuItem>
+        <SContextmenuItem v-show="!currentOperationalNode || currentOperationalNode?.isFolder" :label="t('粘贴')"
+          hot-key="Ctrl + V" :disabled="!pasteValue" @click="handlePasteNode"></SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode" type="divider"></SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode && !currentOperationalNode.readonly" :label="t('重命名')"
+          hot-key="F2" @click="handleRenameNode"></SContextmenuItem>
+        <SContextmenuItem v-show="currentOperationalNode" :label="t('删除')" hot-key="Delete" @click="handleDeleteNodes">
+        </SContextmenuItem>
+      </SContextmenu>
       <!-- 多个节点操作 -->
-      <s-contextmenu v-if="!isView && showContextmenu && selectNodes.length > 1" :left="contextmenuLeft" :top="contextmenuTop">
-        <s-contextmenu-item :label="t('批量剪切')" hot-key="Ctrl + X" @click="handleCutNode"></s-contextmenu-item>
-        <s-contextmenu-item :label="t('批量复制')" hot-key="Ctrl + C" @click="handleCopyNode"></s-contextmenu-item>
-        <s-contextmenu-item :label="t('批量删除')" hot-key="Delete" @click="handleDeleteNodes"></s-contextmenu-item>
-      </s-contextmenu>
+      <SContextmenu v-if="!isView && showContextmenu && selectNodes.length > 1" :left="contextmenuLeft"
+        :top="contextmenuTop">
+        <SContextmenuItem :label="t('批量剪切')" hot-key="Ctrl + X" @click="handleCutNode"></SContextmenuItem>
+        <SContextmenuItem :label="t('批量复制')" hot-key="Ctrl + C" @click="handleCopyNode"></SContextmenuItem>
+        <SContextmenuItem :label="t('批量删除')" hot-key="Delete" @click="handleDeleteNodes"></SContextmenuItem>
+      </SContextmenu>
     </teleport>
-  </s-resize-x>
-  <s-add-file-dialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" :pid="currentOperationalNode?._id" @success="handleAddFileAndFolderCb"></s-add-file-dialog>
-  <s-add-folder-dialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" :pid="currentOperationalNode?._id" @success="handleAddFileAndFolderCb"></s-add-folder-dialog>
+  </SResizeX>
+  <SAddFileDialog v-if="addFileDialogVisible" v-model="addFileDialogVisible" :pid="currentOperationalNode?._id"
+    @success="handleAddFileAndFolderCb"></SAddFileDialog>
+  <SAddFolderDialog v-if="addFolderDialogVisible" v-model="addFolderDialogVisible" :pid="currentOperationalNode?._id"
+    @success="handleAddFileAndFolderCb"></SAddFolderDialog>
 </template>
 
 <script lang="ts" setup>
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { Clipboard } from 'electron'
 import { computed, ref, Ref, onMounted, onUnmounted } from 'vue'
 import { MoreFilled } from '@element-plus/icons-vue'
-import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import type { ApidocBanner } from '@src/types/global'
-import { useStore } from '@/store/index'
 import { router } from '@/router/index'
 import { t } from 'i18next'
+import SResizeX from '@/components/common/resize/g-resize-x.vue'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
+import SContextmenu from '@/components/common/contextmenu/g-contextmenu.vue'
+import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item.vue'
+import SAddFileDialog from '../dialog/add-file/add-file.vue'
+import SAddFolderDialog from '../dialog/add-folder/add-folder.vue'
 import { ElMessage } from 'element-plus'
-import sAddFileDialog from '../dialog/add-file/add-file.vue'
-import sAddFolderDialog from '../dialog/add-folder/add-folder.vue'
-import sTool from './tool/tool.vue'
+import STool from './tool/tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'
+import { TreeNodeOptions } from 'element-plus/es/components/tree/src/tree.type.mjs'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBanner } from '@/store/apidoc/banner'
+import { useApidocTas } from '@/store/apidoc/tabs'
 
-let clipboard: Clipboard | null = null
-if (window.require) {
-  // eslint-disable-next-line prefer-destructuring
-  clipboard = window.require('electron').clipboard;
-}
+
 //树节点信息
 type TreeNode = {
   data: ApidocBanner,
@@ -157,13 +131,9 @@ type TreeNode = {
 }
 //搜索数据
 type SearchData = {
-  /**
-     * 接口名称或者接口路径
-     */
+  //接口名称或者接口路径
   iptValue: string,
-  /**
-     * 限制最近访问数据id集合
-     */
+  //限制最近访问数据id集合
   recentNumIds: string[] | null,
 };
 //带projectId的banner数据
@@ -175,7 +145,6 @@ type ApidocBannerWithProjectId = ApidocBanner & { projectId: string }
 | 获取项目基本信息
 |--------------------------------------------------------------------------
 */
-const store = useStore();
 const projectId = ref(router.currentRoute.value.query.id as string);
 const docTree: Ref<TreeNodeOptions['store'] | null | TreeNodeOptions> = ref(null);
 const pasteValue: Ref<ApidocBanner[] | null> = ref(null); //需要粘贴的数据
@@ -183,17 +152,36 @@ const selectNodes: Ref<ApidocBannerWithProjectId[]> = ref([]); //当前选中节
 const editNode: Ref<ApidocBanner | null> = ref(null); //正在编辑的节点
 const showMoreNodeInfo = ref(false); //banner是否显示更多内容
 const enableDrag = ref(true);//是否允许拖拽
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocBannerStore = useApidocBanner();
+const apidocTabsStore = useApidocTas();
+
 //当前工作区状态
-const isView = computed(() => store.state['apidoc/baseInfo'].mode === 'view')
-const loading = computed(() => store.state['apidoc/banner'].loading)
+const isView = computed(() => apidocBaseInfoStore.mode === 'view')
+const loading = computed(() => apidocBannerStore.loading)
 const { getBannerData } = useBannerData();
 //默认展开节点
-const defaultExpandedKeys = computed(() => store.state['apidoc/banner'].defaultExpandedKeys);
+const defaultExpandedKeys = computed(() => apidocBannerStore.defaultExpandedKeys);
 
-const projectInfo = computed(() => store.state['apidoc/baseInfo']);
-const activeNode = computed(() => store.state['apidoc/tabs'].tabs[projectId.value]?.find((v) => v.selected));
+const projectInfo = computed(() => {
+  return {
+    _id: apidocBaseInfoStore._id,
+    layout: apidocBaseInfoStore.layout,
+    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
+    webProxy: apidocBaseInfoStore.webProxy,
+    mode: apidocBaseInfoStore.mode,
+    variables: apidocBaseInfoStore.variables,
+    tempVariables: apidocBaseInfoStore.tempVariables,
+    commonHeaders: apidocBaseInfoStore.commonHeaders,
+    rules: apidocBaseInfoStore.rules,
+    mindParams: apidocBaseInfoStore.mindParams,
+    hosts: apidocBaseInfoStore.hosts,
+    globalCookies: apidocBaseInfoStore.globalCookies,
+  }
+});
+const activeNode = computed(() => apidocTabsStore.tabs[projectId.value]?.find((v) => v.selected));
 const bannerData = computed(() => {
-  const originBannerData = store.state['apidoc/banner'].banner;
+  const originBannerData = apidocBannerStore.banner;
   return originBannerData
 })
 /*
@@ -217,7 +205,7 @@ const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
       projectId: projectId.value,
     }];
   }
-  const copyData = clipboard?.readBuffer('moyu-apidoc-node').toString();
+  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
   pasteValue.value = copyData ? JSON.parse(copyData) : null;
   showContextmenu.value = true;
   contextmenuLeft.value = e.clientX;
@@ -226,7 +214,7 @@ const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
 }
 const handleWrapContextmenu = (e: MouseEvent) => {
   selectNodes.value = [];
-  const copyData = clipboard?.readBuffer('moyu-apidoc-node').toString();
+  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
   pasteValue.value = copyData ? JSON.parse(copyData) : null;
   currentOperationalNode.value = null;
   showContextmenu.value = true;
@@ -265,7 +253,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
       projectId: projectId.value,
     }];
     if (!data.isFolder) {
-      store.commit('apidoc/tabs/addTab', {
+      apidocTabsStore.addTab({
         _id: data._id,
         projectId: projectId.value,
         tabType: 'doc',
@@ -275,6 +263,7 @@ const handleClickNode = (e: MouseEvent, data: ApidocBanner) => {
         selected: true,
         head: {
           icon: data.method,
+          color: ""
         },
       })
     }
@@ -285,7 +274,7 @@ const handleDbclickNode = (data: ApidocBanner) => {
   if (data.isFolder) {
     return;
   }
-  store.commit('apidoc/tabs/fixedTab', {
+  apidocTabsStore.fixedTab({
     _id: data._id,
     projectId: projectId.value,
   })
@@ -314,14 +303,14 @@ const handleOpenAddFolderDialog = () => {
 //添加文件夹或文档成功回调函数
 const handleAddFileAndFolderCb = (data: ApidocBanner) => {
   addFileAndFolderCb.call(this, currentOperationalNode, data);
-  store.commit('apidoc/banner/addExpandItem', data._id)
+  apidocBannerStore.addExpandItem(data._id);
 };
 //添加公共请求头
 const handleJumpToCommonHeader = (e: MouseEvent) => {
   e.stopPropagation();
   showContextmenu.value = false;
   if (currentOperationalNode.value) {
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: currentOperationalNode.value._id,
       projectId: projectId.value,
       tabType: 'commonHeader',
@@ -331,6 +320,7 @@ const handleJumpToCommonHeader = (e: MouseEvent) => {
       selected: true,
       head: {
         icon: '',
+        color: ''
       },
     })
   }
@@ -345,9 +335,7 @@ const cutNodes: Ref<ApidocBannerWithProjectId[]> = ref([]);
 const handleCopyNode = () => {
   cutNodes.value = [];
   const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  if (clipboard) {
-    clipboard.writeBuffer('moyu-apidoc-node', buffer)
-  }
+  window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
 }
 //针对文件生成一份拷贝
 const handleForkNode = () => {
@@ -356,14 +344,12 @@ const handleForkNode = () => {
 const handleCutNode = () => {
   cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
   const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  if (clipboard) {
-    clipboard.writeBuffer('moyu-apidoc-node', buffer)
-  }
+  window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
 }
 //粘贴节点
 const handlePasteNode = () => {
   if (currentOperationalNode.value && !currentOperationalNode.value.isFolder) return //只允许根元素或者文件夹粘贴
-  const copyData = clipboard?.readBuffer('moyu-apidoc-node').toString();
+  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
   pasteValue.value = copyData ? JSON.parse(copyData) : null;
   pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBannerWithProjectId[]).then(() => {
     if (cutNodes.value.length > 0) { //剪切节点
@@ -371,7 +357,7 @@ const handlePasteNode = () => {
       cutNodes.value = [];
     }
     if (currentOperationalNode.value) {
-      store.commit('apidoc/banner/changeExpandItems', [currentOperationalNode.value._id])
+      apidocBannerStore.changeExpandItems([currentOperationalNode.value._id])
     }
   })
 }
@@ -395,7 +381,7 @@ const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, ty
 const handleNodeDropSuccess = (draggingNode: TreeNode, dropNode: TreeNode, type: 'before' | 'after' | 'inner') => {
   dragNode.call(this, draggingNode.data, dropNode.data, type);
   if (type === 'inner') {
-    store.commit('apidoc/banner/changeExpandItems', [dropNode.data._id])
+    apidocBannerStore.changeExpandItems([dropNode.data._id])
   }
 };
 //重命名节点
@@ -496,147 +482,178 @@ onUnmounted(() => {
 
 <style lang="scss">
 .banner {
-    flex: 0 0 auto;
-    height: 100%;
-    border-right: 1px solid $gray-400;
+  flex: 0 0 auto;
+  height: 100%;
+  border-right: 1px solid $gray-400;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  //树形组件包裹框
+  .tree-wrap {
+    height: calc(100vh - #{size(150)});
+    overflow-y: auto;
+  }
+
+  //拖拽指示器样式
+  .el-tree-node.is-drop-inner {
+    >.el-tree-node__content {
+      background: mix($theme-color, $white, 20%);
+    }
+
+    .custom-tree-node.select-node {
+      background-color: mix($theme-color, $white, 70%);
+    }
+  }
+
+  .el-tree__drop-indicator {
+    height: size(3);
+  }
+
+  // 自定义节点
+  .custom-tree-node {
     display: flex;
-    flex-direction: column;
-    position: relative;
-    //树形组件包裹框
-    .tree-wrap {
-        height: calc(100vh - #{size(150)});
-        overflow-y: auto;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    min-height: size(30);
+
+    &:hover {
+      .more {
+        display: block;
+      }
     }
-    //拖拽指示器样式
-    .el-tree-node.is-drop-inner {
-        > .el-tree-node__content {
-            background: mix($theme-color, $white, 20%);
-        }
-        .custom-tree-node.select-node {
-            background-color: mix($theme-color, $white, 70%);
-        }
+
+    .file-icon {
+      font-size: fz(14);
+      margin-right: size(5);
     }
-    .el-tree__drop-indicator {
-        height: size(3);
+
+    .folder-icon {
+      color: $yellow;
+      flex: 0 0 auto;
+      width: size(16);
+      height: size(16);
+      margin-right: size(5);
     }
-    // 自定义节点
-    .custom-tree-node {
-        display: flex;
-        align-items: center;
+
+    .node-label-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+
+      .node-top {
         width: 100%;
         overflow: hidden;
-        min-height: size(30);
-        &:hover {
-            .more {
-                display: block;
-            }
-        }
-        .file-icon {
-            font-size: fz(14);
-            margin-right: size(5);
-        }
-        .folder-icon {
-            color: $yellow;
-            flex: 0 0 auto;
-            width: size(16);
-            height: size(16);
-            margin-right: size(5);
-        }
-        .node-label-wrap {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-            .node-top {
-                width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .node-bottom {
-                color: $gray-500;
-                width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-        }
-        //重命名输入框
-        .rename-ipt {
-            flex: 0 0 75%;
-            height: size(22);
-            border: 1px solid $theme-color;
-            font-size: 1em;
-            margin-left: -1px;
-            &.error {
-                border: 2px solid $red;
-            }
-        }
-        .more {
-            display: none;
-            flex: 0 0 auto;
-            margin-left: auto;
-            padding: size(5) size(10);
-        }
-        &.active-node {
-            background-color: lighten($theme-color, 30%);
-        }
-        &.select-node {
-            background-color: lighten($theme-color, 20%);
-        }
-        &.cut-node {
-            color: $gray-500;
-            .file-icon {
-                color: $gray-500!important;
-            }
-            .folder-icon {
-                color: $gray-300!important;
-            }
-        }
-        &.readonly {
-            color: $gray-600;
-            .file-icon {
-                color: $gray-600!important;
-            }
-            .folder-icon {
-                color: $gray-500!important;
-            }
-        }
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .node-bottom {
+        color: $gray-500;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
-    // 禁用动画提高性能
-    .el-collapse-transition-enter-active, .el-collapse-transition-leave-active {
-        transition: none !important;
+
+    //重命名输入框
+    .rename-ipt {
+      flex: 0 0 75%;
+      height: size(22);
+      border: 1px solid $theme-color;
+      font-size: 1em;
+      margin-left: -1px;
+
+      &.error {
+        border: 2px solid $red;
+      }
     }
-    // 节点展示更多信息
-    .show-more {
-        .el-tree-node__content {
-            align-items: flex-start;
-            &>.el-tree-node__expand-icon {
-                padding-top: size(4);
-            }
-        }
-        .custom-tree-node {
-            align-items: flex-start;
-        }
-        .file-icon {
-            margin-top: size(2);
-        }
+
+    .more {
+      display: none;
+      flex: 0 0 auto;
+      margin-left: auto;
+      padding: size(5) size(10);
     }
+
+    &.active-node {
+      background-color: lighten($theme-color, 30%);
+    }
+
+    &.select-node {
+      background-color: lighten($theme-color, 20%);
+    }
+
+    &.cut-node {
+      color: $gray-500;
+
+      .file-icon {
+        color: $gray-500 !important;
+      }
+
+      .folder-icon {
+        color: $gray-300 !important;
+      }
+    }
+
+    &.readonly {
+      color: $gray-600;
+
+      .file-icon {
+        color: $gray-600 !important;
+      }
+
+      .folder-icon {
+        color: $gray-500 !important;
+      }
+    }
+  }
+
+  // 禁用动画提高性能
+  .el-collapse-transition-enter-active,
+  .el-collapse-transition-leave-active {
+    transition: none !important;
+  }
+
+  // 节点展示更多信息
+  .show-more {
     .el-tree-node__content {
-        height: auto;
-        display: flex;
-        align-items: center;
+      align-items: flex-start;
+
+      &>.el-tree-node__expand-icon {
+        padding-top: size(4);
+      }
     }
-    .el-tree-node__content>.el-tree-node__expand-icon {
-        transition: none; //去除所有动画
-        padding-top: 0;
-        padding-bottom: 0;
-        margin-top: -1px;
+
+    .custom-tree-node {
+      align-items: flex-start;
     }
+
+    .file-icon {
+      margin-top: size(2);
+    }
+  }
+
+  .el-tree-node__content {
+    height: auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .el-tree-node__content>.el-tree-node__expand-icon {
+    transition: none; //去除所有动画
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: -1px;
+  }
 }
+
 .banner-popover {
-    .op-item {
-        @include contextmenu-item;
-    }
+  .op-item {
+    @include contextmenu-item;
+  }
 }
 </style>

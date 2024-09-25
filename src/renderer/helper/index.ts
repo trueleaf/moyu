@@ -17,6 +17,7 @@ import Mock from '@/server/mock/mock'
 import tips from './tips'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { storeToRefs } from 'pinia';
+import { ApidocProjectBaseInfoState } from '@src/types/apidoc/base-info';
 
 type Data = Record<string, unknown>
 

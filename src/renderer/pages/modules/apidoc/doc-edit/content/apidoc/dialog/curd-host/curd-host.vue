@@ -22,8 +22,8 @@
           </el-form-item>
           <el-form-item :label="`${t('是否共享')}：`" prop="name">
             <el-radio-group v-model="formInfo.isLocal">
-              <el-radio :label="true">{{ t("仅自身可见") }}</el-radio>
-              <el-radio :label="false">{{ t("项目内成员可见") }}</el-radio>
+              <el-radio :value="true">{{ t("仅自身可见") }}</el-radio>
+              <el-radio :value="false">{{ t("项目内成员可见") }}</el-radio>
             </el-radio-group>
           </el-form-item>
           <div class="d-flex j-end">
