@@ -198,24 +198,40 @@ const showContextmenu = ref(false); //是否显示contextmenu
 const contextmenuLeft = ref(0); //contextmenu left值
 const contextmenuTop = ref(0); //contextmenu top值
 
-const handleShowContextmenu = (e: MouseEvent, data: ApidocBanner) => {
+const handleShowContextmenu = async (e: MouseEvent, data: ApidocBanner) => {
   if (selectNodes.value.length < 2) { //处理单个节点
     selectNodes.value = [{
       ...data,
       projectId: projectId.value,
     }];
   }
-  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
-  pasteValue.value = copyData ? JSON.parse(copyData) : null;
+  try {
+    const copyData = await navigator.clipboard.readText();
+    const copyDataJson = JSON.parse(copyData);
+    if (copyDataJson.type !== 'apiflow-apidoc-node') {
+      return
+    }
+    pasteValue.value = copyDataJson;
+  } catch {
+    pasteValue.value = null;
+  }
   showContextmenu.value = true;
   contextmenuLeft.value = e.clientX;
   contextmenuTop.value = e.clientY;
   currentOperationalNode.value = data;
 }
-const handleWrapContextmenu = (e: MouseEvent) => {
+const handleWrapContextmenu = async (e: MouseEvent) => {
   selectNodes.value = [];
-  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
-  pasteValue.value = copyData ? JSON.parse(copyData) : null;
+  try {
+    const copyData = await navigator.clipboard.readText();
+    const copyDataJson = JSON.parse(copyData);
+    if (copyDataJson.type !== 'apiflow-apidoc-node') {
+      return
+    }
+    pasteValue.value = copyDataJson;
+  } catch {
+    pasteValue.value = null;
+  }
   currentOperationalNode.value = null;
   showContextmenu.value = true;
   contextmenuLeft.value = e.clientX;
@@ -334,8 +350,12 @@ const cutNodes: Ref<ApidocBannerWithProjectId[]> = ref([]);
 //复制节点
 const handleCopyNode = () => {
   cutNodes.value = [];
-  const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  // const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
+  // window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  navigator.clipboard.writeText(JSON.stringify({
+    type: "apiflow-apidoc-node",
+    data: selectNodes.value
+  }));
 }
 //针对文件生成一份拷贝
 const handleForkNode = () => {
@@ -343,23 +363,34 @@ const handleForkNode = () => {
 }
 const handleCutNode = () => {
   cutNodes.value = JSON.parse(JSON.stringify(selectNodes.value));
-  const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
-  window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  // const buffer = Buffer.from(JSON.stringify(selectNodes.value), 'utf8')
+  // window.electronAPI?.clipboard.writeBuffer('apiflow-apidoc-node', buffer)
+  navigator.clipboard.writeText(JSON.stringify({
+    type: "apiflow-apidoc-node",
+    data: selectNodes.value
+  }));
 }
 //粘贴节点
-const handlePasteNode = () => {
+const handlePasteNode = async () => {
   if (currentOperationalNode.value && !currentOperationalNode.value.isFolder) return //只允许根元素或者文件夹粘贴
-  const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
-  pasteValue.value = copyData ? JSON.parse(copyData) : null;
-  pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBannerWithProjectId[]).then(() => {
-    if (cutNodes.value.length > 0) { //剪切节点
-      deleteNode.call(this, cutNodes.value, true);
-      cutNodes.value = [];
+  // const copyData = window.electronAPI?.clipboard.readBuffer('apiflow-apidoc-node')?.toString();
+  try {
+    const copyData = await navigator.clipboard.readText();
+    const copyDataJson = JSON.parse(copyData);
+    if (copyDataJson.type !== 'apiflow-apidoc-node') {
+      return
     }
-    if (currentOperationalNode.value) {
-      apidocBannerStore.changeExpandItems([currentOperationalNode.value._id])
-    }
-  })
+    pasteValue.value = copyDataJson.data;
+    pasteNodes.call(this, currentOperationalNode, pasteValue.value as ApidocBannerWithProjectId[]).then(() => {
+      if (cutNodes.value.length > 0) { //剪切节点
+        deleteNode.call(this, cutNodes.value, true);
+        cutNodes.value = [];
+      }
+      if (currentOperationalNode.value) {
+        apidocBannerStore.changeExpandItems([currentOperationalNode.value._id])
+      }
+    })
+  } catch{}
 }
 //判断是否允许拖拽节点
 const handleCheckNodeCouldDrop = (draggingNode: TreeNode, dropNode: TreeNode, type: 'inner' | 'prev' | 'next') => {
