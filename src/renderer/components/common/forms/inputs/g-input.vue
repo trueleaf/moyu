@@ -1,21 +1,6 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-21 23:48
-    模块名称：
-    备注：
-*/
 <template>
-  <el-input
-    ref="ipt"
-    v-bind="$attrs"
-    :model-value="value"
-    :placeholder="placeholder"
-    :maxlength="9999"
-    :size="config.renderConfig.layout.size"
-    :class="className"
-    clearable
-    @update:modelValue="handleInput"
-  >
+  <el-input ref="ipt" v-bind="$attrs" :model-value="value" :placeholder="placeholder" :maxlength="9999"
+    :size="config.renderConfig.layout.size" :class="className" clearable @update:modelValue="handleInput">
   </el-input>
 </template>
 
@@ -78,6 +63,4 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

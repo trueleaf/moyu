@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-15 21:09
-    模块名称：表单组件
-    备注：
-*/
 <template>
   <el-form ref="form" v-bind="$attrs" :model="formInfo" :label-width="labelWidth" :rules="rules">
     <div v-if="config.isDev && showTips">
@@ -26,6 +20,8 @@ import { defineComponent, VNode } from 'vue'
 
 import { config } from '@/../config/config'
 import initRules from './composables/rules'
+import { forEachForest, getTextWidth } from '@/helper';
+import { FormInstance } from 'element-plus';
 
 export default defineComponent({
   provide() {
@@ -56,7 +52,7 @@ export default defineComponent({
       default: false,
     },
   },
-  setup(props, context) {
+  setup(_, context) {
     const rules = initRules(context.slots);
     return {
       rules
@@ -90,7 +86,7 @@ export default defineComponent({
       const formItems: VNode[] = [];
       if (this.$slots.default) {
         const allSlots = this.$slots.default();
-        this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+        forEachForest<VNode>(allSlots, (slot: VNode) => {
           const slotType = slot.type;
           if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
             formItems.push(slot);
@@ -105,7 +101,7 @@ export default defineComponent({
       const maxLabelWidth = Math.max.apply(Math, formItems.map((val) => {
         const { props } = val;
         const label: string = props ? (props.label || '') : '';
-        const labelWidth = this.$helper.getTextWidth(label, font)
+        const labelWidth = getTextWidth(label, font)
         return labelWidth;
       }));
       const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
@@ -115,7 +111,7 @@ export default defineComponent({
     initFormData() {
       if (this.$slots.default) {
         const allSlots = this.$slots.default();
-        this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+        forEachForest<VNode>(allSlots, (slot: VNode) => {
           const slotType = slot.type;
           const { props } = slot;
           if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
@@ -128,12 +124,10 @@ export default defineComponent({
     },
     //手动校验
     validate(fn: () => void) {
-      this.$refs.form.validate(fn);
+      (this.$refs.form as FormInstance).validate(fn);
     },
   },
 })
 </script>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>
