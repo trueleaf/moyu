@@ -10,14 +10,13 @@ import type { ApidocHttpRequestMethod, ApidocProperty, ApidocPropertyType, Apido
 import isEqual from 'lodash/isEqual';
 import lodashCloneDeep from 'lodash/cloneDeep';
 import lodashDebounce from 'lodash/debounce';
-import { ClientAreaRange, ClientPoint } from '@src/types/apiflow';
 import lodashThrottle from 'lodash/throttle';
 import dayjs from 'dayjs';
 import mitt from 'mitt'
 import Mock from '@/server/mock/mock'
-import { store } from '@/store/index'
-import type { ApidocProjectBaseInfoState } from '@src/types/store';
 import tips from './tips'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { storeToRefs } from 'pinia';
 
 type Data = Record<string, unknown>
 
@@ -374,9 +373,10 @@ type JsonObj = {
  * @remark             这个方法具有强耦合性
  */
 export function apidocConvertValue(value: string): string {
+  const { variables, tempVariables } = storeToRefs(useApidocBaseInfo())
   const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-  const globalVariables = store.state['apidoc/baseInfo'].variables.map(v => ({ name: v.name, value: v.value }));
-  const scriptVariables = store.state['apidoc/baseInfo'].tempVariables;
+  const globalVariables = variables.value.map(v => ({ name: v.name, value: v.value }));
+  const scriptVariables = tempVariables.value;
   if (value.toString().startsWith('@')) {
     return Mock.mock(value);
   }
@@ -518,15 +518,6 @@ export function apidocGenerateApidoc(id?: string): ApidocDetail {
 export function apidocGenerateRequestParamTypes(): ApidocRequestParamTypes {
   return ['path', 'params', 'json', 'x-www-form-urlencoded', 'formData', 'text/javascript', 'text/plain', 'text/html', 'application/xml'];
 }
-// /**
-//  * @description        获取当前节点公共请求头
-//  * @author             shuxiaokai
-//  * @create             2022-01-20 22:35
-//  */
-//  export function apidocGetCommonHeader(docId: string) {
-//     store.state["apidoc/apidoc"].apidoc
-// }
-
 /**
  * @description        将byte转换为易读单位
  * @author              shuxiaokai
@@ -617,18 +608,7 @@ export async function sleep(delay: number): Promise<void> {
     }
   })
 }
-//检查鼠标位置是否在矩形节点内部
-export function checkPointIsInArea(point: ClientPoint, areaRange: ClientAreaRange): boolean {
-  let isLeftRightInArea = false;
-  let isTopBottomInArea = false;
-  if (point.clientX >= areaRange.leftTopPosition.clientX && point.clientX <= areaRange.rightBottomPosition.clientX) {
-    isLeftRightInArea = true;
-  }
-  if (point.clientY >= areaRange.leftTopPosition.clientY && point.clientY <= areaRange.rightBottomPosition.clientY) {
-    isTopBottomInArea = true;
-  }
-  return isLeftRightInArea && isTopBottomInArea
-}
+
 //将非嵌套参数转换为JSON5字符串
 export function apidocPropertyToJson5Str(queryParams: ApidocProperty<'string' | 'file'>[]): string {
   let result = '';

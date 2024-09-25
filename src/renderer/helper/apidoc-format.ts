@@ -3,9 +3,10 @@
 | apidoc转换为更易读数据
 |--------------------------------------------------------------------------
 */
-import { store } from '@/store';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { ApidocProjectVariable } from '@src/types/apidoc/base-info';
 import { ApidocResponseContentType, ApidocDetail } from '@src/types/global';
-import { ApidocProjectVariable } from '@src/types/store';
+import { storeToRefs } from 'pinia';
 
 type UrlInfo = {
   host: string,
@@ -46,8 +47,9 @@ type ResponseData = {
  * 转换{{}}的值
  */
 function convertPlaceholder(value: string) {
+  const { variables } = storeToRefs(useApidocBaseInfo())
   const matchdVariable = value.toString().match(/\{\{\s*([^} ]+)\s*\}\}/);
-  const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(store.state['apidoc/baseInfo'].variables));
+  const allVariables: ApidocProjectVariable[] = JSON.parse(JSON.stringify(variables.value));
   let convertValue = value;
   if (matchdVariable) {
     const realValue = allVariables.find(v => v.name === matchdVariable[1]);
