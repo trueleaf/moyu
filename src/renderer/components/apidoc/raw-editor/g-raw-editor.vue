@@ -1,9 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-27 21:17
-    模块名称：raw类型数据编辑器
-    备注：
-*/
+
 <template>
   <pre id="editor"></pre>
 </template>
