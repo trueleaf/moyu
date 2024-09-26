@@ -1,18 +1,13 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-10-26 22:21
-    模块名称：回收站
-    备注：
-*/
+
 <template>
   <div class="recycler">
     <!-- 过滤条件 -->
-    <s-fieldset title="过滤条件" class="search">
+    <SFieldset title="过滤条件" class="search">
       <!-- 操作人员 -->
       <div class="op-item">
         <div>操作人员：</div>
         <el-checkbox-group v-model="formInfo.operators">
-          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item.name"></el-checkbox>
+          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item.name"></el-checkbox>
           <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
         </el-checkbox-group>
       </div>
@@ -23,12 +18,12 @@
           <span>：</span>
         </div>
         <el-radio-group v-model="dateRange">
-          <el-radio label="1d">今天</el-radio>
-          <el-radio label="yesterday">昨天</el-radio>
-          <el-radio label="2d">近两天</el-radio>
-          <el-radio label="3d">近三天</el-radio>
-          <el-radio label="7d">近七天</el-radio>
-          <el-radio label="自定义">自定义</el-radio>
+          <el-radio value="1d">今天</el-radio>
+          <el-radio value="yesterday">昨天</el-radio>
+          <el-radio value="2d">近两天</el-radio>
+          <el-radio value="3d">近三天</el-radio>
+          <el-radio value="7d">近七天</el-radio>
+          <el-radio value="自定义">自定义</el-radio>
           <el-date-picker
             v-if="dateRange === '自定义'"
             v-model="customDateRange"
@@ -58,14 +53,14 @@
           <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
         </div>
       </div>
-    </s-fieldset>
+    </SFieldset>
     <!-- 列表展示 -->
-    <s-loading v-if="deletedList.length > 0" :loading="loading" class="list">
+    <SLoading v-if="deletedList.length > 0" :loading="loading" class="list">
       <div v-for="(item, index) in deletedInfo" :key="index" class="list-wrap">
         <h2 class="title">{{ item.title }}</h2>
         <div class="oneday-wrap">
           <div v-for="(chunkDeleteInfo, key) in item.deleted" :key="key" class="date-chunk">
-            <h3 class="date my-2">{{ $helper.formatDate(key, "a HH:mm") }}</h3>
+            <h3 class="date my-2">{{ formatDate(key, "a HH:mm") }}</h3>
             <div class="date-list-wrap">
               <div v-for="(docInfo, index3) in chunkDeleteInfo" :key="index3" class="docinfo">
                 <div class="op-area mr-4">
@@ -81,11 +76,11 @@
                 <div class="operator mr-1">{{ docInfo.deletePerson }}</div>
                 <div class="mr-2">删除了</div>
                 <div v-if="docInfo.isFolder" class="d-flex a-center">
-                  <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16" height="16" class="mr-1" />
+                  <img :src="folderUrl" width="16" height="16" class="mr-1" />
                   <span>{{ docInfo.name }}</span>
                 </div>
                 <div v-else class="d-flex a-center">
-                  <img :src="require('@/assets/imgs/apidoc/file.png')" width="16" height="16" class="mr-1" />
+                  <img :src="fileUrl" width="16" height="16" class="mr-1" />
                   <span class="mr-2">{{ docInfo.name }}</span>
                   <template v-for="(req) in validRequestMethods">
                     <span v-if="docInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
@@ -97,7 +92,7 @@
           </div>
         </div>
       </div>
-    </s-loading>
+    </SLoading>
   </div>
 </template>
 
@@ -112,12 +107,19 @@ import { ElMessageBox } from 'element-plus'
 import type { ApidocHttpRequestMethod, ApidocType, ResponseTable, ApidocProjectPermission } from '@src/types/global'
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
-import { store } from '@/store/index'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SLoading from '@/components/common/loading/g-loading.vue'
 import { forEachForest, debounce } from '@/helper'
 import docDetail from './components/doc-detail.vue'
+import { useApidocBanner } from '@/store/apidoc/banner'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { config } from '@src/config/config'
+import { formatDate } from '@/helper'
+
 
 dayjs.extend(isYesterday)
-dayjs.extend(isToday)
+dayjs.extend(isToday);
+//todo 日期国际化
 dayjs.locale('zh-cn')
 
 type DeleteInfo = {
@@ -143,6 +145,8 @@ type SearchInfo = {
 }
 
 const projectId = router.currentRoute.value.query.id as string; //项目id
+const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
+const fileUrl = new URL('@/assets/imgs/apidoc/file.png', import.meta.url).href;
 const formInfo: Ref<SearchInfo> = ref({
   projectId, //项目id
   startTime: null, //--起始日期
@@ -151,7 +155,8 @@ const formInfo: Ref<SearchInfo> = ref({
   url: '', //----------请求url
   operators: [], //----操作者信息
 })
-
+const apidocBannerStore = useApidocBanner()
+const apidocBaseInfoStore = useApidocBaseInfo()
 /*
 |--------------------------------------------------------------------------
 | 获取已删除数据信息
@@ -302,7 +307,7 @@ const deletedInfo = computed(() => {
   return result;
 })
 //请求方法
-const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods)
+const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 
 /*
 |--------------------------------------------------------------------------
@@ -326,13 +331,10 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
       const delIds = res.data;
       for (let i = 0; i < delIds.length; i += 1) {
         const id = delIds[i];
-        console.log(id)
         const delIndex = deletedList.value.findIndex((val) => val._id === id);
         deletedList.value.splice(delIndex, 1)
       }
-      store.dispatch('apidoc/banner/getDocBanner', {
-        projectId,
-      })
+      apidocBannerStore.getDocBanner({ projectId });
     }).catch((err) => {
       console.error(err);
     }).finally(() => {
@@ -347,7 +349,7 @@ const restoreDocDirectly = (docInfo: DeleteInfo) => {
 }
 //恢复接口
 const handleRestore = (docInfo: DeleteInfo) => {
-  const { banner } = store.state['apidoc/banner'];
+  const banner = apidocBannerStore.banner;
   const { pid, isFolder } = docInfo;
   let hasParent = false;
   forEachForest(banner, (node) => {

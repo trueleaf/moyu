@@ -1,13 +1,8 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2022-02-02 10:49
-    模块名称：脚本列表
-    备注：
-*/
+
 <template>
   <div>
     <!-- 表格展示 -->
-    <s-table
+    <STable
       ref="table"
       url="/api/apidoc/project/code"
       :params="{ projectId }"
@@ -17,20 +12,20 @@
       delete-key="ids"
       @deleteMany="getTableData"
     >
-      <el-table-column prop="codeName" label="名称" align="center"></el-table-column>
-      <el-table-column prop="creator" label="创建者" align="center"></el-table-column>
-      <el-table-column prop="remark" label="备注" align="center"></el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column prop="codeName" :label="t('名称')" align="center"></el-table-column>
+      <el-table-column prop="creator" :label="t('创建者')" align="center"></el-table-column>
+      <el-table-column prop="remark" :label="t('备注')" align="center"></el-table-column>
+      <el-table-column :label="t('操作')" align="center">
         <template #default="scope">
-          <el-button link type="primary" text @click="handleJumpToEdit(scope.row)">修改</el-button>
-          <el-button link type="primary" text @click="handleViewCode(scope.row)">查看</el-button>
-          <el-button link type="primary" text @click="handleDeleteCode(scope.row)">删除</el-button>
+          <el-button link type="primary" text @click="handleJumpToEdit(scope.row)">{{ t('修改') }}</el-button>
+          <el-button link type="primary" text @click="handleViewCode(scope.row)">{{ t('查看') }}</el-button>
+          <el-button link type="primary" text @click="handleDeleteCode(scope.row)">{{ t('删除') }}</el-button>
         </template>
       </el-table-column>
-    </s-table>
-    <s-dialog v-model="dialogVisible" width="40%" title="代码预览" @close="handleClose">
+    </STable>
+    <SDialog v-model="dialogVisible" width="40%" :title="t('代码预览')" @close="handleClose">
       <pre class="pre">{{ code }}</pre>
-    </s-dialog>
+    </SDialog>
   </div>
 </template>
 
@@ -42,6 +37,8 @@ import { router } from '@/router';
 import type { ApidocCodeInfo } from '@src/types/global'
 import { event } from '@/helper';
 import { t } from 'i18next'
+import STable from '@/components/common/table/g-table.vue'
+import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { axios } from '@/api/api';
 
 const projectId = ref(router.currentRoute.value.query.id as string); //项目id

@@ -45,7 +45,7 @@ export const astJson = (data: ApidocProperty[], indent = 4): ApidocASTInfo[] => 
     return [];
   }
   const result: ApidocASTInfo[] = [];
-  const foo = (arrayData: ApidocProperty[], level: number, deepth: number, parent: null | ApidocProperty) => {
+  const foo = (arrayData: ApidocProperty[], level: number, _: number, parent: null | ApidocProperty) => {
     const parentIsArray = (parent && parent.type === 'array');
     for (let i = 0; i < arrayData.length; i += 1) {
       const item = arrayData[i];

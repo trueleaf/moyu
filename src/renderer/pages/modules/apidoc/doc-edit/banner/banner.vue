@@ -115,6 +115,7 @@ import SContextmenuItem from '@/components/common/contextmenu/g-contextmenu-item
 import SAddFileDialog from '../dialog/add-file/add-file.vue'
 import SAddFolderDialog from '../dialog/add-folder/add-folder.vue'
 import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css'
 import STool from './tool/tool.vue'
 import { useBannerData } from './composables/banner-data'
 import { deleteNode, addFileAndFolderCb, pasteNodes, forkNode, dragNode, renameNode } from './composables/curd-node'

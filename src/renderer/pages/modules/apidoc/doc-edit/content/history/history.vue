@@ -1,17 +1,11 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-06 21:22
-    模块名称：历史记录
-    备注：
-*/
 <template>
   <div class="history">
-    <s-fieldset title="过滤条件" class="search">
+    <SFieldset title="过滤条件" class="search">
       <!-- 操作人员 -->
       <div class="op-item">
         <div>操作人员：</div>
         <el-checkbox-group v-model="formInfo.operators">
-          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :label="item.name"></el-checkbox>
+          <el-checkbox v-for="(item, index) in memberEnum" :key="index" :value="item.name"></el-checkbox>
           <el-button link type="primary" text @click="handleClearOperator">清空</el-button>
         </el-checkbox-group>
       </div>
@@ -22,22 +16,14 @@
           <span>：</span>
         </div>
         <el-radio-group v-model="dateRange">
-          <el-radio label="1d">今天</el-radio>
-          <el-radio label="yesterday">昨天</el-radio>
-          <el-radio label="2d">近两天</el-radio>
-          <el-radio label="3d">近三天</el-radio>
-          <el-radio label="7d">近七天</el-radio>
-          <el-radio label="自定义">自定义</el-radio>
-          <el-date-picker
-            v-if="dateRange === '自定义'"
-            v-model="customDateRange"
-            type="datetimerange"
-            range-separator="至"
-            value-format="x"
-            start-placeholder="开始日期"
-            class="mr-1"
-            end-placeholder="结束日期"
-          >
+          <el-radio value="1d">今天</el-radio>
+          <el-radio value="yesterday">昨天</el-radio>
+          <el-radio value="2d">近两天</el-radio>
+          <el-radio value="3d">近三天</el-radio>
+          <el-radio value="7d">近七天</el-radio>
+          <el-radio value="自定义">自定义</el-radio>
+          <el-date-picker v-if="dateRange === '自定义'" v-model="customDateRange" type="datetimerange" range-separator="至"
+            value-format="x" start-placeholder="开始日期" class="mr-1" end-placeholder="结束日期">
           </el-date-picker>
           <el-button link type="primary" text @click="handleClearDate">清空</el-button>
         </el-radio-group>
@@ -46,17 +32,17 @@
       <div class="op-item">
         <div class="flex0">日志类型：</div>
         <el-checkbox-group v-model="formInfo.operationTypes">
-          <el-checkbox label="deleteDoc">删除单个文档</el-checkbox>
-          <el-checkbox label="deleteFolder">删除单个目录</el-checkbox>
-          <el-checkbox label="deleteMany">批量删除</el-checkbox>
-          <el-checkbox label="editDoc">编辑文档</el-checkbox>
-          <el-checkbox label="addDoc">新建接口</el-checkbox>
-          <el-checkbox label="addFolder">新建文件夹</el-checkbox>
-          <el-checkbox label="copyDoc">复制文档</el-checkbox>
-          <el-checkbox label="position">改变位置</el-checkbox>
-          <el-checkbox label="rename">重命名</el-checkbox>
-          <el-checkbox label="import">导入</el-checkbox>
-          <el-checkbox label="export">导出</el-checkbox>
+          <el-checkbox value="deleteDoc">删除单个文档</el-checkbox>
+          <el-checkbox value="deleteFolder">删除单个目录</el-checkbox>
+          <el-checkbox value="deleteMany">批量删除</el-checkbox>
+          <el-checkbox value="editDoc">编辑文档</el-checkbox>
+          <el-checkbox value="addDoc">新建接口</el-checkbox>
+          <el-checkbox value="addFolder">新建文件夹</el-checkbox>
+          <el-checkbox value="copyDoc">复制文档</el-checkbox>
+          <el-checkbox value="position">改变位置</el-checkbox>
+          <el-checkbox value="rename">重命名</el-checkbox>
+          <el-checkbox value="import">导入</el-checkbox>
+          <el-checkbox value="export">导出</el-checkbox>
           <el-button link type="primary" text @click="handleClearType">清空</el-button>
         </el-checkbox-group>
       </div>
@@ -75,12 +61,12 @@
           <el-button :loading="loading" type="success" @click="getData">刷新</el-button>
         </div>
       </div>
-    </s-fieldset>
-    <s-loading v-if="historyList.length > 0" :loading="loading" class="list">
+    </SFieldset>
+    <SLoading v-if="historyList.length > 0" :loading="loading" class="list">
       <div v-for="(item, index) in historyInfo" :key="index" class="list-wrap">
         <h2 class="title">{{ item.title }}</h2>
         <div v-for="(item2, index2) in item.history" :key="index2" class="item">
-          <div class="head">{{ $helper.formatDate(item2.createdAt, "a HH:mm") }}</div>
+          <div class="head">{{ formatDate(item2.createdAt, "a HH:mm") }}</div>
           <div class="operator mr-2">{{ item2.operator }}</div>
           <div class="operation mr-1">
             <div v-if="item2.operation === 'addFolder'">新建文件夹</div>
@@ -104,19 +90,21 @@
             <!-- 新建接口 -->
             <div v-if="item2.operation === 'addDoc'" class="doc-info">
               <template v-for="(req) in validRequestMethods">
-                <span v-if="'get' === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="'get' === req.value.toLowerCase()" :key="req.value" class="mr-1"
+                  :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <span>{{ item2.recordInfo.nodeName }}</span>
             </div>
             <!-- 新建文件夹 -->
             <div v-if="item2.operation === 'addFolder'" class="doc-info">
-              <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
+              <img :src="folderUrl" width="14px" height="14px" class="mr-1" />
               <span>{{ item2.recordInfo.nodeName }}</span>
             </div>
             <!-- 拷贝文档 -->
             <div v-if="item2.operation === 'copyDoc'" class="doc-info">
               <template v-for="(req) in validRequestMethods">
-                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
+                  :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <span>{{ item2.recordInfo.nodeName }}</span>
               <el-divider direction="vertical"></el-divider>
@@ -125,7 +113,8 @@
             <!-- 删除文档 -->
             <div v-if="item2.operation === 'deleteDoc'" class="doc-info">
               <template v-for="(req) in validRequestMethods">
-                <span v-if="item2.recordInfo.deleteNodes[0].method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="item2.recordInfo.deleteNodes[0].method === req.value.toLowerCase()" :key="req.value"
+                  class="mr-1" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <span>{{ item2.recordInfo.deleteNodes[0].nodeName }}</span>
               <el-divider v-if="item2.recordInfo.deleteNodes[0].url" direction="vertical"></el-divider>
@@ -133,16 +122,17 @@
             </div>
             <!-- 删除文件夹 -->
             <div v-if="item2.operation === 'deleteFolder'" class="doc-info">
-              <img :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
+              <img :src="folderUrl" width="14px" height="14px" class="mr-1" />
               <span>{{ item2.recordInfo.deleteNodes[0].nodeName }}</span>
             </div>
             <!-- 批量删除文档 -->
             <template v-if="item2.operation === 'deleteMany'">
               <div v-for="(node, index3) in item2.recordInfo.deleteNodes" :key="index3" class="doc-info">
-                <img v-if="node.isFolder" :src="require('@/assets/imgs/apidoc/folder.png')" width="14px" height="14px" class="mr-1" />
+                <img v-if="node.isFolder" :src="folderUrl" width="14px" height="14px" class="mr-1" />
                 <template v-else>
                   <template v-for="(req) in validRequestMethods">
-                    <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                    <span v-if="node.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
+                      :style="{ color: req.iconColor }">{{ req.name }}</span>
                   </template>
                 </template>
                 <span>{{ node.nodeName }}</span>
@@ -153,7 +143,8 @@
             <!-- 编辑文档 -->
             <div v-if="item2.operation === 'editDoc'" class="doc-info">
               <template v-for="(req) in validRequestMethods">
-                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="item2.recordInfo.method === req.value.toLowerCase()" :key="req.value" class="mr-1"
+                  :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <span>{{ item2.recordInfo.nodeName }}</span>
             </div>
@@ -189,7 +180,7 @@
           </div>
         </div>
       </div>
-    </s-loading>
+    </SLoading>
     <el-empty v-else></el-empty>
   </div>
 </template>
@@ -203,7 +194,12 @@ import { ResponseTable, ApidocOperationRecord, ApidocProjectPermission } from '@
 import { debounce } from '@/helper'
 import { axios } from '@/api/api';
 import { router } from '@/router';
-import { store } from '@/store/index'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { formatDate } from '@/helper'
+const folderUrl = new URL('@/assets/imgs/apidoc/folder.png', import.meta.url).href;
+
 
 dayjs.extend(isYesterday)
 dayjs.extend(isToday)
@@ -241,7 +237,7 @@ const getOperatorEnum = () => {
     projectId: router.currentRoute.value.query.id as string,
   };
   axios.get('/api/docs/docs_history_operator_enum', { params }).then((res) => {
-    memberEnum.value = res.data as { name: string, permission:ApidocProjectPermission }[];
+    memberEnum.value = res.data as { name: string, permission: ApidocProjectPermission }[];
   }).catch((err) => {
     console.error(err);
   });
@@ -270,30 +266,30 @@ watch(() => dateRange.value, (val) => {
   let startTime: number | null = new Date(new Date().setHours(0, 0, 0, 0)).valueOf();
   let endTime: number | null = null;
   switch (val) {
-  case '1d':
-    endTime = Date.now();
-    break;
-  case '2d':
-    endTime = Date.now();
-    startTime = endTime - 86400000;
-    break;
-  case '3d':
-    endTime = Date.now();
-    startTime = endTime - 3 * 86400000;
-    break;
-  case '7d':
-    endTime = Date.now();
-    startTime = endTime - 7 * 86400000;
-    break;
-  case 'yesterday':
-    endTime = startTime;
-    startTime -= 86400000;
-    break;
-  default: //自定义
-    startTime = null;
-    endTime = null;
-    customDateRange.value = [];
-    break;
+    case '1d':
+      endTime = Date.now();
+      break;
+    case '2d':
+      endTime = Date.now();
+      startTime = endTime - 86400000;
+      break;
+    case '3d':
+      endTime = Date.now();
+      startTime = endTime - 3 * 86400000;
+      break;
+    case '7d':
+      endTime = Date.now();
+      startTime = endTime - 7 * 86400000;
+      break;
+    case 'yesterday':
+      endTime = startTime;
+      startTime -= 86400000;
+      break;
+    default: //自定义
+      startTime = null;
+      endTime = null;
+      customDateRange.value = [];
+      break;
   }
   formInfo.value.startTime = startTime;
   formInfo.value.endTime = endTime;
@@ -315,7 +311,8 @@ onMounted(() => {
 | 列表数据获取
 |--------------------------------------------------------------------------
 */
-const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods); //请求方法
+const apidocBaseInfoStore = useApidocBaseInfo()
+const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods); //请求方法
 const loading = ref(false); //数据加载
 const historyList: Ref<ApidocOperationRecord[]> = ref([]); //历史记录数据
 const historyInfo: Ref<Record<string, { title: string, history: ApidocOperationRecord[] }>> = ref({});
@@ -375,70 +372,85 @@ onMounted(() => {
 
 <style lang="scss">
 .history {
-    padding: 0 size(20) size(10);
-    height: calc(100vh - #{size(100)});
-    width: 100%;
+  padding: 0 size(20) size(10);
+  height: calc(100vh - #{size(100)});
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+
+  // 搜索
+  .search {
+    flex: 0 0 auto;
+
+    .el-checkbox,
+    .el-radio {
+      margin-right: size(15);
+    }
+
+    .op-item {
+      min-height: size(50);
+      display: flex;
+      align-items: center;
+
+      &:not(:last-of-type) {
+        border-bottom: 1px dashed $gray-300;
+      }
+
+      .el-button--text {
+        padding-top: size(5);
+        padding-bottom: size(5);
+      }
+    }
+  }
+
+  // 列表展示
+  .list {
+    flex: 1;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    // 搜索
-    .search {
+
+    .item {
+      display: flex;
+      align-items: center;
+      height: size(40);
+      overflow: hidden;
+
+      .head {
         flex: 0 0 auto;
-        .el-checkbox, .el-radio {
-            margin-right: size(15);
+        width: size(80);
+      }
+
+      .operator {
+        flex: 0 0 auto;
+      }
+
+      .operation {
+        flex: 0 0 auto;
+      }
+
+      .doc-wrap {
+        display: inline-flex;
+        max-width: 30%;
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+          height: 0px;
         }
-        .op-item {
-            min-height: size(50);
-            display: flex;
-            align-items: center;
-            &:not(:last-of-type) {
-                border-bottom: 1px dashed $gray-300;
-            }
-            .el-button--text {
-                padding-top: size(5);
-                padding-bottom: size(5);
-            }
+
+        .doc-info {
+          flex: 0 0 auto;
+          display: inline-flex;
+          align-items: center;
+          height: size(25);
+          padding: size(2) size(10);
+          border: 1px solid $gray-300;
+
+          &:not(:last-child) {
+            margin-right: size(10);
+          }
         }
+      }
     }
-    // 列表展示
-    .list {
-        flex: 1;
-        overflow-y: auto;
-        .item {
-            display: flex;
-            align-items: center;
-            height: size(40);
-            overflow: hidden;
-            .head {
-                flex: 0 0 auto;
-                width: size(80);
-            }
-            .operator {
-                flex: 0 0 auto;
-            }
-            .operation {
-                flex: 0 0 auto;
-            }
-            .doc-wrap {
-                display: inline-flex;
-                max-width: 30%;
-                overflow-x: auto;
-                &::-webkit-scrollbar {
-                    height: 0px;
-                }
-                .doc-info {
-                    flex: 0 0 auto;
-                    display: inline-flex;
-                    align-items: center;
-                    height: size(25);
-                    padding: size(2) size(10);
-                    border: 1px solid $gray-300;
-                    &:not(:last-child) {
-                        margin-right: size(10);
-                    }
-                }
-            }
-        }
-    }
+  }
 }
 </style>

@@ -8,11 +8,11 @@
     <!-- 返回数据类型 -->
     <s-label-value label="类型：" label-width="50px" class="mb-1" one-line>
       <el-radio-group v-model="responseType">
-        <el-radio label="json" size="small">JSON</el-radio>
-        <el-radio label="image" size="small">图片</el-radio>
-        <el-radio label="file" size="small">文件</el-radio>
-        <el-radio label="text" size="small">Text</el-radio>
-        <el-radio label="customJson" size="small">自定义返回逻辑</el-radio>
+        <el-radio value="json" size="small">JSON</el-radio>
+        <el-radio value="image" size="small">图片</el-radio>
+        <el-radio value="file" size="small">文件</el-radio>
+        <el-radio value="text" size="small">Text</el-radio>
+        <el-radio value="customJson" size="small">自定义返回逻辑</el-radio>
       </el-radio-group>
     </s-label-value>
     <div v-if="responseType === 'json'" class="editor-wrap">
@@ -39,10 +39,10 @@
     <div v-if="responseType === 'image'" class="img-wrap">
       <s-label-value label-width="50px" label="格式：" one-line>
         <el-radio-group v-model="imageType">
-          <el-radio label="png" size="small">PNG</el-radio>
-          <el-radio label="jpg" size="small">JPG/JPEG</el-radio>
-          <el-radio label="gif" size="small">GIF</el-radio>
-          <el-radio label="svg" size="small" disabled title="还未实现">SVG</el-radio>
+          <el-radio value="png" size="small">PNG</el-radio>
+          <el-radio value="jpg" size="small">JPG/JPEG</el-radio>
+          <el-radio value="gif" size="small">GIF</el-radio>
+          <el-radio value="svg" size="small" disabled title="还未实现">SVG</el-radio>
         </el-radio-group>
       </s-label-value>
       <s-label-value label-width="100px" label="图片宽度：" width="40%">
@@ -147,6 +147,7 @@
 <script lang="ts" setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount, WatchStopHandle, Ref } from 'vue';
 import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css'
 // import { genFileId, UploadInstance, UploadProps, UploadRawFile } from 'element-plus/lib/components/upload/src/upload';
 import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus/es/components';
 import { genFileId } from 'element-plus';

@@ -1,8 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2022-01-01 20:41
-    模块名称：接口转换功能
-    备注：
+注：
 */
 <template>
   <div class="hook-wrap">
@@ -26,7 +22,7 @@ import edit from './components/edit/edit.vue'
 import list from './components/list/list.vue'
 
 const activeName = ref('add');
-const editCodeInfo: Ref<ApidocCodeInfo | null> = ref(null)
+const editCodeInfo: Ref<ApidocCodeInfo | undefined> = ref(undefined)
 //初始化
 onMounted(() => {
   event.on('apidoc/hook/jumpToEdit', (payload) => {

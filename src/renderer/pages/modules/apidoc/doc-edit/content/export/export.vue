@@ -6,7 +6,7 @@
 */
 <template>
   <div class="doc-export">
-    <s-fieldset :title="t('导出类型')">
+    <SFieldset :title="t('导出类型')">
       <div class="download-wrap">
         <div class="item" :class="{active: selectedType === 'html'}" @click="selectedType = 'html'">
           <svg class="svg-icon" aria-hidden="true">
@@ -30,16 +30,16 @@
           <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
           <div class="mt-1">{{ t('JSON文档') }}</div>
         </div>
-        <div class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
+        <div v-if="0" class="item" :class="{active: selectedType === 'otherProject'}" @click="selectedType = 'otherProject'">
           <svg class="svg-icon" aria-hidden="true">
             <use xlink:href="#icondaochu1"></use>
           </svg>
           <div class="mt-1">{{ t("导出到其他项目") }}</div>
         </div>
       </div>
-    </s-fieldset>
-    <s-fieldset v-if="selectedType !== 'otherProject'" :title="t('额外配置')">
-      <s-config ref="config" label="选择导出" :description="t('开启后可以自由选择需要导出的文档')">
+    </SFieldset>
+    <SFieldset v-if="selectedType !== 'otherProject'" :title="t('额外配置')">
+      <SConfig ref="config" label="选择导出" :description="t('开启后可以自由选择需要导出的文档')">
         <template #default="prop">
           <div v-if="prop.enabled" class="doc-nav">
             <div>
@@ -72,14 +72,14 @@
                       <span v-if="scope.data.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
                     </template>
                     <div class="node-label-wrap">
-                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                      <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></SEmphasize>
                     </div>
                   </template>
                   <!-- 文件夹渲染 -->
                   <template v-if="scope.data.isFolder">
                     <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
                     <div class="node-label-wrap">
-                      <s-emphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></s-emphasize>
+                      <SEmphasize class="node-top" :title="scope.data.name" :value="scope.data.name"></SEmphasize>
                     </div>
                   </template>
                 </div>
@@ -87,32 +87,54 @@
             </el-tree>
           </div>
         </template>
-      </s-config>
+      </SConfig>
       <div class="d-flex j-center mt-2">
         <el-button :loading="loading" type="primary" @click="handleExport">{{ t("确定导出") }}</el-button>
       </div>
-    </s-fieldset>
-    <s-fork v-else></s-fork>
+    </SFieldset>
+    <!-- todo -->
+    <!-- <s-fork v-else></s-fork> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css';
 import { ref, Ref, computed } from 'vue'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import { ApidocBanner } from '@src/types/global';
-import { store } from '@/store/index'
 import { axios } from '@/api/api'
 import { router } from '@/router/index'
 import { t } from 'i18next'
-import sFork from './fork/fork.vue'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocBanner } from '@/store/apidoc/banner';
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SConfig from '@/components/common/config/g-config.vue'
+import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocBannerStore = useApidocBanner();
 //可导出数据类型
 const selectedType: Ref<'html' | 'pdf' | 'word' | 'moyu' | 'otherProject'> = ref('html')
 //项目基本信息
-const projectInfo = computed(() => store.state['apidoc/baseInfo']);
+const projectInfo = computed(() => {
+  return {
+    _id: apidocBaseInfoStore._id,
+    layout: apidocBaseInfoStore.layout,
+    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
+    webProxy: apidocBaseInfoStore.webProxy,
+    mode: apidocBaseInfoStore.mode,
+    variables: apidocBaseInfoStore.variables,
+    tempVariables: apidocBaseInfoStore.tempVariables,
+    commonHeaders: apidocBaseInfoStore.commonHeaders,
+    rules: apidocBaseInfoStore.rules,
+    mindParams: apidocBaseInfoStore.mindParams,
+    hosts: apidocBaseInfoStore.hosts,
+    globalCookies: apidocBaseInfoStore.globalCookies,
+  }
+});
 //菜单数据
-const bannerData = computed(() => store.state['apidoc/banner'].banner)
+const bannerData = computed(() => apidocBannerStore.banner)
 //当前选中节点
 const allCheckedNodes: Ref<ApidocBanner[]> = ref([]);
 //节点选中

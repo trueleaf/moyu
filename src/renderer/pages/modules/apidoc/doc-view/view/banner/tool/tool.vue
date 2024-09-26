@@ -33,11 +33,11 @@
                 <span>：</span>
               </div>
               <el-radio-group v-model="dateRange">
-                <el-radio label="1d">{{ t("今天") }}</el-radio>
-                <el-radio label="2d">{{ t("近两天") }}</el-radio>
-                <el-radio label="3d">{{ t("近三天") }}</el-radio>
-                <el-radio label="7d">{{ t("近七天") }}</el-radio>
-                <el-radio :label="t('自定义')">{{ t("自定义") }}</el-radio>
+                <el-radio value="1d">{{ t("今天") }}</el-radio>
+                <el-radio value="2d">{{ t("近两天") }}</el-radio>
+                <el-radio value="3d">{{ t("近三天") }}</el-radio>
+                <el-radio value="7d">{{ t("近七天") }}</el-radio>
+                <el-radio :value="t('自定义')">{{ t("自定义") }}</el-radio>
                 <el-date-picker
                   v-if="dateRange === t('自定义')"
                   v-model="customDateRange"
@@ -59,10 +59,10 @@
                 <span>：</span>
               </div>
               <el-radio-group v-model="formInfo.recentNum">
-                <el-radio :label="2">{{ t("2条") }}</el-radio>
-                <el-radio :label="5">{{ t("5条") }}</el-radio>
-                <el-radio :label="10">{{ t("10条") }}</el-radio>
-                <el-radio :label="15">{{ t("15条") }}</el-radio>
+                <el-radio :value="2">{{ t("2条") }}</el-radio>
+                <el-radio :value="5">{{ t("5条") }}</el-radio>
+                <el-radio :value="10">{{ t("10条") }}</el-radio>
+                <el-radio :value="15">{{ t("15条") }}</el-radio>
                 <el-button link type="primary" text @click="handleClearRecentNum">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>

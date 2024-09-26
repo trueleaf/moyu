@@ -18,7 +18,6 @@ import SDialog from '@/components/common/dialog/g-dialog.vue'
 import { Response, ApidocBanner } from '@src/types/global'
 import { t } from 'i18next'
 import { ref } from 'vue';
-import { router } from '@/router';
 import { axios } from '@/api/api';
 import { useRoute } from 'vue-router';
 

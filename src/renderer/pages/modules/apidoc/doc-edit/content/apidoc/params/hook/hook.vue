@@ -1,11 +1,5 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2022-2-1 22:02
-    模块名称：代码生成popover
-    备注：
-*/
 <template>
-  <s-loading :loading="loading">
+  <SLoading :loading="loading">
     <div class="hook-popover">
       <div class="header">
         <el-button link type="primary" text @click="handleJumpToHook">管理</el-button>
@@ -17,7 +11,7 @@
       </div>
       <div v-if="codeList.length === 0" class="d-flex a-center j-center gray-400 mt-2">暂无数据</div>
     </div>
-  </s-loading>
+  </SLoading>
 </template>
 
 <script lang="ts" setup>
@@ -34,12 +28,15 @@ import {
   copy,
 } from '@/helper';
 import { axios } from '@/api/api';
-// import { Close } from "@element-plus/icons-vue"
 import { router } from '@/router';
 import type { ApidocCodeInfo, Response } from '@src/types/global'
-import { store } from '@/store';
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css';
 import { t } from 'i18next';
+import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidocTas } from '@/store/apidoc/tabs';
+import SLoading from '@/components/common/loading/g-loading.vue'
+
 
 type CodeInfo = Omit<ApidocCodeInfo, 'updatedAt'>;
 const emit = defineEmits(['close']);
@@ -47,10 +44,12 @@ const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //加载效果
 const codeList: Ref<CodeInfo[]> = ref([]); //代码列表
 const worker = new Worker('/sandbox/hook/worker.js');
+const apidocStore = useApidoc();
+const apidocTabsStore = useApidocTas()
 
 //选择代码模板
 const handleSelectCode = (codeInfo: CodeInfo) => {
-  const apidoc = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc))
+  const apidoc = JSON.parse(JSON.stringify(apidocStore.apidoc))
   worker.postMessage({
     type: 'init',
     value: {
@@ -84,7 +83,7 @@ const handleSelectCode = (codeInfo: CodeInfo) => {
 }
 //跳转到代码管理界面
 const handleJumpToHook = () => {
-  store.commit('apidoc/tabs/addTab', {
+  apidocTabsStore.addTab({
     _id: 'hook',
     projectId,
     tabType: 'hook',
@@ -116,28 +115,31 @@ onMounted(() => {
 
 <style lang="scss">
 .hook-popover {
-    position: relative;
-    .header {
-        display: flex;
-        justify-content: flex-end;
-        border-bottom: 1px dashed $gray-400;
-        margin-top: size(-10);
-        // .close {
-        //     @include rt-close;
-        //     top: size(-5);
-        //     right: size(-5);
-        // }
+  position: relative;
+
+  .header {
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: 1px dashed $gray-400;
+    margin-top: size(-10);
+    // .close {
+    //     @include rt-close;
+    //     top: size(-5);
+    //     right: size(-5);
+    // }
+  }
+
+  .item {
+    padding: size(5) size(5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+
+    &:hover {
+      color: $white;
+      background-color: $theme-color;
     }
-    .item {
-        padding: size(5) size(5);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        cursor: pointer;
-        &:hover {
-            color: $white;
-            background-color: $theme-color;
-        }
-    }
+  }
 }
 </style>

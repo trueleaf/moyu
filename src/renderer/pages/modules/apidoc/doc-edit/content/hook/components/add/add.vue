@@ -1,43 +1,43 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2022-02-02 10:49
-    模块名称：新增脚本信息
-    备注：
-*/
 <template>
   <div class="hook-add-wrap d-flex">
-    <s-fieldset title="代码编写" class="w-50">
-      <s-editor v-model="code" class="editor" @change="handleChangeCode"></s-editor>
+    <SFieldset title="代码编写" class="w-50">
+      <SEditor v-model="code" class="editor" @change="handleChangeCode"></SEditor>
       <div class="operation">
         <el-button type="primary" class="mb-2" @click="executeCode">执行代码</el-button>
         <el-button type="primary" class="mb-2" @click="dialogVisible = true">保存代码</el-button>
         <el-button @click="handleResetCode">重置代码</el-button>
       </div>
-    </s-fieldset>
-    <s-fieldset title="结果值" class="w-50">
+    </SFieldset>
+    <SFieldset title="结果值" class="w-50">
       <div class="json-view-wrap">
-        <s-json-editor :model-value="result" read-only></s-json-editor>
+        <SJsonEditor :model-value="result" read-only></SJsonEditor>
       </div>
-    </s-fieldset>
-    <s-dialog v-model="dialogVisible" title="保存代码">
-      <s-form ref="form">
-        <s-form-item label="脚本名称" prop="codeName" one-line required></s-form-item>
-        <s-form-item label="备注" prop="remark" one-line></s-form-item>
-      </s-form>
+    </SFieldset>
+    <SDialog v-model="dialogVisible" title="保存代码">
+      <SForm ref="form">
+        <SFormItem label="脚本名称" prop="codeName" one-line required></SFormItem>
+        <SFormItem label="备注" prop="remark" one-line></SFormItem>
+      </SForm>
       <template #footer>
         <div>
           <el-button :loading="loading" type="primary" @click="handleSaveCode">确定</el-button>
           <el-button type="warning" @click="dialogVisible = false">取消</el-button>
         </div>
       </template>
-    </s-dialog>
+    </SDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus';
-import { store } from '@/store';
+import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css';
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+
 import {
   apidocFormatUrl,
   apidocFormatQueryParams,
@@ -52,7 +52,8 @@ import {
 import { axios } from '@/api/api';
 import { router } from '@/router';
 import { apidocCache } from '@/cache/apidoc';
-import sEditor from '../editor/editor.vue'
+import SEditor from '../editor/editor.vue'
+import { useApidoc } from '@/store/apidoc/apidoc';
 
 type CodeInfo = {
   codeName: string,
@@ -61,6 +62,7 @@ type CodeInfo = {
 
 const worker = new Worker('/sandbox/hook/worker.js');
 const projectId = router.currentRoute.value.query.id as string; //项目id
+const apidocStore = useApidoc()
 const defaultCode = `/**
  * 请勿修改函数名,返回值即为处理后结果值
  * 编辑器支持智能提示
@@ -82,20 +84,19 @@ const handleChangeCode = () => {
 }
 //执行代码
 const executeCode = () => {
-  const { apidoc } = store.state['apidoc/apidoc']
   worker.postMessage({
     type: 'init',
     value: {
-      raw: JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc)),
-      url: apidocFormatUrl(apidoc),
-      queryParams: apidocFormatQueryParams(apidoc),
-      pathParams: apidocFormatPathParams(apidoc),
-      jsonParams: apidocFormatJsonBodyParams(apidoc),
-      formdataParams: apidocFormatFormdataParams(apidoc),
-      urlencodedParams: apidocFormatUrlencodedParams(apidoc),
-      headers: apidocFormatHeaderParams(apidoc),
-      method: apidoc.item.method,
-      response: apidocFormatResponseParams(apidoc),
+      raw: JSON.parse(JSON.stringify(apidocStore.apidoc)),
+      url: apidocFormatUrl(apidocStore.apidoc),
+      queryParams: apidocFormatQueryParams(apidocStore.apidoc),
+      pathParams: apidocFormatPathParams(apidocStore.apidoc),
+      jsonParams: apidocFormatJsonBodyParams(apidocStore.apidoc),
+      formdataParams: apidocFormatFormdataParams(apidocStore.apidoc),
+      urlencodedParams: apidocFormatUrlencodedParams(apidocStore.apidoc),
+      headers: apidocFormatHeaderParams(apidocStore.apidoc),
+      method: apidocStore.apidoc.item.method,
+      response: apidocFormatResponseParams(apidocStore.apidoc),
     },
   });
   worker.postMessage({
@@ -149,25 +150,29 @@ onMounted(() => {
 
 <style lang="scss">
 .hook-add-wrap {
-    .s-fieldset > .content {
-        overflow-y: visible;
+  .SFieldset>.content {
+    overflow-y: visible;
+  }
+
+  .editor {
+    height: calc(100vh - #{size(240)});
+  }
+
+  .operation {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+
+    .el-button+.el-button {
+      margin-left: 0;
     }
-    .editor {
-        height: calc(100vh - #{size(240)});
-    }
-    .operation {
-        position: absolute;
-        right: 0;
-        top: 50%;
-        display: flex;
-        flex-direction: column;
-        .el-button+.el-button {
-            margin-left: 0;
-        }
-    }
-    .json-view-wrap {
-        height: calc(100vh - #{size(240)});
-        // overflow-y: auto;
-    }
+  }
+
+  .json-view-wrap {
+    height: calc(100vh - #{size(240)});
+    // overflow-y: auto;
+  }
 }
 </style>

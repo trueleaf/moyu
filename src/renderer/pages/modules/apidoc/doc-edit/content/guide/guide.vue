@@ -1,13 +1,8 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-15 16:28
-    模块名称：引导界面
-    备注：
-*/
+
 <template>
   <div class="guide">
     <div class="wrap">
-      <img :src="require('@/assets/imgs/logo.png')" width="150" height="150" alt="logo" class="logo">
+      <img :src="logoUrl" width="150" height="150" alt="logo" class="logo">
       <h2>{{ t("当前版本") }}{{ config.localization.version }}</h2>
       <div class="d-flex a-center f-base j-center">
         <div class="d-flex a-center mr-5">
@@ -25,14 +20,17 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { t } from 'i18next'
 import { ApidocBanner } from '@src/types/global'
-import { store } from '@/store/index'
 import { forEachForest } from '@/helper'
 import { config } from '@/../config/config'
+import { useApidocBanner } from '@/store/apidoc/banner'
 
+const apidocBannerStore = useApidocBanner()
+const logoUrl = new URL('@/assets/imgs/logo.png', import.meta.url).href
 //所有节点
 const allNodes = computed(() => {
-  const allBanner = store.state['apidoc/banner'].banner;
+  const allBanner = apidocBannerStore.banner;
   const docs: ApidocBanner[] = [];
   forEachForest(allBanner, (v) => {
     const data = {
@@ -63,7 +61,6 @@ const docsOfToday = computed(() => {
   })
   return result;
 })
-
 </script>
 
 <style lang="scss">

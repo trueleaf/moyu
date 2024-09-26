@@ -1,13 +1,7 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-10-11 22:26
-    模块名称：在线链接
-    备注：
-*/
 <template>
   <div class="online-link">
     <div class="w-70 m-auto">
-      <s-fieldset>
+      <SFieldset>
         <template #title>
           <span>{{ t("在线链接") }}</span>
           <span class="orange f-sm ml-2 text-normal cursor-pointer d-inline-flex a-center" @click="dialogVisible = true">
@@ -17,7 +11,7 @@
             <span>{{ t("生成链接") }}</span>
           </span>
         </template>
-        <s-table ref="table" url="/api/project/export/online_list" :params="{ projectId }" plain>
+        <STable ref="table" url="/api/project/export/online_list" :params="{ projectId }" plain>
           <el-table-column prop="shareName" :label="t('链接名称')" align="center"></el-table-column>
           <el-table-column prop="projectName" :label="t('项目名称')" align="center"></el-table-column>
           <el-table-column :label="t('过期截至')" align="center">
@@ -32,26 +26,27 @@
               <el-button link type="primary" text @click="handleDeleteItem(scope.row.projectId, scope.row._id)">{{ t("删除") }}</el-button>
             </template>
           </el-table-column>
-        </s-table>
-      </s-fieldset>
+        </STable>
+      </SFieldset>
     </div>
-    <s-add-dialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></s-add-dialog>
-    <s-edit-dialog v-if="dialogVisible2 && editData" v-model="dialogVisible2" :data="editData" @success="handleEditSuccess"></s-edit-dialog>
+    <SAddDialog v-if="dialogVisible" v-model="dialogVisible" @success="handleAddSuccess"></SAddDialog>
+    <SEditDialog v-if="dialogVisible2 && editData" v-model="dialogVisible2" :data="editData" @success="handleEditSuccess"></SEditDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref } from 'vue'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import STable from '@/components/common/table/g-table.vue'
 import 'element-plus/es/components/message-box/style/css';
 import { ElMessageBox } from 'element-plus'
 import { axios } from '@/api/api'
-// import config from "@/../config/config"
 import { CirclePlus } from '@element-plus/icons-vue'
 import { router } from '@/router'
-import { store } from '@/store/index'
 import { t } from 'i18next'
-import sAddDialog from './dialog/add.vue'
-import sEditDialog from './dialog/edit.vue'
+import SAddDialog from './dialog/add.vue'
+import SEditDialog from './dialog/edit.vue'
+import { usePermissionStore } from '@/store/permission';
 
 type LinkInfo = {
   expire: number,
@@ -68,10 +63,11 @@ const table: Ref<{ getData: () => void } | null> = ref(null); //table实例
 const editData: Ref<LinkInfo | null> = ref(null);
 const dialogVisible = ref(false); //是否显示弹窗
 const dialogVisible2 = ref(false); //编辑弹窗
+const permissionStore = usePermissionStore()
 
 //生成链接和密码
 const generateUrlAndPassword = (linkInfo: LinkInfo) => {
-  const url = `${store.state.permission.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
+  const url = `${permissionStore.globalConfig.shareUrl}/#/?share_id=${linkInfo.shareId}&id=${projectId}`;
   return `
     ${t('链接')}：${url}   
     ${t('密码')}：${linkInfo.password || `${t('不需要密码')}`}

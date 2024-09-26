@@ -1,70 +1,69 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-10 22:44
-    模块名称：预览界面
-    备注：
-*/
 <template>
-  <s-loading :loading="loading" class="doc-detail">
+  <SLoading :loading="loading" class="doc-detail">
     <el-icon :size="18" class="close" @click="handleClose">
       <Close />
     </el-icon>
     <div class="params-view">
-      <s-fieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
-        <s-label-value label="请求方式：" class="w-50">
+      <SFieldset v-if="apidocInfo?.item.url" :title="t('基本信息')">
+        <SLableValue label="请求方式：" class="w-50">
           <template v-for="(req) in validRequestMethods">
-            <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
+            <span v-if="apidocInfo?.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="label"
+              :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
           </template>
-        </s-label-value>
-        <s-label-value label="请求地址：" class="w-50 mt-2">
+        </SLableValue>
+        <SLableValue label="请求地址：" class="w-50 mt-2">
           <span class="text-ellipsis">{{ apidocInfo?.item.url.path }}</span>
-        </s-label-value>
-        <s-label-value label="接口名称：" class="w-50">
+        </SLableValue>
+        <SLableValue label="接口名称：" class="w-50">
           <div>{{ apidocInfo?.info.name }}</div>
-        </s-label-value>
+        </SLableValue>
         <div v-if="apidocInfo" class="base-info">
-          <s-label-value label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-50">
+          <SLableValue label="维护人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
+            class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
-          </s-label-value>
-          <s-label-value label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-50">
+          </SLableValue>
+          <SLableValue label="创建人员：" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto"
+            class="w-50">
             <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
-          </s-label-value>
-          <s-label-value label="更新日期：" :title="$helper.formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
-            <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.updatedAt) }}</span>
-          </s-label-value>
-          <s-label-value label="创建日期：" :title="$helper.formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
-            <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.createdAt) }}</span>
-          </s-label-value>
+          </SLableValue>
+          <SLableValue label="更新日期：" :title="formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
+            <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
+          </SLableValue>
+          <SLableValue label="创建日期：" :title="formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
+            <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
+          </SLableValue>
         </div>
-      </s-fieldset>
-      <s-fieldset v-if="!apidocInfo?.isFolder" :title="t('请求参数')" class="mb-5">
+      </SFieldset>
+      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('请求参数')" class="mb-5">
         <template v-if="hasQueryParams">
           <div class="title">{{ t("Query参数") }}</div>
-          <s-params-view :data="apidocInfo?.item.queryParams" plain class="mb-3"></s-params-view>
+          <SParamsView :data="apidocInfo?.item.queryParams" plain class="mb-3"></SParamsView>
         </template>
         <template v-if="hasPathsParams">
           <div class="title">{{ t("Path参数") }}</div>
-          <s-params-view :data="apidocInfo?.item.paths" plain class="mb-3"></s-params-view>
+          <SParamsView :data="apidocInfo?.item.paths" plain class="mb-3"></SParamsView>
         </template>
         <template v-if="hasJsonBodyParams">
           <div class="title">{{ t("Body参数") }}(application/json)</div>
-          <s-json-editor :value="apidocInfo?.item.requestBody.rawJson" read-only></s-json-editor>
+          <SJsonEditor :value="apidocInfo?.item.requestBody.rawJson" read-only></SJsonEditor>
         </template>
         <template v-if="hasFormDataParams">
           <div class="title">{{ t("Body参数") }}(multipart/formdata)</div>
-          <s-params-view :data="apidocInfo?.item.requestBody.formdata" plain></s-params-view>
+          <SParamsView :data="apidocInfo?.item.requestBody.formdata" plain></SParamsView>
         </template>
         <template v-if="hasUrlEncodedParams">
           <div class="title">{{ t("Body参数") }}(x-www-form-urlencoded)</div>
-          <s-params-view :data="apidocInfo?.item.requestBody.urlencoded" plain></s-params-view>
+          <SParamsView :data="apidocInfo?.item.requestBody.urlencoded" plain></SParamsView>
         </template>
         <template v-if="hasRawParams">
           <div class="title">{{ t("Body参数") }}({{ apidocInfo?.item.requestBody.raw.dataType }})</div>
           <pre class="pre">{{ apidocInfo?.item.requestBody.raw.data }}</pre>
         </template>
-        <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">{{ t("暂无数据") }}</div>
-      </s-fieldset>
-      <s-fieldset v-if="!apidocInfo?.isFolder" :title="t('返回参数')">
+        <div
+          v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">
+          {{ t("暂无数据") }}</div>
+      </SFieldset>
+      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('返回参数')">
         <div v-for="(item, index) in apidocInfo?.item.responseParams" :key="index" class="title">
           <div class="mb-2">
             <span>{{ t("名称") }}：</span>
@@ -76,20 +75,22 @@
             <span>{{ t("返回格式") }}：</span>
             <span>{{ item.value.dataType }}</span>
           </div>
-          <s-raw-editorw v-if="item.value.dataType === 'application/json'" :data="item.value.strJson" readonly></s-raw-editorw>
-          <div v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'" class="h-150px">
-            <s-raw-editor :data="item.value.strJson" :type="item.value.dataType" readonly></s-raw-editor>
+          <SRawEditor v-if="item.value.dataType === 'application/json'" :data="item.value.strJson" readonly></SRawEditor>
+          <div
+            v-if="item.value.dataType === 'application/xml' || item.value.dataType === 'text/plain' || item.value.dataType === 'text/html'"
+            class="h-150px">
+            <SRawEditor :data="item.value.strJson" :type="item.value.dataType" readonly></SRawEditor>
           </div>
         </div>
-      </s-fieldset>
-      <s-fieldset v-if="!apidocInfo?.isFolder" :title="t('请求头')">
+      </SFieldset>
+      <SFieldset v-if="!apidocInfo?.isFolder" :title="t('请求头')">
         <template v-if="hasHeaders">
-          <s-params-view :data="apidocInfo?.item.headers" plain class="mb-3"></s-params-view>
+          <SParamsView :data="apidocInfo?.item.headers" plain class="mb-3"></SParamsView>
         </template>
         <div v-else>{{ t("暂无数据") }}</div>
-      </s-fieldset>
+      </SFieldset>
     </div>
-  </s-loading>
+  </SLoading>
 </template>
 
 <script lang="ts" setup>
@@ -98,7 +99,15 @@ import { Close } from '@element-plus/icons-vue'
 import { ApidocDetail, Response } from '@src/types/global';
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
-import { store } from '@/store/index'
+import { t } from 'i18next'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import SLableValue from '@/components/common/label-value/g-label-value.vue'
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SParamsView from '@/components/apidoc/params-view/g-params-view.vue'
+import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import { formatDate } from '@/helper'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 const emit = defineEmits(['close'])
 const props = defineProps({
@@ -107,6 +116,8 @@ const props = defineProps({
     default: ''
   },
 });
+
+const apidocBaseInfoStore = useApidocBaseInfo()
 /*
 |--------------------------------------------------------------------------
 | 获取文档详情
@@ -196,7 +207,7 @@ const hasHeaders = computed(() => {
   const { headers } = docDetail.value.item;
   return headers.filter(p => p.select).some((data) => data.key);
 })
-const validRequestMethods = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods)
+const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods)
 
 /*
 |--------------------------------------------------------------------------
@@ -213,24 +224,28 @@ const handleClose = () => {
 
 <style lang="scss" scoped>
 .doc-detail {
-    width: size(800);
-    overflow: hidden;
-    position: relative;
-    .params-view {
-        max-height: 65vh;
-        overflow-y: auto;
-        padding: 0 size(10);
-        margin-top: size(30);
-        .copy-json {
-            cursor: pointer;
-            &:hover {
-                color: lighten($gray-300, 20%);
-            }
-        }
+  width: size(800);
+  overflow: hidden;
+  position: relative;
+
+  .params-view {
+    max-height: 65vh;
+    overflow-y: auto;
+    padding: 0 size(10);
+    margin-top: size(30);
+
+    .copy-json {
+      cursor: pointer;
+
+      &:hover {
+        color: lighten($gray-300, 20%);
+      }
     }
-    .close {
-        @include rt-close;
-        font-size: fz(22);
-    }
+  }
+
+  .close {
+    @include rt-close;
+    font-size: fz(22);
+  }
 }
 </style>

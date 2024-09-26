@@ -1,19 +1,18 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-12 12:27
-    模块名称：monaco-editor
-    备注：
-*/
 <template>
   <div ref="editor" class="editor"></div>
 </template>
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+
 
 const props = defineProps({
   modelValue: {
@@ -35,6 +34,23 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 onMounted(() => {
+  self.MonacoEnvironment = {
+    getWorker(_: string, label: string) {
+      if (label === 'json') {
+        return new jsonWorker()
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new cssWorker()
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new htmlWorker()
+      }
+      if (['typescript', 'javascript'].includes(label)) {
+        return new tsWorker()
+      }
+      return new EditorWorker()
+    },
+  }
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
   monacoInstance = monaco.editor.create(editor.value as HTMLElement, {
     value: props.modelValue,
@@ -73,7 +89,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .editor {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 </style>

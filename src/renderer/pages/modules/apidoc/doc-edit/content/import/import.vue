@@ -1,22 +1,16 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-09-28 22:00
-    模块名称：导入文档
-    备注：
+创建者：shuxiaokai
+创建时间：2021-09-28 22:00
+模块名称：导入文档
+备注：
 */
 <template>
   <div class="doc-import">
     <!-- 文件选择 -->
-    <!-- <s-fieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
-    <s-fieldset :title="t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
-      <el-upload
-        class="w-100"
-        drag
-        action=""
-        :show-file-list="false"
-        :before-upload="handleBeforeUpload"
-        :http-request="requestHook"
-      >
+    <!-- <SFieldset title="支持：Yapi、Postman、摸鱼文档、Swagger/OpenApi 3.0"> -->
+    <SFieldset :title="t('支持：摸鱼文档、Swagger/OpenApi 3.0/Postman2.1')">
+      <el-upload class="w-100" drag action="" :show-file-list="false" :before-upload="handleBeforeUpload"
+        :http-request="requestHook">
         <el-icon :size="20">
           <Upload />
         </el-icon>
@@ -31,83 +25,65 @@
           </div>
         </template>
       </el-upload>
-    </s-fieldset>
+    </SFieldset>
     <!-- 导入数据预览 -->
-    <s-fieldset :title="t('导入数据预览')">
+    <SFieldset :title="t('导入数据预览')">
       <div>
-        <s-label-value :label="`${t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) => !v.isFolder).length }}</s-label-value>
-        <s-label-value :label="`${t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) => v.isFolder).length }}</s-label-value>
+        <SLableValue :label="`${t('文档数')}：`" label-width="auto" class="mr-4">{{ formInfo.moyuData.docs.filter((v) =>
+          !v.isFolder).length }}</SLableValue>
+        <SLableValue :label="`${t('文件夹数')}：`" label-width="auto">{{ formInfo.moyuData.docs.filter((v) =>
+          v.isFolder).length
+          }}</SLableValue>
       </div>
-      <el-tree
-        ref="docTree"
-        :data="previewNavTreeData"
-        node-key="_id"
-        :expand-on-click-node="true"
-      >
+      <el-tree ref="docTree" :data="previewNavTreeData" node-key="_id" :expand-on-click-node="true">
         <template #default="scope">
-          <div
-            class="custom-tree-node"
-            tabindex="0"
-          >
+          <div class="custom-tree-node" tabindex="0">
             <!-- file渲染 -->
             <template v-if="!scope.data.isFolder">
               <template v-for="(req) in projectInfo.rules.requestMethods">
-                <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name" class="file-icon" :style="{color: req.iconColor}">{{ req.name }}</span>
+                <span v-if="scope.data.item.method.toLowerCase() === req.value.toLowerCase()" :key="req.name"
+                  class="file-icon" :style="{ color: req.iconColor }">{{ req.name }}</span>
               </template>
               <div class="node-label-wrap">
-                <s-emphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></s-emphasize>
+                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></SEmphasize>
               </div>
             </template>
             <!-- 文件夹渲染 -->
             <template v-if="scope.data.isFolder">
               <i class="iconfont folder-icon iconweibiaoti-_huabanfuben"></i>
               <div class="node-label-wrap">
-                <s-emphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></s-emphasize>
+                <SEmphasize class="node-top" :title="scope.data.info.name" :value="scope.data.info.name"></SEmphasize>
               </div>
             </template>
           </div>
         </template>
       </el-tree>
-    </s-fieldset>
+    </SFieldset>
     <!-- 额外配置信息 -->
-    <s-fieldset v-if="!importAsProject" :title="t('额外配置')">
+    <SFieldset v-if="!importAsProject" :title="t('额外配置')">
       <div>
-        <s-config
-          v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'"
-          :has-check="false"
-          :label="t('文件夹命名方式')"
-          :description="t('none代表不存在文件夹，所有节点扁平放置')"
-        >
+        <SConfig v-if="formInfo.type === 'openapi' || formInfo.type === 'swagger'" :has-check="false"
+          :label="t('文件夹命名方式')" :description="t('none代表不存在文件夹，所有节点扁平放置')">
           <el-radio-group v-model="openapiFolderNamedType" @change="handleChangeNamedType">
-            <el-radio label="tag">Tag</el-radio>
-            <el-radio label="url">Url</el-radio>
-            <el-radio label="none">none</el-radio>
+            <el-radio value="tag">Tag</el-radio>
+            <el-radio value="url">Url</el-radio>
+            <el-radio value="none">none</el-radio>
           </el-radio-group>
-        </s-config>
-        <s-config :has-check="false" label="导入方式" :description="t('请谨慎选择导入方式')">
+        </SConfig>
+        <SConfig :has-check="false" label="导入方式" :description="t('请谨慎选择导入方式')">
           <el-radio-group v-model="formInfo.cover" @change="handleChangeIsCover">
-            <el-radio :label="false">{{ t("追加方式") }}</el-radio>
-            <el-radio :label="true">{{ t("覆盖方式") }}</el-radio>
+            <el-radio :value="false">{{ t("追加方式") }}</el-radio>
+            <el-radio :value="true">{{ t("覆盖方式") }}</el-radio>
           </el-radio-group>
-        </s-config>
-        <s-config :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
+        </SConfig>
+        <SConfig :label="t('目标目录')" :description="t('选择需要挂载的节点，不选择则默认挂载到根目录')" @change="handleToggleTargetFolder">
           <template #default="prop">
-            <s-loading :loading="loading2">
+            <SLoading :loading="loading2">
               <div v-show="prop.enabled" class="doc-nav">
-                <el-tree
-                  ref="docTree2"
-                  :data="navTreeData"
-                  node-key="_id"
-                  show-checkbox
-                  :expand-on-click-node="true"
-                  :check-strictly="true"
-                  @check="handleCheckChange"
-                >
+                <el-tree ref="docTree2" :data="navTreeData" node-key="_id" show-checkbox :expand-on-click-node="true"
+                  :check-strictly="true" @check="handleCheckChange">
                   <template #default="scope">
-                    <div
-                      class="custom-tree-node"
-                      tabindex="0"
-                    >
+                    <div class="custom-tree-node" tabindex="0">
                       <!-- 文件夹渲染 -->
                       <img :src="require('@/assets/imgs/apidoc/folder.png')" width="16px" height="16px" />
                       <span :title="scope.data.name" class="node-name text-ellipsis ml-1">{{ scope.data.name }}</span>
@@ -115,14 +91,14 @@
                   </template>
                 </el-tree>
               </div>
-            </s-loading>
+            </SLoading>
           </template>
-        </s-config>
+        </SConfig>
       </div>
       <div class="d-flex j-center mt-2">
         <el-button :loading="loading" type="primary" @click="handleSubmit">{{ t("确定导入") }}</el-button>
       </div>
-    </s-fieldset>
+    </SFieldset>
     <!-- <template v-if="importAsProject">
             <el-form ref="form" :model="formInfo" label-width="80px" class="mt-3">
                 <el-form-item label="项目名称">
@@ -137,21 +113,27 @@
 </template>
 
 <script lang="ts" setup>
+import SFieldset from '@/components/common/fieldset/g-fieldset.vue'
+import SLoading from '@/components/common/loading/g-loading.vue'
+import SLableValue from '@/components/common/label-value/g-label-value.vue'
+import SConfig from '@/components/common/config/g-config.vue'
+import SEmphasize from '@/components/common/emphasize/g-emphasize.vue'
 import { ref, Ref, computed } from 'vue'
 import jsyaml from 'js-yaml'
 import type { OpenAPIV3 } from 'openapi-types';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Upload } from '@element-plus/icons-vue'
 import type { ApidocDetail } from '@src/types/global'
-import type { ApidocProjectRules } from '@src/types/store'
 import { config } from '@/../config/config'
-import { store } from '@/store/index';
 import { router } from '@/router/index'
 import { axios } from '@/api/api'
 import { t } from 'i18next'
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
 import OpenApiTranslator from './openapi';
 import PostmanTranslator from './postman';
+import { ApidocProjectRules } from '@src/types/apidoc/base-info'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocBanner } from '@/store/apidoc/banner'
 
 type FormInfo = {
   moyuData: {
@@ -193,6 +175,8 @@ defineProps({
     default: false,
   }
 })
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocBannerStore = useApidocBanner()
 const projectId = router.currentRoute.value.query.id as string;
 //目标树
 const docTree2: Ref<TreeNodeOptions['store'] | null> = ref(null);
@@ -201,7 +185,22 @@ const loading = ref(false);
 //目标节点菜单
 const loading2 = ref(false);
 //项目基本信息
-const projectInfo = computed(() => store.state['apidoc/baseInfo']);
+const projectInfo = computed(() => {
+  return {
+    _id: apidocBaseInfoStore._id,
+    layout: apidocBaseInfoStore.layout,
+    paramsTemplate: apidocBaseInfoStore.paramsTemplate,
+    webProxy: apidocBaseInfoStore.webProxy,
+    mode: apidocBaseInfoStore.mode,
+    variables: apidocBaseInfoStore.variables,
+    tempVariables: apidocBaseInfoStore.tempVariables,
+    commonHeaders: apidocBaseInfoStore.commonHeaders,
+    rules: apidocBaseInfoStore.rules,
+    mindParams: apidocBaseInfoStore.mindParams,
+    hosts: apidocBaseInfoStore.hosts,
+    globalCookies: apidocBaseInfoStore.globalCookies,
+  }
+});
 //openapi文件夹格式
 const openapiFolderNamedType: Ref<'tag' | 'url' | 'none'> = ref('tag');
 const formInfo: Ref<FormInfo> = ref({
@@ -270,8 +269,8 @@ const getImportFileInfo = () => {
     const docsInfo = postmanTranslatorInstance.getDocsInfo();
     importTypeInfo.value.name = 'postman';
     formInfo.value.type = 'postman';
-    formInfo.value.moyuData.docs = (docsInfo as MoyuInfo).docs;
-    formInfo.value.moyuData.hosts = (docsInfo as MoyuInfo).hosts;
+    formInfo.value.moyuData.docs = (docsInfo as any).docs;
+    formInfo.value.moyuData.hosts = (docsInfo as any).hosts;
     // console.log("docs", docs)
   }
   // postmanTranslatorInstance = new PostmanTranslator($route.query.id);
@@ -365,7 +364,7 @@ const handleChangeIsCover = (val: boolean) => {
   }
 }
 //节点选中状态改变时候
-const handleCheckChange = (data: ApidocDetail, { checkedKeys } : { checkedKeys: ApidocDetail[] }) => {
+const handleCheckChange = (data: ApidocDetail, { checkedKeys }: { checkedKeys: ApidocDetail[] }) => {
   docTree2.value?.setCheckedKeys([]);
   if (checkedKeys.length > 0) {
     docTree2.value?.setCheckedKeys([data._id]);
@@ -422,7 +421,7 @@ const handleSubmit = () => {
     };
     console.log(params)
     axios.post('/api/project/import/moyu', params).then(() => {
-      store.dispatch('apidoc/banner/getDocBanner', { projectId })
+      apidocBannerStore.getDocBanner({ projectId });
     }).catch((err) => {
       console.error(err);
     }).finally(() => {
@@ -437,76 +436,88 @@ const handleSubmit = () => {
 
 <style lang="scss">
 .doc-import {
-    overflow-y: auto;
-    height: calc(100vh - #{size(120)});
-    width: 70%;
-    min-width: size(768);
-    margin: 0 auto;
-    .el-upload {
-        width: 100%;
+  overflow-y: auto;
+  height: calc(100vh - #{size(120)});
+  width: 70%;
+  min-width: size(768);
+  margin: 0 auto;
+
+  .el-upload {
+    width: 100%;
+  }
+
+  .el-upload-dragger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-tree-node {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    height: size(30);
+
+    &:hover {
+      .more {
+        display: block;
+      }
     }
-    .el-upload-dragger {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
+
+    &>img {
+      width: size(16);
+      height: size(16);
     }
-    .custom-tree-node {
-        display: flex;
-        align-items: center;
+
+    .file-icon {
+      font-size: fz(14);
+      margin-right: size(5);
+    }
+
+    .folder-icon {
+      color: $yellow;
+      flex: 0 0 auto;
+      width: size(16);
+      height: size(16);
+      margin-right: size(5);
+    }
+
+    .node-label-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+
+      .node-top {
         width: 100%;
         overflow: hidden;
-        height: size(30);
-        &:hover {
-            .more {
-                display: block;
-            }
-        }
-        &>img {
-            width: size(16);
-            height: size(16);
-        }
-        .file-icon {
-            font-size: fz(14);
-            margin-right: size(5);
-        }
-        .folder-icon {
-            color: $yellow;
-            flex: 0 0 auto;
-            width: size(16);
-            height: size(16);
-            margin-right: size(5);
-        }
-        .node-label-wrap {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-            .node-top {
-                width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-            .node-bottom {
-                color: $gray-500;
-                width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-        }
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .node-bottom {
+        color: $gray-500;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
-    .el-tree-node__content {
-        height: size(30);
-        display: flex;
-        align-items: center;
-    }
-    .el-tree-node__content>.el-tree-node__expand-icon {
-        transition: none; //去除所有动画
-        padding-top: 0;
-        padding-bottom: 0;
-        margin-top: -1px;
-    }
+  }
+
+  .el-tree-node__content {
+    height: size(30);
+    display: flex;
+    align-items: center;
+  }
+
+  .el-tree-node__content>.el-tree-node__expand-icon {
+    transition: none; //去除所有动画
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: -1px;
+  }
 }
 </style>

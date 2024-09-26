@@ -17,10 +17,10 @@
           <div class="op-item">
             <div class="label">{{ t("类型") }}：</div>
             <el-checkbox-group v-model="formInfo.type">
-              <el-checkbox label="paths">{{ t("Path参数") }}</el-checkbox>
-              <el-checkbox label="queryParams">{{ t("Query参数") }}</el-checkbox>
-              <el-checkbox label="requestBody">{{ t("Body参数") }}</el-checkbox>
-              <el-checkbox label="responseParams">{{ t("返回参数") }}</el-checkbox>
+              <el-checkbox value="paths">{{ t("Path参数") }}</el-checkbox>
+              <el-checkbox value="queryParams">{{ t("Query参数") }}</el-checkbox>
+              <el-checkbox value="requestBody">{{ t("Body参数") }}</el-checkbox>
+              <el-checkbox value="responseParams">{{ t("返回参数") }}</el-checkbox>
               <el-button link type="primary" text class="ml-5" @click="handleClearType">{{ t("清空") }}</el-button>
             </el-checkbox-group>
           </div>

@@ -23,7 +23,8 @@
 
 <script lang="ts" setup>
 import { onMounted, ref, Ref, computed, watch } from 'vue'
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css';
 import { router } from '@/router'
 import { store } from '@/store/index'
 import { ApidocProperty, Response } from '@src/types/global';

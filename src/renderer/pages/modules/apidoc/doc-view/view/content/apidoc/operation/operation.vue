@@ -11,12 +11,12 @@
       <el-radio-group v-model="host" @change="handleChangeHost">
         <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
           <template #reference>
-            <el-radio :label="mockServer" border>{{ t("Mock服务器") }}</el-radio>
+            <el-radio :value="mockServer" border>{{ t("Mock服务器") }}</el-radio>
           </template>
         </el-popover>
         <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
           <template #reference>
-            <el-radio :label="item.url" border>{{ item.name }}</el-radio>
+            <el-radio :value="item.url" border>{{ item.name }}</el-radio>
           </template>
         </el-popover>
       </el-radio-group>
