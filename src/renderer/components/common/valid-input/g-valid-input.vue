@@ -240,7 +240,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .valid-input {
     height: size(45);
     width: 100%;

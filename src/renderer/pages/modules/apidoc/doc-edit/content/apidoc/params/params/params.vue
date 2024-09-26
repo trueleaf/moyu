@@ -34,7 +34,7 @@ const hasPathParams = computed(() => {
 })
 
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .query-path-params {
   .title {
     margin-left: size(15);

@@ -231,7 +231,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .menu-tree {
     min-height: 70vh;
     .el-tree-node__content {

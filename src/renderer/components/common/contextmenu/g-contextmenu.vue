@@ -69,7 +69,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-contextmenu {
     position: fixed;
     background: $white;

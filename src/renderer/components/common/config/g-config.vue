@@ -65,7 +65,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .config-item {
     padding: size(10) size(20);
     &:hover {

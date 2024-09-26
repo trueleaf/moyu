@@ -65,7 +65,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .client-menus {
     .custom-tree-node {
         @include custom-tree-node;

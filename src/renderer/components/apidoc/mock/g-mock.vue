@@ -212,7 +212,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-mock-select {
     width: size(800);
     height: size(250);

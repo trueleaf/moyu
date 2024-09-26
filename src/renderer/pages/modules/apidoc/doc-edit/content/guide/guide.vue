@@ -63,7 +63,7 @@ const docsOfToday = computed(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .guide {
     height: calc(100vh - #{size(100)});
     position: relative;

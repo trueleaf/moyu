@@ -15,7 +15,7 @@ import apiflow from '../modules/apidoc/doc-edit/content/apiflow/apiflow.vue';
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .container-test {
    width: 80vw;
    height: 80vh;

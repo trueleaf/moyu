@@ -97,7 +97,7 @@ const process = computed(() => store.state['apidoc/response'].process)
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .remote-response-wrap {
     height: calc(100vh - #{size(310)});
     .el-tabs__content {

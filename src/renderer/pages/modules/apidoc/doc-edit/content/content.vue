@@ -9,6 +9,7 @@
     <SHistory v-else-if="currentSelectTab.tabType === 'history'"></SHistory>
     <SConfig v-else-if="currentSelectTab.tabType === 'config'"></SConfig>
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
+    <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
   </keep-alive>
   <!-- 
   <s-params-template v-else-if="currentSelectTab.tabType === 'paramsTemplate'"></s-params-template>
@@ -42,7 +43,7 @@ import SRecycler from './recycler/recycler.vue'
 import SHistory from './history/history.vue'
 import SConfig from './config/config.vue'
 import SHook from './hook/hook.vue'
-// import commonHeader from './common-header/common-header.vue'
+import SCommonHeader from './common-header/common-header.vue'
 // import sPackage from './package/package.vue'
 // import apiflow from './apiflow/apiflow.vue'
 

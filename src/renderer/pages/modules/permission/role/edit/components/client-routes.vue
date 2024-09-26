@@ -108,7 +108,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .client-routes {
     min-height: size(300);
     height: 40vh;

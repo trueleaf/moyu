@@ -40,7 +40,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-fieldset {
     display: block;
     min-height: size(30);

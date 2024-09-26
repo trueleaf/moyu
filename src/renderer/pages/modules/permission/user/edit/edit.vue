@@ -132,7 +132,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // .add-user {
 //     .el-dialog__body {
 //         padding-top: 0;

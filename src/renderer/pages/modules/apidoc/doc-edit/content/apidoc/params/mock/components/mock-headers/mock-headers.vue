@@ -19,6 +19,6 @@ const headers = computed(() => store.state['apidoc/apidoc'].apidoc.mockInfo.resp
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 </style>

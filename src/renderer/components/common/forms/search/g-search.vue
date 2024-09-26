@@ -196,7 +196,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-search {
   .el-form-item {
     margin-bottom: size(10);

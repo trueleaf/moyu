@@ -148,7 +148,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .hook-add-wrap {
   .SFieldset>.content {
     overflow-y: visible;

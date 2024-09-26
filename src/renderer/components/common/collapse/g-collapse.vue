@@ -65,7 +65,7 @@ const toggleCollapse = () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-collaps {
     &>.header {
         cursor: pointer;

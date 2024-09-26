@@ -37,7 +37,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-loading {
   .loading-text {
     position: absolute;

@@ -271,7 +271,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .host-wrap {
     display: flex;
     // overflow-y: auto;

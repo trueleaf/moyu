@@ -62,7 +62,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-contextmenu-item {
     line-height: 1.8em;
     padding: size(5) size(25);

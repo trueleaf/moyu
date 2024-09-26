@@ -67,7 +67,7 @@ const layout = computed(() => store.state['apidoc/baseInfo'].layout)
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .request-info {
     width: 100%;
     word-break: break-all;

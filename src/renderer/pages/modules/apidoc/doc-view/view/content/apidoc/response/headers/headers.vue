@@ -47,7 +47,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header-view {
     width: 100%;
     height: calc(100vh - #{size(370)});

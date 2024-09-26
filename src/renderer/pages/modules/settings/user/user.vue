@@ -181,7 +181,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     .user-setting {
         max-width: size(1440);
         margin: auto;

@@ -51,7 +51,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-card {
     width: 100%;
     border: 1px solid $gray-300;

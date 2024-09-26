@@ -138,6 +138,6 @@ const handleResetPassword = () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 </style>

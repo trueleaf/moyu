@@ -74,7 +74,7 @@ onMounted(() => {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .header-info {
     .value-wrap {
         max-height: size(140);

@@ -90,7 +90,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .left-right {
     height: 100%;
     width: 100%;

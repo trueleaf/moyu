@@ -190,7 +190,7 @@ const handleDeleteManyParams = () => {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-mind-params {
     padding: size(20);
     .value-wrap {

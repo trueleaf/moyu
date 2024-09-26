@@ -57,7 +57,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .s-permission {
     width: 70%;
     margin-top: 20px;

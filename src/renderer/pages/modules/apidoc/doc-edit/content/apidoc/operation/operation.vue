@@ -193,7 +193,7 @@ const fullUrl = computed(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .api-operation {
     position: sticky;
     top: 0;

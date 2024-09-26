@@ -356,7 +356,7 @@ onMounted(() => {
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .response-params {
     .info-wrap {
         display: flex;

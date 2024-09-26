@@ -61,7 +61,7 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .label-value {
     display: inline-flex;
     align-items: center;
