@@ -1,8 +1,9 @@
 import { ref, Ref, computed, ComputedRef, onMounted, onBeforeUnmount } from 'vue'
-import { ApidocProjectParamsTemplate } from '@src/types/store'
 import { router } from '@/router/index'
-import { store } from '@/store/index'
 import { t } from 'i18next'
+import { ApidocProjectParamsTemplate } from '@src/types/apidoc/base-info';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocTas } from '@/store/apidoc/tabs';
 
 type Response = {
   showTemplateIndex: Ref<number>;
@@ -19,9 +20,11 @@ export default function useImportParams(): Response {
   const templateFilterString = ref('');//模板过滤参数
   const paramsTemplatedialogVisible = ref(false); //模板维护弹窗
   const curentOperationIndex = ref(0); //当前操作数据index值
+  const apidocBaseInfoStore = useApidocBaseInfo()
+  const apidocTabsStore = useApidocTas()
   //模板列表
   const jsonTemplateList = computed(() => {
-    const templates = store.state['apidoc/baseInfo'].paramsTemplate;
+    const templates = apidocBaseInfoStore.paramsTemplate;
     const result = templates.filter(template => template.presetParamsType === 'responseParams').filter(template => {
       if (!templateFilterString.value) {
         return true;
@@ -32,7 +35,7 @@ export default function useImportParams(): Response {
   })
   const projectId = router.currentRoute.value.query.id as string;
   const handleOpenTempateTab = () => {
-    store.commit('apidoc/tabs/addTab', {
+    apidocTabsStore.addTab({
       _id: 'paramsTemplate',
       projectId,
       tabType: 'paramsTemplate',
@@ -44,7 +47,7 @@ export default function useImportParams(): Response {
       saved: true,
       fixed: true,
       selected: true,
-    });
+    })
   }
   //打开保存参数模板弹窗
   const handleOpenTemplateDialog = (index: number) => {

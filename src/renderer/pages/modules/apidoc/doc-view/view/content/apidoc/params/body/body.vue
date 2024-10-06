@@ -78,20 +78,6 @@ import { t } from 'i18next'
 |--------------------------------------------------------------------------
 |
 */
-// const importParamsdialogVisible = ref(false);
-//打开导入参数弹窗
-// const handleOpenImportParams = () => {
-//     importParamsdialogVisible.value = true;
-// }
-//处理导入成功回调
-// const handleConvertSuccess = (result: ApidocProperty<ApidocPropertyType>[]) => {
-//     const jsonData = store.state["apidoc/apidoc"].apidoc.item.requestBody.json;
-//     store.commit("apidoc/apidoc/changePropertyValue", {
-//         data: jsonData[0],
-//         field: "children",
-//         value: result[0].children,
-//     });
-// }
 const paramsTemplatedialogVisible = ref(false);
 //打开保存参数模板弹窗
 const handleOpenTemplateDialog = () => {
