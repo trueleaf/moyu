@@ -1,14 +1,8 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-12 12:27
-    模块名称：monaco-editor
-    备注：
-*/
 <template>
   <div ref="preEditor" class="s-monaco-editor"></div>
   <div class="operation-btn">
-    <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
-    <el-button type="primary" text class="format-btn" @click="handleOpenLocalScript">本地包</el-button>
+    <el-button type="primary" text class="format-btn" @click="handleFormat">{{ t('格式化') }}</el-button>
+    <el-button type="primary" text class="format-btn" @click="handleOpenLocalScript">{{ '本地包' }}</el-button>
   </div>
 </template>
 
@@ -17,11 +11,12 @@ import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import beautify from 'js-beautify'
 import { event } from '@/helper/index'
-import { store } from '@/store';
 import { router } from '@/router';
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
+import { t } from 'i18next'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
+import { useApidocTas } from '@/store/apidoc/tabs';
 
 const props = defineProps({
   modelValue: {
@@ -30,7 +25,7 @@ const props = defineProps({
   },
 });
 const emits = defineEmits(['update:modelValue'])
-
+const apidocTabsStore = useApidocTas()
 const preEditor: Ref<HTMLElement | null> = ref(null);
 const projectId = router.currentRoute.value.query.id as string;
 let monacoInstance: monaco.editor.IStandaloneCodeEditor | null = null;
@@ -87,7 +82,7 @@ const handleFormat = () => {
 }
 //打开本地安装包
 const handleOpenLocalScript = () => {
-  store.commit('apidoc/tabs/addTab', {
+  apidocTabsStore.addTab({
     _id: 'package',
     projectId,
     tabType: 'package',
@@ -97,6 +92,7 @@ const handleOpenLocalScript = () => {
     selected: true,
     head: {
       icon: '',
+      color: ""
     },
   })
 }
@@ -104,16 +100,18 @@ const handleOpenLocalScript = () => {
 
 <style lang="scss" scoped>
 .s-monaco-editor {
-    width: 100%;
-    height: 100%;
-    border: 1px solid $gray-300;
+  width: 100%;
+  height: 100%;
+  border: 1px solid $gray-300;
 }
+
 .operation-btn {
-    position: absolute;
-    right: size(20);
-    top: size(0);
-    .el-button+.el-button {
-        margin-left: 0;
-    }
+  position: absolute;
+  right: size(20);
+  top: size(0);
+
+  .el-button+.el-button {
+    margin-left: 0;
+  }
 }
 </style>

@@ -319,6 +319,7 @@ export type ApidocProperty<T extends ApidocPropertyType = ApidocPropertyType> = 
      * 是否选中(选中数据会随请求一起发送)
      */
   select: boolean;
+  children?: ApidocProperty[];
 };
 //联想参数
 export type ApidocMindParam = ApidocProperty & {

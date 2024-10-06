@@ -5,12 +5,12 @@
 |
 */
 import { ref, Ref, computed, WritableComputedRef, ComputedRef } from 'vue'
-// import { handleFormatUrl } from "./url"
-import type { ApidocProjectHost } from '@src/types/store'
-import { useStore } from '@/store/index'
-import { config } from '@/../config/config'
 import { apidocCache } from '@/cache/apidoc'
 import { router } from '@/router/index'
+import { ApidocProjectHost } from '@src/types/apidoc/base-info'
+import { useApidoc } from '@/store/apidoc/apidoc'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocMock } from '@/store/apidoc/mock'
 
 type HostReturn = {
   /**
@@ -36,18 +36,21 @@ type HostReturn = {
 }
 
 export default (): HostReturn => {
-  const store = useStore();
+  const apidocStore = useApidoc()
+  const apidocBaseInfoStore = useApidocBaseInfo()
+  const apidocMockStore = useApidocMock()
+  const ipAddress = window.electronAPI?.ip
   //mock服务器地址
-  const mockServer = computed(() => `http://${globalConfig.renderConfig.mock.ip}:${store.state['apidoc/mock'].mockServerPort}`);
+  const mockServer = computed(() => `http://${ipAddress}:${apidocMockStore.mockServerPort}`);
   //host弹窗
   const hostDialogVisible = ref(false);
   //host值
   const host = computed<string>({
     get() {
-      return store.state['apidoc/apidoc'].apidoc.item.url.host
+      return apidocStore.apidoc.item.url.host
     },
     set(val) {
-      store.commit('apidoc/apidoc/changeApidocHost', val);
+      apidocStore.changeApidocHost(val);
     },
   });
     //改变host的值
@@ -60,7 +63,7 @@ export default (): HostReturn => {
     const projectId = router.currentRoute.value.query.id as string;
     const localData: Ref<ApidocProjectHost[]> = ref([])
     localData.value = apidocCache.getApidocServer(projectId)
-    return store.state['apidoc/baseInfo'].hosts.concat(localData.value)
+    return apidocBaseInfoStore.hosts.concat(localData.value)
   })
   return {
     mockServer,

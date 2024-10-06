@@ -5,10 +5,12 @@
 |
 */
 import { ref, Ref, computed } from 'vue'
-import { useStore } from '@/store/index'
 import { router } from '@/router/index'
 import { sendRequest, stopRequest } from '@/server/request/request'
 import { apidocCache } from '@/cache/apidoc'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidocResponse } from '@/store/apidoc/response'
+import { useApidoc } from '@/store/apidoc/apidoc'
 
 type OperationReturn = {
   /**
@@ -34,12 +36,14 @@ type OperationReturn = {
 }
 
 export default (): OperationReturn => {
-  const store = useStore();
+  const apidocTabsStore = useApidocTas();
+  const apidocStore = useApidoc()
+  const apidocResponseStroe = useApidocResponse()
   const loading2 = ref(false); //保存接口
   const loading3 = ref(false); //刷新接口
   const projectId = router.currentRoute.value.query.id as string;
   const currentSelectTab = computed(() => {
-    const tabs = store.state['apidoc/tabs'].tabs[projectId];
+    const tabs = apidocTabsStore.tabs[projectId];
     const currentTab = tabs?.find((tab) => tab.selected) || null;
     return currentTab;
   });
@@ -54,18 +58,18 @@ export default (): OperationReturn => {
     //刷新文档
   const handleFreshApidoc = () => {
     loading3.value = true;
-    store.commit('apidoc/response/clearResponseInfo')
+    apidocResponseStroe.clearResponseInfo()
     if (currentSelectTab.value) {
       apidocCache.deleteResponse(currentSelectTab.value._id);
     }
     if (currentSelectTab.value?._id.startsWith('local_')) { //通过+按钮新增的空白文档
-      const cpOriginApidoc = store.state['apidoc/apidoc'].originApidoc;
-      store.commit('apidoc/apidoc/changeApidoc', JSON.parse(JSON.stringify(cpOriginApidoc)))
+      const cpOriginApidoc = apidocStore.originApidoc;
+      apidocStore.changeApidoc(JSON.parse(JSON.stringify(cpOriginApidoc)))
       loading3.value = false;
       return;
     }
-    store.dispatch('apidoc/apidoc/getApidocDetail', {
-      id: currentSelectTab.value?._id,
+    apidocStore.getApidocDetail({
+      id: currentSelectTab.value?._id || "",
       projectId,
     }).then(() => {
       loading3.value = false;

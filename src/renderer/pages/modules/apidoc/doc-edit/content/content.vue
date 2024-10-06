@@ -10,6 +10,8 @@
     <SConfig v-else-if="currentSelectTab.tabType === 'config'"></SConfig>
     <SHook v-else-if="currentSelectTab.tabType === 'hook'"></SHook>
     <SCommonHeader v-else-if="currentSelectTab.tabType === 'commonHeader'"></SCommonHeader>
+    <SPackage v-else-if="currentSelectTab.tabType === 'package'"></SPackage>
+    <SApidoc v-else-if="currentSelectTab.tabType === 'doc'"></SApidoc>
   </keep-alive>
   <!-- 
   <s-params-template v-else-if="currentSelectTab.tabType === 'paramsTemplate'"></s-params-template>
@@ -28,11 +30,11 @@
 </template>
 
 <script lang="ts" setup>
-// import apidoc from './apidoc/apidoc.vue';
 import { computed } from 'vue';
-import SGuide from './guide/guide.vue';
-import { useRoute } from 'vue-router';
 import { useApidocTas } from '@/store/apidoc/tabs';
+import { useRoute } from 'vue-router';
+import SApidoc from './apidoc/apidoc.vue';
+import SGuide from './guide/guide.vue';
 import SVariable from './variable/variable.vue';
 // import mindParams from './mind-params/mind-params.vue';
 // import SParamsTemplate from './params-template/params-template.vue';
@@ -44,8 +46,7 @@ import SHistory from './history/history.vue'
 import SConfig from './config/config.vue'
 import SHook from './hook/hook.vue'
 import SCommonHeader from './common-header/common-header.vue'
-// import sPackage from './package/package.vue'
-// import apiflow from './apiflow/apiflow.vue'
+import SPackage from './package/package.vue'
 
 const route = useRoute();
 const apidocTabsStore = useApidocTas()

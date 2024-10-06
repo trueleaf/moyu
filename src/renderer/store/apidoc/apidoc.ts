@@ -341,6 +341,17 @@ export const useApidoc = defineStore('apidoc', () => {
   }
   /*
   |--------------------------------------------------------------------------
+  | 预请求脚本
+  |--------------------------------------------------------------------------
+  */
+  const changePreRequest = (preRequest: string): void => {
+    apidoc.value.preRequest.raw = preRequest;
+  }
+  const changeAfterRequest = (afterRequest: string): void => {
+    apidoc.value.afterRequest.raw = afterRequest;
+  }
+  /*
+  |--------------------------------------------------------------------------
   | 接口调用
   |--------------------------------------------------------------------------
   */
@@ -474,9 +485,7 @@ export const useApidoc = defineStore('apidoc', () => {
       });
     })
   }
-  /**
-   * 保存联想参数
-   */
+  //保存联想参数
   const saveMindParams = (): void => {
     const apidocDetail = apidoc.value;
     //todo
@@ -513,6 +522,76 @@ export const useApidoc = defineStore('apidoc', () => {
         reject(error)
       }
     })
+  }
+  /*
+    |--------------------------------------------------------------------------
+    | mock相关
+    |--------------------------------------------------------------------------
+    |
+  */
+  //改变mock地址
+  const changeMockPath = (path: string): void => {
+    apidoc.value.mockInfo.path = path;
+  }
+  //改变http状态码
+  const changeMockHttpStatusCode = (code: number): void => {
+    apidoc.value.mockInfo.httpStatusCode = code;
+  }
+  //改变返回延时
+  const changeMockResponseDelay = (delay: number): void => {
+    apidoc.value.mockInfo.responseDelay = delay;
+  }
+  //更改返回数据类型
+  const changeMockResponseType = (responseType: ApidocDetail['mockInfo']['responseType']): void => {
+    apidoc.value.mockInfo.responseType = responseType;
+  }
+  //改变json数据
+  const changeMockJsonValue = (jsonData: string): void => {
+    apidoc.value.mockInfo.json = jsonData;
+  }
+  //改变图片类型
+  const changeMockImageType = (type: ApidocDetail['mockInfo']['image']['type']): void => {
+    apidoc.value.mockInfo.image.type = type;
+  }
+  //改变图片宽度
+  const changeMockImageWidth = (width: number): void => {
+    apidoc.value.mockInfo.image.width = width;
+  }
+  //改变图片高度
+  const changeMockImageHeight = (height: number): void => {
+    apidoc.value.mockInfo.image.height = height;
+  }
+  //改变图片size
+  const changeMockImageSize = (size: number): void => {
+    apidoc.value.mockInfo.image.size = size;
+  }
+  //改变文字颜色
+  const changeMockImageColor = (color: string): void => {
+    apidoc.value.mockInfo.image.color = color;
+  }
+  //改变图片背景颜色
+  const changeMockImageBackgroundColor = (backgroundColor: string): void => {
+    apidoc.value.mockInfo.image.backgroundColor = backgroundColor;
+  }
+  //改变图片背景颜色
+  const changeMockImageFontSize = (fontSize: number): void => {
+    apidoc.value.mockInfo.image.fontSize = fontSize;
+  }
+  //改变返回文件类型
+  const changeMockFileType = (type: ApidocDetail['mockInfo']['file']['type']): void => {
+    apidoc.value.mockInfo.file.type = type;
+  }
+  //改变返回text类型数据
+  const changeMockTextValue = (text: string): void => {
+    apidoc.value.mockInfo.text = text;
+  }
+  //改变自定义返回脚本数据
+  const changeCustomResponseScript = (text: string): void => {
+    apidoc.value.mockInfo.customResponseScript = text;
+  }
+  //改变自定义文件数据
+  const changeCustomFile = (filePath: string): void => {
+    apidoc.value.mockInfo.file.filePath = filePath;
   }
   return {
     apidoc,
@@ -557,5 +636,23 @@ export const useApidoc = defineStore('apidoc', () => {
     saveApidoc,
     saveMindParams,
     openSaveDocDialog,
+    changePreRequest,
+    changeAfterRequest,
+    changeMockPath,
+    changeMockHttpStatusCode,
+    changeMockResponseDelay,
+    changeMockResponseType,
+    changeMockJsonValue,
+    changeMockImageType,
+    changeMockImageWidth,
+    changeMockImageHeight,
+    changeMockImageSize,
+    changeMockImageColor,
+    changeMockImageBackgroundColor,
+    changeMockImageFontSize,
+    changeMockFileType,
+    changeMockTextValue,
+    changeCustomResponseScript,
+    changeCustomFile
   }
 })

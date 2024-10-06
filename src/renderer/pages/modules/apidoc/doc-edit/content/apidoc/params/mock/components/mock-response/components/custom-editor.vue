@@ -1,9 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-12 12:27
-    模块名称：monaco-editor
-    备注：
-*/
+
 <template>
   <div ref="preEditor" class="s-monaco-editor">
   </div>

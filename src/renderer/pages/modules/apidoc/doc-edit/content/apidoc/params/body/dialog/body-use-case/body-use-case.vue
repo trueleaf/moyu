@@ -1,8 +1,4 @@
-/*
-    创建者：shuxiaokai
-    模块名称：body参数用例
-    备注：
-*/
+
 <template>
   <s-dialog :model-value="modelValue" width="30%" title="保存用例" @close="handleClose">
     <el-form ref="form" :model="formInfo" :rules="rules" label-width="120px" :inline="false">
@@ -20,9 +16,11 @@
 <script lang="ts" setup>
 import { ref, Ref, nextTick } from 'vue'
 import { router } from '@/router';
-import { store } from '@/store';
 import { FormInstance, FormRules } from 'element-plus';
 import axios from 'axios';
+import { t } from 'i18next'
+import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 defineProps({
   modelValue: {
@@ -31,6 +29,8 @@ defineProps({
   },
 });
 const emits = defineEmits(['update:modelValue'])
+const apidocStore = useApidoc();
+const apidocBaseInfoStore = useApidocBaseInfo()
 const loading = ref(false);
 const formInfo = ref({ name: '' });
 const rules: Ref<FormRules> = ref({
@@ -47,7 +47,7 @@ const handleClose = () => {
 const handleSave = () => {
   formInstance.value?.validate((valid) => {
     if (valid) {
-      const bodyParams = store.state['apidoc/apidoc'].apidoc.item.requestBody.rawJson
+      const bodyParams = apidocStore.apidoc.item.requestBody.rawJson
       const params = {
         name: formInfo.value.name,
         presetParamsType: 'bodyParams',
@@ -56,7 +56,7 @@ const handleSave = () => {
       };
       loading.value = true;
       axios.post('/api/project/doc_preset_params', params).then((res) => {
-        store.commit('apidoc/baseInfo/addParamsTemplate', res.data);
+        apidocBaseInfoStore.addParamsTemplate(res.data);
         handleClose();
       }).catch((err) => {
         console.error(err);
@@ -73,7 +73,3 @@ const handleSave = () => {
   });
 }
 </script>
-
-<style lang="scss" scoped>
-
-</style>

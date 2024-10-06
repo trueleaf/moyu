@@ -3,10 +3,10 @@
  */
 
 import { computed } from 'vue'
-import type { ApidocProperty, ApidocPropertyType } from '@src/types/global'
+import type { ApidocProperty } from '@src/types/global'
 // import type { ApidocProjectHost } from "@src/types/store"
-import { store } from '@/store/index'
 import { apidocGenerateProperty } from '@/helper/index'
+import { useApidoc } from '@/store/apidoc/apidoc';
 // import globalConfig from "@/../config/config"
 // import { router } from "@/router/index"
 // import { apidocCache } from "@/cache/apidoc"
@@ -15,7 +15,8 @@ import { apidocGenerateProperty } from '@/helper/index'
  * 从url中找出path参数
  */
 export const handleChangeUrl = (): void => {
-  const requestPath = store.state['apidoc/apidoc'].apidoc.item.url.path;
+  const apidocStore = useApidoc()
+  const requestPath = apidocStore.apidoc.item.url.path;
   const pathParamsReg = /(?<=\/){([^}]+)}/g; //path参数匹配
   let matchedPathParams = requestPath.match(pathParamsReg);
   if (matchedPathParams) {
@@ -25,9 +26,9 @@ export const handleChangeUrl = (): void => {
       property.key = param;
       return property;
     });
-    store.commit('apidoc/apidoc/changePathParams', result)
+    apidocStore.changePathParams(result);
   } else {
-    store.commit('apidoc/apidoc/changePathParams', [])
+    apidocStore.changePathParams([]);
   }
 };
 
@@ -35,37 +36,39 @@ export const handleChangeUrl = (): void => {
  * 将请求url后面查询参数转换为params
  */
 const convertQueryToParams = (requestPath: string): void => {
+  const apidocStore = useApidoc()
   const stringParams = requestPath.split('?')[1] || '';
   const urlSearchParams = new URLSearchParams(stringParams);
   const objectParams = Object.fromEntries(urlSearchParams.entries());
-  const newParams: ApidocProperty<ApidocPropertyType>[] = [];
+  const newParams: ApidocProperty<'string'>[] = [];
   Object.keys(objectParams).forEach(field => {
     const property = apidocGenerateProperty();
     property.key = field;
     property.value = objectParams[field];
     newParams.push(property)
   })
-  const uniqueData: ApidocProperty<ApidocPropertyType>[] = [];
-  const originParams = store.state['apidoc/apidoc'].apidoc.item.queryParams;
+  const uniqueData: ApidocProperty<'string'>[] = [];
+  const originParams = apidocStore.apidoc.item.queryParams;
   newParams.forEach(item => { //过滤重复的query值
     if (originParams.every(v => v.key !== item.key)) {
       uniqueData.push(item);
     }
   })
-  store.commit('apidoc/apidoc/unshiftQueryParams', uniqueData)
+  apidocStore.unshiftQueryParams(uniqueData)
 };
 
 /**
  * 格式化url
  */
 export function handleFormatUrl():void {
+  const apidocStore = useApidoc()
   // const projectId = router.currentRoute.value.query.id as string;
   const requestPath = computed<string>({
     get() {
-      return store.state['apidoc/apidoc'].apidoc.item.url.path;
+      return apidocStore.apidoc.item.url.path;
     },
     set(path) {
-      store.commit('apidoc/apidoc/changeApidocUrl', path)
+      apidocStore.changeApidocUrl(path)
     },
   });
     // const currentHost = computed<string>(() => store.state["apidoc/apidoc"].apidoc.item.url.host);

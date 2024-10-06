@@ -1,21 +1,19 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-15 22:10
-    模块名称：操作区域
-    备注：
-*/
 <template>
   <div class="api-operation">
     <!-- 环境、host、接口前缀 -->
     <div v-if="hostEnum.length < 5" class="d-flex a-center">
-      <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer" class="mr-2">
+      <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer"
+        class="mr-2">
         <template #reference>
-          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label="" @change="handleChangeHost">{{ t("Mock服务器") }}</el-checkbox>
+          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label=""
+            @change="handleChangeHost">{{ t("Mock服务器") }}</el-checkbox>
         </template>
       </el-popover>
-      <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover" width="auto" :content="item.url">
+      <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover"
+        width="auto" :content="item.url">
         <template #reference>
-          <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border @change="handleChangeHost">{{ item.name }}</el-checkbox>
+          <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border
+            @change="handleChangeHost">{{ item.name }}</el-checkbox>
         </template>
       </el-popover>
       <el-button type="primary" text @click="hostDialogVisible = true;">{{ t("接口前缀") }}</el-button>
@@ -28,7 +26,7 @@
             <div class="gray-600">{{ mockServer }}</div>
           </div>
         </el-option>
-        <el-option v-for="(item,index) in hostEnum" :key="index" :value="item.url" :label="item.name">
+        <el-option v-for="(item, index) in hostEnum" :key="index" :value="item.url" :label="item.name">
           <div class="env-item">
             <div class="w-200">{{ item.name }}</div>
             <div class="gray-600">{{ item.url }}</div>
@@ -39,37 +37,21 @@
     </div>
     <!-- 请求地址，发送请求 -->
     <div class="op-wrap">
-      <el-input
-        v-model="requestPath"
-        :placeholder="t('输入请求url')"
-        @input="handleChangeUrl"
-        @blur="handleFormatUrl"
-        @keyup.enter.stop="handleFormatUrl"
-      >
+      <el-input v-model="requestPath" :placeholder="t('输入请求url')" @input="handleChangeUrl" @blur="handleFormatUrl"
+        @keyup.enter.stop="handleFormatUrl">
         <template #prepend>
           <div class="request-method">
             <el-select v-model="requestMethod" :size="config.renderConfig.layout.size" value-key="name">
-              <el-option
-                v-for="(item, index) in requestMethodEnum"
-                :key="index"
-                :value="item.value"
-                :label="item.name"
-                :title="disabledTip(item)"
-                :disabled="!item.enabled"
-              >
+              <el-option v-for="(item, index) in requestMethodEnum" :key="index" :value="item.value" :label="item.name"
+                :title="disabledTip(item)" :disabled="!item.enabled">
               </el-option>
             </el-select>
           </div>
         </template>
       </el-input>
-      <el-button
-        v-if="!loading"
-        :loading="loading"
-        :disabled="!config.isElectron"
-        :title="config.isElectron ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`"
-        type="success"
-        @click="handleSendRequest"
-      >
+      <el-button v-if="!loading" :loading="loading" :disabled="!isElectron()"
+        :title="isElectron() ? '' : `${t('由于浏览器限制，非electron环境无法模拟发送请求')}`" type="success"
+        @click="handleSendRequest">
         {{ t("发送请求") }}
       </el-button>
       <el-button v-if="loading" type="danger" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
@@ -77,42 +59,46 @@
       <el-button :loading="loading3" type="primary" :icon="Refresh" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <pre class="pre-url pre">
-      <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
-    </pre>
+  <span class="label">{{ t("实际发送请求地址") }}：</span><span>{{ fullUrl.replace('localhost', '127.0.0.1') }}</span>
+</pre>
   </div>
-  <s-curd-host-dialog v-if="hostDialogVisible" v-model="hostDialogVisible"></s-curd-host-dialog>
-  <s-save-doc-dialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></s-save-doc-dialog>
+  <SCurdHostDialog v-if="hostDialogVisible" v-model="hostDialogVisible"></SCurdHostDialog>
+  <SSaveDocDialog v-if="saveDocDialogVisible" v-model="saveDocDialogVisible"></SSaveDocDialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { t } from 'i18next'
 import { Refresh } from '@element-plus/icons-vue'
-import type { Config } from '@src/types/config'
-import { config as globalConfig } from '@/../config/config'
-import { useStore } from '@/store/index'
+import { config } from '@/../config/config'
 import { apidocCache } from '@/cache/apidoc'
 import { router } from '@/router/index'
-import sSaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
-import sCurdHostDialog from '../dialog/curd-host/curd-host.vue'
+import SSaveDocDialog from '@/pages/modules/apidoc/doc-edit/dialog/save-doc/save-doc.vue'
+import SCurdHostDialog from '../dialog/curd-host/curd-host.vue'
 import getHostPart from './composables/host'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { useApidocTas } from '@/store/apidoc/tabs'
+import { useApidoc } from '@/store/apidoc/apidoc'
+import { useApidocResponse } from '@/store/apidoc/response'
+import { isElectron } from '@src/utils/utils'
 
-const config: Ref<Config> = ref(globalConfig);
-const store = useStore();
-
+const apidocBaseInfoStore = useApidocBaseInfo()
+const apidocTabsStore = useApidocTas()
+const apidocStore = useApidoc()
+const apidocResponseStore = useApidocResponse()
 /*
 |--------------------------------------------------------------------------
 | web代理相关
 |--------------------------------------------------------------------------
-|
 */
 const projectId = router.currentRoute.value.query.id as string;
 onMounted(() => {
   const localProxyState = apidocCache.getApidocProxyState(projectId);
   if (localProxyState !== null) {
-    store.commit('apidoc/baseInfo/changeWebProxy', localProxyState);
+    apidocBaseInfoStore.changeWebProxy(localProxyState);
   }
 })
 /*
@@ -135,19 +121,19 @@ const { requestMethod, disabledTip, requestMethodEnum } = methodPart;
 |--------------------------------------------------------------------------
 */
 const currentSelectTab = computed(() => {
-  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  const tabs = apidocTabsStore.tabs[projectId];
   const currentTab = tabs?.find((tab) => tab.selected) || null;
   return currentTab;
 });
-const loading = computed(() => store.state['apidoc/response'].loading)
-const loading2 = computed(() => store.state['apidoc/apidoc'].saveLoading)
+const loading = computed(() => apidocResponseStore.loading)
+const loading2 = computed(() => apidocStore.saveLoading)
 const saveDocDialogVisible = computed({
   get() {
-    return store.state['apidoc/apidoc'].saveDocDialogVisible;
+    return apidocStore.saveDocDialogVisible;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeSaveDocDialogVisible', val)
-    store.commit('apidoc/apidoc/changeSavedDocId', currentSelectTab.value?._id);
+    apidocStore.changeSaveDocDialogVisible(val)
+    apidocStore.changeSavedDocId(currentSelectTab.value?._id || '');
   }
 });
 const operationPart = getOperationPart();
@@ -156,22 +142,22 @@ const handleSaveApidoc = () => {
   if (currentSelectTab.value?._id.includes('local_')) {
     saveDocDialogVisible.value = true;
   } else {
-    store.dispatch('apidoc/apidoc/saveApidoc');
+    apidocStore.saveApidoc();
   }
 }
 const { loading3, handleSendRequest, handleStopRequest, handleFreshApidoc } = operationPart;
 //请求url、完整url
 const requestPath = computed<string>({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.item.url.path;
+    return apidocStore.apidoc.item.url.path;
   },
   set(path) {
-    store.commit('apidoc/apidoc/changeApidocUrl', path);
+    apidocStore.changeApidocUrl(path);
   },
 });
-const paths = computed(() => store.state['apidoc/apidoc'].apidoc.item.paths)
+const paths = computed(() => apidocStore.apidoc.item.paths)
 const fullUrl = computed(() => {
-  const { queryParams } = store.state['apidoc/apidoc'].apidoc.item;
+  const { queryParams } = apidocStore.apidoc.item;
   let queryString = '';
   queryParams.forEach((v) => {
     if (v.key && v.select) {
@@ -188,62 +174,73 @@ const fullUrl = computed(() => {
       pathMap[v.key] = v.value;
     }
   })
-  const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2)
+  const validPath = requestPath.value.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2)
   return host.value + validPath + queryString
 })
 </script>
 
 <style lang="scss" scoped>
 .api-operation {
-    position: sticky;
-    top: 0;
-    padding: size(10) size(20);
-    box-shadow: 0 3px 2px $gray-400;
-    background: $white;
-    z-index: $zIndex-request-info-wrap;
-    height: size(130);
-    .proxy-wrap {
-        margin-left: auto;
-    }
-    .el-checkbox {
-        margin-right: size(10);
-    }
-    .op-wrap {
-        display: flex;
-        margin-top: size(10);
-        .el-input__inner {
-            font-size: fz(13);
-        }
-        .request-method {
-            display: flex;
-            align-items: center;
-            .el-select {
-                width: 100px;
-            }
-        }
-        .el-input__suffix {
-            display: flex;
-            align-items: center;
-        }
-    }
-    .pre-url {
-        height: size(30);
-        width: 100%;
-        white-space: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        &::-webkit-scrollbar {
-          height: 0px;
-        }
-        .label {
-          user-select: none;
-        }
-    }
-}
-.env-item {
+  position: sticky;
+  top: 0;
+  padding: size(10) size(20);
+  box-shadow: 0 3px 2px $gray-400;
+  background: $white;
+  z-index: $zIndex-request-info-wrap;
+  height: size(130);
+
+  .proxy-wrap {
+    margin-left: auto;
+  }
+
+  .el-checkbox {
+    margin-right: size(10);
+  }
+
+  .op-wrap {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 500px;
+    margin-top: size(10);
+
+    .el-input__inner {
+      font-size: fz(13);
+    }
+
+    .request-method {
+      display: flex;
+      align-items: center;
+
+      .el-select {
+        width: 100px;
+      }
+    }
+
+    .el-input__suffix {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .pre-url {
+    height: size(30);
+    width: 100%;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    &::-webkit-scrollbar {
+      height: 0px;
+    }
+
+    .label {
+      user-select: none;
+    }
+  }
+}
+
+.env-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 500px;
 }
 </style>

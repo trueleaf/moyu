@@ -1,12 +1,7 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2022-09-04 21:37
-    模块名称：本地包数据
-    备注：
-*/
+
 <template>
   <div class="package-wrap">
-    <s-resize-x :min="600" :max="600" :width="600" name="package" tabindex="1">
+    <SResizeX :min="600" :max="600" :width="600" name="package" tabindex="1">
       <div class="package-upload">
         <el-form ref="form" :model="formInfo" :rules="rules" label-width="150px">
           <el-form-item label="包名(不允许重复)" prop="name">
@@ -33,9 +28,9 @@
           </el-form-item>
         </el-form>
       </div>
-    </s-resize-x>
+    </SResizeX>
     <div class="flex1">
-      <el-table :data="tableInfo" stripe border size="mini" height="450px">
+      <el-table :data="tableInfo" stripe border size="small" height="450px">
         <el-table-column prop="name" label="包名" align="center"></el-table-column>
         <el-table-column label="源码" align="center">
           <template #default="scope">
@@ -45,17 +40,18 @@
         </el-table-column>
       </el-table>
     </div>
-    <s-dialog v-model="codeVisible" :title="title">
+    <SDialog v-model="codeVisible" :title="title">
       <pre class="code-wrap pre">{{ code }}</pre>
-    </s-dialog>
+    </SDialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { ElMessage, ElMessageBox, UploadRequestHandler, UploadRequestOptions } from 'element-plus';
 import { onMounted, Ref, ref } from 'vue';
-// import { UploadRequestHandler, UploadRequestOptions } from 'element-plus/lib/components/upload/src/upload';
 import db from '@/cache/database';
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SResizeX from '@/components/common/resize/g-resize-x.vue'
 import type { FormInstance } from 'element-plus/lib/components/form';
 
 //获取脚本列表

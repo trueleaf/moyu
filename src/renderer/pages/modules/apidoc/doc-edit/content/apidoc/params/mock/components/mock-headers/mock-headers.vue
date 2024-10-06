@@ -1,7 +1,4 @@
-/*
-    创建者：shuxiaokai
-    模块名称：自定义返回头
-    备注：
+ 备注：
 */
 <template>
   <div>
@@ -11,11 +8,12 @@
 
 <script lang="ts" setup>
 import { computed, ref, Ref } from 'vue';
-import { store } from '@/store';
 import { ApidocProperty } from '@src/types/global';
 import mindHeaders from '../../../headers/mind-headers';
+import { useApidoc } from '@/store/apidoc/apidoc';
 
-const headers = computed(() => store.state['apidoc/apidoc'].apidoc.mockInfo.responseHeaders);
+const apidocStore = useApidoc()
+const headers = computed(() => apidocStore.apidoc.mockInfo.responseHeaders);
 const mindHeaderParams: Ref<ApidocProperty[]> = ref(mindHeaders);
 </script>
 

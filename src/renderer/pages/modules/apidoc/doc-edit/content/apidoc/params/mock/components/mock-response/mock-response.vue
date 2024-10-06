@@ -1,12 +1,7 @@
-/*
-    创建者：shuxiaokai
-    模块名称：自定义mock返回值
-    备注：
-*/
 <template>
   <div class="mock-response">
     <!-- 返回数据类型 -->
-    <s-label-value label="类型：" label-width="50px" class="mb-1" one-line>
+    <SLabelValue label="类型：" label-width="50px" class="mb-1" one-line>
       <el-radio-group v-model="responseType">
         <el-radio value="json" size="small">JSON</el-radio>
         <el-radio value="image" size="small">图片</el-radio>
@@ -14,16 +9,11 @@
         <el-radio value="text" size="small">Text</el-radio>
         <el-radio value="customJson" size="small">自定义返回逻辑</el-radio>
       </el-radio-group>
-    </s-label-value>
+    </SLabelValue>
     <div v-if="responseType === 'json'" class="editor-wrap">
-      <s-json-editor ref="jsonComponent" v-model="jsonValue"></s-json-editor>
+      <SJsonEditor ref="jsonComponent" v-model="jsonValue"></SJsonEditor>
       <el-button class="mock" text @click.stop="showMockTip = !showMockTip">
-        <el-popover
-          :visible="showMockTip"
-          placement="top-start"
-          trigger="manual"
-          width="auto"
-        >
+        <el-popover :visible="showMockTip" placement="top-start" trigger="manual" width="auto">
           <s-mock auto-copy @select="handleSelectMockStr"></s-mock>
           <template #reference>
             <span>Mock语法</span>
@@ -37,97 +27,95 @@
       </div>
     </div>
     <div v-if="responseType === 'image'" class="img-wrap">
-      <s-label-value label-width="50px" label="格式：" one-line>
+      <SLabelValue label-width="50px" label="格式：" one-line>
         <el-radio-group v-model="imageType">
           <el-radio value="png" size="small">PNG</el-radio>
           <el-radio value="jpg" size="small">JPG/JPEG</el-radio>
           <el-radio value="gif" size="small">GIF</el-radio>
           <el-radio value="svg" size="small" disabled title="还未实现">SVG</el-radio>
         </el-radio-group>
-      </s-label-value>
-      <s-label-value label-width="100px" label="图片宽度：" width="40%">
-        <el-input-number v-model="imageWidth" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
-      </s-label-value>
-      <s-label-value label-width="150px" label="图片高度：" width="40%">
-        <el-input-number v-model="imageHeight" size="small" controls-position="right" :min="20" :max="9999" :step="10"></el-input-number>
-      </s-label-value>
-      <s-label-value label-width="100px" label="文字大小：" width="40%">
-        <el-input-number v-model="imageFontSize" size="small" controls-position="right" :min="12" :max="100" :step="1"></el-input-number>
-      </s-label-value>
-      <s-label-value label-width="150px" label="增大图片体积(KB)：" width="40%">
-        <el-input-number v-model="imageSize" size="small" controls-position="right" :min="0" :step="100" :max="1024 * 1024 * 1024"></el-input-number>
-      </s-label-value>
-      <s-label-value label-width="100px" label="背景颜色：" width="30%">
+      </SLabelValue>
+      <SLabelValue label-width="100px" label="图片宽度：" width="40%">
+        <el-input-number v-model="imageWidth" size="small" controls-position="right" :min="20" :max="9999"
+          :step="10"></el-input-number>
+      </SLabelValue>
+      <SLabelValue label-width="150px" label="图片高度：" width="40%">
+        <el-input-number v-model="imageHeight" size="small" controls-position="right" :min="20" :max="9999"
+          :step="10"></el-input-number>
+      </SLabelValue>
+      <SLabelValue label-width="100px" label="文字大小：" width="40%">
+        <el-input-number v-model="imageFontSize" size="small" controls-position="right" :min="12" :max="100"
+          :step="1"></el-input-number>
+      </SLabelValue>
+      <SLabelValue label-width="150px" label="增大图片体积(KB)：" width="40%">
+        <el-input-number v-model="imageSize" size="small" controls-position="right" :min="0" :step="100"
+          :max="1024 * 1024 * 1024"></el-input-number>
+      </SLabelValue>
+      <SLabelValue label-width="100px" label="背景颜色：" width="30%">
         <el-color-picker v-model="imageBackgroundColor" />
-      </s-label-value>
-      <s-label-value label-width="100px" label="文字颜色：" width="30%">
+      </SLabelValue>
+      <SLabelValue label-width="100px" label="文字颜色：" width="30%">
         <el-color-picker v-model="imageTextColor" />
-      </s-label-value>
+      </SLabelValue>
       <!-- <img :src="dataUrl" alt="mock图片" class="d-flex"> -->
-      <div ref="image" class="image-demo" :style="{ backgroundColor: imageBackgroundColor, width: imageWidth + 'px', height: imageHeight + 'px' }">
-        <div :style="{color: imageTextColor, fontSize: imageFontSize + 'px'}">{{ imageWidth }} x {{ imageHeight }}</div>
-        <div :style="{color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px'}">{{ formatBytes(realImageSize) }}</div>
+      <div ref="image" class="image-demo"
+        :style="{ backgroundColor: imageBackgroundColor, width: imageWidth + 'px', height: imageHeight + 'px' }">
+        <div :style="{ color: imageTextColor, fontSize: imageFontSize + 'px' }">{{ imageWidth }} x {{ imageHeight }}</div>
+        <div :style="{ color: imageTextColor, fontSize: imageFontSize / 1.2 + 'px' }">{{ formatBytes(realImageSize) }}
+        </div>
       </div>
     </div>
     <div v-if="responseType === 'file'" class="download-wrap">
-      <div class="item" :class="{active: selectedType === 'doc'}" @click="selectedType = 'doc'">
+      <div class="item" :class="{ active: selectedType === 'doc' }" @click="selectedType = 'doc'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconWORD"></use>
         </svg>
         <div class="mt-1">DOC</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'docx'}" @click="selectedType = 'docx'">
+      <div class="item" :class="{ active: selectedType === 'docx' }" @click="selectedType = 'docx'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconWORD"></use>
         </svg>
         <div class="mt-1">DOCX</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'xls'}" @click="selectedType = 'xls'">
+      <div class="item" :class="{ active: selectedType === 'xls' }" @click="selectedType = 'xls'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconexcel"></use>
         </svg>
         <div class="mt-1">XLS</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'xlsx'}" @click="selectedType = 'xlsx'">
+      <div class="item" :class="{ active: selectedType === 'xlsx' }" @click="selectedType = 'xlsx'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconexcel"></use>
         </svg>
         <div class="mt-1">XLSX</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'pdf'}" @click="selectedType = 'pdf'">
+      <div class="item" :class="{ active: selectedType === 'pdf' }" @click="selectedType = 'pdf'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconpdfwenjian"></use>
         </svg>
         <div class="mt-1">PDF</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'zip'}" @click="selectedType = 'zip'">
+      <div class="item" :class="{ active: selectedType === 'zip' }" @click="selectedType = 'zip'">
         <svg class="svg-icon" aria-hidden="true">
           <use xlink:href="#iconyasuobao"></use>
         </svg>
         <div class="mt-1">ZIP</div>
       </div>
-      <div class="item" :class="{active: selectedType === 'custom'}" @click="selectedType = 'custom'">
+      <div class="item" :class="{ active: selectedType === 'custom' }" @click="selectedType = 'custom'">
         <img src="@/assets/imgs/logo.png" alt="moyu" class="img">
         <div class="mt-1">自定义</div>
       </div>
     </div>
     <div v-if="responseType === 'text'" class="raw-editor-wrap">
-      <s-raw-editor v-model="rawText"></s-raw-editor>
+      <SRawEditor v-model="rawText"></SRawEditor>
     </div>
     <div v-if="responseType === 'customJson'" class="editor-wrap">
-      <s-custom-editor v-model="customResponseScript"></s-custom-editor>
+      <SCustomEditor v-model="customResponseScript"></SCustomEditor>
     </div>
-    <el-upload
-      v-if="responseType === 'file' && selectedType === 'custom'"
-      ref="uploadInstance"
-      :auto-upload="false"
-      class="mt-3"
-      action="/"
-      :limit="1"
-      :on-exceed="handleExceed"
-      :before-upload="handleCheckSize"
-      @change="handleSelectFile"
-    >
+    <el-upload v-if="responseType === 'file' && selectedType === 'custom'" ref="uploadInstance" :auto-upload="false"
+      class="mt-3" action="/" :limit="1" :on-exceed="handleExceed" :before-upload="handleCheckSize"
+      @change="handleSelectFile">
       <template #trigger>
         <div>
           <el-button type="primary">选择文件</el-button>
@@ -151,12 +139,17 @@ import 'element-plus/es/components/message/style/css'
 // import { genFileId, UploadInstance, UploadProps, UploadRawFile } from 'element-plus/lib/components/upload/src/upload';
 import type { UploadFile, UploadInstance, UploadProps, UploadRawFile } from 'element-plus/es/components';
 import { genFileId } from 'element-plus';
-import { store } from '@/store';
 import { formatBytes } from '@/helper/index'
 import { ApidocDetail } from '@src/types/global';
 import { apidocCache } from '@/cache/apidoc';
-import sCustomEditor from './components/custom-editor.vue'
+import SCustomEditor from './components/custom-editor.vue'
+import SLabelValue from '@/components/common/label-value/g-label-value.vue'
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
+import { useApidoc } from '@/store/apidoc/apidoc';
 
+
+const apidocStroe = useApidoc()
 /*
 |--------------------------------------------------------------------------
 | 返回数据类型
@@ -164,10 +157,10 @@ import sCustomEditor from './components/custom-editor.vue'
 */
 const responseType = computed<ApidocDetail['mockInfo']['responseType']>({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.responseType;
+    return apidocStroe.apidoc.mockInfo.responseType;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockResponseType', val)
+    apidocStroe.changeMockResponseType(val)
   },
 })
 /*
@@ -178,10 +171,10 @@ const responseType = computed<ApidocDetail['mockInfo']['responseType']>({
 const isShowJsonTip = ref(apidocCache.getIsShowApidocMockParamsJsonTip());
 const jsonValue = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.json;
+    return apidocStroe.apidoc.mockInfo.json;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockJsonValue', val)
+    apidocStroe.changeMockJsonValue(val)
   },
 })
 //不再显示提示
@@ -212,58 +205,58 @@ const image = ref<HTMLElement | null>(null);
 const realImageSize = ref(0);
 const imageType = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.type;
+    return apidocStroe.apidoc.mockInfo.image.type;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageType', val)
+    apidocStroe.changeMockImageType(val)
   },
 })
 const imageWidth = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.width;
+    return apidocStroe.apidoc.mockInfo.image.width;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageWidth', val)
+    apidocStroe.changeMockImageWidth(val)
   },
 })
 const imageHeight = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.height;
+    return apidocStroe.apidoc.mockInfo.image.height;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageHeight', val)
+    apidocStroe.changeMockImageHeight(val)
   },
 })
 const imageSize = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.size;
+    return apidocStroe.apidoc.mockInfo.image.size;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageSize', val)
+    apidocStroe.changeMockImageSize(val)
   },
 })
 const imageTextColor = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.color;
+    return apidocStroe.apidoc.mockInfo.image.color;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageColor', val)
+    apidocStroe.changeMockImageColor(val)
   },
 })
 const imageBackgroundColor = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.backgroundColor;
+    return apidocStroe.apidoc.mockInfo.image.backgroundColor;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageBackgroundColor', val)
+    apidocStroe.changeMockImageBackgroundColor(val)
   },
 })
 const imageFontSize = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.image.fontSize;
+    return apidocStroe.apidoc.mockInfo.image.fontSize;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockImageFontSize', val)
+    apidocStroe.changeMockImageFontSize(val)
   },
 })
 /*
@@ -274,13 +267,13 @@ const imageFontSize = computed({
 //选中的文件类型
 const selectedType = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.file.type
+    return apidocStroe.apidoc.mockInfo.file.type
   },
   set(type) {
-    store.commit('apidoc/apidoc/changeMockFileType', type)
+    apidocStroe.changeMockFileType(type)
   }
 })
-const filePath = computed(() => store.state['apidoc/apidoc'].apidoc.mockInfo.file.filePath)
+const filePath = computed(() => apidocStroe.apidoc.mockInfo.file.filePath)
 const fileInfo = ref({
   name: '',
   size: 0,
@@ -289,7 +282,7 @@ const fileInfo = ref({
 const uploadInstance = ref<UploadInstance>()
 //选择文件
 const handleSelectFile = async (file: UploadFile) => {
-  store.commit('apidoc/apidoc/changeCustomFile', (file.raw as File).path)
+  apidocStroe.changeCustomFile((file.raw as File).path)
   fileInfo.value.name = file.name;
   fileInfo.value.size = file.size || 0;
 }
@@ -314,10 +307,10 @@ const handleExceed: UploadProps['onExceed'] = (files) => {
 */
 const rawText = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.text;
+    return apidocStroe.apidoc.mockInfo.text;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeMockTextValue', val);
+    apidocStroe.changeMockTextValue(val)
   }
 })
 /*
@@ -327,10 +320,10 @@ const rawText = computed({
 */
 const customResponseScript = computed({
   get() {
-    return store.state['apidoc/apidoc'].apidoc.mockInfo.customResponseScript;
+    return apidocStroe.apidoc.mockInfo.customResponseScript;
   },
   set(val) {
-    store.commit('apidoc/apidoc/changeCustomResponseScript', val);
+    apidocStroe.changeCustomResponseScript(val)
   }
 })
 const watchFlag = ref<WatchStopHandle | null>(null);
@@ -355,88 +348,101 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .mock-response {
-    .editor-wrap {
-        height: calc(100vh - #{size(610)});
-        min-height: size(200);
-        border: 1px solid $gray-500;
-        display: flex;
-        position: relative;
-        .mock-json-editor {
-            height: 100%;
-            border-right: 1px solid $gray-500;
-        }
-        .tip {
-            width: 100%;
-            bottom: size(0);
-            height: size(25);
-            display: flex;
-            align-items: center;
-            background-color: $orange;
-            color: $white;
-            position: absolute;
-            text-indent: 1em;
-        }
-        .mock {
-            position: absolute;
-            top: size(0);
-            right: size(70);
-            z-index: 1;
-            background-color: $white;
-            color: $theme-color;
-            cursor: pointer;
-        }
-        .format-btn {
-            position: absolute;
-            right: size(10);
-            top: size(0);
-        }
+  .editor-wrap {
+    height: calc(100vh - #{size(610)});
+    min-height: size(200);
+    border: 1px solid $gray-500;
+    display: flex;
+    position: relative;
+
+    .mock-json-editor {
+      height: 100%;
+      border-right: 1px solid $gray-500;
     }
-    .raw-editor-wrap {
-        height: calc(100vh - #{size(610)});
-        min-height: size(200);
+
+    .tip {
+      width: 100%;
+      bottom: size(0);
+      height: size(25);
+      display: flex;
+      align-items: center;
+      background-color: $orange;
+      color: $white;
+      position: absolute;
+      text-indent: 1em;
     }
-    .img-wrap {
-        // height: calc(100vh - #{size(620)});
-        min-height: size(200);
+
+    .mock {
+      position: absolute;
+      top: size(0);
+      right: size(70);
+      z-index: 1;
+      background-color: $white;
+      color: $theme-color;
+      cursor: pointer;
     }
-    .image-demo {
-        // position: fixed;
-        // left: -99999px;
-        // top: -99999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+
+    .format-btn {
+      position: absolute;
+      right: size(10);
+      top: size(0);
     }
-    .download-wrap {
-        display: flex;
-        .item {
-            width: size(70);
-            height: size(70);
-            padding: size(10);
-            margin-right: size(20);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border: 1px solid transparent;
-            &.active {
-                border: 1px solid $gray-400;
-                box-shadow: $box-shadow-sm;
-            }
-            &:hover {
-                border: 1px solid $gray-400;
-            }
-            .svg-icon {
-                width: size(40);
-                height: size(40);
-            }
-            .img {
-                width: size(28);
-                height: size(28);
-            }
-        }
+  }
+
+  .raw-editor-wrap {
+    height: calc(100vh - #{size(610)});
+    min-height: size(200);
+  }
+
+  .img-wrap {
+    // height: calc(100vh - #{size(620)});
+    min-height: size(200);
+  }
+
+  .image-demo {
+    // position: fixed;
+    // left: -99999px;
+    // top: -99999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .download-wrap {
+    display: flex;
+
+    .item {
+      width: size(70);
+      height: size(70);
+      padding: size(10);
+      margin-right: size(20);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border: 1px solid transparent;
+
+      &.active {
+        border: 1px solid $gray-400;
+        box-shadow: $box-shadow-sm;
+      }
+
+      &:hover {
+        border: 1px solid $gray-400;
+      }
+
+      .svg-icon {
+        width: size(40);
+        height: size(40);
+      }
+
+      .img {
+        width: size(28);
+        height: size(28);
+      }
     }
+  }
 }
 </style>

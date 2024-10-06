@@ -9,7 +9,7 @@ import {
   ApidocProjectVariable
 } from "@src/types/apidoc/base-info";
 import { event } from '@/helper'
-import { ApidocMindParam, Response } from "@src/types/global";
+import { ApidocMindParam, ApidocProperty, Response } from "@src/types/global";
 import { defineStore } from "pinia"
 import { ref } from "vue";
 import { router } from "@/router";
@@ -23,7 +23,44 @@ type ChangeProjectBaseInfo = {
   rules: ApidocProjectRules,
   hosts: ApidocProjectHost[],
 }
+type HeaderInfo = Pick<ApidocProperty, 'key' | 'value' | 'description'>
+type CommonHeaderResult = {
+  matched: boolean,
+  data: HeaderInfo[]
+};
+type MatchedHeaderOptions = {
+  id: string | undefined,
+  preCommonHeaders: HeaderInfo[],
+  result: CommonHeaderResult,
+  deep: number
+}
 
+const getMatchedHeaders = (data: ApidocProjectBaseInfoState['commonHeaders'], options: MatchedHeaderOptions) => {
+  for (let i = 0; i < data.length; i += 1) {
+    const currentItem = data[i];
+    const currentHeaders: HeaderInfo[] = []
+    const { _id, commonHeaders, children } = currentItem;
+    if (_id === options.id) {
+      options.result.matched = true;
+      options.result.data = options.preCommonHeaders;
+      return;
+    }
+    //当前headers覆盖老的headers
+    options.preCommonHeaders.concat(commonHeaders).forEach(header => {
+      if (header && currentHeaders.every(v => v.key !== header.key)) {
+        currentHeaders.push(JSON.parse(JSON.stringify(header)))
+      }
+    })
+    if (children?.length > 0) {
+      getMatchedHeaders(children, {
+        id: options.id,
+        deep: options.deep + 1,
+        result: options.result,
+        preCommonHeaders: currentHeaders,
+      })
+    }
+  }
+}
 export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const _id = ref('');
   const projectName = ref('');
@@ -138,6 +175,24 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
   const changeCommonHeaders = (headers: ApidocProjectCommonHeader[]): void => {
     commonHeaders.value = headers
   }
+  //根据文档id获取公共请求头
+  const getCommonHeadersById = (id: string) => {
+    if (!id) {
+      console.warn('必须传递id');
+      return [];
+    }
+    const result: CommonHeaderResult = {
+      matched: false,
+      data: []
+    };
+    getMatchedHeaders(commonHeaders.value, {
+      id,
+      preCommonHeaders: [],
+      deep: 1,
+      result,
+    });
+    return result.data?.filter(v => v.key) || [];
+  }
   /*
   |--------------------------------------------------------------------------
   | 接口调用
@@ -242,5 +297,6 @@ export const useApidocBaseInfo = defineStore('apidocBaseInfo', () => {
     getProjectBaseInfo,
     getSharedProjectBaseInfo,
     getCommonHeaders,
+    getCommonHeadersById,
   }
 })

@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, WatchStopHandle } from 'vue'
+import { defineComponent, WatchStopHandle } from 'vue'
 import ace, { Editor } from 'brace';
 import 'brace/mode/json';
 import 'brace/mode/javascript';
@@ -27,7 +27,7 @@ const TYPE_MAP = {
 export default defineComponent({
   props: {
     type: {
-      type: String as PropType<ApidocBodyRawType>,
+      type: String,
       default: 'javascript',
     },
     modelValue: {
@@ -83,7 +83,7 @@ export default defineComponent({
     initEditor() {
       this.editorInstance = ace.edit(this.$el);
       this.editorInstance.$blockScrolling = Infinity;
-      this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type] || 'text'}`);
+      this.editorInstance.getSession().setMode(`ace/mode/${TYPE_MAP[this.type as ApidocBodyRawType] || 'text'}`);
       this.editorInstance.setTheme('ace/theme/github');
       // console.log(33, this.editorInstance.getOptions())
       this.editorInstance.getSession().setUseWrapMode(true);

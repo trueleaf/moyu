@@ -5,9 +5,11 @@
 |
 */
 import { ComputedRef, computed, WritableComputedRef } from 'vue'
-import type { ApidocRequestMethodRule } from '@src/types/store'
-import { useStore } from '@/store/index'
 import { t } from 'i18next'
+import { ApidocRequestMethodRule } from '@src/types/apidoc/base-info';
+import { useApidoc } from '@/store/apidoc/apidoc';
+import { ApidocHttpRequestMethod } from '@src/types/global';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
 type MethodReturn = {
   /**
@@ -25,14 +27,15 @@ type MethodReturn = {
 }
 
 export default (): MethodReturn => {
-  const store = useStore();
+  const apidocStore = useApidoc()
+  const apidocBaseInfo = useApidocBaseInfo()
   //请求方法
   const requestMethod = computed({
     get() {
-      return store.state['apidoc/apidoc'].apidoc.item.method;
+      return apidocStore.apidoc.item.method;
     },
-    set(method: string) {
-      store.commit('apidoc/apidoc/changeApidocMethod', method)
+    set(method: ApidocHttpRequestMethod) {
+      apidocStore.changeApidocMethod(method)
     },
   });
     //禁用请求方法后提示信息
@@ -43,7 +46,7 @@ export default (): MethodReturn => {
     return '';
   }
   //请求方法枚举
-  const requestMethodEnum = computed(() => store.state['apidoc/baseInfo'].rules.requestMethods);
+  const requestMethodEnum = computed(() => apidocBaseInfo.rules.requestMethods);
 
   return {
     requestMethod,
