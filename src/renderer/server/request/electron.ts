@@ -4,13 +4,19 @@ import FileType from 'file-type/browser';
 import type FormData from 'form-data'
 import type { Timings, IncomingMessageWithTimings } from '@szmarczak/http-timer';
 import { ApidocDetail } from '@src/types/global';
-import { store } from '@/store/index'
 import { t } from 'i18next'
 import db from '@/cache/database';
 import { apidocCache } from '@/cache/apidoc';
 import { router } from '@/router';
 import config from './config'
 import apidocConverter from './utils'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocRequest } from '@/store/apidoc/request';
+import { useApidocResponse } from '@/store/apidoc/response';
+import { useApidoc } from '@/store/apidoc/apidoc';
+import { getFileNameFromContentDisposition } from '@/helper';
+import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocWorkerState } from '@/store/apidoc/worker-state';
 
 let got: Got | null = null;
 let gotInstance: Got | null = null;
@@ -31,8 +37,8 @@ function initGot() {
   if (gotInstance) {
     return gotInstance;
   }
-  const enabledProxy = store.state['apidoc/baseInfo'].proxy.enabled;
-  const proxyPath = store.state['apidoc/baseInfo'].proxy.path;
+  const apidocBaseInfoStore = useApidocBaseInfo();
+  const apidocRequestStore = useApidocRequest();
   const initGotConfig = {
     timeout: config.timeout || 60000, //超时时间
     retry: 0,
@@ -50,7 +56,7 @@ function initGot() {
           ...options.headers,
           connection: 'close',
         };
-        store.commit('apidoc/request/changeFinalRequestInfo', {
+        apidocRequestStore.changeFinalRequestInfo({
           url: options.url.href,
           headers: realHeaders,
           method: options.method,
@@ -59,50 +65,54 @@ function initGot() {
       }]
     },
   }
-  if (enabledProxy) {
-    initGotConfig.agent = {
-      http: new ProxyAgent(proxyPath),
-      https: new ProxyAgent(proxyPath),
-    }
-  }
+  // if (enabledProxy) {
+  //   initGotConfig.agent = {
+  //     http: new ProxyAgent(proxyPath),
+  //     https: new ProxyAgent(proxyPath),
+  //   }
+  // }
   gotInstance = got.extend(initGotConfig);
   return gotInstance;
 }
 
 //将buffer值转换为返回参数
 async function formatResponseBuffer(bufferData: Buffer, contentType?: string) {
+  const apidocResponseStore = useApidocResponse();
+  const apidocStore = useApidoc();
   const typeInfo = await FileType.fromBuffer(bufferData.buffer);
   const mimeType = typeInfo ? typeInfo.mime : 'text/plain' //无法解析数据按照文本显示
   const mime = contentType || mimeType; //优先读取contentType
   const textContentType = ['text/', 'application/json', 'application/javascript', 'application/xml'];
-  store.commit('apidoc/response/changeResponseContentType', mime);
+  apidocResponseStore.changeResponseContentType(mime);
   if (!contentType) { //没有contentType按照文本格式解析
-    store.commit('apidoc/response/changeResponseTextValue', bufferData.toString());
+    apidocResponseStore.changeResponseTextValue(bufferData.toString());
   } else if (textContentType.find(type => contentType.match(type))) {
-    store.commit('apidoc/response/changeResponseTextValue', bufferData.toString());
+    apidocResponseStore.changeResponseTextValue(bufferData.toString());
   } else {
     const blobData = new Blob([bufferData], { type: mime });
     const blobUrl = URL.createObjectURL(blobData);
-    const { path } = store.state['apidoc/apidoc'].apidoc.item.url;
-    const headers = store.state['apidoc/response'].header;
+    const { path } = apidocStore.apidoc.item.url;
+    const headers = apidocResponseStore.header;
     const contentDisposition = headers['content-disposition'] as string;
-    const headerFileName = contentDisposition ? contentDisposition.match(/filename=(.*)/) : '';
+    const headerFileName = getFileNameFromContentDisposition(contentDisposition);
     const matchedUrlFileName = path.match(/[^/]+.[^.]$/);
     const urlName = matchedUrlFileName ? matchedUrlFileName[0] : ''
     const fileName = headerFileName || urlName;
-    store.commit('apidoc/response/changeResponseFileInfo', {
+    apidocResponseStore.changeResponseFileInfo({
       url: blobUrl,
-      fileName,
       mime,
       ext: typeInfo?.ext || '',
       name: fileName,
     });
+   
     // store.commit("apidoc/response/changeResponseFileUrl", blobUrl);
     // store.commit("apidoc/response/changeResponseFileExt", (typeInfo ? typeInfo.ext : ""));
   }
 }
 //electron发送请求
 function electronRequest() {
+  const apidocResponseStore = useApidocResponse();
+  const apidocStore = useApidoc()
   const requestInstance = initGot();
   if (!requestInstance) {
     console.warn('当前环境无法获取Got实例');
@@ -119,10 +129,10 @@ function electronRequest() {
     body = apidocConverter.getRequestBody() as (string | FormData); //允许GET请求发送body数据
     const headers = apidocConverter.getHeaders();
     if (!requestUrl) { //请求url不存在
-      store.commit('apidoc/response/changeLoading', false)
-      store.commit('apidoc/response/changeIsResponse', true)
-      store.commit('apidoc/response/changeResponseContentType', 'error');
-      store.commit('apidoc/response/changeResponseTextValue', t('请求url不能为空'));
+      apidocResponseStore.changeLoading(false);
+      apidocResponseStore.changeIsResponse(true);
+      apidocResponseStore.changeResponseContentType('error');
+      apidocResponseStore.changeResponseTextValue('请求url不能为空');
       return;
     }
     requestStream = requestInstance(requestUrl, {
@@ -138,27 +148,38 @@ function electronRequest() {
     //收到返回
     requestStream.on('response', (response: IncomingMessageWithTimings & { ip: string }) => {
       responseData = response;
-      store.commit('apidoc/response/changeResponseHeader', response.headers);
-      store.commit('apidoc/response/changeResponseCookies', response.headers['set-cookie'] || []);
-      store.commit('apidoc/response/changeResponseBaseInfo', {
+      apidocResponseStore.changeResponseHeader(response.headers);
+      apidocResponseStore.changeResponseCookies(response.headers['set-cookie'] || []);
+      apidocResponseStore.changeResponseBaseInfo({
         httpVersion: response.httpVersion,
         ip: response.ip,
-        statusCode: response.statusCode,
-        statusMessage: response.statusMessage,
-        contentType: response.headers['content-type'],
-      });
-      store.commit('apidoc/response/changeIsResponse', true)
+        statusCode: response.statusCode ?? -1,
+        statusMessage: response.statusMessage ?? "",
+        contentType: response.headers['content-type'] ?? "",
+      })
+      apidocResponseStore.changeIsResponse(true)
+      // store.commit('apidoc/response/changeResponseHeader', response.headers);
+      // store.commit('apidoc/response/changeResponseCookies', response.headers['set-cookie'] || []);
+      // store.commit('apidoc/response/changeResponseBaseInfo', {
+      //   httpVersion: response.httpVersion,
+      //   ip: response.ip,
+      //   statusCode: response.statusCode,
+      //   statusMessage: response.statusMessage,
+      //   contentType: response.headers['content-type'],
+      // });
+      // store.commit('apidoc/response/changeIsResponse', true)
     });
     //数据获取完毕
     requestStream.on('end', async () => {
-      const responseContentType = store.state['apidoc/response'].contentType;
+      const responseContentType = apidocResponseStore.contentType;
       const bufData = Buffer.concat(streamData, streamSize);
       await formatResponseBuffer(bufData, responseContentType);
       const rt = (responseData?.timings as Timings).phases.total;
-      store.commit('apidoc/response/changeResponseTime', rt);
-      store.commit('apidoc/response/changeResponseSize', streamSize);
-      store.commit('apidoc/response/changeLoading', false);
-      const responseInfo = store.state['apidoc/response'];
+      apidocResponseStore.changeResponseTime(rt || -1);
+      apidocResponseStore.changeResponseSize(streamSize);
+      apidocResponseStore.changeLoading(false);
+   
+      const responseInfo = apidocResponseStore;
       // console.log(responseInfo)
       worker.postMessage({
         type: 'after-request-init-response',
@@ -176,7 +197,7 @@ function electronRequest() {
       });
       worker.postMessage(JSON.parse(JSON.stringify({
         type: 'after-request-request',
-        value: store.state['apidoc/apidoc'].apidoc.afterRequest.raw
+        value: apidocStore.apidoc.afterRequest.raw
       })));
     });
     //获取流数据
@@ -186,10 +207,10 @@ function electronRequest() {
     });
     //错误处理
     requestStream.on('error', (error) => {
-      store.commit('apidoc/response/changeLoading', false)
-      store.commit('apidoc/response/changeIsResponse', true)
-      store.commit('apidoc/response/changeResponseContentType', 'error');
-      store.commit('apidoc/response/changeResponseTextValue', error.message);
+      apidocResponseStore.changeLoading(false);
+      apidocResponseStore.changeIsResponse(true)
+      apidocResponseStore.changeResponseContentType('error');
+      apidocResponseStore.changeResponseTextValue(error.message);
       console.error(error);
     });
     //重定向
@@ -198,13 +219,13 @@ function electronRequest() {
     });
     //下载进度
     requestStream.on('downloadProgress', (process) => {
-      store.commit('apidoc/response/changeResponseProgress', process)
+      apidocResponseStore.changeResponseProgress(process)
     });
   } catch (error) {
-    store.commit('apidoc/response/changeLoading', false)
-    store.commit('apidoc/response/changeResponseContentType', 'error');
-    store.commit('apidoc/response/changeIsResponse', true)
-    store.commit('apidoc/response/changeResponseTextValue', (error as Error).toString());
+    apidocResponseStore.changeLoading(false);
+    apidocResponseStore.changeIsResponse(true)
+    apidocResponseStore.changeResponseContentType('error');
+    apidocResponseStore.changeResponseTextValue((error as Error).toString());
     console.error(error);
   }
 }
@@ -215,26 +236,32 @@ function electronRequest() {
 |--------------------------------------------------------------------------
 */
 export function sendRequest(): void {
-  store.commit('apidoc/response/changeIsResponse', false);
-  store.commit('apidoc/baseInfo/clearTempVariables');
-  store.commit('apidoc/response/changeLoading', true);
-  const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc));
-  const cpApidoc2: ApidocDetail = JSON.parse(JSON.stringify(store.state['apidoc/apidoc'].apidoc));
+  const apidocResponseStore = useApidocResponse();
+  const apidocStore = useApidoc()
+  const apidocBaseInfoStore = useApidocBaseInfo();
+  const apidocTabsStore = useApidocTas();
+  const apidocWorkerStateStore = useApidocWorkerState()
+
+  apidocResponseStore.changeIsResponse(false);
+  apidocBaseInfoStore.clearTempVariables();
+  apidocResponseStore.changeLoading(true);
+  const cpApidoc: ApidocDetail = JSON.parse(JSON.stringify(apidocStore.apidoc));
+  const cpApidoc2: ApidocDetail = JSON.parse(JSON.stringify(apidocStore.apidoc));
   apidocConverter.setData(cpApidoc as ApidocDetail);
   apidocConverter.replaceUrl('');
   apidocConverter.clearTempVariables()
   const currentEnv = cpApidoc.item.url.host;
-  const baseInfo = JSON.parse(JSON.stringify({
-    ...store.state['apidoc/baseInfo'],
-    currentEnv,
-  }))
+  // const baseInfo = JSON.parse(JSON.stringify({
+  //   ...apidocBaseInfoStore,
+  //   currentEnv,
+  // }))
   const projectId = router.currentRoute.value.query.id as string;
-  const tabs = store.state['apidoc/tabs'].tabs[projectId];
+  const tabs = apidocTabsStore.tabs[projectId];
   const currentSelectTab = tabs?.find((tab) => tab.selected) || null;
-  const commonHeaders = store.getters['apidoc/baseInfo/headers'](currentSelectTab?._id)
+  const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || '')
   const localEnvs = apidocCache.getApidocServer(projectId)
-  const envs = store.state['apidoc/baseInfo'].hosts.concat(localEnvs);
-  const { sessionState, localState, remoteState } = store.state['apidoc/workerState'];
+  const envs = apidocBaseInfoStore.hosts.concat(localEnvs);
+  // const { sessionState, localState, remoteState } = store.state['apidoc/workerState'];
   worker = new Worker('/sandbox/pre-request/worker.js');
   db.scriptList.toArray().then(scriptList => {
     //初始化默认apidoc信息
@@ -244,28 +271,28 @@ export function sendRequest(): void {
         apidocInfo: JSON.parse(JSON.stringify(cpApidoc2)),
         commonHeaders: JSON.parse(JSON.stringify(commonHeaders)),
         currentEnv,
-        projectName: baseInfo.projectName,
-        _id: baseInfo._id,
-        projectVaribles: JSON.parse(JSON.stringify(baseInfo.variables)),
+        projectName: apidocBaseInfoStore.projectName,
+        _id: apidocBaseInfoStore._id,
+        projectVaribles: JSON.parse(JSON.stringify(apidocBaseInfoStore.variables)),
         envs,
-        sessionState: JSON.parse(JSON.stringify(sessionState[projectId] || {})),
-        localState: JSON.parse(JSON.stringify(localState[projectId] || {})),
-        remoteState: JSON.parse(JSON.stringify(remoteState[projectId] || {})),
+        sessionState: JSON.parse(JSON.stringify(apidocWorkerStateStore.sessionState[projectId] || {})),
+        localState: JSON.parse(JSON.stringify(apidocWorkerStateStore.localState[projectId] || {})),
+        remoteState: JSON.parse(JSON.stringify(apidocWorkerStateStore.remoteState[projectId] || {})),
         packages: JSON.parse(JSON.stringify(scriptList))
       }))
     });
     //发送请求
     worker.postMessage(JSON.parse(JSON.stringify({
       type: 'pre-request-request',
-      value: store.state['apidoc/apidoc'].apidoc.preRequest.raw
+      value: apidocStore.apidoc.preRequest.raw
     })));
   })
   //错误处理
   worker.addEventListener('error', (error) => {
-    store.commit('apidoc/response/changeLoading', false);
-    store.commit('apidoc/response/changeResponseContentType', 'error');
-    store.commit('apidoc/response/changeIsResponse', true);
-    store.commit('apidoc/response/changeResponseTextValue', error.message);
+    apidocResponseStore.changeLoading(false);
+    apidocResponseStore.changeResponseContentType('error');
+    apidocResponseStore.changeIsResponse(true);
+    apidocResponseStore.changeResponseTextValue(error.message);
     console.error(error);
   });
   //信息处理

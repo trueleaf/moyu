@@ -9,7 +9,7 @@ import { formatDate } from "@/helper"
 import setCookieParser from 'set-cookie-parser'
 import { useApidoc } from "./apidoc"
 import { useApidocBaseInfo } from "./base-info"
-
+import type { IncomingHttpHeaders } from 'http'
 type ResponseBaseInfo = {
   httpVersion: string,
   /**
@@ -40,7 +40,7 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
   const { tabs } = storeToRefs(useApidocTas())
   const { apidoc } = storeToRefs(useApidoc())
   const { globalCookies } = storeToRefs(useApidocBaseInfo())
-  const header = ref<Record<string, string>>({})
+  const header = ref<IncomingHttpHeaders>({})
   const contentType = ref('')
   const httpVersion = ref('')
   const ip = ref('')
@@ -129,7 +129,7 @@ export const useApidocResponse = defineStore('apidocResponse', () => {
     isResponse.value = state;
   }
   //改变responseHeader
-  const changeResponseHeader = (payload: Record<string, string>): void => {
+  const changeResponseHeader = (payload: IncomingHttpHeaders): void => {
     header.value = payload;
   }
   //改变response基本信息,

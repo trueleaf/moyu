@@ -624,4 +624,15 @@ export function apidocPropertyToJson5Str(queryParams: ApidocProperty<'string' | 
   return result;
 }
 
+export function getFileNameFromContentDisposition(contentDisposition: string) {
+  if (!contentDisposition) {
+    return '';
+  }
+ 
+  const match = contentDisposition.match(/filename="?([^";]*)"?/);
+  return match ? match[1] : '';
+}
+
+
 export * from './apidoc-format'
+

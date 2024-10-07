@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-03 20:45
-    模块名称：接口基础信息
-    备注：
-*/
 <template>
   <div class="request-view">
     <div class="text-bold">{{ t("基本信息") }}</div>
@@ -13,55 +7,60 @@
       </s-label-value>
       <s-label-value :label="`${t('请求方式')}：`" one-line>
         <template v-for="(req) in validRequestMethods">
-          <span v-if="apidocInfo.item.method === req.value.toUpperCase()" :key="req.name" class="label" :style="{color: req.iconColor}">{{ req.name.toUpperCase() }}</span>
+          <span v-if="apidocInfo.item.method === req.value.toUpperCase()" :key="req.name" class="label"
+            :style="{ color: req.iconColor }">{{ req.name.toUpperCase() }}</span>
         </template>
       </s-label-value>
       <div class="base-info">
-        <s-label-value :label="`${t('维护人员：')}`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator" label-width="auto" class="w-30">
+        <s-label-value :label="`${t('维护人员：')}`" :title="apidocInfo.info.maintainer || apidocInfo.info.creator"
+          label-width="auto" class="w-30">
           <span class="text-ellipsis">{{ apidocInfo.info.maintainer || apidocInfo.info.creator }}</span>
         </s-label-value>
-        <s-label-value :label="`${t('创建人员：')}`" :title="apidocInfo.info.creator || apidocInfo.info.maintainer" label-width="auto" class="w-30">
+        <s-label-value :label="`${t('创建人员：')}`" :title="apidocInfo.info.creator || apidocInfo.info.maintainer"
+          label-width="auto" class="w-30">
           <span class="text-ellipsis">{{ apidocInfo.info.creator || apidocInfo.info.maintainer }}</span>
         </s-label-value>
-        <s-label-value :label="`${t('更新日期：')}`" :title="$helper.formatDate(apidocInfo.updatedAt)" label-width="auto" class="w-50">
-          <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.updatedAt) }}</span>
+        <s-label-value :label="`${t('更新日期：')}`" :title="formatDate(apidocInfo.updatedAt)" label-width="auto"
+          class="w-50">
+          <span class="text-ellipsis">{{ formatDate(apidocInfo.updatedAt) }}</span>
         </s-label-value>
-        <s-label-value :label="`${t('创建日期：')}`" :title="$helper.formatDate(apidocInfo.createdAt)" label-width="auto" class="w-50">
-          <span class="text-ellipsis">{{ $helper.formatDate(apidocInfo.createdAt) }}</span>
+        <s-label-value :label="`${t('创建日期：')}`" :title="formatDate(apidocInfo.createdAt)" label-width="auto"
+          class="w-50">
+          <span class="text-ellipsis">{{ formatDate(apidocInfo.createdAt) }}</span>
         </s-label-value>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { useApidoc } from '@/store/apidoc/apidoc';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { t } from 'i18next'
+import { computed } from 'vue';
+import { formatDate } from '@/helper'
 
-export default defineComponent({
-  computed: {
-    apidocInfo() { //接口文档信息
-      return this.$store.state['apidoc/apidoc'].apidoc
-    },
-    validRequestMethods() {
-      return this.$store.state['apidoc/baseInfo'].rules.requestMethods?.filter((val) => val.enabled);
-    },
-  },
-})
+
+const apidocStore = useApidoc();
+const apidocBaseInfoStore = useApidocBaseInfo();
+const apidocInfo = computed(() => apidocStore.apidoc);
+const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMethods?.filter((val) => val.enabled));
 </script>
 
 <style lang="scss" scoped>
-    .request-view {
-        flex-grow: 0;
-        flex-shrink: 0;
-        box-shadow: 0 3px 2px $gray-400;
-        margin-bottom: size(10);
-        padding: size(10);
-        height: size(170);
-        overflow: hidden;
-        .svg-icon {
-            width: size(15);
-            height: size(15);
-            cursor: pointer;
-        }
-    }
+.request-view {
+  flex-grow: 0;
+  flex-shrink: 0;
+  box-shadow: 0 3px 2px $gray-400;
+  margin-bottom: size(10);
+  padding: size(10);
+  height: size(170);
+  overflow: hidden;
+
+  .svg-icon {
+    width: size(15);
+    height: size(15);
+    cursor: pointer;
+  }
+}
 </style>

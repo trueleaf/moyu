@@ -1,17 +1,12 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-03 20:45
-    模块名称：返回基本信息
-    备注：
-*/
+
 <template>
   <div class="d-flex a-center px-3 text-ellipsis">
     <div class="flex0 d-flex a-center">
       <span>{{ t("状态码") }}：</span>
-      <template v-if="remoteResponse.statusCode">
-        <span v-show="remoteResponse.statusCode >= 100 && remoteResponse.statusCode < 300" class="green">{{ remoteResponse.statusCode }}</span>
-        <span v-show="remoteResponse.statusCode >= 300 && remoteResponse.statusCode < 400" class="orange">{{ remoteResponse.statusCode }}</span>
-        <span v-show="remoteResponse.statusCode >= 400" class="red">{{ remoteResponse.statusCode }}</span>
+      <template v-if="apidocResponseStore.statusCode">
+        <span v-show="apidocResponseStore.statusCode >= 100 && apidocResponseStore.statusCode < 300" class="green">{{ apidocResponseStore.statusCode }}</span>
+        <span v-show="apidocResponseStore.statusCode >= 300 && apidocResponseStore.statusCode < 400" class="orange">{{ apidocResponseStore.statusCode }}</span>
+        <span v-show="apidocResponseStore.statusCode >= 400" class="red">{{ apidocResponseStore.statusCode }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <question-filled />
@@ -20,10 +15,10 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center">
       <span>{{ t("时长") }}：</span>
-      <template v-if="remoteResponse.rt">
-        <span v-show="remoteResponse.rt >= 0 && remoteResponse.rt < 2000" class="green">{{ formatedMs }}</span>
-        <span v-show="remoteResponse.rt >= 2000 && remoteResponse.rt < 5000" class="orange">{{ formatedMs }}</span>
-        <span v-show="remoteResponse.rt >= 5000" class="red">{{ formatedMs }}</span>
+      <template v-if="apidocResponseStore.rt">
+        <span v-show="apidocResponseStore.rt >= 0 && apidocResponseStore.rt < 2000" class="green">{{ formatedMs }}</span>
+        <span v-show="apidocResponseStore.rt >= 2000 && apidocResponseStore.rt < 5000" class="orange">{{ formatedMs }}</span>
+        <span v-show="apidocResponseStore.rt >= 5000" class="red">{{ formatedMs }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <question-filled />
@@ -32,10 +27,10 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center">
       <span>{{ t("大小") }}：</span>
-      <template v-if="remoteResponse.size">
-        <span v-show="remoteResponse.size >= 0 && remoteResponse.size < 10000" class="green">{{ formatedBytes }}</span>
-        <span v-show="remoteResponse.size >= 10000 && remoteResponse.size < 15000" class="orange">{{ formatedBytes }}</span>
-        <span v-show="remoteResponse.size >= 15000" class="red">{{ formatedBytes }}</span>
+      <template v-if="apidocResponseStore.size">
+        <span v-show="apidocResponseStore.size >= 0 && apidocResponseStore.size < 10000" class="green">{{ formatedBytes }}</span>
+        <span v-show="apidocResponseStore.size >= 10000 && apidocResponseStore.size < 15000" class="orange">{{ formatedBytes }}</span>
+        <span v-show="apidocResponseStore.size >= 15000" class="red">{{ formatedBytes }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <question-filled />
@@ -44,7 +39,7 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center j-center">
       <span>{{ t("格式") }}：</span>
-      <s-ellipsis-content v-if="remoteResponse.data.type" :value="remoteResponse.data.type" max-width="200px" class="orange"></s-ellipsis-content>
+      <s-ellipsis-content v-if="apidocResponseStore.data.type" :value="apidocResponseStore.data.type" max-width="200px" class="orange"></s-ellipsis-content>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <question-filled />
       </el-icon>
@@ -56,16 +51,14 @@
 import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
-import { store } from '@/store/index'
+import { t } from 'i18next'
+import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值
-const remoteResponse = computed(() => store.state['apidoc/response']);
+const apidocResponseStore = useApidocResponse()
 //格式化返回值大小
-const formatedBytes = computed(() => formatBytes(remoteResponse.value.size))
+const formatedBytes = computed(() => formatBytes(apidocResponseStore.size))
 //格式化返回时间
-const formatedMs = computed(() => formatMs(remoteResponse.value.rt))
+const formatedMs = computed(() => formatMs(apidocResponseStore.rt))
 </script>
 
-<style lang="scss" scoped>
-
-</style>

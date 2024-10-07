@@ -1,217 +1,194 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-03 20:45
-    模块名称：返回body
-    备注：
-*/
+
 <template>
   <div class="body-view" :class="{ vertical: layout === 'vertical' }">
-    <template v-if="remoteResponse.data.type">
+    <template v-if="remoteResponseData.type">
       <!-- 图片类型 -->
       <el-image
-        v-if="remoteResponse.data.type.includes('image/')"
+        v-if="remoteResponseData.type.includes('image/')"
         class="img-view"
-        :src="remoteResponse.data.file.url"
-        :preview-src-list="[remoteResponse.data.file.url]"
+        :src="remoteResponseData.file.url"
+        :preview-src-list="[remoteResponseData.file.url]"
         fit="scale-down"
       >
       </el-image>
       <!-- 音频类型 -->
       <!-- 视频类型 -->
       <!-- 强制下载类型 -->
-      <div v-else-if="remoteResponse.data.type.includes('application/octet-stream')" class="d-flex flex-column a-center">
+      <div v-else-if="remoteResponseData.type.includes('application/octet-stream')" class="d-flex flex-column a-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div>{{ remoteResponseData.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
-      <div v-else-if="remoteResponse.data.type.includes('application/force-download')" class="d-flex flex-column j-center">
+      <div v-else-if="remoteResponseData.type.includes('application/force-download')" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div>{{ remoteResponseData.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- excel -->
-      <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponse.data.type.includes('application/vnd.ms-excel')" class="d-flex flex-column j-center">
+      <div v-else-if="remoteResponseData.type.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') || remoteResponseData.type.includes('application/vnd.ms-excel')" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconexcel"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div>{{ remoteResponseData.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- word -->
-      <div v-else-if="remoteResponse.data.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponse.data.type.includes('application/msword')" class="d-flex flex-column j-center">
+      <div v-else-if="remoteResponseData.type.includes('application/vnd.openxmlformats-officedocument.wordprocessingml.document') || remoteResponseData.type.includes('application/msword')" class="d-flex flex-column j-center">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconWORD"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div>{{ remoteResponseData.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- pdf -->
-      <iframe v-else-if="remoteResponse.data.type.includes('application/pdf')" :src="remoteResponse.data.file.url" class="pdf-view"></iframe>
+      <iframe v-else-if="remoteResponseData.type.includes('application/pdf')" :src="remoteResponseData.file.url" class="pdf-view"></iframe>
       <!-- xml -->
-      <pre v-else-if="remoteResponse.data.type.includes('application/xml')">{{ remoteResponse.data.text }}</pre>
+      <pre v-else-if="remoteResponseData.type.includes('application/xml')">{{ remoteResponseData.text }}</pre>
       <!-- javascript -->
-      <pre v-else-if="remoteResponse.data.type.includes('application/javascript')">{{ remoteResponse.data.text }}</pre>
+      <pre v-else-if="remoteResponseData.type.includes('application/javascript')">{{ remoteResponseData.text }}</pre>
       <!-- 请求错误 -->
-      <div v-else-if="remoteResponse.data.type.includes('error')" class="red">{{ remoteResponse.data.text }}</div>
+      <div v-else-if="remoteResponseData.type.includes('error')" class="red">{{ remoteResponseData.text }}</div>
       <!-- html -->
-      <div v-else-if="remoteResponse.data.type.includes('text/html')" class="text-wrap">
-        <s-raw-editor :model-value="htmlResponse" readonly type="text/plain"></s-raw-editor>
+      <div v-else-if="remoteResponseData.type.includes('text/html')" class="text-wrap">
+        <SRawEditor :model-value="htmlResponse" readonly type="text/plain"></SRawEditor>
       </div>
       <!-- 纯文本 -->
-      <div v-else-if="remoteResponse.data.type.includes('text/plain')" class="text-wrap">
-        <s-raw-editor
+      <div v-else-if="remoteResponseData.type.includes('text/plain')" class="text-wrap">
+        <SRawEditor
           :model-value="textResponse"
           readonly
           type="text/plain"
         >
-        </s-raw-editor>
+        </SRawEditor>
       </div>
       <!-- 未知文件 -->
-      <div v-else-if="!remoteResponse.data.type.includes('application/json')">
+      <div v-else-if="!remoteResponseData.type.includes('application/json')">
         <svg class="svg-icon" aria-hidden="true" :title="t('下载文件')">
           <use xlink:href="#iconicon_weizhiwenjian"></use>
         </svg>
-        <div>{{ remoteResponse.data.type }}</div>
+        <div>{{ remoteResponseData.type }}</div>
         <el-button link type="primary" text @click="handleDownload">{{ t("下载文件") }}</el-button>
       </div>
       <!-- json -->
-      <div v-show="remoteResponse.data.type.includes('application/json')">
+      <div v-show="remoteResponseData.type.includes('application/json')">
         <div class="json-wrap">
-          <s-raw-editor :model-value="jsonResponse" readonly type="application/json"></s-raw-editor>
+          <SRawEditor :model-value="jsonResponse" readonly type="application/json"></SRawEditor>
           <div v-show="showTip" class="tip">
-            <span>由于性能原因，只能展示40kb数据</span>
-            <span v-show="!couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">显示全部</span>
-            <span v-show="couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">显示部分</span>
+            <span>{{ t('由于性能原因，只能展示40kb数据') }}</span>
+            <span v-show="!couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">{{ t('显示全部') }}</span>
+            <span v-show="couldShowAllJsonStr" class="white cursor-pointer ml-3" @click="couldShowAllJsonStr = !couldShowAllJsonStr">{{ t('显示部分') }}</span>
           </div>
         </div>
       </div>
     </template>
     <div v-show="showProcess" class="d-flex j-center w-100">
-      <span>{{ t("总大小") }}：{{ $helper.formatBytes(process.total) }}</span>
+      <span>{{ t("总大小") }}：{{ formatBytes(process.total) }}</span>
       <el-divider direction="vertical"></el-divider>
-      <span>{{ t("已传输") }}：{{ $helper.formatBytes(process.transferred) }}</span>
+      <span>{{ t("已传输") }}：{{ formatBytes(process.transferred) }}</span>
       <el-divider direction="vertical"></el-divider>
       <span>{{ t("进度") }}：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
     </div>
-    <!-- <div v-show="remoteResponse.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
+    <!-- <div v-show="remoteResponseData.data.type.includes('application/json')" class="apply-response">应用为响应值</div> -->
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import beautify from 'js-beautify'
+<script lang="ts" setup>
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocResponse } from '@/store/apidoc/response';
+import { computed, ref } from 'vue';
+import { t } from 'i18next'
+import { formatBytes } from '@/helper/index'
+import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 
-export default defineComponent({
-  data() {
-    return {
-      couldShowAllJsonStr: false,
-    };
-  },
-  computed: {
-    //远端返回数据结果
-    remoteResponse() {
-      return this.$store.state['apidoc/response']
-    },
-    //数据是否完全返回
-    loading() {
-      return this.$store.state['apidoc/response'].loading
-    },
-    //数据加载进度
-    process() {
-      return this.$store.state['apidoc/response'].process
-    },
-    //是否展示数据加载进度
-    showProcess() {
-      const remoteResponse = this.$store.state['apidoc/response'];
-      const dataType = remoteResponse.data.type;
-      if (!dataType) { //没有返回类型，不显示进度
-        return false;
-      }
-      const isError = dataType.includes('error');
-      const isText = dataType.includes('text');
-      const isJson = dataType.includes('application/json');
-      // const isPdf = dataType.includes("application/pdf");
-      const isXml = dataType.includes('application/xml');
-      const isJavascript = dataType.includes('application/javascript');
-      return !isError && !isText && !isJson && !isXml && !isJavascript;
-    },
-    //布局
-    layout() {
-      return this.$store.state['apidoc/baseInfo'].layout;
-    },
-    //json返回参数
-    jsonResponse() {
-      const data = this.$store.state['apidoc/response'].data.text;
-      const formatCode = beautify(data, { indent_size: 4 });
-      if (this.couldShowAllJsonStr) {
-        return formatCode;
-      }
-      if (formatCode.length > 1024 * 40) {
-        return formatCode.slice(0, 1024 * 40);
-      }
-      try {
-        return JSON.stringify(JSON.parse(formatCode), null, 4)
-      } catch {
-        return ''
-      }
-    },
-    //json数据过大是否显示提示
-    showTip() {
-      const data = this.$store.state['apidoc/response'].data.text;
-      const formatCode = beautify(data, { indent_size: 4 });
-      return formatCode.length > 1024 * 40
-    },
-    //HTML返回参数
-    htmlResponse() {
-      const data = this.$store.state['apidoc/response'].data.text;
-      return beautify.html(data, { indent_size: 4 });
-    },
-    //HTML返回时预览
-    htmlPreview() {
-      const data = this.$store.state['apidoc/response'].data.text;
-      const blob = new Blob([data], {
-        type: 'text/html'
-      });
-      const url = URL.createObjectURL(blob);
-      return url;
-    },
-    //纯文本返回参数
-    textResponse() {
-      const data = this.$store.state['apidoc/response'].data.text;
-      return data;
-    },
-    //返回值类型
-    responseApplyEnum() {
-      return this.$store.state['apidoc/apidoc'].apidoc.item.responseParams.filter(v => v.value.dataType === 'application/json').map((v, index) => ({
-        index,
-        title: v.title,
-        contentType: v.value.dataType
-      }));
-    },
-  },
-  methods: {
-    //美化html文件
-    beautifyHtml(str: string) {
-      return str;
-    },
-    //下载文件
-    handleDownload() {
-      const fileInfo = this.remoteResponse.data.file
-      const downloadElement = document.createElement('a');
-      downloadElement.href = fileInfo.url;
-      downloadElement.download = fileInfo.name || this.t('未命名'); //下载后文件名
-      document.body.appendChild(downloadElement);
-      downloadElement.click(); //点击下载
-      document.body.removeChild(downloadElement); //下载完成移除元素
-      window.URL.revokeObjectURL(fileInfo.url); //释放掉blob对象
-      console.log(this.remoteResponse)
-    }
-  },
-})
+
+const couldShowAllJsonStr = ref(false);
+const apidocResponseStore = useApidocResponse();
+const apidocBaseInfoStore = useApidocBaseInfo();
+const remoteResponseData = computed(() => apidocResponseStore.data);
+const process = computed(() => apidocResponseStore.process);
+const showProcess = computed(() => { //是否展示数据加载进度
+  const dataType = apidocResponseStore.data.type;
+  if (!dataType) { //没有返回类型，不显示进度
+    return false;
+  }
+  const isError = dataType.includes('error');
+  const isText = dataType.includes('text');
+  const isJson = dataType.includes('application/json');
+  // const isPdf = dataType.includes("application/pdf");
+  const isXml = dataType.includes('application/xml');
+  const isJavascript = dataType.includes('application/javascript');
+  return !isError && !isText && !isJson && !isXml && !isJavascript;
+});
+//布局
+const layout = computed(() => {
+  return apidocBaseInfoStore.layout;
+});
+//json返回参数
+const jsonResponse = computed(() => {
+  const data = apidocResponseStore.data.text;
+  const formatCode = window?.js_beautify(data, { indent_size: 4 });
+  if (couldShowAllJsonStr.value) {
+    return formatCode;
+  }
+  if (formatCode.length > 1024 * 40) {
+    return formatCode.slice(0, 1024 * 40);
+  }
+  try {
+    return JSON.stringify(JSON.parse(formatCode), null, 4)
+  } catch {
+    return ''
+  }
+});
+//json数据过大是否显示提示
+const showTip = computed(() => {
+  const data = apidocResponseStore.data.text;
+  const formatCode = window?.js_beautify(data, { indent_size: 4 });
+  return formatCode.length > 1024 * 40
+});
+//HTML返回参数
+const htmlResponse = computed(() => {
+  const data = apidocResponseStore.data.text;
+  return window?.js_beautify.html(data, { indent_size: 4 });
+});
+//HTML返回时预览
+// const htmlPreview = computed(() => {
+//   const data = apidocResponseStore.data.text;
+//   const blob = new Blob([data], {
+//     type: 'text/html'
+//   });
+//   const url = URL.createObjectURL(blob);
+//   return url;
+// });
+//纯文本返回参数
+const textResponse = computed(() => {
+  const data = apidocResponseStore.data.text;
+  return data;
+});
+/*
+|--------------------------------------------------------------------------
+| 方法定义
+|--------------------------------------------------------------------------
+*/
+//美化html文件
+// const beautifyHtml = (str: string) => {
+//   return str;
+// };
+//下载文件
+const handleDownload = () => {
+  const fileInfo = apidocResponseStore.data.file
+  const downloadElement = document.createElement('a');
+  downloadElement.href = fileInfo.url;
+  downloadElement.download = fileInfo.name || t('未命名'); //下载后文件名
+  document.body.appendChild(downloadElement);
+  downloadElement.click(); //点击下载
+  document.body.removeChild(downloadElement); //下载完成移除元素
+  window.URL.revokeObjectURL(fileInfo.url); //释放掉blob对象
+}
+
 </script>
 
 <style lang="scss" scoped>

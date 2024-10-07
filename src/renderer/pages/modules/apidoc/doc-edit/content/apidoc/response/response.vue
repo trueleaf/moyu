@@ -1,14 +1,15 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-08-15 22:11
-    模块名称：返回参数
-    备注：
+创建者：shuxiaokai
+创建时间：2021-08-15 22:11
+模块名称：返回参数
+备注：
 */
 <template>
   <s-base-info v-show="layout === 'horizontal'"></s-base-info>
   <s-res-info v-show="layout === 'horizontal'"></s-res-info>
   <s-loading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
-    <div v-show="remoteResponse.data.type" class="remote-response-wrap px-3 w-100" :class="{ vertical: layout === 'vertical' }">
+    <div v-show="remoteResponseType" class="remote-response-wrap px-3 w-100"
+      :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
         <el-tab-pane :label="t('返回值')" name="s-body" class="w-100">
           <s-body class="h-100"></s-body>
@@ -33,10 +34,10 @@
         </el-tab-pane>
       </el-tabs>
     </div>
-    <el-empty v-show="!remoteResponse.data.type">
+    <el-empty v-show="!remoteResponseType">
       <template #description>
         <div v-if="!loading">
-          <div v-if="config.isElectron">{{ t("点击发送按钮发送请求") }}</div>
+          <div v-if="isElectron()">{{ t("点击发送按钮发送请求") }}</div>
           <div v-else>
             <div>
               <el-icon :size="18" class="orange mr-2">
@@ -55,7 +56,7 @@
           <el-divider direction="vertical"></el-divider>
           <span>{{ t("已传输") }}：{{ formatBytes(process.transferred) }}</span>
           <el-divider direction="vertical"></el-divider>
-          <span>{{ t("进度") }}：{{ (process.percent * 100 ).toFixed(2) + "%" }}</span>
+          <span>{{ t("进度") }}：{{ (process.percent * 100).toFixed(2) + "%" }}</span>
         </div>
       </template>
     </el-empty>
@@ -66,7 +67,6 @@
 import { computed, ref } from 'vue'
 import { Warning } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
-import { store } from '@/store/index'
 import { formatBytes } from '@/helper/index'
 import sBaseInfo from './base-info/base-info.vue'
 import sResInfo from './res-info/res-info.vue'
@@ -74,48 +74,57 @@ import sCookie from './cookie/cookie.vue'
 import sHeaders from './headers/headers.vue'
 import sBody from './body/body.vue'
 import sRequest from './request/request.vue'
+import { t } from 'i18next'
+import { useApidocResponse } from '@/store/apidoc/response'
+import { useApidocBaseInfo } from '@/store/apidoc/base-info'
+import { isElectron } from '@src/utils/utils'
 
 const activeName = ref('s-body');
-
-const cookies = computed(() => store.state['apidoc/response'].cookies)
+const apidocResponseStore = useApidocResponse();
+const apidocBaseInfoStore = useApidocBaseInfo();
+const cookies = computed(() => apidocResponseStore.cookies)
 const headers = computed(() => {
-  const { header } = store.state['apidoc/response'];
   const result: { key: string, value: string }[] = [];
-  Object.keys(header).forEach(key => {
+  Object.keys(apidocResponseStore.header).forEach(key => {
     result.push({
       key,
-      value: header[key] as string,
+      value: apidocResponseStore.header[key] as string,
     });
   })
   return result
 })
-const layout = computed(() => store.state['apidoc/baseInfo'].layout)
-const remoteResponse = computed(() => store.state['apidoc/response'])
-const loading = computed(() => store.state['apidoc/response'].loading) //数据是否完全返回
-const isResponse = computed(() => store.state['apidoc/response'].isResponse) //接口是否响应
-const process = computed(() => store.state['apidoc/response'].process)
+const layout = computed(() => apidocBaseInfoStore.layout)
+const remoteResponseType = computed(() => apidocResponseStore.data.type)
+const loading = computed(() => apidocResponseStore.loading) //数据是否完全返回
+const isResponse = computed(() => apidocResponseStore.isResponse) //接口是否响应
+const process = computed(() => apidocResponseStore.process)
 
 </script>
 
 <style lang="scss" scoped>
 .remote-response-wrap {
-    height: calc(100vh - #{size(310)});
+  height: calc(100vh - #{size(310)});
+
+  .el-tabs__content {
+    height: calc(100% - 55px);
+
+    .el-tab-pane {
+      height: 100%;
+    }
+  }
+
+  &.vertical {
+    height: 100%;
+    margin-top: size(15);
+
     .el-tabs__content {
-        height: calc(100% - 55px);
-        .el-tab-pane {
-            height: 100%;
-        }
-    }
-    &.vertical {
+      height: calc(100% - 55px);
+      overflow-y: auto;
+
+      .el-tab-pane {
         height: 100%;
-        margin-top: size(15);
-        .el-tabs__content {
-            height: calc(100% - 55px);
-            overflow-y: auto;
-            .el-tab-pane {
-                height: 100%;
-            }
-        }
+      }
     }
+  }
 }
 </style>

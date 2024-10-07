@@ -1,9 +1,3 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-09-03 20:45
-    模块名称：返回cookie
-    备注：
-*/
 <template>
   <div class="cookie-view" :class="{ vertical: layout === 'vertical' }">
     <el-table :data="cookies" stripe border height="100%">
@@ -23,38 +17,31 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
+import { useApidocResponse } from '@/store/apidoc/response';
+import { computed } from 'vue';
 
-export default defineComponent({
-  data() {
-    return {
-    };
-  },
-  computed: {
-    cookies() {
-      return this.$store.state['apidoc/response'].cookies
-    },
-    //布局
-    layout() {
-      return this.$store.state['apidoc/baseInfo'].layout;
-    },
-  },
-  methods: {
-  },
-})
+
+const apidocResponseStore = useApidocResponse();
+const apidocBaseInfoStore = useApidocBaseInfo();
+const cookies = computed(() => apidocResponseStore.cookies);
+const layout = computed(() => apidocBaseInfoStore.layout);
+
 </script>
 
 <style lang="scss" scoped>
 .cookie-view {
-    width: 100%;
-    height: calc(100vh - #{size(370)});
-    .value-wrap {
-        max-height: size(140);
-        overflow-y: auto;
-    }
-    &.vertical {
-        height: 100%;
-    }
+  width: 100%;
+  height: calc(100vh - #{size(370)});
+
+  .value-wrap {
+    max-height: size(140);
+    overflow-y: auto;
+  }
+
+  &.vertical {
+    height: 100%;
+  }
 }
 </style>

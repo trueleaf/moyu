@@ -13,5 +13,6 @@ export type ElectronAPI = {
 declare global {
   interface Window {
     electronAPI?: ElectronAPI;
+    js_beautify?: any;
   }
 }

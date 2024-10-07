@@ -1,3 +1,4 @@
+import type { Method } from "got"
 /*
 |--------------------------------------------------------------------------
 | 工具类声明
@@ -185,15 +186,7 @@ export type PermissionClientMenu = {
 |
 */
 //http请求方法 https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
-export type ApidocHttpRequestMethod =
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'PATCH'
-  | 'HEAD'
-  | 'DELETE'
-  | 'OPTIONS'
-  | 'TRACE';
+export type ApidocHttpRequestMethod = Method
 
 //项目枚举信息
 export type ApidocProjectEnum = {
