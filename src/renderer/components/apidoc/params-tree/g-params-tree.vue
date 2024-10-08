@@ -105,6 +105,7 @@ import { useApidoc } from '@/store/apidoc/apidoc'
 import SValidInput from '@/components/common/valid-input/g-valid-input.vue'
 import SMock from '@/components/apidoc/mock/g-mock.vue'
 import SEllipsisContent from '@/components/common/ellipsis-content/g-ellipsis-content.vue'
+import { config } from '@src/config/config'
 
 type TreeNode = {
   level: number,
@@ -299,10 +300,10 @@ const handleDeleteParams = ({ node, data }: { node: TreeNode | RootTreeNode, dat
       index: deleteIndex,
     })
   } else {
-    const deleteIndex = (parentData as TreeNode['data']).children.findIndex((val) => val._id === data._id);
+    const deleteIndex = (parentData as TreeNode['data']).children?.findIndex((val) => val._id === data._id);
     apidocStore.deleteProperty({
-      data: (parentData as TreeNode['data']).children,
-      index: deleteIndex,
+      data: (parentData as TreeNode['data']).children ?? [],
+      index: deleteIndex ?? -1,
     })
   }
 };
@@ -337,7 +338,7 @@ const handleChangeKeyData = (val: string, { node, data }: { node: TreeNode | Roo
           params: apidocGenerateProperty(),
         })
       }
-    } else if (parentData.children[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== '') {
+    } else if (parentData.children?.[parentData.children.length - 1].key && parentData.children[parentData.children.length - 1].key.trim() !== '') {
       apidocStore.addProperty({
         data: parentData.children,
         params: apidocGenerateProperty(),
@@ -370,7 +371,7 @@ const handleCheckKeyField = ({ node, data }: { node: TreeNode | RootTreeNode, da
   const parentNode = node.parent;
   const parentData = node.parent.data as TreeNode['data'];
   const rootParentData = node.parent.data as RootTreeNode['data'];
-  const nodeIndex = (parentNode.level === 0) ? rootParentData.findIndex((val) => val._id === data._id) : parentData.children.findIndex((val) => val._id === data._id);
+  const nodeIndex = (parentNode.level === 0) ? rootParentData.findIndex((val) => val._id === data._id) : parentData.children?.findIndex((val) => val._id === data._id);
   if (parentNode.level === 0 && rootParentData.length === 1) { //根元素第一个可以不必校验因为参数可以不必填
     return;
   }
@@ -556,7 +557,7 @@ const handleChangeIsRequired = (value: string, data: ApidocProperty) => {
   apidocStore.changePropertyValue({
     data,
     field: 'required',
-    value,
+    value: !!value,
   })
 }
 //是否必填

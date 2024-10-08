@@ -9,7 +9,7 @@
         <span v-show="apidocResponseStore.statusCode >= 400" class="red">{{ apidocResponseStore.statusCode }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
-        <question-filled />
+        <QuestionFilled />
       </el-icon>
     </div>
     <el-divider direction="vertical"></el-divider>
@@ -21,7 +21,7 @@
         <span v-show="apidocResponseStore.rt >= 5000" class="red">{{ formatedMs }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
-        <question-filled />
+        <QuestionFilled />
       </el-icon>
     </div>
     <el-divider direction="vertical"></el-divider>
@@ -33,15 +33,15 @@
         <span v-show="apidocResponseStore.size >= 15000" class="red">{{ formatedBytes }}</span>
       </template>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
-        <question-filled />
+        <QuestionFilled />
       </el-icon>
     </div>
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center j-center">
       <span>{{ t("格式") }}：</span>
-      <s-ellipsis-content v-if="apidocResponseStore.data.type" :value="apidocResponseStore.data.type" max-width="200px" class="orange"></s-ellipsis-content>
+      <SEllipsisContent v-if="apidocResponseStore.data.type" :value="apidocResponseStore.data.type" max-width="200px" class="orange"></SEllipsisContent>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
-        <question-filled />
+        <QuestionFilled />
       </el-icon>
     </div>
   </div>
@@ -52,6 +52,7 @@ import { computed } from 'vue'
 import { QuestionFilled } from '@element-plus/icons-vue'
 import { formatBytes, formatMs } from '@/helper/index'
 import { t } from 'i18next'
+import SEllipsisContent from '@/components/common/ellipsis-content/g-ellipsis-content.vue'
 import { useApidocResponse } from '@/store/apidoc/response';
 
 //远端返回值

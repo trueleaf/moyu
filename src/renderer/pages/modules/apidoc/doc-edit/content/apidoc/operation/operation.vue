@@ -5,14 +5,14 @@
       <el-popover placement="top-start" :show-after="500" trigger="hover" width="auto" :content="mockServer"
         class="mr-2">
         <template #reference>
-          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-label="mockServer" false-label=""
+          <el-checkbox v-model="host" :label="mockServer" size="small" border :true-value="mockServer" false-label=""
             @change="handleChangeHost">{{ t("Mock服务器") }}</el-checkbox>
         </template>
       </el-popover>
       <el-popover v-for="(item, index) in hostEnum" :key="index" :show-after="500" placement="top-start" trigger="hover"
         width="auto" :content="item.url">
         <template #reference>
-          <el-checkbox v-model="host" :true-label="item.url" false-label="" size="small" border
+          <el-checkbox v-model="host" :true-value="item.url" false-label="" size="small" border
             @change="handleChangeHost">{{ item.name }}</el-checkbox>
         </template>
       </el-popover>

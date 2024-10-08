@@ -1,36 +1,30 @@
-/*
-创建者：shuxiaokai
-创建时间：2021-08-15 22:11
-模块名称：返回参数
-备注：
-*/
 <template>
-  <s-base-info v-show="layout === 'horizontal'"></s-base-info>
-  <s-res-info v-show="layout === 'horizontal'"></s-res-info>
-  <s-loading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
+  <SBaseInfo v-show="layout === 'horizontal'"></SBaseInfo>
+  <SResInfo v-show="layout === 'horizontal'"></SResInfo>
+  <SLoading :loading="!isResponse" :class="{ 'h-100': layout === 'vertical' }" class="w-100">
     <div v-show="remoteResponseType" class="remote-response-wrap px-3 w-100"
       :class="{ vertical: layout === 'vertical' }">
       <el-tabs v-model="activeName" class="h-100 w-100">
-        <el-tab-pane :label="t('返回值')" name="s-body" class="w-100">
-          <s-body class="h-100"></s-body>
+        <el-tab-pane :label="t('返回值')" name="SBody" class="w-100">
+          <SBody class="h-100"></SBody>
         </el-tab-pane>
-        <el-tab-pane :label="t('请求信息')" name="s-request">
-          <s-request class="h-100"></s-request>
+        <el-tab-pane :label="t('请求信息')" name="SRequest">
+          <SRequest class="h-100"></SRequest>
         </el-tab-pane>
-        <el-tab-pane name="s-headers">
+        <el-tab-pane name="Sheaders">
           <template #label>
             <span>{{ t("返回头") }}&nbsp;</span>
             <span v-if="headers.length > 0" class="orange">({{ headers.length }})</span>
           </template>
-          <s-headers></s-headers>
+          <SHeaders></SHeaders>
         </el-tab-pane>
-        <el-tab-pane name="s-cookie">
+        <el-tab-pane name="SCookie">
           <template #label>
             <span>Cookie&nbsp;</span>
             <span v-if="cookies.length > 0" class="orange">({{ cookies.length }})</span>
           </template>
           <!-- fix: 文字隐藏组件获取dom宽度失败 -->
-          <s-cookie v-if="activeName === 's-cookie'"></s-cookie>
+          <SCookie v-if="activeName === 'SCookie'"></SCookie>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -60,7 +54,7 @@
         </div>
       </template>
     </el-empty>
-  </s-loading>
+  </SLoading>
 </template>
 
 <script lang="ts" setup>
@@ -68,18 +62,20 @@ import { computed, ref } from 'vue'
 import { Warning } from '@element-plus/icons-vue'
 import { config } from '@/../config/config'
 import { formatBytes } from '@/helper/index'
-import sBaseInfo from './base-info/base-info.vue'
-import sResInfo from './res-info/res-info.vue'
-import sCookie from './cookie/cookie.vue'
-import sHeaders from './headers/headers.vue'
-import sBody from './body/body.vue'
-import sRequest from './request/request.vue'
+import SBaseInfo from './base-info/base-info.vue'
+import SResInfo from './res-info/res-info.vue'
+import SCookie from './cookie/cookie.vue'
+import SHeaders from './headers/headers.vue'
+import SBody from './body/body.vue'
+import SRequest from './request/request.vue'
 import { t } from 'i18next'
 import { useApidocResponse } from '@/store/apidoc/response'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info'
 import { isElectron } from '@src/utils/utils'
+import SLoading from '@/components/common/loading/g-loading.vue'
 
-const activeName = ref('s-body');
+
+const activeName = ref('SBody');
 const apidocResponseStore = useApidocResponse();
 const apidocBaseInfoStore = useApidocBaseInfo();
 const cookies = computed(() => apidocResponseStore.cookies)

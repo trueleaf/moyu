@@ -4,9 +4,10 @@ import json5 from 'json5'
 import html2canvas from 'html2canvas';
 import { apidocGenerateApidoc, apidocGenerateProperty, formatBytes } from '@/helper/index'
 import Mock from '@/server/mock/mock'
-import { store } from '@/store'
 import { router } from '@/router'
 import { axios } from '@/api/api'
+import { useApidocTas } from '@/store/apidoc/tabs';
+import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let FormData: any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -201,7 +202,7 @@ class ApidocConverter {
     const { url, queryParams, paths, } = this.apidoc.item;
     const queryString = this.convertQueryParamsToQueryString(queryParams);
     const pathMap = this.getPathParamsMap(paths)
-    const validPath = url.path.replace(/\{([^\\}]+)\}/g, ($1, $2) => pathMap[$2] || $2);
+    const validPath = url.path.replace(/\{([^\\}]+)\}/g, (_, $2) => pathMap[$2] || $2);
     let fullUrl = url.host + validPath + queryString;
     if (!fullUrl.startsWith('http') && !fullUrl.startsWith('https')) {
       fullUrl = `http://${fullUrl}`
@@ -242,9 +243,12 @@ class ApidocConverter {
      * 获取请求头
      */
   getHeaders() {
+    const apidocTabsStore = useApidocTas();
+    const apidocBaseInfoStore = useApidocBaseInfo();
     const projectId = router.currentRoute.value.query.id as string;
-    const currentSelectTab = store.state['apidoc/tabs'].tabs[projectId]?.find((tab) => tab.selected) || null;
-    const commonHeaders = store.getters['apidoc/baseInfo/headers'](currentSelectTab?._id) as Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[];
+    const currentSelectTab = apidocTabsStore.tabs[projectId]?.find((tab) => tab.selected) || null;
+    const commonHeaders = apidocBaseInfoStore.getCommonHeadersById(currentSelectTab?._id || '');
+    // const commonHeaders = store.getters['apidoc/baseInfo/headers'](currentSelectTab?._id) as Pick<ApidocProperty, 'key' | 'value' | 'description' | 'select'>[];
     const realHeaders: Record<string, string | undefined> = {};
     const { headers, requestBody, contentType } = this.apidoc.item;
     const { mode } = requestBody;
@@ -388,14 +392,14 @@ class ApidocConverter {
       // eslint-disable-next-line no-useless-escape, no-case-declarations
       const numberMap: Record<string, string> = {};
       // eslint-disable-next-line no-useless-escape, no-case-declarations
-      const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{14,})/g, (match, $1, $2) => {
+      const convertBody = requestBody.rawJson.replace(/("\s*:\s*)(\d{14,})/g, (_, $1, $2) => {
         numberMap[$2] = $2;
         return `${$1}"${$2}"`;
       });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       body = this.convertMockJsonToRealJson(convertBody);
       Object.keys(numberMap).forEach(key => {
-        body = (body as string).replace(new RegExp(`:"(${key})"`, 'g'), (match, $1) => `:${$1}`);
+        body = (body as string).replace(new RegExp(`:"(${key})"`, 'g'), (_, $1) => `:${$1}`);
       })
       break;
     case 'application/x-www-form-urlencoded':
@@ -446,11 +450,11 @@ class ApidocConverter {
      * 将mock类型json转换为真实json
      */
   convertMockJsonToRealJson(mockJson: string) {
+    const apidocBaseInfoStore = useApidocBaseInfo();
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return JSON.stringify(json5.parse(mockJson || 'null', (key: string, value: any) => {
-        const { variables } = store.state['apidoc/baseInfo']
-        if (!value) { //null
+      return JSON.stringify(json5.parse(mockJson || 'null', (_: string, value: any) => {
+        if (!value) {
           return value;
         }
         if (typeof value === 'string') {
@@ -469,7 +473,7 @@ class ApidocConverter {
             if (varStr.startsWith('$')) {
               return Mock.mock(varStr.replace(/^\$/, '@'));
             }
-            const matchedValue = variables.find(v => v.name === varStr)
+            const matchedValue = apidocBaseInfoStore.variables.find(v => v.name === varStr)
             if (matchedValue) {
               return matchedValue.value
             }

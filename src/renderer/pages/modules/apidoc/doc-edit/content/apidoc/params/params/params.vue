@@ -2,9 +2,9 @@
 <template>
   <div class="query-path-params">
     <div class="title">Query&nbsp;{{ t("参数") }}</div>
-    <s-params-tree show-checkbox :data="queryTreeData" :mind-params="mindQueryData"></s-params-tree>
+    <SParamsTree show-checkbox :data="queryTreeData" :mind-params="mindQueryData"></SParamsTree>
     <div v-show="hasPathParams" class="title">Path&nbsp;{{ t("参数") }}</div>
-    <s-params-tree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData" :mind-params="mindPathData"></s-params-tree>
+    <SParamsTree v-show="hasPathParams" disable-add disable-delete :data="pathTreeData" :mind-params="mindPathData"></SParamsTree>
   </div>
 </template>
 
@@ -12,6 +12,7 @@
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 import { computed } from 'vue'
+import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
 import { t } from 'i18next'
 
 const apidocStore = useApidoc()

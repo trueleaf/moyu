@@ -37,7 +37,6 @@ function initGot() {
   if (gotInstance) {
     return gotInstance;
   }
-  const apidocBaseInfoStore = useApidocBaseInfo();
   const apidocRequestStore = useApidocRequest();
   const initGotConfig = {
     timeout: config.timeout || 60000, //超时时间
@@ -60,7 +59,8 @@ function initGot() {
           url: options.url.href,
           headers: realHeaders,
           method: options.method,
-          body: options.body,
+          // todo
+          body: options.body as any,
         })
       }]
     },
@@ -411,26 +411,26 @@ export function sendRequest(): void {
       apidocConverter.changeRawBody(res.data.value);
     }
     if (res.data.type === 'pre-request-change-sessionState') { //改变worker的sessionState
-      store.commit('apidoc/workerState/changeSessionState', {
+      apidocWorkerStateStore.changeSessionState({
         projectId,
         value: res.data.value
-      });
+      })
     }
     if (res.data.type === 'pre-request-change-localState') { //改变worker的localState
       apidocCache.setApidocWorkerLocalState(projectId, res.data.value)
-      store.commit('apidoc/workerState/changeLocalState', {
+      apidocWorkerStateStore.changeLocalState({
         projectId,
         value: res.data.value
-      });
+      })
     }
     if (res.data.type === 'pre-request-error' || res.data.type === 'after-request-error') { //预请求错误捕获
-      store.commit('apidoc/response/changeLoading', false);
-      store.commit('apidoc/response/changeResponseContentType', 'error');
-      store.commit('apidoc/response/changeIsResponse', true);
+      apidocResponseStore.changeLoading(false);
+      apidocResponseStore.changeResponseContentType('error');
+      apidocResponseStore.changeIsResponse(true);
       if (res.data.type === 'pre-request-error') {
-        store.commit('apidoc/response/changeResponseTextValue', `前置脚本：${res.data.value.message}`);
+        apidocResponseStore.changeResponseTextValue(`${t('前置脚本：')}${res.data.value.message}`);
       } else {
-        store.commit('apidoc/response/changeResponseTextValue', `后置脚本：${res.data.value.message}`);
+        apidocResponseStore.changeResponseTextValue(`${t('后置脚本：')}${res.data.value.message}`);
       }
       console.error(res.data.value);
     }
@@ -438,8 +438,9 @@ export function sendRequest(): void {
 }
 
 export function stopRequest(): void {
-  store.commit('apidoc/response/changeIsResponse', true)
-  store.commit('apidoc/response/changeLoading', false)
+  const apidocResponseStore = useApidocResponse();
+  apidocResponseStore.changeLoading(false);
+  apidocResponseStore.changeIsResponse(true);
   if (requestStream) {
     requestStream.destroy();
   }

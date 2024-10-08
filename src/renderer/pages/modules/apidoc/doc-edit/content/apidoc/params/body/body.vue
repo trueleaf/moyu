@@ -11,25 +11,25 @@
       </el-radio-group>
     </div>
     <div v-if="bodyType !== 'raw'" class="params-wrap" @click="handleFocus">
-      <s-json-editor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
-        class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></s-json-editor>
-      <s-params-tree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
-        @change="checkContentType"></s-params-tree>
-      <s-params-tree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
-        @change="checkContentType"></s-params-tree>
+      <SJsonEditor v-show="bodyType === 'json'" ref="jsonComponent" v-model="rawJsonData" :config="jsonEditorConfig"
+        class="json-wrap" @ready="handleJsonEditorReady" @change="checkContentType"></SJsonEditor>
+      <SParamsTree v-if="bodyType === 'formdata'" enable-file show-checkbox :data="formData"
+        @change="checkContentType"></SParamsTree>
+      <SParamsTree v-if="bodyType === 'urlencoded'" show-checkbox :data="urlencodedData"
+        @change="checkContentType"></SParamsTree>
       <div v-show="bodyType === 'json'" class="body-op">
         <span class="btn" @click="handleFormat">格式化</span>
         <!-- <span class="btn" @click="handleOpenSaveDialog">保存用例</span>
                 <span class="btn" @click="handleFormat">切换用例</span> -->
       </div>
       <div v-if="bodyType === 'json' && !rawJsonData && jsonBodyVisible" class="json-tip">
-        <img class="w-100 h-100" :src="require('@/assets/imgs/apidoc/body-tip.png')" draggable="false"
+        <img class="w-100 h-100" :src="bodyTipUrl" draggable="false"
           oncontextmenu="return false" />
         <div class="no-tip" @click="handleHideTip">不再提示</div>
       </div>
     </div>
     <div v-if="bodyType === 'raw'" class="raw">
-      <s-raw-editor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></s-raw-editor>
+      <SRawEditor v-model="rawValue" :type="rawType" @change="handleChangeRawData"></SRawEditor>
       <div class="raw-type">
         <el-select v-model="rawType" :size="config.renderConfig.layout.size" class="w-100"
           @change="handleChangeRawType">
@@ -51,9 +51,13 @@ import { t } from 'i18next'
 import { apidocCache } from '@/cache/apidoc'
 import { useApidoc } from '@/store/apidoc/apidoc';
 import { config } from '@src/config/config';
+import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
+import SParamsTree from '@/components/apidoc/params-tree/g-params-tree.vue'
+import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
+
 // import sBodyUseCaseDialog from "./dialog/body-use-case/body-use-case.vue"
 
-//=========================================================================//
+const bodyTipUrl = new URL('@/assets/imgs/apidoc/body-tip.png', import.meta.url).href
 const apidocStore = useApidoc()
 const jsonComponent: Ref<null | {
   format: () => void,
@@ -209,8 +213,8 @@ const formData = computed(() => apidocStore.apidoc.item.requestBody.formdata)
 | 生命周期相关
 |--------------------------------------------------------------------------
 */
-onMounted(() => {
-  jsonBodyVisible.value = apidocCache.getCouldShowJsonBodyTip();
+onMounted(async () => {
+  jsonBodyVisible.value = await apidocCache.getCouldShowJsonBodyTip();
 });
 </script>
 

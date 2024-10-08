@@ -33,7 +33,7 @@
               <span>生成代码</span>
             </span>
           </template>
-          <s-hook v-if="generateCodeVisible" @close="generateCodeVisible = false"></s-hook>
+          <SHook v-if="generateCodeVisible" @close="generateCodeVisible = false"></SHook>
         </el-popover>
       </div>
     </div>
@@ -86,13 +86,13 @@ import { DebouncedFunc } from 'lodash'
 import type { ApidocDetail, ApidocProperty } from '@src/types/global'
 import { apidocCache } from '@/cache/apidoc'
 import { lodashIsEqual, debounce } from '@/helper/index'
+import { t } from 'i18next'
 import SParams from './params/params.vue';
 import SRequestBody from './body/body.vue';
 import SRequestHeaders from './headers/headers.vue';
 import SResponseParams from './response/response.vue';
 import SPreRequestParams from './pre-request/pre-request.vue';
 import SAfterRequestParams from './after-request/after-request.vue';
-import { t } from 'i18next'
 import SRemark from './remarks/remarks.vue';
 import SHook from './hook/hook.vue'
 import SMock from './mock/mock.vue'
