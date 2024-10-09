@@ -1,9 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-12-12 12:27
-    模块名称：monaco-editor
-    备注：
-*/
+
 <template>
   <div ref="afterEditor" class="s-monaco-editor"></div>
   <el-button type="primary" text class="format-btn" @click="handleFormat">格式化</el-button>
@@ -11,12 +6,17 @@
 
 <script lang="ts" setup>
 import { ref, Ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import beautify from 'js-beautify'
 import { event } from '@/helper/index'
 import { useCompletionItem } from './registerCompletionItem'
 import { useHoverProvider } from './registerHoverProvider'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
+import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 
 const props = defineProps({
   modelValue: {
@@ -38,6 +38,23 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 onMounted(() => {
+  self.MonacoEnvironment = {
+    getWorker(_: string, label: string) {
+      if (label === 'json') {
+        return new jsonWorker()
+      }
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new cssWorker()
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new htmlWorker()
+      }
+      if (['typescript', 'javascript'].includes(label)) {
+        return new tsWorker()
+      }
+      return new EditorWorker()
+    },
+  }
   event.emit('apidoc/editor/removePreEditor');
   monaco.languages.typescript.javascriptDefaults.setCompilerOptions({ noLib: true, allowNonTsExtensions: true });
   monacoInstance = monaco.editor.create(afterEditor.value as HTMLElement, {
