@@ -302,7 +302,7 @@ const handleAddNewTab = () => {
     _id: `local_${uuid()}`,
     projectId: router.currentRoute.value.query.id as string,
     tabType: 'doc',
-    label: `未命名接口${tabIndex}`,
+    label: `未命名接口${tabIndex.value}`,
     saved: true,
     fixed: true,
     selected: true,

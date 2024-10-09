@@ -14,7 +14,7 @@
       <SJsonEditor ref="jsonComponent" v-model="jsonValue"></SJsonEditor>
       <el-button class="mock" text @click.stop="showMockTip = !showMockTip">
         <el-popover :visible="showMockTip" placement="top-start" trigger="manual" width="auto">
-          <s-mock auto-copy @select="handleSelectMockStr"></s-mock>
+          <SMock auto-copy @select="handleSelectMockStr"></SMock>
           <template #reference>
             <span>Mock语法</span>
           </template>
@@ -147,6 +147,7 @@ import SLabelValue from '@/components/common/label-value/g-label-value.vue'
 import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import SRawEditor from '@/components/apidoc/raw-editor/g-raw-editor.vue'
 import { useApidoc } from '@/store/apidoc/apidoc';
+import SMock from '@/components/apidoc/mock/g-mock.vue'
 
 
 const apidocStroe = useApidoc()

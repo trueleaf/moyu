@@ -7,7 +7,7 @@
         v-model:visible="toggleProjectVisible"
         transition="none"
         placement="right"
-        trigger="click"
+        trigger="mannal"
         width="500px"
       >
         <template #reference>
