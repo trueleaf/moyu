@@ -15,8 +15,14 @@
     </div>
     <!-- 高级搜索 -->
     <div v-if="isShowAdvanceSearch">
-      <el-input v-model="projectKeyword" :prefix-icon="SearchIcon" class="w-50 mr-3" clearable
-        :placeholder="t('输入接口url eg: 接口url')" @input="() => { loading = true; debounceSearch() }">
+      <el-input 
+        v-model="projectKeyword" 
+        :prefix-icon="SearchIcon" 
+        class="w-50 mr-3" 
+        clearable
+        :placeholder="t('输入接口url eg: 接口url')"  
+        @change="() => { loading = true; debounceSearch() }"
+        @input="() => { loading = true; debounceSearch() }">
       </el-input>
     </div>
     <!-- 项目列表 -->
