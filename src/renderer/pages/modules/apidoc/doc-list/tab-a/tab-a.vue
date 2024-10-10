@@ -2,10 +2,22 @@
   <div class="tab-a">
     <!-- 搜索条件 -->
     <div class="search-item d-flex a-center mb-3">
-      <el-input v-model="projectName" :placeholder="t('项目名称或者接口URL')" :prefix-icon="SearchIcon" class="w-200px mr-3"
-        clearable @input="handleSearchProject"></el-input>
+      <el-input v-model="projectName" :placeholder="t('项目名称')" :prefix-icon="SearchIcon" class="w-200px mr-3" clearable>
+        <template #suffix>
+          <el-icon :title="t('高级搜索')" class="cursor-pointer" :color="isShowAdvanceSearch ? '#409EFF' : '#aaa'"
+            @click.stop.prevent="() => isShowAdvanceSearch = !isShowAdvanceSearch">
+            <Tools />
+          </el-icon>
+        </template>
+      </el-input>
       <el-button type="success" :icon="PlusIcon" @click="dialogVisible = true">{{ t("新建项目") }}</el-button>
       <el-button v-if="0" type="success" :icon="DownloadIcon" @click="dialogVisible3 = true">{{ t("导入项目") }}</el-button>
+    </div>
+    <!-- 高级搜索 -->
+    <div v-if="isShowAdvanceSearch">
+      <el-input v-model="projectKeyword" :prefix-icon="SearchIcon" class="w-50 mr-3" clearable
+        :placeholder="t('输入接口url eg: 接口url')" @input="() => { loading = true; debounceSearch() }">
+      </el-input>
     </div>
     <!-- 项目列表 -->
     <Loading :loading="loading">
@@ -162,7 +174,8 @@ import {
   Download as DownloadIcon,
   Search as SearchIcon,
   CaretBottom as CaretBottomIcon,
-  CaretRight as CaretRightIcon
+  CaretRight as CaretRightIcon,
+  Tools,
 } from '@element-plus/icons-vue'
 import Loading from '@/components/common/loading/g-loading.vue'
 import Emphasize from '@/components/common/emphasize/g-emphasize.vue'
@@ -184,12 +197,14 @@ import { debounce, formatDate } from '@/helper';
 |--------------------------------------------------------------------------
 */
 const projectName = ref('');
+const projectKeyword = ref('')
 const recentVisitProjectIds = ref<string[]>([]);
 const starProjectIds = ref<string[]>([]);
 const projectListCopy = ref<ApidocProjectInfo[]>([]);
+const projectListCopy2 = ref<ApidocProjectInfo[]>([]);
 const currentEditProjectId = ref('');
 const currentEditProjectName = ref('');
-const searchFn = ref<null | (() => void)>(null);
+const isShowAdvanceSearch = ref(false);
 const isFold = ref(false);
 const loading = ref(false);
 const starLoading = ref(false);
@@ -199,7 +214,8 @@ const dialogVisible2 = ref(false);
 const dialogVisible3 = ref(false);
 const dialogVisible4 = ref(false);
 const projectList = computed(() => {
-  const filteredProjectList = projectListCopy.value.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
+  const list = (projectKeyword.value.trim().length > 0 && !loading.value && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
+  const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.map((val) => {
     const isStared = starProjectIds.value.find((id) => id === val._id);
     return {
@@ -209,7 +225,8 @@ const projectList = computed(() => {
   });
 });
 const starProjects = computed(() => {
-  const filteredProjectList = projectListCopy.value.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
+  const list = (projectKeyword.value.trim().length > 0 && !loading.value && isShowAdvanceSearch.value) ? projectListCopy2.value : projectListCopy.value;
+  const filteredProjectList = list.filter((val) => val.projectName.match(new RegExp(projectName.value, 'gi')))
   return filteredProjectList.filter((projectInfo) => starProjectIds.value.find((id) => id === projectInfo._id)).map((val) => {
     const isStared = starProjectIds.value.find((id) => id === val._id);
     return {
@@ -224,9 +241,7 @@ const starProjects = computed(() => {
 | 项目列表增删改查
 |--------------------------------------------------------------------------
 */
-/*
- * 获取项目列表
- */
+//获取项目列表
 const getProjectList = () => {
   loading.value = true;
   axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list').then((res) => {
@@ -239,24 +254,18 @@ const getProjectList = () => {
     loading.value = false;
   });
 };
-/**
- * 编辑项目弹窗
- */
+//编辑项目弹窗
 const handleOpenEditDialog = (item: ApidocProjectInfo) => {
   currentEditProjectId.value = item._id;
   currentEditProjectName.value = item.projectName;
   dialogVisible2.value = true;
 }
-/**
- * 编辑权限弹窗
- */
+//编辑权限弹窗
 const handleOpenPermissionDialog = (item: ApidocProjectInfo) => {
   currentEditProjectId.value = item._id;
   dialogVisible4.value = true;
 }
-/**
- * 收藏项目
- */
+//收藏项目
 const handleStar = (item: ApidocProjectInfo) => {
   if (starLoading.value) {
     return;
@@ -271,9 +280,7 @@ const handleStar = (item: ApidocProjectInfo) => {
     starLoading.value = false;
   });
 }
-/**
- * 取消收藏项目
- */
+//取消收藏项目
 const handleUnStar = (item: ApidocProjectInfo) => {
   if (unStarLoading.value) {
     return;
@@ -289,9 +296,7 @@ const handleUnStar = (item: ApidocProjectInfo) => {
     unStarLoading.value = false;
   });
 }
-/**
- * 删除项目
- */
+//删除项目
 const deleteProject = (_id: string) => {
   ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
     confirmButtonText: t('确定'),
@@ -315,15 +320,11 @@ const deleteProject = (_id: string) => {
 | 其他操作
 |--------------------------------------------------------------------------
 */
-/**
- * 初始化缓存
- */
+//初始化缓存
 const initCahce = () => {
   isFold.value = localStorage.getItem('doc-list/isFold') === 'close';
 }
-/**
- * 跳转到编辑
- */
+//跳转到编辑
 const handleJumpToProject = (item: ApidocProjectInfo) => {
   axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
@@ -336,9 +337,7 @@ const handleJumpToProject = (item: ApidocProjectInfo) => {
     },
   });
 }
-/**
- * 跳转到预览
- */
+//跳转到预览
 const handleJumpToView = (item: ApidocProjectInfo) => {
   axios.put('/api/project/visited', { projectId: item._id }).catch((err) => {
     console.error(err);
@@ -351,9 +350,7 @@ const handleJumpToView = (item: ApidocProjectInfo) => {
     },
   });
 }
-/**
- * 新增项目成功
- */
+//新增项目成功
 const handleAddSuccess = (id: string) => {
   router.push({
     path: '/v1/apidoc/doc-edit',
@@ -363,27 +360,33 @@ const handleAddSuccess = (id: string) => {
     }
   });
 }
-/**
- * 编辑项目成功
- */
+//编辑项目成功
 const handleEditSuccess = () => {
   getProjectList()
 }
-/**
- * 折叠打开项目列表
- */
+//折叠打开项目列表
 const toggleCollapse = () => {
   isFold.value = !isFold.value;
   localStorage.setItem('doc-list/isFold', isFold.value ? 'close' : 'open');
 }
-const handleSearchProject = () => {
-  if (!searchFn.value) {
-    searchFn.value = debounce(() => {
-    }, 1000)
-  } else {
-    searchFn.value();
+const debounceSearch = debounce(() => {
+  if (projectKeyword.value?.trim().length === 0) {
+    projectListCopy2.value = [];
+    loading.value = false
+    return
   }
-}
+  axios.get<Response<ApidocProjectListInfo>, Response<ApidocProjectListInfo>>('/api/project/project_list_by_keyword', {
+    params: { keyword: projectKeyword.value }
+  }).then((res) => {
+    recentVisitProjectIds.value = res.data.recentVisitProjects;
+    starProjectIds.value = res.data.starProjects;
+    projectListCopy2.value = res.data.list;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() =>{ 
+    loading.value = false;
+  });
+}, 1000)
 /*
 |--------------------------------------------------------------------------
 | 生命周期
@@ -407,6 +410,10 @@ onMounted(() => {
     @media only screen and (max-width: 720px) {
       justify-content: center;
     }
+  }
+
+  .advance-icon {
+    cursor: pointer;
   }
 
   .project-list {

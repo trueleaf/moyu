@@ -21,7 +21,7 @@ export const config: Config = {
     },
     //http请求相关
     httpRequest: {
-      url: isDev ? 'https://online.jobtool.cn' : 'https://online.jobtool.cn',
+      url: isDev ? 'http://127.0.0.1:7001' : 'https://online.jobtool.cn',
       imgUrl: isDev ? 'http://happymoyu.oss-cn-beijing.aliyuncs.com' : 'http://happymoyu.oss-cn-beijing.aliyuncs.com',
       timeout: 20000,
       withCredentials: true,
