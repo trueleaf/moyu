@@ -5,35 +5,22 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import { randomTip } from '@/helper/index'
+import { ref, watch } from 'vue';
 
-export default defineComponent({
-  props: {
-    /**
-         * 加载中状态
-         */
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data() {
-    return {
-      loadingText: '',
-    };
-  },
-  watch: {
-    loading: {
-      handler(val) {
-        if (val) {
-          this.loadingText = randomTip();
-        }
-      },
-      immediate: true,
-    },
-  },
+const props = defineProps({
+  loading: {
+    type: Boolean,
+    default: false,
+  }
+})
+const loadingText = ref('');
+
+watch(() => props.loading, () => {
+  loadingText.value = randomTip()
+}, {
+  immediate: true
 })
 </script>
 
