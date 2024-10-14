@@ -1,8 +1,6 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-09-04 15:20
-    模块名称：折叠面板
-    备注：
+模块名称：折叠面板
+备注：
 */
 <template>
   <div class="s-collaps mb-1">
@@ -67,20 +65,23 @@ const toggleCollapse = () => {
 
 <style lang="scss" scoped>
 .s-collaps {
-    &>.header {
-        cursor: pointer;
-        height: size(25);
-        display: flex;
-        align-items: center;;
-        user-select: none;
-        color: $gray-800;
-        font-size: fz(14);
-        &.bold {
-            font-weight: bold;
-        }
-        &:hover {
-            background: mix($theme-color, $white, 25%);
-        }
+  &>.header {
+    cursor: pointer;
+    height: size(25);
+    display: flex;
+    align-items: center;
+    ;
+    user-select: none;
+    color: $gray-800;
+    font-size: fz(14);
+
+    &.bold {
+      font-weight: bold;
     }
+
+    &:hover {
+      background: mix($theme-color, $white, 25%);
+    }
+  }
 }
 </style>
