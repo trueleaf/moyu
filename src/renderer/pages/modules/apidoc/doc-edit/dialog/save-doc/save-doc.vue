@@ -58,7 +58,7 @@ defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['update:modelValue', 'success']);
+const emits = defineEmits(['update:modelValue', 'success']);
 const formInfo: Ref<FormInfo> = ref({
   name: '',
   pid: ''
@@ -104,8 +104,8 @@ onMounted(() => {
   });
 })
 const handleClose = () => {
-  emit('update:modelValue', false)
-  event.emit('tabs/cancelSaveTab')
+  emits('update:modelValue', false)
+  event.emits('tabs/cancelSaveTab')
 }
 const handleSaveDoc = () => {
   const docInfo = JSON.parse(JSON.stringify(apidocStore.apidoc))
@@ -138,12 +138,12 @@ const handleSaveDoc = () => {
         field: 'saved',
         value: true,
       })
-      event.emit('tabs/saveTabSuccess')
+      event.emits('tabs/saveTabSuccess')
     })
-    emit('update:modelValue', false)
+    emits('update:modelValue', false)
   }).catch((err) => {
     console.error(err);
-    event.emit('tabs/saveTabError')
+    event.emits('tabs/saveTabError')
   }).finally(() => {
     loading.value = false;
   });

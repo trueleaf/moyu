@@ -23,13 +23,13 @@
             <s-label-value label="登录名称：" :value="userInfo.loginName" class="w-45"></s-label-value>
             <s-label-value label="手机号码：" :value="userInfo.phone" class="w-45"></s-label-value>
             <s-label-value label="最后登录：" class="w-45">
-              <span class="orange">{{ $helper.formatDate(userInfo.lastLogin) }}</span>
+              <span class="orange">{{ formatDate(userInfo.lastLogin) }}</span>
             </s-label-value>
           </div>
         </div>
       </div>
     </s-card>
-    <s-dialog v-model="dialogVisible" title="修改密码">
+    <SDialog v-model="dialogVisible" title="修改密码">
       <el-form v-if="dialogVisible" ref="form" :model="formInfo" :rules="rules" label-width="150px">
         <el-form-item label="原始密码" prop="oldPassword">
           <el-input v-model="formInfo.oldPassword" :size="config.renderConfig.layout.size" show-password placeholder="请输入原始密码" class="w-100" maxlength="100"></el-input>
@@ -47,7 +47,7 @@
           <el-button type="warning" @click="dialogVisible = false">取消</el-button>
         </div>
       </template>
-    </s-dialog>
+    </SDialog>
   </div>
 </template>
 
@@ -145,7 +145,7 @@ export default defineComponent({
 
     //=====================================前后端交互====================================//
     handleChangePassword() {
-      this.$refs.form.validate((valid) => {
+      this.form.value?.validate((valid) => {
         if (valid) {
           this.loading2 = true;
           this.axios.put('/api/security/user_password', this.formInfo).then(() => {
@@ -162,7 +162,7 @@ export default defineComponent({
             };
           });
         } else {
-          this.$nextTick(() => {
+          this.nextTick(() => {
             const input = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
             if (input) {
               input.focus();

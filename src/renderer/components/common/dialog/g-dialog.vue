@@ -53,8 +53,8 @@ export default defineComponent({
   methods: {
     //关闭弹窗
     closeModel() {
-      this.$emit('update:modelValue', false);
-      this.$emit('close', false);
+      this.$emits('update:modelValue', false);
+      this.$emits('close', false);
     },
   },
 })

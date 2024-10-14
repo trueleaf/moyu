@@ -12,7 +12,7 @@
         </el-tooltip>
       </div>
     </template>
-    <div class="close" @click="emit('close')">
+    <div class="close" @click="emits('close')">
       <el-icon>
         <Close />
       </el-icon>
@@ -27,11 +27,11 @@ import status from './status'
 import { t } from 'i18next'
 
 
-const emit = defineEmits(['close', 'select']);
+const emits = defineEmits(['close', 'select']);
 
 const handleSelect = (code: number) => {
-  emit('select', code);
-  emit('close');
+  emits('select', code);
+  emits('close');
 }
 
 </script>

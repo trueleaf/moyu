@@ -6,7 +6,7 @@
 */
 <template>
   <div class="params-view px-3">
-    <s-fieldset :title="t('请求参数')" class="mb-5">
+    <SFieldset :title="t('请求参数')" class="mb-5">
       <template v-if="hasQueryParams">
         <div class="title">{{ t("Query参数") }}</div>
         <s-params-view :data="apidocInfo.queryParams" plain class="mb-3"></s-params-view>
@@ -32,8 +32,8 @@
         <pre class="pre">{{ apidocInfo.requestBody.raw.data }}</pre>
       </template>
       <div v-if="!hasQueryParams && !hasPathsParams && !hasJsonBodyParams && !hasFormDataParams && !hasUrlEncodedParams && !hasRawParams">{{ t("暂无数据") }}</div>
-    </s-fieldset>
-    <s-fieldset :title="t('返回参数')">
+    </SFieldset>
+    <SFieldset :title="t('返回参数')">
       <div v-for="(item, index) in apidocInfo.responseParams" :key="index" class="title">
         <div class="mb-2">
           <span>{{ t("名称") }}：</span>
@@ -50,8 +50,8 @@
           <s-raw-editor :data="item.value.strJson" :type="item.value.dataType" readonly></s-raw-editor>
         </div>
       </div>
-    </s-fieldset>
-    <s-fieldset :title="t('请求头')"></s-fieldset>
+    </SFieldset>
+    <SFieldset :title="t('请求头')"></SFieldset>
   </div>
 </template>
 

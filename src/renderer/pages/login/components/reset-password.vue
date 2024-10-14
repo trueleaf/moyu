@@ -31,7 +31,7 @@ import { axios } from '@/api/api';
 import SmsButton from '@/components/common/sms-button/g-sms-button.vue'
 
 
-const emit = defineEmits(['jumpToLogin']);
+const emits = defineEmits(['jumpToLogin']);
 const form = ref<FormInstance>();
 const userInfo = reactive({
   smsCode: '', //-----验证码
@@ -117,7 +117,7 @@ const handleResetPassword = () => {
           ElMessage.warning(res.msg);
         } else {
           ElMessage.success(`${res.data.loginName} ${t('重置密码成功')}`);
-          emit('jumpToLogin', res.data.loginName);
+          emits('jumpToLogin', res.data.loginName);
         }
       }).catch((err) => {
         console.error(err);

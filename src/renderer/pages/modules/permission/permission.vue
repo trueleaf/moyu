@@ -1,60 +1,61 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-14 12:08
-    模块名称：
-    备注：
-*/
+
 <template>
   <div class="s-permission">
     <el-tabs v-model="activeName" @tab-click="handleChangeTabs">
-      <el-tab-pane :label="t('用户')" name="s-user"></el-tab-pane>
-      <el-tab-pane :label="t('角色维护')" name="s-role"></el-tab-pane>
-      <el-tab-pane :label="t('菜单维护')" name="s-menu"></el-tab-pane>
-      <el-tab-pane :label="t('前端路由')" name="s-client-routes"></el-tab-pane>
-      <el-tab-pane :label="t('后端路由(接口)')" name="s-server-routes"></el-tab-pane>
+      <el-tab-pane :label="t('用户')" name="SUser"></el-tab-pane>
+      <el-tab-pane :label="t('角色维护')" name="SRole"></el-tab-pane>
+      <el-tab-pane :label="t('菜单维护')" name="SMenu"></el-tab-pane>
+      <el-tab-pane :label="t('前端路由')" name="SClientRoutes"></el-tab-pane>
+      <el-tab-pane :label="t('后端路由(接口)')" name="SServerRoutes"></el-tab-pane>
     </el-tabs>
-    <component :is="activeName"></component>
+    <component :is="getComponent()"></component>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import user from './user/user.vue'
-import role from './role/role.vue'
-import menu from './menu/menu.vue'
-import clientRoutes from './client-routes/client-routes.vue'
-import serverRoutes from './server-routes/server-routes.vue'
+<script lang="ts" setup>
 
-export default defineComponent({
-  components: {
-    's-user': user,
-    's-role': role,
-    's-menu': menu,
-    's-client-routes': clientRoutes,
-    's-server-routes': serverRoutes,
-  },
-  data() {
-    return {
-      activeName: 's-user', //当前选中tab
-    };
-  },
-  created() {
-    this.restoreLastVisitTab();
-  },
-  methods: {
-    //恢复上次访问的tab
-    restoreLastVisitTab() {
-      const localTab = localStorage.getItem('permission/activeTab');
-      if (localTab) {
-        this.activeName = localTab;
-      }
-    },
-    //缓存上一次访问的tab
-    handleChangeTabs() {
-      localStorage.setItem('permission/activeTab', this.activeName)
-    },
-  },
+import SUser from './user/user.vue'
+import SRole from './role/role.vue'
+import SMenu from './menu/menu.vue'
+import SClientRoutes from './client-routes/client-routes.vue'
+import SServerRoutes from './server-routes/server-routes.vue'
+import { onMounted, ref } from 'vue'
+import { t } from 'i18next'
+
+const activeName = ref('SUser')
+/*
+|--------------------------------------------------------------------------
+| 方法定义
+|--------------------------------------------------------------------------
+*/
+const getComponent = () => {
+  if (activeName.value === 'SUser') {
+    return SUser;
+  } else if (activeName.value === 'SRole') {
+    return SRole;
+  } else if (activeName.value === 'SMenu') {
+    return SMenu
+  } else if (activeName.value === 'SClientRoutes') {
+    return SClientRoutes
+  } else if (activeName.value === 'SServerRoutes') {
+    return SServerRoutes
+  }
+}
+//恢复上次访问的tab
+const restoreLastVisitTab = () => {
+  const localTab = localStorage.getItem('permission/activeTab');
+  if (localTab) {
+    activeName.value = localTab;
+  }
+}
+//缓存上一次访问的tab
+const handleChangeTabs = () => {
+  localStorage.setItem('permission/activeTab', activeName.value)
+}
+onMounted(() => {
+  restoreLastVisitTab();
 })
+
 </script>
 
 <style lang="scss" scoped>

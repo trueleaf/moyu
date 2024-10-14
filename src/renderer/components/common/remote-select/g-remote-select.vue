@@ -34,7 +34,7 @@ const props = defineProps({
     default: '',
   },
 })
-const emit = defineEmits([
+const emits = defineEmits([
   "update:modelValue",
 ])
 const query = ref('')
@@ -47,7 +47,7 @@ const getData = (query: string) => {
   }
 }
 const handleInput = () => {
-  emit("update:modelValue", query.value);
+  emits("update:modelValue", query.value);
 }
 
 watch(query, (val) => {

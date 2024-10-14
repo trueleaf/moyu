@@ -32,7 +32,7 @@ const props = defineProps({
     default: 0,
   },
 })
-const emit = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue'])
 const loading = ref(false)
 const form = ref<FormInstance>()
 const apidocStore = useApidoc()
@@ -77,6 +77,6 @@ const handleSave = () => {
   });
 }
 const handleClose = () => {
-  emit('update:modelValue', false)
+  emits('update:modelValue', false)
 }
 </script>

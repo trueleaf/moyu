@@ -101,7 +101,7 @@ defineProps({
     default: false,
   },
 });
-const emit = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['update:modelValue', 'success'])
 //=========================================================================//
 const apidocBannerStore = useApidocBanner()
 const apidocBaseInfoStore = useApidocBaseInfo()
@@ -141,7 +141,7 @@ const loading = ref(false); //生成在线链接加载
 const shareLink = ref(''); //在线链接地址
 //关闭页面
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 //生成在线链接
 const handleGenerateLink = () => {
@@ -167,7 +167,7 @@ const handleGenerateLink = () => {
   };
   axios.post('/api/project/export/online', params).then(() => {
     handleClose();
-    emit('success');
+    emits('success');
   }).catch((err) => {
     console.error(err);
   }).finally(() => {

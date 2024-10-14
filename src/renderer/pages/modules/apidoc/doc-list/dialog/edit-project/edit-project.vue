@@ -35,7 +35,7 @@ const props = defineProps({
     default: '',
   },
 })
-const emit = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['update:modelValue', 'success'])
 const formInfo = ref({
   projectName: '',
 })
@@ -50,7 +50,7 @@ watch(() => props.projectName, (val) => {
 }, { immediate: true })
 
 const handleClose = () => {
-  emit('update:modelValue', false)
+  emits('update:modelValue', false)
 }
 //修改项目
 const handleEditProject = () => {
@@ -63,7 +63,7 @@ const handleEditProject = () => {
       };
       axios.put('/api/project/edit_project', params).then((res) => {
         handleClose();
-        emit('success', {
+        emits('success', {
           id: res.data,
           name: formInfo.value.projectName,
         });

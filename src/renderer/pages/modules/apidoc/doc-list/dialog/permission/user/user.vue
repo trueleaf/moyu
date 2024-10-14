@@ -72,7 +72,7 @@ const props = defineProps({
     default: '',
   },
 })
-const emit = defineEmits(['leave']);
+const emits = defineEmits(['leave']);
 const { userInfo } = usePermissionStore()
 const remoteMembers = ref<ApidocProjectMemberInfo[]>([]);
 const selectedUserData = ref<ApidocProjectInfo['members']>([]);
@@ -189,7 +189,7 @@ const handleLeaveGroup = (row: PermissionUserInfo, index: number) => {
     };
     axios.delete('/api/project/delete_user', { data: params }).then(() => {
       selectedUserData.value.splice(index, 1);
-      emit('leave');
+      emits('leave');
     }).catch((err) => {
       console.error(err);
     });

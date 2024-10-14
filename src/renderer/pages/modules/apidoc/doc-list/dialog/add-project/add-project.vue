@@ -68,7 +68,7 @@ defineProps({
   },
 })
 const form = ref<FormInstance>()
-const emit = defineEmits(['update:modelValue', 'success'])
+const emits = defineEmits(['update:modelValue', 'success'])
 const formInfo = ref({
   projectName: '', //-------------------------项目名称
   remark: '', //------------------------------项目备注
@@ -115,7 +115,7 @@ const handleAddProject = () => {
       };
       axios.post('/api/project/add_project', params).then((res) => {
         handleClose();
-        emit('success', res.data);
+        emits('success', res.data);
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
@@ -154,7 +154,7 @@ const handleDeleteMember = (index: number) => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 
 </script>

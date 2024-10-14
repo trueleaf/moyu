@@ -117,15 +117,15 @@ export default defineComponent({
     //数据改变
     handleChange(val: unknown) {
       if (this.rawResult && this.multi) { //多选返回原始数据
-        this.$emit('change', val);
-        this.$emit('update:value', val);
+        this.$emits('change', val);
+        this.$emits('update:value', val);
       } else if (!this.multi) { //单选
         if (val === '') { //如果是空字符，则返回null
-          this.$emit('change', null);
-          this.$emit('update:value', null);
+          this.$emits('change', null);
+          this.$emits('update:value', null);
         } else {
-          this.$emit('change', val);
-          this.$emit('update:value', val);
+          this.$emits('change', val);
+          this.$emits('update:value', val);
         }
       }
     },

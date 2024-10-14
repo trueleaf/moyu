@@ -5,15 +5,15 @@
     备注：
 */
 <template>
-  <s-dialog :model-value="modelValue" width="30%" title="保存参数为模板" @close="handleClose">
-    <s-form ref="form">
-      <s-form-item label="模板名称" prop="name" one-line required></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" width="30%" title="保存参数为模板" @close="handleClose">
+    <SForm ref="form">
+      <SFormItem label="模板名称" prop="name" one-line required></SFormItem>
+    </SForm>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleSave">保存</el-button>
       <el-button type="warning" @click="handleClose">取消</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
 <script lang="ts">
@@ -40,9 +40,9 @@ export default defineComponent({
   methods: {
     //保存
     handleSave() {
-      this.$refs.form.validate((valid) => {
+      this.form.value?.validate((valid) => {
         if (valid) {
-          const { formInfo } = this.$refs.form;
+          const { formInfo } = this.form.value as any;
           const bodyParams = this.$store.state['apidoc/apidoc'].apidoc.item.requestBody.rawJson
           const params = {
             name: formInfo.name,
@@ -60,7 +60,7 @@ export default defineComponent({
             this.loading = false;
           });
         } else {
-          this.$nextTick(() => {
+          this.nextTick(() => {
             const input = document.querySelector('.el-form-item.is-error input');
             if (input) {
               (input as HTMLElement).focus();
@@ -71,7 +71,7 @@ export default defineComponent({
     },
     //关闭弹窗
     handleClose() {
-      this.$emit('update:modelValue', false);
+      this.$emits('update:modelValue', false);
     },
   },
 })

@@ -102,7 +102,7 @@ export default defineComponent({
     },
     toggleCollapse() {
       this.showContent = !this.showContent
-      this.$emit('change', this.showContent);
+      this.$emits('change', this.showContent);
     }
   },
 })

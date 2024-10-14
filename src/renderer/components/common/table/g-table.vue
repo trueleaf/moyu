@@ -117,7 +117,7 @@ const props = defineProps({
     default: true
   },
 })
-const emit = defineEmits(['finish', 'select', 'deleteMany'])
+const emits = defineEmits(['finish', 'select', 'deleteMany'])
 const formInfo = ref({
   pageSize: config.renderConfig.components.tableConfig.pageSize, //----分页大小
   pageNum: 1, //-------------------------------------------------------当前页数
@@ -180,7 +180,7 @@ const getData = (searchParams?: unknown) => {
       }).finally(() => {
         loading.value = false;
         nextTick(() => {
-          emit('finish', responseData, this);
+          emits('finish', responseData, this);
         })
       });
     })
@@ -212,7 +212,7 @@ const handleCurrentChange = (page: number) => {
 //选择了数据
 const handleSelectionChange = (val: Record<string, unknown>[]) => {
   selectData.value = val;
-  emit('select', val);
+  emits('select', val);
 }
 //批量删除
 const deleteData = () => {
@@ -226,7 +226,7 @@ const deleteData = () => {
     Object.assign(params, props.deleteParams);
     loading2.value = true;
     axios.delete(props.deleteUrl, { data: params }).then(() => {
-      emit('deleteMany', params.ids);
+      emits('deleteMany', params.ids);
     }).catch((err) => {
       console.error(err);
     }).finally(() => {

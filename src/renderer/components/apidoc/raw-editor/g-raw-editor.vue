@@ -99,10 +99,10 @@ export default defineComponent({
           this.watchStoper();
         }
         const content = this.editorInstance?.getValue();
-        this.$emit('update:modelValue', content);
-        this.$emit('change', content);
+        this.$emits('update:modelValue', content);
+        this.$emits('change', content);
       });
-      this.$emit('ready', this.editorInstance);
+      this.$emits('ready', this.editorInstance);
     },
     setValue(value: string) {
       this.editorInstance?.setValue(value);

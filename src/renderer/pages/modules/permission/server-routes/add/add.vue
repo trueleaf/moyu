@@ -5,23 +5,25 @@
     备注：
 */
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('新增服务端路由')" @close="handleClose">
-    <s-form ref="form" :edit-data="formInfo">
-      <s-form-item :label="t('名称')" prop="name" required one-line></s-form-item>
-      <s-form-item :label="t('请求方法')" prop="method" type="select" :select-enum="requestMethodEnum" required one-line></s-form-item>
-      <s-form-item :label="t('路径')" prop="path" required one-line></s-form-item>
-      <s-form-item :label="t('分组名称')" prop="groupName" required one-line></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" top="10vh" :title="t('新增服务端路由')" @close="handleClose">
+    <SForm ref="form" :edit-data="formInfo">
+      <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>
+      <SFormItem :label="t('请求方法')" prop="method" type="select" :select-enum="requestMethodEnum" required one-line></SFormItem>
+      <SFormItem :label="t('路径')" prop="path" required one-line></SFormItem>
+      <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
+    </SForm>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 export default defineComponent({
   props: {
     modelValue: {
@@ -48,22 +50,22 @@ export default defineComponent({
   },
   methods: {
     getRequestMethodEnum() {
-      this.requestMethodEnum = this.$helper.getRequestMethodEnum().map((v) => ({
+      this.requestMethodEnum = this.getRequestMethodEnum().map((v) => ({
         id: v,
         name: v.toLocaleLowerCase(),
       }));
     },
     //保存路由
     handleSaveServerRoute() {
-      this.$refs.form.validate((valid) => {
+      this.form.value?.validate((valid) => {
         if (valid) {
-          const { formInfo } = this.$refs.form;
+          const { formInfo } = this.form.value as any;
           const params = {
             ...formInfo,
           };
           this.loading = true;
           this.axios.post('/api/security/server_routes', params).then(() => {
-            this.$emit('success');
+            this.$emits('success');
             this.handleClose();
           }).catch((err) => {
             console.error(err);
@@ -71,7 +73,7 @@ export default defineComponent({
             this.loading = false;
           });
         } else {
-          this.$nextTick(() => {
+          this.nextTick(() => {
             const input = document.querySelector('.el-form-item.is-error input');
             if (input) {
               (input as HTMLInputElement).focus();
@@ -83,7 +85,7 @@ export default defineComponent({
     },
     //关闭弹窗
     handleClose() {
-      this.$emit('update:modelValue', false);
+      this.$emits('update:modelValue', false);
     },
   },
 })

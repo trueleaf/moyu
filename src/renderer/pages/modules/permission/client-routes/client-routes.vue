@@ -1,22 +1,17 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-29 21:54
-    模块名称：前端路由管理
-    备注：
-*/
+
 <template>
   <div>
     <!-- 搜索条件 -->
-    <s-search auto-request @change="handleChange">
-      <s-search-item :label="t('名称&地址')" prop="name"></s-search-item>
-      <s-search-item :label="t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
+    <SSearch auto-request @change="handleChange">
+      <SSearchItem :label="t('名称&地址')" prop="name"></SSearchItem>
+      <SSearchItem :label="t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="handleOpenAddRouteDialog">{{ t("新增路由") }}</el-button>
         <el-button :disabled="selectedData.length === 0" type="success" @click="handleOpenMultiEditTypeDialog">{{ t("批量修改类型") }}</el-button>
       </template>
-    </s-search>
+    </SSearch>
     <!-- 表格展示 -->
-    <s-table ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
+    <STable ref="table" url="/api/security/client_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
       <el-table-column prop="name" :label="t('路由名称')" align="center"></el-table-column>
       <el-table-column prop="path" :label="t('路由地址')" align="center"></el-table-column>
       <el-table-column prop="groupName" :label="t('分组名称')" align="center"></el-table-column>
@@ -26,111 +21,114 @@
           <el-button link type="primary" text @click.stop="handleDeleteClientRoute(scope.row)">{{ t("删除") }}</el-button>
         </template>
       </el-table-column>
-    </s-table>
-    <s-add-client-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-client-route>
-    <s-edit-client-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-client-route>
-    <s-multi-edit-client-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-client-route>
+    </STable>
+    <SAddClientRoute v-if="dialogVisible" v-model="dialogVisible" @success="getData"></SAddClientRoute>
+    <SEditClientRoute v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></SEditClientRoute>
+    <SMultiEditClientRoute v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></SMultiEditClientRoute>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import { Response, PermissionClientRoute } from '@src/types/global'
-import addClientRoute from './add/add.vue'
-import editClientRoute from './edit/edit.vue'
-import multiEditClientRoute from './edit/edit2.vue'
+import SAddClientRoute from './add/add.vue'
+import SEditClientRoute from './edit/edit.vue'
+import SMultiEditClientRoute from './edit/edit2.vue'
+import { ref } from 'vue';
+import { uniqueByKey } from '@/helper';
+import { ElMessageBox } from 'element-plus';
+import { t } from 'i18next'
+import { axios } from '@/api/api';
+import SSearch from '@/components/common/forms/search/g-search.vue'
+import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
+import STable from '@/components/common/table/g-table.vue'
+
 
 type HookThis = {
   tableData: PermissionClientRoute[],
   total: number,
 }
-export default defineComponent({
-  components: {
-    's-add-client-route': addClientRoute,
-    's-edit-client-route': editClientRoute,
-    's-multi-edit-client-route': multiEditClientRoute,
-  },
-  data() {
-    return {
-      selectedData: [] as PermissionClientRoute[], //-----------------当前被选中的表单数据
-      editData: {} as PermissionClientRoute, //-----------------------需要编辑的数据
-      originTableData: [] as PermissionClientRoute[], //--------------原始表单数据
-      groupEnum: [] as { id: string, name: string }[], //---分组信息
-      dialogVisible: false, //------------------------------新增路由信息弹窗
-      dialogVisible2: false, //-----------------------------修改路由信息弹窗
-      dialogVisible3: false, //-----------------------------批量修改路由信息弹窗
-    };
-  },
-  methods: {
-    //=====================================数据获取====================================//
-    //获取表格数据
-    getData() {
-      this.$refs.table.getData();
-    },
-    //搜索数据
-    handleChange(params: { name: string, groupName: string }) {
-      const { name, groupName } = params;
-      this.$refs.table.tableData = this.originTableData.filter((val) => {
-        const matchedName = name ? val.name.match(name) : true;
-        const matchedPath = name ? val.path.match(name) : true;
-        const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
-        return (matchedName || matchedPath) && matchedGroupName;
-      })
-    },
-    //获取前端路由信息
-    hookRequest(res: Response<PermissionClientRoute[]>, _this: HookThis) {
-      this.originTableData = res.data;
-      _this.tableData = res.data;
-      _this.total = res.data.length;
-      const uniqueData = this.$helper.uniqueByKey(res.data, 'groupName');
-      this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
-        const unicodeOfA = a.name.charCodeAt(0);
-        const unicodeOfB = b.name.charCodeAt(0)
-        return unicodeOfA - unicodeOfB;
-      })
-    },
-    //=========================================================================//
-    handleSelect(routeList: PermissionClientRoute[]) {
-      this.selectedData = routeList;
-    },
-    //删除前端路由组件
-    handleDeleteClientRoute(row: PermissionClientRoute) {
-      this.$confirm(this.t('此操作将永久删除此条记录, 是否继续?'), this.t('提示'), {
-        confirmButtonText: this.t('确定'),
-        cancelButtonText: this.t('取消'),
-        type: 'warning',
-      }).then(() => {
-        const params = { ids: [row._id] };
-        this.axios.delete('/api/security/client_routes', { data: params }).then(() => {
-          this.$refs.table.getData();
-        }).catch((err) => {
-          console.error(err);
-        });
-      }).catch((err: Error | string) => {
-        if (err === 'cancel' || err === 'close') {
-          return;
-        }
-        console.error(err);
-      });
-    },
-    //=====================================其他操作====================================//
-    //打开新增前端路由
-    handleOpenAddRouteDialog() {
-      this.dialogVisible = true;
-    },
-    //打开修改前端路由
-    handleOpenClientEditDialog(row: PermissionClientRoute) {
-      this.editData = row;
-      this.dialogVisible2 = true;
-    },
-    //打开批量修改前端路由类型
-    handleOpenMultiEditTypeDialog() {
-      this.dialogVisible3 = true;
-    },
-  },
-})
+const selectedData = ref<PermissionClientRoute[]>([]); //-------当前被选中的表单数据
+const editData = ref<PermissionClientRoute>({
+  _id: '',
+  name: '',
+  path: '',
+  groupName: '',
+}); //-------------需要编辑的数据
+const originTableData = ref<PermissionClientRoute[]>([]); //----原始表单数据
+const groupEnum = ref<{ id: string, name: string }[]>([]); //---分组信息
+const dialogVisible = ref(false); //----------------------------新增路由信息弹窗
+const dialogVisible2 = ref(false); //---------------------------修改路由信息弹窗
+const dialogVisible3 = ref(false); //---------------------------批量修改路由信息弹窗
+const table = ref<{ getData: () => void, tableData: any }>()
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//=====================================数据获取====================================//
+//获取表格数据
+const getData = () => {
+  table.value?.getData();
+}
+//搜索数据
+const handleChange = (params: { name: string, groupName: string }) => {
+  const { name, groupName } = params;
+  table.value!.tableData = originTableData.value.filter((val) => {
+    const matchedName = name ? val.name.match(name) : true;
+    const matchedPath = name ? val.path.match(name) : true;
+    const matchedGroupName = groupName ? val.groupName.match(groupName) : true;
+    return (matchedName || matchedPath) && matchedGroupName;
+  })
+}
+//获取前端路由信息
+const hookRequest = (res: Response<PermissionClientRoute[]>, _this: HookThis) => {
+  originTableData.value = res.data;
+  _this.tableData = res.data;
+  _this.total = res.data.length;
+  const uniqueData = uniqueByKey(res.data, 'groupName');
+  groupEnum.value = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
+    const unicodeOfA = a.name.charCodeAt(0);
+    const unicodeOfB = b.name.charCodeAt(0)
+    return unicodeOfA - unicodeOfB;
+  })
+}
+//=========================================================================//
+const handleSelect = (routeList: PermissionClientRoute[]) => {
+  selectedData.value = routeList;
+}
+//删除前端路由组件
+const handleDeleteClientRoute = (row: PermissionClientRoute) => {
+  ElMessageBox.confirm(t('此操作将永久删除此条记录, 是否继续?'), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
+    const params = { ids: [row._id] };
+    axios.delete('/api/security/client_routes', { data: params }).then(() => {
+      table.value?.getData();
+    }).catch((err) => {
+      console.error(err);
+    });
+  }).catch((err: Error | string) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
+}
+//=====================================其他操作====================================//
+//打开新增前端路由
+const handleOpenAddRouteDialog = () => {
+  dialogVisible.value = true;
+}
+//打开修改前端路由
+const handleOpenClientEditDialog = (row: PermissionClientRoute)  =>{
+  editData.value = row;
+  dialogVisible2.value = true;
+}
+//打开批量修改前端路由类型
+const handleOpenMultiEditTypeDialog = () => {
+  dialogVisible3.value = true;
+}
 </script>
 
-<style lang="scss" scoped>
-
-</style>

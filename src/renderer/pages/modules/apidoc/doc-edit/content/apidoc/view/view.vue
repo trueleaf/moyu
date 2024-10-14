@@ -70,10 +70,10 @@
       <s-params-view :data="apidoc.item.headers" plain class="mb-3"></s-params-view>
     </template>
     <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
-    <s-fieldset :title="t('备注')">
+    <SFieldset :title="t('备注')">
       <div v-if="apidoc.info.description" class="remark">{{ apidoc.info.description }}</div>
       <div v-else class="ml-2 gray-500">{{ t("暂无数据") }}</div>
-    </s-fieldset>
+    </SFieldset>
   </div>
 </template>
 

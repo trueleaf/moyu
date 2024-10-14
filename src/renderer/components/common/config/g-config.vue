@@ -59,7 +59,7 @@ export default defineComponent({
   },
   methods: {
     handleEnabled() {
-      this.$emit('change', this.enabled);
+      this.$emits('change', this.enabled);
     },
   },
 })

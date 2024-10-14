@@ -9,7 +9,7 @@
         </el-tooltip>
       </div>
     </template>
-    <div class="close" @click="emit('close')">
+    <div class="close" @click="emits('close')">
       <el-icon>
         <Close />
       </el-icon>
@@ -23,10 +23,10 @@ import { Close } from '@element-plus/icons-vue'
 import mimeTypes from './mime'
 import { t } from 'i18next'
 
-const emit = defineEmits(['close', 'select']);
+const emits = defineEmits(['close', 'select']);
 const handleSelect = (mimeType: string) => {
-  emit('select', mimeType);
-  emit('close');
+  emits('select', mimeType);
+  emits('close');
 }
 </script>
 

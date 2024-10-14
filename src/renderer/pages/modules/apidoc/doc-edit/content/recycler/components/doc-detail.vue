@@ -109,7 +109,7 @@ import SJsonEditor from '@/components/common/json-editor/g-json-editor.vue'
 import { formatDate } from '@/helper'
 import { useApidocBaseInfo } from '@/store/apidoc/base-info';
 
-const emit = defineEmits(['close'])
+const emits = defineEmits(['close'])
 const props = defineProps({
   id: {
     type: String,
@@ -217,7 +217,7 @@ const validRequestMethods = computed(() => apidocBaseInfoStore.rules.requestMeth
 
 //关闭弹窗
 const handleClose = () => {
-  emit('close');
+  emits('close');
 }
 
 </script>

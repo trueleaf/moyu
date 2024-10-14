@@ -3,7 +3,7 @@
     <div class="hook-popover">
       <div class="header">
         <el-button link type="primary" text @click="handleJumpToHook">管理</el-button>
-        <el-button link type="primary" text @click="emit('close')">关闭</el-button>
+        <el-button link type="primary" text @click="emits('close')">关闭</el-button>
       </div>
       <div v-for="(item, index) in codeList" :key="index" class="item" @click="handleSelectCode(item)">
         <div>{{ item.codeName }}</div>
@@ -39,7 +39,7 @@ import SLoading from '@/components/common/loading/g-loading.vue'
 
 
 type CodeInfo = Omit<ApidocCodeInfo, 'updatedAt'>;
-const emit = defineEmits(['close']);
+const emits = defineEmits(['close']);
 const projectId = router.currentRoute.value.query.id as string; //项目id
 const loading = ref(false); //加载效果
 const codeList: Ref<CodeInfo[]> = ref([]); //代码列表
@@ -79,7 +79,7 @@ const handleSelectCode = (codeInfo: CodeInfo) => {
       ElMessage.success('代码已复制到剪切板！');
     }
   })
-  emit('close');
+  emits('close');
 }
 //跳转到代码管理界面
 const handleJumpToHook = () => {

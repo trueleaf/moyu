@@ -17,7 +17,7 @@
               <i class="iconfont icongaojishaixuan"></i>
             </div>
           </template>
-          <s-fieldset title="过滤条件" class="search-panel">
+          <SFieldset title="过滤条件" class="search-panel">
             <!-- 操作人员 -->
             <div class="op-item a-center">
               <div class="flex0">{{ t("操作人员") }}：</div>
@@ -66,7 +66,7 @@
                 <el-button link type="primary" text @click="handleClearRecentNum">{{ t("清空") }}</el-button>
               </el-radio-group>
             </div>
-          </s-fieldset>
+          </SFieldset>
         </el-popover>
       </el-badge>
     </div>
@@ -79,7 +79,7 @@ import type { ApidocBanner } from '@src/types/global'
 import { store } from '@/pages/modules/apidoc/doc-view/store/index'
 import { forEachForest } from '@/helper/index'
 
-const emit = defineEmits(['fresh', 'filter'])
+const emits = defineEmits(['fresh', 'filter'])
 //=====================================操作栏数据====================================//
 const bannerData = computed(() => {
   const originBannerData = store.state['apidoc/banner'].banner;
@@ -190,7 +190,7 @@ watch(() => formInfo.value, (formData) => {
     }
   })
   if (maintainers.length === 0 && !startTime && !recentNum) {
-    emit('filter', {
+    emits('filter', {
       iptValue: formData.iptValue,
       recentNumIds: null,
     });
@@ -216,7 +216,7 @@ watch(() => formInfo.value, (formData) => {
       return bTime - aTime;
     }).slice(0, recentNum)
   }
-  emit('filter', {
+  emits('filter', {
     iptValue: formData.iptValue,
     recentNumIds: plainBannerData.map(v => v._id),
   });
@@ -234,7 +234,7 @@ const handleFilterBanner = () => {
     }
   })
   if (maintainers.length === 0 && !startTime && !recentNum) {
-    emit('filter', {
+    emits('filter', {
       iptValue: formInfo.value.iptValue,
       recentNumIds: null,
     });
@@ -259,7 +259,7 @@ const handleFilterBanner = () => {
       return aTime - bTime;
     }).slice(0, formInfo.value.recentNum)
   }
-  emit('filter', {
+  emits('filter', {
     iptValue: formInfo.value.iptValue,
     recentNumIds: plainBannerData.map(v => v._id),
   });

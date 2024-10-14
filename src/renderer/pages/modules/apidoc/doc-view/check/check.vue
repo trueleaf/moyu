@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-  <s-loading v-if="!isValidShareId" :loading="loading" class="check-wrap">
+  <SLoading v-if="!isValidShareId" :loading="loading" class="check-wrap">
     <div class="content">
       <div class="text-center">
         <img :src="require('@/assets/imgs/logo.png')" width="100" height="100" class="logo">
@@ -20,7 +20,7 @@
         <span v-countdown="expire"></span>
       </div>
     </div>
-  </s-loading>
+  </SLoading>
   <el-empty v-if="isValidShareId" :description="t('无效的项目id')"></el-empty>
 </template>
 

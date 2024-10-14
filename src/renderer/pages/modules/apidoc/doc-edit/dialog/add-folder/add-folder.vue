@@ -33,7 +33,7 @@ const props = defineProps({
   },
 })
 const form = ref<FormInstance>();
-const emit = defineEmits(["update:modelValue", "success"]);
+const emits = defineEmits(["update:modelValue", "success"]);
 const loading = ref(false);
 const route = useRoute()
 /*
@@ -53,7 +53,7 @@ const handleAddFolder = () => {
         pid: props.pid,
       };
       axios.post<Response<ApidocBanner>, Response<ApidocBanner>>('/api/project/new_doc', params).then((res) => {
-        emit('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
+        emits('success', res.data); //一定要先成功然后才关闭弹窗,因为关闭弹窗会清除节点父元素id
         handleClose();
       }).catch((err) => {
         console.error(err)
@@ -68,7 +68,7 @@ const handleAddFolder = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 
 </script>

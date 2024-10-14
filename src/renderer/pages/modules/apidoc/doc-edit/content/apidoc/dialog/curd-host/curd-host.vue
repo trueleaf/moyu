@@ -110,7 +110,7 @@ defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue'])
 const formInfo = ref({
   name: '', //-------------------前缀名称
   url: '', //--------------------接口前缀地址
@@ -271,7 +271,7 @@ const handleDeleteHost = (row: HostInfo) => {
 //=====================================其他操作====================================//
 //关闭弹窗
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 
 

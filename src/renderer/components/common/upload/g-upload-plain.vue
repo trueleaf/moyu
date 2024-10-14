@@ -92,7 +92,7 @@ export default defineComponent({
   methods: {
     //上传文件
     upload(file: { file: File }) {
-      this.$emit('start');
+      this.$emits('start');
       const formData = new FormData();
       formData.append('file', file.file);
       Object.keys(this.params).forEach((key) => {
@@ -101,11 +101,11 @@ export default defineComponent({
       let response: string;
       this.axios.post<{ data: string }, { data: string }>(this.url, formData).then((res) => {
         response = res.data;
-        this.$emit('success', response);
+        this.$emits('success', response);
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.$emit('finish', response);
+        this.$emits('finish', response);
       });
     },
     checkFileSizeAndType() {

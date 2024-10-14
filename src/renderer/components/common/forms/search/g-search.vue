@@ -100,16 +100,16 @@ export default defineComponent({
     this.initLabelWidth(); //初始化label的宽度
     this.initFormData(); //初始化表单数据绑定
     this.checkFormHeight(); //检查是否显示折叠按钮
-    this.$helper.event.on('searchItem/change', this.handleChangeEvent);
+    this.event.on('searchItem/change', this.handleChangeEvent);
   },
   beforeUnmount() {
-    this.$helper.event.off('searchItem/change', this.handleChangeEvent);
+    this.event.off('searchItem/change', this.handleChangeEvent);
   },
   methods: {
     //处理change事件
     handleChangeEvent() {
-      this.$nextTick(() => {
-        this.$emit('change', this.formInfo);
+      this.nextTick(() => {
+        this.$emits('change', this.formInfo);
       });
     },
     //初始化label的宽度
@@ -117,7 +117,7 @@ export default defineComponent({
       const searchItems: VNode[] = [];
       if (this.$slots.default) {
         const allSlots = this.$slots.default();
-        this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+        this.forEachForest<VNode>(allSlots, (slot: VNode) => {
           const slotType = slot.type;
           if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name) {
             searchItems.push(slot);
@@ -134,7 +134,7 @@ export default defineComponent({
       const maxLabelWidth = Math.max.apply(Math, searchItems.map((val) => {
         const { props } = val;
         const label: string = props ? (props.label || '') : '';
-        const labelWidth = this.$helper.getTextWidth(label, font)
+        const labelWidth = this.getTextWidth(label, font)
         return labelWidth;
       }));
       const realWidth = maxLabelWidth < 100 ? 100 : maxLabelWidth;
@@ -144,7 +144,7 @@ export default defineComponent({
     initFormData() {
       if (this.$slots.default) {
         const allSlots = this.$slots.default();
-        this.$helper.forEachForest<VNode>(allSlots, (slot: VNode) => {
+        this.forEachForest<VNode>(allSlots, (slot: VNode) => {
           const slotType = slot.type;
           const { props } = slot;
           if (typeof slotType === 'object' && (slotType as Record<string, unknown>).name === 'SearchItem') {
@@ -183,14 +183,14 @@ export default defineComponent({
     },
     //触发搜索事件
     handleSearch() {
-      this.$emit('change', this.formInfo);
-      this.$emit('search', this.formInfo);
+      this.$emits('change', this.formInfo);
+      this.$emits('search', this.formInfo);
     },
     //触发重置事件
     handleReset() {
       Object.assign(this.formInfo, this.originFormInfo);
-      this.$emit('change', this.formInfo);
-      this.$emit('reset');
+      this.$emits('change', this.formInfo);
+      this.$emits('reset');
     },
   },
 })

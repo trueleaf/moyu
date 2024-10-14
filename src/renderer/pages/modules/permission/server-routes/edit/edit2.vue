@@ -5,21 +5,23 @@
     备注：
 */
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('批量修改服务端路由类型')" @close="handleClose">
-    <s-form ref="form">
-      <s-form-item :label="t('分组名称')" prop="groupName" required one-line></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" top="10vh" :title="t('批量修改服务端路由类型')" @close="handleClose">
+    <SForm ref="form">
+      <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
+    </SForm>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleSaveServerRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue'
 import type { PermissionServerRoute } from '@src/types/global'
-
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 export default defineComponent({
   props: {
     modelValue: {
@@ -40,16 +42,16 @@ export default defineComponent({
   },
   methods: {
     handleSaveServerRoute() {
-      this.$refs.form.validate((valid) => {
+      this.form.value?.validate((valid) => {
         if (valid) {
-          const { formInfo } = this.$refs.form;
+          const { formInfo } = this.form.value as any;
           const params = {
             ids: this.editData.map((v) => v._id),
             groupName: formInfo.groupName,
           };
           this.loading = true;
           this.axios.put('/api/security/server_routes_type', params).then(() => {
-            this.$emit('success');
+            this.$emits('success');
             this.handleClose();
           }).catch((err) => {
             console.error(err);
@@ -57,7 +59,7 @@ export default defineComponent({
             this.loading = false;
           });
         } else {
-          this.$nextTick(() => {
+          this.nextTick(() => {
             const input = document.querySelector('.el-form-item.is-error input');
             if (input) {
               (input as HTMLInputElement).focus();
@@ -69,7 +71,7 @@ export default defineComponent({
     },
     //关闭弹窗
     handleClose() {
-      this.$emit('update:modelValue', false);
+      this.$emits('update:modelValue', false);
     },
   },
 })

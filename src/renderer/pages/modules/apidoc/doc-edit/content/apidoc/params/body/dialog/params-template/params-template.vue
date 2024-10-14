@@ -28,7 +28,7 @@ defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['update:modelValue'])
+const emits = defineEmits(['update:modelValue'])
 const loading = ref(false);
 const form = ref<FormInstance>();
 const apidocStore = useApidoc()
@@ -67,6 +67,6 @@ const handleSave = () => {
 }
 //关闭弹窗
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 </script>

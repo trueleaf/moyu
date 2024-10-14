@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-  <s-loading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
+  <SLoading :loading="loading" class="body-view" :class="{ vertical: layout === 'vertical' }">
     <template v-if="remoteResponse.data.type">
       <!-- 图片类型 -->
       <el-image
@@ -82,7 +82,7 @@
       >
       </s-raw-editor>
     </div>
-  </s-loading>
+  </SLoading>
 </template>
 
 <script lang="ts">

@@ -63,7 +63,7 @@ import { ElMessage, FormInstance } from 'element-plus';
 import { axios } from '@/api/api';
 import { router } from '@/router';
 
-const emit = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
+const emits = defineEmits(['jumpToRegister', 'jumpToResetPassword'])
 const userInfo = ref({
   loginName: process.env.NODE_ENV === 'development' ? 'moyu' : '', //-----------登录名称
   password: process.env.NODE_ENV === 'development' ? '111111aaa' : '', //---------密码
@@ -119,11 +119,11 @@ const freshCapchaUrl = () => {
 }
 //用户注册
 const handleJumpToRegister = () => {
-  emit('jumpToRegister');
+  emits('jumpToRegister');
 }
 //重置密码
 const handleJumpToResetPassword = () => {
-  emit('jumpToResetPassword');
+  emits('jumpToResetPassword');
 }
 //体验账号登录
 const handleGuesttLogin = () => {

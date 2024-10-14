@@ -7,7 +7,7 @@
 <template>
   <s-resize-x :min="280" :max="450" :width="300" name="banner" class="banner" tabindex="1">
     <s-tool @filter="handleFilterNode"></s-tool>
-    <s-loading :loading="loading" class="tree-wrap">
+    <SLoading :loading="loading" class="tree-wrap">
       <el-tree
         ref="docTree"
         :class="{ 'show-more': showMoreNodeInfo }"
@@ -48,7 +48,7 @@
           </div>
         </template>
       </el-tree>
-    </s-loading>
+    </SLoading>
   </s-resize-x>
 </template>
 

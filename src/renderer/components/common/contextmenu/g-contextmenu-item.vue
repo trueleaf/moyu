@@ -56,7 +56,7 @@ export default defineComponent({
       if (this.disabled) {
         return;
       }
-      this.$emit('click', e)
+      this.$emits('click', e)
     },
   },
 })

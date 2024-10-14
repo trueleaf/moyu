@@ -7,7 +7,7 @@
 <template>
   <div class="s-mind-params">
     <!-- 搜索条件 -->
-    <s-fieldset :title="t('过滤条件')">
+    <SFieldset :title="t('过滤条件')">
       <div class="d-flex">
         <div class="left">
           <div class="op-item">
@@ -58,8 +58,8 @@
           </el-descriptions>
         </div>
       </div>
-    </s-fieldset>
-    <s-fieldset :title="`${t('联想参数')}(${tableInfo.length})`" class="mt-3">
+    </SFieldset>
+    <SFieldset :title="`${t('联想参数')}(${tableInfo.length})`" class="mt-3">
       <el-button type="danger" class="mb-1" :disabled="selectData.length === 0" @click="handleDeleteManyParams">{{ t("批量删除") }}</el-button>
       <el-table :data="tableInfo" stripe border height="calc(100vh - 350px)" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55"></el-table-column>
@@ -83,7 +83,7 @@
           </template>
         </el-table-column>
       </el-table>
-    </s-fieldset>
+    </SFieldset>
   </div>
 </template>
 

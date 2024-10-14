@@ -1,22 +1,17 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-29 21:54
-    模块名称：服务端路由管理
-    备注：
-*/
+
 <template>
   <div>
     <!-- 搜索条件 -->
-    <s-search auto-request @change="handleChange">
-      <s-search-item :label="t('名称&地址')" prop="name"></s-search-item>
-      <s-search-item :label="t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></s-search-item>
+    <SSearch auto-request @change="handleChange">
+      <SSearchItem :label="t('名称&地址')" prop="name"></SSearchItem>
+      <SSearchItem :label="t('分组名称')" prop="groupName" type="select" :select-enum="groupEnum"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="handleOpenAddRouteDialog">{{ t("新增路由") }}</el-button>
         <el-button :disabled="selectedData.length === 0" type="success" @click="handleOpenMultiEditTypeDialog">{{ t("批量修改类型") }}</el-button>
       </template>
-    </s-search>
+    </SSearch>
     <!-- 表格展示 -->
-    <s-table ref="table" url="/api/security/server_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
+    <STable ref="table" url="/api/security/server_routes" :res-hook="hookRequest" :paging="false" selection @select="handleSelect">
       <el-table-column :label="t('请求方法')" align="center">
         <template #default="scope">
           <span v-if="scope.row.method === 'get'" class="green">GET</span>
@@ -35,30 +30,37 @@
           <el-button link type="primary" text @click.stop="handleDeleteServerRoute(scope.row)">{{ t("删除") }}</el-button>
         </template>
       </el-table-column>
-    </s-table>
-    <s-add-server-route v-if="dialogVisible" v-model="dialogVisible" @success="getData"></s-add-server-route>
-    <s-edit-server-route v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></s-edit-server-route>
-    <s-multi-edit-server-route v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></s-multi-edit-server-route>
+    </STable>
+    <SAddServerRoute v-if="dialogVisible" v-model="dialogVisible" @success="getData"></SAddServerRoute>
+    <SEditServerRoute v-if="dialogVisible2" v-model="dialogVisible2" :edit-data="editData" @success="getData"></SEditServerRoute>
+    <SMultiEditServerRoute v-if="dialogVisible3" v-model="dialogVisible3" :edit-data="selectedData" @success="getData"></SMultiEditServerRoute>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 import type { Response, PermissionServerRoute } from '@src/types/global'
-import addServerRoute from './add/add.vue'
-import editServerRoute from './edit/edit.vue'
-import multiEditServerRoute from './edit/edit2.vue'
+import SAddServerRoute from './add/add.vue'
+import SEditServerRoute from './edit/edit.vue'
+import SMultiEditServerRoute from './edit/edit2.vue'
+import { ref } from 'vue';
 
 type HookThis = {
   tableData: PermissionServerRoute[],
   total: number,
 }
+
+const selectedData = ref<PermissionServerRoute[]>([]); //当前被选中的表单数据
+const editData = ref<PermissionServerRoute>({}); //需要编辑的数据
+const originTableData = ref<PermissionServerRoute[]>([]); //原始表单数据
+const groupEnum = ref<{ id: string, name: string }[]>([]); //分组信息
+const dialogVisible = ref(false); //新增路由信息弹窗
+const dialogVisible2 = ref(false); //修改路由信息弹窗
+const dialogVisible3 = ref(false); //批量修改路由信息弹窗
+
+const table = ref<{ getData: () => void }>();
+
 export default defineComponent({
-  components: {
-    's-add-server-route': addServerRoute,
-    's-edit-server-route': editServerRoute,
-    's-multi-edit-server-route': multiEditServerRoute,
-  },
+
   data() {
     return {
       selectedData: [] as PermissionServerRoute[], //-----------------当前被选中的表单数据
@@ -74,7 +76,7 @@ export default defineComponent({
     //=====================================数据获取====================================//
     //获取表格数据
     getData() {
-      this.$refs.table.getData();
+      table.value?.getData();
     },
     //搜索数据
     handleChange(params: { name: string, groupName: string }) {
@@ -91,7 +93,7 @@ export default defineComponent({
       this.originTableData = res.data;
       _this.tableData = res.data;
       _this.total = res.data.length;
-      const uniqueData = this.$helper.uniqueByKey(res.data, 'groupName');
+      const uniqueData = this.uniqueByKey(res.data, 'groupName');
       this.groupEnum = uniqueData.map((v) => ({ id: v.groupName, name: v.groupName })).sort((a, b) => {
         const unicodeOfA = a.name.charCodeAt(0);
         const unicodeOfB = b.name.charCodeAt(0)
@@ -104,14 +106,14 @@ export default defineComponent({
     },
     //删除前端路由组件
     handleDeleteServerRoute(row: PermissionServerRoute) {
-      this.$confirm(this.t('此操作将永久删除此条记录, 是否继续?'), this.t('提示'), {
+      ElMessageBox.confirm(this.t('此操作将永久删除此条记录, 是否继续?'), this.t('提示'), {
         confirmButtonText: this.t('确定'),
         cancelButtonText: this.t('取消'),
         type: 'warning',
       }).then(() => {
         const params = { ids: [row._id] };
         this.axios.delete('/api/security/server_routes', { data: params }).then(() => {
-          this.$refs.table.getData();
+          table.value?.getData();
         }).catch((err) => {
           console.error(err);
         });

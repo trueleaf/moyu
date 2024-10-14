@@ -19,14 +19,14 @@ defineProps({
     default: '',
   },
 })
-const emit = defineEmits(['update:modelValue', 'leave'])
+const emits = defineEmits(['update:modelValue', 'leave'])
 
 const handleLeave = () => {
-  emit('leave');
+  emits('leave');
   handleClose();
 };
 const handleClose = () => {
-  emit('update:modelValue', false);
+  emits('update:modelValue', false);
 }
 
 </script>

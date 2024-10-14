@@ -57,7 +57,7 @@ export default defineComponent({
   },
   methods: {
     handleInput(value: string) {
-      this.$emit('update:value', value);
+      this.$emits('update:value', value);
     },
   },
 })

@@ -70,7 +70,7 @@ export default defineComponent({
       const speed = process.env.NODE_ENV === 'development' ? 100 : 1000;
       clearInterval(this.timer); //清除上次的定时器
       this.disableBtn = true;
-      this.$emit('click');
+      this.$emits('click');
       this.tip = `${this.time}秒后${this.endLabel}`
       this.timer = window.setInterval(() => {
         this.time -= 1;

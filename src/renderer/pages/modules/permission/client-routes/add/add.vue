@@ -1,81 +1,76 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-28 21:04
-    模块名称：新增前端路由
-    备注：
-*/
+
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('新增前端路由')" @close="handleClose">
-    <s-form ref="form" :edit-data="formInfo">
-      <s-form-item :label="t('名称')" prop="name" required one-line></s-form-item>
-      <s-form-item :label="t('路径')" prop="path" required one-line></s-form-item>
-      <s-form-item :label="t('分组名称')" prop="groupName" required one-line></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" top="10vh" :title="t('新增前端路由')" @close="handleClose">
+    <SForm ref="form" :edit-data="formInfo">
+      <SFormItem :label="t('名称')" prop="name" required one-line></SFormItem>
+      <SFormItem :label="t('路径')" prop="path" required one-line></SFormItem>
+      <SFormItem :label="t('分组名称')" prop="groupName" required one-line></SFormItem>
+    </SForm>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleSaveClientRoute">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import axios from 'axios';
+import { FormInstance } from 'element-plus';
+import { nextTick, ref } from 'vue';
+import { t } from 'i18next'
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  emits: ['update:modelValue', 'success'],
-  data() {
-    return {
-      formInfo: {
-        name: '', //------------路由名称
-        path: '', //------------路由地址
-        groupName: '', //-------路由分组名称
-      },
-      //=========================================================================//
-      //=========================================================================//
-      loading: false,
-    };
-  },
-  methods: {
-    handleSaveClientRoute() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          const { formInfo } = this.$refs.form;
-          const params = {
-            ...formInfo,
-          };
-          this.loading = true;
-          this.axios.post('/api/security/client_routes', params).then(() => {
-            this.$emit('success');
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$nextTick(() => {
-            const input = document.querySelector('.el-form-item.is-error input');
-            if (input) {
-              (input as HTMLInputElement).focus();
-            }
-          });
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
+
+defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
 })
+const emits = defineEmits(['update:modelValue', 'success'])
+const formInfo = ref({
+  name: '', //------------路由名称
+  path: '', //------------路由地址
+  groupName: '', //-------路由分组名称
+})
+const loading = ref(false);
+const form = ref<FormInstance>();
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//关闭弹窗
+const handleClose = () => {
+  emits('update:modelValue', false);
+}
+const handleSaveClientRoute = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      const { formInfo } = form.value as any;
+      const params = {
+        ...formInfo,
+      };
+      loading.value = true;
+      axios.post('/api/security/client_routes', params).then(() => {
+        emits('success');
+        handleClose();
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      nextTick(() => {
+        const input = document.querySelector('.el-form-item.is-error input');
+        if (input) {
+          (input as HTMLInputElement).focus();
+        }
+      });
+      loading.value = false;
+    }
+  });
+}
 </script>
-
-<style lang="scss" scoped>
-</style>

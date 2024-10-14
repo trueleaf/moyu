@@ -204,7 +204,7 @@ const props = defineProps({
     default: () => []
   },
 });
-const emit = defineEmits(['change'])
+const emits = defineEmits(['change'])
 /*
 |--------------------------------------------------------------------------
 | 基础变量
@@ -225,7 +225,7 @@ watch(() => props.data, (data) => {
   });
   defaultCheckedKeys.value = selectKeys;
   defaultExpandedKeys.value = expandKeys;
-  emit('change');
+  emits('change');
 }, {
   deep: true,
   immediate: true,

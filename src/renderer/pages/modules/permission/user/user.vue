@@ -1,15 +1,10 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-14 12:15
-    模块名称：
-    备注：
-*/
+
 <template>
   <div>
-    <s-search @change="handleChange">
-      <s-search-item :label="t('登录名称')" prop="loginName"></s-search-item>
-      <s-search-item :label="t('真实姓名')" prop="realName"></s-search-item>
-      <s-search-item :label="t('手机号')" prop="phone"></s-search-item>
+    <SSearch @change="handleChange">
+      <SSearchItem :label="t('登录名称')" prop="loginName"></SSearchItem>
+      <SSearchItem :label="t('真实姓名')" prop="realName"></SSearchItem>
+      <SSearchItem :label="t('手机号')" prop="phone"></SSearchItem>
       <template #operation>
         <el-button type="success" @click="addUserDialog = true">新增用户</el-button>
         <s-download class="ml-2" url="/api/security/user_excel_template" @finish="loading = false">
@@ -19,20 +14,20 @@
           <el-button :loading="loading2" type="primary">导入用户</el-button>
         </s-upload-plain>
       </template>
-    </s-search>
+    </SSearch>
     <!-- 表格展示 -->
-    <s-table ref="table" url="/api/security/user_list" class="mt-5">
+    <STable ref="table" url="/api/security/user_list" class="mt-5">
       <el-table-column prop="loginName" :label="t('登录名称')" align="center"></el-table-column>
       <el-table-column prop="realName" :label="t('真实姓名')" align="center"></el-table-column>
       <el-table-column prop="phone" :label="t('手机号')" align="center"></el-table-column>
       <el-table-column :label="t('创建日期')" align="center" width="200px">
         <template #default="scope">
-          {{ $helper.formatDate(scope.row.createdAt) }}
+          {{ formatDate(scope.row.createdAt) }}
         </template>
       </el-table-column>
       <el-table-column :label="t('上次登录')" align="center" width="200px">
         <template #default="scope">
-          {{ $helper.formatDate(scope.row.lastLogin) }}
+          {{ formatDate(scope.row.lastLogin) }}
         </template>
       </el-table-column>
       <el-table-column :label="t('登录次数')" align="center" prop="loginTimes"></el-table-column>
@@ -56,90 +51,88 @@
           </el-button>
         </template>
       </el-table-column>
-    </s-table>
-    <s-add-user-dialog v-model="addUserDialog" @success="getData"></s-add-user-dialog>
-    <s-edit-user-dialog v-if="editUserDialog" v-model="editUserDialog" :user-id="editUserId" @success="getData"></s-edit-user-dialog>
-    <s-reset-password-dialog v-if="resetPwdDialog" v-model="resetPwdDialog" :user-id="editUserId"></s-reset-password-dialog>
+    </STable>
+    <SAddUserDialog v-model="addUserDialog" @success="getData"></SAddUserDialog>
+    <SEditUserDialog v-if="editUserDialog" v-model="editUserDialog" :user-id="editUserId" @success="getData"></SEditUserDialog>
+    <SResetPasswordDialog v-if="resetPwdDialog" v-model="resetPwdDialog" :user-id="editUserId"></SResetPasswordDialog>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-import addUserDialog from './add/add.vue'
-import editUserDialog from './edit/edit.vue'
-import resetPasswordDialog from './reset-pwd/reset-pwd.vue'
+<script lang="ts" setup>
+import { t } from 'i18next'
+import SAddUserDialog from './add/add.vue'
+import SEditUserDialog from './edit/edit.vue'
+import SResetPasswordDialog from './reset-pwd/reset-pwd.vue'
+import { ref } from 'vue';
+import { formatDate } from '@/helper'
+import { ElMessageBox } from 'element-plus';
+import { axios } from '@/api/api';
+import SSearch from '@/components/common/forms/search/g-search.vue'
+import SSearchItem from '@/components/common/forms/search/g-search-item.vue'
+import STable from '@/components/common/table/g-table.vue'
 
-export default defineComponent({
-  components: {
-    's-add-user-dialog': addUserDialog,
-    's-edit-user-dialog': editUserDialog,
-    's-reset-password-dialog': resetPasswordDialog,
-  },
-  data() {
-    return {
-      addUserDialog: false, //------------------新增用户弹窗
-      editUserDialog: false, //-----------------编辑用户弹窗
-      resetPwdDialog: false, //-----------------重置密码弹窗
-      editUserId: '', //------------------------编辑时候用户id
-      loading: false, //------------------------下载模板加载效果
-      loading2: false, //-----------------------批量导入用户加载效果
+const addUserDialog = ref(false) //------------------新增用户弹窗
+const editUserDialog = ref(false) //-----------------编辑用户弹窗
+const resetPwdDialog = ref(false) //-----------------重置密码弹窗
+const editUserId = ref('') //------------------------编辑时候用户id
+const loading = ref(false) //------------------------下载模板加载效果
+const loading2 = ref(false) //-----------------------批量导入用户加载效果
+const table = ref<{ getData: (params?: Record<string, unknown>) => void }>()
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//获取用户基本信息
+const getData = (params?: Record<string, unknown>) => {
+  table.value?.getData(params);
+}
+//搜索用户
+const handleChange = (params: Record<string, unknown>) => {
+  getData(params)
+}
+//禁用角色
+const handleForbidRole = (_id: string, enable: boolean) => {
+  const tipLabel = enable ? t('禁用') : t('启用');
+  ElMessageBox.confirm(t('确实要该用户吗', { msg: tipLabel }), t('提示'), {
+    confirmButtonText: t('确定'),
+    cancelButtonText: t('取消'),
+    type: 'warning',
+  }).then(() => {
+    const params = {
+      _id,
+      enable: !enable,
     };
-  },
-  methods: {
-    //获取用户基本信息
-    getData(params?: Record<string, unknown>) {
-      this.$refs.table.getData(params);
-    },
-    //搜索用户
-    handleChange(params: Record<string, unknown>) {
-      this.getData(params)
-    },
-    //禁用角色
-    handleForbidRole(_id: string, enable: boolean) {
-      const tipLabel = enable ? this.t('禁用') : this.t('启用');
-      this.$confirm(this.t('确实要该用户吗', { msg: tipLabel }), this.t('提示'), {
-        confirmButtonText: this.t('确定'),
-        cancelButtonText: this.t('取消'),
-        type: 'warning',
-      }).then(() => {
-        const params = {
-          _id,
-          enable: !enable,
-        };
-        this.axios.put('/api/security/user_state', params).then(() => {
-          this.$refs.table.getData();
-        }).catch((err) => {
-          console.error(err);
-        });
-      }).catch((err: Error | string) => {
-        if (err === 'cancel' || err === 'close') {
-          return;
-        }
-        console.error(err);
-      });
-    },
-    handleOpenEditUser(row: { _id: string }) {
-      this.editUserId = row._id;
-      this.editUserDialog = true;
-    },
-    //重置密码
-    handleResetPassword(row: { _id: string }) {
-      this.editUserId = row._id;
-      this.resetPwdDialog = true;
-    },
-    //导入成功弹窗
-    handleImportSuccess(data: { total: number, success: number }) {
-      this.getData();
-      this.$alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
-        confirmButtonText: '确定',
-        type: 'warning'
-      }).then(() => {
-        //console.log(222)
-      });
-    },
-  },
-})
-</script>
+    axios.put('/api/security/user_state', params).then(() => {
+      table.value?.getData();
+    }).catch((err) => {
+      console.error(err);
+    });
+  }).catch((err: Error | string) => {
+    if (err === 'cancel' || err === 'close') {
+      return;
+    }
+    console.error(err);
+  });
+}
+const handleOpenEditUser = (row: { _id: string }) => {
+  editUserId.value = row._id;
+  editUserDialog.value = true;
+}
+//重置密码
+const handleResetPassword = (row: { _id: string }) => {
+  editUserId.value = row._id;
+  resetPwdDialog.value = true;
+}
+//导入成功弹窗
+const handleImportSuccess = (data: { total: number, success: number }) => {
+  getData();
+  ElMessageBox.alert(`共导入 ${data.total} 个，成功 ${data.success} 个`, {
+    confirmButtonText: '确定',
+    type: 'warning'
+  }).then(() => {
+    //console.log(222)
+  });
+}
 
-<style lang="scss" scoped>
-</style>
+</script>

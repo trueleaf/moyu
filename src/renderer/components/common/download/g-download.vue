@@ -42,10 +42,10 @@ export default defineComponent({
   methods: {
     //导出任务明细
     downloadFile() {
-      this.$emit('start');
+      this.$emits('start');
       if (this.static) {
         window.open(this.url);
-        this.$emit('finish');
+        this.$emits('finish');
         return;
       }
       this.axios.get<DownloadResponse, DownloadResponse>(this.url, {
@@ -64,7 +64,7 @@ export default defineComponent({
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.$emit('finish');
+        this.$emits('finish');
       });
     },
   },

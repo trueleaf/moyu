@@ -1,18 +1,13 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-23 21:13
-    模块名称：编辑用户
-    备注：
-*/
+
 <template>
-  <s-dialog :model-value="modelValue" :title="t('修改')" @close="handleClose">
+  <SDialog :model-value="modelValue" :title="t('修改')" @close="handleClose">
     <el-divider content-position="left">{{ t("基础信息") }}</el-divider>
-    <s-form ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
-      <s-form-item :label="t('登录名称')" prop="loginName" required half-line></s-form-item>
-      <s-form-item :label="t('真实姓名')" prop="realName" required half-line></s-form-item>
-      <s-form-item :label="t('查看范围')" prop="isAdmin" type="select" :select-enum="viewPermissionEnum" half-line></s-form-item>
-      <!-- <s-form-item :label="t('手机号')" prop="phone" half-line phone required></s-form-item> -->
-    </s-form>
+    <SForm ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
+      <SFormItem :label="t('登录名称')" prop="loginName" required half-line></SFormItem>
+      <SFormItem :label="t('真实姓名')" prop="realName" required half-line></SFormItem>
+      <SFormItem :label="t('查看范围')" prop="isAdmin" type="select" :select-enum="viewPermissionEnum" half-line></SFormItem>
+      <!-- <SFormItem :label="t('手机号')" prop="phone" half-line phone required></SFormItem> -->
+    </SForm>
     <el-divider content-position="left">{{ t("角色选择") }}</el-divider>
     <el-checkbox-group v-model="roleIds">
       <el-checkbox v-for="(item, index) in roleEnum" :key="index" :label="item._id">{{ item.roleName }}</el-checkbox>
@@ -23,119 +18,114 @@
         <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { t } from 'i18next'
 import { PermissionRoleEnum, Response } from '@src/types/global'
+import { nextTick, onMounted, ref } from 'vue';
+import { axios } from '@/api/api';
+import { ElMessage, FormInstance } from 'element-plus';
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    /*
-         * 用户id
-        */
-    userId: {
-      type: String,
-      default: ''
-    },
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['success', 'update:modelValue'],
-  data() {
-    return {
-      formInfo: {} as Record<string, unknown>, //用户基本信息
-      roleIds: [] as string[], //----------------角色id列表
-      roleEnum: [] as PermissionRoleEnum, //-----角色枚举信息
-      viewPermissionEnum: [{
-        id: true,
-        name: '全部项目'
-      }, {
-        id: false,
-        name: '局部项目'
-      }], //-----------------是否允许查看所有项目
-      loading: false, //-------------------------用户信息加载
-      loading2: false, //------------------------修改用户加载
+  userId: {
+    type: String,
+    default: ''
+  },
+})
+const emits = defineEmits(['success', 'update:modelValue'])
+const formInfo = ref<Record<string, unknown>>({}) //用户基本信息
+const roleIds = ref<string[]>([]) //角色id列表
+const roleEnum = ref<PermissionRoleEnum>([]) //角色枚举信息
+const viewPermissionEnum = ref([{
+  id: true,
+  name: t('全部项目')
+}, {
+  id: false,
+  name: t('局部项目')
+}]) //是否允许查看所有项目
+const loading = ref(false) //用户信息加载
+const loading2 = ref(false) //修改用户加载
+const form = ref<FormInstance>()
+/*
+|--------------------------------------------------------------------------
+| 方法定义
+|--------------------------------------------------------------------------
+*/
+//获取用户基本信息
+const getUserInfo = () => {
+  loading2.value = true;
+  axios.get('/api/security/user_info_by_id', { params: { _id: props.userId } }).then((res) => {
+    formInfo.value = {
+      loginName: res.data.loginName,
+      realName: res.data.realName,
+      phone: res.data.phone,
+      isAdmin: res.data.isAdmin,
     };
-  },
-  created() {
-    this.getRoleEnum(); //获取角色枚举信息
-    this.getUserInfo(); //获取用户基本信息
-  },
-  methods: {
-    //获取用户基本信息
-    getUserInfo() {
-      this.loading2 = true;
-      this.axios.get('/api/security/user_info_by_id', { params: { _id: this.userId } }).then((res) => {
-        this.formInfo = {
-          loginName: res.data.loginName,
-          realName: res.data.realName,
-          phone: res.data.phone,
-          isAdmin: res.data.isAdmin,
-        };
-        this.roleIds = res.data.roleIds;
+    roleIds.value = res.data.roleIds;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading2.value = false;
+  });
+}
+//获取角色枚举信息
+const getRoleEnum = () => {
+  axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
+    roleEnum.value = res.data;
+  }).catch((err) => {
+    console.error(err);
+  });
+}
+//修改用户
+const handleEditUser = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      const { formInfo } = form.value as any;
+      const roleNames = roleIds.value.map((val) => {
+        const user = roleEnum.value.find((role) => role._id === val);
+        return user ? user.roleName : '';
+      });
+      const params = {
+        _id: props.userId,
+        loginName: formInfo.loginName,
+        realName: formInfo.realName,
+        roleIds: roleIds,
+        roleNames,
+        isAdmin: formInfo.isAdmin,
+      };
+      loading.value = true;
+      axios.put('/api/security/user_permission', params).then(() => {
+        emits('success');
+        handleClose();
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.loading2 = false;
+        loading.value = false;
       });
-    },
-    //获取角色枚举信息
-    getRoleEnum() {
-      this.axios.get<Response<PermissionRoleEnum>, Response<PermissionRoleEnum>>('/api/security/role_enum').then((res) => {
-        this.roleEnum = res.data;
-      }).catch((err) => {
-        console.error(err);
-      });
-    },
-    //修改用户
-    handleEditUser() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          const { formInfo } = this.$refs.form;
-          const roleNames = this.roleIds.map((val) => {
-            const user = this.roleEnum.find((role) => role._id === val);
-            return user ? user.roleName : '';
-          });
-          const params = {
-            _id: this.userId,
-            loginName: formInfo.loginName,
-            realName: formInfo.realName,
-            roleIds: this.roleIds,
-            roleNames,
-            isAdmin: formInfo.isAdmin,
-          };
-          this.loading = true;
-          this.axios.put('/api/security/user_permission', params).then(() => {
-            this.$emit('success');
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-          this.$message.warning('请完善必填信息');
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
-  },
-})
-</script>
+    } else {
+      nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
+      ElMessage.warning('请完善必填信息');
+      loading.value = false;
+    }
+  });
+}
+//关闭弹窗
+const handleClose = () => {
+  emits('update:modelValue', false);
+}
 
-<style lang="scss" scoped>
-// .add-user {
-//     .el-dialog__body {
-//         padding-top: 0;
-//     }
-// }
-</style>
+onMounted(() => {
+  getRoleEnum(); //获取角色枚举信息
+  getUserInfo(); //获取用户基本信息
+})
+
+</script>

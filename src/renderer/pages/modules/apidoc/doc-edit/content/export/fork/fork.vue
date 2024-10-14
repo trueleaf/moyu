@@ -5,7 +5,7 @@
     备注：
 */
 <template>
-  <s-fieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
+  <SFieldset :title="t('将当前项目指定文档导出到其他项目')" class="fork">
     <!-- 选择区域 -->
     <div class="fork-wrap">
       <div v-flex1="30" class="left">
@@ -59,7 +59,7 @@
             <el-option v-for="(item,index) in projectEnum" :key="index" :value="item._id" :label="item.projectName"></el-option>
           </el-select>
           <el-divider></el-divider>
-          <s-loading :loading="loading" class="project-nav mt-2">
+          <SLoading :loading="loading" class="project-nav mt-2">
             <el-tree
               ref="targetTree"
               :data="targetTreeData"
@@ -95,12 +95,12 @@
                 </div>
               </template>
             </el-tree>
-          </s-loading>
+          </SLoading>
         </div>
       </div>
     </div>
     <!-- <s-add-folder-dialog v-if="dialogVisible" :visible.sync="dialogVisible" :project-id="projectId" :pid="targetAddFolderMountedId" @success="handleAddFileAndFolderCb"></s-add-folder-dialog> -->
-  </s-fieldset>
+  </SFieldset>
 </template>
 
 <script lang="ts" setup>
@@ -337,7 +337,7 @@ const handleSourceDragend = (draggingNode: Node, dropNode: Node, position: unkno
     _id: uuid(),
   };
   sourceTree.value?.insertBefore(emptyData, draggingNode);
-  targetTree.value?.$emit('node-drag-end', event);
+  targetTree.value?.$emits('node-drag-end', event);
   nextTick(() => {
     if (sourceTree.value?.getNode(draggingNode.data)) { //没有在挂载点完成拖拽
       sourceTree.value?.remove(emptyData);

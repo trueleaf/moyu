@@ -31,7 +31,7 @@
         </el-tab-pane>
         <!-- 修改模板 -->
         <el-tab-pane :label="t('修改模板')" name="s-edit">
-          <s-loading :loading="loading">
+          <SLoading :loading="loading">
             <el-form v-if="editData._id" ref="form" :model="editData" :rules="rules" label-width="120px">
               <el-form-item :label="`${t('参数名称')}：`" prop="name">
                 <el-input v-model="editData.name" :size="config.renderConfig.layout.size" :placeholder="t('例如：默认返回值')" class="w-80" maxlength="8" clearable show-word-limit></el-input>
@@ -50,11 +50,11 @@
               <div class="d-flex j-end">
               </div>
             </el-form>
-          </s-loading>
+          </SLoading>
         </el-tab-pane>
       </el-tabs>
     </s-resize-x>
-    <s-table
+    <STable
       ref="table"
       url="/api/project/doc_preset_params_list"
       :params="{projectId: $route.query.id}"
@@ -83,7 +83,7 @@
           <el-button link type="primary" text @click="handleDelete(scope.row._id)">{{ t("删除") }}</el-button>
         </template>
       </el-table-column>
-    </s-table>
+    </STable>
   </div>
 </template>
 
@@ -141,7 +141,7 @@ export default defineComponent({
       handler(val: ApidocTab | null) {
         if (val && val.tabType === 'paramsTemplate') {
           console.log(val)
-          this.$refs.table.getData();
+          table.value?.getData();
         }
       },
       deep: true,
@@ -153,11 +153,11 @@ export default defineComponent({
   methods: {
     //初始化
     init() {
-      this.addData.items.push(this.$helper.apidocGenerateProperty());
+      this.addData.items.push(this.apidocGenerateProperty());
     },
     //新增模板
     handleAddTemplate() {
-      this.$refs.form.validate((valid) => {
+      this.form.value?.validate((valid) => {
         if (valid) {
           const params = {
             projectId: this.$route.query.id,
@@ -165,9 +165,9 @@ export default defineComponent({
           };
           this.loading2 = true;
           this.axios.post('/api/project/doc_preset_params', params).then(() => {
-            this.$refs.table.getData();
+            table.value?.getData();
             this.$store.commit('apidoc/addPresetParams', params);
-            this.$emit('success')
+            this.$emits('success')
           }).catch((err) => {
             console.error(err);
           }).finally(() => {
@@ -197,7 +197,7 @@ export default defineComponent({
           this.editData.items.push(val);
         })
         if (lastItem.key || lastItem.value) {
-          this.editData.items.push(this.$helper.apidocGenerateProperty())
+          this.editData.items.push(this.apidocGenerateProperty())
         }
       }).catch((err) => {
         console.error(err);
@@ -207,7 +207,7 @@ export default defineComponent({
     },
     //删除模板
     handleDelete(id: string) {
-      this.$confirm(this.t('此操作将永久删除此条记录, 是否继续?'), '提示', {
+      ElMessageBox.confirm(this.t('此操作将永久删除此条记录, 是否继续?'), '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -217,7 +217,7 @@ export default defineComponent({
           projectId: this.$route.query.id,
         };
         this.axios.delete('/api/project/doc_preset_params', { data: params }).then(() => {
-          this.$refs.table.getData();
+          table.value?.getData();
           const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
           const delIndex = allTemplate.findIndex(v => v._id === id);
           this.$store.commit('apidoc/baseInfo/deleteParamsTemplate', delIndex)
@@ -235,7 +235,7 @@ export default defineComponent({
     },
     //批量删除成功
     handleDeleteSuccess(ids: string[]) {
-      this.$refs.table.getData();
+      table.value?.getData();
       ids.forEach(id => {
         const allTemplate = this.$store.state['apidoc/baseInfo'].paramsTemplate;
         const delIndex = allTemplate.findIndex(v => v._id === id);

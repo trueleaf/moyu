@@ -1,50 +1,50 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-28 21:04
-    模块名称：修改角色
-    备注：
-*/
+
 <template>
-  <s-dialog :model-value="modelValue" top="10vh" :title="t('修改角色')" @close="handleClose">
+  <SDialog :model-value="modelValue" top="10vh" :title="t('修改角色')" @close="handleClose">
     <div class="g-role">
-      <s-fieldset :title="t('基本信息')">
-        <s-form ref="form" :edit-data="formInfo">
-          <s-form-item :label="t('角色名称')" prop="roleName" required one-line></s-form-item>
-          <s-form-item :label="t('备注')" prop="remark" required one-line></s-form-item>
-        </s-form>
-      </s-fieldset>
-      <s-fieldset :title="t('权限选择')">
+      <SFieldset :title="t('基本信息')">
+        <SForm ref="form" :edit-data="formInfo">
+          <SFormItem :label="t('角色名称')" prop="roleName" required one-line></SFormItem>
+          <SFormItem :label="t('备注')" prop="remark" required one-line></SFormItem>
+        </SForm>
+      </SFieldset>
+      <SFieldset :title="t('权限选择')">
         <el-tabs v-model="activeName">
           <!-- 前端路由 -->
           <el-tab-pane name="clientRoute" :label="t('前端路由')">
-            <s-client-routes ref="clientRoute" @change="handleChangeClientRoutes"></s-client-routes>
+            <SClientRoutes ref="clientRoute" @change="handleChangeClientRoutes"></SClientRoutes>
           </el-tab-pane>
           <!-- 后端路由 -->
           <el-tab-pane name="serverRoute" :label="t('后端路由')">
-            <s-server-routes ref="serverRoute" @change="handleChangeServerRoutes"></s-server-routes>
+            <SServerRoutes ref="serverRoute" @change="handleChangeServerRoutes"></SServerRoutes>
           </el-tab-pane>
           <!-- 前端菜单 -->
           <el-tab-pane name="clientMenu" :label="t('前端菜单')">
-            <s-client-menus ref="clientMenu" @change="handleChangeClientMenus"></s-client-menus>
+            <SClientMenus ref="clientMenu" @change="handleChangeClientMenus"></SClientMenus>
           </el-tab-pane>
         </el-tabs>
-      </s-fieldset>
+      </SFieldset>
     </div>
     <template #footer>
       <el-button :loading="loading" type="primary" @click="handleEditRole">{{ t("确定") }}</el-button>
       <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import type { TreeNodeOptions } from 'element-plus/lib/components/tree/src/tree.type'
-import { defineComponent } from 'vue'
 import { Response } from '@src/types/global'
-import clientMenus from './components/client-menus.vue'
-import clientRoutes from './components/client-routes.vue'
-import serverRoutes from './components/server-routes.vue'
-
+import { nextTick, onMounted, ref } from 'vue'
+import SClientMenus from './components/client-menus.vue'
+import SClientRoutes from './components/client-routes.vue'
+import SServerRoutes from './components/server-routes.vue'
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
+import { axios } from '@/api/api'
+import { FormInstance } from 'element-plus'
+import { t } from 'i18next'
 type RoleInfo = {
   remark: string,
   roleName: string,
@@ -53,129 +53,112 @@ type RoleInfo = {
   serverRoutes: string[],
 }
 
-export default defineComponent({
-  components: {
-    's-client-routes': clientRoutes,
-    's-server-routes': serverRoutes,
-    's-client-menus': clientMenus,
+const props = defineProps({
+  userId: {
+    type: String,
+    default: ''
   },
-  props: {
-    /**
-         * 用户id
-         */
-    userId: {
-      type: String,
-      default: ''
-    },
-    /**
-         * 弹窗控制
-         */
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'success'],
-  data() {
-    return {
-      formInfo: {
-        roleName: '', //-------------------角色名称
-        remark: '', //---------------------备注信息
-        clientBanner: [] as string[], //---菜单ids
-        clientRoutes: [] as string[], //---已选前端路由
-        serverRoutes: [] as string[], //---已选后端路由
-      },
-      //=========================================================================//
-      clientMenu: [], //前端菜单
-      //=========================================================================//
-      activeName: 'clientRoute',
-      loading: false,
-    };
-  },
-  created() {
-    this.getRoleInfo();
-  },
-  methods: {
-    //获取角色信息
-    getRoleInfo() {
-      this.loading = true;
+})
+const emits = defineEmits(['update:modelValue', 'success']);
+const formInfo = ref({
+  roleName: '', //-------------------角色名称
+  remark: '', //---------------------备注信息
+  clientBanner: [] as string[], //---菜单ids
+  clientRoutes: [] as string[], //---已选前端路由
+  serverRoutes: [] as string[], //---已选后端路由
+})
+const clientMenu = ref<string[]>([])
+const activeName = ref('clientRoute')
+const loading = ref(false);
+const clientMenuRef = ref<{ tree: TreeNodeOptions['store'] }>();
+const clientRouteRef = ref<{ selectedData: string[] }>();
+const serverRouteRef = ref<{ selectedData: string[] }>();
+const form = ref<FormInstance>();
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+//获取角色信息
+const getRoleInfo = () => {
+  loading.value = true;
+  const params = {
+    _id: props.userId,
+  };
+  axios.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
+    // res.data.clientBanner.forEach((val) => {
+    //     ($refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
+    // });
+    setTimeout(() => { //hack不知道为什么不回显数据
+      res.data.clientBanner.forEach((val) => {
+        clientMenuRef.value?.tree.setChecked(val, true, false);
+      });
+    }, 1000);
+    clientRouteRef.value!.selectedData = res.data.clientRoutes;
+    serverRouteRef.value!.selectedData = res.data.serverRoutes;
+    formInfo.value.clientBanner = res.data.clientBanner;
+    formInfo.value.clientRoutes = res.data.clientRoutes;
+    formInfo.value.serverRoutes = res.data.serverRoutes;
+    formInfo.value.roleName = res.data.roleName;
+    formInfo.value.remark = res.data.remark;
+  }).catch((err) => {
+    console.error(err);
+  }).finally(() => {
+    loading.value = false;
+  });
+}
+//选择客户端路由
+const handleChangeClientRoutes = (val: string[]) => {
+  formInfo.value.clientRoutes = val;
+}
+//选择服务端路由
+const handleChangeServerRoutes = (val: string[]) => {
+  formInfo.value.serverRoutes = val;
+}
+//选择菜单
+const handleChangeClientMenus = (val: string[]) => {
+  formInfo.value.clientBanner = val;
+}
+//保存角色
+const handleEditRole = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      const formData = (form.value as any).formInfo;
       const params = {
-        _id: this.userId,
+        _id: props.userId,
+        ...formInfo,
+        roleName: formData.roleName,
+        remark: formData.remark,
       };
-      this.axios.get<Response<RoleInfo>, Response<RoleInfo>>('/api/security/role_info', { params }).then((res) => {
-        // res.data.clientBanner.forEach((val) => {
-        //     (this.$refs.clientMenu as { tree: TreeNodeOptions["store"] }).tree.setChecked(val, true, false);
-        // });
-        const clientMenu = this.$refs.clientMenu as { $refs: { tree: TreeNodeOptions['store'] } };
-        const clientRoute = this.$refs.clientRoute as { selectedData: string[] };
-        const serverRoute = this.$refs.serverRoute as { selectedData: string[] };
-        setTimeout(() => { //hack不知道为什么不回显数据
-          res.data.clientBanner.forEach((val) => {
-            clientMenu.$refs.tree.setChecked(val, true, false);
-          });
-        }, 1000);
-        clientRoute.selectedData = res.data.clientRoutes;
-        serverRoute.selectedData = res.data.serverRoutes;
-        this.formInfo.clientBanner = res.data.clientBanner;
-        this.formInfo.clientRoutes = res.data.clientRoutes;
-        this.formInfo.serverRoutes = res.data.serverRoutes;
-        this.formInfo.roleName = res.data.roleName;
-        this.formInfo.remark = res.data.remark;
+      loading.value = true;
+      axios.put('/api/security/role', params).then(() => {
+        emits('success');
+        handleClose();
       }).catch((err) => {
         console.error(err);
       }).finally(() => {
-        this.loading = false;
+        loading.value = false;
       });
-    },
-    //选择客户端路由
-    handleChangeClientRoutes(val: string[]) {
-      this.formInfo.clientRoutes = val;
-    },
-    //选择服务端路由
-    handleChangeServerRoutes(val: string[]) {
-      this.formInfo.serverRoutes = val;
-    },
-    //选择菜单
-    handleChangeClientMenus(val: string[]) {
-      this.formInfo.clientBanner = val;
-    },
-    //保存角色
-    handleEditRole() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          const formData = this.$refs.form.formInfo;
-          const params = {
-            _id: this.userId,
-            ...this.formInfo,
-            roleName: formData.roleName,
-            remark: formData.remark,
-          };
-          this.loading = true;
-          this.axios.put('/api/security/role', params).then(() => {
-            this.$emit('success');
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$nextTick(() => {
-            const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
-            if (input) {
-              input.focus();
-            }
-          });
+    } else {
+      nextTick(() => {
+        const input: HTMLInputElement = document.querySelector('.el-form-item.is-error input') as HTMLInputElement;
+        if (input) {
+          input.focus();
         }
       });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
-  },
+    }
+  });
+}
+//关闭弹窗
+const handleClose = () => {
+  emits('update:modelValue', false);
+}
+onMounted(() => {
+  getRoleInfo();
 })
-</script>
 
-<style lang="scss" scoped>
-</style>
+</script>

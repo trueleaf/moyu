@@ -189,7 +189,7 @@ const apidocBaseInfoStore = useApidocBaseInfo();
 const apidocBannerStore = useApidocBanner();
 const apidocWorkerStateStore = useApidocWorkerState();
 const apidocTabsStore = useApidocTas();
-const emit = defineEmits(['fresh', 'filter', 'changeProject']);
+const emits = defineEmits(['fresh', 'filter', 'changeProject']);
 const isView = computed(() => apidocBaseInfoStore.mode === 'view') //当前工作区状态
 const toggleProjectVisible = ref(false);
 //新增文件或者文件夹成功回调
@@ -285,7 +285,7 @@ const handleEmit = (op: ApidocOperations) => {
     addFileDialogVisible.value = true;
     break;
   case 'freshBanner': //刷新页面
-    emit('fresh');
+    emits('fresh');
     break;
   case 'generateLink': //在线链接
     apidocTabsStore.addTab({
@@ -530,7 +530,7 @@ watch(() => formInfo.value, (formData) => {
     }
   })
   if (maintainers.length === 0 && !startTime && !recentNum) {
-    emit('filter', {
+    emits('filter', {
       iptValue: formData.iptValue,
       recentNumIds: null,
     });
@@ -556,7 +556,7 @@ watch(() => formInfo.value, (formData) => {
       return bTime - aTime;
     }).slice(0, recentNum)
   }
-  emit('filter', {
+  emits('filter', {
     iptValue: formData.iptValue,
     recentNumIds: plainBannerData.map(v => v._id),
   });
@@ -574,7 +574,7 @@ const handleFilterBanner = () => {
     }
   })
   if (maintainers.length === 0 && !startTime && !recentNum) {
-    emit('filter', {
+    emits('filter', {
       iptValue: formInfo.value.iptValue,
       recentNumIds: null,
     });
@@ -599,7 +599,7 @@ const handleFilterBanner = () => {
       return aTime - bTime;
     }).slice(0, formInfo.value.recentNum)
   }
-  emit('filter', {
+  emits('filter', {
     iptValue: formInfo.value.iptValue,
     recentNumIds: plainBannerData.map(v => v._id),
   });
@@ -648,7 +648,7 @@ const handleChangeProject = (item: ApidocProjectInfo) => {
   apidocBannerStore.getDocBanner({ projectId: item._id, }).finally(() => {
     apidocBannerStore.changeBannerLoading(false)
   });
-  emit('changeProject', item._id)
+  emits('changeProject', item._id)
 }
 //打开或者关闭项目列表切换
 const handleToggleProjectModel = () => {

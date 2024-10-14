@@ -4,7 +4,6 @@ import 'nprogress/nprogress.css';
 import docEdit from '@/pages/modules/apidoc/doc-edit/doc-edit.vue'
 import { config } from '@/../config/config'
 import { usePermissionStore } from '@/store/permission';
-// import { store } from '@/store/index';
 
 const lastVisitPage = localStorage.getItem('history/lastVisitePage'); //回复上次访问的页面
 

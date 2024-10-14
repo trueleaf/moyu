@@ -1,78 +1,78 @@
-/*
-    创建者：shuxiaokai
-    模块名称：重置密码
-    备注：
-*/
+
 <template>
-  <s-dialog :model-value="modelValue" title="重置密码" @close="handleClose">
-    <s-form ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
-      <s-form-item label="新密码" prop="password" required :min-length="6" one-line></s-form-item>
-    </s-form>
+  <SDialog :model-value="modelValue" title="重置密码" @close="handleClose">
+    <SForm ref="form" v-loading="loading2" show-tips :edit-data="formInfo">
+      <SFormItem label="新密码" prop="password" required :min-length="6" one-line></SFormItem>
+    </SForm>
     <template #footer>
       <div>
         <el-button :loading="loading" type="primary" @click="handleEditUser">{{ t("确定") }}</el-button>
         <el-button type="warning" @click="handleClose">{{ t("取消") }}</el-button>
       </div>
     </template>
-  </s-dialog>
+  </SDialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { axios } from '@/api/api';
+import { ElMessage, FormInstance } from 'element-plus';
+import { t } from 'i18next'
+import { nextTick, ref } from 'vue';
+import SDialog from '@/components/common/dialog/g-dialog.vue'
+import SForm from '@/components/common/forms/form/g-form.vue'
+import SFormItem from '@/components/common/forms/form/g-form-item.vue'
 
-export default defineComponent({
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    /*
-         * 用户id
-        */
-    userId: {
-      type: String,
-      default: ''
-    },
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['success', 'update:modelValue'],
-  data() {
-    return {
-      formInfo: {} as Record<string, unknown>, //用户基本信息
-      loading: false, //-------------------------用户信息加载
-      loading2: false, //------------------------修改用户加载
-    };
-  },
-  methods: {
-    //修改用户
-    handleEditUser() {
-      this.$refs.form.validate((valid) => {
-        if (valid) {
-          const { formInfo } = this.$refs.form;
-          const params = {
-            userId: this.$props.userId,
-            password: formInfo.password,
-          };
-          this.loading = true;
-          this.axios.put('/api/security/reset_password', params).then(() => {
-            this.$emit('success');
-            this.$message.success('重置成功')
-            this.handleClose();
-          }).catch((err) => {
-            console.error(err);
-          }).finally(() => {
-            this.loading = false;
-          });
-        } else {
-          this.$nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
-          this.$message.warning('请完善必填信息');
-          this.loading = false;
-        }
-      });
-    },
-    //关闭弹窗
-    handleClose() {
-      this.$emit('update:modelValue', false);
-    },
+  /*
+    * 用户id
+  */
+  userId: {
+    type: String,
+    default: ''
   },
 })
+const emits = defineEmits(['success', 'update:modelValue'])
+const formInfo = ref<Record<string, unknown>>({}); //用户基本信息
+const loading = ref(false); //-----------------------用户信息加载
+const loading2 = ref(false); //----------------------修改用户加载
+const form = ref<FormInstance>()
+/*
+|--------------------------------------------------------------------------
+| 方法定义
+|--------------------------------------------------------------------------
+*/
+//修改用户
+const handleEditUser = () => {
+  form.value?.validate((valid) => {
+    if (valid) {
+      const { formInfo } = form.value as any;
+      const params = {
+        userId: props.userId,
+        password: formInfo.password,
+      };
+      loading.value = true;
+      axios.put('/api/security/reset_password', params).then(() => {
+        emits('success');
+        ElMessage.success('重置成功')
+        handleClose();
+      }).catch((err) => {
+        console.error(err);
+      }).finally(() => {
+        loading.value = false;
+      });
+    } else {
+      nextTick(() => (document.querySelector('.el-form-item.is-error input') as HTMLInputElement)?.focus());
+      ElMessage.warning('请完善必填信息');
+      loading.value = false;
+    }
+  });
+}
+//关闭弹窗
+const handleClose = () => {
+  emits('update:modelValue', false);
+}
 </script>
