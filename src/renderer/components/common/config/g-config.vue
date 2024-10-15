@@ -1,8 +1,6 @@
 /*
-    创建者：shuxiaokai
-    创建时间：2021-09-24 22:47
-    模块名称：配置块
-    备注：
+  模块名称：配置块
+  备注：
 */
 <template>
   <div class="config-item">
@@ -25,62 +23,59 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ref } from 'vue';
 
-export default defineComponent({
-  props: {
-    label: { //标题信息
-      type: String,
-      default: '',
-    },
-    description: { //额外描述信息
-      type: String,
-      default: '',
-    },
-    hasCheck: { //是否显示选中
-      type: Boolean,
-      default: true,
-    },
-    disabled: { //是否禁用
-      type: Boolean,
-      default: false,
-    },
-    required: { //是否必填
-      type: Boolean,
-      default: false,
-    },
+defineProps({
+  label: { //标题信息
+    type: String,
+    default: '',
   },
-  emits: ['change'],
-  data() {
-    return {
-      enabled: false,
-    };
+  description: { //额外描述信息
+    type: String,
+    default: '',
   },
-  methods: {
-    handleEnabled() {
-      this.$emits('change', this.enabled);
-    },
+  hasCheck: { //是否显示选中
+    type: Boolean,
+    default: true,
+  },
+  disabled: { //是否禁用
+    type: Boolean,
+    default: false,
+  },
+  required: { //是否必填
+    type: Boolean,
+    default: false,
   },
 })
+const emits = defineEmits(['change']);
+const handleEnabled = () => {
+  emits('change', enabled.value);
+}
+const enabled = ref(false);
+
 </script>
 
 <style lang="scss" scoped>
 .config-item {
-    padding: size(10) size(20);
-    &:hover {
-        background: $gray-200;
+  padding: size(10) size(20);
+
+  &:hover {
+    background: $gray-200;
+  }
+
+  .description {
+    font-size: fz(12);
+    color: $gray-500;
+  }
+
+  .label {
+    font-weight: bolder;
+    font-size: fz(15);
+
+    .required {
+      color: $red;
     }
-    .description {
-        font-size: fz(12);
-        color: $gray-500;
-    }
-    .label {
-        font-weight: bolder;
-        font-size: fz(15);
-        .required {
-            color: $red;
-        }
-    }
+  }
 }
 </style>
