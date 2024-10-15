@@ -13,7 +13,7 @@
           <arrow-right />
         </el-icon>
       </span>
-      <span v-if="!$slots.title" class="ml-1">{{ title }}</span>
+      <span v-if="!slots.title" class="ml-1">{{ title }}</span>
       <slot v-else name="title" />
     </div>
     <div v-show="isActive" class="pr-2 pl-5 gray-700">
@@ -23,10 +23,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { ref, useSlots, watch } from 'vue'
 import { ArrowDown, ArrowRight } from '@element-plus/icons-vue'
 import { t } from 'i18next'
 
+const slots = useSlots()
 const props = defineProps({
   title: {
     type: String,

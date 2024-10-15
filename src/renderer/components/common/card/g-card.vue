@@ -1,6 +1,6 @@
 <template>
   <div class="s-card" :class="{ shadow: shadow }" :style="{ width: width }">
-    <header v-if="$slots.operation || title">
+    <header v-if="slots.operation || title">
       <div class="title">{{ title }}</div>
       <div>
         <slot name="operation"></slot>
@@ -14,7 +14,9 @@
 </template>
 
 <script lang="ts" setup>
+import { useSlots } from 'vue';
 
+const slots = useSlots()
 defineProps({
   title: { // card头部标题
     type: String,
