@@ -4,7 +4,7 @@
 */
 <template>
   <div class="collapse-card" :class="{ shadow: shadow }" :style="{ width: width }">
-    <header v-if="$slots.operation || title || $slots.head" :class="{ disabled: disabled }"
+    <header v-if="slots.operation || title || slots.head" :class="{ disabled: disabled }"
       :title="disabled ? disabledTip : ''">
       <div class="head">
         <div class="control" @click="toggleCollapse">
@@ -22,7 +22,7 @@
             </svg>
           </template>
         </div>
-        <div v-if="!$slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
+        <div v-if="!slots.head" class="title" :title="title" :style="{ color: titleColor }">{{ title }}</div>
         <slot v-else name="head">{{ title }}</slot>
       </div>
       <div v-show="!disabled" class="operation">
@@ -40,8 +40,9 @@
 
 <script lang="ts" setup>
 import { CaretRight, CaretBottom } from '@element-plus/icons-vue'
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, useSlots, watch } from 'vue';
 
+const slots = useSlots()
 const props = defineProps({
   title: { // card头部标题
     type: String,

@@ -4,16 +4,16 @@
 */
 <template>
   <div class="config-item">
-    <div v-if="hasCheck && !$slots.label">
+    <div v-if="hasCheck && !slots.label">
       <el-checkbox v-model="enabled" :disabled="disabled" @change="handleEnabled">
         <span class="label">{{ label }}</span>
       </el-checkbox>
     </div>
-    <div v-else-if="!hasCheck && !$slots.label" class="label">
+    <div v-else-if="!hasCheck && !slots.label" class="label">
       <span v-if="required" class="required">*</span>
       <span>{{ label }}</span>
     </div>
-    <div v-else-if="$slots.label">
+    <div v-else-if="slots.label">
       <slot name="label" />
     </div>
     <div v-show="description" class="mt-1 description">{{ description }}</div>
@@ -24,8 +24,9 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, useSlots } from 'vue';
 
+const slots = useSlots()
 defineProps({
   label: { //标题信息
     type: String,
