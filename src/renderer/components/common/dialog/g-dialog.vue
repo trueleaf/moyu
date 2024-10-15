@@ -1,9 +1,4 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-06-23 21:14
-    模块名称：弹窗组件
-    备注：
-*/
+
 <template>
   <el-dialog
     :model-value="modelValue"
@@ -22,44 +17,25 @@
   </el-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
 
-export default defineComponent({
-  props: {
-    /**
-         * 是否显示dialog
-         */
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    /**
-         * 标题
-         */
-    title: {
-      type: String,
-      default: '',
-    },
-    /**
-         * 是否可以通过escape和点击model关闭
-         */
-    easyClose: {
-      type: Boolean,
-      default: false,
-    },
+defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false,
   },
-  emits: ['update:modelValue', 'close'],
-  methods: {
-    //关闭弹窗
-    closeModel() {
-      this.$emits('update:modelValue', false);
-      this.$emits('close', false);
-    },
+  title: {
+    type: String,
+    default: '',
+  },
+  easyClose: {
+    type: Boolean,
+    default: false,
   },
 })
+const emits = defineEmits(['update:modelValue', 'close']);
+const closeModel = () => {
+  emits('update:modelValue', false);
+  emits('close', false);
+}
 </script>
-
-<style lang="scss" scoped>
-
-</style>
