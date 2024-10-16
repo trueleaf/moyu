@@ -1,105 +1,86 @@
-/*
-    创建者：shuxiaokai
-    创建时间：2021-08-23 21:11
-    模块名称：文字溢出展示
-    备注：
-*/
 <template>
   <div class="s-ellipsis">
     <el-tooltip :effect="Effect.LIGHT" placement="top-start" :content="value.toString()" :disabled="!isOverflow">
-      <span ref="text" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</span>
+      <div ref="textDom" class="s-ellipsis-content" @dblclick="handleSelect">{{ value }}</div>
     </el-tooltip>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { onMounted, ref, watch } from 'vue'
 import { Effect } from 'element-plus';
 
-export default defineComponent({
-  props: {
-    /**
-         * 展示值
-         */
-    value: {
-      type: [String, Number, Boolean],
-      default: '',
-    },
-    /**
-         * 最大宽度
-         */
-    maxWidth: {
-      type: [String, Number],
-      default: 100,
-    },
-    /**
-         * 是否允许拷贝
-         */
-    copy: {
-      type: [Boolean],
-      default: false,
-    },
+const props = defineProps({
+  value: {
+    type: [String, Number, Boolean],
+    default: '',
   },
-  data() {
-    return {
-      Effect,
-      isOverflow: false,
-    };
+  maxWidth: {
+    type: [String, Number],
+    default: 100,
   },
-  watch: {
-    value: {
-      handler() {
-        this.changeValueWidth();
-        setTimeout(() => {
-          const textDom = this.$refs.text as HTMLElement;
-          if (textDom) {
-            this.isOverflow = textDom.clientWidth < textDom.scrollWidth;
-          }
-        });
-      },
-      immediate: true,
-    },
-  },
-  mounted() {
-    this.changeValueWidth();
-  },
-  methods: {
-    changeValueWidth() {
-      const textDom = this.$refs.text as HTMLElement;
-      if (!textDom) {
-        return;
-      }
-      if (typeof this.maxWidth === 'number') {
-        textDom.style.maxWidth = `${this.maxWidth}px`;
-      } else if (typeof this.maxWidth === 'string') {
-        textDom.style.maxWidth = this.maxWidth;
-      }
-    },
-    handleSelect(e: Event) {
-      const selection = window.getSelection();
-      selection?.removeAllRanges();
-      const range = document.createRange();
-      range.selectNodeContents(e.target as HTMLElement);
-      selection?.addRange(range);
-    },
+  copy: {
+    type: [Boolean],
+    default: false,
   },
 })
+const isOverflow = ref(false);
+const textDom = ref<HTMLElement | null>(null);
+/*
+|--------------------------------------------------------------------------
+| 函数定义
+|--------------------------------------------------------------------------
+*/
+const changeValueWidth = () => {
+  if (!textDom.value) {
+    return;
+  }
+  if (typeof props.maxWidth === 'number') {
+    textDom.value.style.maxWidth = `${props.maxWidth}px`;
+  } else if (typeof props.maxWidth === 'string') {
+    textDom.value.style.maxWidth = props.maxWidth;
+  }
+}
+const handleSelect = (e: Event) => {
+  const selection = window.getSelection();
+  selection?.removeAllRanges();
+  const range = document.createRange();
+  range.selectNodeContents(e.target as HTMLElement);
+  selection?.addRange(range);
+}
+
+watch(() => props.value, () => {
+  changeValueWidth();
+  setTimeout(() => {
+    if (textDom.value) {
+      isOverflow.value = textDom.value.clientWidth < textDom.value.scrollWidth;
+    }
+  });
+}, {
+  immediate: true
+})
+onMounted(() => {
+  changeValueWidth();
+})
+
 </script>
 
 <style lang="scss" scoped>
 .s-ellipsis {
-    display: flex;
-    align-items: center;
-    .s-ellipsis-content {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        vertical-align: -3px;
-        display: inline-block;
-        margin-right: size(10);
-    }
-    .copy {
-        margin-right: size(10);
-    }
+  display: flex;
+  align-items: center;
+
+  .s-ellipsis-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: -3px;
+    display: inline-block;
+    margin-right: size(10);
+  }
+
+  .copy {
+    margin-right: size(10);
+  }
 }
 </style>
