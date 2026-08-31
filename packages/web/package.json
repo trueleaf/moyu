@@ -5,7 +5,7 @@
   "license": "MIT",
   "homepage": "https://github.com/trueleaf/apiflow",
   "private": true,
-  "version": "0.9.84",
+  "version": "0.9.51",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
