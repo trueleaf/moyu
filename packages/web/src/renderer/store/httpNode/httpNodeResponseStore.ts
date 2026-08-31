@@ -1,6 +1,6 @@
 import { ApidocCookieInfo } from "@src/types"
 import { defineStore } from "pinia"
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { generateEmptyResponse } from "@/helper"
 import { ChunkWithTimestampe, DeepPartial, ResponseInfo } from "@src/types"
 import { assign } from "lodash-es"
@@ -8,6 +8,15 @@ import { assign } from "lodash-es"
 export const useHttpNodeResponse = defineStore('httpNodeResponse', () => {
   const responseInfo = ref<ResponseInfo>(generateEmptyResponse())
   const requestState = ref<'waiting' | 'sending' | 'response' | 'finish'>('waiting'); //请求状态
+  // 判断已完成响应是否没有正文
+  const isResponseBodyEmpty = computed(() => {
+    const { statusCode, bodyByteLength, responseData } = responseInfo.value;
+    return requestState.value === 'finish'
+      && statusCode > 0
+      && bodyByteLength === 0
+      && responseData.canApiflowParseType !== 'error'
+      && responseData.canApiflowParseType !== 'cachedBodyIsTooLarge';
+  });
   const rawResponseBody = ref<Uint8Array | string>(''); //响应体
   const cookies = ref<ApidocCookieInfo[]>([]);
   const loadingProcess = ref({
@@ -74,6 +83,7 @@ export const useHttpNodeResponse = defineStore('httpNodeResponse', () => {
     cookies,
     loadingProcess,
     requestState,
+    isResponseBodyEmpty,
     rawResponseBody,
     responseCacheAllowedMap,
     changeResponseInfo,

@@ -87,7 +87,8 @@
         <span class="op-btn" @click="handleFormatResponse">{{ t('格式化') }}</span>
       </div>
     </div>
-    <template v-if="httpNodeResponseStore.responseInfo.contentType">
+    <SEmptyBody v-if="httpNodeResponseStore.isResponseBodyEmpty" />
+    <template v-else-if="httpNodeResponseStore.responseInfo.contentType">
       <!-- eventStream -->
       <div v-if="httpNodeResponseStore.responseInfo.responseData.canApiflowParseType === 'textEventStream'" class="sse-view-wrap">
         <SSseView :data-list="httpNodeResponseStore.responseInfo.responseData.streamData" :is-data-complete="httpNodeResponseStore.requestState === 'finish'"/>
@@ -203,7 +204,6 @@
           <span class="ml-1 mr-3">{{ formatUnit(httpNodeConfigStore.currentHttpNodeConfig.maxTextBodySize, 'bytes') }}</span>
           <el-button link type="primary" text @click="() => downloadStringAsText(formatedText, 'response.json')">{{ t("下载到本地预览") }}</el-button>
         </div>
-        <el-empty v-else-if="isJsonDataEmpty" :description="t('数据为空')"></el-empty>
         <div v-else-if="httpNodeResponseStore.requestState === 'finish'" class="editor-wrap">
           <SJsonEditor :model-value="formatedText || httpNodeResponseStore.responseInfo.responseData.jsonData" read-only :config="{ fontSize: 13, language: 'json' }"></SJsonEditor>
         </div>
@@ -380,6 +380,7 @@ import worker from '@/worker/prettier.worker.ts?worker&inline';
 import { Download, Loading } from '@element-plus/icons-vue';
 import { FileJson, FileText } from 'lucide-vue-next'
 import { responseBodyViewContextKey } from '../responseBodyViewContext'
+import SEmptyBody from '../emptyBody/EmptyBody.vue'
 
 const SJsonEditor = defineAsyncComponent(() => import('@/components/common/jsonEditor/ClJsonEditor.vue'))
 
@@ -436,6 +437,9 @@ const textResponseDownloadName = computed(() => isManualJsonTextView.value ? 're
 */
 //是否展示加载进度
 const showProcess = computed(() => {
+  if (httpNodeResponseStore.isResponseBodyEmpty) {
+    return false;
+  }
   const { canApiflowParseType } = httpNodeResponseStore.responseInfo.responseData;
   if (canApiflowParseType === 'unknown' && (requestState.value === 'sending' || requestState.value === 'response')) {
     return true;
@@ -611,13 +615,6 @@ const handleDownload = () => {
 const canPlayVideo = computed(() => {
   const canPlayType = videoRef.value?.canPlayType(httpNodeResponseStore.responseInfo.contentType);
   return canPlayType === 'maybe' || canPlayType === 'probably'
-})
-const isJsonDataEmpty = computed(() => {
-  const { canApiflowParseType, textData, jsonData } = httpNodeResponseStore.responseInfo.responseData;
-  const isFinished = httpNodeResponseStore.requestState === 'finish';
-  const isJsonType = canApiflowParseType === 'json';
-  const dataIsEmpty = (!textData || textData.trim() === '') && (!jsonData || jsonData === '');
-  return isFinished && isJsonType && dataIsEmpty;
 })
 //格式化响应JSON
 const handleFormatResponse = () => {

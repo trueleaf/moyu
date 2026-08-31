@@ -32,7 +32,7 @@
     <el-divider direction="vertical"></el-divider>
     <div class="flex0 d-flex a-center">
       <span>{{ t("大小") }}：</span>
-      <template v-if="responseInfo.bodyByteLength">
+      <template v-if="responseInfo.bodyByteLength || httpNodeResponseStore.isResponseBodyEmpty">
         <span v-show="responseInfo.bodyByteLength >= 0 && responseInfo.bodyByteLength < 10000" class="green">{{ formatedBytes }}</span>
         <span v-show="responseInfo.bodyByteLength >= 10000 && responseInfo.bodyByteLength < 15000" class="orange">{{ formatedBytes }}</span>
         <span v-show="responseInfo.bodyByteLength >= 15000" class="red">{{ formatedBytes }}</span>
@@ -45,6 +45,7 @@
     <div class="content-type-wrap d-flex a-center">
       <span class="flex0">{{ t("格式") }}：</span>
       <div v-if="responseInfo.contentType" :title="responseInfo.contentType" class="content-type">{{ responseInfo.contentType }}</div>
+      <span v-else-if="httpNodeResponseStore.isResponseBodyEmpty">—</span>
       <el-icon v-else :title="t('未请求数据')" :size="16" class="gray-500">
         <QuestionFilled />
       </el-icon>

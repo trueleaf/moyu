@@ -432,6 +432,8 @@ export default {
   值: 'Value',
   时长: 'Time',
   未请求数据: 'No request yet',
+  '响应体为空': 'Empty response body',
+  '服务器已完成响应，未返回正文内容。': 'The server completed the response without a body.',
   大小: 'Size',
   格式: 'Format',
   返回值: 'Body',
