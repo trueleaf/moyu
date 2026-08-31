@@ -45,15 +45,15 @@
       </el-button>
       <el-button v-if="requestState === 'sending' || requestState === 'response'" type="danger" data-testid="operation-cancel-btn" @click="handleStopRequest">{{ t("取消请求") }}</el-button>
       <el-button :loading="loading2" type="primary" data-testid="operation-save-btn" @click="handleSaveHttpNode">{{ t("保存接口") }}</el-button>
-      <el-button :loading="loading3" type="primary" :icon="Refresh" data-testid="operation-refresh-btn" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
+      <el-button :loading="loading3" type="primary" :icon="RefreshCw" data-testid="operation-refresh-btn" @click="handleFreshApidoc">{{ t("刷新") }}</el-button>
     </div>
     <div class="pre-url-wrap">
       <span class="label">{{ t("请求地址") }}：</span>
       <span class="url">{{ encodedFullUrl }}</span>
       <el-tooltip :content="urlValidation.errorMessage" :show-after="500" :effect="Effect.LIGHT" placement="top">
-        <el-icon v-show="!urlValidation.isValid && httpNodeRequestStore.fullUrl" size="14" color="var(--orange)" class="tip">>
-          <Warning />
-        </el-icon>
+        <span v-show="!urlValidation.isValid && httpNodeRequestStore.fullUrl" class="tip">
+          <CircleAlert :size="14" />
+        </span>
       </el-tooltip>
     </div>
   </div>
@@ -64,7 +64,7 @@
 import { computed, ref, watch, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
-import { Refresh, Warning } from '@element-plus/icons-vue'
+import { CircleAlert, RefreshCw } from 'lucide-vue-next'
 import { Effect, ElMessage } from 'element-plus'
 import { ClConfirm } from '@/components/ui/cleanDesign/clConfirm/ClConfirm2';
 import { config } from '@src/config/config'
@@ -185,8 +185,11 @@ const saveDocDialogVisible = computed({
   }
 });
 const operationPart = getOperationPart();
-const encodedFullUrl = computed(() => encodeURI(httpNodeRequestStore.fullUrl || ''));
-
+// 保留未解析的变量占位符，仅编码普通 URL 片段
+const encodedFullUrl = computed(() => (httpNodeRequestStore.fullUrl || '')
+  .split(/(\{\{[^}]+\}\})/g)
+  .map((part, index) => index % 2 === 1 ? part : encodeURI(part))
+  .join(''));
 const handleSaveHttpNode = () => {
   if (currentSelectNav.value?._id.includes('local_')) {
     saveDocDialogVisible.value = true;
@@ -372,7 +375,9 @@ watch(
       height: 30px;
       display: flex;
       align-items: center;
+      justify-content: center;
       margin-left: 5px;
+      color: var(--orange);
     }
   }
 }
