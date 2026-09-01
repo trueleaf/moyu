@@ -2,6 +2,8 @@ import { test as base, _electron as electron, expect } from '@playwright/test';
 import type { ElectronApplication, Page } from '@playwright/test';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { startServer, isServerRunning, isMockServerOnPort, PORT } from '../mock-server/index';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -54,12 +56,15 @@ export const test = base.extend<ElectronFixtures>({
       NODE_ENV: 'test',
     };
     delete launchEnv.ELECTRON_RUN_AS_NODE;
+    const testUserDataDir = await mkdtemp(path.join(tmpdir(), 'apiflow-e2e-'));
     const app = await electron.launch({
-      args: [mainPath],
+      args: [mainPath, `--user-data-dir=${testUserDataDir}`],
       env: {
         ...launchEnv,
       },
     });
+    // 确认测试实例使用独立目录，避免清理用户日常数据
+    expect(await app.evaluate(({ app }) => app.getPath('userData'))).toBe(testUserDataDir);
     // 等待应用完全启动并加载所有窗口
     await new Promise((resolve) => setTimeout(resolve, 2000));
     await use(app);

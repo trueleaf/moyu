@@ -2,15 +2,15 @@ import { test, expect } from '../../../../fixtures/electron.fixture';
 
 test.describe('SettingsSecondaryTabs', () => {
   // 设置页离线可见二级菜单可依次切换并展示对应内容
-  test('离线设置二级菜单切换覆盖 local-data/shortcuts/components/ai-settings/about/project-recovery', async ({ contentPage, clearCache, jumpToSettings }) => {
+  test('离线设置二级菜单切换覆盖 local-data/shortcuts/ai-settings/about/project-recovery', async ({ contentPage, clearCache, jumpToSettings }) => {
     await clearCache();
     await jumpToSettings();
+    await expect(contentPage.getByTestId('settings-menu-components')).toHaveCount(0);
     // 按菜单顺序执行切换，验证激活态与内容标题一致
     const menuCheckList = [
       { action: 'project-recovery', container: '.project-recovery .page-title', title: '项目回收站' },
       { action: 'local-data', container: '.cache-management .page-title', title: '本地数据管理' },
       { action: 'shortcuts', container: '.shortcuts-settings .page-header', title: '快捷键' },
-      { action: 'components', container: '', title: '组件库' },
       { action: 'ai-settings', container: '.ai-settings-container .page-header', title: 'AI 设置' },
       { action: 'about', container: '.about-container .page-header', title: '关于' },
     ];
@@ -19,12 +19,48 @@ test.describe('SettingsSecondaryTabs', () => {
       await expect(menu).toBeVisible({ timeout: 5000 });
       await menu.click();
       await expect(menu).toHaveClass(/active/, { timeout: 5000 });
-      if (menuCheckList[i].container) {
-        const pageContainer = contentPage.locator(menuCheckList[i].container).first();
-        await expect(pageContainer).toBeVisible({ timeout: 5000 });
-        await expect(pageContainer).toContainText(menuCheckList[i].title, { timeout: 5000 });
-      }
+      const pageContainer = contentPage.locator(menuCheckList[i].container).first();
+      await expect(pageContainer).toBeVisible({ timeout: 5000 });
+      await expect(pageContainer).toContainText(menuCheckList[i].title, { timeout: 5000 });
     }
+  });
+  // 旧版组件库菜单缓存应回退到通用配置并持久化修正结果
+  test('旧组件库菜单缓存回退到通用配置且刷新后保持正常', async ({ contentPage, clearCache, jumpToSettings, reload }) => {
+    await clearCache();
+    // 模拟升级前的菜单缓存，再通过顶部设置按钮进入页面
+    await contentPage.evaluate(() => {
+      localStorage.setItem('appState/localData/activeMenu', 'components');
+      localStorage.setItem('appState/cacheManager/cacheType', 'indexedDB');
+    });
+    await jumpToSettings();
+    await expect(contentPage.getByTestId('settings-menu-components')).toHaveCount(0);
+    await expect(contentPage.getByTestId('settings-menu-common-settings')).toHaveClass(/active/);
+    await expect(contentPage.locator('.common-settings-container .page-header')).toContainText('通用配置');
+    expect(await contentPage.evaluate(() => localStorage.getItem('appState/localData/activeMenu'))).toBe('common-settings');
+    expect(await contentPage.evaluate(() => localStorage.getItem('appState/cacheManager/cacheType'))).toBe('indexedDB');
+    await reload();
+    await expect(contentPage.getByTestId('settings-menu-common-settings')).toHaveClass(/active/);
+    await expect(contentPage.locator('.common-settings-container .page-header')).toContainText('通用配置');
+  });
+  // 旧组件库跳转消息应回退到通用配置并更新菜单缓存
+  test('旧组件库 IPC 跳转目标回退到通用配置', async ({ electronApp, contentPage, clearCache, jumpToSettings }) => {
+    await clearCache();
+    await jumpToSettings();
+    await contentPage.getByTestId('settings-menu-about').click();
+    await expect(contentPage.getByTestId('settings-menu-about')).toHaveClass(/active/);
+    // 已移除的入口无法通过界面触发，模拟主进程发来的旧跳转消息
+    await electronApp.evaluate(({ webContents }) => {
+      const contentView = webContents.getAllWebContents().find(view => view.getURL().includes('index.html'));
+      if (!contentView) {
+        throw new Error('未找到设置内容视图');
+      }
+      contentView.send('apiflow:topbar:to:content:open-settings-tab', { targetTab: 'components' });
+    });
+    await expect(contentPage.getByTestId('settings-menu-common-settings')).toHaveClass(/active/);
+    await expect(contentPage.locator('.common-settings-container .page-header')).toContainText('通用配置');
+    await expect.poll(async () => {
+      return await contentPage.evaluate(() => localStorage.getItem('appState/localData/activeMenu'));
+    }).toBe('common-settings');
   });
   // 二级设置页刷新后应保持 activeTab，不回退到默认菜单
   test('离线设置二级菜单刷新后保持 activeTab', async ({ contentPage, clearCache, jumpToSettings, reload }) => {
