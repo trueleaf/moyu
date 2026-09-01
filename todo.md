@@ -1,546 +1,310 @@
-# AI SDK 6 Agent 迁移测试 TODO
+# Vercel AI SDK 6 Agent 重构 TODO
+
+## 目标
+
+将现有手写 Agent 循环重构为 Vercel AI SDK 6 `ToolLoopAgent`，建立离线优先、高语义工具、ChangeSet、审批、完整事件流和可恢复面板展示。
+
+AI 面板的数据组织、事件映射、组件层级和交互效果参考 `D:\webs\example\apps\client\src\agent\panel`，参考基线 commit 为 `e1111adea3938fcb0cbcac19570a42c4011c7d85`。参考项目使用 AI SDK 7，仅参考事件与 UI 设计，不直接复制依赖版本和运行时代码。
 
 ## 验收规则
 
-1. 所有 AI 相关测试必须使用 `.env` 中配置的真实 DeepSeek API Key 和真实 DeepSeek API，不使用本地 mock server 替代真实模型调用。
-2. Agent E2E 测试必须覆盖真实 DeepSeek API 的普通文本、SSE、tool calls、错误和中断场景。
-3. 测试应优先模拟用户操作完成流程，禁止直接调用业务 store 方法来绕过 UI 行为。
-4. Ask 模式、Agent 模式、业务工具副作用、取消执行、错误处理、多语言行为都必须覆盖。
-5. 第一阶段允许移除旧 Agent 工具逻辑和旧 `rawTools` Agent 注册入口，但不得破坏非 Agent 业务能力和 MCP 必要能力。
-6. 修改完成后必须执行 `npm run type-check`，并执行相关 Playwright 测试。
-7. 新增文案必须使用 `t()`，并同步更新 `zh-cn.ts` 和 `en.ts`。
-8. 新增代码禁止使用 `any`、`enum`、行内样式、`console.log` 调试代码。
-9. 禁止修改 `share.html` 和 `testData.ts`。
-10. 默认 AI 模型必须调整为 `deepseek-v4-pro`，并确保设置页、缓存初始化、Electron 主进程同步和测试 fixture 使用同一默认模型；`deepseek-v4-flash` 可作为低成本可选模型。
-11. AI 助手功能必须限制为仅离线模式可用，在线模式下不得打开 AI 面板、发送 Ask、执行 Agent 或触发业务工具修改。
-12. Agent 工具系统必须重构为离线优先、变更集驱动、可审批、少工具、高语义的设计。
-13. 新工具系统不得复刻旧的字段级工具拆分方式，应优先使用业务级工具和统一 patch/changeSet 协议。
-14. 迁移必须按阶段推进：移除旧 Agent 工具逻辑、固定运行边界、建设新工具协议、实现只读工具、实现 changeSet 草案工具、实现审批和应用、接入 AI SDK 6、补齐运行类工具、收尾验证。
-15. 本次不考虑旧 Agent 工具系统兼容与回退，允许移除旧 Agent 工具逻辑和旧字段级工具注册入口。
-16. 所有测试通过且 TODO 项状态更新完成后，才视为测试集验收完成。
+1. 本次固定使用 AI SDK 6；当前 Electron 32 内置 Node 20，不将要求 Node 22 的 AI SDK 7 纳入本次迁移。
+2. Agent 和 Ask 仅在 Electron 离线模式可用；在线模式和 Web 构建不得打开 AI 面板、读取 AI Key、发送模型请求或执行工具。
+3. `ToolLoopAgent`、模型 Provider 和 Agent 循环运行在 Electron main；renderer 只负责 UI、IndexedDB、Pinia 和经过类型校验的 client tool command。
+4. Agent 工具系统必须是离线优先、少工具、高语义、可审批、ChangeSet 驱动的设计，不复刻旧字段级工具拆分。
+5. 所有数据写入必须先生成并预览 ChangeSet；只有 `applyChangeSet` 获得用户批准后才允许写入 IndexedDB。
+6. AI SDK 原生 tool approval 是唯一执行审批入口，ChangeSet 预览作为审批载荷，不再实现第二套相互独立的确认状态机。
+7. DeepSeek 使用 `@ai-sdk/deepseek`；Qwen 和 Custom Provider 使用 `@ai-sdk/openai-compatible`，不得因 Agent 迁移破坏现有 Provider 能力。
+8. 默认模型统一为 `deepseek-v4-pro`；真实 API smoke 测试允许显式覆盖为 `deepseek-v4-flash` 以控制成本。
+9. 面板必须覆盖本 TODO 定义的全部 Agent 事件、所有 run 终态、所有 tool 终态、审批、取消、错误和 ChangeSet 生命周期。
+10. 确定性协议、状态机、异常和 UI 测试使用 `ai/test`、可控流或测试 transport；少量 smoke E2E 使用真实 DeepSeek API。
+11. 真实 API 测试不得由本地 mock server 冒充；缺少真实 API Key 时只跳过带 `live-api` 标签的测试，不阻塞确定性测试。
+12. 新增文案只能使用 `t()`，并同步更新 `src/renderer/i18n/zh-cn.ts` 和 `src/renderer/i18n/en.ts`。
+13. 新增代码禁止使用 `any`、`enum`、行内样式、`console.log` 调试代码和不存在的 CSS 变量；图标统一使用 `lucide-vue-next`。
+14. 禁止修改 `share.html` 和 `testData.ts`，禁止执行任何 `git restore` 命令。
+15. 切换到新 Agent 后立即删除旧 Agent 执行入口，不保留长期双链路和运行时回退开关。
+16. P0、P1 item 全部完成，类型检查、关键确定性测试和真实 API smoke 测试通过后，才视为迁移验收完成。
+17. `D:\webs\example` 只作为本地设计参考；Apiflow 的源码、构建和测试不得导入、读取或依赖该目录。
 
 ## 执行规则
 
-1. 每完成一个 TODO item，必须立即将状态从“未开始”改为“已完成”。
-2. 如果某个 item 因外部原因暂时无法完成，将状态改为“阻塞”，并在备注中写明原因。
-3. 如果某个 item 被拆分为更小任务，保留原 item，并在其下方追加子任务。
-4. 执行过程中发现遗漏场景时，必须追加新的 TODO item，初始状态为“未开始”。
-5. 测试代码变更应尽量集中在 `packages/web/tests/` 和必要的真实 DeepSeek API fixture 文件中。
-6. 每个测试用例应具备明确断言，不能只验证“没有报错”。
-7. 测试名称应表达用户场景和期望结果。
-8. 不允许为了让测试通过而削弱业务断言。
-9. 不允许在代码、测试、日志、截图或提交内容中输出真实 DeepSeek API Key。
-10. 如果 `.env` 缺少真实 DeepSeek API Key，相关测试 item 必须标记为“阻塞”，并写明缺少的环境变量名称。
-11. 真实 API 测试需要控制调用次数，避免重复执行造成不必要的额度消耗。
-12. 涉及 AI 离线限制的 item 完成后，必须验证快捷键、Header 入口、发送入口和工具执行入口都已覆盖。
-13. 涉及新工具系统的 item 完成后，必须同步更新工具注册、工具选择、AI SDK 适配、UI 展示和测试用例。
-14. 新工具系统迁移期间不保留旧 Agent 工具回退路径，旧 Agent 工具逻辑移除后不得再作为 Agent 执行入口。
-15. 每个阶段完成后必须更新阶段状态和验证结果。
-16. 涉及真实 DeepSeek API 的测试必须记录调用次数和测试目的，不允许无意义重复调用。
-17. 旧 Agent 工具逻辑移除后不得继续添加字段级工具；新增 Agent 能力必须进入新工具系统。
+1. item 使用 `P0`、`P1` 标记优先级；P0 是进入下一阶段前必须完成的阻塞项。
+2. 每完成一个 item，立即将“未开始”更新为“已完成”，并在 item 后记录验证命令或证据。
+3. 外部条件导致无法完成时标记为“阻塞”，写明原因、缺少条件和解除方式。
+4. 阶段必须按顺序推进；每个阶段的 Gate 通过后才能进入下一阶段。
+5. 所有类型定义放在 `packages/web/src/types/`，单处使用的局部状态类型可按项目规范内联。
+6. 纯映射、状态机和 Provider contract 测试允许使用 `ai/test` 和可控输入；不得为了通过测试削弱断言。
+7. E2E 尽量通过用户操作完成流程，不直接调用业务 store 绕过 UI；测试专用 transport 只能用于注入模型或 IPC 事件。
+8. 运行任何 Playwright 测试前必须先执行 `npm --prefix packages/web run pretest:e2e`。
+9. 代码修改后必须执行 `npm run web:type-check`；不要在仓库根目录执行不存在的 `npm run type-check`。
+10. 真实 API 测试必须记录测试目的、调用次数和 token usage，不允许提交完整响应快照。
+11. 不允许在代码、事件、缓存、日志、trace、截图或错误信息中输出真实 API Key、Authorization 或敏感变量原值。
+12. 每个阶段完成后检查 Agent 注册、Provider、IPC、事件映射、UI、缓存、i18n 和测试是否同步更新。
 
 ## TODO List
 
-### 一、测试基础设施
-
-- [ ] 状态：未开始 | 从 `.env` 读取真实 DeepSeek API Key、baseURL 和 model 配置，禁止硬编码密钥。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API 非流式响应测试 fixture。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API SSE 流式文本响应测试 fixture。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API SSE 流式 `tool_calls` 响应测试 fixture。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API 工具参数分片输出验证场景。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API 错误响应验证场景。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API 超时和中断验证场景。
-- [ ] 状态：未开始 | 新增测试 fixture，用于配置 AI baseURL、apiKey、model，默认 model 必须为 `deepseek-v4-pro`。
-- [ ] 状态：未开始 | 新增测试 fixture，用于在测试结束后清理 AI 配置和对话缓存。
-- [ ] 状态：未开始 | 确认测试日志、错误输出和截图中不会泄露真实 DeepSeek API Key。
-- [ ] 状态：未开始 | 新增真实 DeepSeek API 调用次数控制策略，避免单次测试运行产生过多请求。
-
-### 二、静态与类型测试
-
-- [ ] 状态：未开始 | 执行 `npm run type-check` 并确保无类型错误。
-- [ ] 状态：未开始 | 检查新增代码中没有 `console.log`。
-- [ ] 状态：未开始 | 检查新增代码中没有 `$t(`。
-- [ ] 状态：未开始 | 检查新增代码中没有行内样式。
-- [ ] 状态：未开始 | 检查新增代码中没有 `any`。
-- [ ] 状态：未开始 | 检查新增代码中没有 `enum`。
-
-### 三、LLM Provider 配置测试
-
-- [ ] 状态：未开始 | 配置 baseURL、apiKey、model 后，Agent 请求应打到真实 DeepSeek API。
-- [ ] 状态：未开始 | 配置 customHeaders 后，真实 DeepSeek API 请求应携带自定义 header。
-- [ ] 状态：未开始 | 配置 extraBody 后，真实 DeepSeek API 请求应携带 extraBody 字段。
-- [ ] 状态：未开始 | 未配置 API Key 时，UI 应提示 AI 不可用且不发起请求。
-- [ ] 状态：未开始 | Electron 模式配置变更后，Agent 应使用最新配置。
-- [ ] 状态：未开始 | 默认 LLM 配置初始化时，model 应为 `deepseek-v4-pro`。
-- [ ] 状态：未开始 | 重置 LLM 配置后，model 应恢复为 `deepseek-v4-pro`。
-- [ ] 状态：未开始 | 从旧缓存读取到旧默认模型时，应迁移或覆盖为 `deepseek-v4-pro`。
-
-### 四、Ask 模式回归测试
-
-- [ ] 状态：未开始 | 切换 Ask 模式并发送普通问题，应展示流式回答。
-- [ ] 状态：未开始 | Ask 流式过程中点击停止，应停止输出并恢复完成状态。
-- [ ] 状态：未开始 | Ask 请求失败时，应展示错误消息且不影响下一次发送。
-- [ ] 状态：未开始 | Ask 第二轮请求应携带上一轮问答上下文。
-- [ ] 状态：未开始 | 清空对话后，Ask 和 Agent 对话都应被清空。
-
-### 四-一、AI 离线模式限制测试
-
-- [ ] 状态：未开始 | 在线模式下，Header 触发 AI 助手入口时不应打开 AI 面板，并应给出仅离线模式可用提示。
-- [ ] 状态：未开始 | 在线模式下，快捷键 `Ctrl+L` 或 `Command+L` 不应打开 AI 面板，并应给出仅离线模式可用提示。
-- [ ] 状态：未开始 | 在线模式下，已打开的 AI 面板应被关闭或禁用，避免继续使用。
-- [ ] 状态：未开始 | 在线模式下，Ask 模式发送入口应被阻止，不应调用真实 DeepSeek API。
-- [ ] 状态：未开始 | 在线模式下，Agent 模式发送入口应被阻止，不应调用真实 DeepSeek API。
-- [ ] 状态：未开始 | 在线模式下，`runAgent` 内部应有兜底 guard，禁止执行 Agent。
-- [ ] 状态：未开始 | 在线模式下，`sendAskFromInput` 内部应有兜底 guard，禁止发送 Ask。
-- [ ] 状态：未开始 | 在线模式下，AI 工具执行层应有兜底 guard，禁止创建、修改、删除或恢复在线业务数据。
-- [ ] 状态：未开始 | 从离线模式切换到在线模式时，如 AI 正在执行，应停止当前执行并恢复完成状态。
-- [ ] 状态：未开始 | 从在线模式切换回离线模式后，AI 助手应恢复可打开和可发送。
-- [ ] 状态：未开始 | 离线模式下，AI 面板打开、Ask 发送、Agent 执行应保持可用。
-- [x] 状态：已完成 | AI 设置页在线模式下不展示；AI 配置仅离线模式可查看和编辑。
-- [ ] 状态：未开始 | 新增“仅离线模式可用”相关文案，并同步更新 `zh-cn.ts` 和 `en.ts`。
-
-### 五、Agent 基础执行测试
-
-- [ ] 状态：未开始 | 普通问答不需要工具时，应只展示最终回答，不展示工具卡片。
-- [ ] 状态：未开始 | 单工具调用成功时，应展示工具调用、success 状态和最终回答。
-- [ ] 状态：未开始 | 单工具调用失败时，应展示工具 error 状态和失败说明。
-- [ ] 状态：未开始 | 多工具串行调用时，工具应按顺序展示并产生正确业务副作用。
-- [ ] 状态：未开始 | 多轮工具循环时，Agent 应在工具结果后继续执行下一步。
-- [ ] 状态：未开始 | 模型持续返回 tool call 达到最大步数时，Agent 应停止并展示提示。
-- [ ] 状态：未开始 | 模型返回空内容且无 tool call 时，UI 不应挂起。
-- [ ] 状态：未开始 | 模型返回非法 tool arguments 时，UI 应展示参数解析失败。
-
-### 六、新工具适配器测试
-
-- [ ] 状态：未开始 | AI SDK tool key 应与新 `AgentToolDefinition.name` 保持一致。
-- [ ] 状态：未开始 | AI SDK tool description 应与新工具 description 保持一致。
-- [ ] 状态：未开始 | AI SDK inputSchema 应完整映射新工具 `inputSchema`。
-- [ ] 状态：未开始 | 工具执行时应注入 `_targetLanguage`。
-- [ ] 状态：未开始 | 工具成功返回时，应转换为模型可读结果。
-- [ ] 状态：未开始 | 工具失败返回时，应保留错误信息并展示失败状态。
-- [ ] 状态：未开始 | 工具抛异常时，Agent 应捕获异常且 UI 不应卡死。
-- [ ] 状态：未开始 | 工具返回大结果时，应进行摘要或截断，避免上下文过大。
-
-### 七、业务工具 E2E 测试
-
-- [ ] 状态：未开始 | 用户输入“创建一个用户管理项目”后，首页项目列表应新增项目。
-- [ ] 状态：未开始 | 用户输入“打开用户管理项目”后，应进入 workbench 且当前项目正确。
-- [ ] 状态：未开始 | 用户输入“创建登录接口”后，左侧树应新增 HTTP 节点。
-- [ ] 状态：未开始 | 用户输入“把当前接口改名为用户登录”后，当前节点名称应变更。
-- [ ] 状态：未开始 | 用户输入“给当前接口添加 token 请求头”后，Headers 区域应出现 Authorization。
-- [ ] 状态：未开始 | 用户输入“创建用户列表 mock”后，应新增 HTTP Mock 节点。
-- [ ] 状态：未开始 | 用户输入“启动当前 mock 服务”后，mock 状态应变为运行中。
-- [ ] 状态：未开始 | 用户输入“创建 WebSocket 聊天连接”后，应新增 WebSocket 节点。
-- [ ] 状态：未开始 | 用户输入“创建一个 token 变量”后，变量列表应新增 token。
-- [ ] 状态：未开始 | 用户输入“搜索登录相关接口”后，Agent 应展示搜索结果且不修改数据。
-
-### 八、上下文测试
-
-- [ ] 状态：未开始 | 当前无项目时要求创建接口，Agent 应提示需要项目或先创建项目。
-- [ ] 状态：未开始 | 当前已有项目时创建接口，Agent 应自动使用当前 `projectId`。
-- [ ] 状态：未开始 | 当前选中 HTTP tab 时要求修改当前接口，Agent 应使用 activeTab.id。
-- [ ] 状态：未开始 | 当前选中 WebSocket tab 时要求修改当前连接，Agent 不应误调用 HTTP 工具。
-- [ ] 状态：未开始 | 多项目存在时要求搜索项目，Agent 应先查询再操作，不应伪造 projectId。
-
-### 九、取消与并发测试
-
-- [ ] 状态：未开始 | Agent 执行中点击停止，当前 loading 工具应变为取消或错误状态。
-- [ ] 状态：未开始 | Agent 执行中点击停止，工作状态应恢复为完成。
-- [ ] 状态：未开始 | 停止后再次发送消息，新请求应可正常执行。
-- [ ] 状态：未开始 | 连续快速点击发送，不应产生并发 Agent 执行。
-- [ ] 状态：未开始 | 流式中断后，UI 不应残留 loading 状态。
-- [ ] 状态：未开始 | 工具执行中断后，不应继续执行后续工具。
-
-### 十、审批能力测试
-
-- [ ] 状态：未开始 | 调用 `requiresApproval: true` 工具时，UI 应显示确认卡片且不立即执行。
-- [ ] 状态：未开始 | 用户批准工具调用后，工具应继续执行并展示 success。
-- [ ] 状态：未开始 | 用户拒绝工具调用后，工具不应执行，Agent 应说明已取消。
-- [ ] 状态：未开始 | 多个待审批工具应逐个展示审批状态。
-- [ ] 状态：未开始 | 审批期间点击停止后，不应继续执行后续步骤。
-
-### 十一、多语言测试
-
-- [ ] 状态：未开始 | 中文输入时，Agent 回复和创建内容应保持中文。
-- [ ] 状态：未开始 | 英文输入时，Agent 回复和创建内容应保持英文。
-- [ ] 状态：未开始 | 日文输入时，Agent 回复和创建内容应保持日文。
-- [ ] 状态：未开始 | 第二轮切换语言时，回复语言应跟随最新输入。
-- [ ] 状态：未开始 | 新工具生成变更集和摘要时，应正确传递 `_targetLanguage`。
-
-### 十二、第一批最小落地测试
-
-- [ ] 状态：未开始 | Ask 模式不受 Agent 迁移影响。
-- [ ] 状态：未开始 | Agent 单工具调用成功。
-- [ ] 状态：未开始 | Agent 多工具串行调用成功。
-- [ ] 状态：未开始 | Agent 达到最大步数后停止。
-- [ ] 状态：未开始 | Agent 执行中停止。
-- [ ] 状态：未开始 | Agent 创建 HTTP 接口。
-- [ ] 状态：未开始 | Agent 修改当前接口。
-- [ ] 状态：未开始 | Agent 中文输入保持中文。
-- [ ] 状态：未开始 | customHeaders 生效。
-- [ ] 状态：未开始 | `npm run type-check` 通过。
-- [ ] 状态：未开始 | 在线模式下 AI 助手入口、Ask 发送和 Agent 执行全部被阻止。
-- [ ] 状态：未开始 | 离线模式下 AI 助手入口、Ask 发送和 Agent 执行保持可用。
-
-### 十三、新 Agent 工具系统设计与迁移
-
-- [ ] 状态：未开始 | 设计新的 `AgentToolDefinition` 类型，包含 `name`、`title`、`description`、`domain`、`effect`、`scope`、`riskLevel`、`requiresApproval`、`inputSchema`、`execute`。
-- [ ] 状态：未开始 | 设计新的 `AgentToolContext` 类型，包含 `projectId`、`activeNodeId`、`activeTabType`、`language`、`networkMode`、`abortSignal`。
-- [ ] 状态：未开始 | 设计新的 `AgentToolResult` 类型，统一成功、失败、摘要、错误、`changeSetId` 返回格式。
-- [ ] 状态：未开始 | 明确所有新工具 `scope` 固定为 `offline`，在线模式调用必须返回拒绝结果。
-- [ ] 状态：未开始 | 建立新工具注册目录，避免继续在旧 `tools.ts` 中无限追加字段级工具。
-- [ ] 状态：未开始 | 移除旧 Agent 工具注册入口，确保 Agent 不再加载旧字段级工具。
-- [ ] 状态：未开始 | 统计旧工具使用场景，将仍需保留的业务能力映射到新高语义工具。
-
-### 十四、变更集协议设计
-
-- [ ] 状态：未开始 | 设计 `ChangeSet` 类型，包含 `id`、`projectId`、`title`、`description`、`operations`、`status`、`createdAt`。
-- [ ] 状态：未开始 | 设计 `ChangeOperation` 类型，支持 `createNode`、`updateNode`、`moveNode`、`deleteNode`、`restoreNode`、`updateVariables`、`updateCommonHeaders`。
-- [ ] 状态：未开始 | 设计节点创建 operation schema，覆盖 folder、http、websocket、httpMock、websocketMock。
-- [ ] 状态：未开始 | 设计节点更新 patch schema，支持名称、描述、HTTP 配置、WebSocket 配置、Mock 配置。
-- [ ] 状态：未开始 | 设计变更集校验规则，校验 projectId、nodeId、parentId、节点类型、URL、方法、参数结构。
-- [ ] 状态：未开始 | 设计变更集 diff 结构，用于 UI 展示将新增、修改、删除、移动哪些内容。
-- [ ] 状态：未开始 | 设计变更集状态流转：`draft`、`previewed`、`approved`、`applied`、`discarded`、`failed`。
-- [ ] 状态：未开始 | 设计变更集存储策略，明确是否只保存在内存，还是落到 IndexedDB。
-- [ ] 状态：未开始 | 设计变更集应用失败的回滚或部分失败处理策略。
-
-### 十五、核心高语义工具实现计划
-
-- [ ] 状态：未开始 | 实现 `getWorkspaceContext`，返回离线模式、当前项目、当前 tab、当前节点、语言等上下文。
-- [ ] 状态：未开始 | 实现 `searchProjects`，用于搜索本地离线项目。
-- [ ] 状态：未开始 | 实现 `openProject`，仅负责打开本地离线项目并切换工作区。
-- [ ] 状态：未开始 | 实现 `searchNodes`，支持关键词、节点类型、方法、路径等搜索条件。
-- [ ] 状态：未开始 | 实现 `listNodeTree`，支持按父节点、深度和节点类型读取项目树。
-- [ ] 状态：未开始 | 实现 `getNodeDetail`，按 nodeId 读取节点详情，并按类型返回摘要化结构。
-- [ ] 状态：未开始 | 实现 `getDeletedNodes`，读取本地回收站节点。
-- [ ] 状态：未开始 | 实现 `createDesignChange`，生成创建项目结构和 API 节点的变更集，不直接写入数据。
-- [ ] 状态：未开始 | 实现 `updateDesignChange`，生成节点更新变更集，支持统一 patch，不拆字段级工具。
-- [ ] 状态：未开始 | 实现 `moveNodesChange`，生成节点移动变更集。
-- [ ] 状态：未开始 | 实现 `deleteNodesChange`，生成节点删除变更集。
-- [ ] 状态：未开始 | 实现 `restoreNodesChange`，生成节点恢复变更集。
-- [ ] 状态：未开始 | 实现 `updateVariablesChange`，生成变量创建、修改、删除变更集。
-- [ ] 状态：未开始 | 实现 `updateCommonHeadersChange`，生成公共 Header 创建、修改、删除变更集。
-- [ ] 状态：未开始 | 实现 `previewChangeSet`，校验并返回可展示 diff。
-- [ ] 状态：未开始 | 实现 `applyChangeSet`，在用户审批后应用变更集。
-- [ ] 状态：未开始 | 实现 `discardChangeSet`，丢弃变更集。
-
-### 十六、运行类工具实现计划
-
-- [ ] 状态：未开始 | 设计并实现 `sendHttpRequest`，用于发送当前或指定 HTTP 请求。
-- [ ] 状态：未开始 | 设计并实现 `manageMockServer`，统一处理 HTTP/WebSocket Mock 的启动、停止、状态读取。
-- [ ] 状态：未开始 | 设计并实现 `manageWebSocketConnection`，统一处理连接、发送消息、断开连接。
-- [ ] 状态：未开始 | 为运行类工具设置 `effect: 'runtime'` 和合适的 `riskLevel`。
-- [ ] 状态：未开始 | 明确运行类工具是否需要用户审批，启动服务、发送请求、连接 WebSocket 默认需要审批。
-
-### 十七、工具审批与 UI 展示
-
-- [ ] 状态：未开始 | 设计审批卡片 UI，用于展示待审批工具、输入参数、影响范围和风险等级。
-- [ ] 状态：未开始 | 设计变更集预览 UI，用于展示新增、修改、删除、移动的 diff。
-- [ ] 状态：未开始 | 实现批准操作，批准后继续执行 `applyChangeSet` 或运行类工具。
-- [ ] 状态：未开始 | 实现拒绝操作，拒绝后工具不执行，Agent 输出用户已取消。
-- [ ] 状态：未开始 | 实现审批期间停止执行，停止后不得继续调用后续工具。
-- [ ] 状态：未开始 | 将 `requiresApproval` 对接 AI SDK 6 工具审批能力。
-- [ ] 状态：未开始 | 工具执行结果展示应使用摘要，不直接展示超大 JSON。
-
-### 十八、AI SDK 6 工具适配
-
-- [ ] 状态：未开始 | 实现新 `AgentToolDefinition` 到 AI SDK 6 tool 的适配器。
-- [ ] 状态：未开始 | 将 `inputSchema` 映射到 AI SDK 6 tool schema。
-- [ ] 状态：未开始 | 将 `requiresApproval` 映射到 AI SDK 6 approval 能力。
-- [ ] 状态：未开始 | 将 `AgentToolResult` 转换为模型可读的稳定摘要。
-- [ ] 状态：未开始 | 在 AI SDK 6 ToolLoopAgent 中只暴露新高语义工具，不暴露旧字段级工具。
-- [ ] 状态：未开始 | 保留预筛选能力，但目标是新工具数量足够少时可以取消工具选择 LLM。
-- [ ] 状态：未开始 | 设置合理最大循环步数，默认不超过 20 到 30 步。
-
-### 十九、旧 Agent 工具逻辑移除
-
-- [ ] 状态：未开始 | 移除 `simpleCreateHttpNode`、`createHttpNode`、`batchCreateHttpNodes` 等旧 HTTP 创建类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除所有 `patchHttpNode*`、`addHttpNode*`、`updateHttpNode*`、`deleteHttpNode*`、`setHttpNode*` 等旧 HTTP 字段级 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧 HTTP Mock 创建和更新类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧 WebSocket 创建和更新类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧节点重命名、移动、删除、恢复类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧变量创建、修改、删除类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧公共 Header 创建、修改、删除类 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧 Mock 服务和 WebSocket 连接相关 Agent 工具注册。
-- [ ] 状态：未开始 | 删除旧 Agent 工具选择逻辑，不再使用字段级工具预筛选。
-- [ ] 状态：未开始 | 删除旧手写 tool call 合并和执行循环逻辑。
-- [ ] 状态：未开始 | 检查旧 Agent 工具文件是否仍被非 Agent 入口引用；无引用则删除。
-- [ ] 状态：未开始 | MCP 如仍需工具能力，单独建立 MCP 专用工具注册，不与 Agent 工具复用旧字段级注册。
-
-### 二十、新工具系统测试
-
-- [ ] 状态：未开始 | 测试在线模式下所有新工具都拒绝执行。
-- [ ] 状态：未开始 | 测试 `getWorkspaceContext` 在离线模式返回正确上下文。
-- [ ] 状态：未开始 | 测试 `searchNodes` 和 `getNodeDetail` 返回摘要化结果。
-- [ ] 状态：未开始 | 测试 `createDesignChange` 只生成变更集，不直接修改 IndexedDB。
-- [ ] 状态：未开始 | 测试 `updateDesignChange` 只生成变更集，不直接修改 IndexedDB。
-- [ ] 状态：未开始 | 测试 `previewChangeSet` 能展示准确 diff。
-- [ ] 状态：未开始 | 测试用户批准后 `applyChangeSet` 才写入 IndexedDB。
-- [ ] 状态：未开始 | 测试用户拒绝后变更集不写入 IndexedDB。
-- [ ] 状态：未开始 | 测试 `applyChangeSet` 失败时返回明确错误，并且 UI 不挂起。
-- [ ] 状态：未开始 | 测试运行类工具审批通过后才执行。
-- [ ] 状态：未开始 | 测试新工具系统下创建 HTTP 接口的完整 Agent 流程。
-- [ ] 状态：未开始 | 测试新工具系统下修改当前接口的完整 Agent 流程。
-- [ ] 状态：未开始 | 测试新工具系统下删除节点的完整 Agent 流程。
-- [ ] 状态：未开始 | 测试新工具系统下变量变更的完整 Agent 流程。
-- [ ] 状态：未开始 | 测试新工具系统与 AI SDK 6 ToolLoopAgent 集成后可稳定完成多工具任务。
-
-### 二十一、阶段拆分与替换策略
-
-- [ ] 状态：未开始 | 明确阶段 0 范围：移除旧 Agent 工具逻辑和旧字段级工具注册入口。
-- [ ] 状态：未开始 | 明确阶段 1 范围：固定运行边界，包括 AI 仅离线可用、默认模型 `deepseek-v4-pro`、AI SDK 6 基础接入。
-- [ ] 状态：未开始 | 明确阶段 2 范围：建设新工具协议，包括 `AgentToolDefinition`、`AgentToolContext`、`AgentToolResult`、`ChangeSet`。
-- [ ] 状态：未开始 | 明确阶段 3 范围：只实现只读工具，让 Agent 能安全读取上下文、项目、节点和回收站。
-- [ ] 状态：未开始 | 明确阶段 4 范围：实现 changeSet 草案工具，只生成变更集，不写入 IndexedDB。
-- [ ] 状态：未开始 | 明确阶段 5 范围：实现审批、预览和 `applyChangeSet`，用户批准后才写入 IndexedDB。
-- [ ] 状态：未开始 | 明确阶段 6 范围：将 Agent 默认执行链路接入新工具系统。
-- [ ] 状态：未开始 | 明确阶段 7 范围：补齐运行类工具，包括发送 HTTP 请求、Mock 服务管理、WebSocket 连接管理。
-- [ ] 状态：未开始 | 明确阶段 8 范围：收尾验证，清理无引用旧代码，执行类型检查和关键 E2E。
-- [ ] 状态：未开始 | 新增配置或常量，明确当前 Agent 工具系统版本为新工具系统。
-- [ ] 状态：未开始 | 为每个阶段定义失败处理方式和继续执行条件。
-- [ ] 状态：未开始 | 为每个阶段定义最小验收测试集合。
-- [ ] 状态：未开始 | 阶段切换时保留用户原有对话记录，不破坏历史缓存。
-- [ ] 状态：未开始 | 移除旧 tool-call 消息展示依赖，消息展示仅支持新工具系统输出。
-- [ ] 状态：未开始 | 删除旧 `rawTools` 的 Agent 注册用法。
-- [ ] 状态：未开始 | 确认 MCP 对旧工具的依赖清单，如有需要则独立迁移为 MCP 专用工具。
-
-### 二十二、依赖与模型配置
-
-- [ ] 状态：未开始 | 安装并锁定 AI SDK 6 相关依赖版本。
-- [ ] 状态：未开始 | 安装并锁定 `@ai-sdk/openai-compatible` 依赖版本。
-- [ ] 状态：未开始 | 确认 AI SDK 6 在当前 Node、Vite、Electron renderer、Electron main 环境下可正常构建。
-- [ ] 状态：未开始 | 确认 AI SDK 6 引入后的 bundle 体积影响。
-- [ ] 状态：未开始 | 确认 AI SDK 6 和相关 provider 的开源 license 符合项目要求。
-- [x] 状态：已完成 | DeepSeek 官网确认 V4 API model id 为 `deepseek-v4-pro` 和 `deepseek-v4-flash`。
-- [ ] 状态：未开始 | 将默认模型配置更新为 `deepseek-v4-pro`。
-- [x] 状态：已完成 | `.env` 中 DeepSeek API Key 变量名为 `DEEPSEEK_API_KEY`。
-- [x] 状态：已完成 | `.env` 中 DeepSeek baseURL 变量名为 `DEEPSEEK_BASE_URL`。
-- [x] 状态：已完成 | `.env` 中 DeepSeek model 变量名为 `DEEPSEEK_MODEL`。
-- [ ] 状态：未开始 | 明确 Electron 主进程和渲染进程如何读取 DeepSeek 配置。
-- [ ] 状态：未开始 | 明确 Web 模式是否允许读取或使用真实 DeepSeek API Key。
-- [ ] 状态：未开始 | 测试自定义 baseURL、customHeaders、extraBody 在 AI SDK 6 provider 中是否完整生效。
-
-### 二十三、安全与密钥保护
-
-- [ ] 状态：未开始 | 确认真实 DeepSeek API Key 不会输出到控制台日志。
-- [ ] 状态：未开始 | 确认真实 DeepSeek API Key 不会出现在 Playwright trace、截图、错误快照中。
-- [ ] 状态：未开始 | 确认真实 DeepSeek API Key 不会进入 analytics 或错误上报。
-- [ ] 状态：未开始 | 确认 AI 请求体和响应体中的敏感信息不会进入普通日志。
-- [x] 状态：已完成 | AI Key 继续允许存储在 localStorage。
-- [ ] 状态：未开始 | 记录继续使用 localStorage 存储 AI Key 的风险和后续改进计划。
-- [ ] 状态：未开始 | 检查本地数据备份导出是否包含 AI Key。
-- [ ] 状态：未开始 | 如果备份导出包含 AI Key，需要增加脱敏或显式确认机制。
-- [ ] 状态：未开始 | 检查对话缓存是否可能保存用户敏感输入。
-- [ ] 状态：未开始 | 为 AI 请求错误信息增加脱敏处理。
-- [ ] 状态：未开始 | 为测试日志增加 API Key 脱敏断言。
-
-### 二十四、测试数据准备与清理
-
-- [ ] 状态：未开始 | 设计 AI E2E 测试项目命名前缀。
-- [ ] 状态：未开始 | 设计 AI E2E 测试节点命名前缀。
-- [ ] 状态：未开始 | 设计 AI E2E 测试变量命名前缀。
-- [ ] 状态：未开始 | 每个测试开始前创建独立离线测试项目。
-- [ ] 状态：未开始 | 每个测试结束后清理测试项目、节点、变量、Mock 日志和对话缓存。
-- [ ] 状态：未开始 | 测试失败后提供可重复执行的清理脚本或清理 fixture。
-- [ ] 状态：未开始 | 清理逻辑不得删除非测试前缀的数据。
-- [ ] 状态：未开始 | 测试运行前检查当前网络模式并强制切换到离线模式。
-- [ ] 状态：未开始 | 测试运行后恢复原网络模式。
-- [ ] 状态：未开始 | 测试运行后恢复原 AI 配置或明确保留测试配置。
-- [ ] 状态：未开始 | 测试运行后关闭可能启动的 Mock 服务和 WebSocket 连接。
-- [ ] 状态：未开始 | 增加 IndexedDB 数据污染检查。
-
-### 二十五、变更集事务与幂等性
-
-- [ ] 状态：未开始 | 明确 `applyChangeSet` 是否要求全部 operation 原子成功。
-- [ ] 状态：未开始 | 如果不支持完全原子，需要定义部分成功状态和 UI 呈现方式。
-- [ ] 状态：未开始 | 在 `applyChangeSet` 前生成受影响数据快照。
-- [ ] 状态：未开始 | 设计 `applyChangeSet` 失败后的恢复策略。
-- [ ] 状态：未开始 | 设计 `applyChangeSet` 重复调用的幂等策略。
-- [ ] 状态：未开始 | 已应用的 changeSet 再次 apply 时应拒绝或返回已应用状态。
-- [ ] 状态：未开始 | 已丢弃的 changeSet 不允许 apply。
-- [ ] 状态：未开始 | changeSet 中引用不存在的 nodeId 时必须校验失败。
-- [ ] 状态：未开始 | changeSet 中 parentId 指向非 folder 节点时必须校验失败。
-- [ ] 状态：未开始 | changeSet 中删除节点时必须明确是否级联删除子节点。
-- [ ] 状态：未开始 | changeSet 中移动节点时必须防止循环父子关系。
-- [ ] 状态：未开始 | changeSet 应记录执行前后的节点摘要，方便 UI 和测试断言。
-
-### 二十六、Prompt 重构
-
-- [ ] 状态：未开始 | 重写 Agent system prompt，明确离线模式限制。
-- [ ] 状态：未开始 | 重写 Agent system prompt，明确必须优先读取上下文再生成变更集。
-- [ ] 状态：未开始 | 重写 Agent system prompt，明确禁止直接修改数据，必须走 changeSet。
-- [ ] 状态：未开始 | 重写工具使用说明 prompt，解释 read、propose、write、runtime 工具差异。
-- [ ] 状态：未开始 | 重写工具使用说明 prompt，解释审批规则和风险等级。
-- [ ] 状态：未开始 | 重写变更集工作流 prompt，要求 `create/update/delete` 先 preview 再 apply。
-- [ ] 状态：未开始 | 移除或弱化旧字段级工具选择 prompt。
-- [ ] 状态：未开始 | 保留多语言规则，确保回复语言和用户输入一致。
-- [ ] 状态：未开始 | 保留 ID 不可伪造规则，要求通过搜索或详情工具获取真实 id。
-- [ ] 状态：未开始 | 为 `deepseek-v4-pro` 验证 prompt 是否能稳定触发工具调用。
-- [ ] 状态：未开始 | 为新 prompt 增加真实 DeepSeek API 回归测试。
-
-### 二十七、风险等级与审批矩阵
-
-- [ ] 状态：未开始 | 定义 `effect: 'read'` 工具默认无需审批。
-- [ ] 状态：未开始 | 定义 `effect: 'propose'` 工具默认无需审批，但必须展示变更草案。
-- [ ] 状态：未开始 | 定义 `effect: 'write'` 工具必须审批。
-- [ ] 状态：未开始 | 定义 `effect: 'runtime'` 工具默认需要审批。
-- [ ] 状态：未开始 | 定义删除、恢复、批量修改、启动服务、发送请求、连接 WebSocket 的默认风险等级。
-- [ ] 状态：未开始 | `riskLevel: 'low'` 的工具应展示简短说明。
-- [ ] 状态：未开始 | `riskLevel: 'medium'` 的工具应展示影响范围。
-- [ ] 状态：未开始 | `riskLevel: 'high'` 的工具应展示明确确认按钮和影响列表。
-- [ ] 状态：未开始 | 高风险工具不得自动执行，即使模型请求也必须等待用户审批。
-- [ ] 状态：未开始 | 审批记录应保存在当前对话消息中，便于用户回看。
-- [ ] 状态：未开始 | 拒绝审批后，Agent 不得换用其他写工具绕过审批。
-
-### 二十八、DeepSeek 协议兼容细节测试
-
-- [ ] 状态：未开始 | 非流式 `tool_calls` 返回时，Agent 能正确解析工具名和 arguments。
-- [ ] 状态：未开始 | 流式 `tool_calls` 返回时，Agent 能正确合并分片 arguments。
-- [ ] 状态：未开始 | 流式响应包含 `reasoning_content` 时，UI 不应把内部推理误当最终回答。
-- [ ] 状态：未开始 | `finish_reason = tool_calls` 时，Agent 必须进入工具执行流程。
-- [ ] 状态：未开始 | `finish_reason = stop` 且 content 为空时，Agent 应给出兜底提示。
-- [ ] 状态：未开始 | `finish_reason = length` 时，Agent 应提示输出被截断。
-- [ ] 状态：未开始 | `finish_reason = insufficient_system_resource` 时，Agent 应提示可重试。
-- [ ] 状态：未开始 | DeepSeek 返回 tool arguments 为非法 JSON 时，工具不得执行。
-- [ ] 状态：未开始 | DeepSeek 返回 schema 之外的字段时，应忽略或校验失败。
-- [ ] 状态：未开始 | DeepSeek 返回不存在的工具名时，应展示工具不存在错误。
-- [ ] 状态：未开始 | DeepSeek 返回多个 tool_calls 时，应按顺序执行或按设计明确并行策略。
-- [ ] 状态：未开始 | DeepSeek 返回重复 tool_call id 时，应去重或稳定处理。
-- [ ] 状态：未开始 | DeepSeek SSE 中断在半个 JSON 参数中时，UI 不应卡死。
-- [ ] 状态：未开始 | DeepSeek 请求超时后，Agent 状态必须恢复为完成。
-- [ ] 状态：未开始 | DeepSeek 429 或限流时，应展示明确错误，不自动无限重试。
-- [ ] 状态：未开始 | DeepSeek 401 或 403 时，应提示 API Key 或权限问题。
-- [ ] 状态：未开始 | DeepSeek 余额不足或计费错误时，应展示可读错误。
-- [ ] 状态：未开始 | `thinking.enabled/disabled` 配置变化时，Agent 行为符合预期。
-- [ ] 状态：未开始 | `response_format: json_object` 场景下必须包含明确 JSON 输出指令。
-
-### 二十九、Agent 循环与状态机测试
-
-- [ ] 状态：未开始 | Agent 达到最大 step 后停止，且不再执行新工具。
-- [ ] 状态：未开始 | Agent 连续调用同一个只读工具超过阈值时，应停止或提示无法推进。
-- [ ] 状态：未开始 | Agent 连续生成相同 changeSet 时，应避免重复申请审批。
-- [ ] 状态：未开始 | Agent 在工具失败后能根据错误信息决定重试或停止。
-- [ ] 状态：未开始 | Agent 在工具失败且 `retryable=false` 时不应继续重试。
-- [ ] 状态：未开始 | Agent 在工具失败且缺少参数时，应向用户追问而不是猜 ID。
-- [ ] 状态：未开始 | Agent 中途取消后，后续 DeepSeek 流和工具执行结果不得继续写入 UI。
-- [ ] 状态：未开始 | Agent 多轮对话应保留必要历史，但不能无限增长。
-- [ ] 状态：未开始 | Agent 历史消息裁剪后仍保留最近工具结果摘要。
-- [ ] 状态：未开始 | Agent 不应把上一轮被拒绝的操作在下一轮自动执行。
-- [ ] 状态：未开始 | Agent 在在线模式切换期间应立即中断循环。
-- [ ] 状态：未开始 | Agent 在项目上下文丢失后应停止写操作并提示重新选择项目。
-
-### 三十、工具注册与权限边界测试
-
-- [ ] 状态：未开始 | 旧 Agent 工具逻辑移除后，新功能不得注册到旧 `rawTools`。
-- [ ] 状态：未开始 | 新 Agent 默认只暴露高语义工具，不暴露字段级工具。
-- [ ] 状态：未开始 | 工具名必须满足 DeepSeek function name 规则和长度限制。
-- [ ] 状态：未开始 | 工具 description 不应包含过长业务文档，避免上下文膨胀。
-- [ ] 状态：未开始 | 工具 inputSchema 必须包含 `additionalProperties: false` 或等效校验策略。
-- [ ] 状态：未开始 | 工具 schema 中必填字段必须和运行时校验一致。
-- [ ] 状态：未开始 | 工具返回给模型的结果必须是摘要，不返回完整节点大对象。
-- [ ] 状态：未开始 | 工具返回的错误必须包含稳定 error code。
-- [ ] 状态：未开始 | read 工具不需要审批。
-- [ ] 状态：未开始 | propose 工具只生成 changeSet，不直接写入数据。
-- [ ] 状态：未开始 | write 和 runtime 工具必须审批。
-- [ ] 状态：未开始 | 在线模式下所有工具统一返回 `AI_OFFLINE_ONLY` 或等效错误码。
-- [ ] 状态：未开始 | 新工具系统接入后，MCP 工具注册不应继续依赖 Agent 工具注册。
-- [ ] 状态：未开始 | 移除旧 Agent 工具逻辑后，Agent 工具列表只包含新高语义工具。
-
-### 三十一、上下文与 ID 防伪测试
-
-- [ ] 状态：未开始 | 没有当前项目时，创建节点应先提示选择或创建项目。
-- [ ] 状态：未开始 | 有当前项目时，Agent 使用真实 `projectId`，不伪造。
-- [ ] 状态：未开始 | 当前 tab 是 HTTP 节点时，“当前接口”应解析为该 nodeId。
-- [ ] 状态：未开始 | 当前 tab 是 folder 时，“在当前文件夹下创建接口”应使用该 folderId。
-- [ ] 状态：未开始 | 当前 tab 是 WebSocket 时，HTTP 修改工具不得误用。
-- [ ] 状态：未开始 | 用户提供不存在的 nodeId 时，Agent 应先搜索或提示不存在。
-- [ ] 状态：未开始 | 用户只提供节点名称且存在多个同名节点时，Agent 应询问或列出候选。
-- [ ] 状态：未开始 | 用户要求“删除这个”但上下文不明确时，Agent 不应删除任何节点。
-- [ ] 状态：未开始 | 用户要求跨项目操作时，Agent 必须明确目标项目。
-- [ ] 状态：未开始 | 切换项目后，历史上下文中的旧 projectId 不得继续用于写操作。
-- [ ] 状态：未开始 | 节点被外部删除后，changeSet apply 前必须重新校验。
-- [ ] 状态：未开始 | parentId 指向非文件夹节点时，changeSet 校验失败。
-- [ ] 状态：未开始 | 移动节点不能移动到自身或子节点下。
-
-### 三十二、ChangeSet 生命周期细节测试
-
-- [ ] 状态：未开始 | 创建 changeSet 后，IndexedDB 不发生业务数据写入。
-- [ ] 状态：未开始 | preview changeSet 后，状态变为 `previewed`。
-- [ ] 状态：未开始 | apply 前必须处于可应用状态。
-- [ ] 状态：未开始 | 用户批准后 apply 才写入 IndexedDB。
-- [ ] 状态：未开始 | 用户拒绝后状态变为 `discarded` 或等效状态。
-- [ ] 状态：未开始 | discarded changeSet 不允许再次 apply。
-- [ ] 状态：未开始 | applied changeSet 重复 apply 应拒绝或返回已应用。
-- [ ] 状态：未开始 | failed changeSet 应保留错误详情。
-- [ ] 状态：未开始 | changeSet 包含多个 operation 时，diff 顺序稳定。
-- [ ] 状态：未开始 | changeSet diff 能展示新增节点名称、类型、路径。
-- [ ] 状态：未开始 | changeSet diff 能展示修改前后字段。
-- [ ] 状态：未开始 | changeSet diff 能展示删除影响范围。
-- [ ] 状态：未开始 | changeSet diff 能展示移动前后父节点。
-- [ ] 状态：未开始 | changeSet apply 前后记录摘要，便于审计和 UI 展示。
-- [ ] 状态：未开始 | changeSet 失败后，不应残留半成品 UI 状态。
-- [ ] 状态：未开始 | 批量 operation 部分失败时，状态和 UI 必须明确。
-- [ ] 状态：未开始 | changeSet 中包含高风险 operation 时，审批卡片显示高风险。
-- [ ] 状态：未开始 | changeSet 过期或上下文变化后，应要求重新 preview。
-- [ ] 状态：未开始 | changeSet 在网络模式切换到 online 后不得 apply。
-
-### 三十三、审批流程细节测试
-
-- [ ] 状态：未开始 | 高风险工具必须显示审批卡片。
-- [ ] 状态：未开始 | 审批卡片应展示工具名称、风险等级、影响范围。
-- [ ] 状态：未开始 | 审批卡片应展示关键参数，但敏感值要脱敏。
-- [ ] 状态：未开始 | 批准后只执行当前审批项。
-- [ ] 状态：未开始 | 拒绝后不执行工具。
-- [ ] 状态：未开始 | 拒绝后 Agent 不得调用另一个写工具绕过审批。
-- [ ] 状态：未开始 | 审批期间用户点击停止，应取消待审批状态。
-- [ ] 状态：未开始 | 审批期间再次发送消息，应阻止或提示当前有待处理审批。
-- [ ] 状态：未开始 | 多个审批项应按顺序处理。
-- [ ] 状态：未开始 | 审批结果应记录在对话消息中。
-- [ ] 状态：未开始 | 已审批 tool call 不应因流式重放重复执行。
-- [ ] 状态：未开始 | 浏览器刷新后，未完成审批应失效或进入可恢复状态。
-- [ ] 状态：未开始 | 在线模式下不展示审批卡片，因为 AI 功能不可用。
-
-### 三十四、AI UI 状态细节测试
-
-- [ ] 状态：未开始 | Agent 发送后输入框清空。
-- [ ] 状态：未开始 | Agent working 状态下发送按钮隐藏或禁用。
-- [ ] 状态：未开始 | 停止按钮只在 working 状态展示。
-- [ ] 状态：未开始 | 工具 loading 时展示加载图标。
-- [ ] 状态：未开始 | 工具 success 后自动折叠详情。
-- [ ] 状态：未开始 | 工具 error 后展示错误详情。
-- [ ] 状态：未开始 | 工具参数 JSON 展示格式正确。
-- [ ] 状态：未开始 | 工具结果过长时 UI 有高度限制，不撑爆面板。
-- [ ] 状态：未开始 | changeSet 预览过长时 UI 可滚动。
-- [ ] 状态：未开始 | AI 面板关闭再打开后，当前对话状态仍正确。
-- [ ] 状态：未开始 | 清空对话时，中断正在执行的 Agent。
-- [ ] 状态：未开始 | 网络模式切换 online 时，AI 面板关闭或禁用。
-- [ ] 状态：未开始 | 在线模式下不展示 AI 设置页入口。
-- [ ] 状态：未开始 | 离线模式下 AI 设置页入口正常展示。
-- [ ] 状态：未开始 | API Key 未配置时展示配置提示。
-- [ ] 状态：未开始 | API Key 已配置但模型错误时展示模型错误。
-- [ ] 状态：未开始 | 多语言错误提示使用当前语言。
-- [ ] 状态：未开始 | 消息列表滚动到底部行为正常。
-- [ ] 状态：未开始 | Markdown 渲染不执行危险 HTML 或脚本。
-
-### 三十五、真实 API 成本、安全与离线数据测试
-
-- [ ] 状态：未开始 | 每轮真实 DeepSeek 测试记录调用次数。
-- [ ] 状态：未开始 | 每轮真实 DeepSeek 测试记录 token usage，如果 API 返回。
-- [ ] 状态：未开始 | 测试失败时输出脱敏后的请求摘要。
-- [ ] 状态：未开始 | 测试超时时不重试超过设定次数。
-- [ ] 状态：未开始 | 需要 tool calling 的测试使用低成本最短 prompt。
-- [ ] 状态：未开始 | 长上下文测试单独标记为高成本，不默认运行。
-- [ ] 状态：未开始 | 真实 API 不稳定导致失败时，应能区分产品 bug 和外部服务失败。
-- [ ] 状态：未开始 | CI 环境缺少 API Key 时，真实 API 测试标记跳过或阻塞。
-- [ ] 状态：未开始 | 本地运行真实 API 测试前提示会消耗额度。
-- [ ] 状态：未开始 | 不允许把真实 API 响应快照完整提交到仓库。
-- [ ] 状态：未开始 | 在线模式下 Agent 不读取在线项目数据。
-- [ ] 状态：未开始 | 在线模式下 Agent 不写在线项目数据。
-- [ ] 状态：未开始 | 离线模式下 Agent 只操作 IndexedDB。
-- [ ] 状态：未开始 | 离线测试数据不会污染真实用户项目。
-- [ ] 状态：未开始 | 本地备份导出不应无提示包含 API Key。
-- [ ] 状态：未开始 | 对话缓存清理后不残留用户输入。
-- [ ] 状态：未开始 | Agent 工具错误不应泄露 API Key。
-- [ ] 状态：未开始 | 工具结果摘要不应包含敏感 header 原值，如 Authorization。
-- [ ] 状态：未开始 | 审批卡片展示 Authorization 时应脱敏。
-- [ ] 状态：未开始 | 变量值为 token、password、key 时应脱敏展示。
+### 零、已确认决策
+
+- [x] P0 | 状态：已完成 | SDK 目标固定为 AI SDK 6，参考项目 AI SDK 7 仅作为事件和 UI 基线。
+- [x] P0 | 状态：已完成 | Agent runtime 位于 Electron main，renderer 通过 IPC 接收事件并执行 client tool command。
+- [x] P0 | 状态：已完成 | 本次 AI 功能边界固定为 Electron 离线模式；在线模式和 Web 构建不提供 AI 助手。
+- [x] P0 | 状态：已完成 | DeepSeek V4 model id 为 `deepseek-v4-pro` 和 `deepseek-v4-flash`。
+- [x] P0 | 状态：已完成 | `.env` 使用 `DEEPSEEK_API_KEY`、`DEEPSEEK_BASE_URL`、`DEEPSEEK_MODEL`。
+- [x] P1 | 状态：已完成 | 本次继续允许 AI Key 存储在 localStorage，并要求记录风险、限制导出和统一脱敏。
+
+### 一、依赖与运行边界
+
+- [ ] P0 | 状态：未开始 | 在 `packages/web` 精确锁定兼容 Node 20 的 AI SDK 6 依赖，不使用 `^` 或 `~` 漂移主要 AI 包版本。
+- [ ] P0 | 状态：未开始 | 安装并锁定 `ai@6.0.273`、`@ai-sdk/deepseek@2.0.62`、`@ai-sdk/openai-compatible@2.0.74`、`zod@4.5.4`，并更新 `package-lock.json`。
+- [ ] P0 | 状态：未开始 | 验证 AI SDK 依赖在 Electron 32 main、Vite 8、TypeScript 5.6 环境下可以构建和运行。
+- [ ] P0 | 状态：未开始 | 明确 AI SDK 只打入 main bundle，renderer 不重复打包 Provider 和 Agent runtime。
+- [ ] P0 | 状态：未开始 | 定义 main 与 renderer 的 AI IPC request、event、response、approval、abort 协议，所有 payload 都有运行时校验。
+- [ ] P0 | 状态：未开始 | IPC 协议统一携带 `conversationId`、`runId`、`messageId`、`toolCallId`、`approvalId` 和单调递增 `sequence`。
+- [ ] P0 | 状态：未开始 | 定义 renderer 销毁、窗口关闭、切换 online、清空会话时 main 中 run 的终止规则。
+- [ ] P1 | 状态：未开始 | 检查 AI SDK 6、Provider 和 Zod license 是否符合项目要求。
+- [ ] P1 | 状态：未开始 | 记录 main 与 renderer bundle 体积基线和迁移后的变化。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 最小 `ToolLoopAgent` 在 Electron main 中使用测试模型完成一次文本生成，renderer 能收到开始、文本和完成事件。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 二、Provider 与配置迁移
+
+- [ ] P0 | 状态：未开始 | 在 main 建立 Provider factory：DeepSeek 使用 `@ai-sdk/deepseek`，Qwen 和 Custom 使用 `@ai-sdk/openai-compatible`。
+- [ ] P0 | 状态：未开始 | 将 DeepSeek 官方 baseURL 改为 Provider 所需的 API 前缀，不再把 `/chat/completions` 完整请求路径直接传给 Provider factory。
+- [ ] P0 | 状态：未开始 | 将 Qwen 和 Custom baseURL 语义统一为 Provider 前缀，并明确非标准完整 endpoint 的处理方式。
+- [ ] P0 | 状态：未开始 | 将 LLM Provider cache 升级为 v2，迁移旧的完整 `/chat/completions` 地址并保留用户的 model、apiKey 和 Custom 配置。
+- [ ] P0 | 状态：未开始 | 默认 DeepSeek 模型改为 `deepseek-v4-pro`，重置配置和旧默认模型迁移结果保持一致。
+- [ ] P0 | 状态：未开始 | 更新 `.env.example`，将已废弃的 `deepseek-chat` 改为 `deepseek-v4-pro`。
+- [ ] P0 | 状态：未开始 | 设置页、缓存初始化、main 配置同步和测试 fixture 使用同一默认模型常量。
+- [ ] P0 | 状态：未开始 | Custom Provider 的 customHeaders 映射到 Provider headers；DeepSeek 和 Qwen 官方预设继续禁止任意自定义 Header。
+- [ ] P0 | 状态：未开始 | Custom Provider 的 extraBody 通过 `providerOptions` 或 request transform 注入，禁止覆盖 `model`、`messages`、`stream`、`tools` 等保留字段。
+- [ ] P0 | 状态：未开始 | DeepSeek thinking 使用 Provider 支持的配置结构，不再由业务代码手动拼接或解析 `reasoning_content`。
+- [ ] P0 | 状态：未开始 | Ask 使用 AI SDK 6 `streamText`，支持多轮上下文、流式文本、reasoning、错误和 AbortSignal。
+- [ ] P0 | 状态：未开始 | 在线模式下 Header、快捷键、已打开面板、Ask、Agent、main IPC 和 client tool command 全部拒绝执行。
+- [ ] P0 | 状态：未开始 | Web 构建隐藏 AI 入口和 AI 设置，不读取 localStorage 中的 AI Key，不调用 Web proxy 模型接口。
+- [ ] P0 | 状态：未开始 | AI 设置页仅在 Electron 离线模式展示；当前代码尚未满足，不得继续标记为已完成。
+- [ ] P1 | 状态：未开始 | 为 DeepSeek、Qwen、Custom Provider 增加配置保存、切换、重置和请求 contract 回归测试。
+- [ ] P1 | 状态：未开始 | 验证 DeepSeek V4 Pro/Flash 的文本、thinking、JSON 输出、tool calling 和 tool streaming 能力。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 离线 Electron Ask 可正常流式回答和停止；在线模式与 Web 构建没有任何模型请求。
+- [ ] P0 | 状态：未开始 | Provider cache v1 到 v2 迁移测试通过，用户配置没有丢失。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 三、Agent 事件协议与会话缓存
+
+- [ ] P0 | 状态：未开始 | 在 `packages/web/src/types/ai/` 定义与 AI SDK 解耦的 `AgentEvent` 判别联合类型，作为 IPC、缓存和 UI 映射的唯一事件源。
+- [ ] P0 | 状态：未开始 | 建立 `AI SDK stream part -> AgentEvent -> PanelUIMessage` 两级映射，禁止在单一 Vue 组件中直接堆叠所有 SDK part 判断。
+- [ ] P0 | 状态：未开始 | 原生 SDK part 完整处理 `text`、`reasoning`、`step-start`、静态/动态 tool、`tool-approval-request`、`tool-approval-response`、source-url、source-document、file、error、finish 和 abort。
+- [ ] P0 | 状态：未开始 | ApiFlow 自定义 data event 定义为 `run-state`、`client-tool-command`、`conversation-updated`、`change-set`、`invocation` 和 `compacting`；不得称为 AI SDK 原生事件。
+- [ ] P0 | 状态：未开始 | run 状态定义为 `queued`、`running`、`waiting_client_tool`、`waiting_approval`、`waiting_user_input`、`cancelling`、`completed`、`cancelled`、`failed`、`interrupted`。
+- [ ] P0 | 状态：未开始 | tool 原始状态完整接收 input streaming/available、approval requested/responded、output available/denied/error，并归一化为 created/running/success/denied/responded/error。
+- [ ] P0 | 状态：未开始 | 事件按 `runId + sequence` 稳定排序，重复 `eventId`、`toolCallId` 或流式重放不会产生重复消息或重复副作用。
+- [ ] P0 | 状态：未开始 | 未识别事件安全忽略并记录脱敏诊断信息，不得中断当前消息流。
+- [ ] P0 | 状态：未开始 | 取消后迟到的模型 chunk、工具结果和 approval response 不得继续写入事件 store。
+- [ ] P0 | 状态：未开始 | 会话缓存升级为 v2，保存规范化 `AgentEvent` 而不是 Vue UI 状态或旧 `ConversationMessage`。
+- [ ] P0 | 状态：未开始 | 旧缓存迁移只保留可安全转换的用户消息和最终回答，旧字段级 tool-call 消息丢弃并记录一次迁移结果。
+- [ ] P0 | 状态：未开始 | 缓存设置最大消息数、最大字节数和最近工具摘要保留规则，防止历史无限增长。
+- [ ] P0 | 状态：未开始 | 面板关闭再打开保留当前 run 和审批；应用刷新或进程重启后未完成 run 标记为 interrupted，未完成审批标记为 expired。
+- [ ] P1 | 状态：未开始 | conversation cache 清理同时中断 run、清理待审批状态和敏感临时数据。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 使用可控事件流覆盖全部原生 part、自定义 event、重复、乱序、迟到和未知事件场景。
+- [ ] P0 | 状态：未开始 | cache v1 到 v2 迁移、容量限制和 interrupted 恢复测试通过。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 四、新 Agent 工具系统
+
+- [ ] P0 | 状态：未开始 | 定义 `AgentToolDefinition`，包含 name、title、description、domain、effect、scope、riskLevel、requiresApproval、inputSchema、execute。
+- [ ] P0 | 状态：未开始 | effect 使用 `read | navigate | propose | write | runtime` 字面量联合类型；`openProject` 等界面导航不得伪装成 read。
+- [ ] P0 | 状态：未开始 | 定义 `AgentToolContext`，包含 projectId、activeNodeId、activeTabType、language、networkMode、abortSignal、conversationId、runId。
+- [ ] P0 | 状态：未开始 | 定义 `AgentToolResult`，统一 success、errorCode、retryable、summary、displayData、modelData、changeSetId。
+- [ ] P0 | 状态：未开始 | 所有工具 scope 固定为 offline；main 和 renderer 两端都检查 networkMode，拒绝时返回稳定 `AI_OFFLINE_ONLY`。
+- [ ] P0 | 状态：未开始 | 工具 schema 使用 Zod 或兼容 JSON Schema，必填字段和运行时校验一致，并禁止额外属性或采用等效严格校验。
+- [ ] P0 | 状态：未开始 | 工具名满足 DeepSeek function name 和长度限制，description 保持简短，返回给模型的数据使用稳定摘要。
+- [ ] P0 | 状态：未开始 | 实现 `getWorkspaceContext`、`searchProjects`、`searchNodes`、`listNodeTree`、`getNodeDetail`、`getDeletedNodes`。
+- [ ] P0 | 状态：未开始 | 实现 `openProject` client tool command，只负责导航和上下文切换，不修改业务数据。
+- [ ] P0 | 状态：未开始 | main 通过 client tool command 请求 renderer 读取 IndexedDB/Pinia，renderer 校验 run、工具名、输入和离线模式后返回结果。
+- [ ] P0 | 状态：未开始 | 所有 ID 必须来自当前上下文、搜索结果或执行层生成，模型不得伪造 projectId、nodeId、parentId、changeSetId。
+- [ ] P0 | 状态：未开始 | 当前 tab 类型与工具 domain 不匹配时拒绝执行，WebSocket 上下文不得误用 HTTP 修改工具。
+- [ ] P0 | 状态：未开始 | 使用 `activeTools` 或 `prepareStep` 按上下文限制工具集合，删除额外的“工具选择 LLM”调用。
+- [ ] P0 | 状态：未开始 | MCP 建立独立工具注册和适配层，不再依赖 Agent 字段级 `rawTools`。
+- [ ] P1 | 状态：未开始 | 工具大结果分别生成给模型的短摘要和给 UI 的脱敏详情，禁止直接返回完整节点大对象。
+- [ ] P1 | 状态：未开始 | Prompt 明确离线限制、先读取上下文、禁止猜 ID、写操作必须先 propose ChangeSet、拒绝审批后不得换工具绕过。
+- [ ] P1 | 状态：未开始 | 中文、英文、日文输入正确传递目标语言，回复和生成内容跟随最新一轮用户语言。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 只读 Agent 能查询当前项目、节点、回收站并回答，不产生业务副作用。
+- [ ] P0 | 状态：未开始 | 在线模式、错误 tab、伪造 ID、重复调用和 AbortSignal 测试通过。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 五、ChangeSet 协议与事务
+
+- [ ] P0 | 状态：未开始 | 定义 `ChangeSet`，包含 id、conversationId、runId、targetProjectId、title、description、operations、status、baseRevision、createdAt、expiresAt。
+- [ ] P0 | 状态：未开始 | 创建项目场景允许 targetProjectId 为空，并通过 `createProject` operation 生成项目；项目 ID 由执行层生成，不由模型提供。
+- [ ] P0 | 状态：未开始 | `ChangeOperation` 支持 createProject、createNode、updateNode、moveNode、deleteNode、restoreNode、updateVariables、updateCommonHeaders。
+- [ ] P0 | 状态：未开始 | 节点创建 schema 覆盖 folder、http、websocket、httpMock、websocketMock；节点 patch 使用统一业务 schema，不拆字段级工具。
+- [ ] P0 | 状态：未开始 | ChangeSet 状态定义为 draft、previewed、approved、applying、applied、discarded、failed、expired。
+- [ ] P0 | 状态：未开始 | 实现 `createDesignChange`、`updateDesignChange`、`moveNodesChange`、`deleteNodesChange`、`restoreNodesChange`、`updateVariablesChange`、`updateCommonHeadersChange`。
+- [ ] P0 | 状态：未开始 | propose 工具只生成 ChangeSet 并写入 ChangeSet 存储，不修改项目、节点、变量或 Header 业务数据。
+- [ ] P0 | 状态：未开始 | ChangeSet 存储到 IndexedDB 独立 object store，包含版本、TTL、状态和审批关联信息。
+- [ ] P0 | 状态：未开始 | 实现 `previewChangeSet`，重新读取当前数据并校验 projectId、nodeId、parentId、类型、URL、方法、参数和 baseRevision。
+- [ ] P0 | 状态：未开始 | diff 稳定展示 create/update/delete/move 的目标、前后值和影响范围，敏感字段必须脱敏。
+- [ ] P0 | 状态：未开始 | 实现 `applyChangeSet`，所有数据 operation 必须在同一个 IndexedDB transaction 中原子成功。
+- [ ] P0 | 状态：未开始 | apply 前再次校验上下文和 baseRevision；节点已变化、ChangeSet 过期或网络切到 online 时拒绝应用。
+- [ ] P0 | 状态：未开始 | apply 使用 changeSetId 保证幂等；applied/discarded/expired ChangeSet 再次 apply 返回稳定状态且不重复写入。
+- [ ] P0 | 状态：未开始 | apply 失败回滚 transaction，状态变为 failed，并保留脱敏错误和执行前摘要。
+- [ ] P0 | 状态：未开始 | 删除操作明确级联范围；移动操作防止移动到自身或子节点；parentId 必须指向 folder。
+- [ ] P0 | 状态：未开始 | 实现 `discardChangeSet`，用户拒绝后不可再次 apply，重新执行必须生成新的 ChangeSet。
+- [ ] P1 | 状态：未开始 | ChangeSet 成功应用后刷新项目树、当前 tab、变量和 Header store，缓存与 IndexedDB 保持一致。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 创建项目、创建节点、修改节点、删除、恢复、移动、变量和 Header 的 preview/apply/discard 测试通过。
+- [ ] P0 | 状态：未开始 | 原子性、幂等、过期、并发修改、循环父子关系和失败回滚测试通过。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 六、AI SDK ToolLoopAgent 与审批
+
+- [ ] P0 | 状态：未开始 | 实现 `AgentToolDefinition` 到 AI SDK 6 tool 的适配器，工具 key、description、inputSchema、execute 保持一致。
+- [ ] P0 | 状态：未开始 | 将自定义 requiresApproval 映射为 AI SDK tool 的 `needsApproval`，支持基于输入和风险动态判断。
+- [ ] P0 | 状态：未开始 | read、navigate、propose 默认无需审批；write 必须审批；runtime 根据 action 动态审批。
+- [ ] P0 | 状态：未开始 | `applyChangeSet` 必须 `needsApproval: true`，审批卡片直接展示对应 ChangeSet preview 和风险，不再弹出第二张确认卡。
+- [ ] P0 | 状态：未开始 | 按 AI SDK 审批协议处理 tool-approval-request、用户响应、tool-approval-response 和第二次 Agent 调用。
+- [ ] P0 | 状态：未开始 | approvalId、toolCallId、changeSetId、runId 必须一致关联；未知、重复、过期 approval response 被拒绝。
+- [ ] P0 | 状态：未开始 | 用户拒绝后工具不执行，ChangeSet 变为 discarded，模型收到拒绝结果且不得换用其他 write 工具绕过。
+- [ ] P0 | 状态：未开始 | 审批期间停止、切换 online、关闭应用或清空会话后，不得继续执行工具或下一步模型调用。
+- [ ] P0 | 状态：未开始 | 多个待审批工具按事件顺序逐个处理，不并行展示可同时批准的高风险操作。
+- [ ] P0 | 状态：未开始 | Agent 最大步数默认 12、硬上限 20；模型请求最大重试 1 次，工具仅在 retryable=true 时允许有界重试。
+- [ ] P0 | 状态：未开始 | 连续调用相同只读工具或生成相同 ChangeSet 达到阈值后停止并提示无法推进。
+- [ ] P0 | 状态：未开始 | 工具参数修复只能修复格式问题，不得猜测缺失 ID 或绕过 schema、审批和离线限制。
+- [ ] P1 | 状态：未开始 | 使用 AI SDK 归一化 finish reason、usage、reasoning 和 tool parts；业务层不再手动合并 DeepSeek SSE tool arguments。
+- [ ] P1 | 状态：未开始 | DeepSeek raw finish reason 和错误码只在 Provider contract 测试中验证映射，不在 Agent 业务层重复解析。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 无工具、单工具、多工具、多轮工具、审批通过、审批拒绝、最大步数、失败和取消流程全部通过确定性测试。
+- [ ] P0 | 状态：未开始 | tool approval 重放、重复响应、过期响应和迟到响应不会产生副作用。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 七、运行类工具
+
+- [ ] P1 | 状态：未开始 | 实现 `sendHttpRequest`，发送前展示方法、URL、Header 脱敏摘要和潜在副作用，并要求审批。
+- [ ] P1 | 状态：未开始 | 实现 `manageMockServer`，status/read action 无需审批，start/stop action 需要审批。
+- [ ] P1 | 状态：未开始 | 实现 `manageWebSocketConnection`，status/read action 无需审批，connect/send/disconnect action 按风险审批。
+- [ ] P1 | 状态：未开始 | 运行工具通过现有 main HTTP、Mock、WebSocket 能力执行，不复制网络和服务管理实现。
+- [ ] P1 | 状态：未开始 | runtime 工具完整响应 AbortSignal，停止后不继续发送请求、启动服务、连接或发送消息。
+- [ ] P1 | 状态：未开始 | 应用退出、测试结束和 run 取消时清理由测试或 Agent 启动的 Mock 服务与 WebSocket 连接。
+
+#### 阶段 Gate
+
+- [ ] P1 | 状态：未开始 | HTTP 请求、Mock start/stop/status、WebSocket connect/send/disconnect/status 的审批和取消测试通过。
+- [ ] P1 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 八、AI 面板与完整事件展示
+
+- [ ] P0 | 状态：未开始 | 按参考项目拆分消息映射和 Vue 展示组件，不在 `AiChat.vue` 中继续累积所有事件模板与样式。
+- [ ] P0 | 状态：未开始 | 用户消息、助手过程文本、流式回答、最终回答、thinking、reasoning、working、compacting、cancelled、error 均有独立展示组件。
+- [ ] P0 | 状态：未开始 | 单 tool、tool group、agent invocation、approval 和 ChangeSet 均有独立展示组件。
+- [ ] P0 | 状态：未开始 | source-url、source-document 和 file 事件展示标题、类型和安全链接；未知或不允许的协议不得生成可点击链接。
+- [ ] P0 | 状态：未开始 | working 展示运行时长，completed/cancelled/failed/interrupted 后停止计时并保留终态。
+- [ ] P0 | 状态：未开始 | reasoning 流式时默认展开，完成后可折叠；最终回答出现后过程内容按参考规则收起，避免重复展示。
+- [ ] P0 | 状态：未开始 | 多个连续工具按 step/batch 聚合，顺序与 sequence 一致；单工具独立展示。
+- [ ] P0 | 状态：未开始 | 工具卡片展示 lucide 图标、语义化名称、目标、状态、流式摘要、来源、脱敏输入、输出和错误。
+- [ ] P0 | 状态：未开始 | created/running 显示加载状态，success 自动折叠，denied/responded/error 使用可区分状态和说明。
+- [ ] P0 | 状态：未开始 | approval 卡片展示工具、ChangeSet diff、风险、影响范围和脱敏参数，支持批准、拒绝和停止。
+- [ ] P0 | 状态：未开始 | ChangeSet 卡片完整展示 createProject/create/update/delete/move/restore/variables/commonHeaders 的草案、预览和应用结果。
+- [ ] P0 | 状态：未开始 | agent invocation 展示目标 Agent、任务、pending/running/completed/interrupted 状态、输出和错误。
+- [ ] P0 | 状态：未开始 | cancelled 与 error 使用独立样式；只有 retryable=true 且存在可重试 run 时展示重试入口。
+- [ ] P0 | 状态：未开始 | 消息列表只在用户距离底部小于阈值时跟随流式内容；用户向上查看历史时不得强制滚到底部。
+- [ ] P0 | 状态：未开始 | 用户消息、最终回答、工具卡片、审批卡片、间距、字号、圆角、边框、折叠图标和 composer 布局尽可能对齐参考面板。
+- [ ] P0 | 状态：未开始 | UI 使用现有且真实存在的主题变量适配明暗主题，不使用行内样式，不直接复制参考项目的 React 图标和 CSS token。
+- [ ] P0 | 状态：未开始 | Markdown 禁止执行任意 HTML、script、事件属性和危险 URL，代码块、表格、列表、链接和长内容可安全滚动。
+- [ ] P0 | 状态：未开始 | 工具详情和 ChangeSet diff 设置高度与换行限制，不撑爆面板；JSON 展示稳定且敏感字段脱敏。
+- [ ] P0 | 状态：未开始 | Agent 发送后输入框清空；working 时禁止并发发送；停止按钮仅在可停止状态展示。
+- [ ] P0 | 状态：未开始 | 面板关闭再打开后事件顺序、折叠标识、审批结果、最终回答和当前 run 状态正确恢复。
+- [ ] P1 | 状态：未开始 | 最后一条已完成用户消息支持编辑并重新运行；最终回答提供复制和可用时的重试操作。
+- [ ] P1 | 状态：未开始 | 空状态、未配置、仅离线可用、模型错误和多语言错误提示与参考面板保持一致的视觉层级。
+- [ ] P1 | 状态：未开始 | 所有新增 UI 文案通过 `t()`，同步更新中英文翻译并保证翻译符合上下文。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 使用测试 transport 为每一种事件、每一种 tool/run 终态和审批状态生成稳定 UI 断言。
+- [ ] P0 | 状态：未开始 | 折叠、滚动跟随、历史查看、长内容、明暗主题、重开面板和 Markdown 安全测试通过。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 九、切换新链路与清理旧实现
+
+- [ ] P0 | 状态：未开始 | 将 Agent 默认入口切换到 main 中 AI SDK 6 `ToolLoopAgent` 和新事件协议。
+- [ ] P0 | 状态：未开始 | Ask 默认入口切换到 main 中 AI SDK 6 `streamText`，保留 Ask/Agent 独立会话。
+- [ ] P0 | 状态：未开始 | 切换前通过最小验收集合，切换与旧逻辑删除在同一阶段完成，不留下长期功能开关。
+- [ ] P0 | 状态：未开始 | 删除旧 `rawTools` 的 Agent 注册用法和所有字段级 Agent 工具注册。
+- [ ] P0 | 状态：未开始 | 删除旧工具选择 LLM、手写 SSE tool call 合并、手写执行循环和旧 tool-call 消息展示依赖。
+- [ ] P0 | 状态：未开始 | 检查旧工具文件是否被 MCP 或非 Agent 能力引用；保留必要业务实现，但通过独立适配器调用。
+- [ ] P0 | 状态：未开始 | 新 Agent 工具列表只包含新高语义工具，MCP 注册不依赖 Agent 注册。
+- [ ] P0 | 状态：未开始 | 对话缓存迁移后不再读取旧 Agent tool-call 结构。
+- [ ] P1 | 状态：未开始 | 删除无引用旧类型、prompt、状态字段、i18n 和测试 fixture。
+
+#### 阶段 Gate
+
+- [ ] P0 | 状态：未开始 | 全仓搜索确认 Agent 不再引用旧 `rawTools`、字段级工具和手写循环。
+- [ ] P0 | 状态：未开始 | Ask、Agent、MCP 和非 Agent 业务能力关键回归测试通过。
+- [ ] P0 | 状态：未开始 | `npm run web:type-check` 通过。
+
+### 十、测试分层与测试数据
+
+- [ ] P0 | 状态：未开始 | 建立 `ai/test` 测试模型和可控 Agent transport，覆盖文本、reasoning、tool、approval、source、file、error、finish 和 abort。
+- [ ] P0 | 状态：未开始 | Provider contract 测试覆盖非流式、SSE、tool arguments 分片、非法 JSON、未知工具、重复 toolCallId、半截流和空内容。
+- [ ] P0 | 状态：未开始 | Provider contract 测试覆盖 401、403、404、429、余额不足、超时、5xx 和非流式错误响应，不依赖真实账户制造错误。
+- [ ] P0 | 状态：未开始 | 状态机测试覆盖最大 step、重复只读调用、相同 ChangeSet、retryable、取消、online 切换和上下文丢失。
+- [ ] P0 | 状态：未开始 | UI 事件测试通过测试 transport 注入事件，不直接调用 Pinia 业务方法制造最终状态。
+- [ ] P0 | 状态：未开始 | 真实 DeepSeek smoke 仅覆盖 V4 Flash 普通文本、SSE、一次 tool call 和 V4 Pro 配置可用性。
+- [ ] P0 | 状态：未开始 | live-api 测试通过显式环境开关运行；缺少 DEEPSEEK_API_KEY 时只跳过 live-api 项目并输出变量名。
+- [ ] P0 | 状态：未开始 | 真实 API 测试限制调用次数和最大 token，失败不自动无限重试，不提交完整响应。
+- [ ] P0 | 状态：未开始 | 为每个测试创建独立离线项目、节点、变量、ChangeSet 和对话，使用稳定测试前缀。
+- [ ] P0 | 状态：未开始 | 测试结束清理项目、节点、变量、ChangeSet、对话缓存、Mock 日志、Mock 服务和 WebSocket 连接。
+- [ ] P0 | 状态：未开始 | 清理逻辑只删除测试前缀和本轮生成 ID，不删除用户数据；失败后仍可重复执行清理。
+- [ ] P1 | 状态：未开始 | 测试运行前保存 networkMode 和 AI 配置，结束后恢复原状态。
+- [ ] P1 | 状态：未开始 | 增加 IndexedDB 污染和敏感缓存残留断言。
+- [ ] P1 | 状态：未开始 | 测试名称表达用户场景和预期，关键操作添加必要注释，不创建无意义公共测试辅助函数。
+
+#### 最小验收集合
+
+- [ ] P0 | 状态：未开始 | Ask 流式回答、停止、错误和第二轮上下文通过。
+- [ ] P0 | 状态：未开始 | Agent 无工具、单工具、多工具、多轮、最大步数和停止通过。
+- [ ] P0 | 状态：未开始 | 创建项目、创建 HTTP、修改当前接口、删除与恢复、变量变更通过 ChangeSet 审批流程。
+- [ ] P0 | 状态：未开始 | 在线模式和 Web 构建所有 AI 入口与执行层均被阻止。
+- [ ] P0 | 状态：未开始 | 中文、英文、日文回复和生成内容跟随用户语言。
+- [ ] P0 | 状态：未开始 | 所有面板事件和终态的 UI contract 测试通过。
+
+### 十一、安全、脱敏与数据治理
+
+- [ ] P0 | 状态：未开始 | 建立统一 redaction 层，对事件、UI、缓存、日志、错误、trace 和测试输出使用同一敏感字段规则。
+- [ ] P0 | 状态：未开始 | Authorization、Cookie、Set-Cookie、apiKey、token、password、secret、key 和用户标记敏感变量默认脱敏。
+- [ ] P0 | 状态：未开始 | 原始工具数据只在当前执行内存中短暂存在；写入事件缓存前转换为脱敏 displayData。
+- [ ] P0 | 状态：未开始 | 给模型的 modelData 与给 UI/缓存的 displayData 分离，既不破坏执行又不泄露敏感值。
+- [ ] P0 | 状态：未开始 | API Key 不进入普通日志、analytics、错误上报、Playwright trace、截图或对话缓存。
+- [ ] P0 | 状态：未开始 | localStorage AI Key 不被本地备份静默导出；如允许导出必须显式确认并默认排除。
+- [ ] P0 | 状态：未开始 | AI 错误分类保留可读信息和稳定 errorCode，同时删除 Key、Header 值、请求体敏感内容和内部堆栈。
+- [ ] P0 | 状态：未开始 | Markdown 链接限制为允许协议并增加安全属性，禁止 HTML 注入和脚本执行。
+- [ ] P1 | 状态：未开始 | 记录 localStorage 保存 AI Key 的风险、适用边界和后续迁移到系统安全存储的计划。
+- [ ] P1 | 状态：未开始 | 对话缓存设置保留上限和清理入口，清理后验证不残留用户输入、审批 payload 和 ChangeSet 摘要。
+- [ ] P1 | 状态：未开始 | 审批卡片、ChangeSet diff、工具输入输出和来源摘要增加脱敏测试。
+
+### 十二、最终验证
+
+- [ ] P0 | 状态：未开始 | 执行 `npm run web:type-check` 并确保无类型错误。
+- [ ] P0 | 状态：未开始 | 检查新增代码没有 `console.log`、`$t(`、行内样式、`any`、`enum` 和不存在的 CSS 变量。
+- [ ] P0 | 状态：未开始 | 执行 `npm --prefix packages/web run pretest:e2e`。
+- [ ] P0 | 状态：未开始 | 执行 Agent/Ask/Provider/事件/UI/ChangeSet/审批关键确定性 Playwright 测试。
+- [ ] P0 | 状态：未开始 | 在存在真实 Key 时执行 live-api smoke 测试并记录调用次数、目的和 token usage。
+- [ ] P0 | 状态：未开始 | 执行 Electron 本地构建，确认 main/renderer bundle、preload 和 IPC 正常。
+- [ ] P0 | 状态：未开始 | 验证在线模式、Web 构建、缺少 Key、切换模式、关闭窗口和应用退出的运行边界。
+- [ ] P0 | 状态：未开始 | 验证现有 Qwen、Custom Provider、MCP、HTTP、Mock、WebSocket 和非 Agent 功能没有回归。
+- [ ] P0 | 状态：未开始 | 检查 diff 未修改 `share.html`、`testData.ts`，未包含真实 Key、响应快照或调试日志。
+- [ ] P0 | 状态：未开始 | 更新所有已完成 item 的状态和验证证据，确认没有 P0/P1 未完成或未解释阻塞项。

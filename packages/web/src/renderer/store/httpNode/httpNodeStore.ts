@@ -64,6 +64,8 @@ export const useHttpNode = defineStore('httpNode', () => {
   }, () => {
     return httpNodeVariableStore.objectVariable;
   }, () => {
+    return httpNodeVariableStore.requestTemporaryVariables;
+  }, () => {
     return httpNodeCookies.cookies;
   }], async () => {
     const fullUrl = await getUrl(httpNodeInfo.value);

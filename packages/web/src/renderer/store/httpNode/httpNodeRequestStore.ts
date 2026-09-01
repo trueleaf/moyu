@@ -28,6 +28,8 @@ export const useHttpNodeRequest = defineStore('httpNodeRequest', () => {
     return httpNodeStore.httpNodeInfo.item;
   }, () => {
     return httpNodeVariableStore.objectVariable;
+  }, () => {
+    return httpNodeVariableStore.requestTemporaryVariables;
   }], () => {
     getFullUrl()
   }, {

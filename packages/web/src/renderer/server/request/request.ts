@@ -73,15 +73,14 @@ const buildTemporaryApidocVariables = (temporaryVariables: Record<string, unknow
     }
   })
 }
-const getMergedTemplateVariables = (temporaryVariables?: Record<string, unknown> | null): ApidocVariable[] => {
+const getMergedTemplateVariables = (temporaryVariables?: Record<string, unknown> | null, nodeId?: string): ApidocVariable[] => {
   const variableStore = useVariable();
   const environmentStore = useEnvironment();
   const environmentVariables = environmentStore.buildCurrentEnvironmentApidocVariables();
-  if (!temporaryVariables || Object.keys(temporaryVariables).length === 0) {
-    return variableStore.variables.concat(environmentVariables);
-  }
-  const temporaryApidocVariables = buildTemporaryApidocVariables(temporaryVariables)
-  return variableStore.variables.concat(environmentVariables, temporaryApidocVariables);
+  const requestTemporaryVariables = nodeId ? variableStore.getRequestTemporaryVariables(nodeId) : {};
+  const requestTemporaryApidocVariables = buildTemporaryApidocVariables(requestTemporaryVariables)
+  const temporaryApidocVariables = buildTemporaryApidocVariables(temporaryVariables || {})
+  return variableStore.variables.concat(environmentVariables, requestTemporaryApidocVariables, temporaryApidocVariables);
 }
 const normalizeHeaderKey = (key: string): string => key.trim().toLowerCase()
 const findHeaderKey = <T extends string | null>(headers: Record<string, T>, key: string): string | undefined => {
@@ -113,9 +112,9 @@ const shouldAutoConvertLocalhostToIp = (): boolean => {
   const httpNodeConfigStore = useHttpNodeConfig();
   return httpNodeConfigStore.currentHttpNodeConfig.autoConvertLocalhostToIp;
 }
-const convertStringValueAsync = (data: JsonData, temporaryVariables?: Record<string, unknown> | null) => {
+const convertStringValueAsync = (data: JsonData, temporaryVariables?: Record<string, unknown> | null, nodeId?: string) => {
   const needConvertList: Promise<void>[] = [];
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, nodeId);
   const loop = (jsonData: JsonData) => {
     const isSimpleValue = (typeof jsonData === 'string' || typeof jsonData === 'number' || typeof jsonData === 'boolean' || jsonData === null);
     const isArray = Array.isArray(jsonData);
@@ -180,7 +179,7 @@ export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<str
   if (!httpNode.item.url.path || httpNode.item.url.path.trim() === '') {
     return '';
   }
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, httpNode._id);
   const environmentStore = useEnvironment();
   const objectVariable = await getObjectVariable(variables);
   const { url, queryParams, paths, } = httpNode.item;
@@ -211,7 +210,7 @@ export const getUrl = async (httpNode: HttpNode, temporaryVariables?: Record<str
   return fullUrl;
 }
 export const getWebSocketUrl = async (websocketNode: WebSocketNode, temporaryVariables?: Record<string, unknown> | null) => {
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, websocketNode._id);
   const objectVariable = await getObjectVariable(variables);
   const { url, queryParams } = websocketNode.item;
   const queryString = await getStringFromParams(queryParams, objectVariable, { checkSelect: true, addQuestionMark: true });
@@ -239,7 +238,7 @@ export const getWebSocketUrl = async (websocketNode: WebSocketNode, temporaryVar
  * 4.从cookie中读取请求头
  */
 export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultHeaders: ApidocProperty<'string'>[], fullUrl: string, temporaryVariables?: Record<string, unknown> | null) => {
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, websocketNode._id);
   const commonHeaderStore = useCommonHeader();
   const projectNavStore = useProjectNav();
   const { getMachtedCookies } = useCookies();
@@ -355,7 +354,7 @@ export const getWebSocketHeaders = async (websocketNode: WebSocketNode, defaultH
 };
 const getBody = async (apidoc: HttpNode, temporaryVariables?: Record<string, unknown> | null): Promise<GotRequestOptions['body']> => {
   const { changeResponseInfo, changeRequestState } = useHttpNodeResponse()
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, apidoc._id);
   const objectVariable = await getObjectVariable(variables)
   const { changeFormDataErrorInfoById } = useHttpNode()
   const { mode, urlencoded } = apidoc.item.requestBody;
@@ -380,7 +379,7 @@ const getBody = async (apidoc: HttpNode, temporaryVariables?: Record<string, unk
     })
     try {
       const jsonObject = json5.parse(replacedRawJson || 'null');
-      await Promise.all(convertStringValueAsync(jsonObject, temporaryVariables));
+      await Promise.all(convertStringValueAsync(jsonObject, temporaryVariables, apidoc._id));
       const stringBody = JSON.stringify(jsonObject).replace(/"([+-]?\d+n)"(?=\s*[,}\]])/g, (_, $2) => {
         return bigNumberMap[$2];
       })
@@ -461,7 +460,7 @@ const getBody = async (apidoc: HttpNode, temporaryVariables?: Record<string, unk
   * 3.从cookie中读取请求头
  */
 const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, unknown> | null) => {
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, apidoc._id);
   const commonHeaderStore = useCommonHeader();
   const { defaultHeaders } = useHttpNode();
   const projectNavStore = useProjectNav();
@@ -519,9 +518,9 @@ const getHeaders = async (apidoc: HttpNode, temporaryVariables?: Record<string, 
 }
 
 
-const convertPropertyToObject = async (properties: ApidocProperty<'string' | 'file'>[], temporaryVariables?: Record<string, unknown> | null): Promise<Record<string, string>> => {
+const convertPropertyToObject = async (properties: ApidocProperty<'string' | 'file'>[], temporaryVariables?: Record<string, unknown> | null, nodeId?: string): Promise<Record<string, string>> => {
   const result: Record<string, string> = {};
-  const variables = getMergedTemplateVariables(temporaryVariables);
+  const variables = getMergedTemplateVariables(temporaryVariables, nodeId);
   for (const prop of properties) {
     if (prop.select && prop.key.trim() !== '') {
       const realKey = await getCompiledTemplate(prop.key, variables);
@@ -568,6 +567,7 @@ export const sendRequest = async () => {
   const projectNavStore = useProjectNav();
   const selectedNav = projectNavStore.getSelectedNav(projectWorkbenchStore.projectId);
   const httpNodeStore = useHttpNode();
+  const variableStore = useVariable();
   const { updateCookiesBySetCookieHeader, getMachtedCookies } = useCookies();
   const { changeCancelRequestRef } = useHttpNodeRequest()
 
@@ -599,16 +599,16 @@ export const sendRequest = async () => {
   trackEvent('http_request_sent', { method: preSendMethod, node_id: copiedApidoc._id });
   const preSendBody = await getBody(copiedApidoc);
   const preSendHeaders = await getHeaders(copiedApidoc);
-  const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded);
-  const objPaths = await convertPropertyToObject(copiedApidoc.item.paths);
-  const objQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams);
+  const objUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded, null, copiedApidoc._id);
+  const objPaths = await convertPropertyToObject(copiedApidoc.item.paths, null, copiedApidoc._id);
+  const objQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams, null, copiedApidoc._id);
   changeRequestState('sending');
   const matchedCookies = getMachtedCookies(preSendUrl);
   const objCookies = await convertPropertyToObject(matchedCookies.map(cookie => ({
     key: safeDecodeURIComponent(cookie.name),
     value: safeDecodeURIComponent(cookie.value),
     select: true
-  })) as ApidocProperty<"string">[])
+  })) as ApidocProperty<"string">[], null, copiedApidoc._id)
   const preRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
   const preRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
   let finalSendHeaders = preSendHeaders;
@@ -616,7 +616,7 @@ export const sendRequest = async () => {
 
   let finalCookies = objCookies;
   let isCookieEditedByPreRequest = false;
-  let requestTemporaryVariables: Record<string, unknown> | null = null;
+  let requestTemporaryVariables: Record<string, unknown> | null = variableStore.getRequestTemporaryVariables(copiedApidoc._id);
   const normalizeCookieHeader = (cookieHeader: string) => {
     return cookieHeader
       .split(';')
@@ -635,7 +635,6 @@ export const sendRequest = async () => {
   };
   const httpNodeConfigStore = useHttpNodeConfig();
   const httpNodeConfigData = httpNodeConfigStore.currentHttpNodeConfig;
-  const variableStore = useVariable();
   const applyAfterScriptVariables = async (updatedVariables: Record<string, unknown>) => {
     const nextVariables = cloneDeep(variableStore.variables);
     Object.entries(updatedVariables).forEach(([key, value]) => {
@@ -690,7 +689,7 @@ export const sendRequest = async () => {
         key: safeDecodeURIComponent(cookie.name),
         value: safeDecodeURIComponent(cookie.value),
         select: true
-      })) as ApidocProperty<'string'>[], requestTemporaryVariables);
+      })) as ApidocProperty<'string'>[], requestTemporaryVariables, copiedApidoc._id);
     }
     const currentCookieHeader = getHeaderValue(finalSendHeaders, 'cookie');
     if (typeof currentCookieHeader === 'string') {
@@ -863,15 +862,15 @@ export const sendRequest = async () => {
           const afterRequestLocalStorage = httpNodeCache.getPreRequestLocalStorage(projectId);
           const afterRequestSessionStorage = httpNodeCache.getPreRequestSessionStorage(projectId);
           (async () => {
-            const latestUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded, requestTemporaryVariables);
-            const latestPaths = await convertPropertyToObject(copiedApidoc.item.paths, requestTemporaryVariables);
-            const latestQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams, requestTemporaryVariables);
+            const latestUrlencoded = await convertPropertyToObject(copiedApidoc.item.requestBody.urlencoded, requestTemporaryVariables, copiedApidoc._id);
+            const latestPaths = await convertPropertyToObject(copiedApidoc.item.paths, requestTemporaryVariables, copiedApidoc._id);
+            const latestQueryParams = await convertPropertyToObject(copiedApidoc.item.queryParams, requestTemporaryVariables, copiedApidoc._id);
             const latestMatchedCookies = getMachtedCookies(url);
             const afterScriptCookies = await convertPropertyToObject(latestMatchedCookies.map(cookie => ({
               key: safeDecodeURIComponent(cookie.name),
               value: safeDecodeURIComponent(cookie.value),
               select: true
-            })) as ApidocProperty<"string">[], requestTemporaryVariables);
+            })) as ApidocProperty<"string">[], requestTemporaryVariables, copiedApidoc._id);
             const responseCookies = setCookieStrList.reduce((acc, cookieStr) => {
               const parsedCookie = parse([cookieStr], { map: false })[0];
               if (parsedCookie?.name) {
@@ -956,6 +955,7 @@ export const sendRequest = async () => {
   const currentScriptVariables = {
     ...globalVariables,
     ...currentEnvironmentVariables,
+    ...variableStore.getRequestTemporaryVariables(copiedApidoc._id),
   };
   const initDataMessage: InitDataMessage = {
     type: 'initData',
@@ -1106,9 +1106,9 @@ export const sendRequest = async () => {
       finalCookies = e.data.value;
       isCookieEditedByPreRequest = true;
     } else if (e.data.type === 'pre-request-set-variable') {
-      requestTemporaryVariables = { ...e.data.value };
+      requestTemporaryVariables = { ...variableStore.getRequestTemporaryVariables(copiedApidoc._id), ...e.data.value };
     } else if (e.data.type === 'pre-request-delete-variable') {
-      requestTemporaryVariables = { ...e.data.value };
+      requestTemporaryVariables = { ...variableStore.getRequestTemporaryVariables(copiedApidoc._id), ...e.data.value };
     } else if (e.data.type === 'pre-request-set-session-storage') {
       httpNodeCache.setPreRequestSessionStorage(projectId, e.data.value);
     } else if (e.data.type === 'pre-request-delete-session-storage') {

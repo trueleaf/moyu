@@ -7,6 +7,7 @@ import { router } from '@/router';
 export const useVariable = defineStore('projectVariable', () => {
   const variables = ref<ApidocVariable[]>([]);
   const objectVariable = ref<Record<string, unknown>>({})
+  const requestTemporaryVariables = ref<Record<string, Record<string, string>>>({})
   // 同步变量到主进程
   const syncVariablesToMainProcess = async () => {
     if (!window.electronAPI?.mock?.syncProjectVariables) {
@@ -39,10 +40,27 @@ export const useVariable = defineStore('projectVariable', () => {
     // 同步到主进程
     syncVariablesToMainProcess();
   }
+  // 设置请求临时变量
+  const setRequestTemporaryVariable = (nodeId: string, name: string, value: string): void => {
+    requestTemporaryVariables.value = {
+      ...requestTemporaryVariables.value,
+      [nodeId]: {
+        ...requestTemporaryVariables.value[nodeId],
+        [name]: value,
+      },
+    }
+  }
+  // 获取请求临时变量
+  const getRequestTemporaryVariables = (nodeId: string): Record<string, string> => {
+    return requestTemporaryVariables.value[nodeId] || {}
+  }
   return {
     variables,
     objectVariable,
+    requestTemporaryVariables,
     changeVariableById,
     replaceVariables,
+    setRequestTemporaryVariable,
+    getRequestTemporaryVariables,
   }
 })

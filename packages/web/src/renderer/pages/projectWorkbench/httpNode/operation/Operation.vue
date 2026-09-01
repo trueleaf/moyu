@@ -23,10 +23,10 @@
         @before-paste="handleBeforePaste"
       >
         <template #variable="{ label }">
-          <div v-if="getProjectVariable(label)" class="variable-popover">
+          <div v-if="getVariableSource(label)" class="variable-popover">
             <div class="variable-name">{{ t('变量名称') }}：{{ label }}</div>
-            <div class="variable-scope">{{ t('当前项目变量') }}</div>
-            <template v-if="getProjectVariable(label)?.type === 'string'">
+            <div class="variable-scope">{{ getVariableScope(label) }}</div>
+            <template v-if="getVariableSource(label) === 'project' && getProjectVariable(label)?.type === 'string'">
               <div class="variable-field">
                 <span>{{ t('变量值') }}</span>
                 <ElInput
@@ -47,7 +47,7 @@
               </div>
             </template>
             <template v-else>
-              <div class="variable-value">{{ t('变量值') }}：{{ getVariableValue(label) }}</div>
+              <div class="variable-value">{{ t('变量值') }}：{{ getResolvedVariableValue(label) }}</div>
               <el-button size="small" type="primary" link @click="handleGoToVariableManage">
                 {{ t('前往变量管理') }}
               </el-button>
@@ -55,7 +55,8 @@
           </div>
           <div v-else-if="isDirectVariable(label)" class="variable-popover">
             <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
-            <div class="variable-scope">{{ t('当前项目变量') }}</div>
+            <div class="variable-scope">{{ t('项目变量中未找到') }}</div>
+            <div class="variable-description">{{ t('发送请求时变量将无法解析') }}</div>
             <div class="variable-field">
               <span>{{ t('变量值') }}</span>
               <ElInput
@@ -67,8 +68,11 @@
               />
             </div>
             <div class="variable-actions">
+              <ElButton data-testid="url-variable-temporary-btn" size="small" @click="handleSetRequestTemporaryVariable(label)">
+                {{ t('设为请求临时变量') }}
+              </ElButton>
               <ElButton data-testid="url-variable-create-btn" size="small" type="primary" :loading="quickVariableSaving" @click="handleSaveQuickVariable(label)">
-                {{ t('确认添加') }}
+                {{ t('创建项目变量') }}
               </ElButton>
               <ElButton size="small" link @click="handleGoToVariableManage">
                 {{ t('前往变量管理') }}
@@ -134,6 +138,7 @@ import { isCurlCommand, parseCurlToHttpNode } from '@/helper/curlParser'
 import { request } from '@/api/api'
 import { nodeVariableCache } from '@/cache/variable/nodeVariableCache'
 import { useRuntime } from '@/store/runtime/runtimeStore'
+import { useEnvironment } from '@/store/projectWorkbench/environmentStore'
 import type { ApidocVariable, CommonResponse } from '@src/types'
 
 const projectNavStore = useProjectNav()
@@ -143,6 +148,7 @@ const httpNodeResponseStore = useHttpNodeResponse()
 const httpNodeRequestStore = useHttpNodeRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
 const runtimeStore = useRuntime()
+const environmentStore = useEnvironment()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
@@ -158,13 +164,56 @@ const currentSelectNav = computed(() => {
 | 变量相关
 |--------------------------------------------------------------------------
 */
-// 获取变量运行时值
-const getVariableValue = (label: string) => {
-  return variableStore.objectVariable[label]
-}
 // 获取当前项目变量
 const getProjectVariable = (label: string) => {
   return variableStore.variables.find(item => item.name === label)
+}
+// 获取当前环境变量
+const getEnvironmentVariable = (label: string) => {
+  return environmentStore.buildCurrentEnvironmentApidocVariables().find(item => item.name === label)
+}
+// 获取请求临时变量
+const getRequestTemporaryVariable = (label: string): string | undefined => {
+  const nodeId = currentSelectNav.value?._id
+  if (!nodeId) {
+    return undefined
+  }
+  return variableStore.getRequestTemporaryVariables(nodeId)[label]
+}
+// 获取变量来源
+const getVariableSource = (label: string): 'request' | 'environment' | 'project' | null => {
+  if (getRequestTemporaryVariable(label) !== undefined) {
+    return 'request'
+  }
+  if (getEnvironmentVariable(label)) {
+    return 'environment'
+  }
+  if (getProjectVariable(label)) {
+    return 'project'
+  }
+  return null
+}
+// 获取变量作用域名称
+const getVariableScope = (label: string): string => {
+  const source = getVariableSource(label)
+  if (source === 'request') {
+    return t('请求临时变量')
+  }
+  if (source === 'environment') {
+    return t('当前环境变量')
+  }
+  return t('当前项目变量')
+}
+// 获取变量最终值
+const getResolvedVariableValue = (label: string): string => {
+  const source = getVariableSource(label)
+  if (source === 'request') {
+    return getRequestTemporaryVariable(label) || ''
+  }
+  if (source === 'environment') {
+    return getEnvironmentVariable(label)?.value || ''
+  }
+  return getProjectVariable(label)?.value || ''
 }
 // 判断是否为可快速创建的直接变量
 const isDirectVariable = (label: string) => {
@@ -181,6 +230,18 @@ const getQuickVariableValue = (label: string) => {
 const updateQuickVariableValue = (label: string, value: string) => {
   quickVariableLabel.value = label
   quickVariableValue.value = value
+}
+// 设置请求临时变量
+const handleSetRequestTemporaryVariable = (label: string): void => {
+  const nodeId = currentSelectNav.value?._id
+  if (!nodeId) {
+    return
+  }
+  variableStore.setRequestTemporaryVariable(nodeId, label, getQuickVariableValue(label))
+  quickVariableLabel.value = ''
+  quickVariableValue.value = ''
+  urlRichInputRef.value?.hideVariablePopover()
+  ElMessage.success(t('保存成功'))
 }
 // 同步在线项目变量
 const syncOnlineProjectVariables = async () => {
@@ -475,6 +536,11 @@ watch(
         word-break: break-all;
       }
       .variable-scope {
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+        font-size: 12px;
+      }
+      .variable-description {
         margin-bottom: 8px;
         color: var(--text-secondary);
         font-size: 12px;
