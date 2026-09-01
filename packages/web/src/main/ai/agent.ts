@@ -1,25 +1,9 @@
 import { got } from 'got';
-import { getLLMConfigError, getLLMRequestError, resolveLLMProvider } from '../../config/llmProviders';
+import { buildLLMRequestBody, getLLMConfigError, getLLMRequestError, resolveLLMProvider } from '../../config/llmProviders';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
 
 // AI 请求超时时间（60秒）
 const AI_REQUEST_TIMEOUT = 60 * 1000;
-// 解析额外请求体
-const parseExtraBody = (extraBody?: string): Record<string, unknown> => {
-  const extraBodyText = extraBody?.trim() ?? '';
-  if (!extraBodyText) {
-    return {};
-  }
-  try {
-    const parsed: unknown = JSON.parse(extraBodyText);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-  } catch {
-    return {};
-  }
-  return {};
-};
 // LLM 客户端类
 export class LLMClient {
   private config: LLMProviderSetting = null!;
@@ -35,12 +19,11 @@ export class LLMClient {
     const config = resolveLLMProvider(override ?? this.config);
     const validationError = getLLMConfigError(config);
     if (validationError) throw new Error(validationError);
-    const { apiKey, baseURL, model, customHeaders, extraBody } = config;
+    const { apiKey, baseURL, model, customHeaders } = config;
     if (!baseURL || !model) {
       throw new Error('请先配置 Base URL 和 Model');
     }
-    const resolvedExtraBody = parseExtraBody(extraBody);
-    const requestBody = { ...resolvedExtraBody, ...body, model, stream: false };
+    const requestBody = buildLLMRequestBody(body, config, false);
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     };
@@ -79,7 +62,7 @@ export class LLMClient {
       };
     }
     const config = resolveLLMProvider(override ?? this.config);
-    const { apiKey, baseURL, model, customHeaders, extraBody } = config;
+    const { apiKey, baseURL, customHeaders } = config;
     const validationError = getLLMConfigError(config);
     if (validationError) {
       callbacks.onError(new Error(validationError));
@@ -87,8 +70,7 @@ export class LLMClient {
         abort: () => abortController.abort()
       };
     }
-    const resolvedExtraBody = parseExtraBody(extraBody);
-    const requestBody = { ...resolvedExtraBody, ...body, model, stream: true };
+    const requestBody = buildLLMRequestBody(body, config, true);
     const headers: Record<string, string> = {
       'Content-Type': 'application/json'
     };

@@ -10,9 +10,11 @@ export type CustomHeader = {
 }
 export type LLMProviderType = 'OpenAICompatible';
 export type LLMVendor = 'deepseek' | 'qwen' | 'custom';
+export type LLMThinkingMode = 'default' | 'enabled' | 'disabled';
+export type LLMReasoningEffort = 'default' | 'low' | 'high' | 'max';
 export type LLMProviderProfiles = Partial<Record<LLMVendor, LLMProviderSetting>>;
 export type LLMProviderCacheData = {
-  version: 1;
+  version: 2;
   activeVendor: LLMVendor;
   profiles: LLMProviderProfiles;
 }
@@ -26,6 +28,10 @@ export type LLMProviderSetting = {
   model: string;
   customHeaders: CustomHeader[];
   extraBody: string;
+  thinkingMode: LLMThinkingMode;
+  reasoningEffort: LLMReasoningEffort;
+  thinkingBudget: number | null;
+  maxTokens: number | null;
 }
 
 export type OpenAiToolCall = {

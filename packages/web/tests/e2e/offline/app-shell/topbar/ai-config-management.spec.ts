@@ -75,8 +75,9 @@ test.describe('AiConfigManagement', () => {
     await form.getByPlaceholder('请输入 API Key').fill('new-deepseek-key');
     await form.getByTestId('llm-save').click();
     const cache = await contentPage.evaluate(() => JSON.parse(localStorage.getItem('apiflow/ai/llmProvider') || '{}'));
-    expect(cache.profiles.custom).toMatchObject({ id: 'legacy-id', apiKey: 'legacy-key', customHeaders: [{ key: 'X-Legacy', value: 'legacy-header' }], extraBody: '{"temperature":0.2}' });
-    expect(cache.profiles.deepseek).toMatchObject({ apiKey: 'new-deepseek-key', baseURL: 'https://api.deepseek.com/chat/completions', extraBody: '', customHeaders: [] });
+    expect(cache).toMatchObject({ version: 2 });
+    expect(cache.profiles.custom).toMatchObject({ id: 'legacy-id', apiKey: 'legacy-key', customHeaders: [{ key: 'X-Legacy', value: 'legacy-header' }], extraBody: '{"temperature":0.2}', thinkingMode: 'default', reasoningEffort: 'default', thinkingBudget: null, maxTokens: null });
+    expect(cache.profiles.deepseek).toMatchObject({ apiKey: 'new-deepseek-key', baseURL: 'https://api.deepseek.com/chat/completions', extraBody: '', customHeaders: [], thinkingMode: 'default' });
     await form.getByTestId('llm-vendor-select').click();
     await contentPage.getByRole('option', { name: '自定义（OpenAI Compatible）', exact: true }).click();
     await form.getByPlaceholder('请输入 API Key').fill('');
@@ -89,6 +90,45 @@ test.describe('AiConfigManagement', () => {
     await settings.getByPlaceholder('请输入 API Base URL').fill('invalid-url');
     await expect(settings.getByTestId('llm-save')).toBeDisabled();
     await expect(settings.getByTestId('llm-test-send')).toBeDisabled();
+  });
+  test('官方厂商高级配置按厂商保存并恢复', async ({ topBarPage, contentPage, clearCache }) => {
+    test.setTimeout(60000);
+    await clearCache();
+    await topBarPage.getByTestId('header-ai-btn').click();
+    const dialog = contentPage.locator('.ai-dialog');
+    await dialog.getByRole('button', { name: '设置', exact: true }).click();
+    await dialog.getByRole('button', { name: '更多设置' }).click();
+    const settings = contentPage.locator('.ai-settings-container');
+    await settings.getByPlaceholder('请输入 API Key').fill('deepseek-advanced-key');
+    await settings.getByTestId('llm-advanced-toggle').click();
+    await settings.getByTestId('llm-thinking-mode').getByText('开启思考', { exact: true }).click();
+    await settings.getByTestId('llm-reasoning-effort').click();
+    await contentPage.getByRole('option', { name: '最大', exact: true }).click();
+    await settings.getByTestId('llm-max-tokens').locator('input').fill('4096');
+    await settings.getByTestId('llm-save').click();
+    await settings.getByTestId('llm-vendor-select').click();
+    await contentPage.getByRole('option', { name: '通义千问（阿里云百炼）', exact: true }).click();
+    await settings.getByPlaceholder('请输入 API Key').fill('qwen-advanced-key');
+    await settings.getByTestId('llm-thinking-mode').getByText('开启思考', { exact: true }).click();
+    await expect(settings.getByTestId('llm-reasoning-effort')).toHaveCount(0);
+    await expect(settings.getByTestId('llm-thinking-budget').locator('input')).toBeEnabled();
+    await settings.getByTestId('llm-thinking-budget').locator('input').fill('2048');
+    await settings.getByTestId('llm-max-tokens').locator('input').fill('8192');
+    await settings.getByTestId('llm-save').click();
+    const cache = await contentPage.evaluate(() => JSON.parse(localStorage.getItem('apiflow/ai/llmProvider') || '{}'));
+    expect(cache).toMatchObject({
+      version: 2,
+      activeVendor: 'qwen',
+      profiles: {
+        deepseek: { thinkingMode: 'enabled', reasoningEffort: 'max', thinkingBudget: null, maxTokens: 4096 },
+        qwen: { thinkingMode: 'enabled', reasoningEffort: 'default', thinkingBudget: 2048, maxTokens: 8192 },
+      },
+    });
+    await settings.getByTestId('llm-vendor-select').click();
+    await contentPage.getByRole('option', { name: 'DeepSeek', exact: true }).click();
+    await expect(settings.getByTestId('llm-thinking-mode').getByRole('radio', { name: '开启思考' })).toBeChecked();
+    await expect(settings.getByTestId('llm-reasoning-effort')).toContainText('最大');
+    await expect(settings.getByTestId('llm-max-tokens').locator('input')).toHaveValue('4096');
   });
   test('未保存草稿可测试普通及流式请求，错误提示脱敏且不覆盖已保存配置', async ({ topBarPage, contentPage, clearCache }) => {
     test.setTimeout(60000);
@@ -130,7 +170,13 @@ test.describe('AiConfigManagement', () => {
       await settings.getByPlaceholder('请输入 API Key').fill('secret-draft-key');
       await settings.getByTestId('llm-test-send').click();
       await expect(settings.locator('.response-content')).toContainText('普通验证成功');
-      await expect(settings.locator('.reasoning-area')).toBeVisible();
+      await expect(settings.getByTestId('llm-request-summary')).toContainText('draft-model');
+      await settings.getByRole('tab', { name: '思考过程' }).click();
+      await expect(settings.locator('.reasoning-content')).toContainText('模拟推理');
+      await settings.getByRole('tab', { name: '请求详情' }).click();
+      await expect(settings.locator('.request-json')).toContainText('"model": "draft-model"');
+      await expect(settings.locator('.request-json')).toContainText('"stream": false');
+      await settings.getByRole('tab', { name: '响应结果' }).click();
       await settings.getByTestId('llm-test-stream').click();
       await expect(settings.locator('.response-content')).toContainText('流式验证成功');
       expect(requests).toHaveLength(2);

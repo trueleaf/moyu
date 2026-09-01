@@ -23,6 +23,7 @@
           :response-time="responseTime"
           :use-markdown="useMarkdown"
           :request-body="requestBody"
+          :request-meta="requestMeta"
         />
       </div>
     </div>
@@ -43,8 +44,8 @@ import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
-import type { ChatRequestBody, OpenAiStreamChunk, LLMProviderSetting } from '@src/types/ai/agent.type'
-import { getLLMConfigError } from '@src/config/llmProviders'
+import type { ChatRequestBody, OpenAiStreamChunk, LLMProviderSetting, LLMThinkingMode, LLMVendor } from '@src/types/ai/agent.type'
+import { buildLLMRequestBody, getLLMConfigError, resolveLLMProvider } from '@src/config/llmProviders'
 
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
@@ -57,11 +58,18 @@ const isStreaming = ref(false)
 const hasError = ref(false)
 const responseTime = ref<number | null>(null)
 const useMarkdown = ref(false)
-const requestBody = ref<ChatRequestBody | null>(null)
+const requestBody = ref<Record<string, unknown> | null>(null)
+const requestMeta = ref<{ vendor: LLMVendor; model: string; stream: boolean; thinkingMode: LLMThinkingMode } | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 let streamBuffer = ''
 let requestVersion = 0
 let requestAbort: AbortController | null = null
+// 更新调试请求详情
+const updateDebugRequest = (body: ChatRequestBody, provider: LLMProviderSetting, stream: boolean) => {
+  const resolved = resolveLLMProvider(provider)
+  requestBody.value = buildLLMRequestBody(body, resolved, stream)
+  requestMeta.value = { vendor: resolved.vendor ?? 'custom', model: resolved.model, stream, thinkingMode: resolved.thinkingMode }
+}
 // 发送测试请求（非流式）
 const handleSend = async (provider: LLMProviderSetting) => {
   if (isLoading.value) return
@@ -81,7 +89,7 @@ const handleSend = async (provider: LLMProviderSetting) => {
   const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
   }
-  requestBody.value = body
+  updateDebugRequest(body, provider, false)
   const startTime = Date.now()
   try {
     const response = await llmClientStore.chat(body, requestAbort.signal, provider)
@@ -121,7 +129,7 @@ const handleStreamSend = (provider: LLMProviderSetting) => {
   const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
   }
-  requestBody.value = body
+  updateDebugRequest(body, provider, true)
   const startTime = Date.now()
   const decoder = new TextDecoder()
   const parseSseChunk = (chunkText: string) => {

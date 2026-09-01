@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks, LLMProviderProfiles, LLMVendor } from '@src/types/ai/agent.type';
 import { logger } from '@/helper/logger';
 import { isElectron } from '@/helper';
-import { createLLMProvider, resolveLLMProvider, getLLMConfigError, getLLMRequestError } from '@src/config/llmProviders';
+import { buildLLMRequestBody, createLLMProvider, resolveLLMProvider, getLLMConfigError, getLLMRequestError } from '@src/config/llmProviders';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { appSettingsCache } from '@/cache/settings/appSettingsCache';
 
@@ -11,22 +11,6 @@ type ResponseWrapperResult = { code: number; msg: string; data: unknown };
 type ProxyControllerResult = { success: boolean; data?: unknown; message?: string };
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
-// 解析额外请求体
-const parseExtraBody = (extraBody?: string): Record<string, unknown> => {
-  const extraBodyText = extraBody?.trim() ?? '';
-  if (!extraBodyText) {
-    return {};
-  }
-  try {
-    const parsed: unknown = JSON.parse(extraBodyText);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-  } catch {
-    return {};
-  }
-  return {};
-};
 const getProxyUrl = (): string => {
   const proxyServerUrl = appSettingsCache.getProxyServerUrl().trim();
   const normalizedProxyServerUrl = proxyServerUrl.endsWith('/') ? proxyServerUrl.slice(0, -1) : proxyServerUrl;
@@ -72,7 +56,7 @@ const buildProxyBody = (targetUrl: string, headers: Record<string, string>, body
 // Web 模式下调用用户配置的 LLM API
 const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
   const targetUrl = config.baseURL;
-  const requestBody = { ...body, model: config.model, stream: false };
+  const requestBody = buildLLMRequestBody(body, config, false);
   const requestInfo = { url: targetUrl, method: 'POST', body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   if (!config.baseURL || !config.model) {
@@ -87,15 +71,13 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
   config.customHeaders?.forEach(h => {
     if (h.key) headers[h.key] = h.value;
   });
-  const extraBody = parseExtraBody(config.extraBody);
-  const finalBody = { ...extraBody, ...requestBody };
   try {
     const response = await fetch(getProxyUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(buildProxyBody(targetUrl, headers, finalBody, false)),
+      body: JSON.stringify(buildProxyBody(targetUrl, headers, requestBody, false)),
       signal,
     });
     
@@ -129,7 +111,7 @@ const webChat = async (body: ChatRequestBody, config: LLMProviderSetting, signal
 const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callbacks: ChatStreamCallbacks) => {
   const abortController = new AbortController();
   const targetUrl = config.baseURL;
-  const requestBody = { ...body, model: config.model, stream: true };
+  const requestBody = buildLLMRequestBody(body, config, true);
   const requestInfo = { url: targetUrl, method: 'POST', body: requestBody };
   logger.info('llmRequestParams', { payload: JSON.stringify(requestInfo) });
   
@@ -148,14 +130,12 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
       config.customHeaders?.forEach(h => {
         if (h.key) headers[h.key] = h.value;
       });
-      const extraBody = parseExtraBody(config.extraBody);
-      const finalBody = { ...extraBody, ...requestBody };
       const response = await fetch(getProxyUrl(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(buildProxyBody(targetUrl, headers, finalBody, true)),
+        body: JSON.stringify(buildProxyBody(targetUrl, headers, requestBody, true)),
         signal: abortController.signal,
       });
       if (!response.ok) {
@@ -214,7 +194,7 @@ export const useLLMClientStore = defineStore('llmClientStore', () => {
     const next = resolveLLMProvider({ ...LLMConfig.value, ...updates });
     const vendor = next.vendor ?? 'custom';
     const nextProfiles = { ...profiles.value, [vendor]: next };
-    if (!llmProviderCache.setLLMProviders({ version: 1, activeVendor: vendor, profiles: nextProfiles })) return false;
+    if (!llmProviderCache.setLLMProviders({ version: 2, activeVendor: vendor, profiles: nextProfiles })) return false;
     profiles.value = nextProfiles;
     LLMConfig.value = next;
     syncConfig(next);

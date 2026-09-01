@@ -140,6 +140,10 @@ export const generateCustomLLMProvider = (): LLMProviderSetting => ({
   model: '',
   customHeaders: [],
   extraBody: '',
+  thinkingMode: 'default',
+  reasoningEffort: 'default',
+  thinkingBudget: null,
+  maxTokens: null,
 })
 // 生成 Agent 执行消息
 export const generateAgentExecutionMessage = (_sessionId: string): import('@src/types/ai').ConversationMessage => ({

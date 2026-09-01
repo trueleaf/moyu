@@ -1,9 +1,11 @@
 import type { LLMProviderCacheData, LLMProviderProfiles, LLMProviderSetting, LLMVendor } from '@src/types/ai/agent.type';
-import { createLLMProvider, isLLMVendor, resolveLLMProvider } from '@src/config/llmProviders';
+import { createLLMProvider, isLLMReasoningEffort, isLLMThinkingMode, isLLMVendor, resolveLLMProvider } from '@src/config/llmProviders';
 import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
 // 校验缓存对象
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
+// 读取可选的正整数
+const readPositiveInteger = (value: unknown): number | null => typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : null;
 // 读取配置字段并保留旧版自定义参数
 const readProvider = (value: unknown, vendor: LLMVendor): LLMProviderSetting | null => {
   if (!isRecord(value) || typeof value.baseURL !== 'string' || typeof value.model !== 'string') return null;
@@ -19,6 +21,10 @@ const readProvider = (value: unknown, vendor: LLMVendor): LLMProviderSetting | n
       .filter(header => typeof header.key === 'string' && typeof header.value === 'string')
       .map(header => ({ key: String(header.key), value: String(header.value) })) : [],
     extraBody: typeof value.extraBody === 'string' ? value.extraBody : '',
+    thinkingMode: isLLMThinkingMode(value.thinkingMode) ? value.thinkingMode : 'default',
+    reasoningEffort: isLLMReasoningEffort(value.reasoningEffort) ? value.reasoningEffort : 'default',
+    thinkingBudget: readPositiveInteger(value.thinkingBudget),
+    maxTokens: readPositiveInteger(value.maxTokens),
   });
 };
 class LLMProviderCache {
@@ -34,16 +40,16 @@ class LLMProviderCache {
       if (cached) {
         const parsed: unknown = JSON.parse(cached);
         if (!isRecord(parsed)) return null;
-        if (parsed.version === 1 && isLLMVendor(parsed.activeVendor) && isRecord(parsed.profiles)) {
+        if ((parsed.version === 1 || parsed.version === 2) && isLLMVendor(parsed.activeVendor) && isRecord(parsed.profiles)) {
           const profiles: LLMProviderProfiles = {};
           for (const vendor of ['deepseek', 'qwen', 'custom'] as const) {
             const provider = readProvider(parsed.profiles[vendor], vendor);
             if (provider) profiles[vendor] = provider;
           }
-          return { version: 1, activeVendor: parsed.activeVendor, profiles };
+          return { version: 2, activeVendor: parsed.activeVendor, profiles };
         }
         const custom = readProvider(parsed, 'custom');
-        return custom ? { version: 1, activeVendor: 'custom', profiles: { custom } } : null;
+        return custom ? { version: 2, activeVendor: 'custom', profiles: { custom } } : null;
       }
     } catch {
       logger.error('获取 LLM Provider 配置失败');

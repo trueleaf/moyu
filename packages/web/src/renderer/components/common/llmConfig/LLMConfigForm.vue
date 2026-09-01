@@ -42,6 +42,46 @@
           <a :href="preset.docsURL" target="_blank" rel="noopener noreferrer"><ExternalLink :size="14" />{{ t('官方模型文档') }}</a>
         </div>
       </div>
+      <div v-if="preset && compact" class="advanced-summary" data-testid="llm-advanced-summary">
+        <Brain :size="15" />
+        <span>{{ t('深度思考') }}：{{ advancedSummary }}</span>
+      </div>
+      <div v-if="preset && !compact" class="advanced-section">
+        <button class="advanced-toggle" type="button" :aria-expanded="advancedOpen" data-testid="llm-advanced-toggle" @click="advancedOpen = !advancedOpen">
+          <span><Settings2 :size="16" />{{ t('高级配置') }}</span>
+          <ChevronDown :size="16" :class="{ expanded: advancedOpen }" />
+        </button>
+        <div v-show="advancedOpen" class="advanced-fields">
+          <div v-if="preset.capabilities.thinking" class="form-item">
+            <label class="form-label">{{ t('深度思考') }}</label>
+            <el-radio-group :key="draft.vendor" v-model="draft.thinkingMode" size="small" data-testid="llm-thinking-mode">
+              <el-radio-button value="default">{{ t('跟随模型默认') }}</el-radio-button>
+              <el-radio-button value="enabled">{{ t('开启思考') }}</el-radio-button>
+              <el-radio-button value="disabled">{{ t('关闭思考') }}</el-radio-button>
+            </el-radio-group>
+            <span class="field-hint">{{ t('跟随模型默认时不会发送思考控制参数') }}</span>
+          </div>
+          <div v-if="supportsReasoningEffort" class="form-item">
+            <label class="form-label">{{ t('思考强度') }}</label>
+            <el-select v-model="draft.reasoningEffort" :disabled="draft.thinkingMode !== 'enabled'" data-testid="llm-reasoning-effort">
+              <el-option :label="t('默认')" value="default" />
+              <el-option :label="t('低')" value="low" />
+              <el-option :label="t('高')" value="high" />
+              <el-option :label="t('最大')" value="max" />
+            </el-select>
+          </div>
+          <div v-if="preset.capabilities.thinkingBudget" class="form-item">
+            <label class="form-label">{{ t('思考预算') }}</label>
+            <el-input-number :key="`${draft.vendor}-${draft.thinkingMode}`" v-model="draft.thinkingBudget" :disabled="draft.thinkingMode !== 'enabled'" :min="1" :step="1" :precision="0" controls-position="right" data-testid="llm-thinking-budget" />
+            <span class="field-hint">{{ t('限制思考过程最大 Token 数，留空使用模型默认值') }}</span>
+          </div>
+          <div v-if="preset.capabilities.maxTokens" class="form-item">
+            <label class="form-label">{{ t('最大输出 Token') }}</label>
+            <el-input-number v-model="draft.maxTokens" :min="1" :step="1" :precision="0" controls-position="right" data-testid="llm-max-tokens" />
+            <span class="field-hint">{{ t('留空使用模型默认的最大输出长度') }}</span>
+          </div>
+        </div>
+      </div>
       <template v-if="!preset && !compact">
         <div class="form-item">
           <label class="form-label">{{ t('Custom Headers') }} <span class="field-hint">{{ t('(可选)') }}</span></label>
@@ -73,7 +113,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ExternalLink, KeyRound, Plus, Trash2 } from 'lucide-vue-next'
+import { Brain, ChevronDown, ExternalLink, KeyRound, Plus, Settings2, Trash2 } from 'lucide-vue-next'
 import { createLLMProvider, getLLMConfigError, isLLMVendor, llmPresets, llmPresetsCheckedAt, resolveLLMProvider } from '@src/config/llmProviders'
 import type { LLMProviderProfiles } from '@src/types/ai/agent.type'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
@@ -86,8 +126,17 @@ const draft = ref(resolveLLMProvider(store.LLMConfig))
 const drafts = ref<LLMProviderProfiles>({})
 const preset = computed(() => draft.value.vendor && draft.value.vendor !== 'custom' ? llmPresets[draft.value.vendor] : null)
 const knownModel = computed(() => preset.value?.models.some(model => model === draft.value.model) ?? false)
+const supportsReasoningEffort = computed(() => (preset.value?.capabilities.reasoningEfforts.length ?? 0) > 0)
 const resolvedConfig = computed(() => resolveLLMProvider(draft.value))
 const validationError = computed(() => getLLMConfigError(resolvedConfig.value))
+const advancedOpen = ref(false)
+const advancedSummary = computed(() => {
+  if (draft.value.thinkingMode === 'default') return t('跟随模型默认')
+  if (draft.value.thinkingMode === 'disabled') return t('已关闭')
+  if (draft.value.vendor === 'deepseek' && draft.value.reasoningEffort !== 'default') return t('已开启，思考强度：{level}', { level: t(draft.value.reasoningEffort === 'low' ? '低' : draft.value.reasoningEffort === 'max' ? '最大' : '高') })
+  if (draft.value.vendor === 'qwen' && draft.value.thinkingBudget !== null) return t('已开启，思考预算：{count} Tokens', { count: draft.value.thinkingBudget })
+  return t('已开启')
+})
 // 切换厂商并保留当前表单草稿
 const handleVendorChange = (vendor: unknown) => {
   if (!isLLMVendor(vendor)) return
@@ -126,6 +175,17 @@ watch(() => store.LLMConfig, value => {
 .preset-info p { margin: 0; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
 .preset-links { display: flex; gap: 16px; flex-wrap: wrap; }
 .preset-links a { display: inline-flex; gap: 4px; align-items: center; font-size: 12px; color: var(--text-primary); }
+.advanced-summary { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-secondary); font-size: 12px; }
+.advanced-section { border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; }
+.advanced-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px; border: none; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; }
+.advanced-toggle span { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; }
+.advanced-toggle svg { transition: transform 0.2s ease; }
+.advanced-toggle svg.expanded { transform: rotate(180deg); }
+.advanced-fields { display: flex; flex-direction: column; gap: 16px; padding: 16px 12px; border-top: 1px solid var(--border-light); }
+.advanced-fields :deep(.el-input-number) { width: 100%; }
+.advanced-fields :deep(.el-radio-group) { display: flex; }
+.advanced-fields :deep(.el-radio-button) { flex: 1; }
+.advanced-fields :deep(.el-radio-button__inner) { width: 100%; }
 .header-row { display: flex; gap: 8px; align-items: center; }
 .header-row .el-input { min-width: 0; }
 .add-header { align-self: flex-start; }
