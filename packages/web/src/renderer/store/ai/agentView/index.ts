@@ -350,7 +350,7 @@ export const useAgentViewStore = defineStore('agentView', () => {
           handleStreamData(requestId, chunkStr);
         },
         onEnd: () => {
-          handleStreamData(requestId, textDecoder.decode());
+          handleStreamData(requestId, `${textDecoder.decode()}\n`);
           handleStreamEnd(requestId);
         },
         onError: (err: Error | string) => {

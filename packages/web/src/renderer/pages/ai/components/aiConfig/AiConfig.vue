@@ -2,226 +2,43 @@
   <div class="ai-config-view">
     <div class="ai-config-header">
       <button class="ai-back-btn" type="button" @click="agentViewStore.backToChat()">
-        <ArrowLeft :size="16" />
-        <span>{{ t('返回') }}</span>
+        <ArrowLeft :size="16" /><span>{{ t('返回') }}</span>
       </button>
     </div>
     <div class="ai-config-content">
-      <div class="config-form">
-        <div class="form-item">
-          <div class="form-label">{{ t('Base URL') }}</div>
-          <el-input
-            v-model="localBaseURL"
-            :placeholder="t('请输入 API Base URL')"
-            clearable
-            class="form-input"
-          />
-        </div>
-        <div class="form-item">
-          <div class="form-label">{{ t('API Key') }}</div>
-          <el-input
-            v-model="localApiKey"
-            :type="showApiKey ? 'text' : 'password'"
-            :placeholder="t('请输入 API Key')"
-            clearable
-            class="form-input"
-          >
-            <template #suffix>
-              <span class="password-toggle" @click="showApiKey = !showApiKey">
-                {{ showApiKey ? t('隐藏') : t('显示') }}
-              </span>
-            </template>
-          </el-input>
-        </div>
-        <div class="form-item">
-          <div class="form-label">{{ t('Model ID') }}</div>
-          <el-input
-            v-model="localModel"
-            :placeholder="t('请输入模型 ID')"
-            clearable
-            class="form-input"
-          />
-        </div>
-      </div>
-      <div class="config-footer">
-        <button class="ai-config-btn" type="button" :disabled="isSaving" @click="handleSave">
-          <span>{{ isSaving ? `${t('保存')}...` : t('保存') }}</span>
-        </button>
-        <button class="ai-config-btn" type="button" :disabled="isSaving" @click="handleReset">
-          <span>{{ t('重置') }}</span>
-        </button>
-        <button class="ai-config-btn" type="button" @click="handleGoToFullSettings">
-          <span>{{ t('更多设置') }}</span>
-          <ArrowRight :size="14" class="config-icon" />
-        </button>
-      </div>
+      <LLMConfigForm compact>
+        <template #footer>
+          <el-button class="ai-config-btn" @click="handleGoToFullSettings">{{ t('更多设置') }}<ArrowRight :size="14" /></el-button>
+        </template>
+      </LLMConfigForm>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ArrowLeft, ArrowRight } from 'lucide-vue-next'
 import { IPC_EVENTS } from '@src/types/ipc'
 import { appStateCache } from '@/cache/appState/appStateCache'
-import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { useAgentViewStore } from '@/store/ai/agentView'
-import { generateCustomLLMProvider } from '@/helper'
-
+import LLMConfigForm from '@/components/common/llmConfig/LLMConfigForm.vue'
 const { t } = useI18n()
 const router = useRouter()
-const llmClientStore = useLLMClientStore()
 const agentViewStore = useAgentViewStore()
-
-const localApiKey = ref('')
-const localBaseURL = ref('')
-const localModel = ref('')
-const showApiKey = ref(false)
-const isSaving = ref(false)
-
-// 从 store 同步数据到本地状态
-const syncFromStore = () => {
-  const provider = llmClientStore.LLMConfig
-  localApiKey.value = provider.apiKey
-  localBaseURL.value = provider.baseURL
-  localModel.value = provider.model
-}
 // 跳转完整设置页
 const handleGoToFullSettings = () => {
   appStateCache.setActiveLocalDataMenu('ai-settings')
+  agentViewStore.agentViewDialogVisible = false
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openSettingsTab)
   router.push('/settings')
 }
-const handleSave = () => {
-  if (isSaving.value) return
-  isSaving.value = true
-  llmClientStore.updateLLMConfig({
-    provider: 'OpenAICompatible',
-    apiKey: localApiKey.value,
-    baseURL: localBaseURL.value,
-    model: localModel.value,
-    customHeaders: llmClientStore.LLMConfig.customHeaders,
-  })
-  setTimeout(() => {
-    isSaving.value = false
-  }, 500)
-}
-const handleReset = () => {
-  const defaults = generateCustomLLMProvider()
-  localApiKey.value = defaults.apiKey
-  localBaseURL.value = defaults.baseURL
-  localModel.value = defaults.model
-}
-// 监听 store 变化
-watch(() => llmClientStore.LLMConfig, () => {
-  syncFromStore()
-})
-
-onMounted(() => {
-  syncFromStore()
-})
 </script>
 
 <style scoped>
-.ai-config-view {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.ai-config-header {
-  height: 44px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--ai-header-border);
-  flex-shrink: 0;
-}
-.ai-back-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  color: var(--ai-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.ai-back-btn:hover {
-  background-color: var(--ai-action-hover-bg);
-  color: var(--ai-text-primary);
-}
-.ai-config-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ai-text-primary);
-}
-.ai-config-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  overflow-y: auto;
-}
-.config-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.form-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.form-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ai-text-secondary);
-}
-.form-input {
-  width: 100%;
-}
-.password-toggle {
-  cursor: pointer;
-  font-size: 12px;
-  color: var(--ai-text-tertiary);
-  transition: color 0.2s;
-}
-.password-toggle:hover {
-  color: var(--ai-text-primary);
-}
-.config-footer {
-  margin-top: auto;
-  padding-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.ai-config-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 12px;
-  background: var(--ai-button-bg);
-  border: 1px solid var(--ai-button-border);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 13px;
-  color: var(--ai-text-primary);
-  white-space: nowrap;
-}
-.config-icon {
-  margin-top: 4px;
-}
-.ai-config-btn:hover {
-  background: var(--ai-button-hover-bg);
-}
+.ai-config-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.ai-config-header { padding: 8px 16px; border-bottom: 1px solid var(--ai-header-border); }
+.ai-back-btn { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border: none; border-radius: 4px; background: transparent; color: var(--ai-text-secondary); cursor: pointer; }
+.ai-back-btn:hover { background: var(--ai-action-hover-bg); color: var(--ai-text-primary); }
+.ai-config-content { flex: 1; padding: 20px; min-height: 0; }
 </style>

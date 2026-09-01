@@ -1,34 +1,62 @@
-import type { LLMProviderSetting } from '@src/types/ai/agent.type';
+import type { LLMProviderCacheData, LLMProviderProfiles, LLMProviderSetting, LLMVendor } from '@src/types/ai/agent.type';
+import { createLLMProvider, isLLMVendor, resolveLLMProvider } from '@src/config/llmProviders';
 import { logger } from '@/helper/logger';
 import { cacheKey } from '../cacheKey';
+// 校验缓存对象
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null && !Array.isArray(value);
+// 读取配置字段并保留旧版自定义参数
+const readProvider = (value: unknown, vendor: LLMVendor): LLMProviderSetting | null => {
+  if (!isRecord(value) || typeof value.baseURL !== 'string' || typeof value.model !== 'string') return null;
+  const defaults = createLLMProvider(vendor);
+  return resolveLLMProvider({
+    ...defaults,
+    id: typeof value.id === 'string' ? value.id : defaults.id,
+    name: typeof value.name === 'string' ? value.name : defaults.name,
+    apiKey: typeof value.apiKey === 'string' ? value.apiKey : '',
+    baseURL: value.baseURL,
+    model: value.model,
+    customHeaders: Array.isArray(value.customHeaders) ? value.customHeaders.filter(isRecord)
+      .filter(header => typeof header.key === 'string' && typeof header.value === 'string')
+      .map(header => ({ key: String(header.key), value: String(header.value) })) : [],
+    extraBody: typeof value.extraBody === 'string' ? value.extraBody : '',
+  });
+};
 class LLMProviderCache {
-  // 获取 LLM Provider 配置
+  // 兼容仍读取当前配置的功能入口
   getLLMProvider(): LLMProviderSetting | null {
+    const data = this.getLLMProviders();
+    return data?.profiles[data.activeVendor] ?? null;
+  }
+  // 获取 LLM Provider 配置
+  getLLMProviders(): LLMProviderCacheData | null {
     try {
       const cached = localStorage.getItem(cacheKey.ai.llmProvider);
       if (cached) {
-        const parsed = JSON.parse(cached);
-        parsed.provider = 'OpenAICompatible';
-        if (!parsed.customHeaders) {
-          parsed.customHeaders = [];
+        const parsed: unknown = JSON.parse(cached);
+        if (!isRecord(parsed)) return null;
+        if (parsed.version === 1 && isLLMVendor(parsed.activeVendor) && isRecord(parsed.profiles)) {
+          const profiles: LLMProviderProfiles = {};
+          for (const vendor of ['deepseek', 'qwen', 'custom'] as const) {
+            const provider = readProvider(parsed.profiles[vendor], vendor);
+            if (provider) profiles[vendor] = provider;
+          }
+          return { version: 1, activeVendor: parsed.activeVendor, profiles };
         }
-        if (typeof parsed.extraBody !== 'string') {
-          parsed.extraBody = '';
-        }
-        return parsed;
+        const custom = readProvider(parsed, 'custom');
+        return custom ? { version: 1, activeVendor: 'custom', profiles: { custom } } : null;
       }
-    } catch (error) {
-      logger.error('获取 LLM Provider 配置失败', { error });
+    } catch {
+      logger.error('获取 LLM Provider 配置失败');
     }
     return null;
   }
   // 保存 LLM Provider 配置
-  setLLMProvider(provider: LLMProviderSetting): boolean {
+  setLLMProviders(data: LLMProviderCacheData): boolean {
     try {
-      localStorage.setItem(cacheKey.ai.llmProvider, JSON.stringify(provider));
+      localStorage.setItem(cacheKey.ai.llmProvider, JSON.stringify({ ...data.profiles[data.activeVendor], ...data }));
       return true;
-    } catch (error) {
-      logger.error('保存 LLM Provider 配置失败', { error });
+    } catch {
+      logger.error('保存 LLM Provider 配置失败');
       return false;
     }
   }

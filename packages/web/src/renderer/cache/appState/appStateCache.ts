@@ -178,10 +178,14 @@ class AppStateCache {
   getActiveLocalDataMenu(): string {
     try {
       const activeMenu = localStorage.getItem(cacheKey.appState.localData.activeMenu) || 'common-settings';
+      if (activeMenu === 'components') {
+        this.setActiveLocalDataMenu('common-settings');
+        return 'common-settings';
+      }
       return activeMenu;
     } catch (error) {
       logger.error('获取本地数据菜单失败', { error });
-      return 'localStorage';
+      return 'common-settings';
     }
   }
   // 设置当前活跃的本地数据管理菜单

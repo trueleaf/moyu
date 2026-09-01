@@ -2,15 +2,15 @@
   <section class="panel">
     <div class="panel-header">
       <div>
-        <h3>{{ $t('调试测试') }}</h3>
-        <p>{{ $t('测试当前 API 配置是否可用') }}</p>
+        <h3>{{ t('调试测试') }}</h3>
+        <p>{{ t('测试当前 API 配置是否可用') }}</p>
       </div>
     </div>
     <div class="panel-body">
       <div v-if="requestBody" class="request-area">
         <div class="request-header">
           <span class="request-title">
-            {{ $t('发送配置') }}
+            {{ t('发送配置') }}
           </span>
         </div>
         <div class="request-content">
@@ -20,10 +20,10 @@
       <div v-if="reasoningContent" class="reasoning-area">
         <div class="reasoning-header">
           <span class="reasoning-title">
-            {{ $t('思考过程') }}
+            {{ t('思考过程') }}
           </span>
           <button class="reasoning-toggle" @click="toggleReasoning" :aria-expanded="!isReasoningCollapsed">
-            {{ isReasoningCollapsed ? $t('显示') : $t('隐藏') }}
+            {{ isReasoningCollapsed ? t('显示') : t('隐藏') }}
           </button>
         </div>
         <div class="reasoning-content" :class="{ collapsed: isReasoningCollapsed }" v-show="!isReasoningCollapsed">
@@ -33,7 +33,7 @@
       <div class="response-area">
         <div class="response-header">
           <span class="response-title">
-            {{ $t('响应结果') }}
+            {{ t('响应结果') }}
           </span>
           <span v-if="responseTime" class="response-time">
             {{ responseTime }}ms
@@ -41,7 +41,7 @@
         </div>
         <div class="response-content" :class="{ 'has-error': hasError }">
           <div v-if="isLoading && !isStreaming" class="response-loading">
-            <span>{{ $t('正在请求...') }}</span>
+            <span>{{ t('正在请求...') }}</span>
           </div>
           <div v-else-if="responseContent && useMarkdown" class="response-markdown">
             <VueMarkdownRender :source="responseContent" :options="markdownOptions" />
@@ -50,7 +50,7 @@
             {{ responseContent }}
           </div>
           <div v-else class="response-empty">
-            {{ $t('发送消息以测试 API 配置') }}
+            {{ t('发送消息以测试 API 配置') }}
           </div>
         </div>
       </div>
@@ -60,9 +60,11 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import VueMarkdownRender from 'vue-markdown-render'
 import type { ChatRequestBody } from '@src/types/ai/agent.type'
 
+const { t } = useI18n()
 const props = defineProps<{
   responseContent: string
   reasoningContent: string

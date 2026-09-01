@@ -35,7 +35,7 @@ export type ConversationToolGroup = {
 
 export type ConversationMessage =
   | { id: string; kind: 'question'; content: string; createdAt: number; language?: Language }
-  | { id: string; kind: 'response'; content: string; createdAt: number; language?: Language }
+  | { id: string; kind: 'response'; content: string; reasoningContent?: string; createdAt: number; language?: Language }
   | { id: string; kind: 'thinking'; content: string; createdAt: number; language?: Language }
   | { id: string; kind: 'loading'; content: string; createdAt: number }
   | { id: string; kind: 'error'; content: string; createdAt: number; language?: Language }
@@ -58,4 +58,3 @@ export type ConversationCacheData = {
   askMessages: ConversationMessage[];
   updatedAt: number;
 }
-

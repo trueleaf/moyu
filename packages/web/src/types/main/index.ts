@@ -104,8 +104,8 @@ export type ElectronAPI = {
   };
   aiManager: {
     updateConfig: (config: LLMProviderSetting) => void;
-    chat: (body: ChatRequestBody) => Promise<OpenAiResponseBody>;
-    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {    
+    chat: (body: ChatRequestBody, config?: LLMProviderSetting) => Promise<OpenAiResponseBody>;
+    chatStream: (body: ChatRequestBody, callbacks: ChatStreamCallbacks, config?: LLMProviderSetting) => {
       abort: () => void;
     };
   };

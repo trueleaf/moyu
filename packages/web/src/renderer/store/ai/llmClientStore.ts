@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
+import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks, LLMProviderProfiles, LLMVendor } from '@src/types/ai/agent.type';
 import { logger } from '@/helper/logger';
-import { generateCustomLLMProvider, isElectron } from '@/helper';
+import { isElectron } from '@/helper';
+import { createLLMProvider, resolveLLMProvider, getLLMConfigError, getLLMRequestError } from '@src/config/llmProviders';
 import { llmProviderCache } from '@/cache/ai/llmProviderCache';
 import { appSettingsCache } from '@/cache/settings/appSettingsCache';
 
@@ -48,7 +49,7 @@ const resolveProxyControllerResult = (value: unknown): ProxyControllerResult => 
   const success = unwrapped.success;
   if (typeof success !== 'boolean') throw new Error('请求失败');
   const message = typeof unwrapped.message === 'string' ? unwrapped.message : '请求失败';
-  if (success !== true) throw new Error(message);
+  if (success !== true) throw new Error(typeof unwrapped.statusCode === 'number' ? `HTTP ${unwrapped.statusCode}: ${message}` : message);
   return { success: true, data: unwrapped.data };
 };
 const decodeBase64Text = (value: string): string => {
@@ -161,10 +162,15 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       if (response.headers.get('content-type')?.includes('application/json')) {
-        const result = await response.clone().json().catch(() => null);
-        if (result) {
-          resolveProxyControllerResult(result);
+        const result: unknown = await response.json();
+        if (isRecord(result) && isRecord(result.error)) {
+          throw new Error(`${String(result.error.code || result.error.type || '')}: ${String(result.error.message || '请求失败')}`);
         }
+        const proxyResult = resolveProxyControllerResult(result);
+        if (isRecord(proxyResult.data) && typeof proxyResult.data.statusCode === 'number' && proxyResult.data.statusCode >= 400) {
+          throw new Error(`HTTP ${proxyResult.data.statusCode}`);
+        }
+        throw new Error('模型服务未返回流式响应，请检查接口配置');
       }
       if (!response.body) {
         throw new Error('Response body is null');
@@ -194,52 +200,74 @@ const webChatStream = (body: ChatRequestBody, config: LLMProviderSetting, callba
 };
 // 同步配置到缓存和主进程
 const syncConfig = (config: LLMProviderSetting) => {
-  llmProviderCache.setLLMProvider(config);
   if (isElectron() && window.electronAPI?.aiManager) {
     window.electronAPI.aiManager.updateConfig(JSON.parse(JSON.stringify(config)));
   }
 };
 export const useLLMClientStore = defineStore('llmClientStore', () => {
-  const LLMConfig = ref<LLMProviderSetting>(generateCustomLLMProvider());
+  const LLMConfig = ref<LLMProviderSetting>(createLLMProvider());
+  const profiles = ref<LLMProviderProfiles>({});
+  // 获取厂商独立配置副本
+  const getProviderConfig = (vendor: LLMVendor) => resolveLLMProvider(profiles.value[vendor] ?? createLLMProvider(vendor));
   // 更新配置字段
   const updateLLMConfig = (updates: Partial<Omit<LLMProviderSetting, 'id'>>) => {
-    Object.assign(LLMConfig.value, updates);
-    syncConfig(LLMConfig.value);
+    const next = resolveLLMProvider({ ...LLMConfig.value, ...updates });
+    const vendor = next.vendor ?? 'custom';
+    const nextProfiles = { ...profiles.value, [vendor]: next };
+    if (!llmProviderCache.setLLMProviders({ version: 1, activeVendor: vendor, profiles: nextProfiles })) return false;
+    profiles.value = nextProfiles;
+    LLMConfig.value = next;
+    syncConfig(next);
+    return true;
   };
   // 重置配置
   const resetLLMConfig = () => {
-    LLMConfig.value = generateCustomLLMProvider();
-    syncConfig(LLMConfig.value);
+    return updateLLMConfig(createLLMProvider(LLMConfig.value.vendor ?? 'custom'));
   };
   // 初始化（从缓存加载）
   const initLLMConfig = () => {
-    const cached = llmProviderCache.getLLMProvider();
+    const cached = llmProviderCache.getLLMProviders();
     if (cached) {
-      LLMConfig.value = cached;
-      syncConfig(cached);
+      profiles.value = cached.profiles;
+      LLMConfig.value = getProviderConfig(cached.activeVendor);
     }
+    syncConfig(LLMConfig.value);
   };
   // 非流式聊天
-  const chat = async (body: ChatRequestBody, signal?: AbortSignal): Promise<OpenAiResponseBody> => {
-    if (isElectron() && window.electronAPI?.aiManager) {
-      return await window.electronAPI.aiManager.chat(body);
+  const chat = async (body: ChatRequestBody, signal?: AbortSignal, override?: LLMProviderSetting): Promise<OpenAiResponseBody> => {
+    const config = resolveLLMProvider(override ?? LLMConfig.value);
+    const validationError = getLLMConfigError(config);
+    if (validationError) throw new Error(validationError);
+    try {
+      if (isElectron() && window.electronAPI?.aiManager) {
+        return await window.electronAPI.aiManager.chat(body, JSON.parse(JSON.stringify(config)));
+      }
+      return await webChat(body, config, signal);
+    } catch (error) {
+      throw new Error(getLLMRequestError(error, config));
     }
-    return await webChat(body, LLMConfig.value, signal);
   };
   // 流式聊天
-  const chatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
-    if (isElectron() && window.electronAPI?.aiManager) {
-      return window.electronAPI.aiManager.chatStream(body, callbacks);
+  const chatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks, override?: LLMProviderSetting) => {
+    const config = resolveLLMProvider(override ?? LLMConfig.value);
+    const validationError = getLLMConfigError(config);
+    if (validationError) {
+      callbacks.onError(new Error(validationError));
+      return { abort: () => {} };
     }
-    return webChatStream(body, LLMConfig.value, callbacks);
+    const safeCallbacks: ChatStreamCallbacks = { ...callbacks, onError: error => callbacks.onError(new Error(getLLMRequestError(error, config))) };
+    if (isElectron() && window.electronAPI?.aiManager) {
+      return window.electronAPI.aiManager.chatStream(body, safeCallbacks, JSON.parse(JSON.stringify(config)));
+    }
+    return webChatStream(body, config, safeCallbacks);
   };
   // 检查 AI 功能是否可用
   const isAvailable = () => {
-    const { model, baseURL } = LLMConfig.value;
-    return !!model && !!baseURL;
+    return !getLLMConfigError(LLMConfig.value);
   };
   return {
     LLMConfig,
+    getProviderConfig,
     updateLLMConfig,
     resetLLMConfig,
     initLLMConfig,

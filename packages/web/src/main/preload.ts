@@ -220,11 +220,11 @@ const websocketMockGetAllStates = (projectId: string) => {
 const aiUpdateConfig = (config: LLMProviderSetting): void => {
   globalLLMClient.updateConfig(config);
 }
-const aiChat = async (body: ChatRequestBody): Promise<OpenAiResponseBody> => {
- return globalLLMClient.chat(body);
+const aiChat = async (body: ChatRequestBody, config?: LLMProviderSetting): Promise<OpenAiResponseBody> => {
+ return globalLLMClient.chat(body, config);
 }
-const aiChatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks) => {
-  return globalLLMClient.chatStream(body, callbacks);
+const aiChatStream = (body: ChatRequestBody, callbacks: ChatStreamCallbacks, config?: LLMProviderSetting) => {
+  return globalLLMClient.chatStream(body, callbacks, config);
 }
 
 // 临时文件管理方法

@@ -55,7 +55,7 @@ export const useAgentStore = defineStore('agent', () => {
       for (let j = i - 1; j >= 0; j -= 1) {
         const prevMsg = recentMessages[j];
         if (prevMsg.kind === 'response') {
-          assistantMsg = { role: 'assistant', content: prevMsg.content };
+          assistantMsg = { role: 'assistant', content: prevMsg.content, reasoning_content: prevMsg.reasoningContent };
           break;
         }
         if (prevMsg.kind === 'question') {
@@ -237,10 +237,11 @@ export const useAgentStore = defineStore('agent', () => {
       checkAborted(signal);
       const thinkingId = nanoid();
       agentViewStore.addMessage('agent', { id: thinkingId, kind: 'thinking', content: translateWithLocale('正在分析问题...', targetLocale), createdAt: Date.now(), language: targetLocale });
-      const streamResult = await new Promise<{ content: string; toolCalls: OpenAiToolCall[]; finishReason: OpenAiResponseBody['choices'][number]['finish_reason'] | null }>((resolve, reject) => {
+      const streamResult = await new Promise<{ content: string; reasoningContent: string; toolCalls: OpenAiToolCall[]; finishReason: OpenAiResponseBody['choices'][number]['finish_reason'] | null }>((resolve, reject) => {
         const decoder = new TextDecoder('utf-8');
         let streamBuffer = '';
         let content = '';
+        let reasoningContent = '';
         let finishReason: OpenAiResponseBody['choices'][number]['finish_reason'] | null = null;
         const toolCalls: OpenAiToolCall[] = [];
         let isResolved = false;
@@ -265,6 +266,7 @@ export const useAgentStore = defineStore('agent', () => {
                 finishReason = choice.finish_reason ?? null;
               }
               const delta = choice?.delta;
+              if (delta?.reasoning_content) reasoningContent += delta.reasoning_content;
               const deltaContent = delta?.content;
               if (deltaContent) {
                 content = `${content}${deltaContent}`;
@@ -316,7 +318,7 @@ export const useAgentStore = defineStore('agent', () => {
                 return;
               }
               try {
-                parseSseChunk(decoder.decode());
+                parseSseChunk(`${decoder.decode()}\n`);
               } catch {
                 // 忽略解码尾部错误
               }
@@ -325,7 +327,7 @@ export const useAgentStore = defineStore('agent', () => {
               }
               isResolved = true;
               const resolvedToolCalls = toolCalls.filter(item => item.function?.name);
-              resolve({ content, toolCalls: resolvedToolCalls, finishReason });
+              resolve({ content, reasoningContent, toolCalls: resolvedToolCalls, finishReason });
             },
             onError: (err: Error | string) => {
               if (isResolved) {
@@ -353,12 +355,15 @@ export const useAgentStore = defineStore('agent', () => {
             console.warn(`[Agent] 语言不匹配警告: 期望 ${targetLocale}, 实际检测到 ${replyLanguage}`);
           }
         }
-        agentViewStore.replaceMessage('agent', thinkingId, { id: thinkingId, kind: 'response', content: finalContent, createdAt: Date.now(), language: targetLocale });
+        agentViewStore.replaceMessage('agent', thinkingId, { id: thinkingId, kind: 'response', content: finalContent, reasoningContent: streamResult.reasoningContent, createdAt: Date.now(), language: targetLocale });
         const needFallback = !hasToolCalls && finalContent.length < 10;
         return { content: finalContent, needFallback, hasToolCalls };
       }
       hasToolCalls = true;
-      messages.push({ role: 'assistant', content: messageContent, tool_calls: streamResult.toolCalls });
+      messages.push({
+        role: 'assistant', content: messageContent, tool_calls: streamResult.toolCalls,
+        ...(streamResult.reasoningContent || llmClientStore.LLMConfig.vendor === 'deepseek' ? { reasoning_content: streamResult.reasoningContent } : {}),
+      });
       const llmOutput = messageContent || undefined;
       for (let i = 0; i < streamResult.toolCalls.length; i += 1) {
         await executeToolCall({

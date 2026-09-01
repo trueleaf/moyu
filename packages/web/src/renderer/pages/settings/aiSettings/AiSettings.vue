@@ -37,13 +37,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ProviderConfigPanel from './ConfigPanel.vue'
 import DebugPanel from './DebugPanel.vue'
 import { useLLMClientStore } from '@/store/ai/llmClientStore'
 import { message } from '@/helper'
-import type { ChatRequestBody, OpenAiStreamChunk } from '@src/types/ai/agent.type'
+import type { ChatRequestBody, OpenAiStreamChunk, LLMProviderSetting } from '@src/types/ai/agent.type'
+import { getLLMConfigError } from '@src/config/llmProviders'
 
 const { t } = useI18n()
 const llmClientStore = useLLMClientStore()
@@ -59,16 +60,18 @@ const useMarkdown = ref(false)
 const requestBody = ref<ChatRequestBody | null>(null)
 let cancelStreamFn: { abort: () => void } | null = null
 let streamBuffer = ''
-// 判断配置是否有效
-const isConfigValid = computed(() => {
-  return llmClientStore.isAvailable()
-})
+let requestVersion = 0
+let requestAbort: AbortController | null = null
 // 发送测试请求（非流式）
-const handleSend = async () => {
-  if (!isConfigValid.value) {
-    message.warning(t('请先完成 API 配置'))
+const handleSend = async (provider: LLMProviderSetting) => {
+  if (isLoading.value) return
+  const validationError = getLLMConfigError(provider)
+  if (validationError) {
+    message.warning(t(validationError))
     return
   }
+  const version = ++requestVersion
+  requestAbort = new AbortController()
   isLoading.value = true
   hasError.value = false
   useMarkdown.value = false
@@ -77,28 +80,36 @@ const handleSend = async () => {
   responseTime.value = null
   const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
-    max_tokens: 1000,
   }
   requestBody.value = body
   const startTime = Date.now()
   try {
-    const response = await llmClientStore.chat(body)
+    const response = await llmClientStore.chat(body, requestAbort.signal, provider)
+    if (version !== requestVersion) return
     responseTime.value = Date.now() - startTime
+    reasoningContent.value = response.choices?.[0]?.message?.reasoning_content || ''
     responseContent.value = response.choices?.[0]?.message?.content || t('无响应内容')
   } catch (error) {
+    if (version !== requestVersion) return
     hasError.value = true
-    responseContent.value = `${t('请求失败')}: ${(error as Error).message}`
+    responseContent.value = `${t('请求失败')}: ${t((error as Error).message)}`
     responseTime.value = Date.now() - startTime
   } finally {
-    isLoading.value = false
+    if (version === requestVersion) {
+      isLoading.value = false
+      requestAbort = null
+    }
   }
 }
 // 流式发送测试请求
-const handleStreamSend = () => {
-  if (!isConfigValid.value) {
-    message.warning(t('请先完成 API 配置'))
+const handleStreamSend = (provider: LLMProviderSetting) => {
+  if (isLoading.value) return
+  const validationError = getLLMConfigError(provider)
+  if (validationError) {
+    message.warning(t(validationError))
     return
   }
+  const version = ++requestVersion
   isLoading.value = true
   isStreaming.value = true
   hasError.value = false
@@ -109,7 +120,6 @@ const handleStreamSend = () => {
   streamBuffer = ''
   const body: ChatRequestBody = {
     messages: [{ role: 'user', content: t('你的模型') }],
-    max_tokens: 1000,
   }
   requestBody.value = body
   const startTime = Date.now()
@@ -147,11 +157,13 @@ const handleStreamSend = () => {
     body,
     {
       onData: (chunk: Uint8Array) => {
+        if (version !== requestVersion) return
         const text = decoder.decode(chunk, { stream: true })
         parseSseChunk(text)
       },
       onEnd: () => {
-        parseSseChunk(decoder.decode())
+        if (version !== requestVersion) return
+        parseSseChunk(`${decoder.decode()}\n`)
         responseTime.value = Date.now() - startTime
         isLoading.value = false
         isStreaming.value = false
@@ -161,18 +173,23 @@ const handleStreamSend = () => {
         }
       },
       onError: (err: Error | string) => {
+        if (version !== requestVersion) return
         hasError.value = true
-        responseContent.value = `${t('请求失败')}: ${typeof err === 'string' ? err : err.message}`
+        responseContent.value = `${t('请求失败')}: ${t(typeof err === 'string' ? err : err.message)}`
         responseTime.value = Date.now() - startTime
         isLoading.value = false
         isStreaming.value = false
         cancelStreamFn = null
       },
-    }
+    },
+    provider,
   )
 }
 // 取消请求
 const handleCancel = () => {
+  requestVersion += 1
+  requestAbort?.abort()
+  requestAbort = null
   if (cancelStreamFn) {
     cancelStreamFn.abort()
     cancelStreamFn = null
@@ -183,11 +200,7 @@ const handleCancel = () => {
 }
 
 onUnmounted(() => {
-  if (cancelStreamFn) {
-    cancelStreamFn.abort()
-    cancelStreamFn = null
-  }
-  streamBuffer = ''
+  handleCancel()
 })
 onMounted(async () => {
   isAppStore.value = await window.electronAPI?.updateManager.isAppStore() || false

@@ -1,4 +1,5 @@
 import { got } from 'got';
+import { getLLMConfigError, getLLMRequestError, resolveLLMProvider } from '../../config/llmProviders';
 import type { ChatRequestBody, OpenAiResponseBody, LLMProviderSetting, ChatStreamCallbacks } from '@src/types/ai/agent.type';
 
 // AI 请求超时时间（60秒）
@@ -27,11 +28,14 @@ export class LLMClient {
     this.config = newConfig;
   }
   // 非流式聊天
-  async chat(body: ChatRequestBody): Promise<OpenAiResponseBody> {
-    if (!this.config) {
+  async chat(body: ChatRequestBody, override?: LLMProviderSetting): Promise<OpenAiResponseBody> {
+    if (!override && !this.config) {
       throw new Error('LLM 配置未初始化，请先配置 Base URL 和 Model');
     }
-    const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
+    const config = resolveLLMProvider(override ?? this.config);
+    const validationError = getLLMConfigError(config);
+    if (validationError) throw new Error(validationError);
+    const { apiKey, baseURL, model, customHeaders, extraBody } = config;
     if (!baseURL || !model) {
       throw new Error('请先配置 Base URL 和 Model');
     }
@@ -57,7 +61,7 @@ export class LLMClient {
         responseType,
         timeout: { request: AI_REQUEST_TIMEOUT }
       }
-    );
+    ).catch((error: unknown) => { throw new Error(getLLMRequestError(error, config)); });
     const responseBody = response.body as unknown;
     if (responseBody && typeof responseBody === 'object' && 'success' in responseBody && responseBody.success === false && 'message' in responseBody) {
       const errorResponse = responseBody as { success: boolean; code: string; message: string };
@@ -66,17 +70,19 @@ export class LLMClient {
     return response.body;
   }
   // 流式聊天
-  chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks) {
+  chatStream(body: ChatRequestBody, callbacks: ChatStreamCallbacks, override?: LLMProviderSetting) {
     const abortController = new AbortController();
-    if (!this.config) {
+    if (!override && !this.config) {
       callbacks.onError(new Error('LLM 配置未初始化，请先配置 Base URL 和 Model'));
       return {
         abort: () => abortController.abort()
       };
     }
-    const { apiKey, baseURL, model, customHeaders, extraBody } = this.config;
-    if (!baseURL || !model) {
-      callbacks.onError(new Error('请先配置 Base URL 和 Model'));
+    const config = resolveLLMProvider(override ?? this.config);
+    const { apiKey, baseURL, model, customHeaders, extraBody } = config;
+    const validationError = getLLMConfigError(config);
+    if (validationError) {
+      callbacks.onError(new Error(validationError));
       return {
         abort: () => abortController.abort()
       };
@@ -98,7 +104,8 @@ export class LLMClient {
       const stream = got.stream.post(baseURL, {
         headers,
         json: requestBody,
-        signal: abortController.signal
+        signal: abortController.signal,
+        timeout: { request: AI_REQUEST_TIMEOUT }
       });
       stream.on('data', (chunk: Buffer) => {
         callbacks.onData(new Uint8Array(chunk));
@@ -108,11 +115,11 @@ export class LLMClient {
       });
       stream.on('error', (error: Error) => {
         if (error.name !== 'AbortError') {
-          callbacks.onError(error);
+          callbacks.onError(new Error(getLLMRequestError(error, config)));
         }
       });
     } catch (error) {
-      callbacks.onError(error as Error);
+      callbacks.onError(new Error(getLLMRequestError(error, config)));
     }
     return {
       abort: () => abortController.abort()

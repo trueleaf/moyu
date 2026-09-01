@@ -9,10 +9,18 @@ export type CustomHeader = {
   value: string;
 }
 export type LLMProviderType = 'OpenAICompatible';
+export type LLMVendor = 'deepseek' | 'qwen' | 'custom';
+export type LLMProviderProfiles = Partial<Record<LLMVendor, LLMProviderSetting>>;
+export type LLMProviderCacheData = {
+  version: 1;
+  activeVendor: LLMVendor;
+  profiles: LLMProviderProfiles;
+}
 export type LLMProviderSetting = {
   id: string;
   name: string;
   provider: LLMProviderType;
+  vendor?: LLMVendor;
   apiKey: string;
   baseURL: string;
   model: string;
@@ -31,6 +39,7 @@ export type OpenAiToolCall = {
 export type LLMessage = {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  reasoning_content?: string;
   tool_calls?: OpenAiToolCall[];
   tool_call_id?: string;
 }
