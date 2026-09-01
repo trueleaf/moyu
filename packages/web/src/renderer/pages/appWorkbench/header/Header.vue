@@ -34,6 +34,10 @@
         <button class="icon-btn" :title="t('AI助手 Ctrl+L')" data-testid="header-ai-btn" @click="handleShowAiDialog" ref="aiButtonRef">
           <Bot :size="16" />
         </button>
+        <button class="icon-btn icon-btn-with-text" :title="t('MCP 服务')" data-testid="header-mcp-service-btn" @click="handleOpenMcpService">
+          <Cable :size="16" />
+          <span class="icon-text">{{ t('MCP') }}</span>
+        </button>
         <button class="icon-btn" :title="t('刷新主应用')" data-testid="header-refresh-btn" @click="refreshApp">
           <RefreshCw :size="14" />
         </button>
@@ -43,7 +47,7 @@
         <button class="icon-btn" :title="t('前进')" data-testid="header-forward-btn" @click="goForward">
           <ArrowRight :size="14" />
         </button>
-        <button class="icon-btn" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings">
+        <button class="icon-btn" :title="t('设置')" data-testid="header-settings-btn" @click="jumpToSettings()">
           <Settings :size="14" />
         </button>
         <button class="icon-btn icon-btn-with-text" :title="t('切换语言')" data-testid="header-language-btn" @click="handleChangeLanguage" ref="languageButtonRef">
@@ -90,7 +94,7 @@ import draggable from 'vuedraggable'
  import type { AppWorkbenchHeaderTab, AppWorkbenchHeaderTabContextActionPayload } from '@src/types/appWorkbench/appWorkbenchType'
  import type { RuntimeNetworkMode } from '@src/types/runtime'
  import { useI18n } from 'vue-i18n'
- import { Folder, Settings, Bot, User, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
+ import { Folder, Settings, Bot, Cable, User, RefreshCw, ArrowLeft, ArrowRight, Languages, Wifi, WifiOff, Home, Download } from 'lucide-vue-next'
  import { IPC_EVENTS } from '@src/types/ipc'
  import { UPDATE_IPC_EVENTS } from '@src/types/ipc/update'
  import type { DownloadProgress, DownloadState } from '@src/types/update'       
@@ -105,6 +109,7 @@ const appSettingsStore = useAppSettings()
 const tabs = ref<AppWorkbenchHeaderTab[]>([])
 const activeTabId = ref('')
 const isMaximized = ref(false)
+const activeProjectTab = computed(() => tabs.value.find(tab => tab.id === activeTabId.value && tab.type === 'project') ?? null)
 const tabListRef = ref<ComponentPublicInstance | null>(null)
 const { t } = useI18n()
 const language = ref<Language>('zh-cn')
@@ -381,7 +386,7 @@ const jumpToHome = () => {
   window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.navigate, '/home')
 }
 // 跳转到设置
-const jumpToSettings = () => {
+const jumpToSettings = (targetTab?: string) => {
   const settingsTabId = `settings-${networkMode.value}`;
   const existingTab = tabs.value.find(t => t.id === settingsTabId);
   if (!existingTab) {
@@ -394,6 +399,9 @@ const jumpToSettings = () => {
     syncTabsToContentView()
   }
   switchTab(settingsTabId);
+  if (targetTab) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, { targetTab })
+  }
 }
 const toggleNetworkMode = () => {
   if (brandConfig.offlineOnly) {
@@ -409,6 +417,15 @@ const toggleNetworkMode = () => {
 }
 const handleAddProject = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.createProject)
 const handleShowAiDialog = () => window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.showAiDialog)
+// 打开 MCP 服务页
+const handleOpenMcpService = () => {
+  const currentProject = activeProjectTab.value
+  if (currentProject) {
+    window.electronAPI?.ipcManager.sendToMain(IPC_EVENTS.apiflow.contentToTopBar.openMcpService, { projectId: currentProject.id })
+    return
+  }
+  jumpToSettings('mcp-settings')
+}
 const jumpToDownloadPage = () => {
   const settingsTabId = `settings-${networkMode.value}`
   const existingTab = tabs.value.find(t => t.id === settingsTabId)
@@ -480,8 +497,8 @@ const bindEvent = () => {
     }
   })
 
-  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, () => {
-    jumpToSettings()
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
+    jumpToSettings(data?.targetTab)
   })
 
   window.electronAPI?.ipcManager.onMain(UPDATE_IPC_EVENTS.downloadProgress, (data: DownloadProgress) => {

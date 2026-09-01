@@ -1,33 +1,35 @@
 <template>
   <div class="mcp-settings" data-testid="settings-mcp-panel">
-    <div class="page-header">
-      <h2>{{ t('MCP 服务') }}</h2>
-      <ElButton data-testid="mcp-refresh-status-btn" :loading="loading" @click="refreshStatus">
-        {{ t('刷新状态') }}
+    <header class="page-header">
+      <div class="header-title">
+        <div class="header-icon">
+          <Cable :size="20" />
+        </div>
+        <div>
+          <span class="eyebrow">{{ t('本机 MCP 服务') }}</span>
+          <h2>{{ t('MCP 服务') }}</h2>
+          <p>{{ t('此配置会影响本机所有项目') }}</p>
+        </div>
+      </div>
+      <ElButton circle data-testid="mcp-refresh-status-btn" :loading="loading" :title="t('刷新状态')" @click="refreshStatus">
+        <RefreshCw :size="16" />
       </ElButton>
-    </div>
-
-    <div class="settings-section">
+    </header>
+    <section class="service-card">
       <div class="setting-row">
         <div class="setting-info">
           <div class="setting-title">{{ t('启用 MCP 服务') }}</div>
-          <div class="setting-description">
-            {{ t('开启后 Codex 等本地客户端可调用 ApiFlow 离线数据工具') }}
-          </div>
+          <div class="setting-description">{{ t('开启后 Codex 等本地客户端可调用 ApiFlow 离线数据工具') }}</div>
         </div>
         <ElSwitch v-model="form.enabled" data-testid="mcp-enabled-switch" :disabled="saving" />
       </div>
-
-      <div class="setting-row">
+      <div class="setting-row port-row">
         <div class="setting-info">
           <div class="setting-title">{{ t('MCP 端口') }}</div>
-          <div class="setting-description">
-            {{ t('端口固定使用，不会在占用时自动切换') }}
-          </div>
+          <div class="setting-description">{{ t('端口固定使用，不会在占用时自动切换') }}</div>
         </div>
-        <ElInputNumber v-model="form.port" data-testid="mcp-port-input" :min="1" :max="65535" :disabled="saving" />
+        <ElInputNumber v-model="form.port" data-testid="mcp-port-input" :min="1" :max="65535" :disabled="saving" controls-position="right" />
       </div>
-
       <div class="actions">
         <ElButton data-testid="mcp-save-settings-btn" type="primary" :loading="saving" @click="saveSettings">
           {{ t('保存并重启服务') }}
@@ -36,47 +38,53 @@
           {{ t('重启服务') }}
         </ElButton>
       </div>
-    </div>
-
-    <div class="status-section">
-      <div class="status-grid">
-        <div class="status-item">
-          <span class="status-label">{{ t('服务状态') }}</span>
-          <ElTag data-testid="mcp-server-status" :type="serverStatusType">{{ serverStatusText }}</ElTag>
-        </div>
-        <div class="status-item">
-          <span class="status-label">{{ t('Executor 状态') }}</span>
-          <ElTag data-testid="mcp-executor-status" :type="executorStatusType">{{ executorStatusText }}</ElTag>
-        </div>
-        <div class="status-item endpoint-item">
-          <span class="status-label">{{ t('连接地址') }}</span>
+    </section>
+    <section class="overview-grid">
+      <div class="status-card">
+        <span>{{ t('服务状态') }}</span>
+        <ElTag data-testid="mcp-server-status" :type="serverStatusType" effect="plain">{{ serverStatusText }}</ElTag>
+      </div>
+      <div class="status-card">
+        <span>{{ t('本地数据访问状态') }}</span>
+        <ElTag data-testid="mcp-executor-status" :type="executorStatusType" effect="plain">{{ executorStatusText }}</ElTag>
+      </div>
+    </section>
+    <section class="endpoint-card">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">{{ t('连接地址') }}</span>
           <code data-testid="mcp-endpoint">{{ status.endpoint }}</code>
         </div>
+        <ElButton circle data-testid="mcp-copy-endpoint-btn" :title="t('复制')" @click="copyText(status.endpoint)">
+          <Copy :size="16" />
+        </ElButton>
       </div>
-
-      <ElAlert
-        v-if="status.errorMessage"
-        class="status-alert"
-        type="error"
-        :title="status.errorCode"
-        :description="status.errorMessage"
-        show-icon
-        :closable="false"
-      />
-
-      <ElAlert
-        class="status-alert"
-        type="info"
-        :title="t('后台常驻说明')"
-        :description="t('关闭窗口会隐藏到托盘，MCP 服务继续运行；只有托盘退出或系统结束进程后服务才会停止。')"
-        show-icon
-        :closable="false"
-      />
-    </div>
-
-    <div class="config-section">
-      <div class="section-title">{{ t('Codex 配置示例') }}</div>
+    </section>
+    <section class="config-card">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">{{ t('Codex 配置示例') }}</span>
+          <p>{{ t('开启后 Codex 等本地客户端可调用 ApiFlow 离线数据工具') }}</p>
+        </div>
+        <ElButton circle data-testid="mcp-copy-codex-config-btn" :title="t('复制')" @click="copyText(codexConfig)">
+          <Copy :size="16" />
+        </ElButton>
+      </div>
       <pre><code data-testid="mcp-codex-config">{{ codexConfig }}</code></pre>
+    </section>
+    <div v-if="status.errorMessage" class="notice error-notice">
+      <CircleAlert :size="18" />
+      <div>
+        <strong>{{ status.errorCode }}</strong>
+        <p>{{ status.errorMessage }}</p>
+      </div>
+    </div>
+    <div class="notice">
+      <CircleAlert :size="18" />
+      <div>
+        <strong>{{ t('后台常驻说明') }}</strong>
+        <p>{{ t('关闭窗口会隐藏到托盘，MCP 服务继续运行；只有托盘退出或系统结束进程后服务才会停止。') }}</p>
+      </div>
     </div>
   </div>
 </template>
@@ -84,6 +92,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { Cable, CircleAlert, Copy, RefreshCw } from 'lucide-vue-next'
 import { message } from '@/helper'
 import type { McpStatus } from '@src/types/mcp'
 
@@ -146,6 +155,15 @@ const restartService = async () => {
     saving.value = false
   }
 }
+// 复制 MCP 配置文本
+const copyText = async (text: string) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    message.success(t('复制成功'))
+  } catch {
+    message.error(t('复制失败'))
+  }
+}
 const serverStatusText = computed(() => {
   const statusTextMap = {
     stopped: t('已停止'),
@@ -157,9 +175,9 @@ const serverStatusText = computed(() => {
 })
 const executorStatusText = computed(() => {
   const statusTextMap = {
-    'not-created': t('未创建'),
-    loading: t('加载中'),
-    ready: t('已就绪'),
+    'not-created': t('未启动'),
+    loading: t('准备中'),
+    ready: t('可用'),
     error: t('异常'),
   }
   return statusTextMap[status.value.executorState]
@@ -194,119 +212,186 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .mcp-settings {
+  box-sizing: border-box;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px;
   overflow: auto;
   color: var(--text-primary);
-
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
-
-    h2 {
-      margin: 0;
-      font-size: 28px;
-      font-weight: 600;
-    }
+}
+.page-header,
+.header-title,
+.setting-row,
+.actions,
+.overview-grid,
+.status-card,
+.section-heading,
+.notice {
+  display: flex;
+}
+.page-header,
+.setting-row,
+.status-card,
+.section-heading {
+  align-items: center;
+  justify-content: space-between;
+}
+.page-header {
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.header-title {
+  align-items: flex-start;
+  gap: 12px;
+}
+.header-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: #4a78d1;
+  background-color: #edf3ff;
+  border-radius: 10px;
+}
+.eyebrow {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+h2,
+p {
+  margin: 0;
+}
+h2 {
+  margin-top: 2px;
+  font-size: 24px;
+  line-height: 1.35;
+}
+.header-title p,
+.config-card p,
+.notice p {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.service-card,
+.endpoint-card,
+.config-card,
+.notice {
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  background-color: var(--bg-primary);
+}
+.service-card,
+.endpoint-card,
+.config-card {
+  padding: 20px;
+}
+.setting-row {
+  gap: 24px;
+  padding: 14px 0;
+}
+.port-row {
+  border-top: 1px solid var(--border-light);
+}
+.setting-info {
+  min-width: 0;
+}
+.setting-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.setting-description {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.actions {
+  gap: 10px;
+  margin-top: 16px;
+}
+.overview-grid {
+  gap: 12px;
+  margin: 12px 0;
+}
+.status-card {
+  flex: 1;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-base);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  background-color: var(--bg-primary);
+}
+.endpoint-card,
+.config-card {
+  margin-top: 12px;
+}
+.section-heading {
+  gap: 16px;
+}
+code,
+pre {
+  font-family: var(--font-family);
+}
+.endpoint-card code {
+  display: block;
+  margin-top: 5px;
+  color: var(--text-primary);
+  font-size: 13px;
+  word-break: break-all;
+}
+pre {
+  margin: 16px 0 0;
+  padding: 14px;
+  overflow: auto;
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.notice {
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.notice > svg {
+  flex: none;
+  margin-top: 2px;
+  color: #4a78d1;
+}
+.notice strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.error-notice {
+  border-color: #f0c6cb;
+  background-color: #fff7f8;
+}
+.error-notice > svg,
+.error-notice strong {
+  color: #d95d68;
+}
+@media (max-width: 640px) {
+  .mcp-settings {
+    padding: 20px;
   }
-
-  .settings-section,
-  .status-section,
-  .config-section {
-    border: 1px solid var(--border-base);
-    border-radius: 8px;
-    background-color: var(--bg-primary);
-    margin-bottom: 16px;
-    padding: 18px;
+  .overview-grid {
+    flex-direction: column;
   }
-
   .setting-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-light);
-
-    &:last-of-type {
-      border-bottom: none;
-    }
-  }
-
-  .setting-info {
-    min-width: 0;
-  }
-
-  .setting-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 6px;
-  }
-
-  .setting-description {
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
-
-  .actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 18px;
-  }
-
-  .status-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .status-item {
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px;
-    background-color: var(--bg-secondary);
-    border-radius: 6px;
-  }
-
-  .endpoint-item {
-    grid-column: 1 / -1;
-  }
-
-  .status-label {
-    color: var(--text-secondary);
-    font-size: 13px;
-    flex: none;
-  }
-
-  code {
-    color: var(--text-primary);
-    font-family: var(--font-family);
-    word-break: break-all;
-  }
-
-  .status-alert {
-    margin-top: 12px;
-  }
-
-  .section-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 12px;
-  }
-
-  pre {
-    margin: 0;
-    padding: 14px;
-    border-radius: 6px;
-    background-color: var(--bg-secondary);
-    overflow: auto;
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

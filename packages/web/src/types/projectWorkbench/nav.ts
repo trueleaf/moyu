@@ -9,6 +9,7 @@ export type ProjectNavItemType =
   'recycler' |
   'guide' |
   'commonHeader' |
+  'mcpService' |
   'cookies' |
   'websocket' |
   'httpMock' |

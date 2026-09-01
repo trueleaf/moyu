@@ -45,6 +45,7 @@ import { projectCache } from '@/cache/project/projectCache';
 import { request } from '@/api/api';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useProjectWorkbench } from './store/projectWorkbench/projectWorkbenchStore';
+import { useProjectNav } from './store/projectWorkbench/projectNavStore';
 import type { ApidocProjectInfo, ApidocProjectListInfo, CommonResponse } from '@src/types';
 import { Language } from '@src/types';
 import LanguageMenu from '@/components/common/language/Language.vue';
@@ -57,6 +58,7 @@ import { useRuntime } from './store/runtime/runtimeStore.ts';
 import type { AnchorRect } from '@src/types/common'
 import type { AppWorkbenchHeaderTabContextAction, AppWorkbenchHeaderTabContextmenuData } from '@src/types/appWorkbench/appWorkbenchType'
 import { appWorkbenchCache } from '@/cache/appWorkbench/appWorkbenchCache';
+import { appStateCache } from '@/cache/appState/appStateCache';
 import { httpMockLogsCache } from '@/cache/mock/httpMock/httpMockLogsCache';
 import type { MockLog } from '@src/types/mockNode';
 import { IPC_EVENTS } from '@src/types/ipc';
@@ -74,6 +76,7 @@ import { brandConfig } from '@src/config/brand';
 const router = useRouter();
 const dialogVisible = ref(false);
 const projectWorkbenchStore = useProjectWorkbench()
+const projectNavStore = useProjectNav()
 const runtimeStore = useRuntime();
 const appSettingsStore = useAppSettings();
 const agentViewStore = useAgentViewStore();
@@ -220,8 +223,26 @@ const initAppHeaderEvent = () => {
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, () => {
     agentViewStore.showAgentViewDialog();
   });
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.openMcpService, (payload: { projectId: string }) => {
+    const currentProjectId = router.currentRoute.value.query.id
+    if (router.currentRoute.value.path !== '/workbench' || currentProjectId !== payload.projectId) return
+    projectNavStore.addNav({
+      _id: 'mcp-service',
+      projectId: payload.projectId,
+      tabType: 'mcpService',
+      label: t('MCP 服务'),
+      head: { icon: '', color: '' },
+      saved: true,
+      fixed: true,
+      selected: true,
+    })
+  })
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.rendererToMain.changeRoute, (path: string) => {
     router.push(path)
+  })
+  window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (data?: { targetTab?: string }) => {
+    if (!data?.targetTab) return
+    appStateCache.setActiveLocalDataMenu(data.targetTab === 'components' ? 'common-settings' : data.targetTab)
   })
   window.electronAPI?.ipcManager.onMain(IPC_EVENTS.apiflow.topBarToContent.networkModeChanged, (mode: RuntimeNetworkMode) => {
     if (brandConfig.offlineOnly) {

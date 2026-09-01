@@ -95,6 +95,8 @@ export const IPC_EVENTS = {
       navigateToLogin: 'apiflow:content:to:topbar:navigate-to-login',
       /** 打开设置标签 */
       openSettingsTab: 'apiflow:content:to:topbar:open-settings-tab',
+      /** 打开 MCP 服务页 */
+      openMcpService: 'apiflow:content:to:topbar:open-mcp-service',
       activeTabUpdated: 'apiflow:content:to:topbar:active-tab-updated',
       /** 应用设置已变更 */
       appSettingsChanged: 'apiflow:content:to:topbar:app-settings-changed',
@@ -112,6 +114,8 @@ export const IPC_EVENTS = {
       createProject: 'apiflow:renderer:to:main:create-project',
       /** 显示AI对话框 */
       showAiDialog: 'apiflow:renderer:to:main:show-ai-dialog',
+      /** 打开 MCP 服务页 */
+      openMcpService: 'apiflow:renderer:to:main:open-mcp-service',
       /** 切换项目 */
       changeProject: 'apiflow:renderer:to:main:change-project',
       /** 删除项目 */

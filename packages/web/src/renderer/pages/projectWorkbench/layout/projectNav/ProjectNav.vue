@@ -77,6 +77,7 @@
                 <el-icon v-if="element.tabType === 'commonHeader'" class="purple mr-2" :size="16">
                   <ListTree :size="16" />
                 </el-icon>
+                <Cable v-if="element.tabType === 'mcpService'" class="blue mr-2" :size="16" />
                 <!-- 回收站管理 -->
                 <el-icon v-if="element.tabType === 'recycler'" class="red mr-2" :size="16">
                   <IconDeleteFilled />
@@ -182,7 +183,7 @@ import {
   ArrowRight as IconArrowRight,
   ArrowLeft as IconArrowLeft
 } from '@element-plus/icons-vue';
-import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check, Plus as IconPlus } from 'lucide-vue-next'
+import { Variable, ListTree, ArrowDownToLine, ArrowUpToLine, ChevronDown, Check, Cable, Plus as IconPlus } from 'lucide-vue-next'
 import { ComponentPublicInstance, computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ApidocTab } from '@src/types/apidoc/tabs';
 import { router } from '@/router';

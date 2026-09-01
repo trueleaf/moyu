@@ -8,6 +8,7 @@
     <SRecycler v-else-if="currentSelectNav.tabType === 'recycler'" :key="recyclerKey.toString()"></SRecycler>
     <SHistory v-else-if="currentSelectNav.tabType === 'history'"></SHistory>
     <SCommonHeader v-else-if="currentSelectNav.tabType === 'commonHeader'"></SCommonHeader>
+    <SMcpService v-else-if="currentSelectNav.tabType === 'mcpService'"></SMcpService>
     <SApidoc v-else-if="currentSelectNav.tabType === 'http'"></SApidoc>
     <SCookies v-else-if="currentSelectNav.tabType === 'cookies'"></SCookies>
     <SHttpMock v-else-if="currentSelectNav.tabType === 'httpMock'"></SHttpMock>
@@ -35,6 +36,7 @@ import SOnlineLink from './link/Link.vue'
 import SRecycler from './recycler/Recycler.vue'
 import SHistory from '../../audit/Audit.vue'
 import SCommonHeader from '../../commonHeader/CommonHeader.vue'
+import SMcpService from '../../mcpService/McpService.vue'
 import SWebsocket from '../../websocketNode/WebsocketNode.vue'
 import { brandConfig } from '@src/config/brand'
 

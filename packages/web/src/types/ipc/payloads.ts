@@ -213,6 +213,10 @@ export interface IPCEventMap {
     request: void;
     response: void;
   };
+  [IPC_EVENTS.apiflow.contentToTopBar.openMcpService]: {
+    request: { projectId: string };
+    response: void;
+  };
   [IPC_EVENTS.apiflow.contentToTopBar.activeTabUpdated]: {
     request: string;
     response: void;
@@ -245,6 +249,10 @@ export interface IPCEventMap {
 
   [IPC_EVENTS.apiflow.rendererToMain.showAiDialog]: {
     request: { position?: AnchorRect };
+    response: void;
+  };
+  [IPC_EVENTS.apiflow.rendererToMain.openMcpService]: {
+    request: { projectId: string };
     response: void;
   };
 

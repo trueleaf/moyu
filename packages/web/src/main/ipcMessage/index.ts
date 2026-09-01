@@ -416,12 +416,22 @@ export const useIpcEvent = (mainWindow: BrowserWindow, topBarView: WebContentsVi
     contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.showAiDialog, payload ?? {})
   })
+  // 顶部栏打开 MCP 服务页
+  ipcMain.on(IPC_EVENTS.apiflow.contentToTopBar.openMcpService, (_, payload: { projectId: string }) => {
+    contentView.webContents.focus()
+    contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.openMcpService, payload)
+  })
 
   // 顶部栏路由切换请求
   ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.navigate, (_, path: string) => {
     // 将焦点转移到 contentView，确保用户可以在新页面中进行操作
     contentView.webContents.focus()
     contentView.webContents.send(IPC_EVENTS.apiflow.rendererToMain.changeRoute, path)
+  })
+  // 顶部栏打开设置页指定配置项
+  ipcMain.on(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, (_, payload?: { targetTab?: string }) => {
+    contentView.webContents.focus()
+    contentView.webContents.send(IPC_EVENTS.apiflow.topBarToContent.openSettingsTab, payload)
   })
 
   // 顶部栏project切换请求,tabs切换就是项目切换

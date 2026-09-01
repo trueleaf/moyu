@@ -17,7 +17,7 @@ test.describe('McpService', () => {
     await expect(contentPage.locator('[data-testid="mcp-codex-config"]')).toContainText('[mcp_servers.apiflow]')
     await expect(contentPage.locator('[data-testid="mcp-codex-config"]')).toContainText('enabled = true')
     await expect(contentPage.locator('[data-testid="mcp-server-status"]')).toContainText(/运行中|异常|已停止|启动中/)
-    await expect(contentPage.locator('[data-testid="mcp-executor-status"]')).toContainText(/已就绪|加载中|未创建|异常/)
+    await expect(contentPage.locator('[data-testid="mcp-executor-status"]')).toContainText(/可用|准备中|未启动|异常/)
   })
 
   test('MCP 服务可切换到固定端口并通过桥接返回 running 状态', async ({ contentPage }) => {
