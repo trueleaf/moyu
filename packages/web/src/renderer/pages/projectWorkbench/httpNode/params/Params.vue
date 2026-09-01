@@ -87,7 +87,7 @@
             >
               <div class="history-main">
                 <div class="history-info">
-                  <span class="history-name">{{ t('历史记录') }}{{ index + 1 }}</span>
+                  <span class="history-name">{{ getHistoryName(history, index) }}</span>
                   <span class="history-operator">{{ history.operatorName }}</span>
                 </div>
                 <div class="history-time">{{ formatRelativeTime(history.timestamp) }}</div>
@@ -520,11 +520,19 @@ const handleRedo = (): void => {
   }
   // 成功时不显示提示，避免干扰用户操作
 };
-/*
-|--------------------------------------------------------------------------
-| 历史记录相关方法
-|--------------------------------------------------------------------------
-*/
+// 获取历史记录名称
+const getHistoryName = (history: HttpHistory, index: number): string => {
+  const name = history.node.info.name.trim();
+  if (name) {
+    return name;
+  }
+  const path = history.node.item.url.path.trim();
+  if (path) {
+    return `${history.node.item.method} ${path}`;
+  }
+  return `${t('历史记录')}${index + 1}`;
+};
+// 更新历史记录下拉位置
 const updateHistoryDropdownPosition = (): void => {
   if (!historyButtonRef.value) return;
   const buttonRect = historyButtonRef.value.getBoundingClientRect();

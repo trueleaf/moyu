@@ -1,0 +1,33 @@
+import { test, expect } from '../../../../../../fixtures/electron.fixture'
+
+test.describe('UrlVariablePaste', () => {
+  test('粘贴完整请求地址时保留当前匹配的 URL 变量', async ({ electronApp, contentPage, clearCache, createProject, createNode, reload }) => {
+    await clearCache()
+    await reload()
+    await createProject()
+    await contentPage.waitForURL(/.*?#?\/workbench/, { timeout: 10000 })
+    const nodeId = await createNode(contentPage, { nodeType: 'http', name: '粘贴保留变量测试' })
+    await contentPage.locator('[data-testid="http-params-variable-btn"]').first().click()
+    const variablePage = contentPage.locator('.s-variable')
+    await expect(variablePage).toBeVisible({ timeout: 5000 })
+    const addPanel = variablePage.locator('.left')
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('baseUrl')
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('http://127.0.0.1:3456')
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click()
+    await expect(variablePage.locator('.right')).toContainText('baseUrl', { timeout: 5000 })
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量名称|Variable Name|Name/ }).locator('input').first().fill('echoUrl')
+    await addPanel.locator('.el-form-item').filter({ hasText: /变量值|Value/ }).locator('textarea').first().fill('http://127.0.0.1:3456/echo')
+    await addPanel.locator('.el-button--primary').filter({ hasText: /确认添加|Add|Confirm/ }).first().click()
+    await expect(variablePage.locator('.right')).toContainText('echoUrl', { timeout: 5000 })
+    await contentPage.locator(`[data-test-node-id="${nodeId}"]`).first().click()
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]').first()
+    await urlInput.fill('{{baseUrl}}/old-path')
+    await urlInput.click()
+    await contentPage.keyboard.press('ControlOrMeta+a')
+    await electronApp.evaluate(({ clipboard }) => {
+      clipboard.writeText('http://127.0.0.1:3456/echo')
+    })
+    await contentPage.keyboard.press('ControlOrMeta+v')
+    await expect(urlInput).toHaveText('{{baseUrl}}/echo')
+  })
+})

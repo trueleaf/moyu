@@ -436,6 +436,7 @@ export default {
   未实现的返回类型: 'Unimplemented Return Type',
   变量维护: 'Manage variables',
   变量未定义: 'Variable {name} is not defined',
+  当前项目变量: 'Current project variable',
   前往变量管理: 'Go to variables',
   联想参数: 'Suggested parameters',
   '检测到 cURL 命令': 'cURL command detected',

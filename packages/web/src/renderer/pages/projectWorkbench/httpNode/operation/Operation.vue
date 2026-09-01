@@ -23,9 +23,57 @@
         @before-paste="handleBeforePaste"
       >
         <template #variable="{ label }">
-          <div v-if="getVariableValue(label)" class="variable-popover">
+          <div v-if="getProjectVariable(label)" class="variable-popover">
             <div class="variable-name">{{ t('变量名称') }}：{{ label }}</div>
-            <div class="variable-value">{{ t('变量值') }}：{{ getVariableValue(label) }}</div>
+            <div class="variable-scope">{{ t('当前项目变量') }}</div>
+            <template v-if="getProjectVariable(label)?.type === 'string'">
+              <div class="variable-field">
+                <span>{{ t('变量值') }}</span>
+                <ElInput
+                  :model-value="getQuickVariableValue(label)"
+                  data-testid="url-variable-value-input"
+                  :maxlength="config.variableConfig.maxStringSize"
+                  @update:modelValue="(value: string) => updateQuickVariableValue(label, value)"
+                  @keydown.enter.stop.prevent="handleSaveQuickVariable(label)"
+                />
+              </div>
+              <div class="variable-actions">
+                <ElButton data-testid="url-variable-save-btn" size="small" type="primary" :loading="quickVariableSaving" @click="handleSaveQuickVariable(label)">
+                  {{ t('保存') }}
+                </ElButton>
+                <ElButton size="small" link @click="handleGoToVariableManage">
+                  {{ t('前往变量管理') }}
+                </ElButton>
+              </div>
+            </template>
+            <template v-else>
+              <div class="variable-value">{{ t('变量值') }}：{{ getVariableValue(label) }}</div>
+              <el-button size="small" type="primary" link @click="handleGoToVariableManage">
+                {{ t('前往变量管理') }}
+              </el-button>
+            </template>
+          </div>
+          <div v-else-if="isDirectVariable(label)" class="variable-popover">
+            <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
+            <div class="variable-scope">{{ t('当前项目变量') }}</div>
+            <div class="variable-field">
+              <span>{{ t('变量值') }}</span>
+              <ElInput
+                :model-value="getQuickVariableValue(label)"
+                data-testid="url-variable-create-input"
+                :maxlength="config.variableConfig.maxStringSize"
+                @update:modelValue="(value: string) => updateQuickVariableValue(label, value)"
+                @keydown.enter.stop.prevent="handleSaveQuickVariable(label)"
+              />
+            </div>
+            <div class="variable-actions">
+              <ElButton data-testid="url-variable-create-btn" size="small" type="primary" :loading="quickVariableSaving" @click="handleSaveQuickVariable(label)">
+                {{ t('确认添加') }}
+              </ElButton>
+              <ElButton size="small" link @click="handleGoToVariableManage">
+                {{ t('前往变量管理') }}
+              </ElButton>
+            </div>
           </div>
           <div v-else class="variable-popover">
             <div class="variable-warning">{{ t('变量未定义', { name: label }) }}</div>
@@ -73,6 +121,7 @@ import { router } from '@/router/index'
 import SSaveDocDialog from '@/pages/projectWorkbench/dialog/saveDoc/SaveDoc.vue'
 import ClRichInput from '@/components/ui/cleanDesign/richInput/ClRichInput.vue'
 import { handleFormatUrl, handleChangeUrl } from './composables/url'
+import { restoreUrlVariableOnPaste } from './composables/urlVariablePaste'
 import getMethodPart from './composables/method'
 import getOperationPart from './composables/operation'
 import { useProjectNav } from '@/store/projectWorkbench/projectNavStore'
@@ -82,6 +131,10 @@ import { useHttpNodeRequest } from '@/store/httpNode/httpNodeRequestStore'
 import { useHttpRedoUndo } from '@/store/redoUndo/httpRedoUndoStore'
 import { useVariable } from '@/store/projectWorkbench/variablesStore'
 import { isCurlCommand, parseCurlToHttpNode } from '@/helper/curlParser'
+import { request } from '@/api/api'
+import { nodeVariableCache } from '@/cache/variable/nodeVariableCache'
+import { useRuntime } from '@/store/runtime/runtimeStore'
+import type { ApidocVariable, CommonResponse } from '@src/types'
 
 const projectNavStore = useProjectNav()
 const variableStore = useVariable()
@@ -89,9 +142,13 @@ const httpNodeStore = useHttpNode()
 const httpNodeResponseStore = useHttpNodeResponse()
 const httpNodeRequestStore = useHttpNodeRequest()
 const httpRedoUndoStore = useHttpRedoUndo()
+const runtimeStore = useRuntime()
 const projectId = router.currentRoute.value.query.id as string;
 const { t } = useI18n()
 const urlRichInputRef = ref<InstanceType<typeof ClRichInput> | null>(null)
+const quickVariableValue = ref('')
+const quickVariableLabel = ref('')
+const quickVariableSaving = ref(false)
 const currentSelectNav = computed(() => {
   const navs = projectNavStore.navs[projectId];
   return navs?.find((nav) => nav.selected) || null;
@@ -101,9 +158,103 @@ const currentSelectNav = computed(() => {
 | 变量相关
 |--------------------------------------------------------------------------
 */
+// 获取变量运行时值
 const getVariableValue = (label: string) => {
   return variableStore.objectVariable[label]
 }
+// 获取当前项目变量
+const getProjectVariable = (label: string) => {
+  return variableStore.variables.find(item => item.name === label)
+}
+// 判断是否为可快速创建的直接变量
+const isDirectVariable = (label: string) => {
+  return label.trim().length > 0 && !/[{}()[\].+\-*/%<>=!&|?:,;'"\s]/.test(label)
+}
+// 获取变量浮层编辑值
+const getQuickVariableValue = (label: string) => {
+  if (quickVariableLabel.value === label) {
+    return quickVariableValue.value
+  }
+  return getProjectVariable(label)?.value ?? ''
+}
+// 更新变量浮层编辑值
+const updateQuickVariableValue = (label: string, value: string) => {
+  quickVariableLabel.value = label
+  quickVariableValue.value = value
+}
+// 同步在线项目变量
+const syncOnlineProjectVariables = async () => {
+  const response = await request.get<CommonResponse<ApidocVariable[]>, CommonResponse<ApidocVariable[]>>('/api/project/project_variable_enum', {
+    params: { projectId },
+  })
+  await variableStore.replaceVariables(response.data)
+}
+// 创建当前项目文本变量
+const createQuickVariable = async (label: string, value: string) => {
+  const variable: Omit<ApidocVariable, '_id'> = {
+    projectId,
+    name: label,
+    type: 'string',
+    value,
+    fileValue: {
+      name: '',
+      path: '',
+      fileType: '',
+    },
+  }
+  if (runtimeStore.networkMode === 'offline') {
+    const response = await nodeVariableCache.addVariable(variable)
+    if (response.code !== 0) {
+      throw new Error(response.msg)
+    }
+    await variableStore.replaceVariables(variableStore.variables.concat(response.data))
+    return
+  }
+  await request.post('/api/project/project_variable', variable)
+  await syncOnlineProjectVariables()
+}
+// 更新当前项目文本变量
+const updateQuickVariable = async (variable: ApidocVariable, value: string) => {
+  const nextVariable: ApidocVariable = {
+    ...variable,
+    value,
+  }
+  if (runtimeStore.networkMode === 'offline') {
+    const response = await nodeVariableCache.updateVariableById(variable._id, nextVariable)
+    if (response.code !== 0) {
+      throw new Error(response.msg)
+    }
+  } else {
+    await request.put('/api/project/project_variable', nextVariable)
+  }
+  await variableStore.changeVariableById(variable._id, nextVariable)
+}
+// 保存变量浮层内容
+const handleSaveQuickVariable = async (label: string) => {
+  const variable = getProjectVariable(label)
+  const value = getQuickVariableValue(label)
+  if (!variable && !value.trim()) {
+    ElMessage.warning(t('请输入变量值'))
+    return
+  }
+  quickVariableSaving.value = true
+  try {
+    if (variable) {
+      await updateQuickVariable(variable, value)
+    } else {
+      await createQuickVariable(label, value.trim())
+    }
+    quickVariableLabel.value = ''
+    quickVariableValue.value = ''
+    urlRichInputRef.value?.hideVariablePopover()
+    ElMessage.success(t('保存成功'))
+  } catch {
+    ElMessage.error(t('保存失败'))
+  } finally {
+    quickVariableSaving.value = false
+  }
+}
+// 打开变量管理页
 const handleGoToVariableManage = () => {
   urlRichInputRef.value?.hideVariablePopover()
   projectNavStore.addNav({
@@ -145,6 +296,12 @@ const handleBeforePaste = async (text: string, shouldPrevent: { value: boolean }
     } catch {
       urlRichInputRef.value?.insertText(text, false)
     }
+    return
+  }
+  const restoredUrl = restoreUrlVariableOnPaste(text, requestPath.value, variableStore.objectVariable)
+  if (restoredUrl !== text) {
+    shouldPrevent.value = true
+    urlRichInputRef.value?.insertText(restoredUrl, true)
   }
 }
 /*
@@ -317,6 +474,11 @@ watch(
         margin-bottom: 6px;
         word-break: break-all;
       }
+      .variable-scope {
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+        font-size: 12px;
+      }
       .variable-value {
         font-family: monospace;
         word-break: break-all;
@@ -326,6 +488,18 @@ watch(
         background: var(--gray-200);
         border-radius: 4px;
         color: var(--gray-800);
+      }
+      .variable-field {
+        display: grid;
+        gap: 4px;
+        color: var(--text-secondary);
+        font-size: 12px;
+      }
+      .variable-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+        margin-top: 10px;
       }
       .variable-warning {
         color: var(--el-color-danger);

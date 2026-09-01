@@ -1,0 +1,27 @@
+import { test, expect } from '../../../../../fixtures/electron.fixture'
+
+test.describe('UrlInlineVariable', () => {
+  test('可在 URL 变量浮层中创建并编辑当前项目文本变量', async ({ contentPage, clearCache, createProject, createNode }) => {
+    await clearCache()
+    await createProject(`URL快速变量-${Date.now()}`)
+    await createNode(contentPage, { nodeType: 'http', name: 'URL快速变量接口' })
+    const urlInput = contentPage.locator('[data-testid="url-input"] [contenteditable]')
+    await expect(urlInput).toBeVisible({ timeout: 5000 })
+    await urlInput.fill('{{quickBaseUrl}}/health')
+    const variableToken = contentPage.locator('[data-testid="url-input"] .cl-rich-input__variable').first()
+    await expect(variableToken).toBeVisible({ timeout: 5000 })
+    await variableToken.click()
+    const createInput = contentPage.locator('[data-testid="url-variable-create-input"]')
+    await expect(createInput).toBeVisible({ timeout: 5000 })
+    await createInput.fill('http://127.0.0.1:3456')
+    await contentPage.locator('[data-testid="url-variable-create-btn"]').click()
+    const requestUrl = contentPage.locator('.pre-url-wrap .url')
+    await expect(requestUrl).toContainText('http://127.0.0.1:3456/health', { timeout: 5000 })
+    await variableToken.click()
+    const valueInput = contentPage.locator('[data-testid="url-variable-value-input"]')
+    await expect(valueInput).toHaveValue('http://127.0.0.1:3456')
+    await valueInput.fill('http://127.0.0.1:3457')
+    await contentPage.locator('[data-testid="url-variable-save-btn"]').click()
+    await expect(requestUrl).toContainText('http://127.0.0.1:3457/health', { timeout: 5000 })
+  })
+})
