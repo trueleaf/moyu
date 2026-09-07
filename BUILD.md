@@ -113,6 +113,7 @@ docker compose up -d
 | 镜像被覆盖回旧版 | 执行了 `docker compose pull` / `update.sh` | 重新执行第四节构建命令 |
 | 导入报 `docs[0].children[0].info.creator 不允许为空` | web 镜像不是 `fix/import-children-creator` 分支构建的 | 确认源码分支后重新构建 web 镜像 |
 | 导入报 `item.url.prefix 不被允许` | web 镜像是旧版修复（只改了 creator），未包含 prefix→host 改名 | 拉取最新 `fix/import-children-creator` 分支重新构建 web 镜像 |
+| 打开项目报"内部错误"，每次都弹 | 之前失败的导入在浏览器 IndexedDB 残留了无效标签页，旧服务端对非法文档 id 直接抛 500 | 用最新分支重建 **server + web** 镜像；新服务端返回业务错误 4001，前端会提示"当前接口不存在"并允许一键关闭标签。临时处理：清除该站点的网站数据后重新登录 |
 
 ## 八、后续
 
