@@ -428,6 +428,11 @@ const handleSubmit = async () => {
       if (doc.children && doc.children.length > 0) {
         normalizedDoc.children = doc.children.map(child => normalizeDoc(child as ImportDoc))
       }
+      // 服务端 DTO 不认识的字段不能提交（如 isDeleted），否则校验报"不被允许"
+      delete (normalizedDoc as Record<string, unknown>).isDeleted
+      // createdAt/updatedAt 为空字符串会被 DTO 拒绝，由服务端生成时间戳
+      if (!normalizedDoc.createdAt) delete (normalizedDoc as Record<string, unknown>).createdAt
+      if (!normalizedDoc.updatedAt) delete (normalizedDoc as Record<string, unknown>).updatedAt
       return normalizedDoc
     }
     const docs = formInfo.value.moyuData.docs.map(val => {
