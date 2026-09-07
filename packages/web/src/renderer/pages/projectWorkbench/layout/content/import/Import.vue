@@ -404,29 +404,36 @@ const handleSubmit = async () => {
       return
     }
     const mountedId = currentMountedNode.value?._id
-    const docs = formInfo.value.moyuData.docs.map(val => {
+    type ImportDoc = (HttpNode | FolderNode) & { children?: (HttpNode | FolderNode)[] }
+    // 递归规范化文档：嵌套在文件夹 children 里的文档同样需要兜底 creator 和 host
+    const normalizeDoc = (doc: ImportDoc): ImportDoc => {
       const normalizedDoc = {
-        ...val,
-        pid: !val.pid && mountedId ? mountedId : val.pid,
-        isFolder: val.info.type === 'folder',
+        ...doc,
+        isFolder: doc.info.type === 'folder',
         info: {
-          ...val.info,
-          creator: val.info.creator || runtimeStore.userInfo.loginName,
+          ...doc.info,
+          creator: doc.info.creator || runtimeStore.userInfo.loginName,
         },
-      }
-      if (!('item' in val)) {
-        return normalizedDoc
-      }
-      return {
-        ...normalizedDoc,
-        item: {
-          ...val.item,
+      } as ImportDoc
+      if ('item' in doc) {
+        const { prefix, ...restUrl } = doc.item.url
+        ;(normalizedDoc as HttpNode).item = {
+          ...doc.item,
           url: {
-            ...val.item.url,
-            host: val.item.url.prefix,
+            ...restUrl,
+            host: prefix,
           },
-        },
+        }
       }
+      if (doc.children && doc.children.length > 0) {
+        normalizedDoc.children = doc.children.map(child => normalizeDoc(child as ImportDoc))
+      }
+      return normalizedDoc
+    }
+    const docs = formInfo.value.moyuData.docs.map(val => {
+      const normalizedDoc = normalizeDoc(val as ImportDoc)
+      normalizedDoc.pid = !val.pid && mountedId ? mountedId : val.pid
+      return normalizedDoc
     })
     if (isStandalone.value && formInfo.value.cover) {
       const copiedDocs = JSON.parse(JSON.stringify(docs)) as HttpNode[]
